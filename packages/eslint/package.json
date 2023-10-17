@@ -1,0 +1,15 @@
+{
+    "name": "@energyleaf/eslint-config",
+    "license": "MIT",
+    "version": "0.0.0",
+    "private": true,
+    "files": [
+        "next.js",
+        "library.js"
+    ],
+    "devDependencies": {
+        "@vercel/style-guide": "^5.0.1",
+        "eslint-config-turbo": "^1.10.12",
+        "typescript": "^5.2.2"
+    }
+}

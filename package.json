@@ -1,0 +1,25 @@
+{
+    "private": true,
+    "scripts": {
+        "build": "dotenv -- turbo run build",
+        "dev": "dotenv -- turbo run dev",
+        "lint": "turbo run lint",
+        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "db:push": "dotenv -- pnpm --filter db run push",
+        "db:studio": "dotenv -- pnpm --filter db run studio"
+    },
+    "devDependencies": {
+        "@energyleaf/tsconfig": "workspace:*",
+        "eslint": "^8.48.0",
+        "prettier": "^3.0.3",
+        "turbo": "latest"
+    },
+    "packageManager": "pnpm@8.6.10",
+    "name": "energyleaf",
+    "dependencies": {
+        "@ianvs/prettier-plugin-sort-imports": "^4.1.0",
+        "dotenv-cli": "^7.3.0",
+        "prettier-plugin-tailwindcss": "^0.5.5",
+        "typescript": "^5.2.2"
+    }
+}
