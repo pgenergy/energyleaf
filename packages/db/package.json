@@ -16,13 +16,13 @@
     "dependencies": {
         "@planetscale/database": "^1.11.0",
         "drizzle-orm": "^0.28.6",
-        "nanoid": "^5.0.1"
+        "nanoid": "^5.0.2"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",
         "@energyleaf/tsconfig": "workspace:^",
         "drizzle-kit": "^0.19.13",
-        "eslint": "^8.48.0",
+        "eslint": "^8.52.0",
         "typescript": "^5.2.2"
     }
 }
