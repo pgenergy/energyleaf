@@ -2,9 +2,9 @@
 
 import { useCallback } from "react";
 import { format, isValid } from "date-fns";
-import { Area, ComposedChart, Label, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, Label, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-type AxesValue = string | number | Date | null;
+type AxesValue = string | number | undefined;
 
 interface Props {
     keyName: string;
@@ -35,7 +35,8 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
             const workDate = value as string | number | null;
             if (workDate && isValid(new Date(workDate)) && xAxes) {
                 if (
-                    (data[0][xAxes.dataKey] as Date).getDate === (data[data.length - 1][xAxes.dataKey] as Date).getDate
+                    new Date(data[0][xAxes.dataKey] as string).getDate ===
+                    new Date(data[data.length - 1][xAxes.dataKey] as string).getDate
                 ) {
                     return format(new Date(workDate), "HH:mm");
                 }
@@ -49,7 +50,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
 
     return (
         <ResponsiveContainer height="100%" width="100%">
-            <ComposedChart
+            <AreaChart
                 data={data}
                 margin={{
                     top: 0,
@@ -100,26 +101,6 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     </YAxis>
                 ) : null}
                 {tooltip ? <Tooltip content={tooltip.content} /> : null}
-                {referencePoints
-                    ? referencePoints.data.map((value) => {
-                          return (
-                              <ReferenceDot
-                                  fill="red"
-                                  key={`${value[referencePoints.xKeyName]?.toString()}-${value[
-                                      referencePoints.yKeyName
-                                  ]?.toString()}`}
-                                  onClick={() => {
-                                      if (referencePoints.callback) {
-                                        referencePoints.callback(value);
-                                      }
-                                  }}
-                                  r={40}
-                                  x={value[referencePoints.xKeyName] as string}
-                                  y={value[referencePoints.yKeyName] as string}
-                              />
-                          );
-                      })
-                    : null}
                 <Area
                     dataKey={keyName}
                     fill="url(#color)"
@@ -127,7 +108,30 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     stroke="hsl(var(--primary))"
                     type="monotone"
                 />
-            </ComposedChart>
+                {referencePoints
+                    ? referencePoints.data.map((value) => {
+                          return (
+                              <ReferenceDot
+                                  className="cursor-pointer"
+                                  fill="hsl(var(--destructive))"
+                                  isFront
+                                  key={`${value[referencePoints.xKeyName]?.toString()}-${value[
+                                      referencePoints.yKeyName
+                                  ]?.toString()}`}
+                                  onClick={() => {
+                                      if (referencePoints.callback) {
+                                          referencePoints.callback(value);
+                                      }
+                                  }}
+                                  r={10}
+                                  stroke="hsl(var(--destructive))"
+                                  x={value[referencePoints.xKeyName]}
+                                  y={value[referencePoints.yKeyName]}
+                              />
+                          );
+                      })
+                    : null}
+            </AreaChart>
         </ResponsiveContainer>
     );
 }

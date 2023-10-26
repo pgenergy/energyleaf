@@ -23,7 +23,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate }: Prop
     const energyData = await getEnergyDataForUser(startDate, endDate, session.user.id);
     const data = energyData.map((entry) => ({
         energy: entry.value,
-        timestamp: entry.timestamp,
+        timestamp: entry.timestamp.toString(),
     }));
     const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
     const std = Math.sqrt(
@@ -37,7 +37,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate }: Prop
                 return true;
             }
 
-            return differenceInMinutes(x.timestamp, arr[i - 1].timestamp) > 30;
+            return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
         });
 
     return (

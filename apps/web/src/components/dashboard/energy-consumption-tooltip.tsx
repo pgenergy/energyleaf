@@ -10,7 +10,7 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
     const data = payload?.[0]?.payload as
         | {
               energy: number;
-              timestamp: Date;
+              timestamp: string;
           }
         | undefined;
     const energy = data?.energy;
@@ -23,7 +23,7 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
     return (
         <Card className="z-10">
             <CardHeader>
-                <CardDescription>{format(timestamp, "dd.MM.yyyy HH:mm")}</CardDescription>
+                <CardDescription>{format(new Date(timestamp), "dd.MM.yyyy HH:mm")}</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <p className="text-sm">

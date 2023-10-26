@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import clsx from "clsx";
+import { default as clsx } from "clsx";
 import { HomeIcon, LightbulbIcon } from "lucide-react";
 
 const navLinks = [
