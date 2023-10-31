@@ -37,7 +37,7 @@ To build the project:
 To use the database and make changes to the schema. You need to install the pscale cli: [download here](https://planetscale.com/features/cli)
 
 ### Make schema changes
-First you need to create a branche in [planetscale](https://planetscale.com). Then connect to that branche via the pscale cli.
+First you need to create a branch in [planetscale](https://planetscale.com). Then connect to that branch via the pscale cli.
 
 ```bash
     pscale connect energyleaf <branch_name> --port 3309
