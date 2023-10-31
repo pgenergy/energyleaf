@@ -16,7 +16,7 @@ Install dependencies:
 
 ## Enviroment Variables
 To ensure no secrets are leaked, all sensitive variables are stored in an .env file.
-To start the project you need to rename the .env.sampel file to .env
+To start the project you need to rename the .env.sample file to .env
 
 Ask a team member to get the information needed.
 
