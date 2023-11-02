@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
-import { getSession } from "@/lib/auth/auth.config";
+import { getSession } from "@/lib/auth/auth";
 import { getUserData } from "@/query/user";
 
 export default async function ProfilePage() {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/auth.config";
+import { getSession } from "@/lib/auth/auth";
 import { getEnergyDataForUser } from "@/query/energy";
 import { getUserData } from "@/query/user";
 import { format } from "date-fns";

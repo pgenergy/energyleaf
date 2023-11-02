@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/unbound-method -- NextAuth bug */
+import type { CustomSession } from "@/types/auth";
 import * as bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
@@ -6,10 +8,7 @@ import { getUserByMail } from "@energyleaf/db/query";
 
 import { authOptions } from "./auth.config";
 
-export const {
-    // eslint-disable-next-line @typescript-eslint/unbound-method -- NextAuth bug
-    signIn,
-} = NextAuth({
+export const { auth, signIn, signOut } = NextAuth({
     ...authOptions,
     providers: [
         Credentials({
@@ -53,3 +52,13 @@ export const {
         }),
     ],
 });
+
+export const getSession = async () => {
+    const session = await auth();
+
+    if (!session) {
+        return null;
+    }
+
+    return session as CustomSession;
+};

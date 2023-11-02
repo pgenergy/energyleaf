@@ -1,6 +1,5 @@
 import type { CustomJWT, CustomSession, CustomUser } from "@/types/auth";
 import type { NextAuthConfig } from "next-auth";
-import NextAuth from "next-auth";
 
 const publicRoutes = ["/legal"];
 const unprotectedRoutes = ["/", "/signup"];
@@ -56,18 +55,4 @@ export const authOptions: NextAuthConfig = {
             return Promise.resolve(customSession satisfies CustomSession);
         },
     },
-};
-
-// eslint-disable-next-line @typescript-eslint/unbound-method -- NextAuth bug
-const { auth, signOut } = NextAuth(authOptions);
-export { signOut };
-
-export const getSession = async () => {
-    const session = await auth();
-
-    if (!session) {
-        return null;
-    }
-
-    return session as CustomSession;
 };

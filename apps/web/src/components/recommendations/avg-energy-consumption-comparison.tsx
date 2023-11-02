@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/auth.config";
+import { getSession } from "@/lib/auth/auth";
 import { getAvgEnergyConsumptionForUser, getAvgEnergyConsumptionForUserInComparison } from "@/query/energy";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";

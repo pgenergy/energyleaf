@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/auth.config";
+import { getSession } from "@/lib/auth/auth";
 
 import NavbarAvatar from "./navbar-avatar";
 import ThemeSwitcher from "./theme-switcher";

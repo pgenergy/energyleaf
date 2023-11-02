@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/auth.config";
+import { getSession } from "@/lib/auth/auth";
 import { getEnergyDataForUser } from "@/query/energy";
 import { format } from "date-fns";
 import de from "date-fns/locale/de";
