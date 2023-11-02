@@ -1,8 +1,9 @@
+import { Suspense } from "react";
 import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
 import EnergyConsumptionCard from "@/components/dashboard/energy-consumption-card";
 import EnergyCostCard from "@/components/dashboard/energy-cost-card";
+
 import { Skeleton } from "@energyleaf/ui";
-import { Suspense } from "react";
 
 export default function DashboardPage({ searchParams }: { searchParams: { start?: string; end?: string } }) {
     const startDateString = searchParams.start;
@@ -12,15 +13,15 @@ export default function DashboardPage({ searchParams }: { searchParams: { start?
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Suspense fallback={<Skeleton className="w-full h-72" />}>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
                     <AbsolutEnergyConsumptionCard endDate={endDate} startDate={startDate} />
                 </Suspense>
-                <Suspense fallback={<Skeleton className="w-full h-72" />}>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
                     <EnergyCostCard endDate={endDate} startDate={startDate} />
                 </Suspense>
             </div>
-            <Suspense fallback={<Skeleton className="w-full h-[57rem]" />}>
+            <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
                 <EnergyConsumptionCard endDate={endDate} startDate={startDate} />
             </Suspense>
         </div>

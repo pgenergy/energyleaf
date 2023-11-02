@@ -1,7 +1,12 @@
 export default function Footer() {
     return (
-        <footer className="py-8 flex flex-row items-center justify-center gap-2 text-muted-foreground">
-            <a className="hover:underline" href="https://www.iism.kit.edu/datenschutz.php" rel="noopener" target="_blank">
+        <footer className="flex flex-row items-center justify-center gap-2 py-8 text-muted-foreground">
+            <a
+                className="hover:underline"
+                href="https://www.iism.kit.edu/datenschutz.php"
+                rel="noopener"
+                target="_blank"
+            >
                 Datenschutz
             </a>
             <p>|</p>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useTransition } from "react";
+import Link from "next/link";
+import { signOutAction } from "@/actions/auth";
+import type { CustomSession } from "@/types/auth";
 import { LightbulbIcon, LogOutIcon, User2Icon } from "lucide-react";
-import type { Session } from "next-auth";
-import { signOut } from "next-auth/react";
 
 import {
     Avatar,
@@ -16,10 +17,9 @@ import {
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
 import { useToast } from "@energyleaf/ui/hooks";
-import Link from "next/link";
 
 interface Props {
-    user: Session["user"];
+    user: CustomSession["user"];
 }
 
 export default function NavbarAvatar({ user }: Props) {
@@ -28,7 +28,7 @@ export default function NavbarAvatar({ user }: Props) {
 
     function onSignOut() {
         startTransition(async () => {
-            await signOut();
+            await signOutAction();
             toast({
                 title: "Abgemeldet",
                 description: "Du wurdest erfolgreich abgemeldet.",
@@ -40,7 +40,7 @@ export default function NavbarAvatar({ user }: Props) {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                    <AvatarFallback>{user.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

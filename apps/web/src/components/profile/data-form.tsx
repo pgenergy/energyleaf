@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { updateUserDataInformation } from "@/actions/profile";
 import { userDataSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -28,7 +29,6 @@ import {
     SelectValue,
 } from "@energyleaf/ui";
 import { useToast } from "@energyleaf/ui/hooks";
-import { updateUserDataInformation } from "@/actions/profile";
 
 interface Props {
     initialData: z.infer<typeof userDataSchema>;

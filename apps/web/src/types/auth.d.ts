@@ -1,28 +1,27 @@
-import type { User } from "next-auth";
+import type { AdapterUser } from "@auth/core/adapters";
+import type { JWT } from "@auth/core/jwt";
+import type { DefaultSession } from "next-auth";
 
-declare module "next-auth/jwt" {
-    interface JWT {
-        id: string;
-        created: string | null;
-        sensorId: string;
-        refresh: number;
-    }
+interface CustomJWT extends JWT {
+    id: string;
+    name: string;
+    email: string;
+    created: string | null;
+    sensorId: string;
 }
 
-declare module "next-auth/adapters" {
-    interface AdapterUser {
-        id: string;
-        created: string | null;
-        sensorId: string;
-    }
+interface CustomUser extends AdapterUser {
+    id: string;
+    created: string | null;
+    sensorId: string;
 }
 
-declare module "next-auth" {
-    interface Session {
-        user: User & {
-            id: string;
-            created: string | null;
-            sensorId: string;
-        };
-    }
+interface CustomSession extends DefaultSession {
+    user: {
+        id: string;
+        name: string;
+        email: string;
+        created: string | null;
+        sensorId: string;
+    };
 }

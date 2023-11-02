@@ -58,15 +58,18 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
     }
 
     try {
-        await updateUserData({
-            budget: data.budget,
-            wohnfläche: data.houseSize,
-            household: data.people,
-            immobilie: data.houseType,
-            warmwasser: data.warmWater,
-            tarif: data.tarif,
-            basispreis: data.price,
-        }, user.id);
+        await updateUserData(
+            {
+                budget: data.budget,
+                wohnfläche: data.houseSize,
+                household: data.people,
+                immobilie: data.houseType,
+                warmwasser: data.warmWater,
+                tarif: data.tarif,
+                basispreis: data.price,
+            },
+            user.id,
+        );
         revalidatePath("/profile");
         revalidatePath("/dashboard");
     } catch (e) {

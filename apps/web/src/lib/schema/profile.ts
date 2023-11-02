@@ -1,5 +1,6 @@
-import { userData } from "@energyleaf/db/schema";
 import { z } from "zod";
+
+import { userData } from "@energyleaf/db/schema";
 
 export const baseInfromationSchema = z.object({
     username: z.string().nonempty({ message: "Bitte gib einen Benutzernamen an." }),

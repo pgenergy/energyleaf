@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getSessionOnServer } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.config";
 
 import NavbarAvatar from "./navbar-avatar";
 import ThemeSwitcher from "./theme-switcher";
 
 export default async function Navbar() {
-    const session = await getSessionOnServer();
+    const session = await getSession();
 
     if (!session) {
         redirect("/");

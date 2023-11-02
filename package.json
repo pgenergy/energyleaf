@@ -3,8 +3,9 @@
     "scripts": {
         "build": "dotenv -- turbo run build",
         "dev": "dotenv -- turbo run dev",
-        "lint": "turbo run lint",
+        "lint": "dotenv -- turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "fix": "pnpm run format && pnpm run lint -- --fix",
         "db:push": "dotenv -- pnpm --filter db run push",
         "db:studio": "dotenv -- pnpm --filter db run studio"
     },

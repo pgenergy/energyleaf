@@ -2,11 +2,11 @@ import { redirect } from "next/navigation";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
-import { getSessionOnServer } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.config";
 import { getUserData } from "@/query/user";
 
 export default async function ProfilePage() {
-    const session = await getSessionOnServer();
+    const session = await getSession();
 
     if (!session?.user.id || !session.user.email || !session.user.name) {
         redirect("/");

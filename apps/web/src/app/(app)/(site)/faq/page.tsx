@@ -80,7 +80,7 @@ export default function FaqPage() {
                                 Wo erfahre ich mehr über die momentane Auslastung des Stromnetzes in Ba-Wü?
                             </AccordionTrigger>
                             <AccordionContent>
-                                Zum Beispiel mit der App StromGedacht:{" "} 
+                                Zum Beispiel mit der App StromGedacht:{" "}
                                 <a
                                     className="text-primary hover:underline"
                                     href="https://www.stromgedacht.de"

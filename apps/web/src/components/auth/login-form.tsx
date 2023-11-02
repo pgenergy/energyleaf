@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { signInAction } from "@/actions/auth.node";
 import { loginSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
@@ -23,11 +23,7 @@ export default function LoginForm() {
 
     async function onSubmit(data: z.infer<typeof loginSchema>) {
         setLoading(true);
-        await signIn("credentials", {
-            email: data.mail,
-            password: data.password,
-            callbackUrl: "/dashboard",
-        });
+        await signInAction(data.mail, data.password);
         setLoading(false);
     }
 

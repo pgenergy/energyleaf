@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
-import { getSessionOnServer } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.config";
 import { getAvgEnergyConsumptionForUser, getAvgEnergyConsumptionForUserInComparison } from "@/query/energy";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 export default async function AvgEnergyConsumptionComparisonCard() {
-    const session = await getSessionOnServer();
+    const session = await getSession();
 
     if (!session) {
         redirect("/");

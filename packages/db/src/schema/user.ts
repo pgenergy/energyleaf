@@ -24,17 +24,17 @@ export const userData = mysqlTable("user_data", {
     warmwasser: mysqlEnum("warmwasser", ["electric", "not_electric"]),
 });
 
-export const userDataTarfiEnums: Record<typeof userData.tarif.enumValues[number], string> = {
+export const userDataTarfiEnums: Record<(typeof userData.tarif.enumValues)[number], string> = {
     basic: "BasisStrom",
     eco: "ÖkoStrom",
 };
 
-export const userDataImmobilieEnums: Record<typeof userData.immobilie.enumValues[number], string> = {
+export const userDataImmobilieEnums: Record<(typeof userData.immobilie.enumValues)[number], string> = {
     house: "Haus",
     apartment: "Wohnung",
 };
 
-export const userDataWarmwasserEnums: Record<typeof userData.warmwasser.enumValues[number], string> = {
+export const userDataWarmwasserEnums: Record<(typeof userData.warmwasser.enumValues)[number], string> = {
     electric: "Elektrisch",
     not_electric: "Nicht elektrisch",
 };

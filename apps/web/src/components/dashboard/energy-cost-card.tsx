@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getSessionOnServer } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.config";
 import { getEnergyDataForUser } from "@/query/energy";
 import { getUserData } from "@/query/user";
 import { format } from "date-fns";
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export default async function EnergyCostCard({ startDate, endDate }: Props) {
-    const session = await getSessionOnServer();
+    const session = await getSession();
 
     if (!session) {
         redirect("/");
