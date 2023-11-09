@@ -1,7 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@energyleaf/ui";
+import { getSession } from "@/lib/auth/auth";
+import { redirect } from "next/navigation";
+import { getDevicesByUser } from "@/query/device";
 
-export default function DevicesPage() {
-    const devices = ["Waschmaschine", "Trockner", "Herd", "Fernseher"] // TODO: Load devices from database
+export default async function DevicesPage() {
+    const session = await getSession()
+    if (!session) {
+        redirect("/");
+    }
+    
+    const devices = await getDevicesByUser(session.user.id)
 
     return (
         <div className="flex flex-col gap-4">
@@ -11,25 +19,28 @@ export default function DevicesPage() {
                     <CardDescription>Hier siehst du alle deine Geräte und kannst diese verwalten.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHead>
-                            <TableHeader>
-                                Gerätename
-                            </TableHeader>
-                        </TableHead>
-                        <TableBody>
-                            {devices.map((device) => (
-                                <TableRow>
-                                    <TableCell>
-                                        {device}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                    <div hidden className="flex flex-row justify-center">
-                        <p hidden className="text-muted-foreground">Noch keine Geräte vorhanden</p>
-                    </div>
+                    { (devices && devices.length > 0) ? (
+                        <Table>
+                            <TableHead>
+                                <TableHeader>
+                                    Gerätename
+                                </TableHeader>
+                            </TableHead>
+                            <TableBody>
+                                { devices.map((device) => (
+                                    <TableRow>
+                                        <TableCell>
+                                            {device}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    ) : (
+                        <div className="flex flex-row justify-center">
+                            <p className="text-muted-foreground">Noch keine Geräte vorhanden</p>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
