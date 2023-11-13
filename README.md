@@ -16,7 +16,7 @@ Install dependencies:
 
 ## Enviroment Variables
 To ensure no secrets are leaked, all sensitive variables are stored in an .env file.
-To start the project you need to rename the .env.sampel file to .env
+To start the project you need to rename the .env.sample file to .env
 
 Ask a team member to get the information needed.
 
@@ -37,7 +37,7 @@ To build the project:
 To use the database and make changes to the schema. You need to install the pscale cli: [download here](https://planetscale.com/features/cli)
 
 ### Make schema changes
-First you need to create a branche in [planetscale](https://planetscale.com). Then connect to that branche via the pscale cli.
+First you need to create a branch in [planetscale](https://planetscale.com). Then connect to that branch via the pscale cli.
 
 ```bash
     pscale connect energyleaf <branch_name> --port 3309
