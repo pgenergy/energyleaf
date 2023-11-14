@@ -7,6 +7,12 @@ export const baseInfromationSchema = z.object({
     email: z.string().email({ message: "Bitte gib eine gültige E-Mail-Adresse an." }),
 });
 
+export const passwordSchema = z.object({
+    oldPassword: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
+    newPassword: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
+    newPasswordRepeat: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
+});
+
 export const mailSettingsSchema = z.object({
     daily: z.boolean().default(false),
     weekly: z.boolean().default(false),

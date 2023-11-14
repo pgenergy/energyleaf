@@ -106,6 +106,13 @@ export async function updateUser(data: Partial<CreateUserType>, id: number) {
 }
 
 /**
+ * Update the user's password in the database
+ */
+export async function updatePassword(data: Partial<CreateUserType>, id: number) {
+    return await db.update(user).set(data).where(eq(user.id, id));
+}
+
+/**
  * Update the user mail settings data in the database
  */
 export async function updateMailSettings(data: { daily: boolean; weekly: boolean }, id: number) {

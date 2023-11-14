@@ -1,15 +1,16 @@
 "use server";
 
+import * as bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import type { baseInfromationSchema, mailSettingsSchema, userDataSchema } from "@/lib/schema/profile";
+import type { baseInfromationSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
 
-import { getUserById, updateMailSettings, updateUser, updateUserData } from "@energyleaf/db/query";
+import { getUserById, updateMailSettings, updatePassword, updateUser, updateUserData } from "@energyleaf/db/query";
 
 import "server-only";
 
 import type { z } from "zod";
 
-export async function updateBaseInformation(data: z.infer<typeof baseInfromationSchema>, id: number | string) {
+export async function updateBaseInformationUsername(data: z.infer<typeof baseInfromationSchema>, id: number | string) {
     const user = await getUserById(Number(id));
     if (!user) {
         throw new Error("User not found");
@@ -27,6 +28,31 @@ export async function updateBaseInformation(data: z.infer<typeof baseInfromation
         revalidatePath("/dashboard");
     } catch (e) {
         throw new Error("Error while updating user");
+    }
+}
+
+export async function updateBaseInformationPassword(data: z.infer<typeof passwordSchema>, id: number | string) {
+    const user = await getUserById(Number(id));
+    if (!user) {
+        throw new Error("User not found");
+    }
+    const match = await bcrypt.compare(data.oldPassword, user.password);
+    if (!match) {
+        throw new Error("Passwords do not match")
+    }
+
+    const hash = await bcrypt.hash(data.newPassword, 10);
+    try {
+        await updatePassword(
+            {
+                password: hash,
+            },
+            user.id,
+        );
+        revalidatePath("/profile");
+        revalidatePath("/dashboard");
+    } catch (e) {
+        throw new Error("Error while updating password");
     }
 }
 
