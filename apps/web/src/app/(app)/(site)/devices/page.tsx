@@ -1,15 +1,20 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@energyleaf/ui";
 import { getSession } from "@/lib/auth/auth";
-import { redirect } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { getDevicesByUser } from "@/query/device";
+import { SortOrder } from "@energyleaf/db/util";
+import { Button } from "react-day-picker";
+import router, { Router, useRouter } from "next/router";
+import DeviceSortButton from "@/components/devices/device-sort-button";
 
-export default async function DevicesPage() {
+export default async function DevicesPage({ searchParams }: { searchParams: { sortOrder: SortOrder } }) {
     const session = await getSession()
     if (!session) {
         redirect("/");
     }
-    
-    const devices = await getDevicesByUser(session.user.id)
+
+    const sortOrder = searchParams?.sortOrder ? searchParams.sortOrder : SortOrder.ASC
+    const devices = await getDevicesByUser(session.user.id, sortOrder)
 
     return (
         <div className="flex flex-col gap-4">
@@ -23,7 +28,7 @@ export default async function DevicesPage() {
                         <Table>
                             <TableHead>
                                 <TableHeader>
-                                    Gerätename
+                                    <DeviceSortButton sortOrder={sortOrder}>Gerätename</DeviceSortButton>
                                 </TableHeader>
                             </TableHead>
                             <TableBody>
