@@ -1,15 +1,16 @@
 'use client';
 
 import { SortOrder } from "@energyleaf/db/util";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, SortAsc, SortDesc } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 interface Props {
+    children: String;
     sortOrder: SortOrder | null;
     propName: String;
 }
 
-export default function DeviceSortButton({ sortOrder, propName }: Props) {
+export default function DeviceSortButton({ children, sortOrder, propName }: Props) {
     const router = useRouter();
     const pathname = usePathname();
 
@@ -27,12 +28,12 @@ export default function DeviceSortButton({ sortOrder, propName }: Props) {
 
     return (
         <div className="flex items-center cursor-pointer" onClick={() => onClick(sortOrder, pathname)}>
-            <span className="mr-2">Test</span>
+            <span className="mr-2">{children}</span>
             {
                 sortOrder ? (sortOrder === SortOrder.ASC ? (
-                    <ArrowDown/>
+                    <SortAsc/>
                 ) : (
-                    <ArrowUp/>
+                    <SortDesc/>
                 )) : (
                     <div/> // nothing
                 )
