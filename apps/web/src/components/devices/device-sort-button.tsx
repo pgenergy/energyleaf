@@ -1,7 +1,7 @@
 'use client';
 
 import { SortOrder } from "@energyleaf/db/util";
-import { ArrowDown, ArrowUp, SortAsc, SortDesc } from "lucide-react";
+import { SortAsc, SortDesc } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 interface Props {

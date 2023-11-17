@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@energyleaf/ui";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@energyleaf/ui";
 import DeviceSortButton from "./device-sort-button";
 import { SortOrder } from "@energyleaf/db/util";
 import { de } from "date-fns/locale";
