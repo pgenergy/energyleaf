@@ -14,9 +14,10 @@ export default async function DevicesOverviewCard({ searchParams }: { searchPara
 
     const sortOrder = searchParams?.sortOrder ? searchParams.sortOrder : SortOrder.ASC
     
+    var sortPropName = searchParams.sortProp ?? "name"
     var sortProp: (x: typeof device) => any = x => x.name
     if (searchParams?.sortProp) {
-        const prop = Object.keys(device).find(x => x === searchParams.sortProp)
+        const prop = Object.keys(device).find(x => x === sortPropName)
         if (prop) {
             sortProp = x => x[prop]
         }
@@ -32,7 +33,7 @@ export default async function DevicesOverviewCard({ searchParams }: { searchPara
             </CardHeader>
             <CardContent>
                 { (devices && devices.length > 0) ? (
-                    <DevicesTable devices={devices} sortOrder={sortOrder} sortProp={searchParams.sortProp}/>
+                    <DevicesTable devices={devices} sortOrder={sortOrder} sortProp={sortPropName}/>
                 ) : (
                     <div className="flex flex-row justify-center">
                         <p className="text-muted-foreground">Noch keine Geräte vorhanden</p>
