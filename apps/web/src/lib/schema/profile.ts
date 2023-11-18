@@ -27,3 +27,7 @@ export const userDataSchema = z.object({
     tarif: z.enum([...userData.tarif.enumValues]).default(userData.tarif.enumValues[0]),
     price: z.coerce.number().positive({ message: "Bitte gib einen gültigen Preis an." }),
 });
+
+export const deleteAccountSchema = z.object({
+    password: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
+});

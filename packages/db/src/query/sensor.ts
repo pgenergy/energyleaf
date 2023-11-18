@@ -1,7 +1,7 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
-import { sensorData, userData } from "../schema";
+import { reason, sensorData, userData } from "../schema";
 
 /**
  * Get the energy consumption for a user in a given time range
@@ -84,4 +84,12 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
     });
 
     return query;
+}
+
+export async function deleteSensorData(id: number) {
+    return await db.delete(sensorData).where(eq(sensorData.userId, id));
+}
+
+export async function deleteReason(id: number) {
+    return await db.delete(reason).where(eq(reason.userId, id));
 }
