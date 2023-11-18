@@ -1,5 +1,5 @@
 {
-    "extends": "@energyleaf/tsconfig/nextjs.json",
+   "extends": "@energyleaf/tsconfig/nextjs.json",
     "compilerOptions": {
         "plugins": [
             {
