@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
+import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import { getSession } from "@/lib/auth/auth";
 import { getUserData } from "@/query/user";
 
@@ -32,6 +33,7 @@ export default async function ProfilePage() {
                 weekly={userData?.mail.mailWeekly || false}
             />
             <UserDataForm id={session.user.id} initialData={data} />
+            <AccountDeletionForm id={session.user.id}/>
         </div>
     );
 }

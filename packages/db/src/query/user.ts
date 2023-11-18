@@ -138,3 +138,7 @@ type UpdateUserData = {
 export async function updateUserData(data: UpdateUserData, id: number) {
     return await db.update(userData).set(data).where(eq(userData.userId, id));
 }
+
+export async function deleteUser(id: number) {
+    return await db.delete(user).where(eq(user.id, id));
+}

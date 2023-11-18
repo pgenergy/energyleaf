@@ -2,9 +2,9 @@
 
 import * as bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import type { baseInfromationSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
+import type { baseInfromationSchema, deleteAccountSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
 
-import { getUserById, updateMailSettings, updatePassword, updateUser, updateUserData } from "@energyleaf/db/query";
+import { getUserById, updateMailSettings, updatePassword, updateUser, updateUserData, deleteUser } from "@energyleaf/db/query";
 
 import "server-only";
 
@@ -100,5 +100,24 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
         revalidatePath("/dashboard");
     } catch (e) {
         throw new Error("Error while updating user");
+    }
+}
+
+export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>, id: number | string) {
+    const user = await getUserById(Number(id));
+    if (!user) {
+        throw new Error("User not found");
+    }
+    const match = await bcrypt.compare(data.password, user.password);
+    if (!match) {
+        throw new Error("Passwords do not match")
+    }
+
+    try {
+        await deleteUser(user.id);
+        revalidatePath("/profile");
+        revalidatePath("/dashboard");
+    } catch (e) {
+        throw new Error("Error while deleting account");
     }
 }
