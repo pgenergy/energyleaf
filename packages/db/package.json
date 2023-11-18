@@ -15,14 +15,14 @@
     },
     "dependencies": {
         "@planetscale/database": "^1.11.0",
-        "drizzle-orm": "^0.28.6",
-        "nanoid": "^5.0.2"
+        "drizzle-orm": "^0.29.0",
+        "nanoid": "^5.0.3"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",
         "@energyleaf/tsconfig": "workspace:^",
-        "drizzle-kit": "^0.19.13",
-        "eslint": "^8.52.0",
+        "drizzle-kit": "^0.20.4",
+        "eslint": "^8.54.0",
         "mysql2": "^3.6.3",
         "typescript": "^5.2.2"
     }
