@@ -103,6 +103,9 @@ importers:
       '@energyleaf/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      '@types/bcryptjs':
+        specifier: ^2.4.6
+        version: 2.4.6
       '@types/node':
         specifier: ^20.9.1
         version: 20.9.1

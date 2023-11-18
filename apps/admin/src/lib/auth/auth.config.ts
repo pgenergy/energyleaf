@@ -17,11 +17,18 @@ export const authOptions: NextAuthConfig = {
             const loggedIn = Boolean(auth?.user);
             const url = request.nextUrl;
 
+            const user = auth?.user as CustomUser;
+
             if (unprotectedRoutes.includes(url.pathname) && loggedIn) {
                 return Response.redirect(new URL("/dashboard", url));
             }
 
+
             if (![...publicRoutes, ...unprotectedRoutes].includes(url.pathname) && !loggedIn) {
+                return false;
+            }
+
+            if (!user.admin) {
                 return false;
             }
 

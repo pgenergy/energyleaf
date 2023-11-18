@@ -32,7 +32,7 @@ export const { auth, signIn, signOut } = NextAuth({
                 const email = credentials.email as string;
                 const password = credentials.password as string;
                 const user = await getUserByMail(email);
-                if (!user) {
+                if (!user?.isAdmin) {
                     return null;
                 }
 
@@ -47,7 +47,7 @@ export const { auth, signIn, signOut } = NextAuth({
                     email: user.email,
                     created: user.created?.toString() ?? null,
                     sensorId: user.sensorId,
-                    admin: user.isAdmin,
+                    admin: true,
                 };
             },
         }),
