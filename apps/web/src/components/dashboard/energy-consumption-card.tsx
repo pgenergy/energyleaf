@@ -6,6 +6,7 @@ import { differenceInMinutes } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 import DashboardDateRange from "./date-range";
+import DashboardEnergyAggregation from "./energy-aggregation";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
 interface Props {
@@ -48,6 +49,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate }: Prop
                     <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
                 </div>
                 <DashboardDateRange endDate={endDate} startDate={startDate} />
+                <DashboardEnergyAggregation endDate={endDate} startDate={startDate}/>
             </CardHeader>
             <CardContent>
                 <div className="h-96 w-full">
