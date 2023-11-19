@@ -47,7 +47,7 @@ export const { auth, signIn, signOut } = NextAuth({
                     email: user.email,
                     created: user.created?.toString() ?? null,
                     sensorId: user.sensorId,
-                    admin: user.isAdmin,
+                    admin: user.isAdmin || false,
                 };
             },
         }),
