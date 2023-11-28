@@ -4,7 +4,11 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogDescription, 
 import CreateDeviceForm from "./create-device-form";
 import { useState } from "react";
 
-export default function CreateDeviceDialog() {
+interface Props {
+    userId: string;
+}
+
+export default function CreateDeviceDialog({ userId }: Props) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -19,7 +23,7 @@ export default function CreateDeviceDialog() {
                 <DialogDescription>
                     Hier kannst du ein neues Gerät hinzufügen.
                 </DialogDescription>
-                <CreateDeviceForm onInteract={() => setOpen(false)}/>
+                <CreateDeviceForm userId={userId} onInteract={() => setOpen(false)}/>
             </DialogContent>
         </Dialog>
     )

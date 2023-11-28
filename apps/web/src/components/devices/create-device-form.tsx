@@ -1,21 +1,38 @@
 'use client';
 
+import { createDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
 import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from "@energyleaf/ui";
+import { toast } from "@energyleaf/ui/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
 interface Props {
+    userId: string;
     onInteract: () => void;
 }
 
-export default function CreateDeviceForm({ onInteract }: Props) {
+export default function CreateDeviceForm({ onInteract, userId }: Props) {
     const form = useForm<z.infer<typeof deviceSchema>>({
         resolver: zodResolver(deviceSchema)
     });
 
-    function onSubmit(data: z.infer<typeof deviceSchema>) {
+    async function onSubmit(data: z.infer<typeof deviceSchema>) {
+        try {
+            await createDevice(data, userId);
+            toast({
+                title: "Erfolgreich aktualisiert",
+                description: "Deine Daten wurden erfolgreich aktualisiert",
+            });
+        } catch (e) {
+            toast({
+                title: "Fehler beim aktualisieren",
+                description: "Deine Daten konnten nicht aktualisiert werden",
+                variant: "destructive",
+            });
+        }
+
         onInteract();
     }
 
