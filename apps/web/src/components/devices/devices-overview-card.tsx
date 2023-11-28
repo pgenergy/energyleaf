@@ -5,6 +5,7 @@ import { SortOrder } from "@energyleaf/db/util";
 import { device } from "@energyleaf/db/schema";
 import { getDevicesByUser } from "@/query/device";
 import DevicesTable from "./devices-tables";
+import CreateDeviceDialog from "./create-device-dialog";
 
 export default async function DevicesOverviewCard({ searchParams }: { searchParams: { sortOrder: SortOrder, sortProp: String } }) {
     const session = await getSession()
@@ -32,6 +33,7 @@ export default async function DevicesOverviewCard({ searchParams }: { searchPara
                 <CardDescription>Hier siehst du alle deine Geräte und kannst diese verwalten.</CardDescription>
             </CardHeader>
             <CardContent>
+                <CreateDeviceDialog/>
                 { (devices && devices.length > 0) ? (
                     <DevicesTable devices={devices} sortOrder={sortOrder} sortProp={sortPropName}/>
                 ) : (
