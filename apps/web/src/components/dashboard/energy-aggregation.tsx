@@ -1,13 +1,5 @@
 'use client';
 import React from 'react';
-import { usePathname, useRouter } from "next/navigation";
-import { format } from "date-fns";
-import de from "date-fns/locale/de";
-import { CalendarIcon } from "lucide-react";
-import type { DateRange } from "react-day-picker";
-
-import { Button, Calendar, Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui";
-import App from 'next/app';
 
 interface Props {
     startDate: Date;
@@ -20,46 +12,51 @@ export default function EnergyAggreation({ startDate, endDate }: Props) {
         const selectedOption = event.target.value;
         alert('Selected Option:'+ selectedOption)
         switch (selectedOption) {
-            case 'hours':
-                handleHoursOption();
+            case 'day':
+                //handleDayOption();
                 break;
-            case 'days':
-                handleDaysOption();
+            case 'week':
+                handleWeekOption();
                 break;
-            case 'weeks':
-                handleWeeksOption();
+            case 'month':
+                handleMonthOption();
                 break;
-            case 'months':
-                handleMonthsOption();
+            case 'year':
+                handleYearOption();
                 break;
             default:
                 break;
         }
     }
 
-    const handleHoursOption = () => {
+    const handleDayOption = (data) => {
+        const energyConsumptionPerDay = {};
+
+        for (const value in data) {
+            console.log(value)
+        }
+        return data
+    };
+
+    const handleWeekOption = () => {
         
     };
 
-    const handleDaysOption = () => {
+    const handleMonthOption = () => {
         
     };
 
-    const handleWeeksOption = () => {
-        
-    };
-
-    const handleMonthsOption = () => {
+    const handleYearOption = () => {
         
     };
     
     return (
         <div className="flex flex-row justify-end gap-4">
             <select name="option" onChange={handleOptionChange}>
-                <option value="hours">Stunden</option>
-                <option value="days">Tage</option>
-                <option value="weeks">Wochen</option>
-                <option value="months">Monate</option>
+                <option value="day">Tag</option>
+                <option value="week">Woche</option>
+                <option value="month">Monat</option>
+                <option value="year">Jahr</option>
             </select>
         </div>
     );
