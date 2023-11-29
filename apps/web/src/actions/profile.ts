@@ -4,7 +4,7 @@ import * as bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import type { baseInfromationSchema, deleteAccountSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
 
-import { getUserById, updateMailSettings, updatePassword, updateUser, updateUserData, deleteUser } from "@energyleaf/db/query";
+import { copyOldUserDataToHistoryUserData, getUserById, updateMailSettings, updatePassword, updateUser, updateUserData, deleteUser } from "@energyleaf/db/query";
 
 import "server-only";
 
@@ -84,8 +84,11 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
     }
 
     try {
+        await copyOldUserDataToHistoryUserData(user.id);
+        const currentTimestamp = new Date();
         await updateUserData(
             {
+                timestamp: currentTimestamp,
                 budget: data.budget,
                 wohnfläche: data.houseSize,
                 household: data.people,
