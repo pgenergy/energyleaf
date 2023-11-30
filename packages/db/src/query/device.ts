@@ -19,3 +19,17 @@ export async function getDevicesByUser(userId: number, sortOrder: SortOrder = So
     }
     return results;
 }
+
+export type CreateDeviceType = {
+    name: string;
+    userId: number;
+}
+
+export async function createDevice(data: CreateDeviceType) {
+    return db.transaction(async (trx) => {
+        await trx.insert(device).values({
+            name: data.name,
+            userId: data.userId,
+        });
+    });
+}

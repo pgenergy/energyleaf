@@ -41,7 +41,7 @@ export default function DevicesTable({ devices, sortOrder, sortProp }: Props) {
             </TableHeader>
             <TableBody>
                 { devices.map((device) => (
-                    <TableRow>
+                    <TableRow key={crypto.randomUUID()}>
                         <TableCell>
                             {device.name}
                         </TableCell>
