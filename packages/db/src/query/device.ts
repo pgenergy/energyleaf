@@ -34,6 +34,10 @@ export async function createDevice(data: CreateDeviceType) {
     });
 }
 
+export async function updateDevice(id: number, data: Partial<CreateDeviceType>) {
+    await db.update(device).set(data).where(eq(device.id, id));
+}
+
 export async function deleteDevice(id: number, userId: number) {
     console.log("deleteDevice", id, userId);
     return db.transaction(async (trx) => {
