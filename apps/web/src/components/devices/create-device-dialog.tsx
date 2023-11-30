@@ -3,6 +3,7 @@
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogDescription, Button } from "@energyleaf/ui";
 import CreateDeviceForm from "./create-device-form";
 import { useState } from "react";
+import { Plus } from "lucide-react";
 
 interface Props {
     userId: string;
@@ -14,15 +15,15 @@ export default function CreateDeviceDialog({ userId }: Props) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger>
-                <Button onClick={() => setOpen(true)}>Gerät hinzufügen</Button>
+                <Button onClick={() => setOpen(true)}>
+                    <Plus className="mr-2"/>
+                    Gerät hinzufügen
+                </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     Gerät hinzufügen
                 </DialogHeader>
-                <DialogDescription>
-                    Hier kannst du ein neues Gerät hinzufügen.
-                </DialogDescription>
                 <CreateDeviceForm userId={userId} onInteract={() => setOpen(false)}/>
             </DialogContent>
         </Dialog>

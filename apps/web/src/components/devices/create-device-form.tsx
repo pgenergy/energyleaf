@@ -42,7 +42,7 @@ export default function CreateDeviceForm({ onInteract, userId }: Props) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} onAbort={onAbort}>
+            <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)} onAbort={onAbort}>
                 <FormField
                     control={form.control}
                     name="deviceName"
@@ -56,7 +56,7 @@ export default function CreateDeviceForm({ onInteract, userId }: Props) {
                         </FormItem>
                     )}
                 />
-                <div className="col-span-2 flex flex-row justify-end">
+                <div className="flex flex-row justify-end">
                     <Button type="submit">
                         Speichern
                     </Button>

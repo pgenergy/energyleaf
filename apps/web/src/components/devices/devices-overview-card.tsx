@@ -33,7 +33,9 @@ export default async function DevicesOverviewCard({ searchParams }: { searchPara
                 <CardDescription>Hier siehst du alle deine Geräte und kannst diese verwalten.</CardDescription>
             </CardHeader>
             <CardContent>
-                <CreateDeviceDialog userId={session.user.id} />
+                <div className="flex justify-end">
+                    <CreateDeviceDialog userId={session.user.id} />
+                </div>
                 { (devices && devices.length > 0) ? (
                     <DevicesTable devices={devices} sortOrder={sortOrder} sortProp={sortPropName}/>
                 ) : (
