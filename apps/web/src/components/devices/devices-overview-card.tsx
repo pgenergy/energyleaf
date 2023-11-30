@@ -24,7 +24,8 @@ export default async function DevicesOverviewCard({ searchParams }: { searchPara
         }
     }
 
-    const devices = await getDevicesByUser(session.user.id, sortOrder, sortProp)
+    const userId = session.user.id
+    const devices = await getDevicesByUser(userId, sortOrder, sortProp)
 
     return(
         <Card className="w-full">
@@ -37,7 +38,7 @@ export default async function DevicesOverviewCard({ searchParams }: { searchPara
                     <CreateDeviceDialog userId={session.user.id} />
                 </div>
                 { (devices && devices.length > 0) ? (
-                    <DevicesTable devices={devices} sortOrder={sortOrder} sortProp={sortPropName}/>
+                    <DevicesTable userId={userId} devices={devices} sortOrder={sortOrder} sortProp={sortPropName}/>
                 ) : (
                     <div className="flex flex-row justify-center">
                         <p className="text-muted-foreground">Noch keine Geräte vorhanden</p>

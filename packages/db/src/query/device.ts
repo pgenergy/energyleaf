@@ -5,7 +5,7 @@ import { device } from "../schema";
 import { SortOrder } from "../util";
 
 export async function getDevicesByUser(userId: number, sortOrder: SortOrder = SortOrder.ASC, orderBy: (x: typeof device) => any = x => x.name) {
-    const query = db.select().from(device).where(eq(device.userId, userId));
+    const query = db.select().from(device).where(eq(device.userId, userId)).where(eq(device.deleted, false));
     if (sortOrder === SortOrder.ASC) {
         query.orderBy(orderBy(device));
     }
@@ -31,5 +31,24 @@ export async function createDevice(data: CreateDeviceType) {
             name: data.name,
             userId: data.userId,
         });
+    });
+}
+
+export async function deleteDevice(id: number, userId: number) {
+    console.log("deleteDevice", id, userId);
+    return db.transaction(async (trx) => {
+        const query = await trx.select().from(device).where(eq(device.id, id));
+        if (query.length === 0) {
+            throw new Error("Device not found");
+        }
+
+        const deviceToDelete = query[0];
+        if (deviceToDelete.userId !== userId) {
+            throw new Error("Device does not belong to user.");
+        }
+
+        await trx.update(device).set({
+            deleted: true,
+        }).where(eq(device.id, id));
     });
 }
