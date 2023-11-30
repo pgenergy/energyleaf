@@ -49,7 +49,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate }: Prop
                     <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
                 </div>
                 <DashboardDateRange endDate={endDate} startDate={startDate} />
-                <DashboardEnergyAggregation endDate={endDate} startDate={startDate}/>
+                <DashboardEnergyAggregation data={data} />
             </CardHeader>
             <CardContent>
                 <div className="h-96 w-full">

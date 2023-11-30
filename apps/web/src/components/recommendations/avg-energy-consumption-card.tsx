@@ -12,9 +12,8 @@ export default async function AvgEnergyConsumptionCard() {
     }
 
     const avg = await getAvgEnergyConsumptionForUser(session.user.id);
-    console.log(avg)
     
-
+    
     return (
         <Card className="w-full">
             <CardHeader>
