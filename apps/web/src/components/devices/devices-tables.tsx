@@ -92,7 +92,7 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
                         </TableHeader>
                         <TableBody>
                             { devices.map((device) => (
-                                <TableRow key={crypto.randomUUID()} className="cursor-pointer" onClick={() => onEditClick(device)}>
+                                <TableRow key={Number(device.id)} className="cursor-pointer" onClick={() => onEditClick(device)}>
                                     <TableCell>
                                         {device.name}
                                     </TableCell>
