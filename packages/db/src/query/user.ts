@@ -137,13 +137,8 @@ type UpdateUserData = {
 };
 
 export async function updateUserData(data: UpdateUserData, id: number) {
-    await copyOldUserDataToHistoryUserData(id);
-    return await db.update(userData).set(data).where(eq(userData.userId, id));
-}
-
-async function copyOldUserDataToHistoryUserData(userId: number) {
     return db.transaction(async (trx) => {
-        const oldUserData = await getUserDataByUserId(userId);
+        const oldUserData = await getUserDataByUserId(id);
         if (!oldUserData) {
             throw new Error("Old user data not found");
         }
@@ -172,6 +167,8 @@ async function copyOldUserDataToHistoryUserData(userId: number) {
         if (newHistoryUserData.length === 0) {
             throw new Error("History data not found");
         }
+
+        await db.update(userData).set(data).where(eq(userData.userId, id));
     });
 }
 

@@ -3,7 +3,7 @@
 import * as bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import type { baseInfromationSchema, deleteAccountSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
-import { PasswordsDoNotMatchError } from "./error";
+import { PasswordsDoNotMatchError } from "../types/errors/PasswordsDoNotMatchError";
 
 import { getUserById, updateMailSettings, updatePassword, updateUser, updateUserData, deleteUser } from "@energyleaf/db/query";
 

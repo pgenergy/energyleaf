@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { updateBaseInformationPassword } from "@/actions/profile";
-import { PasswordsDoNotMatchError } from "@/actions/error";
+import { PasswordsDoNotMatchError } from "@/types/errors/PasswordsDoNotMatchError";
 import { passwordSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";

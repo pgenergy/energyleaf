@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { deleteAccount } from "@/actions/profile";
-import { PasswordsDoNotMatchError } from "@/actions/error";
+import { PasswordsDoNotMatchError } from "@/types/errors/PasswordsDoNotMatchError";
 import { deleteAccountSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
