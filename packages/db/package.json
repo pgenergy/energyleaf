@@ -7,7 +7,8 @@
     "exports": {
         ".": "./src/index.ts",
         "./schema": "./src/schema.ts",
-        "./query": "./src/query/index.ts"
+        "./query": "./src/query/index.ts",
+        "./util": "./src/util.ts"
     },
     "scripts": {
         "push": "drizzle-kit push:mysql",
