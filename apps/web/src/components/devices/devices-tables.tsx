@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import React from "react";
 
 interface Props {
-    devices: { name: String, created: Date | null }[];
+    devices: { id: Number, name: String, created: Date | null }[];
     sortOrder: SortOrder;
     sortProp: String;
 
@@ -41,7 +41,7 @@ export default function DevicesTable({ devices, sortOrder, sortProp }: Props) {
             </TableHeader>
             <TableBody>
                 { devices.map((device) => (
-                    <TableRow>
+                    <TableRow key={Number(device.id)}>
                         <TableCell>
                             {device.name}
                         </TableCell>
