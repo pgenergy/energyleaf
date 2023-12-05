@@ -2,7 +2,7 @@ import type { CustomJWT, CustomSession, CustomUser } from "@/types/auth";
 import type { NextAuthConfig } from "next-auth";
 
 const publicRoutes = ["/legal"];
-const unprotectedRoutes = ["/", "/signup"];
+const unprotectedRoutes = ["/auth"];
 
 export const authOptions: NextAuthConfig = {
     providers: [],
@@ -10,26 +10,24 @@ export const authOptions: NextAuthConfig = {
         strategy: "jwt",
     },
     pages: {
-        signIn: "/",
+        signIn: "/auth",
     },
     callbacks: {
         async authorized({ request, auth }) {
             const loggedIn = Boolean(auth?.user);
             const url = request.nextUrl;
 
-            const user = auth?.user as CustomUser;
-
             if (unprotectedRoutes.includes(url.pathname) && loggedIn) {
-                return Response.redirect(new URL("/dashboard", url));
+                return Response.redirect(new URL("/", url));
             }
 
 
             if (![...publicRoutes, ...unprotectedRoutes].includes(url.pathname) && !loggedIn) {
-                return false;
+                return Promise.resolve(false);
             }
 
-            if (!user.admin) {
-                return false;
+            if (loggedIn && !(auth?.user as CustomUser).admin && !publicRoutes.includes(url.pathname)) {
+                return Promise.resolve(false);
             }
 
             return Promise.resolve(true);

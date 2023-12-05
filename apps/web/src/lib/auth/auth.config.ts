@@ -22,7 +22,7 @@ export const authOptions: NextAuthConfig = {
             }
 
             if (![...publicRoutes, ...unprotectedRoutes].includes(url.pathname) && !loggedIn) {
-                return false;
+                return Promise.resolve(false);
             }
 
             return Promise.resolve(true);
