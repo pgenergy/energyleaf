@@ -68,6 +68,11 @@ export default function LoginForm() {
                                 Konto erstellen
                             </Link>
                         </p>
+                        <p className="text-sm text-muted-foreground">
+                            <Link className="underline hover:no-underline" href="/reset">
+                                Passwort vergessen?
+                            </Link>
+                        </p>
                     </div>
                 </form>
             </Form>
