@@ -1,11 +1,13 @@
-import { desc, eq } from "drizzle-orm";
+import { ExtractTablesWithRelations, desc, eq } from "drizzle-orm";
 
 import db from "..";
-import { device } from "../schema";
+import { device, deviceHistory } from "../schema";
 import { SortOrder } from "../util";
+import { MySqlTransaction } from "drizzle-orm/mysql-core";
+import { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
 
 export async function getDevicesByUser(userId: number, sortOrder: SortOrder = SortOrder.ASC, orderBy: (x: typeof device) => any = x => x.name) {
-    const query = db.select().from(device).where(eq(device.userId, userId)).where(eq(device.deleted, false));
+    const query = db.select().from(device).where(eq(device.userId, userId));
     if (sortOrder === SortOrder.ASC) {
         query.orderBy(orderBy(device));
     }
@@ -35,24 +37,40 @@ export async function createDevice(data: CreateDeviceType) {
 }
 
 export async function updateDevice(id: number, data: Partial<CreateDeviceType>) {
-    await db.update(device).set(data).where(eq(device.id, id));
+    await db.transaction(async (trx) => {
+        const deviceToUpdate = await getDeviceById(trx, id);
+        await copyToHistoryTable(trx, deviceToUpdate);
+        await trx.update(device).set(data).where(eq(device.id, id));
+    });
 }
 
 export async function deleteDevice(id: number, userId: number) {
-    console.log("deleteDevice", id, userId);
     return db.transaction(async (trx) => {
-        const query = await trx.select().from(device).where(eq(device.id, id));
-        if (query.length === 0) {
-            throw new Error("Device not found");
-        }
-
-        const deviceToDelete = query[0];
+        const deviceToDelete = await getDeviceById(trx, id);
         if (deviceToDelete.userId !== userId) {
             throw new Error("Device does not belong to user.");
         }
 
-        await trx.update(device).set({
-            deleted: true,
-        }).where(eq(device.id, id));
+        await copyToHistoryTable(trx, deviceToDelete);
+        await trx.delete(device).where(eq(device.id, id));
+    });
+}
+
+async function getDeviceById(trx: MySqlTransaction<PlanetscaleQueryResultHKT, PlanetScalePreparedQueryHKT, Record<string, never>, ExtractTablesWithRelations<Record<string, never>>>, id: number) {
+    const query = await trx.select().from(device).where(eq(device.id, id));
+    if (query.length === 0) {
+        throw new Error("Device not found");
+    }
+
+    return query[0];
+}
+
+async function copyToHistoryTable(trx: MySqlTransaction<PlanetscaleQueryResultHKT, PlanetScalePreparedQueryHKT, Record<string, never>, ExtractTablesWithRelations<Record<string, never>>>, device: { id: number; userId: number; name: string; created: Date | null; timestamp: Date; }) {
+    await trx.insert(deviceHistory).values({
+        deviceId: device.id,
+        userId: device.userId,
+        name: device.name,
+        created: device.created,
+        timestamp: device.timestamp
     });
 }
