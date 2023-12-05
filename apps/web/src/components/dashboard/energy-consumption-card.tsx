@@ -28,6 +28,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     const energyData = await getEnergyDataForUser(startDate, endDate, userId);
     const data = energyData.map((entry) => ({
+        id: entry.id,
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
     }));

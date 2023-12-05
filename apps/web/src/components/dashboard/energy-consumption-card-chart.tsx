@@ -5,22 +5,21 @@ import { useState } from "react";
 import { LineChart } from "@energyleaf/ui/components";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
-import { EnergyPeakDeviceAssignmentDialog } from "./energy-peak-device-assignment-dialog";
+import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
 
 interface Props {
-    data: Record<string, string | number | undefined>[];
-    peaks: Record<string, string | number | undefined>[];
+    data: { id: number, energy: number, timestamp: string | number | undefined }[];
+    peaks: { id: number, energy: number, timestamp: string | number | undefined }[];
     devices: { id: number; userId: number; name: string; created: Date | null; }[] | null;
 }
 
 export default async function EnergyConsumptionCardChart({ data, peaks, devices }: Props) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<Record<string, string | number | undefined>>({});
-    const [deviceKey, setDeviceKey] = useState<string>("");
+    const [value, setValue] = useState<{id: number, energy: number, timestamp: string} | null>(null);
 
     return (
         <>
-            <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} devices={devices}/>
+            { value && devices ? <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} devices={devices}/> : <div/>}
             <LineChart
                 data={data}
                 keyName="energy"
@@ -29,7 +28,11 @@ export default async function EnergyConsumptionCardChart({ data, peaks, devices 
                     xKeyName: "timestamp",
                     yKeyName: "energy",
                     callback: (callbackData) => {
-                        setValue(callbackData);
+                        setValue({
+                            id: Number(callbackData.id),
+                            energy: Number(callbackData.energy),
+                            timestamp: callbackData.timestamp?.toString() || "",
+                        });
                         setOpen(true);
                     },
                 }}

@@ -1,7 +1,7 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
-import { sensorData, userData } from "../schema";
+import { sensorData, userData, peaks } from "../schema";
 
 /**
  * Get the energy consumption for a user in a given time range
@@ -84,4 +84,14 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
     });
 
     return query;
+}
+
+/**
+ *  adds a new peak to the database
+ */
+export async function addPeak(sensorDataId: number, deviceId: number) {
+    return db.insert(peaks).values({
+        sensorDataId,
+        deviceId,
+    });
 }
