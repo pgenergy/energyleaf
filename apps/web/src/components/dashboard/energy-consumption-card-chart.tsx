@@ -4,21 +4,20 @@ import { useState } from "react";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui";
 import { LineChart } from "@energyleaf/ui/components";
-import EnergyAggregation from '@/components/dashboard/energy-aggregation';
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
+
+import AggregatedEnergy from "@/lib/aggregate-energy";
+import EnergyAggreation from "./energy-aggregation";
 
 interface Props {
     data: Record<string, string | number | undefined>[];
     peaks: Record<string, string | number | undefined>[];
 }
 
-
 export default function EnergyConsumptionCardChart({ data, peaks }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<Record<string, string | number | undefined>>({});
-    
-
 
     return (
         <>
