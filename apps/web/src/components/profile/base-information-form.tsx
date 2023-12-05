@@ -1,7 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { updateBaseInformation } from "@/actions/profile";
+import ChangePasswordForm from "./change-password-form";
+import { updateBaseInformationUsername } from "@/actions/profile";
 import { baseInfromationSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -32,7 +33,7 @@ interface Props {
 }
 
 export default function BaseInformationForm({ username, email, id }: Props) {
-    const [isPending, startTransition] = useTransition();
+    const [changeIsPending, startTransition] = useTransition();
     const { toast } = useToast();
     const form = useForm<z.infer<typeof baseInfromationSchema>>({
         resolver: zodResolver(baseInfromationSchema),
@@ -48,14 +49,14 @@ export default function BaseInformationForm({ username, email, id }: Props) {
                 return;
             }
             try {
-                await updateBaseInformation(data, id);
+                await updateBaseInformationUsername(data, id);
                 toast({
                     title: "Erfolgreich aktualisiert",
                     description: "Deine Daten wurden erfolgreich aktualisiert",
                 });
             } catch (e) {
                 toast({
-                    title: "Fehler beim aktualisieren",
+                    title: "Fehler beim Aktualisieren",
                     description: "Deine Daten konnten nicht aktualisiert werden",
                     variant: "destructive",
                 });
@@ -99,14 +100,15 @@ export default function BaseInformationForm({ username, email, id }: Props) {
                             )}
                         />
                         <div className="col-span-2 flex flex-row justify-end">
-                            <Button disabled={isPending} type="submit">
-                                {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            <Button disabled={changeIsPending} type="submit" value="username">
+                                {changeIsPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
                                 Speichern
                             </Button>
                         </div>
                     </form>
                 </Form>
             </CardContent>
+            <ChangePasswordForm id={id}/>
         </Card>
     );
 }
