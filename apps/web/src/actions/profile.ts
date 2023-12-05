@@ -3,8 +3,9 @@
 import * as bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import type { baseInfromationSchema, deleteAccountSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
+import { PasswordsDoNotMatchError } from "./error";
 
-import { copyOldUserDataToHistoryUserData, getUserById, updateMailSettings, updatePassword, updateUser, updateUserData, deleteUser } from "@energyleaf/db/query";
+import { getUserById, updateMailSettings, updatePassword, updateUser, updateUserData, deleteUser } from "@energyleaf/db/query";
 
 import "server-only";
 
@@ -38,7 +39,7 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
     }
     const match = await bcrypt.compare(data.oldPassword, user.password);
     if (!match) {
-        throw new Error("Passwords do not match")
+        throw new PasswordsDoNotMatchError();
     }
 
     const hash = await bcrypt.hash(data.newPassword, 10);
@@ -84,11 +85,9 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
     }
 
     try {
-        await copyOldUserDataToHistoryUserData(user.id);
-        const currentTimestamp = new Date();
         await updateUserData(
             {
-                timestamp: currentTimestamp,
+                timestamp: new Date(),
                 budget: data.budget,
                 wohnfläche: data.houseSize,
                 household: data.people,
@@ -113,7 +112,7 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>, i
     }
     const match = await bcrypt.compare(data.password, user.password);
     if (!match) {
-        throw new Error("Passwords do not match")
+        throw new PasswordsDoNotMatchError();
     }
 
     try {

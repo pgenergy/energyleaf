@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { deleteAccount } from "@/actions/profile";
+import { PasswordsDoNotMatchError } from "@/actions/error";
 import { deleteAccountSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -57,7 +58,7 @@ export default function AccountDeletionForm({ id }: Props) {
                 });
                 await signOutAction();
             } catch (e) {
-                if (e.message === "Passwords do not match") {
+                if (e instanceof PasswordsDoNotMatchError) {
                     toast({
                         title: "Das Passwort ist falsch",
                         description: "Dein Account konnte nicht gelöscht werden",
