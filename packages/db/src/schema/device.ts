@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, int, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const device = mysqlTable("device", {
     id: int("id").autoincrement().primaryKey().notNull(),

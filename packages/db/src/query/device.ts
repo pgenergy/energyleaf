@@ -28,11 +28,9 @@ export type CreateDeviceType = {
 }
 
 export async function createDevice(data: CreateDeviceType) {
-    return db.transaction(async (trx) => {
-        await trx.insert(device).values({
-            name: data.name,
-            userId: data.userId,
-        });
+    await db.insert(device).values({
+        name: data.name,
+        userId: data.userId,
     });
 }
 
