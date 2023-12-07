@@ -30,7 +30,6 @@ export default function EnergyConsumptionCardChart({ data, peaks }: Props) {
             </Dialog>
             <LineChart
                 data={data}
-                //data={data}
                 keyName="energy"
                 referencePoints={{
                     data: peaks,

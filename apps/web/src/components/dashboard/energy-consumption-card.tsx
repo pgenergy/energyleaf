@@ -2,14 +2,13 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth";
 import { getEnergyDataForUser } from "@/query/energy";
 import { differenceInMinutes } from "date-fns";
+import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 import DashboardDateRange from "./date-range";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
-
-import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 
 interface Props {
     startDate: Date;
