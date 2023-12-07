@@ -13,6 +13,26 @@ export const user = mysqlTable("user", {
 export const userData = mysqlTable("user_data", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: int("user_id").notNull(),
+    timestamp: timestamp("timestamp")
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+    budget: int("budget").default(2500),
+    basispreis: float("basispreis"),
+    arbeitspreis: float("arbeitspreis"),
+    tarif: mysqlEnum("tarif", ["basic", "eco"]).default("basic"),
+    limitEnergy: int("limit_energy").default(800),
+    household: int("household"),
+    immobilie: mysqlEnum("immobilie", ["house", "apartment"]),
+    wohnfläche: int("wohnfläche"),
+    warmwasser: mysqlEnum("warmwasser", ["electric", "not_electric"]),
+});
+
+export const historyUserData = mysqlTable("history_user_data", {
+    id: int("id").autoincrement().primaryKey().notNull(),
+    userId: int("user_id").notNull(),
+    timestamp: timestamp("timestamp")
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
     budget: int("budget").default(2500),
     basispreis: float("basispreis"),
     arbeitspreis: float("arbeitspreis"),

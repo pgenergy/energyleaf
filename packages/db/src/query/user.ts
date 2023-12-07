@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import db from "../";
-import { mail, user, userData } from "../schema";
+import { historyUserData, mail, user, userData } from "../schema";
 
 /**
  * Get a user by id from the database
@@ -106,6 +106,13 @@ export async function updateUser(data: Partial<CreateUserType>, id: number) {
 }
 
 /**
+ * Update the user's password in the database
+ */
+export async function updatePassword(data: Partial<CreateUserType>, id: number) {
+    return await db.update(user).set(data).where(eq(user.id, id));
+}
+
+/**
  * Update the user mail settings data in the database
  */
 export async function updateMailSettings(data: { daily: boolean; weekly: boolean }, id: number) {
@@ -126,8 +133,58 @@ type UpdateUserData = {
     warmwasser: (typeof userData.warmwasser.enumValues)[number];
     household: number;
     basispreis: number;
+    timestamp: Date;
 };
 
 export async function updateUserData(data: UpdateUserData, id: number) {
-    return await db.update(userData).set(data).where(eq(userData.userId, id));
+    return db.transaction(async (trx) => {
+        const oldUserData = await getUserDataByUserId(id);
+        if (!oldUserData) {
+            throw new Error("Old user data not found");
+        }
+
+        await trx.insert(historyUserData).values({
+            userId: oldUserData.userId,
+            timestamp: oldUserData.timestamp,
+            budget: oldUserData.budget,
+            basispreis: oldUserData.basispreis,
+            arbeitspreis: oldUserData.arbeitspreis,
+            tarif: oldUserData.tarif,
+            limitEnergy: oldUserData.limitEnergy,
+            household: oldUserData.household,
+            immobilie: oldUserData.immobilie,
+            wohnfläche: oldUserData.wohnfläche,
+            warmwasser: oldUserData.warmwasser,
+        });
+
+        const newHistoryUserData = await trx
+            .select({
+                id: historyUserData.id,
+            })
+            .from(historyUserData)
+            .where(eq(historyUserData.timestamp, oldUserData.timestamp));
+
+        if (newHistoryUserData.length === 0) {
+            throw new Error("History data not found");
+        }
+
+        await db.update(userData).set(data).where(eq(userData.userId, id));
+    });
+}
+
+export async function getUserDataByUserId(id: number) {
+    const data = await db
+        .select()
+        .from(userData)
+        .where(eq(userData.userId, id));
+
+    if (data.length === 0) {
+        return null;
+    }
+
+    return data[0];
+}
+
+export async function deleteUser(id: number) {
+    return await db.delete(user).where(eq(user.id, id));
 }

@@ -7,6 +7,12 @@ export const baseInfromationSchema = z.object({
     email: z.string().email({ message: "Bitte gib eine gültige E-Mail-Adresse an." }),
 });
 
+export const passwordSchema = z.object({
+    oldPassword: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
+    newPassword: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
+    newPasswordRepeat: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
+});
+
 export const mailSettingsSchema = z.object({
     daily: z.boolean().default(false),
     weekly: z.boolean().default(false),
@@ -20,4 +26,8 @@ export const userDataSchema = z.object({
     budget: z.coerce.number().int().positive({ message: "Bitte gib ein gültiges Budget an." }),
     tarif: z.enum([...userData.tarif.enumValues]).default(userData.tarif.enumValues[0]),
     price: z.coerce.number().positive({ message: "Bitte gib einen gültigen Preis an." }),
+});
+
+export const deleteAccountSchema = z.object({
+    password: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
 });
