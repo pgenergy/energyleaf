@@ -7,9 +7,6 @@ import { LineChart } from "@energyleaf/ui/components";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
-import AggregatedEnergy from "@/lib/aggregate-energy";
-import EnergyAggreation from "./energy-aggregation";
-
 interface Props {
     data: Record<string, string | number | undefined>[];
     peaks: Record<string, string | number | undefined>[];

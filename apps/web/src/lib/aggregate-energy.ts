@@ -1,33 +1,21 @@
-'use client';
+export function getAggregatedEnergy(data: Record<string, string | number | undefined>[], aggregationType: string | undefined) {
 
-type AxesValue = string | number | undefined;
-
-//todo: Als Rückgabetyp muss in Record<string, AxesValue> umgewandelt werden
-
-export default function getAggregatedEnergy(data: Record<string, string | number | undefined>[]) {
-
-    const query = new URLSearchParams(window.location.search);
-    var aggregation = query.get('aggregation')
-
-    if(aggregation == null) {
-        aggregation = "hour"
+    if(aggregationType == null) {
+        aggregationType = "hour"
     }
 
-    switch (aggregation) {
+    switch (aggregationType) {
         case 'hour':
-            handleHourOption(data);
-            break;
+            return handleHourOption(data);
         case 'day':
-            handleDayOption(data);
-            break;
+            return handleDayOption(data);
         case 'month':
-            handleMonthOption(data);
-            break;
+            return handleMonthOption(data);
         case 'year':
-            handleYearOption(data);
-            break;
+            return handleYearOption(data);
     }
-}
+    return data
+};
 
 const handleHourOption = (data) => {
     const energyConsumptionPerHour = [];
@@ -76,6 +64,7 @@ const handleDayOption = (data) => {
 
 
 const handleMonthOption = (data) => {
+    
     const energyConsumptionPerMonth = [];
 
     for (const value in data) {
@@ -94,7 +83,7 @@ const handleMonthOption = (data) => {
             };
         }
     }
-
+    
     return Object.values(energyConsumptionPerMonth);
 };
 
@@ -117,5 +106,4 @@ const handleYearOption = (data) => {
     }
 
     return Object.values(energyConsumptionPerYear);
-};
-
+}
