@@ -101,10 +101,10 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex space-x-2">
-                                            <Button className="w-7 h-7 rounded-full bg-primary p-1" onClick={() => onEditClick(device)}>
+                                            <Button variant="default" size="icon" onClick={() => onEditClick(device)}>
                                                 <Pen className="w-4 h-4" />
                                             </Button>
-                                            <Button className="w-7 h-7 rounded-full p-1" onClick={e => onDeleteButtonClick(e, device)}>
+                                            <Button variant="default" size="icon" onClick={e => onDeleteButtonClick(e, device)}>
                                                 <Trash className="w-4 h-4" />
                                             </Button>
                                         </div>
