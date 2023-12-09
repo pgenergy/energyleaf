@@ -5,9 +5,10 @@ import EnergyCostCard from "@/components/dashboard/energy-cost-card";
 
 import { Skeleton } from "@energyleaf/ui";
 
-export default function DashboardPage({ searchParams }: { searchParams: { start?: string; end?: string } }) {
+export default function DashboardPage({ searchParams }: { searchParams: { start?: string; end?: string; aggregation?: string; } }) {
     const startDateString = searchParams.start;
     const endDateString = searchParams.end;
+    const aggregationType = searchParams.aggregation;
     const startDate = startDateString ? new Date(startDateString) : new Date();
     const endDate = endDateString ? new Date(endDateString) : new Date();
 
@@ -22,7 +23,7 @@ export default function DashboardPage({ searchParams }: { searchParams: { start?
                 </Suspense>
             </div>
             <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
-                <EnergyConsumptionCard endDate={endDate} startDate={startDate} />
+                <EnergyConsumptionCard endDate={endDate} startDate={startDate} aggregationType={aggregationType}/>
             </Suspense>
         </div>
     );

@@ -2,18 +2,21 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth";
 import { getEnergyDataForUser } from "@/query/energy";
 import { differenceInMinutes } from "date-fns";
+import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 import DashboardDateRange from "./date-range";
+import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
 interface Props {
     startDate: Date;
     endDate: Date;
+    aggregationType: string | undefined
 }
 
-export default async function EnergyConsumptionCard({ startDate, endDate }: Props) {
+export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
     const session = await getSession();
 
     if (!session) {
@@ -25,6 +28,8 @@ export default async function EnergyConsumptionCard({ startDate, endDate }: Prop
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
     }));
+    const aggregatedData = getAggregatedEnergy(data, aggregationType)
+
     const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
     const std = Math.sqrt(
         data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
@@ -48,6 +53,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate }: Prop
                     <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
                 </div>
                 <DashboardDateRange endDate={endDate} startDate={startDate} />
+                <DashboardEnergyAggregation endDate={endDate} startDate={startDate}/>
             </CardHeader>
             <CardContent>
                 <div className="h-96 w-full">
@@ -56,7 +62,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate }: Prop
                             <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                         </div>
                     ) : (
-                        <EnergyConsumptionCardChart data={data} peaks={peaks} />
+                        <EnergyConsumptionCardChart data={aggregatedData} peaks={peaks} />
                     )}
                 </div>
             </CardContent>
