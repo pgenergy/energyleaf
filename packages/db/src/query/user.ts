@@ -21,7 +21,7 @@ export async function getUserById(id: number) {
 /**
  * Get a user by mail from the database
  *
- * @param id<number> The id of the user
+ * @param email<string> The email of the user
  *
  * @returns The user or null if not found
  */
