@@ -118,7 +118,7 @@ export default function SignUpForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <Input placeholder="Passwort Wiederholen" type="password" {...field} />
+                                    <Input placeholder="Passwort wiederholen" type="password" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

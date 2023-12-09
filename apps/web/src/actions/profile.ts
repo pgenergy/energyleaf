@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { baseInfromationSchema, mailSettingsSchema, userDataSchema } from "@/lib/schema/profile";
+import type { baseInformationSchema, mailSettingsSchema, userDataSchema } from "@/lib/schema/profile";
 
 import { getUserById, updateMailSettings, updateUser, updateUserData } from "@energyleaf/db/query";
 
@@ -9,7 +9,7 @@ import "server-only";
 
 import type { z } from "zod";
 
-export async function updateBaseInformation(data: z.infer<typeof baseInfromationSchema>, id: number | string) {
+export async function updateBaseInformation(data: z.infer<typeof baseInformationSchema>, id: number | string) {
     const user = await getUserById(Number(id));
     if (!user) {
         throw new Error("User not found");

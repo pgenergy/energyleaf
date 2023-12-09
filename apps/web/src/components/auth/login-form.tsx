@@ -69,7 +69,7 @@ export default function LoginForm() {
                             </Link>
                         </p>
                         <p className="text-sm text-muted-foreground">
-                            <Link className="underline hover:no-underline" href="/reset">
+                            <Link className="underline hover:no-underline" href="/forgot">
                                 Passwort vergessen?
                             </Link>
                         </p>
