@@ -1,26 +1,30 @@
+import { AggregationType } from './aggregation-type';
+
 export function getAggregatedEnergy(data: Record<string, string | number | undefined>[], aggregationType: string | undefined) {
 
-    if(aggregationType == null) {
-        aggregationType = "hour"
+    if (!aggregationType) {
+        aggregationType = AggregationType.HOUR;
     }
 
     switch (aggregationType) {
-        case 'hour':
+        case AggregationType.HOUR:
             return handleHourOption(data);
-        case 'day':
+        case AggregationType.DAY:
             return handleDayOption(data);
-        case 'month':
+        case AggregationType.MONTH:
             return handleMonthOption(data);
-        case 'year':
+        case AggregationType.YEAR:
             return handleYearOption(data);
+        default:
+            return data;
     }
-    return data
 };
 
 const handleHourOption = (data) => {
     const energyConsumptionPerHour = [];
 
     for (const value in data) {
+        
         const timestampParts = data[value].timestamp.split(' ');
         const date = timestampParts[1] + ' ' + timestampParts[2] + ' ' + timestampParts[3];
         const hour = timestampParts[4].split(':')[0];
@@ -45,10 +49,12 @@ const handleDayOption = (data) => {
     const energyConsumptionPerDay = [];
 
     for (const value in data) {
+
+        const timestampParts = data[value].timestamp.split(' ');
         const date = 
-            data[value].timestamp.split(' ')[1] + ' ' + 
-            data[value].timestamp.split(' ')[2] + ' ' + 
-            data[value].timestamp.split(' ')[3];
+            timestampParts[1] + ' ' + 
+            timestampParts[2] + ' ' + 
+            timestampParts[3];
 
         if (energyConsumptionPerDay[date]) {
             energyConsumptionPerDay[date].energy += data[value].energy;
