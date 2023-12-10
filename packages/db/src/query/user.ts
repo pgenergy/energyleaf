@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import db from "../";
-import { mail, user, userData } from "../schema";
+import { mail, user, userData, token } from "../schema";
 
 /**
  * Get a user by id from the database
@@ -31,6 +31,29 @@ export async function getUserByMail(email: string) {
         return null;
     }
     return query[0];
+}
+
+/**
+ * Get a password reset token
+ *
+ * @param token_id<string?> The password reset token id
+ *
+ * @returns The password reset or null if not found
+ */
+export async function getToken(token_id: string | null) {
+    if (token_id === null) {
+        return null
+    }
+
+    const query = await db.select().from(token).where(eq(token.tokenId, token_id || ""));
+    if (query.length === 0) {
+        return null;
+    }
+    return query[0];
+}
+
+export async function deleteToken(token_id: string) {
+    await db.delete(token).where(eq(token.tokenId, token_id));
 }
 
 export type CreateUserType = {
