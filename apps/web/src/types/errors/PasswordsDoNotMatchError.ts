@@ -1,6 +1,6 @@
 export class PasswordsDoNotMatchError extends Error {
     constructor() {
-      super();
-      Object.setPrototypeOf(this, PasswordsDoNotMatchError.prototype)
+        super();
+        Object.setPrototypeOf(this, PasswordsDoNotMatchError.prototype);
     }
 }

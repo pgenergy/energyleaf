@@ -108,7 +108,7 @@ export default function BaseInformationForm({ username, email, id }: Props) {
                     </form>
                 </Form>
             </CardContent>
-            <ChangePasswordForm id={id}/>
+            <ChangePasswordForm id={id} />
         </Card>
     );
 }

@@ -1,17 +1,31 @@
 "use server";
 
-import * as bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import type { baseInformationSchema, deleteAccountSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
-import { PasswordsDoNotMatchError } from "../types/errors/PasswordsDoNotMatchError";
+import type {
+    baseInformationSchema,
+    deleteAccountSchema,
+    mailSettingsSchema,
+    passwordSchema,
+    userDataSchema,
+} from "@/lib/schema/profile";
+import * as bcrypt from "bcryptjs";
 
-import { getUserById, updateMailSettings, updatePassword, updateUser, updateUserData, deleteUser } from "@energyleaf/db/query";
+import {
+    deleteUser,
+    getUserById,
+    updateMailSettings,
+    updatePassword,
+    updateUser,
+    updateUserData,
+} from "@energyleaf/db/query";
+
+import { PasswordsDoNotMatchError } from "../types/errors/PasswordsDoNotMatchError";
 
 import "server-only";
 
 import type { z } from "zod";
 
-export async function updateBaseInformation(data: z.infer<typeof baseInformationSchema>, id: number | string) {
+export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>, id: number | string) {
     const user = await getUserById(Number(id));
     if (!user) {
         throw new Error("User not found");

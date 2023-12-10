@@ -24,7 +24,7 @@ const handleHourOption = (data) => {
     const energyConsumptionPerHour = [];
 
     for (const value in data) {
-        
+
         const timestampParts = data[value].timestamp.split(' ');
         const date = timestampParts[1] + ' ' + timestampParts[2] + ' ' + timestampParts[3];
         const hour = timestampParts[4].split(':')[0];
@@ -51,17 +51,17 @@ const handleDayOption = (data) => {
     for (const value in data) {
 
         const timestampParts = data[value].timestamp.split(' ');
-        const date = 
-            timestampParts[1] + ' ' + 
-            timestampParts[2] + ' ' + 
+        const date =
+            timestampParts[1] + ' ' +
+            timestampParts[2] + ' ' +
             timestampParts[3];
 
         if (energyConsumptionPerDay[date]) {
             energyConsumptionPerDay[date].energy += data[value].energy;
         } else {
             energyConsumptionPerDay[date] = {
-            energy: data[value].energy,
-            timestamp: data[value].timestamp
+                energy: data[value].energy,
+                timestamp: data[value].timestamp
             };
         }
     }
@@ -70,7 +70,7 @@ const handleDayOption = (data) => {
 
 
 const handleMonthOption = (data) => {
-    
+
     const energyConsumptionPerMonth = [];
 
     for (const value in data) {
@@ -89,7 +89,7 @@ const handleMonthOption = (data) => {
             };
         }
     }
-    
+
     return Object.values(energyConsumptionPerMonth);
 };
 

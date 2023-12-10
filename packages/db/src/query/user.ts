@@ -42,10 +42,10 @@ export async function getUserByMail(email: string) {
  */
 export async function getToken(token_id: string | null) {
     if (token_id === null) {
-        return null
+        return null;
     }
 
-    const query = await db.select().from(token).where(eq(token.tokenId, token_id || ""));
+    const query = await db.select().from(token).where(eq(token.tokenId, token_id));
     if (query.length === 0) {
         return null;
     }

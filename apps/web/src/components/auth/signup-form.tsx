@@ -2,11 +2,10 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { createAccount } from "@/actions/auth";
+import { createAccount, signInAction } from "@/actions/auth";
 import { signupSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { signInAction } from "@/actions/auth";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
@@ -40,7 +39,7 @@ export default function SignUpForm() {
         startTransition(async () => {
             try {
                 await createAccount(data);
-                await signInAction(data.mail, data.password)
+                await signInAction(data.mail, data.password);
                 toast({
                     title: "Konto erstellt",
                     description: "Dein Konto wurde erfolgreich erstellt.",

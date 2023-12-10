@@ -14,7 +14,7 @@ async function SendMail(to: string, subject: string, html: string) {
         to,
         from,
         subject,
-        html
+        html,
     };
 
     await sgMail.send(msg);

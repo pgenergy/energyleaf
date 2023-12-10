@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { forgotPassword } from "@/actions/auth";
+import { forgotSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -8,8 +10,6 @@ import type { z } from "zod";
 
 import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 import { useToast } from "@energyleaf/ui/hooks";
-import {forgotSchema} from "@/lib/schema/auth";
-import {forgotPassword} from "@/actions/auth";
 
 export default function ForgotForm() {
     const [loading, setLoading] = useState<boolean>(false);
@@ -17,7 +17,7 @@ export default function ForgotForm() {
     const form = useForm<z.infer<typeof forgotSchema>>({
         resolver: zodResolver(forgotSchema),
         defaultValues: {
-            mail: ""
+            mail: "",
         },
     });
 

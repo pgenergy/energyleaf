@@ -21,7 +21,7 @@ export default function Page() {
                 </div>
             </CardHeader>
             <CardContent>
-                <ForgotForm/>
+                <ForgotForm />
             </CardContent>
         </Card>
     );
