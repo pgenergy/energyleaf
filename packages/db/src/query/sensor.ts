@@ -4,36 +4,32 @@ import db from "..";
 import { sensorData, userData } from "../schema";
 
 /**
- * Get the energy consumption for a user in a given time range
+ * Get the energy consumption for a sensor in a given time range
  */
-export async function getEnergyForUserInRange(start: Date, end: Date, userId: number) {
+export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId: string) {
     return db
         .select()
         .from(sensorData)
         .where(
             and(
-                eq(sensorData.userId, userId),
-                or(
-                    between(sensorData.timestamp, start, end),
-                    eq(sensorData.timestamp, start),
-                    eq(sensorData.timestamp, end),
-                ),
+                eq(sensorData.sensorId, sensorId),
+                between(sensorData.timestamp, start, end)
             ),
         )
         .orderBy(sensorData.timestamp);
 }
 
 /**
- * Get the average energy consumption for a user
+ * Get the average energy consumption for a sensor
  */
-export async function getAvgEnergyConsumptionForUser(userId: number) {
+export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
     const query = await db
         .select({
-            userId: sensorData.userId,
+            sensorId: sensorData.sensorId,
             avg: sql<string>`AVG(${sensorData.value})`,
         })
         .from(sensorData)
-        .where(eq(sensorData.userId, userId));
+        .where(eq(sensorData.sensorId, sensorId));
 
     if (query.length === 0) {
         return null;

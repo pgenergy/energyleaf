@@ -1,15 +1,16 @@
 import { sql } from "drizzle-orm";
-import { int, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const sensor = mysqlTable("sensor", {
     id: varchar("sensor_id", { length: 30 }).primaryKey().notNull(),
     code: varchar("code", { length: 30 }).notNull(),
     version: int("version").default(1).notNull(),
+    type: mysqlEnum("type", ["electricity", "gas"]).notNull(),
 });
 
 export const sensorData = mysqlTable("sensor_data", {
     id: int("id").autoincrement().primaryKey().notNull(),
-    userId: int("user_id").notNull(),
+    sensorId: varchar("sensor_id", { length: 30 }).notNull(),
     value: int("value").notNull(),
     timestamp: timestamp("timestamp")
         .default(sql`CURRENT_TIMESTAMP`)
