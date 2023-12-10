@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import db from "../";
-import { historyUserData, mail, user, userData } from "../schema";
+import { historyUserData, mail, user, userData, token } from "../schema";
 
 /**
  * Get a user by id from the database
