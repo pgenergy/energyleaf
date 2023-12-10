@@ -1,6 +1,6 @@
 'use client';
 
-import { createDevice } from "@/actions/device";
+import { createDevice, updateDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
 import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from "@energyleaf/ui";
 import { toast } from "@energyleaf/ui/hooks";
@@ -9,26 +9,38 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
 interface Props {
+    device?: { id: Number, name: String };
     userId: string;
     onInteract: () => void;
 }
 
-export default function CreateDeviceForm({ onInteract, userId }: Props) {
+export default function DeviceDetailsForm({ device, onInteract, userId }: Props) {
+    const isNew = !device;
+    const deviceName = device?.name as string ?? "";
     const form = useForm<z.infer<typeof deviceSchema>>({
-        resolver: zodResolver(deviceSchema)
+        resolver: zodResolver(deviceSchema),
+        defaultValues: {
+            deviceName
+        },
     });
 
     async function onSubmit(data: z.infer<typeof deviceSchema>) {
         try {
-            await createDevice(data, userId);
+            if (isNew) {
+                await createDevice(data, userId);
+            } else {
+                await updateDevice(data, Number(device.id), userId);
+            }
+
+            const operation = isNew ? "hinzugefügt" : "aktualisiert"
             toast({
-                title: "Erfolgreich aktualisiert",
-                description: "Deine Daten wurden erfolgreich aktualisiert",
+                title: `Erfolgreich ${operation}`,
+                description: `Das Gerät wurde erfolgreich ${operation}`,
             });
         } catch (e) {
             toast({
-                title: "Fehler beim aktualisieren",
-                description: "Deine Daten konnten nicht aktualisiert werden",
+                title: `Fehler beim ${isNew ? "Hinzufügen" : "Aktualisieren"}`,
+                description: `Das Gerät konnte nicht ${isNew ? "hinzugefügt" : "aktualisiert"} werden`,
                 variant: "destructive",
             });
         }
@@ -57,7 +69,7 @@ export default function CreateDeviceForm({ onInteract, userId }: Props) {
                     )}
                 />
                 <div className="flex flex-row justify-end">
-                    <Button type="submit">
+                    <Button type="submit" disabled={!isNew && !form.formState.isDirty}>
                         Speichern
                     </Button>
                 </div>
