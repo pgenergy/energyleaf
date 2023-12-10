@@ -1,9 +1,9 @@
 import { sql } from "drizzle-orm";
 import { int, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
 
-export const buttonTracking = mysqlTable("button_tracking", {
+export const clickTracking = mysqlTable("click_tracking", {
     id: int("id").autoincrement().primaryKey().notNull(),
-    buttonName: varchar("button_name", { length: 255 }).notNull(),
+    buttonName: varchar("element", { length: 255 }).notNull(),
     timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`),
     userId: int("user_id").notNull(),
 });
