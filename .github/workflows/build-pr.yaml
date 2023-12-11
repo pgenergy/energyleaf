@@ -9,6 +9,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: <super-secret>
+      DATABASE_HOST: localhost
+      DATABASE_USERNAME: username
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: database
+      SENDGRID_API_KEY: <sendgrid-api-key>
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
