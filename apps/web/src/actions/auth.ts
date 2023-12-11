@@ -7,9 +7,10 @@ import type { signupSchema, forgotSchema, resetSchema } from "@/lib/schema/auth"
 import * as bcrypt from "bcryptjs";
 import type { z } from "zod";
 
-import { createUser, getUserByMail, type CreateUserType, getToken, deleteToken } from "@energyleaf/db/query";
+import { createUser, getUserByMail, getUserById, type CreateUserType, createToken, getToken, deleteToken, updatePassword } from "@energyleaf/db/query";
 import {randomBytes} from "crypto";
 import {SendMail} from "@/lib/mail/sendgrid"
+import * as process from "process";
 
 /**
  * Server action for creating a new account
@@ -50,9 +51,13 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
 
     const uuid = randomBytes(20).toString("hex");
 
-    // todo: speichere in datenbank
+    await createToken({tokenId: uuid, userId: user.id, create: new Date() });
 
-    await SendMail(mail, "Energyleaf: Passwort zurückseten", "test")
+    const html = `üDiese E-Mail wurde als Antwort auf Ihre Anfrage gesendet, Ihr Passwort zurückzusetzen. Bitte klicken Sie hierzu auf den Link unten. Aus Sicherheitsgründen ist dieser nur eine Stunde gültig.
+<br> ${process.env.NEXTAUTH_URL}/reset?token=${uuid}
+<br> Wenn Sie dies nicht angefordert haben, empfehlen wir Ihnen, Ihre Passwörter zu ändern.`;
+
+    await SendMail(mail, "Energyleaf: Passwort zurückseten", html)
 }
 
 export async function resetPassword(data: z.infer<typeof resetSchema>, token_id: string | null) {
@@ -60,6 +65,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, token_id:
 
     const token = await getToken(token_id);
     if (token === null) {
+        // relativ unpräzise Error Message ist ein feature, um möglichst wenig Angriffainformation zu bieten
         throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
     }
 
@@ -69,11 +75,18 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, token_id:
         throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
     }
 
+    const user = await getUserById(token.userId);
+    if (!user) {
+        throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
+    }
+
     if (password !== passwordRepeat) {
         throw new Error("Passwörter stimmen nicht überein.");
     }
 
-    // todo: update password
+    await updatePassword({ password }, token.userId);
+
+    await SendMail(user.email, "Energyleaf: Passwort wurde geändert", "Sie haben Ihr Energyleaf Passwort geändert. Diese Aktion wurde nicht von Ihnen durchgeführt? Dann ändern Sie unverzüglich Ihre Passwörter.")
 
     await deleteToken(token.tokenId);
 }

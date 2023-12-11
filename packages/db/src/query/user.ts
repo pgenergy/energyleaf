@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import db from "../";
-import { historyUserData, mail, user, userData, token } from "../schema";
+import { historyUserData, mail, token, user, userData } from "../schema";
 
 /**
  * Get a user by id from the database
@@ -31,6 +31,24 @@ export async function getUserByMail(email: string) {
         return null;
     }
     return query[0];
+}
+
+export type CreateTokenType = {
+    tokenId: string;
+    userId: number;
+    create: Date;
+};
+
+export async function createToken(data: CreateTokenType) {
+    return db.transaction(async (trx) => {
+        const check = await trx.select().from(token).where(eq(token.tokenId, data.tokenId));
+
+        if (check.length > 0) {
+            throw new Error("Token already exists");
+        }
+
+        await trx.insert(token).values(data);
+    });
 }
 
 /**
