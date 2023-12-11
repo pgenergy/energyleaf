@@ -21,7 +21,6 @@ export const authOptions: NextAuthConfig = {
                 return Response.redirect(new URL("/", url));
             }
 
-
             if (![...publicRoutes, ...unprotectedRoutes].includes(url.pathname) && !loggedIn) {
                 return Promise.resolve(false);
             }

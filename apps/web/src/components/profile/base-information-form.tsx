@@ -1,7 +1,6 @@
 "use client";
 
 import { useTransition } from "react";
-import ChangePasswordForm from "./change-password-form";
 import { updateBaseInformationUsername } from "@/actions/profile";
 import { baseInfromationSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +24,8 @@ import {
     Input,
 } from "@energyleaf/ui";
 import { useToast } from "@energyleaf/ui/hooks";
+
+import ChangePasswordForm from "./change-password-form";
 
 interface Props {
     username: string;
@@ -108,7 +109,7 @@ export default function BaseInformationForm({ username, email, id }: Props) {
                     </form>
                 </Form>
             </CardContent>
-            <ChangePasswordForm id={id}/>
+            <ChangePasswordForm id={id} />
         </Card>
     );
 }

@@ -2,8 +2,8 @@
 
 import { useTransition } from "react";
 import { updateBaseInformationPassword } from "@/actions/profile";
-import { PasswordsDoNotMatchError } from "@/types/errors/PasswordsDoNotMatchError";
 import { passwordSchema } from "@/lib/schema/profile";
+import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -11,7 +11,6 @@ import type { z } from "zod";
 
 import {
     Button,
-    Card,
     CardContent,
     CardDescription,
     CardHeader,

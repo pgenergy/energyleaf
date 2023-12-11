@@ -1,13 +1,27 @@
-import { Skeleton } from "@energyleaf/ui";
-import { SortOrder } from "@energyleaf/db/util";
-import DevicesOverviewCard from "@/components/devices/devices-overview-card";
 import { Suspense } from "react";
+import DevicesOverviewCard from "@/components/devices/devices-overview-card";
 
-export default async function DevicesPage({ searchParams }: { searchParams: { sortOrder: SortOrder, sortProp: String } }) {
+import { SortOrder } from "@energyleaf/db/util";
+import { Skeleton } from "@energyleaf/ui";
+
+interface SearchProps {
+    sortOrder?: SortOrder;
+    sortProp?: string;
+}
+
+export default function DevicesPage({ searchParams }: { searchParams: SearchProps }) {
+    const sortOrder = searchParams.sortOrder ? searchParams.sortOrder : SortOrder.ASC;
+    const sortPropName = searchParams.sortProp ?? "name";
+
     return (
         <div className="flex flex-col gap-4">
             <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
-                <DevicesOverviewCard searchParams={searchParams} />
+                <DevicesOverviewCard
+                    searchParams={{
+                        sortOrder,
+                        sortProp: sortPropName,
+                    }}
+                />
             </Suspense>
         </div>
     );

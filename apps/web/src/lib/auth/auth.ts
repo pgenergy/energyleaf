@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method -- NextAuth bug */
 import type { CustomSession } from "@/types/auth";
 import * as bcrypt from "bcryptjs";
 import NextAuth from "next-auth";

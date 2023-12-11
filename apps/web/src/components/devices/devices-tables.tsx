@@ -1,30 +1,32 @@
-'use client';
+"use client";
 
-import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@energyleaf/ui";
-import DeviceSortButton from "./device-sort-button";
-import { SortOrder } from "@energyleaf/db/util";
-import { de } from "date-fns/locale";
-import { format } from "date-fns";
 import React, { useState } from "react";
-import { Pen, Plus, Trash } from "lucide-react";
 import { deleteDevice } from "@/actions/device";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
+import { Pen, Plus, Trash } from "lucide-react";
+
+import type { SortOrder } from "@energyleaf/db/util";
+import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@energyleaf/ui";
 import { toast } from "@energyleaf/ui/hooks";
+
 import DeviceDetailsDialog from "./device-details-dialog";
+import DeviceSortButton from "./device-sort-button";
 
 interface Props {
     userId: string;
-    devices?: { id: Number, name: String, created: Date | null }[] | null;
+    devices?: { id: number; name: string; created: Date | null }[] | null;
     sortOrder: SortOrder;
-    sortProp: String;
+    sortProp: string;
 }
 
 export default function DevicesTable({ userId, devices, sortOrder, sortProp }: Props) {
     const [detailsOpen, setDetailsOpen] = useState(false);
-    const [device, setDevice] = useState<{ id: Number; name: String; } | undefined>(undefined)
+    const [device, setDevice] = useState<{ id: number; name: string } | undefined>(undefined);
 
     const dateString = (created: Date | null) => {
         if (!created) {
-            return ""
+            return "";
         }
 
         return `${format(created, "PPpp", {
@@ -32,14 +34,22 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
         })}`;
     };
 
-    async function onDeleteButtonClick(event: React.MouseEvent<HTMLButtonElement, MouseEvent>, device: { id: any; name?: String; created?: Date | null; }) {
-        event.stopPropagation()
-        if (!confirm("Soll das Gerät wirklich gelöscht werden?")) {
-            return
+    async function onDeleteButtonClick(
+        event: React.MouseEvent<HTMLButtonElement>,
+        id: number,
+    ) {
+        event.preventDefault();
+        const delDevice = devices?.find((x) => x.id === id);
+        if (!delDevice) {
+            return;
+        }
+        // eslint-disable-next-line no-alert -- TODO change to dialoge in the future
+        if (!(confirm("Soll das Gerät wirklich gelöscht werden?"))) {
+            return;
         }
 
         try {
-            await deleteDevice(device.id, userId)
+            await deleteDevice(delDevice.id, userId);
             toast({
                 title: "Erfolgreich gelöscht",
                 description: "Deine Daten wurden erfolgreich gelöscht",
@@ -54,25 +64,29 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
     }
 
     function onAddClick() {
-        setDevice(undefined)
-        setDetailsOpen(true)
+        setDevice(undefined);
+        setDetailsOpen(true);
     }
 
-    function onEditClick(device: { id: Number; name: String; }) {
-        setDevice(device)
-        setDetailsOpen(true)
+    function onEditClick(id: number) {
+        const editDevice = devices?.find((x) => x.id === id);
+        if (!editDevice) {
+            return;
+        }
+        setDevice(editDevice);
+        setDetailsOpen(true);
     }
 
     return (
         <div>
-            <DeviceDetailsDialog userId={userId} open={detailsOpen} setOpen={setDetailsOpen} device={device}/>
+            <DeviceDetailsDialog device={device} open={detailsOpen} setOpen={setDetailsOpen} userId={userId} />
             <div className="flex justify-end">
                 <Button onClick={onAddClick}>
-                    <Plus className="mr-2"/>
+                    <Plus className="mr-2" />
                     Gerät hinzufügen
                 </Button>
             </div>
-            {(devices && devices.length > 0) ? (
+            {devices && devices.length > 0 ? (
                 <div>
                     <Table>
                         <TableHeader>
@@ -82,30 +96,43 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
                                 </DeviceSortButton>
                             </TableHead>
                             <TableHead>
-                                <DeviceSortButton propName="created" sortOrder={sortProp === "created" ? sortOrder : null}>
+                                <DeviceSortButton
+                                    propName="created"
+                                    sortOrder={sortProp === "created" ? sortOrder : null}
+                                >
                                     Erstelldatum
                                 </DeviceSortButton>
                             </TableHead>
-                            <TableHead>
-                                Aktionen
-                            </TableHead>
+                            <TableHead>Aktionen</TableHead>
                         </TableHeader>
                         <TableBody>
-                            { devices.map((device) => (
-                                <TableRow key={Number(device.id)} className="cursor-pointer" onClick={() => onEditClick(device)}>
-                                    <TableCell>
-                                        {device.name}
-                                    </TableCell>
-                                    <TableCell>
-                                        {dateString(device.created)}
-                                    </TableCell>
+                            {devices.map((deviceValue) => (
+                                <TableRow
+                                    className="cursor-pointer"
+                                    key={Number(deviceValue.id)}
+                                    onClick={() => {
+                                        onEditClick(deviceValue.id);
+                                    }}
+                                >
+                                    <TableCell>{deviceValue.name}</TableCell>
+                                    <TableCell>{dateString(deviceValue.created)}</TableCell>
                                     <TableCell>
                                         <div className="flex space-x-2">
-                                            <Button variant="default" size="icon" onClick={() => onEditClick(device)}>
-                                                <Pen className="w-4 h-4" />
+                                            <Button
+                                                onClick={() => {
+                                                    onEditClick(deviceValue.id);
+                                                }}
+                                                size="icon"
+                                                variant="default"
+                                            >
+                                                <Pen className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="default" size="icon" onClick={e => onDeleteButtonClick(e, device)}>
-                                                <Trash className="w-4 h-4" />
+                                            <Button
+                                                onClick={(e) => onDeleteButtonClick(e, deviceValue.id)}
+                                                size="icon"
+                                                variant="default"
+                                            >
+                                                <Trash className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </TableCell>
@@ -120,5 +147,5 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
                 </div>
             )}
         </div>
-    )
+    );
 }

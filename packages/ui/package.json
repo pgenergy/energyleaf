@@ -4,9 +4,7 @@
     "type": "module",
     "private": true,
     "license": "MIT",
-    "scripts": {
-        "lint": "eslint ."
-    },
+    "scripts": {},
     "exports": {
         ".": "./src/ui/index.tsx",
         "./components": "./src/components/index.tsx",
