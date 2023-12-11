@@ -5,7 +5,8 @@ export const sensor = mysqlTable("sensor", {
     id: varchar("sensor_id", { length: 30 }).primaryKey().notNull(),
     code: varchar("code", { length: 30 }).notNull(),
     version: int("version").default(1).notNull(),
-    type: mysqlEnum("type", ["electricity", "gas"]).notNull(),
+    sensor_type: mysqlEnum("sensor_type", ["electricity", "gas"]).notNull(),
+    user_id: int("user_id").notNull(),
 });
 
 export const sensorData = mysqlTable("sensor_data", {

@@ -1,7 +1,7 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
-import { sensorData, userData } from "../schema";
+import { sensorData, userData, sensor } from "../schema";
 
 /**
  * Get the energy consumption for a sensor in a given time range
@@ -43,31 +43,29 @@ export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
  */
 export async function getAvgEnergyConsumptionForUserInComparison(userId: number) {
     const query = await db.transaction(async (trx) => {
-        const data = await trx.select().from(userData).where(eq(userData.userId, userId));
+        const userResult = await trx.select().from(userData).where(eq(userData.id, userId));
+        const user = userResult[0];
 
-        if (data.length === 0) {
-            return null;
-        }
-
-        const user = data[0];
-        if (!user.wohnfläche || !user.household || !user.immobilie) {
+        if (!user || !user.wohnfläche || !user.household || !user.immobilie) {
             return null;
         }
 
         const avg = await trx
             .select({
                 avg: sql<string>`AVG(${sensorData.value})`,
-                count: sql<string>`COUNT(${sensorData.value})`,
+                count: sql<string>`COUNT(DISTINCT ${sensor.id})`,
             })
             .from(sensorData)
-            .innerJoin(userData, eq(userData.userId, sensorData.userId))
+            .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
+            .innerJoin(userData, eq(userData.id, sensor.user_id))
             .where(
                 and(
                     eq(userData.wohnfläche, user.wohnfläche),
                     eq(userData.household, user.household),
                     eq(userData.immobilie, user.immobilie),
                 ),
-            );
+            )
+            .groupBy(userData.wohnfläche, userData.household, userData.immobilie);
 
         if (avg.length === 0) {
             return null;
