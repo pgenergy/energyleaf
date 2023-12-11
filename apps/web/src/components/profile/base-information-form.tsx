@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import ChangePasswordForm from "./change-password-form";
 import { updateBaseInformationUsername } from "@/actions/profile";
-import { baseInfromationSchema } from "@/lib/schema/profile";
+import { baseInformationSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -35,15 +35,15 @@ interface Props {
 export default function BaseInformationForm({ username, email, id }: Props) {
     const [changeIsPending, startTransition] = useTransition();
     const { toast } = useToast();
-    const form = useForm<z.infer<typeof baseInfromationSchema>>({
-        resolver: zodResolver(baseInfromationSchema),
+    const form = useForm<z.infer<typeof baseInformationSchema>>({
+        resolver: zodResolver(baseInformationSchema),
         defaultValues: {
             username,
             email,
         },
     });
 
-    function onSubmit(data: z.infer<typeof baseInfromationSchema>) {
+    function onSubmit(data: z.infer<typeof baseInformationSchema>) {
         startTransition(async () => {
             if (data.email !== email) {
                 return;
@@ -108,7 +108,7 @@ export default function BaseInformationForm({ username, email, id }: Props) {
                     </form>
                 </Form>
             </CardContent>
-            <ChangePasswordForm id={id}/>
+            <ChangePasswordForm id={id} />
         </Card>
     );
 }

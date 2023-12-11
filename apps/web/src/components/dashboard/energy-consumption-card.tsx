@@ -13,7 +13,7 @@ import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 interface Props {
     startDate: Date;
     endDate: Date;
-    aggregationType: string | undefined
+    aggregationType: string | undefined;
 }
 
 export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
@@ -28,7 +28,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
     }));
-    const aggregatedData = getAggregatedEnergy(data, aggregationType)
+    const aggregatedData = getAggregatedEnergy(data, aggregationType);
 
     const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
     const std = Math.sqrt(
@@ -53,7 +53,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
                 </div>
                 <DashboardDateRange endDate={endDate} startDate={startDate} />
-                <DashboardEnergyAggregation endDate={endDate} startDate={startDate}/>
+                <DashboardEnergyAggregation endDate={endDate} startDate={startDate} />
             </CardHeader>
             <CardContent>
                 <div className="h-96 w-full">

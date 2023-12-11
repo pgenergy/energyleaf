@@ -15,11 +15,11 @@ interface Props {
 }
 
 export default function EnergyAggreation({startDate, endDate}: Props) {
-    
+
     const router = useRouter();
     const pathname = usePathname();
 
-    const onChange = (selectedOption) => { 
+    const onChange = (selectedOption) => {
         const search = new URLSearchParams({
             start: startDate.toISOString(),
             end: endDate.toISOString(),

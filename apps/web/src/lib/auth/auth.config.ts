@@ -2,7 +2,7 @@ import type { CustomJWT, CustomSession, CustomUser } from "@/types/auth";
 import type { NextAuthConfig } from "next-auth";
 
 const publicRoutes = ["/legal"];
-const unprotectedRoutes = ["/", "/signup"];
+const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset"];
 
 export const authOptions: NextAuthConfig = {
     providers: [],

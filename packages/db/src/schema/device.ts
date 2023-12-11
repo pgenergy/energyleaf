@@ -15,5 +15,5 @@ export const deviceHistory = mysqlTable("history_device", {
     userId: int("user_id").notNull(),
     name: varchar("name", { length: 30 }).notNull(),
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
-    timestamp: timestamp("timestamp")
+    timestamp: timestamp("timestamp"),
 });

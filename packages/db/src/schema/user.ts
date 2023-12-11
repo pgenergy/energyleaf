@@ -10,6 +10,12 @@ export const user = mysqlTable("user", {
     sensorId: varchar("sensor_id", { length: 30 }).notNull(),
 });
 
+export const token = mysqlTable("token", {
+    tokenId: varchar("token_id", { length: 64 }).notNull(),
+    userId: int("user_id").primaryKey().notNull(),
+    created: timestamp("created").default(sql`CURRENT_TIMESTAMP`).notNull()
+});
+
 export const userData = mysqlTable("user_data", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: int("user_id").notNull(),
