@@ -53,8 +53,9 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
 
     await createToken({tokenId: uuid, userId: user.id, create: new Date() });
 
-    const html = `üDiese E-Mail wurde als Antwort auf Ihre Anfrage gesendet, Ihr Passwort zurückzusetzen. Bitte klicken Sie hierzu auf den Link unten. Aus Sicherheitsgründen ist dieser nur eine Stunde gültig.
-<br> ${process.env.NEXTAUTH_URL}/reset?token=${uuid}
+    const resetUrl = `${process.env.NEXTAUTH_URL}/reset?token=${uuid}`;
+    const html = `Diese E-Mail wurde als Antwort auf Ihre Anfrage gesendet, Ihr Passwort zurückzusetzen. Bitte klicken Sie hierzu auf den Link unten. Aus Sicherheitsgründen ist dieser nur eine Stunde gültig.
+<br> <a href="${resetUrl}">${resetUrl}</a>
 <br> Wenn Sie dies nicht angefordert haben, empfehlen wir Ihnen, Ihre Passwörter zu ändern.`;
 
     await SendMail(mail, "Energyleaf: Passwort zurückseten", html)
@@ -84,7 +85,8 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, token_id:
         throw new Error("Passwörter stimmen nicht überein.");
     }
 
-    await updatePassword({ password }, token.userId);
+    const hash = await bcrypt.hash(password, 10);
+    await updatePassword({ password: hash }, token.userId);
 
     await SendMail(user.email, "Energyleaf: Passwort wurde geändert", "Sie haben Ihr Energyleaf Passwort geändert. Diese Aktion wurde nicht von Ihnen durchgeführt? Dann ändern Sie unverzüglich Ihre Passwörter.")
 
