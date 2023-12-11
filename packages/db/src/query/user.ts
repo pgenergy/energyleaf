@@ -55,7 +55,6 @@ export async function createUser(data: CreateUserType) {
             username: data.username,
             email: data.email,
             password: data.password,
-            // sensorId: data.sensorId, // Removed as it's not in the user table
         });
 
         const newUser = await trx
@@ -73,12 +72,10 @@ export async function createUser(data: CreateUserType) {
 
         await trx.insert(userData).values({
             userId: id,
-            // Add any additional fields required by userData
         });
 
         await trx.insert(mail).values({
             userId: id,
-            // Add any additional fields required by mail
         });
     });
 }
