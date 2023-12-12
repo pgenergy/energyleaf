@@ -10,12 +10,11 @@ export const sensor = mysqlTable("sensor", {
 });
 
 export const sensorData = mysqlTable("sensor_data", {
-    id: int("id").autoincrement().primaryKey().notNull(),
-    sensorId: varchar("sensor_id", { length: 30 }).notNull(),
+    sensorId: varchar("sensor_id", { length: 30 }).primaryKey().notNull(),
     value: int("value").notNull(),
     timestamp: timestamp("timestamp")
         .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
+        .primaryKey().notNull(),
 });
 
 export const reason = mysqlTable("reason", {
