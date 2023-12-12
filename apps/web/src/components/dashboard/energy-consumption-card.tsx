@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
+import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 import { getSession } from "@/lib/auth/auth";
 import { getEnergyDataForUser } from "@/query/energy";
 import { differenceInMinutes } from "date-fns";
-import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
@@ -13,7 +13,7 @@ import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 interface Props {
     startDate: Date;
     endDate: Date;
-    aggregationType: string | undefined
+    aggregationType: string | undefined;
 }
 
 export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
@@ -28,7 +28,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
     }));
-    const aggregatedData = getAggregatedEnergy(data, aggregationType)
+    const aggregatedDataInput = getAggregatedEnergy(data, aggregationType);
+    const aggregatedData = aggregatedDataInput.map((entry) => ({
+        energy: entry.energy,
+        timestamp: entry.timestamp.toString(),
+    }));
 
     const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
     const std = Math.sqrt(
@@ -53,7 +57,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
                 </div>
                 <DashboardDateRange endDate={endDate} startDate={startDate} />
-                <DashboardEnergyAggregation endDate={endDate} startDate={startDate}/>
+                <DashboardEnergyAggregation endDate={endDate} startDate={startDate} />
             </CardHeader>
             <CardContent>
                 <div className="h-96 w-full">

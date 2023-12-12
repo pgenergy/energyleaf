@@ -1,11 +1,11 @@
-import { AggregationType } from './aggregation-type';
+import { AggregationType } from "@/types/aggregation/aggregation-type";
 
-export function getAggregatedEnergy(data: Record<string, string | number | undefined>[], aggregationType: string | undefined) {
+interface AggregateData {
+    energy: number;
+    timestamp: string;
+}
 
-    if (!aggregationType) {
-        aggregationType = AggregationType.HOUR;
-    }
-
+export function getAggregatedEnergy(data: AggregateData[], aggregationType: string | undefined = AggregationType.HOUR) {
     switch (aggregationType) {
         case AggregationType.HOUR:
             return handleHourOption(data);
@@ -18,98 +18,106 @@ export function getAggregatedEnergy(data: Record<string, string | number | undef
         default:
             return data;
     }
+}
+
+const handleHourOption = (data: AggregateData[]) => {
+    const energyConsumptionPerHour: Map<string, AggregateData> = new Map<string, AggregateData>();
+
+    for (const value of data) {
+        const timestampParts = value.timestamp.split(" ");
+        const date = `${timestampParts[1]} ${timestampParts[2]} ${timestampParts[3]}`;
+        const hour = timestampParts[4].split(":")[0];
+
+        const hourKey = `${date} ${hour}`;
+
+        if (energyConsumptionPerHour.has(hourKey)) {
+            const prevEnergy = energyConsumptionPerHour.get(hourKey)?.energy || 0;
+            energyConsumptionPerHour.set(hourKey, {
+                energy: prevEnergy + value.energy,
+                timestamp: value.timestamp,
+            });
+        } else {
+            energyConsumptionPerHour.set(hourKey, {
+                energy: value.energy,
+                timestamp: value.timestamp,
+            });
+        }
+    }
+
+    return Array.from(energyConsumptionPerHour.values());
 };
 
-const handleHourOption = (data) => {
-    const energyConsumptionPerHour = [];
+const handleDayOption = (data: AggregateData[]) => {
+    const energyConsumptionPerDay: Map<string, AggregateData> = new Map<string, AggregateData>();
 
-    for (const value in data) {
-        
-        const timestampParts = data[value].timestamp.split(' ');
-        const date = timestampParts[1] + ' ' + timestampParts[2] + ' ' + timestampParts[3];
-        const hour = timestampParts[4].split(':')[0];
+    for (const value of data) {
+        const timestampParts = value.timestamp.split(" ");
+        const date = `${timestampParts[1]} ${timestampParts[2]} ${timestampParts[3]}`;
 
-        const hourKey = date + ' ' + hour;
-
-        if (energyConsumptionPerHour[hourKey]) {
-            energyConsumptionPerHour[hourKey].energy += data[value].energy;
+        if (energyConsumptionPerDay.has(date)) {
+            const prevEnergy = energyConsumptionPerDay.get(date)?.energy || 0;
+            energyConsumptionPerDay.set(date, {
+                energy: prevEnergy + value.energy,
+                timestamp: value.timestamp,
+            });
         } else {
-            energyConsumptionPerHour[hourKey] = {
-                energy: data[value].energy,
-                timestamp: data[value].timestamp
-            };
+            energyConsumptionPerDay.set(date, {
+                energy: value.energy,
+                timestamp: value.timestamp,
+            });
         }
     }
 
-    return Object.values(energyConsumptionPerHour);
-}
+    return Array.from(energyConsumptionPerDay.values());
+};
 
+const handleMonthOption = (data: AggregateData[]) => {
+    const energyConsumptionPerMonth: Map<string, AggregateData> = new Map<string, AggregateData>();
 
-const handleDayOption = (data) => {
-    const energyConsumptionPerDay = [];
-
-    for (const value in data) {
-
-        const timestampParts = data[value].timestamp.split(' ');
-        const date = 
-            timestampParts[1] + ' ' + 
-            timestampParts[2] + ' ' + 
-            timestampParts[3];
-
-        if (energyConsumptionPerDay[date]) {
-            energyConsumptionPerDay[date].energy += data[value].energy;
-        } else {
-            energyConsumptionPerDay[date] = {
-            energy: data[value].energy,
-            timestamp: data[value].timestamp
-            };
-        }
-    }
-    return Object.values(energyConsumptionPerDay)
-}
-
-
-const handleMonthOption = (data) => {
-    
-    const energyConsumptionPerMonth = [];
-
-    for (const value in data) {
-        const timestamp = new Date(data[value].timestamp);
+    for (const value of data) {
+        const timestamp = new Date(value.timestamp);
         const year = timestamp.getFullYear();
         const month = timestamp.getMonth() + 1; // Month from 0 bis 11
 
         const dateKey = `${year}-${month}`;
 
-        if (energyConsumptionPerMonth[dateKey]) {
-            energyConsumptionPerMonth[dateKey].energy += data[value].energy;
+        if (energyConsumptionPerMonth.has(dateKey)) {
+            const prevEnergy = energyConsumptionPerMonth.get(dateKey)?.energy || 0;
+            energyConsumptionPerMonth.set(dateKey, {
+                energy: prevEnergy + value.energy,
+                timestamp: value.timestamp,
+            });
         } else {
-            energyConsumptionPerMonth[dateKey] = {
-                energy: data[value].energy,
-                timestamp: data[value].timestamp
-            };
+            energyConsumptionPerMonth.set(dateKey, {
+                energy: value.energy,
+                timestamp: value.timestamp,
+            });
         }
     }
-    
-    return Object.values(energyConsumptionPerMonth);
+
+    return Array.from(energyConsumptionPerMonth.values());
 };
 
+const handleYearOption = (data: AggregateData[]) => {
+    const energyConsumptionPerYear: Map<number, AggregateData> = new Map<number, AggregateData>();
 
-const handleYearOption = (data) => {
-    const energyConsumptionPerYear: { [key: number]: { energy: number, timestamp: string } } = {};
-
-    for (const value in data) {
-        const timestamp = new Date(data[value].timestamp);
+    for (const value of data) {
+        const timestamp = new Date(value.timestamp);
         const year = timestamp.getFullYear();
 
-        if (energyConsumptionPerYear[year]) {
-            energyConsumptionPerYear[year].energy += data[value].energy;
+        if (energyConsumptionPerYear.has(year)) {
+            const prevEnergy = energyConsumptionPerYear.get(year)?.energy || 0;
+            energyConsumptionPerYear.set(year, {
+                energy: prevEnergy + value.energy,
+                timestamp: value.timestamp,
+            });
         } else {
-            energyConsumptionPerYear[year] = {
-                energy: data[value].energy,
-                timestamp: data[value].timestamp
-            };
+            energyConsumptionPerYear.set(year, {
+                energy: value.energy,
+                timestamp: value.timestamp,
+            });
         }
     }
 
-    return Object.values(energyConsumptionPerYear);
-}
+    return Array.from(energyConsumptionPerYear.values());
+};
