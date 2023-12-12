@@ -17,6 +17,17 @@ export default async function EnergyConsumptionCardChart({ data, peaks, devices 
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<{id: number, energy: number, timestamp: string, device?: number} | null>(null);
 
+    function onClick(callbackData: { id: number, energy: number, timestamp: string | number | undefined, device?: number }) {
+        setValue({
+            id: Number(callbackData.id),
+            energy: Number(callbackData.energy),
+            timestamp: callbackData.timestamp?.toString() || "",
+            device: callbackData.device ? Number(callbackData.device) : undefined
+        });
+        setOpen(true);
+    }
+    const clickCallback = devices ? onClick : undefined;
+
     return (
         <>
             { value && devices ? <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} devices={devices}/> : <div/>}
@@ -27,15 +38,7 @@ export default async function EnergyConsumptionCardChart({ data, peaks, devices 
                     data: peaks,
                     xKeyName: "timestamp",
                     yKeyName: "energy",
-                    callback: (callbackData) => {
-                        setValue({
-                            id: Number(callbackData.id),
-                            energy: Number(callbackData.energy),
-                            timestamp: callbackData.timestamp?.toString() || "",
-                            device: callbackData.device ? Number(callbackData.device) : undefined
-                        });
-                        setOpen(true);
-                    },
+                    callback: clickCallback,
                 }}
                 tooltip={{
                     content: EnergyConsumptionTooltip,
