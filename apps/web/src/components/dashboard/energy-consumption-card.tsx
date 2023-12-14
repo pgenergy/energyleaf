@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 import { getSession } from "@/lib/auth/auth";
-import { getEnergyDataForUser } from "@/query/energy";
+import { getEnergyDataForUser, getPeaksForUser } from "@/query/energy";
 import { differenceInMinutes } from "date-fns";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
@@ -10,6 +10,7 @@ import DashboardDateRange from "./date-range";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 import { getDevicesByUser } from "@/query/device";
+import { get } from "http";
 
 interface Props {
     startDate: Date;
@@ -54,6 +55,16 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         });
 
     const devices = await getDevicesByUser(userId);
+    
+    const peaksWithDevicesAssigned = (await getPeaksForUser(startDate, endDate, userId))
+        .map(x => ({
+            id: x.sensor_data.id,
+            device: x.peaks.deviceId
+        }));
+    const enrichedPeaks = peaks.map(x => ({
+        ...x,
+        ...(peaksWithDevicesAssigned.find((p) => p.id === x.id) || {}),
+    }));
 
     return (
         <Card className="w-full">
@@ -72,7 +83,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                         </div>
                     ) : (
-                        <EnergyConsumptionCardChart data={aggregatedData} peaks={peaks} />
+                        <EnergyConsumptionCardChart data={data} peaks={enrichedPeaks} devices={devices} />
                     )}
                 </div>
             </CardContent>

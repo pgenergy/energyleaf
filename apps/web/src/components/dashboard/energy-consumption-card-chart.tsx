@@ -9,13 +9,13 @@ import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-ass
 
 interface Props {
     data: { id: number, energy: number, timestamp: string | number | undefined }[];
-    peaks: { id: number, energy: number, timestamp: string | number | undefined }[];
+    peaks: { id: number, energy: number, timestamp: string | number | undefined, device?: number }[];
     devices: { id: number; userId: number; name: string; created: Date | null; }[] | null;
 }
 
 export default async function EnergyConsumptionCardChart({ data, peaks, devices }: Props) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<{id: number, energy: number, timestamp: string} | null>(null);
+    const [value, setValue] = useState<{id: number, energy: number, timestamp: string, device?: number} | null>(null);
 
     return (
         <>
@@ -32,6 +32,7 @@ export default async function EnergyConsumptionCardChart({ data, peaks, devices 
                             id: Number(callbackData.id),
                             energy: Number(callbackData.energy),
                             timestamp: callbackData.timestamp?.toString() || "",
+                            device: callbackData.device ? Number(callbackData.device) : undefined
                         });
                         setOpen(true);
                     },

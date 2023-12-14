@@ -1,4 +1,4 @@
-import { createPeak } from "@/actions/peak";
+import { addOrUpdatePeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
 import { Button, Form, FormField, FormItem, FormLabel, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
 import { toast } from "@energyleaf/ui/hooks";
@@ -8,26 +8,30 @@ import { z } from "zod";
 
 interface Props {
     devices: { id: number; userId: number; name: string; created: Date | null; }[];
+    initialValues: z.infer<typeof peakSchema>;
     sensorDataId: number;
     onInteract: () => void;
 }
 
-export async function EnergyPeakDeviceAssignmentForm({ devices, sensorDataId, onInteract }: Props) {
+export async function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorDataId, onInteract }: Props) {
     const form = useForm<z.infer<typeof peakSchema>>({
-        resolver: zodResolver(peakSchema)
+        resolver: zodResolver(peakSchema),
+        defaultValues: {
+            ...initialValues
+        },
     });
 
     async function onSubmit(data: z.infer<typeof peakSchema>) {
         try {
-            await createPeak(data, sensorDataId)
+            await addOrUpdatePeak(data, sensorDataId)
             toast({
-                title: "Erfolgreich hinzugefügt",
-                description: "Der Peak wurde erfolgreich hinzugefügt",
+                title: "Erfolgreich zugewiesen",
+                description: "Dem Peak wurde erfolgreich das Gerät zugewiesen.",
             });
         } catch (e) {
             toast({
-                title: "Fehler beim Hinzufügen",
-                description: "Der Peak konnte nicht hinzugefügt werden",
+                title: "Fehler beim Zuweisen",
+                description: "Das Gerät konnte dem Peak nicht zugewiesen werden.",
                 variant: "destructive",
             });
         }
@@ -48,7 +52,7 @@ export async function EnergyPeakDeviceAssignmentForm({ devices, sensorDataId, on
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Gerät</FormLabel>
-                            <Select onValueChange={field.onChange}>
+                            <Select defaultValue={field.value} onValueChange={field.onChange}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Gerät wählen" />
                                 </SelectTrigger>
