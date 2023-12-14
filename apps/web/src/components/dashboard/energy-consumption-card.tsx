@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 import DashboardDateRange from "./date-range";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
+import { getDevicesByUser } from "@/query/device";
 
 interface Props {
     startDate: Date;
@@ -23,7 +24,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         redirect("/");
     }
 
-    const energyData = await getEnergyDataForUser(startDate, endDate, session.user.id);
+    const userId = session.user.id;
+
+    const energyData = await getEnergyDataForUser(startDate, endDate, userId);
     const data = energyData.map((entry) => ({
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
@@ -48,6 +51,8 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
             return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
         });
+
+    const devices = await getDevicesByUser(userId);
 
     return (
         <Card className="w-full">

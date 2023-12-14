@@ -2,32 +2,25 @@
 
 import { useState } from "react";
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui";
 import { LineChart } from "@energyleaf/ui/components";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
+import { EnergyPeakDeviceAssignmentDialog } from "./energy-peak-device-assignment-dialog";
 
 interface Props {
     data: Record<string, string | number | undefined>[];
     peaks: Record<string, string | number | undefined>[];
+    devices: { id: number; userId: number; name: string; created: Date | null; }[] | null;
 }
 
-export default function EnergyConsumptionCardChart({ data, peaks }: Props) {
+export default async function EnergyConsumptionCardChart({ data, peaks, devices }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<Record<string, string | number | undefined>>({});
+    const [deviceKey, setDeviceKey] = useState<string>("");
 
     return (
         <>
-            <Dialog onOpenChange={setOpen} open={open}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Geräteauswahl</DialogTitle>
-                        <DialogDescription>Wähle ein Gerät aus, was diesen Verbrauch verursacht hat.</DialogDescription>
-                    </DialogHeader>
-                    <h1 className="p-8 text-center">TODO</h1>
-                    <p>Verbrauch: {value.energy}</p>
-                </DialogContent>
-            </Dialog>
+            <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} devices={devices}/>
             <LineChart
                 data={data}
                 keyName="energy"
