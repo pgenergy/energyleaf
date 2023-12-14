@@ -1,3 +1,5 @@
+'use client';
+
 import { addOrUpdatePeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
 import { Button, Form, FormField, FormItem, FormLabel, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
@@ -13,7 +15,7 @@ interface Props {
     onInteract: () => void;
 }
 
-export async function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorDataId, onInteract }: Props) {
+export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorDataId, onInteract }: Props) {
     const form = useForm<z.infer<typeof peakSchema>>({
         resolver: zodResolver(peakSchema),
         defaultValues: {
