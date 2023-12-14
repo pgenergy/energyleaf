@@ -43,7 +43,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         timestamp: entry.timestamp.toString(),
     }));
 
-    const showPeaks = aggregationType === AggregationType.RAW;
+    var noAggregation = aggregationType === AggregationType.RAW;
 
     var enrichedPeaks: {
         id: number;
@@ -51,12 +51,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: number;
         timestamp: string;
     }[] = [];
-    var devices: {
-        id: number;
-        userId: number;
-        name: string;
-        created: Date | null;
-    }[] | null = [];
+    const devices = noAggregation ? await getDevicesByUser(userId) : [];
+    
+    const showPeaks = noAggregation && devices.length > 0;
     if (showPeaks) {
         const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
         const std = Math.sqrt(
@@ -72,8 +69,6 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
                 return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
             });
-
-        devices = await getDevicesByUser(userId);
 
         const peaksWithDevicesAssigned = (await getPeaksForUser(startDate, endDate, userId))
             .map(x => ({
