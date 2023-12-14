@@ -44,7 +44,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     var noAggregation = aggregationType === AggregationType.RAW;
 
-    var enrichedPeaks: Peak[] = [];
+    var peakAssignments: PeakAssignment[] = [];
     const devices = noAggregation ? await getDevicesByUser(userId) : [];
     
     if (noAggregation) {
@@ -68,9 +68,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 id: x.sensor_data.id,
                 device: x.peaks.deviceId
             }));
-        enrichedPeaks = peaks.map(x => ({
-            ...x,
-            ...(peaksWithDevicesAssigned.find((p) => p.id === x.id) || {}),
+        peakAssignments = peaks.map(x => ({
+            id: x.id,
+            device: peaksWithDevicesAssigned.find((p) => p.id === x.id)?.device
         }));
     }
 
@@ -92,7 +92,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                         </div>
                     ) : (
                         noAggregation ?
-                        <RawEnergyConsumptionCardChart data={data} peaks={enrichedPeaks} devices={devices} /> :
+                        <RawEnergyConsumptionCardChart data={data} peaks={peakAssignments} devices={devices} /> :
                         <EnergyConsumptionCardChart data={aggregatedData} />
                     )}
                 </div>

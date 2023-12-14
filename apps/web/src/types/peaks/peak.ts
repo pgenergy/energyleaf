@@ -1,6 +1,9 @@
-interface Peak {
+interface PeakAssignment {
     id: number;
     device?: number | undefined;
-    energy: number;
+}
+
+interface Peak extends PeakAssignment {
     timestamp: string;
+    energy: number;
 }

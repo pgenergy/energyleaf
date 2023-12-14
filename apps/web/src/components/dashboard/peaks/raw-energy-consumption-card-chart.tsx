@@ -7,18 +7,10 @@ import React from "react";
 
 interface Props {
     data: { id: number, energy: number, timestamp: string }[];
-    peaks: Peak[];
+    peaks: PeakAssignment[];
     devices: { id: number; userId: number; name: string; created: Date | null; }[] | null;
 }
 
-const convertToAxesValue = (peak: Peak): Record<string, string | number | undefined> => {
-    return {
-        timestamp: peak.timestamp,
-        energy: peak.energy,
-        id: peak.id,
-        device: peak.device
-    };
-};
 
 /**
  * Chart for {@link AggregationType.Raw}. Unlike {@link EnergyConsumptionCardChart}, this chart provides further
@@ -26,7 +18,7 @@ const convertToAxesValue = (peak: Peak): Record<string, string | number | undefi
  */
 export default function RawEnergyConsumptionCardChart({ data, peaks, devices }: Props) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<{id: number, energy: number, timestamp: string, device?: number} | null>(null);
+    const [value, setValue] = useState<Peak | null>(null);
 
     const onClick = (devices && devices.length > 0) ? useCallback((callbackData: { id: number, energy: number, timestamp: string | number | undefined, device?: number }) => {
         setValue({
@@ -38,7 +30,16 @@ export default function RawEnergyConsumptionCardChart({ data, peaks, devices }: 
         setOpen(true);
     }, [setValue, setOpen]) : undefined;
 
-    console.log(data, peaks, peaks.map(convertToAxesValue))
+    const convertToAxesValue = (peak: Peak): Record<string, string | number | undefined> => {
+        const sensorData = data.find(x => x.id === peak.id);
+    
+        return {
+            timestamp: sensorData?.timestamp,
+            energy: sensorData?.energy,
+            id: peak.id,
+            device: peak.device
+        };
+    };
 
     const consumptionChart = useMemo(() => (
         <EnergyConsumptionCardChart 
