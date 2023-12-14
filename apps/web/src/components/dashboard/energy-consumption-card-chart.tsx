@@ -1,45 +1,29 @@
 "use client";
 
-import { useState } from "react";
 
 import { LineChart } from "@energyleaf/ui/components";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
-import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
+
+type AxesValue = string | number | undefined;
 
 interface Props {
-    data: { id: number, energy: number, timestamp: string | number | undefined }[];
-    peaks: { id: number, energy: number, timestamp: string | number | undefined, device?: number }[];
-    devices: { id: number; userId: number; name: string; created: Date | null; }[] | null;
+    data: Record<string, AxesValue>[];
+    referencePoints?: {
+        data: Record<string, AxesValue>[];
+        xKeyName: string;
+        yKeyName: string;
+        callback?: (value: Record<string, AxesValue>) => void;
+    };
 }
 
-export default async function EnergyConsumptionCardChart({ data, peaks, devices }: Props) {
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<{id: number, energy: number, timestamp: string, device?: number} | null>(null);
-
-    function onClick(callbackData: { id: number, energy: number, timestamp: string | number | undefined, device?: number }) {
-        setValue({
-            id: Number(callbackData.id),
-            energy: Number(callbackData.energy),
-            timestamp: callbackData.timestamp?.toString() || "",
-            device: callbackData.device ? Number(callbackData.device) : undefined
-        });
-        setOpen(true);
-    }
-    const clickCallback = devices ? onClick : undefined;
-
+export default async function EnergyConsumptionCardChart({ data, referencePoints }: Props) {
     return (
         <>
-            { value && devices ? <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} devices={devices}/> : <div/>}
             <LineChart
                 data={data}
                 keyName="energy"
-                referencePoints={{
-                    data: peaks,
-                    xKeyName: "timestamp",
-                    yKeyName: "energy",
-                    callback: clickCallback,
-                }}
+                referencePoints={referencePoints}
                 tooltip={{
                     content: EnergyConsumptionTooltip,
                 }}

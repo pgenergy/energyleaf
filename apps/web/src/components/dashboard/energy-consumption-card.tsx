@@ -11,6 +11,8 @@ import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 import { getDevicesByUser } from "@/query/device";
 import { get } from "http";
+import RawEnergyConsumptionCardChart from "./peaks/raw-energy-consumption-card-chart";
+import { AggregationType } from "@/types/aggregation/aggregation-type";
 
 interface Props {
     startDate: Date;
@@ -33,38 +35,55 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
     }));
+    
+    aggregationType = aggregationType || AggregationType.RAW;
     const aggregatedDataInput = getAggregatedEnergy(data, aggregationType);
     const aggregatedData = aggregatedDataInput.map((entry) => ({
         energy: entry.energy,
         timestamp: entry.timestamp.toString(),
     }));
 
-    const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
-    const std = Math.sqrt(
-        data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
-    );
-    const threshold = mean + 2 * std;
-    const peaks = data
-        .filter((x) => x.energy > threshold)
-        .filter((x, i, arr) => {
-            if (i === 0) {
-                return true;
-            }
+    const showPeaks = aggregationType === AggregationType.RAW;
 
-            return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
-        });
+    var enrichedPeaks: {
+        id: number;
+        device?: number | undefined;
+        energy: number;
+        timestamp: string;
+    }[] = [];
+    var devices: {
+        id: number;
+        userId: number;
+        name: string;
+        created: Date | null;
+    }[] | null = [];
+    if (showPeaks) {
+        const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
+        const std = Math.sqrt(
+            data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
+        );
+        const threshold = mean + 2 * std;
+        const peaks = data
+            .filter((x) => x.energy > threshold)
+            .filter((x, i, arr) => {
+                if (i === 0) {
+                    return true;
+                }
 
-    const devices = await getDevicesByUser(userId);
-    
-    const peaksWithDevicesAssigned = (await getPeaksForUser(startDate, endDate, userId))
-        .map(x => ({
-            id: x.sensor_data.id,
-            device: x.peaks.deviceId
+                return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
+            });
+
+        devices = await getDevicesByUser(userId);
+
+        const peaksWithDevicesAssigned = (await getPeaksForUser(startDate, endDate, userId))
+            .map(x => ({
+                id: x.sensor_data.id,
+                device: x.peaks.deviceId
+            }));
+        enrichedPeaks = peaks.map(x => ({
+            ...x,
+            ...(peaksWithDevicesAssigned.find((p) => p.id === x.id) || {}),
         }));
-    const enrichedPeaks = peaks.map(x => ({
-        ...x,
-        ...(peaksWithDevicesAssigned.find((p) => p.id === x.id) || {}),
-    }));
 
     return (
         <Card className="w-full">
@@ -83,7 +102,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                         </div>
                     ) : (
-                        <EnergyConsumptionCardChart data={data} peaks={enrichedPeaks} devices={devices} />
+                        showPeaks ?
+                        <RawEnergyConsumptionCardChart data={data} peaks={enrichedPeaks} devices={devices} /> :
+                        <EnergyConsumptionCardChart data={aggregatedData} />
                     )}
                 </div>
             </CardContent>
