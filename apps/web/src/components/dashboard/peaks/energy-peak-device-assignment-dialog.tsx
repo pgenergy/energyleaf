@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
+import type { Peak } from "@/types/peaks/peak";
 
 interface Props {
     open: boolean;

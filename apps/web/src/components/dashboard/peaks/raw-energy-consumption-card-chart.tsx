@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { EnergyPeakDeviceAssignmentDialog } from "./energy-peak-device-assignment-dialog";
 import EnergyConsumptionCardChart from "../energy-consumption-card-chart";
 import React from "react";
+import type { Peak, PeakAssignment } from "@/types/peaks/peak";
 
 interface Props {
     data: { id: number, energy: number, timestamp: string }[];
