@@ -10,7 +10,6 @@ import DashboardDateRange from "./date-range";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 import { getDevicesByUser } from "@/query/device";
-import { get } from "http";
 import RawEnergyConsumptionCardChart from "./peaks/raw-energy-consumption-card-chart";
 import { AggregationType } from "@/types/aggregation/aggregation-type";
 
@@ -45,12 +44,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     var noAggregation = aggregationType === AggregationType.RAW;
 
-    var enrichedPeaks: {
-        id: number;
-        device?: number | undefined;
-        energy: number;
-        timestamp: string;
-    }[] = [];
+    var enrichedPeaks: Peak[] = [];
     const devices = noAggregation ? await getDevicesByUser(userId) : [];
     
     if (noAggregation) {

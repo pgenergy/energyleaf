@@ -4,7 +4,7 @@ import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-
 interface Props {
     open: boolean;
     setOpen: (open: boolean) => void;
-    value: { id: number, energy: number, timestamp: string | number | undefined, device?: number };
+    value: Peak;
     devices: { id: number; userId: number; name: string; created: Date | null; }[];
 }
 

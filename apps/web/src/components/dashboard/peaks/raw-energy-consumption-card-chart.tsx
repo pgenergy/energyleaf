@@ -6,10 +6,19 @@ import EnergyConsumptionCardChart from "../energy-consumption-card-chart";
 import React from "react";
 
 interface Props {
-    data: { id: number, energy: number, timestamp: string | number | undefined }[];
-    peaks: { id: number, energy: number, timestamp: string | number | undefined, device?: number }[];
+    data: { id: number, energy: number, timestamp: string }[];
+    peaks: Peak[];
     devices: { id: number; userId: number; name: string; created: Date | null; }[] | null;
 }
+
+const convertToAxesValue = (peak: Peak): Record<string, string | number | undefined> => {
+    return {
+        timestamp: peak.timestamp,
+        energy: peak.energy,
+        id: peak.id,
+        device: peak.device
+    };
+};
 
 /**
  * Chart for {@link AggregationType.Raw}. Unlike {@link EnergyConsumptionCardChart}, this chart provides further
@@ -29,14 +38,16 @@ export default function RawEnergyConsumptionCardChart({ data, peaks, devices }: 
         setOpen(true);
     }, [setValue, setOpen]) : undefined;
 
+    console.log(data, peaks, peaks.map(convertToAxesValue))
+
     const consumptionChart = useMemo(() => (
         <EnergyConsumptionCardChart 
             data={data} 
             referencePoints={{
-                data: peaks,
+                data: peaks.map(convertToAxesValue),
                 xKeyName: "timestamp",
                 yKeyName: "energy",
-                callback: onClick,
+                callback: onClick
             }}/>
     ), [data, peaks, onClick]);
 

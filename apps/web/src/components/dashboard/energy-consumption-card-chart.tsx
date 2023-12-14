@@ -1,6 +1,5 @@
 "use client";
 
-
 import { LineChart } from "@energyleaf/ui/components";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
@@ -17,7 +16,7 @@ interface Props {
     };
 }
 
-export default async function EnergyConsumptionCardChart({ data, referencePoints }: Props) {
+export default function EnergyConsumptionCardChart({ data, referencePoints }: Props) {
     return (
         <>
             <LineChart
