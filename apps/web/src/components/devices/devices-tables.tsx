@@ -38,7 +38,7 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
         event: React.MouseEvent<HTMLButtonElement>,
         id: number,
     ) {
-        event.preventDefault();
+        event.stopPropagation(); // otherwise, the row click event is triggered and the edit dialog is opened
         const delDevice = devices?.find((x) => x.id === id);
         if (!delDevice) {
             return;
