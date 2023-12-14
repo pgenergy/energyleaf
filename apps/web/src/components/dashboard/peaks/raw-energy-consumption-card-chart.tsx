@@ -1,6 +1,5 @@
 'use client';
 
-import { AggregationType } from "@/lib/aggregation-type";
 import { useCallback, useMemo, useState } from "react";
 import { EnergyPeakDeviceAssignmentDialog } from "./energy-peak-device-assignment-dialog";
 import EnergyConsumptionCardChart from "../energy-consumption-card-chart";

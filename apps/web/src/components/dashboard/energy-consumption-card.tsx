@@ -79,6 +79,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
             ...x,
             ...(peaksWithDevicesAssigned.find((p) => p.id === x.id) || {}),
         }));
+    }
 
     return (
         <Card className="w-full">

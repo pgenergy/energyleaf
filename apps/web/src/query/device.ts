@@ -2,7 +2,7 @@ import { cache } from "react";
 
 import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
 import type { device } from "@energyleaf/db/schema";
-import type { SortOrder } from "@energyleaf/db/util";
+import { SortOrder } from "@energyleaf/db/util";
 
 /**
  * Cached query to retrieve the devices per user.
