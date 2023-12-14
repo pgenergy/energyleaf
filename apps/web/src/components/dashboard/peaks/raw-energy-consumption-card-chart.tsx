@@ -19,7 +19,7 @@ export default function RawEnergyConsumptionCardChart({ data, peaks, devices }: 
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<{id: number, energy: number, timestamp: string, device?: number} | null>(null);
 
-    const onClick = devices ? useCallback((callbackData: { id: number, energy: number, timestamp: string | number | undefined, device?: number }) => {
+    const onClick = (devices && devices.length > 0) ? useCallback((callbackData: { id: number, energy: number, timestamp: string | number | undefined, device?: number }) => {
         setValue({
             id: Number(callbackData.id),
             energy: Number(callbackData.energy),

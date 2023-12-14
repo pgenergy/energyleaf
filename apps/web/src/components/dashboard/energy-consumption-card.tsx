@@ -53,8 +53,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }[] = [];
     const devices = noAggregation ? await getDevicesByUser(userId) : [];
     
-    const showPeaks = noAggregation && devices.length > 0;
-    if (showPeaks) {
+    if (noAggregation) {
         const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
         const std = Math.sqrt(
             data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
@@ -98,7 +97,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                         </div>
                     ) : (
-                        showPeaks ?
+                        noAggregation ?
                         <RawEnergyConsumptionCardChart data={data} peaks={enrichedPeaks} devices={devices} /> :
                         <EnergyConsumptionCardChart data={aggregatedData} />
                     )}
