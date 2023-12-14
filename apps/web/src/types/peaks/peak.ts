@@ -1,9 +1,9 @@
-interface PeakAssignment {
+export interface PeakAssignment {
     id: number;
-    device?: number | undefined;
+    device: number | undefined;
 }
 
-interface Peak extends PeakAssignment {
+export interface Peak extends PeakAssignment {
     timestamp: string;
     energy: number;
 }

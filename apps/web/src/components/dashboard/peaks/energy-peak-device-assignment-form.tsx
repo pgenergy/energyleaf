@@ -6,7 +6,7 @@ import { Button, Form, FormField, FormItem, FormLabel, Select, SelectContent, Se
 import { toast } from "@energyleaf/ui/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 
 interface Props {
     devices: { id: number; userId: number; name: string; created: Date | null; }[];
@@ -47,7 +47,7 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorD
 
     return (
         <Form {...form}>
-            <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)} onAbort={onAbort}>
+            <form className="flex flex-col gap-4" onAbortCapture={onAbort} onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                     control={form.control}
                     name="deviceId"
@@ -59,7 +59,7 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorD
                                     <SelectValue placeholder="Gerät wählen" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {devices?.map((device) => (
+                                    {devices.map((device) => (
                                         <SelectItem key={device.id} value={device.id.toString()}>
                                             {device.name}
                                         </SelectItem>

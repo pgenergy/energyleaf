@@ -20,7 +20,7 @@ export default function RawEnergyConsumptionCardChart({ data, peaks, devices }: 
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<Peak | null>(null);
 
-    const onClick = (devices && devices.length > 0) ? useCallback((callbackData: { id: number, energy: number, timestamp: string | number | undefined, device?: number }) => {
+    const clickCallback = useCallback((callbackData: { id: number, energy: number, timestamp: string | number | undefined, device?: number }) => {
         setValue({
             id: Number(callbackData.id),
             energy: Number(callbackData.energy),
@@ -28,9 +28,10 @@ export default function RawEnergyConsumptionCardChart({ data, peaks, devices }: 
             device: callbackData.device ? Number(callbackData.device) : undefined
         });
         setOpen(true);
-    }, [setValue, setOpen]) : undefined;
+    }, [setValue, setOpen])
+    const onClick = (devices && devices.length > 0) ? clickCallback : undefined;
 
-    const convertToAxesValue = (peak: Peak): Record<string, string | number | undefined> => {
+    const convertToAxesValue = useCallback((peak: Peak): Record<string, string | number | undefined> => {
         const sensorData = data.find(x => x.id === peak.id);
     
         return {
@@ -39,7 +40,7 @@ export default function RawEnergyConsumptionCardChart({ data, peaks, devices }: 
             id: peak.id,
             device: peak.device
         };
-    };
+    }, [data]);
 
     const consumptionChart = useMemo(() => (
         <EnergyConsumptionCardChart 
@@ -50,11 +51,11 @@ export default function RawEnergyConsumptionCardChart({ data, peaks, devices }: 
                 yKeyName: "energy",
                 callback: onClick
             }}/>
-    ), [data, peaks, onClick]);
+    ), [data, peaks, onClick, convertToAxesValue]);
 
     return (
         <>
-            { value && devices ? <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} devices={devices}/> : null}
+            { value && devices ? <EnergyPeakDeviceAssignmentDialog devices={devices} open={open} setOpen={setOpen} value={value} /> : null}
             { consumptionChart }
         </>
     );

@@ -18,17 +18,15 @@ interface Props {
 
 export default function EnergyConsumptionCardChart({ data, referencePoints }: Props) {
     return (
-        <>
-            <LineChart
-                data={data}
-                keyName="energy"
-                referencePoints={referencePoints}
-                tooltip={{
-                    content: EnergyConsumptionTooltip,
-                }}
-                xAxes={{ dataKey: "timestamp" }}
-                yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
-            />
-        </>
+        <LineChart
+            data={data}
+            keyName="energy"
+            referencePoints={referencePoints}
+            tooltip={{
+                content: EnergyConsumptionTooltip,
+            }}
+            xAxes={{ dataKey: "timestamp" }}
+            yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
+        />
     );
 }

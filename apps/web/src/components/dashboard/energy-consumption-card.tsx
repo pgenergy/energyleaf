@@ -12,6 +12,7 @@ import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 import { getDevicesByUser } from "@/query/device";
 import RawEnergyConsumptionCardChart from "./peaks/raw-energy-consumption-card-chart";
 import { AggregationType } from "@/types/aggregation/aggregation-type";
+import type { PeakAssignment } from "@/types/peaks/peak";
 
 interface Props {
     startDate: Date;
@@ -35,16 +36,16 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         timestamp: entry.timestamp.toString(),
     }));
     
-    aggregationType = aggregationType || AggregationType.RAW;
-    const aggregatedDataInput = getAggregatedEnergy(data, aggregationType);
+    const realAggregationType = aggregationType || AggregationType.RAW;
+    const aggregatedDataInput = getAggregatedEnergy(data, realAggregationType);
     const aggregatedData = aggregatedDataInput.map((entry) => ({
         energy: entry.energy,
         timestamp: entry.timestamp.toString(),
     }));
 
-    var noAggregation = aggregationType === AggregationType.RAW;
+    const noAggregation = realAggregationType === AggregationType.RAW;
 
-    var peakAssignments: PeakAssignment[] = [];
+    let peakAssignments: PeakAssignment[] = [];
     const devices = noAggregation ? await getDevicesByUser(userId) : [];
     
     if (noAggregation) {
@@ -74,6 +75,14 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         }));
     }
 
+    function Chart() {
+        return (
+            noAggregation ?
+            <RawEnergyConsumptionCardChart data={data} devices={devices} peaks={peakAssignments}  /> :
+            <EnergyConsumptionCardChart data={aggregatedData} />
+        )
+    }
+
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-row justify-between">
@@ -91,9 +100,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                         </div>
                     ) : (
-                        noAggregation ?
-                        <RawEnergyConsumptionCardChart data={data} peaks={peakAssignments} devices={devices} /> :
-                        <EnergyConsumptionCardChart data={aggregatedData} />
+                        <Chart />
                     )}
                 </div>
             </CardContent>
