@@ -1,40 +1,48 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@energyleaf/ui";
-import { getSession } from "@/lib/auth/auth";
 import { redirect } from "next/navigation";
-import { SortOrder } from "@energyleaf/db/util";
-import { device } from "@energyleaf/db/schema";
+import { getSession } from "@/lib/auth/auth";
 import { getDevicesByUser } from "@/query/device";
+
+import { device } from "@energyleaf/db/schema";
+import type { SortOrder } from "@energyleaf/db/util";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+
 import DevicesTable from "./devices-tables";
 
-export default async function DevicesOverviewCard({ searchParams }: { searchParams: { sortOrder: SortOrder, sortProp: String } }) {
-    const session = await getSession()
+export default async function DevicesOverviewCard({
+    searchParams,
+}: {
+    searchParams: { sortOrder: SortOrder; sortProp: string };
+}) {
+    const session = await getSession();
     if (!session) {
         redirect("/");
     }
 
-    const sortOrder = searchParams?.sortOrder ? searchParams.sortOrder : SortOrder.ASC
-    
-    var sortPropName = searchParams.sortProp ?? "name"
-    var sortProp: (x: typeof device) => any = x => x.name
-    if (searchParams?.sortProp) {
-        const prop = Object.keys(device).find(x => x === sortPropName)
+    let sortProp: (x: typeof device) => (typeof device)[keyof typeof device] = (x) => x.name;
+    if (searchParams.sortProp) {
+        const prop = Object.keys(device).find((x) => x === searchParams.sortProp) as keyof typeof device | undefined;
         if (prop) {
-            sortProp = x => x[prop]
+            sortProp = (x) => x[prop];
         }
     }
 
-    const userId = session.user.id
-    const devices = await getDevicesByUser(userId, sortOrder, sortProp)
+    const userId = session.user.id;
+    const devices = await getDevicesByUser(userId, searchParams.sortOrder, sortProp);
 
-    return(
+    return (
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Deine Geräte</CardTitle>
                 <CardDescription>Hier siehst du alle deine Geräte und kannst diese verwalten.</CardDescription>
             </CardHeader>
             <CardContent>
-                <DevicesTable userId={userId} devices={devices} sortOrder={sortOrder} sortProp={sortPropName}/>
+                <DevicesTable
+                    devices={devices}
+                    sortOrder={searchParams.sortOrder}
+                    sortProp={searchParams.sortProp}
+                    userId={userId}
+                />
             </CardContent>
         </Card>
-    )
+    );
 }

@@ -173,10 +173,7 @@ export async function updateUserData(data: UpdateUserData, id: number) {
 }
 
 export async function getUserDataByUserId(id: number) {
-    const data = await db
-        .select()
-        .from(userData)
-        .where(eq(userData.userId, id));
+    const data = await db.select().from(userData).where(eq(userData.userId, id));
 
     if (data.length === 0) {
         return null;
