@@ -63,7 +63,7 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
                                 {format(new Date(maxConsumptionDate), "dd.MM.yyyy HH:mm")} Uhr
                             </p>
                         )}
-                        <p className="text-center">{maxConsumption} kWh</p>
+                        <p className="text-center">{maxConsumption ?? 0} kWh</p>
                     </div>
                     <div>
                         <h2 className="text-center text-xl font-semibold text-primary">⌀</h2>
@@ -71,7 +71,7 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
                     </div>
                     <div>
                         <h2 className="text-center text-xl font-semibold text-primary">Letzter</h2>
-                        <p className="text-center">{lastValue} kWh</p>
+                        <p className="text-center">{lastValue ?? 0} kWh</p>
                     </div>
                 </div>
             </CardContent>
