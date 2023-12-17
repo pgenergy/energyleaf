@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
 import EnergyConsumptionCard from "@/components/dashboard/energy-consumption-card";
 import EnergyCostCard from "@/components/dashboard/energy-cost-card";
+import EnergyStatisticsCard from "@/components/dashboard/energy-consumption-statistics"
 
 import { Skeleton } from "@energyleaf/ui";
 
@@ -21,6 +22,9 @@ export default function DashboardPage({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>
                     <AbsolutEnergyConsumptionCard endDate={endDate} startDate={startDate} />
+                </Suspense>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <EnergyStatisticsCard endDate={endDate} startDate={startDate} />
                 </Suspense>
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>
                     <EnergyCostCard endDate={endDate} startDate={startDate} />
