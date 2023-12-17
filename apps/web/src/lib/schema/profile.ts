@@ -19,13 +19,13 @@ export const mailSettingsSchema = z.object({
 });
 
 export const userDataSchema = z.object({
-    houseType: z.enum([...userData.immobilie.enumValues]).default(userData.immobilie.enumValues[0]),
-    houseSize: z.coerce.number().int().positive({ message: "Bitte gib eine gültige Wohnfläche an." }),
+    houseType: z.enum([...userData.property.enumValues]).default(userData.property.enumValues[0]),
+    livingSpace: z.coerce.number().int().positive({ message: "Bitte gib eine gültige Wohnfläche an." }),
     people: z.coerce.number().int().positive({ message: "Bitte gib eine gültige Anzahl an Personen an." }),
-    warmWater: z.enum([...userData.warmwasser.enumValues]).default(userData.warmwasser.enumValues[0]),
+    hotWater: z.enum([...userData.hotWater.enumValues]).default(userData.hotWater.enumValues[0]),
     budget: z.coerce.number().int().positive({ message: "Bitte gib ein gültiges Budget an." }),
-    tarif: z.enum([...userData.tarif.enumValues]).default(userData.tarif.enumValues[0]),
-    price: z.coerce.number().positive({ message: "Bitte gib einen gültigen Preis an." }),
+    tariff: z.enum([...userData.tariff.enumValues]).default(userData.tariff.enumValues[0]),
+    basePrice: z.coerce.number().positive({ message: "Bitte gib einen gültigen Preis an." }),
 });
 
 export const deleteAccountSchema = z.object({
