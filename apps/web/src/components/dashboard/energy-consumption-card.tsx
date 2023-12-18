@@ -1,12 +1,10 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth";
-import { getEnergyDataForUser } from "@/query/energy";
-import { differenceInMinutes } from "date-fns";
+import { getEnergyDataForSensor, getElectricitySensorIdForUser } from "@/query/energy";
+import { format } from "date-fns";
+import de from "date-fns/locale/de";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
-
-import DashboardDateRange from "./date-range";
-import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
 interface Props {
     startDate: Date;
@@ -20,45 +18,42 @@ export default async function EnergyConsumptionCard({ startDate, endDate }: Prop
         redirect("/");
     }
 
-    const energyData = await getEnergyDataForUser(startDate, endDate, session.user.id);
-    const data = energyData.map((entry) => ({
-        energy: entry.value,
-        timestamp: entry.timestamp.toString(),
-    }));
-    const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
-    const std = Math.sqrt(
-        data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
-    );
-    const threshold = mean + 2 * std;
-    const peaks = data
-        .filter((x) => x.energy > threshold)
-        .filter((x, i, arr) => {
-            if (i === 0) {
-                return true;
-            }
+    const userId = session.user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
 
-            return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
-        });
+    if (!sensorId) {
+        throw new Error("Kein Stromsensor für diesen Benutzer gefunden");
+    }
+
+    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
+    const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0);
 
     return (
         <Card className="w-full">
-            <CardHeader className="flex flex-row justify-between">
-                <div className="flex flex-col gap-2">
-                    <CardTitle>Verbrauch</CardTitle>
-                    <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
-                </div>
-                <DashboardDateRange endDate={endDate} startDate={startDate} />
+            <CardHeader>
+                <CardTitle>Absoluter Energieverbrauch</CardTitle>
+                <CardDescription>
+                    {startDate.toDateString() === endDate.toDateString() ? (
+                        <>
+                            {format(startDate, "PPP", {
+                                locale: de,
+                            })}
+                        </>
+                    ) : (
+                        <>
+                            {format(startDate, "PPP", {
+                                locale: de,
+                            })}{" "}
+                            -{" "}
+                            {format(endDate, "PPP", {
+                                locale: de,
+                            })}
+                        </>
+                    )}
+                </CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="h-96 w-full">
-                    {data.length === 0 ? (
-                        <div className="flex h-full flex-col items-center justify-center">
-                            <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
-                        </div>
-                    ) : (
-                        <EnergyConsumptionCardChart data={data} peaks={peaks} />
-                    )}
-                </div>
+                <h1 className="text-center text-2xl font-bold text-primary">{absolut} Wh</h1>
             </CardContent>
         </Card>
     );

@@ -79,3 +79,26 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
 
     return query;
 }
+
+/**
+ * Get the sensorId for a user where sensor_type is 'electricity'
+ */
+export async function getElectricitySensorIdForUser(userId: number) {
+    const query = await db
+        .select()
+        .from(sensor)
+        .where(
+            and(
+                eq(sensor.user_id, userId),
+                eq(sensor.sensor_type, 'electricity')
+            )
+        );
+
+    if (query.length === 0) {
+        return null;
+    }
+
+    const sensorId = query[0].id;
+
+    return sensorId;
+}
