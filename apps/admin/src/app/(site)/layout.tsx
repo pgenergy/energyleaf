@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import NavbarAvatar from "@/components/nav/navbar-avatar";
 import { getSession } from "@/lib/auth/auth";
 import { AreaChartIcon, CpuIcon, HomeIcon, Users2Icon } from "lucide-react";
 
@@ -12,7 +13,7 @@ const navLinks = [
     {
         slug: "dashboard",
         title: "Übersicht",
-        path: "/dashboard",
+        path: "/",
         icon: <HomeIcon className="mr-2 h-4 w-4" />,
     },
     {
@@ -43,7 +44,7 @@ export default async function SiteLayout({ children }: Props) {
     }
     return (
         <>
-            <Navbar title="Energyleaf Admin" />
+            <Navbar actions={<NavbarAvatar user={session.user} />} title="Energyleaf Admin" />
             <Sidebar links={navLinks} />
             <main className="ml-[13%] mt-14 px-8 py-8">{children}</main>
         </>

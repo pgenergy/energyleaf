@@ -44,6 +44,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                     </>
                 }
                 title="Energyleaf"
+                titleLink="/dashboard"
             />
             <Sidebar links={navLinks} />
             <main className="ml-[13%] mt-14 px-8 py-8">{children}</main>
