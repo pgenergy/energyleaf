@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import signInAction from "@/actions/auth";
+import { signInAction } from "@/actions/auth";
 import { signInSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";

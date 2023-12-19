@@ -8,7 +8,7 @@ interface NavLink {
     slug: string;
     title: string;
     path: string;
-    icon: React.ReactNode;
+    icon?: React.ReactNode;
 }
 
 interface Props {
@@ -32,7 +32,7 @@ export function Sidebar({ links }: Props) {
                     href={link.path}
                     key={link.slug}
                 >
-                    {link.icon}
+                    {link.icon ?? null}
                     {link.title}
                 </Link>
             ))}
