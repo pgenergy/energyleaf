@@ -50,6 +50,7 @@
         "@radix-ui/react-toggle": "^1.0.3",
         "@radix-ui/react-tooltip": "^1.0.7",
         "class-variance-authority": "^0.7.0",
+        "clsx": "^2.0.0",
         "date-fns": "^2.30.0",
         "lucide-react": "^0.294.0",
         "react-day-picker": "^8.9.1",

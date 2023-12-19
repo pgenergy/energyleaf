@@ -3,35 +3,24 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { default as clsx } from "clsx";
-import { HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
 
-const navLinks = [
-    {
-        slug: "dashboard",
-        title: "Übersicht",
-        path: "/dashboard",
-        icon: <HomeIcon className="mr-2 h-4 w-4" />,
-    },
-    {
-        slug: "recommendations",
-        title: "Empfehlungen",
-        path: "/recommendations",
-        icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
-    },
-    {
-        slug: "devices",
-        title: "Geräte",
-        path: "/devices",
-        icon: <MicrowaveIcon className="mr-2 h-4 w-4" />,
-    },
-];
+interface NavLink {
+    slug: string;
+    title: string;
+    path: string;
+    icon: React.ReactNode;
+}
 
-export default function Sidebar() {
+interface Props {
+    links: NavLink[];
+}
+
+export function Sidebar({ links }: Props) {
     const pathname = usePathname();
 
     return (
         <nav className="max-h-[calc(100vh - 3.5rem)] fixed left-0 top-14 flex w-[13%] flex-col gap-4 overflow-scroll py-8">
-            {navLinks.map((link) => (
+            {links.map((link) => (
                 <Link
                     className={clsx(
                         {
