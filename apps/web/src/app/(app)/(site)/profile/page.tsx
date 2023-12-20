@@ -15,13 +15,13 @@ export default async function ProfilePage() {
 
     const userData = await getUserData(session.user.id);
     const data = {
-        houseType: userData?.user_data.immobilie || "house",
-        houseSize: userData?.user_data.wohnfläche || 0,
+        houseType: userData?.user_data.property || "house",
+        livingSpace: userData?.user_data.livingSpace || 0,
         people: userData?.user_data.household || 0,
-        warmWater: userData?.user_data.warmwasser || "electric",
+        hotWater: userData?.user_data.hotWater || "electric",
         budget: userData?.user_data.budget || 0,
-        tarif: userData?.user_data.tarif || "basic",
-        price: userData?.user_data.basispreis || 0,
+        tariff: userData?.user_data.tariff || "basic",
+        basePrice: userData?.user_data.basePrice || 0,
     };
 
     return (

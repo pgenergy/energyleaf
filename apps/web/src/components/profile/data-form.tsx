@@ -8,7 +8,7 @@ import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
-import { userData, userDataImmobilieEnums, userDataTarfiEnums, userDataWarmwasserEnums } from "@energyleaf/db/schema";
+import { userData, userDataPropertyEnums, userDataTariffEnums, userDataHotWaterEnums } from "@energyleaf/db/schema";
 import {
     Button,
     Card,
@@ -85,9 +85,9 @@ export default function UserDataForm({ initialData, id }: Props) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {userData.immobilie.enumValues.map((value) => (
+                                            {userData.property.enumValues.map((value) => (
                                                 <SelectItem key={value} value={value}>
-                                                    {userDataImmobilieEnums[value]}
+                                                    {userDataPropertyEnums[value]}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -97,7 +97,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="warmWater"
+                            name="hotWater"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Warmwasser</FormLabel>
@@ -108,9 +108,9 @@ export default function UserDataForm({ initialData, id }: Props) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {userData.warmwasser.enumValues.map((value) => (
+                                            {userData.hotWater.enumValues.map((value) => (
                                                 <SelectItem key={value} value={value}>
-                                                    {userDataWarmwasserEnums[value]}
+                                                    {userDataHotWaterEnums[value]}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -120,7 +120,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="tarif"
+                            name="tariff"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Tarif</FormLabel>
@@ -131,9 +131,9 @@ export default function UserDataForm({ initialData, id }: Props) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {userData.tarif.enumValues.map((value) => (
+                                            {userData.tariff.enumValues.map((value) => (
                                                 <SelectItem key={value} value={value}>
-                                                    {userDataTarfiEnums[value]}
+                                                    {userDataTariffEnums[value]}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -155,7 +155,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="price"
+                            name="basePrice"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Strompreis</FormLabel>
@@ -167,7 +167,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="houseSize"
+                            name="livingSpace"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Wohnfläche</FormLabel>

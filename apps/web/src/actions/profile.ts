@@ -103,12 +103,12 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
             {
                 timestamp: new Date(),
                 budget: data.budget,
-                wohnfläche: data.houseSize,
+                livingSpace: data.livingSpace,
                 household: data.people,
-                immobilie: data.houseType,
-                warmwasser: data.warmWater,
-                tarif: data.tarif,
-                basispreis: data.price,
+                property: data.houseType,
+                hotWater: data.hotWater,
+                tariff: data.tariff,
+                basePrice: data.basePrice,
             },
             user.id,
         );

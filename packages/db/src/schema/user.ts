@@ -18,14 +18,14 @@ export const userData = mysqlTable("user_data", {
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),
     budget: int("budget").default(2500),
-    basispreis: float("basispreis"),
-    arbeitspreis: float("arbeitspreis"),
-    tarif: mysqlEnum("tarif", ["basic", "eco"]).default("basic"),
+    basePrice: float("base_price"),
+    workingPrice: float("working_price"),
+    tariff: mysqlEnum("tariff", ["basic", "eco"]).default("basic"),
     limitEnergy: int("limit_energy").default(800),
     household: int("household"),
-    immobilie: mysqlEnum("immobilie", ["house", "apartment"]),
-    wohnfläche: int("wohnfläche"),
-    warmwasser: mysqlEnum("warmwasser", ["electric", "not_electric"]),
+    property: mysqlEnum("property", ["house", "apartment"]),
+    livingSpace: int("living_space"),
+    hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
 });
 
 export const historyUserData = mysqlTable("history_user_data", {
@@ -35,27 +35,27 @@ export const historyUserData = mysqlTable("history_user_data", {
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),
     budget: int("budget").default(2500),
-    basispreis: float("basispreis"),
-    arbeitspreis: float("arbeitspreis"),
-    tarif: mysqlEnum("tarif", ["basic", "eco"]).default("basic"),
+    basePrice: float("base_price"),
+    workingPrice: float("working_price"),
+    tariff: mysqlEnum("tariff", ["basic", "eco"]).default("basic"),
     limitEnergy: int("limit_energy").default(800),
     household: int("household"),
-    immobilie: mysqlEnum("immobilie", ["house", "apartment"]),
-    wohnfläche: int("wohnfläche"),
-    warmwasser: mysqlEnum("warmwasser", ["electric", "not_electric"]),
+    property: mysqlEnum("property", ["house", "apartment"]),
+    livingSpace: int("living_space"),
+    hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
 });
 
-export const userDataTarfiEnums: Record<(typeof userData.tarif.enumValues)[number], string> = {
+export const userDataTariffEnums: Record<(typeof userData.tariff.enumValues)[number], string> = {
     basic: "BasisStrom",
     eco: "ÖkoStrom",
 };
 
-export const userDataImmobilieEnums: Record<(typeof userData.immobilie.enumValues)[number], string> = {
+export const userDataPropertyEnums: Record<(typeof userData.property.enumValues)[number], string> = {
     house: "Haus",
     apartment: "Wohnung",
 };
 
-export const userDataWarmwasserEnums: Record<(typeof userData.warmwasser.enumValues)[number], string> = {
+export const userDataHotWaterEnums: Record<(typeof userData.hotWater.enumValues)[number], string> = {
     electric: "Elektrisch",
     not_electric: "Nicht elektrisch",
 };
