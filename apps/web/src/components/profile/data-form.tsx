@@ -8,7 +8,7 @@ import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
-import { userData, userDataPropertyEnums, userDataTariffEnums, userDataHotWaterEnums } from "@energyleaf/db/schema";
+import { userData, userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/schema";
 import {
     Button,
     Card,

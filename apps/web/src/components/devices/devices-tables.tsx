@@ -29,22 +29,19 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
             return "";
         }
 
-        return `${format(created, "PPpp", {
+        return format(created, "PPpp", {
             locale: de,
-        })}`;
+        });
     };
 
-    async function onDeleteButtonClick(
-        event: React.MouseEvent<HTMLButtonElement>,
-        id: number,
-    ) {
+    async function onDeleteButtonClick(event: React.MouseEvent<HTMLButtonElement>, id: number) {
         event.preventDefault();
         const delDevice = devices?.find((x) => x.id === id);
         if (!delDevice) {
             return;
         }
         // eslint-disable-next-line no-alert -- TODO change to dialoge in the future
-        if (!(confirm("Soll das Gerät wirklich gelöscht werden?"))) {
+        if (!confirm("Soll das Gerät wirklich gelöscht werden?")) {
             return;
         }
 

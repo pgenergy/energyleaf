@@ -8,6 +8,7 @@ import type {
     passwordSchema,
     userDataSchema,
 } from "@/lib/schema/profile";
+import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import * as bcrypt from "bcryptjs";
 
 import {
@@ -18,8 +19,6 @@ import {
     updateUser,
     updateUserData,
 } from "@energyleaf/db/query";
-
-import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 
 import "server-only";
 
