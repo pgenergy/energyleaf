@@ -7,15 +7,14 @@ import { signupSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
-import { useToast } from "@energyleaf/ui/hooks";
 
 export default function SignUpForm() {
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState<string>("");
-    const { toast } = useToast();
     const form = useForm<z.infer<typeof signupSchema>>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
@@ -36,17 +35,21 @@ export default function SignUpForm() {
             });
         }
 
-        startTransition(async () => {
-            try {
-                await createAccount(data);
-                await signInAction(data.mail, data.password);
-                toast({
-                    title: "Konto erstellt",
-                    description: "Dein Konto wurde erfolgreich erstellt.",
-                });
-            } catch (err) {
-                setError((err as unknown as Error).message);
-            }
+        startTransition(() => {
+            toast.promise(
+                async () => {
+                    await createAccount(data);
+                    await signInAction(data.mail, data.password);
+                },
+                {
+                    loading: "Erstelle Konto...",
+                    success: "Konto erfolgreich erstellt",
+                    error: (err) => {
+                        setError((err as unknown as Error).message);
+                        return "Konto konnte nicht erstellt werden";
+                    },
+                },
+            );
         });
     }
 

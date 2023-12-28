@@ -7,10 +7,10 @@ import { loginSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
-import { useToast } from "@energyleaf/ui/hooks";
 
 export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
@@ -22,19 +22,17 @@ export default function LoginForm() {
             password: "",
         },
     });
-    const { toast } = useToast();
 
     function onSubmit(data: z.infer<typeof loginSchema>) {
-        startTransition(async () => {
-            const res = await signInAction(data.mail, data.password);
-            if (res) {
-                setError(res.message);
-            } else {
-                toast({
-                    title: "Erfolgreich angemeldet",
-                    description: "Du wurdest erfolgreich angemeldet.",
-                });
-            }
+        startTransition(() => {
+            toast.promise(signInAction(data.mail, data.password), {
+                loading: "Anmelden...",
+                success: "Erfolgreich angemeldet",
+                error: (err) => {
+                    setError((err as unknown as Error).message);
+                    return "Fehler beim Anmelden";
+                },
+            });
         });
     }
 

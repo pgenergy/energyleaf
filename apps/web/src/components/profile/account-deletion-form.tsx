@@ -8,6 +8,7 @@ import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
 import {
@@ -29,7 +30,6 @@ import {
     FormMessage,
     Input,
 } from "@energyleaf/ui";
-import { useToast } from "@energyleaf/ui/hooks";
 
 interface Props {
     id: string;
@@ -38,7 +38,6 @@ interface Props {
 export default function AccountDeletionForm({ id }: Props) {
     const [isPending, startTransition] = useTransition();
     const [open, setOpen] = useState(false);
-    const { toast } = useToast();
     const form = useForm<z.infer<typeof deleteAccountSchema>>({
         resolver: zodResolver(deleteAccountSchema),
         defaultValues: {
@@ -47,30 +46,25 @@ export default function AccountDeletionForm({ id }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof deleteAccountSchema>) {
-        startTransition(async () => {
+        startTransition(() => {
             setOpen(false);
-            try {
-                await deleteAccount(data, id);
-                toast({
-                    title: "Erfolgreich gelöscht",
-                    description: "Dein Account wurde erfolgreich gelöscht",
-                });
-                await signOutAction();
-            } catch (e) {
-                if (e instanceof PasswordsDoNotMatchError) {
-                    toast({
-                        title: "Das Passwort ist falsch",
-                        description: "Dein Account konnte nicht gelöscht werden",
-                        variant: "destructive",
-                    });
-                } else {
-                    toast({
-                        title: "Fehler beim Löschen",
-                        description: "Dein Account konnte nicht gelöscht werden",
-                        variant: "destructive",
-                    });
-                }
-            }
+            toast.promise(
+                async () => {
+                    await deleteAccount(data, id);
+                    await signOutAction();
+                },
+                {
+                    loading: "Lösche...",
+                    success: "Deine Account wurde erfolgreich gelöscht",
+                    error: (err) => {
+                        if (err instanceof PasswordsDoNotMatchError) {
+                            return "Bitte gib das richtige Passwort an";
+                        }
+
+                        return "Dein Account konnte nicht gelöscht werden";
+                    },
+                },
+            );
         });
     }
 

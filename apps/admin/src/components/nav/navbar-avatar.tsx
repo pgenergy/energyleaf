@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
 import type { CustomSession } from "@/types/auth";
 import { LogOutIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import {
     Avatar,
@@ -16,7 +17,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
-import { useToast } from "@energyleaf/ui/hooks";
 
 interface Props {
     user: CustomSession["user"];
@@ -24,17 +24,18 @@ interface Props {
 
 export default function NavbarAvatar({ user }: Props) {
     const [_isPending, startTransition] = useTransition();
-    const { toast } = useToast();
     const router = useRouter();
 
     function onSignOut() {
-        startTransition(async () => {
-            await signOutAction();
-            toast({
-                title: "Abgemeldet",
-                description: "Du wurdest erfolgreich abgemeldet.",
+        startTransition(() => {
+            toast.promise(signOutAction, {
+                loading: "Abmelden...",
+                success: () => {
+                    router.push("/");
+                    return "Erfolgreich abgemeldet.";
+                },
+                error: "Fehler beim Abmelden.",
             });
-            router.push("/");
         });
     }
 

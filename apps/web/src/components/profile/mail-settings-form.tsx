@@ -6,6 +6,7 @@ import { mailSettingsSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
 import {
@@ -23,7 +24,6 @@ import {
     FormLabel,
     Switch,
 } from "@energyleaf/ui";
-import { useToast } from "@energyleaf/ui/hooks";
 
 interface Props {
     daily: boolean;
@@ -33,7 +33,6 @@ interface Props {
 
 export default function MailSettingsForm({ daily, weekly, id }: Props) {
     const [isPending, startTransition] = useTransition();
-    const { toast } = useToast();
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),
         defaultValues: {
@@ -43,20 +42,12 @@ export default function MailSettingsForm({ daily, weekly, id }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
-        startTransition(async () => {
-            try {
-                await updateMailInformation(data, id);
-                toast({
-                    title: "Erfolgreich aktualisiert",
-                    description: "Deine Daten wurden erfolgreich aktualisiert",
-                });
-            } catch (e) {
-                toast({
-                    title: "Fehler beim aktualisieren",
-                    description: "Deine Daten konnten nicht aktualisiert werden",
-                    variant: "destructive",
-                });
-            }
+        startTransition(() => {
+            toast.promise(updateMailInformation(data, id), {
+                loading: "Aktulisiere Einstellungen...",
+                success: "Einstellungen erfolgreich aktualisiert",
+                error: "Deine Einstellungen konnten nicht aktualisiert werden",
+            });
         });
     }
 
