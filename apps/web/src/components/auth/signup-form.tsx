@@ -45,7 +45,7 @@ export default function SignUpForm() {
                     description: "Dein Konto wurde erfolgreich erstellt.",
                 });
             } catch (err) {
-                setError(err as string);
+                setError((err as unknown as Error).message);
             }
         });
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ComputerIcon, MoonIcon, SunIcon } from "lucide-react";
+import { ComputerIcon, MoonIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import {
@@ -15,7 +15,6 @@ import {
 
 export default function ThemeSwitcher() {
     const theme = useTheme();
-    const currentTheme = theme.theme;
 
     function switchTheme(value: string) {
         theme.setTheme(value);
@@ -25,14 +24,14 @@ export default function ThemeSwitcher() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button size="icon" variant="ghost">
-                    <ThemeIcon theme={currentTheme || "system"} />
+                    <SunMoonIcon className="h-6 w-6" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Darstellung</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                    className="cursor-pointer"
+                    className="flex cursor-pointer items-center gap-2"
                     onClick={() => {
                         switchTheme("system");
                     }}
@@ -41,7 +40,7 @@ export default function ThemeSwitcher() {
                     System
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                    className="cursor-pointer"
+                    className="flex cursor-pointer items-center gap-2"
                     onClick={() => {
                         switchTheme("light");
                     }}
@@ -50,7 +49,7 @@ export default function ThemeSwitcher() {
                     Hell
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                    className="cursor-pointer"
+                    className="flex cursor-pointer items-center gap-2"
                     onClick={() => {
                         switchTheme("dark");
                     }}
