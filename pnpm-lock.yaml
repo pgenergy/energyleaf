@@ -27,6 +27,12 @@ importers:
       '@energyleaf/tsconfig':
         specifier: workspace:*
         version: link:packages/tsconfig
+      '@protobuf-ts/plugin':
+        specifier: ^2.9.3
+        version: 2.9.3
+      '@protobuf-ts/protoc':
+        specifier: ^2.9.3
+        version: 2.9.3
       '@total-typescript/ts-reset':
         specifier: ^0.5.1
         version: 0.5.1
@@ -57,6 +63,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^3.3.3
         version: 3.3.3(react-hook-form@7.49.2)
+      '@protobuf-ts/runtime':
+        specifier: ^2.9.3
+        version: 2.9.3
       '@t3-oss/env-nextjs':
         specifier: ^0.7.1
         version: 0.7.1(typescript@5.3.3)(zod@3.22.4)
@@ -1420,6 +1429,38 @@ packages:
     resolution: {integrity: sha512-sb9tUoF+Po55o+3PRHZVeH8XzUIABKBKcnq6oBUa+p/2uau/E2EXhnUPXmkC/x7oB6ILBqmqTL6dPP5Dn6d6iA==}
     engines: {node: '>=16'}
     dev: false
+
+  /@protobuf-ts/plugin-framework@2.9.3:
+    resolution: {integrity: sha512-iqdkhAu7fGPvBCVOoAEEFJ1/oaGIBoNIMgSv2WonTNJVHxv5FvvAfWFn6nG/eta34fHRZT38ZXTaYcMUkv8AiQ==}
+    dependencies:
+      '@protobuf-ts/runtime': 2.9.3
+      typescript: 3.9.10
+    dev: true
+
+  /@protobuf-ts/plugin@2.9.3:
+    resolution: {integrity: sha512-tHYACv+nnIV2eoiMxeZhrgMqGiUktzUzrhfgnROg/rr8TecPLp9v5/yqNibN+bad5k7d57aqlTuQKhFl+J4W/g==}
+    hasBin: true
+    dependencies:
+      '@protobuf-ts/plugin-framework': 2.9.3
+      '@protobuf-ts/protoc': 2.9.3
+      '@protobuf-ts/runtime': 2.9.3
+      '@protobuf-ts/runtime-rpc': 2.9.3
+      typescript: 3.9.10
+    dev: true
+
+  /@protobuf-ts/protoc@2.9.3:
+    resolution: {integrity: sha512-TJ0Ycx/CIBqpB4wpKt6K05kjXj6zv36s/qpdCT/wdJBhpayOVBqLF5NpLp3WIiw1PmIxvqalB6QHKjvnLzGKLA==}
+    hasBin: true
+    dev: true
+
+  /@protobuf-ts/runtime-rpc@2.9.3:
+    resolution: {integrity: sha512-WelHpctvZeG8yhbb7tnsrLzotq9xjMCXuGuhJ8qMyEdNoBBEodbXseofAYFTebo2/PN2LzyEq3X6vwr5f8jqTA==}
+    dependencies:
+      '@protobuf-ts/runtime': 2.9.3
+    dev: true
+
+  /@protobuf-ts/runtime@2.9.3:
+    resolution: {integrity: sha512-nivzCpg/qYD0RX2OmHOahJALb8ndjGmUhNBcTJ0BbXoqKwCSM6vYA+vegzS3rhuaPgbyC7Ec8idlnizzUfIRuw==}
 
   /@radix-ui/number@1.0.1:
     resolution: {integrity: sha512-T5gIdVO2mmPW3NNhjNgEP3cqMXjXL9UbO0BzWcXfvdBs+BohbQxvd/K5hSVKmn9/lbTdsQVKbUcP5WLCwvUbBg==}
@@ -7639,6 +7680,12 @@ packages:
       call-bind: 1.0.5
       for-each: 0.3.3
       is-typed-array: 1.1.12
+    dev: true
+
+  /typescript@3.9.10:
+    resolution: {integrity: sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
     dev: true
 
   /typescript@5.3.3:

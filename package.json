@@ -11,10 +11,13 @@
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "fix": "pnpm run format && pnpm run lint -- --fix",
         "db:push": "dotenv -- pnpm --filter db run push",
-        "db:studio": "dotenv -- pnpm --filter db run studio"
+        "db:studio": "dotenv -- pnpm --filter db run studio",
+        "proto:compile": "protoc --ts_out ./apps/admin/src/lib/proto --proto_path proto proto/sensor_data.proto"
     },
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:*",
+        "@protobuf-ts/plugin": "^2.9.3",
+        "@protobuf-ts/protoc": "^2.9.3",
         "@total-typescript/ts-reset": "^0.5.1",
         "eslint": "^8.56.0",
         "prettier": "^3.1.1",

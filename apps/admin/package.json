@@ -14,6 +14,7 @@
         "@energyleaf/tailwindcss": "workspace:*",
         "@energyleaf/ui": "workspace:*",
         "@hookform/resolvers": "^3.3.3",
+        "@protobuf-ts/runtime": "^2.9.3",
         "@t3-oss/env-nextjs": "^0.7.1",
         "bcryptjs": "^2.4.3",
         "clsx": "^2.1.0",
