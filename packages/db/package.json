@@ -15,8 +15,8 @@
         "studio": "drizzle-kit studio"
     },
     "dependencies": {
-        "@planetscale/database": "^1.11.0",
-        "drizzle-orm": "^0.29.1",
+        "@planetscale/database": "^1.13.0",
+        "drizzle-orm": "^0.29.3",
         "nanoid": "^5.0.4"
     },
     "devDependencies": {
