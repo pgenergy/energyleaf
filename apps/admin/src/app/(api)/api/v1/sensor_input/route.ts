@@ -3,7 +3,11 @@ import { ELData } from "@/lib/proto/sensor-data";
 
 /**
  * Parse the binary data from the request body
- * This is needed because the body is a ReadableStream and the the prot needs a Uint8Array
+ * This is needed because the body is a ReadableStream and the the proto needs a Uint8Array
+ *
+ * @param data - The request body
+ *
+ * @returns The binary data as Uint8Array
  */
 const parseData = async (data: ReadableStream<Uint8Array>) => {
     async function readStream(stream: ReadableStreamDefaultReader<Uint8Array>, result: Uint8Array) {
