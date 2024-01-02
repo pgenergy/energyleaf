@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ELData } from "@/lib/proto/sensor-data";
 
+import { insertSensorData } from "@energyleaf/db/query";
+
 /**
  * Parse the binary data from the request body
  * This is needed because the body is a ReadableStream and the the proto needs a Uint8Array
@@ -44,11 +46,22 @@ export const POST = async (req: NextRequest) => {
     const binaryData = await parseData(body);
     try {
         const data = ELData.fromBinary(binaryData);
-
-        return NextResponse.json({
-            status: "ok",
-            data: JSON.stringify(data),
-        });
+        try {
+            await insertSensorData({
+                id: data.sensorId,
+                value: data.sensorValue,
+            });
+        } catch (e) {
+            return NextResponse.json(
+                {
+                    status: "error",
+                    error: "Database error",
+                },
+                {
+                    status: 500,
+                },
+            );
+        }
     } catch (e) {
         return NextResponse.json(
             {
