@@ -1,6 +1,6 @@
 import { ThemeProvider } from "@/hooks/theme/theme-provider";
 
-import { Toaster } from "@energyleaf/ui/components";
+import { Toaster } from "@energyleaf/ui/components/utils";
 
 interface Props {
     children: React.ReactNode;
