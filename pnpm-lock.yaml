@@ -27,12 +27,6 @@ importers:
       '@energyleaf/tsconfig':
         specifier: workspace:*
         version: link:packages/tsconfig
-      '@protobuf-ts/plugin':
-        specifier: ^2.9.3
-        version: 2.9.3
-      '@protobuf-ts/protoc':
-        specifier: ^2.9.3
-        version: 2.9.3
       '@total-typescript/ts-reset':
         specifier: ^0.5.1
         version: 0.5.1
