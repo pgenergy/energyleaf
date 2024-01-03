@@ -13,6 +13,7 @@
         "@energyleaf/db": "workspace:^",
         "@energyleaf/tailwindcss": "workspace:*",
         "@energyleaf/ui": "workspace:*",
+        "@energyleaf/proto": "workspace:*",
         "@hookform/resolvers": "^3.3.3",
         "@protobuf-ts/runtime": "^2.9.3",
         "@t3-oss/env-nextjs": "^0.7.1",

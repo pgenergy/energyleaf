@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { ELData } from "@/lib/proto/sensor-data";
 
 import { insertSensorData } from "@energyleaf/db/query";
+import { ELData } from "@energyleaf/proto/sensor-data";
 
 /**
  * Parse the binary data from the request body

@@ -54,6 +54,9 @@ importers:
       '@energyleaf/db':
         specifier: workspace:^
         version: link:../../packages/db
+      '@energyleaf/proto':
+        specifier: workspace:*
+        version: link:../../packages/proto
       '@energyleaf/tailwindcss':
         specifier: workspace:*
         version: link:../../packages/tailwindcss
@@ -288,6 +291,19 @@ importers:
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
+
+  packages/proto:
+    dependencies:
+      '@protobuf-ts/runtime':
+        specifier: ^2.9.3
+        version: 2.9.3
+    devDependencies:
+      '@protobuf-ts/plugin':
+        specifier: ^2.9.3
+        version: 2.9.3
+      '@protobuf-ts/protoc':
+        specifier: ^2.9.3
+        version: 2.9.3
 
   packages/tailwindcss:
     dependencies:

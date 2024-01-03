@@ -12,7 +12,7 @@
         "fix": "pnpm run format && pnpm run lint -- --fix",
         "db:push": "dotenv -- pnpm --filter db run push",
         "db:studio": "dotenv -- pnpm --filter db run studio",
-        "proto:compile": "protoc --ts_out ./apps/admin/src/lib/proto --proto_path proto proto/sensor_data.proto"
+        "proto:compile": "dotenv -- pnpm --filter proto run compile"
     },
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:*",
