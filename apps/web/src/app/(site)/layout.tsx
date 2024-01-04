@@ -5,7 +5,7 @@ import ThemeSwitcher from "@/components/nav/theme-switcher";
 import { getSession } from "@/lib/auth/auth";
 import { HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
 
-import { Navbar, Sidebar } from "@energyleaf/ui/components";
+import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
 
 const navLinks = [
     {

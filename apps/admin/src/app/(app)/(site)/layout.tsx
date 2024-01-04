@@ -4,7 +4,7 @@ import ThemeSwitcher from "@/components/nav/theme-switcher";
 import { getSession } from "@/lib/auth/auth";
 import { AreaChartIcon, CpuIcon, HomeIcon, Users2Icon } from "lucide-react";
 
-import { Navbar, Sidebar } from "@energyleaf/ui/components";
+import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
 
 interface Props {
     children: React.ReactNode;

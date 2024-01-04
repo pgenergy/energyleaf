@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message ELData {
+	string sensorId = 1;
+	float sensorValue = 2;
+}

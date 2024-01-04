@@ -1,7 +1,7 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
-import { sensorData, userData } from "../schema";
+import { sensor, sensorData, user, userData } from "../schema";
 
 /**
  * Get the energy consumption for a user in a given time range
@@ -84,4 +84,31 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
     });
 
     return query;
+}
+
+/**
+ * Insert sensor data
+ */
+export async function insertSensorData(data: { id: string; value: number }) {
+    try {
+        await db.transaction(async (trx) => {
+            const userData = await trx
+                .select()
+                .from(user)
+                .where(eq(user.sensorId, data.id));
+
+            if (userData.length === 0) {
+                trx.rollback();
+                throw new Error("Sensor not found");
+            }
+
+            await trx.insert(sensorData).values({
+                userId: userData[0].id,
+                value: data.value,
+                timestamp: sql<Date>`NOW()`,
+            });
+        });
+    } catch (err) {
+        throw err;
+    }
 }
