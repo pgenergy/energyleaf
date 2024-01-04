@@ -6,6 +6,7 @@ import { baseInfromationSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
 import {
@@ -23,7 +24,6 @@ import {
     FormMessage,
     Input,
 } from "@energyleaf/ui";
-import { useToast } from "@energyleaf/ui/hooks";
 
 import ChangePasswordForm from "./change-password-form";
 
@@ -35,7 +35,6 @@ interface Props {
 
 export default function BaseInformationForm({ username, email, id }: Props) {
     const [changeIsPending, startTransition] = useTransition();
-    const { toast } = useToast();
     const form = useForm<z.infer<typeof baseInfromationSchema>>({
         resolver: zodResolver(baseInfromationSchema),
         defaultValues: {
@@ -45,23 +44,15 @@ export default function BaseInformationForm({ username, email, id }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof baseInfromationSchema>) {
-        startTransition(async () => {
+        startTransition(() => {
             if (data.email !== email) {
                 return;
             }
-            try {
-                await updateBaseInformationUsername(data, id);
-                toast({
-                    title: "Erfolgreich aktualisiert",
-                    description: "Deine Daten wurden erfolgreich aktualisiert",
-                });
-            } catch (e) {
-                toast({
-                    title: "Fehler beim Aktualisieren",
-                    description: "Deine Daten konnten nicht aktualisiert werden",
-                    variant: "destructive",
-                });
-            }
+            toast.promise(updateBaseInformationUsername(data, id), {
+                loading: "Speichere...",
+                success: "Erfolgreich aktualisiert",
+                error: "Fehler beim Aktualisieren",
+            });
         });
     }
 

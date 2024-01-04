@@ -2,7 +2,11 @@
     "private": true,
     "scripts": {
         "build": "dotenv -- turbo run build",
+        "build:app": "dotenv -- turbo run build --filter web",
+        "build:admin": "dotenv -- turbo run build --filter admin",
         "dev": "dotenv -- turbo run dev",
+        "dev:app": "dotenv -- turbo run dev --filter web",
+        "dev:admin": "dotenv -- turbo run dev --filter admin",
         "lint": "dotenv -- turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "fix": "pnpm run format && pnpm run lint -- --fix",

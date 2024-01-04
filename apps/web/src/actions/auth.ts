@@ -54,9 +54,7 @@ export async function signInAction(email: string, password: string) {
             return redirect("/dashboard");
         }
 
-        return {
-            message: "Benutername oder Passwort falsch.",
-        };
+        throw new Error("Benutername oder Passwort falsch.");
     }
 }
 

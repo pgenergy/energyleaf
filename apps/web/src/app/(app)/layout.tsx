@@ -8,7 +8,7 @@ export default function RootAppLayout({ children }: { children: React.ReactNode 
     return (
         <ThemeProvider attribute="class" defaultTheme="system" disableTransitionOnChange enableSystem>
             {children}
-            <Toaster />
+            <Toaster richColors />
         </ThemeProvider>
     );
 }

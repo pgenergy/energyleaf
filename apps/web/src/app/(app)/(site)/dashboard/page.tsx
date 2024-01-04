@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
 import EnergyConsumptionCard from "@/components/dashboard/energy-consumption-card";
+import EnergyStatisticsCard from "@/components/dashboard/energy-consumption-statistics";
 import EnergyCostCard from "@/components/dashboard/energy-cost-card";
-import EnergyStatisticsCard from "@/components/dashboard/energy-consumption-statistics"
 
 import { Skeleton } from "@energyleaf/ui";
 
