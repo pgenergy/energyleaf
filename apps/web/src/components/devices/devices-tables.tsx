@@ -29,9 +29,9 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
             return "";
         }
 
-        return `${format(created, "PPpp", {
+        return format(created, "PPpp", {
             locale: de,
-        })}`;
+        });
     };
 
     async function onDeleteButtonClick(
@@ -44,7 +44,7 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
             return;
         }
         // eslint-disable-next-line no-alert -- TODO change to dialoge in the future
-        if (!(confirm("Soll das Gerät wirklich gelöscht werden?"))) {
+        if (!confirm("Soll das Gerät wirklich gelöscht werden?")) {
             return;
         }
 

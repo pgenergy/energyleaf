@@ -3,8 +3,14 @@
 import * as React from "react";
 import type * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
-import type { ControllerProps, FieldPath, FieldValues } from "react-hook-form";
-import { Controller, FormProvider, useFormContext } from "react-hook-form";
+import {
+    Controller,
+    FormProvider,
+    useFormContext,
+    type ControllerProps,
+    type FieldPath,
+    type FieldValues,
+} from "react-hook-form";
 
 import { cn } from "@energyleaf/tailwindcss/utils";
 
@@ -39,6 +45,7 @@ const useFormField = () => {
 
     const fieldState = getFieldState(fieldContext.name, formState);
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- this is necessary
     if (!fieldContext) {
         throw new Error("useFormField should be used within <FormField>");
     }
@@ -90,7 +97,7 @@ const FormControl = React.forwardRef<React.ElementRef<typeof Slot>, React.Compon
 
         return (
             <Slot
-                aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
+                aria-describedby={!error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`}
                 aria-invalid={Boolean(error)}
                 id={formItemId}
                 ref={ref}
@@ -106,7 +113,12 @@ const FormDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttribu
         const { formDescriptionId } = useFormField();
 
         return (
-            <p className={cn("text-sm text-muted-foreground", className)} id={formDescriptionId} ref={ref} {...props} />
+            <p
+                className={cn("text-[0.8rem] text-muted-foreground", className)}
+                id={formDescriptionId}
+                ref={ref}
+                {...props}
+            />
         );
     },
 );
@@ -123,7 +135,7 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<
 
         return (
             <p
-                className={cn("text-sm font-medium text-destructive", className)}
+                className={cn("text-[0.8rem] font-medium text-destructive", className)}
                 id={formMessageId}
                 ref={ref}
                 {...props}

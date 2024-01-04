@@ -50,7 +50,7 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
         }
 
         const user = data[0];
-        if (!user.wohnfläche || !user.household || !user.immobilie) {
+        if (!user.livingSpace || !user.household || !user.property) {
             return null;
         }
 
@@ -63,9 +63,9 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
             .innerJoin(userData, eq(userData.userId, sensorData.userId))
             .where(
                 and(
-                    eq(userData.wohnfläche, user.wohnfläche),
+                    eq(userData.livingSpace, user.livingSpace),
                     eq(userData.household, user.household),
-                    eq(userData.immobilie, user.immobilie),
+                    eq(userData.property, user.property),
                 ),
             );
 
