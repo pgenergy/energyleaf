@@ -1,15 +1,27 @@
-'use client';
+"use client";
 
 import { addOrUpdatePeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
-import { Button, Form, FormField, FormItem, FormLabel, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
-import { toast } from "@energyleaf/ui/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
+import {
+    Button,
+    Form,
+    FormField,
+    FormItem,
+    FormLabel,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@energyleaf/ui";
+
 interface Props {
-    devices: { id: number; userId: number; name: string; created: Date | null; }[];
+    devices: { id: number; userId: number; name: string; created: Date | null }[];
     initialValues: z.infer<typeof peakSchema>;
     sensorDataId: number;
     onInteract: () => void;
@@ -19,24 +31,21 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorD
     const form = useForm<z.infer<typeof peakSchema>>({
         resolver: zodResolver(peakSchema),
         defaultValues: {
-            ...initialValues
+            ...initialValues,
         },
     });
 
-    async function onSubmit(data: z.infer<typeof peakSchema>) {
-        try {
-            await addOrUpdatePeak(data, sensorDataId)
-            toast({
-                title: "Erfolgreich zugewiesen",
-                description: "Dem Peak wurde erfolgreich das Gerät zugewiesen.",
-            });
-        } catch (e) {
-            toast({
-                title: "Fehler beim Zuweisen",
-                description: "Das Gerät konnte dem Peak nicht zugewiesen werden.",
-                variant: "destructive",
-            });
-        }
+    function onSubmit(data: z.infer<typeof peakSchema>) {
+        toast.promise(
+            async () => {
+                await addOrUpdatePeak(data, sensorDataId);
+            },
+            {
+                loading: "Peak zuweisen...",
+                success: `Erfolgreich zugewiesen`,
+                error: `Das Gerät konnte dem Peak nicht zugewiesen werden.`,
+            },
+        );
 
         onInteract();
     }
@@ -71,11 +80,9 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorD
                 />
 
                 <div className="flex flex-row justify-end">
-                    <Button type="submit">
-                        Speichern
-                    </Button>
+                    <Button type="submit">Speichern</Button>
                 </div>
             </form>
         </Form>
-    )
+    );
 }

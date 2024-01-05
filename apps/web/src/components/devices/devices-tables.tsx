@@ -34,10 +34,7 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
         });
     };
 
-    async function onDeleteButtonClick(
-        event: React.MouseEvent<HTMLButtonElement>,
-        id: number,
-    ) {
+    function onDeleteButtonClick(event: React.MouseEvent<HTMLButtonElement>, id: number) {
         event.stopPropagation(); // otherwise, the row click event is triggered and the edit dialog is opened
         const delDevice = devices?.find((x) => x.id === id);
         if (!delDevice) {
