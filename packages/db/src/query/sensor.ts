@@ -1,7 +1,7 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
-import { sensorData, userData } from "../schema";
+import { sensorData, userData, peaks } from "../schema";
 
 /**
  * Get the energy consumption for a user in a given time range
@@ -13,11 +13,7 @@ export async function getEnergyForUserInRange(start: Date, end: Date, userId: nu
         .where(
             and(
                 eq(sensorData.userId, userId),
-                or(
-                    between(sensorData.timestamp, start, end),
-                    eq(sensorData.timestamp, start),
-                    eq(sensorData.timestamp, end),
-                ),
+                sensorDataTimeFilter(start, end)
             ),
         )
         .orderBy(sensorData.timestamp);
@@ -84,4 +80,51 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
     });
 
     return query;
+}
+
+/**
+ *  adds or updates a peak in the database
+ */
+export async function addOrUpdatePeak(sensorDataId: number, deviceId: number) {
+    return db.transaction(async (trx) => {
+        const data = await trx
+            .select()
+            .from(peaks)
+            .where(eq(peaks.sensorDataId, sensorDataId));
+
+        if (data.length === 0) {
+            return trx.insert(peaks).values({
+                sensorDataId,
+                deviceId,
+            })
+        }
+
+        return trx.update(peaks).set({
+            deviceId,
+        }).where(eq(peaks.sensorDataId, sensorDataId));
+    });
+}
+
+/**
+ *  gets all peaks for a given device
+ */
+export async function getPeaksByUser(start: Date, end: Date, userId: number) {
+    return db
+        .select()
+        .from(peaks)
+        .innerJoin(sensorData, eq(sensorData.id, peaks.sensorDataId))
+        .where(
+            and(
+                eq(sensorData.userId, userId),
+                sensorDataTimeFilter(start, end)
+            )
+        );
+}
+
+function sensorDataTimeFilter(start: Date, end: Date) {
+    return or(
+        between(sensorData.timestamp, start, end),
+        eq(sensorData.timestamp, start),
+        eq(sensorData.timestamp, end),
+    );
 }

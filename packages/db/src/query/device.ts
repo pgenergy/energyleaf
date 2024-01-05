@@ -18,11 +18,7 @@ export async function getDevicesByUser(
         query.orderBy(desc(orderBy(device)));
     }
 
-    const results = await query;
-    if (results.length === 0) {
-        return null;
-    }
-    return results;
+    return await query;
 }
 
 export type CreateDeviceType = {
