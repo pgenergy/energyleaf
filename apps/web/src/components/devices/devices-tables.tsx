@@ -5,10 +5,10 @@ import { deleteDevice } from "@/actions/device";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { Pen, Plus, Trash } from "lucide-react";
+import { toast } from "sonner";
 
 import type { SortOrder } from "@energyleaf/db/util";
 import { Button, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@energyleaf/ui";
-import { toast } from "@energyleaf/ui/hooks";
 
 import DeviceDetailsDialog from "./device-details-dialog";
 import DeviceSortButton from "./device-sort-button";
@@ -48,19 +48,11 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
             return;
         }
 
-        try {
-            await deleteDevice(delDevice.id, userId);
-            toast({
-                title: "Erfolgreich gelöscht",
-                description: "Deine Daten wurden erfolgreich gelöscht",
-            });
-        } catch (e) {
-            toast({
-                title: "Fehler beim Löschen",
-                description: "Deine Daten konnten nicht gelöscht werden",
-                variant: "destructive",
-            });
-        }
+        toast.promise(deleteDevice(delDevice.id, userId), {
+            loading: "Lösche Gerät...",
+            success: "Gerät erfolgreich gelöscht",
+            error: "Fehler beim Löschen des Geräts",
+        });
     }
 
     function onAddClick() {
@@ -128,7 +120,9 @@ export default function DevicesTable({ userId, devices, sortOrder, sortProp }: P
                                                 <Pen className="h-4 w-4" />
                                             </Button>
                                             <Button
-                                                onClick={(e) => onDeleteButtonClick(e, deviceValue.id)}
+                                                onClick={(e) => {
+                                                    onDeleteButtonClick(e, deviceValue.id);
+                                                }}
                                                 size="icon"
                                                 variant="default"
                                             >

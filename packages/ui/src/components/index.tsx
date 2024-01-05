@@ -3,3 +3,5 @@ import * as React from "react";
 
 export * from "./toaster";
 export * from "./line-chart";
+export * from "./nav/sidebar";
+export * from "./nav/navbar";

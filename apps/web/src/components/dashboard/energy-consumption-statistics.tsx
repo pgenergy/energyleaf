@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth/auth";
 import { getEnergyDataForUser } from "@/query/energy";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
 
 interface EnergyDataItem {
     value: number;
-  }
+}
 
 export default async function EnergyConsumptionStatisticCard({ startDate, endDate }: Props) {
     const session = await getSession();
@@ -22,19 +23,18 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
     }
 
     const energyData = await getEnergyDataForUser(startDate, endDate, session.user.id);
-    const energyValues = energyData.map(entry => entry.value);
-      
+    const energyValues = energyData.map((entry) => entry.value);
+
     const maxConsumptionEntry: EnergyDataItem = energyData.reduce(
-    (prev, current) => (prev.value > current.value ? prev : current),
-    { value: 0 }
+        (prev, current) => (prev.value > current.value ? prev : current),
+        { value: 0 },
     );
     const maxConsumption = maxConsumptionEntry.value || 0;
-      
+
     const sumConsumption = energyValues.reduce((acc, cur) => acc + cur, 0);
     const averageConsumption = energyValues.length > 0 ? sumConsumption / energyValues.length : 0;
 
     const lastValue = energyValues.length > 0 ? energyValues[energyValues.length - 1] : null;
-
 
     return (
         <Card className="w-full">

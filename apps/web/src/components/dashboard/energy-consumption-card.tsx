@@ -90,8 +90,10 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     <CardTitle>Verbrauch</CardTitle>
                     <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
                 </div>
-                <DashboardDateRange endDate={endDate} startDate={startDate} />
-                <DashboardEnergyAggregation endDate={endDate} startDate={startDate} />
+                <div className="flex flex-row gap-4">
+                    <DashboardDateRange endDate={endDate} startDate={startDate} />
+                    <DashboardEnergyAggregation endDate={endDate} startDate={startDate} />
+                </div>
             </CardHeader>
             <CardContent>
                 <div className="h-96 w-full">

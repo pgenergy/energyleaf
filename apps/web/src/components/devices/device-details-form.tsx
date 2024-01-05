@@ -4,10 +4,10 @@ import { createDevice, updateDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from "@energyleaf/ui";
-import { toast } from "@energyleaf/ui/hooks";
 
 interface Props {
     device?: { id: number; name: string };
@@ -25,26 +25,22 @@ export default function DeviceDetailsForm({ device, onInteract, userId }: Props)
         },
     });
 
-    async function onSubmit(data: z.infer<typeof deviceSchema>) {
-        try {
-            if (isNew) {
-                await createDevice(data, userId);
-            } else {
-                await updateDevice(data, Number(device.id), userId);
-            }
-
-            const operation = isNew ? "hinzugefügt" : "aktualisiert";
-            toast({
-                title: `Erfolgreich ${operation}`,
-                description: `Das Gerät wurde erfolgreich ${operation}`,
-            });
-        } catch (e) {
-            toast({
-                title: `Fehler beim ${isNew ? "Hinzufügen" : "Aktualisieren"}`,
-                description: `Das Gerät konnte nicht ${isNew ? "hinzugefügt" : "aktualisiert"} werden`,
-                variant: "destructive",
-            });
-        }
+    function onSubmit(data: z.infer<typeof deviceSchema>) {
+        const operation = isNew ? "hinzugefügt" : "aktualisiert";
+        toast.promise(
+            async () => {
+                if (isNew) {
+                    await createDevice(data, userId);
+                } else {
+                    await updateDevice(data, Number(device.id), userId);
+                }
+            },
+            {
+                loading: "Laden...",
+                success: `Erfolgreich ${operation}`,
+                error: `Fehler beim ${isNew ? "Hinzufügen" : "Aktualisieren"}`,
+            },
+        );
 
         onInteract();
     }
