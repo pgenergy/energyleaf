@@ -22,7 +22,7 @@ export const authOptions: NextAuthConfig = {
             }
 
             if (![...publicRoutes, ...unprotectedRoutes].includes(url.pathname) && !loggedIn) {
-                return false;
+                return Promise.resolve(false);
             }
 
             return Promise.resolve(true);
@@ -35,6 +35,7 @@ export const authOptions: NextAuthConfig = {
                 token.email = passedUser.email;
                 token.created = passedUser.created?.toString() ?? null;
                 token.sensorId = passedUser.sensorId;
+                token.admin = passedUser.admin;
             }
 
             return Promise.resolve(token as CustomJWT satisfies CustomJWT);
@@ -49,6 +50,7 @@ export const authOptions: NextAuthConfig = {
                     email: customToken.email,
                     created: customToken.created,
                     sensorId: customToken.sensorId,
+                    admin: customToken.admin,
                 },
             };
 

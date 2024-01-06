@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 import { getSession } from "@/lib/auth/auth";
 import { getEnergyDataForSensor, getElectricitySensorIdForUser } from "@/query/energy";
 import { format } from "date-fns";
@@ -6,54 +7,69 @@ import de from "date-fns/locale/de";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
+import DashboardDateRange from "./date-range";
+import DashboardEnergyAggregation from "./energy-aggregation-option";
+import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
+
 interface Props {
     startDate: Date;
     endDate: Date;
+    aggregationType: string | undefined;
 }
 
-export default async function EnergyConsumptionCard({ startDate, endDate }: Props) {
+export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
     const session = await getSession();
 
     if (!session) {
         redirect("/");
     }
 
-    const userId = session.user.id;
-    const sensorId = await getElectricitySensorIdForUser(userId);
+    const energyData = await getEnergyDataForUser(startDate, endDate, session.user.id);
+    const data = energyData.map((entry) => ({
+        energy: entry.value,
+        timestamp: entry.timestamp.toString(),
+    }));
+    const aggregatedDataInput = getAggregatedEnergy(data, aggregationType);
+    const aggregatedData = aggregatedDataInput.map((entry) => ({
+        energy: entry.energy,
+        timestamp: entry.timestamp.toString(),
+    }));
 
-    if (!sensorId) {
-        throw new Error("Kein Stromsensor für diesen Benutzer gefunden");
-    }
+    const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
+    const std = Math.sqrt(
+        data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
+    );
+    const threshold = mean + 2 * std;
+    const peaks = data
+        .filter((x) => x.energy > threshold)
+        .filter((x, i, arr) => {
+            if (i === 0) {
+                return true;
+            }
 
-    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0);
+            return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
+        });
 
     return (
         <Card className="w-full">
-            <CardHeader>
-                <CardTitle>Absoluter Energieverbrauch</CardTitle>
-                <CardDescription>
-                    {startDate.toDateString() === endDate.toDateString() ? (
-                        <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}
-                        </>
-                    ) : (
-                        <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}{" "}
-                            -{" "}
-                            {format(endDate, "PPP", {
-                                locale: de,
-                            })}
-                        </>
-                    )}
-                </CardDescription>
+            <CardHeader className="flex flex-row justify-between">
+                <div className="flex flex-col gap-2">
+                    <CardTitle>Verbrauch</CardTitle>
+                    <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
+                </div>
+                <DashboardDateRange endDate={endDate} startDate={startDate} />
+                <DashboardEnergyAggregation endDate={endDate} startDate={startDate} />
             </CardHeader>
             <CardContent>
-                <h1 className="text-center text-2xl font-bold text-primary">{absolut} Wh</h1>
+                <div className="h-96 w-full">
+                    {data.length === 0 ? (
+                        <div className="flex h-full flex-col items-center justify-center">
+                            <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
+                        </div>
+                    ) : (
+                        <EnergyConsumptionCardChart data={aggregatedData} peaks={peaks} />
+                    )}
+                </div>
             </CardContent>
         </Card>
     );

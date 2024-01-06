@@ -2,13 +2,14 @@
 
 import "server-only";
 
-import { signIn } from "@/lib/auth/auth";
+import { isRedirectError } from "next/dist/client/components/redirect";
+import { redirect } from "next/navigation";
+import { signIn, signOut } from "@/lib/auth/auth";
 import type { signupSchema } from "@/lib/schema/auth";
 import * as bcrypt from "bcryptjs";
 import type { z } from "zod";
 
 import { createUser, getUserByMail, type CreateUserType } from "@energyleaf/db/query";
-import { signOut } from "@/lib/auth/auth";
 
 /**
  * Server action for creating a new account
@@ -43,10 +44,20 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
  * Server action to sign a user in
  */
 export async function signInAction(email: string, password: string) {
-    await signIn("credentials", {
-        email,
-        password,
-    });
+    try {
+        await signIn("credentials", {
+            email,
+            password,
+        });
+    } catch (err: unknown) {
+        if (isRedirectError(err)) {
+            return redirect("/dashboard");
+        }
+
+        return {
+            message: "Benutername oder Passwort falsch.",
+        };
+    }
 }
 
 /**

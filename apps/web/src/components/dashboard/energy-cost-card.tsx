@@ -30,7 +30,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const userData = await getUserData(session.user.id);
-    const price = userData?.user_data.basispreis;
+    const price = userData?.user_data.basePrice;
     const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
     const cost = price ? (absolut * price).toFixed(2) : null;
 

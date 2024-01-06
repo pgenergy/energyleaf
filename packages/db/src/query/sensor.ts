@@ -43,10 +43,14 @@ export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
  */
 export async function getAvgEnergyConsumptionForUserInComparison(userId: number) {
     const query = await db.transaction(async (trx) => {
-        const userResult = await trx.select().from(userData).where(eq(userData.id, userId));
-        const user = userResult[0];
+        const data = await trx.select().from(userData).where(eq(userData.userId, userId));
 
-        if (!user || !user.wohnfläche || !user.household || !user.immobilie) {
+        if (data.length === 0) {
+            return null;
+        }
+
+        const user = data[0];
+        if (!user.livingSpace || !user.household || !user.property) {
             return null;
         }
 
@@ -60,9 +64,9 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
             .innerJoin(userData, eq(userData.id, sensor.user_id))
             .where(
                 and(
-                    eq(userData.wohnfläche, user.wohnfläche),
+                    eq(userData.livingSpace, user.livingSpace),
                     eq(userData.household, user.household),
-                    eq(userData.immobilie, user.immobilie),
+                    eq(userData.property, user.property),
                 ),
             )
             .groupBy(userData.wohnfläche, userData.household, userData.immobilie);

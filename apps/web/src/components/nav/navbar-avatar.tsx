@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
 import type { CustomSession } from "@/types/auth";
 import { LightbulbIcon, LogOutIcon, User2Icon } from "lucide-react";
@@ -25,6 +26,7 @@ interface Props {
 export default function NavbarAvatar({ user }: Props) {
     const [_isPending, startTransition] = useTransition();
     const { toast } = useToast();
+    const router = useRouter();
 
     function onSignOut() {
         startTransition(async () => {
@@ -33,6 +35,7 @@ export default function NavbarAvatar({ user }: Props) {
                 title: "Abgemeldet",
                 description: "Du wurdest erfolgreich abgemeldet.",
             });
+            router.push("/");
         });
     }
 

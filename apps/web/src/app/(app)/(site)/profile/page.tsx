@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
+import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
-import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import { getSession } from "@/lib/auth/auth";
 import { getUserData } from "@/query/user";
 
@@ -15,13 +15,13 @@ export default async function ProfilePage() {
 
     const userData = await getUserData(session.user.id);
     const data = {
-        houseType: userData?.user_data.immobilie || "house",
-        houseSize: userData?.user_data.wohnfläche || 0,
+        houseType: userData?.user_data.property || "house",
+        livingSpace: userData?.user_data.livingSpace || 0,
         people: userData?.user_data.household || 0,
-        warmWater: userData?.user_data.warmwasser || "electric",
+        hotWater: userData?.user_data.hotWater || "electric",
         budget: userData?.user_data.budget || 0,
-        tarif: userData?.user_data.tarif || "basic",
-        price: userData?.user_data.basispreis || 0,
+        tariff: userData?.user_data.tariff || "basic",
+        basePrice: userData?.user_data.basePrice || 0,
     };
 
     return (
@@ -33,7 +33,7 @@ export default async function ProfilePage() {
                 weekly={userData?.mail.mailWeekly || false}
             />
             <UserDataForm id={session.user.id} initialData={data} />
-            <AccountDeletionForm id={session.user.id}/>
+            <AccountDeletionForm id={session.user.id} />
         </div>
     );
 }

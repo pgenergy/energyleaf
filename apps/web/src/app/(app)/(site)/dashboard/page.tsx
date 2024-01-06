@@ -2,12 +2,18 @@ import { Suspense } from "react";
 import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
 import EnergyConsumptionCard from "@/components/dashboard/energy-consumption-card";
 import EnergyCostCard from "@/components/dashboard/energy-cost-card";
+import EnergyStatisticsCard from "@/components/dashboard/energy-consumption-statistics"
 
 import { Skeleton } from "@energyleaf/ui";
 
-export default function DashboardPage({ searchParams }: { searchParams: { start?: string; end?: string } }) {
+export default function DashboardPage({
+    searchParams,
+}: {
+    searchParams: { start?: string; end?: string; aggregation?: string };
+}) {
     const startDateString = searchParams.start;
     const endDateString = searchParams.end;
+    const aggregationType = searchParams.aggregation;
     const startDate = startDateString ? new Date(startDateString) : new Date();
     const endDate = endDateString ? new Date(endDateString) : new Date();
 
@@ -18,11 +24,14 @@ export default function DashboardPage({ searchParams }: { searchParams: { start?
                     <AbsolutEnergyConsumptionCard endDate={endDate} startDate={startDate} />
                 </Suspense>
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <EnergyStatisticsCard endDate={endDate} startDate={startDate} />
+                </Suspense>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
                     <EnergyCostCard endDate={endDate} startDate={startDate} />
                 </Suspense>
             </div>
             <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
-                <EnergyConsumptionCard endDate={endDate} startDate={startDate} />
+                <EnergyConsumptionCard aggregationType={aggregationType} endDate={endDate} startDate={startDate} />
             </Suspense>
         </div>
     );

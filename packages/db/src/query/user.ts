@@ -126,12 +126,12 @@ export async function updateMailSettings(data: { daily: boolean; weekly: boolean
 
 type UpdateUserData = {
     budget: number;
-    tarif: (typeof userData.tarif.enumValues)[number];
-    immobilie: (typeof userData.immobilie.enumValues)[number];
-    wohnfläche: number;
-    warmwasser: (typeof userData.warmwasser.enumValues)[number];
+    tariff: (typeof userData.tariff.enumValues)[number];
+    property: (typeof userData.property.enumValues)[number];
+    livingSpace: number;
+    hotWater: (typeof userData.hotWater.enumValues)[number];
     household: number;
-    basispreis: number;
+    basePrice: number;
     timestamp: Date;
 };
 
@@ -146,14 +146,14 @@ export async function updateUserData(data: UpdateUserData, id: number) {
             userId: oldUserData.userId,
             timestamp: oldUserData.timestamp,
             budget: oldUserData.budget,
-            basispreis: oldUserData.basispreis,
-            arbeitspreis: oldUserData.arbeitspreis,
-            tarif: oldUserData.tarif,
+            basePrice: oldUserData.basePrice,
+            workingPrice: oldUserData.workingPrice,
+            tariff: oldUserData.tariff,
             limitEnergy: oldUserData.limitEnergy,
             household: oldUserData.household,
-            immobilie: oldUserData.immobilie,
-            wohnfläche: oldUserData.wohnfläche,
-            warmwasser: oldUserData.warmwasser,
+            property: oldUserData.property,
+            livingSpace: oldUserData.livingSpace,
+            hotWater: oldUserData.hotWater,
         });
 
         const newHistoryUserData = await trx
@@ -172,10 +172,7 @@ export async function updateUserData(data: UpdateUserData, id: number) {
 }
 
 export async function getUserDataByUserId(id: number) {
-    const data = await db
-        .select()
-        .from(userData)
-        .where(eq(userData.userId, id));
+    const data = await db.select().from(userData).where(eq(userData.userId, id));
 
     if (data.length === 0) {
         return null;

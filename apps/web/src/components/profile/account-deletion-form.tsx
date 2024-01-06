@@ -1,14 +1,13 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import { signOutAction } from "@/actions/auth";
 import { deleteAccount } from "@/actions/profile";
-import { PasswordsDoNotMatchError } from "@/types/errors/PasswordsDoNotMatchError";
 import { deleteAccountSchema } from "@/lib/schema/profile";
+import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { signOutAction } from "@/actions/auth";
-import { useState } from "react";
 import type { z } from "zod";
 
 import {
@@ -79,14 +78,18 @@ export default function AccountDeletionForm({ id }: Props) {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Account löschen</CardTitle>
-                <CardDescription>
-                    Hier kannst du deinen Account löschen.
-                </CardDescription>
+                <CardDescription>Hier kannst du deinen Account löschen.</CardDescription>
             </CardHeader>
             <CardContent>
-
                 <div className="flex flex-row justify-end">
-                    <Button disabled={isPending} type="button" variant="destructive" onClick={() => { setOpen(true); }}>
+                    <Button
+                        disabled={isPending}
+                        onClick={() => {
+                            setOpen(true);
+                        }}
+                        type="button"
+                        variant="destructive"
+                    >
                         {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Account löschen
                     </Button>
@@ -97,7 +100,10 @@ export default function AccountDeletionForm({ id }: Props) {
                             <DialogTitle>Account löschen</DialogTitle>
                             <DialogDescription>Bestätige, dass du deinen Account löschen möchtest.</DialogDescription>
                         </DialogHeader>
-                        <p>Gib zur Bestätigung dein Passwort an. Das wird dich von deinem Account abmelden und du wirst dich nicht mehr anmelden können. Diese Aktion kann nicht rückgängig gemacht werden!</p>
+                        <p>
+                            Gib zur Bestätigung dein Passwort an. Das wird dich von deinem Account abmelden und du wirst
+                            dich nicht mehr anmelden können. Diese Aktion kann nicht rückgängig gemacht werden!
+                        </p>
                         <Form {...form}>
                             <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                                 <FormField
@@ -113,7 +119,14 @@ export default function AccountDeletionForm({ id }: Props) {
                                     )}
                                 />
                                 <div className="grid grid-cols-2 gap-4">
-                                    <Button disabled={isPending} type="button" variant="outline" onClick={() => { setOpen(false); }}>
+                                    <Button
+                                        disabled={isPending}
+                                        onClick={() => {
+                                            setOpen(false);
+                                        }}
+                                        type="button"
+                                        variant="outline"
+                                    >
                                         {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
                                         Abbrechen
                                     </Button>
@@ -126,7 +139,6 @@ export default function AccountDeletionForm({ id }: Props) {
                         </Form>
                     </DialogContent>
                 </Dialog>
-
             </CardContent>
         </Card>
     );

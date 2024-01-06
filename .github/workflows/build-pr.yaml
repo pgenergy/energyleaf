@@ -1,0 +1,31 @@
+name: Build pull request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: <super-secret>
+      DATABASE_HOST: localhost
+      DATABASE_USERNAME: username
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: database
+      SENDGRID_API_KEY: <sendgrid-api-key>
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          run_install: true
+
+      - name: Run pnpm build
+        run: pnpm build

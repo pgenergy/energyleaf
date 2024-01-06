@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method -- NextAuth bug */
 import type { CustomSession } from "@/types/auth";
 import * as bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
@@ -46,6 +45,8 @@ export const { auth, signIn, signOut } = NextAuth({
                     name: user.username,
                     email: user.email,
                     created: user.created?.toString() ?? null,
+                    sensorId: user.sensorId,
+                    admin: user.isAdmin || false,
                 };
             },
         }),

@@ -1,11 +1,25 @@
 "use server";
 
-import * as bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import type { baseInfromationSchema, deleteAccountSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
-import { PasswordsDoNotMatchError } from "../types/errors/PasswordsDoNotMatchError";
+import type {
+    baseInfromationSchema,
+    deleteAccountSchema,
+    mailSettingsSchema,
+    passwordSchema,
+    userDataSchema,
+} from "@/lib/schema/profile";
+import * as bcrypt from "bcryptjs";
 
-import { getUserById, updateMailSettings, updatePassword, updateUser, updateUserData, deleteUser } from "@energyleaf/db/query";
+import {
+    deleteUser,
+    getUserById,
+    updateMailSettings,
+    updatePassword,
+    updateUser,
+    updateUserData,
+} from "@energyleaf/db/query";
+
+import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 
 import "server-only";
 
@@ -89,12 +103,12 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
             {
                 timestamp: new Date(),
                 budget: data.budget,
-                wohnfläche: data.houseSize,
+                livingSpace: data.livingSpace,
                 household: data.people,
-                immobilie: data.houseType,
-                warmwasser: data.warmWater,
-                tarif: data.tarif,
-                basispreis: data.price,
+                property: data.houseType,
+                hotWater: data.hotWater,
+                tariff: data.tariff,
+                basePrice: data.basePrice,
             },
             user.id,
         );
