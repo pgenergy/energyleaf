@@ -2,8 +2,7 @@ import { redirect } from "next/navigation";
 import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 import { getSession } from "@/lib/auth/auth";
 import { getEnergyDataForSensor, getElectricitySensorIdForUser } from "@/query/energy";
-import { format } from "date-fns";
-import de from "date-fns/locale/de";
+import { differenceInMinutes } from "date-fns";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
@@ -24,7 +23,14 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         redirect("/");
     }
 
-    const energyData = await getEnergyDataForUser(startDate, endDate, session.user.id);
+    const userId = session.user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
+
+    if (!sensorId) {
+        throw new Error("Kein Stromsensor für diesen Benutzer gefunden");
+    }
+
+    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const data = energyData.map((entry) => ({
         energy: entry.value,
         timestamp: entry.timestamp.toString(),

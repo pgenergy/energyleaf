@@ -69,7 +69,7 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
                     eq(userData.property, user.property),
                 ),
             )
-            .groupBy(userData.wohnfläche, userData.household, userData.immobilie);
+            .groupBy(userData.livingSpace, userData.household, userData.property);
 
         if (avg.length === 0) {
             return null;
