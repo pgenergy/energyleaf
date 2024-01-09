@@ -110,9 +110,10 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 />
                 {referencePoints
                     ? referencePoints.data.map((value) => {
+                          const dotClassName = referencePoints.callback ? "cursor-pointer" : "cursor-default"
                           return (
                               <ReferenceDot
-                                  className="cursor-pointer"
+                                  className={dotClassName}
                                   fill="hsl(var(--destructive))"
                                   isFront
                                   key={`${value[referencePoints.xKeyName]?.toString()}-${value[
