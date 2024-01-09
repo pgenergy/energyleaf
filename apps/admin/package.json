@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev --port 3001",
+        "dev": "next dev --port 3001 --turbo",
         "build": "next build",
         "start": "next start --port 3001",
         "lint": "next lint"
@@ -13,7 +13,9 @@
         "@energyleaf/db": "workspace:^",
         "@energyleaf/tailwindcss": "workspace:*",
         "@energyleaf/ui": "workspace:*",
+        "@energyleaf/proto": "workspace:*",
         "@hookform/resolvers": "^3.3.3",
+        "@protobuf-ts/runtime": "^2.9.3",
         "@t3-oss/env-nextjs": "^0.7.1",
         "bcryptjs": "^2.4.3",
         "clsx": "^2.1.0",

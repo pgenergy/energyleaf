@@ -1,6 +1,6 @@
 "use client";
 
-import { LineChart } from "@energyleaf/ui/components";
+import { LineChart } from "@energyleaf/ui/components/charts";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 

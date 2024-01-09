@@ -7,8 +7,10 @@
     "scripts": {},
     "exports": {
         ".": "./src/ui/index.tsx",
-        "./components": "./src/components/index.tsx",
-        "./hooks": "./src/hooks/index.tsx"
+        "./hooks": "./src/hooks/index.tsx",
+        "./components/nav": "./src/components/nav/index.tsx",
+        "./components/charts": "./src/components/charts/index.tsx",
+        "./components/utils": "./src/components/utils/index.tsx"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:*",
