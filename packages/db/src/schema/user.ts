@@ -26,6 +26,7 @@ export const userData = mysqlTable("user_data", {
     property: mysqlEnum("property", ["house", "apartment"]),
     livingSpace: int("living_space"),
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
+    advancePaymentElectricity: int("advance_payment_electricity"),
 });
 
 export const historyUserData = mysqlTable("history_user_data", {

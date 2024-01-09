@@ -53,7 +53,10 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
             </CardHeader>
             <CardContent>
                 {cost !== null ? (
+                    <>
                     <h1 className="text-center text-2xl font-bold text-primary">{cost} €</h1>
+                    <h2 className="text-center text-xl font-bold text-primary">Mtl. Abschlag : 0.00 €</h2>
+                    </>
                 ) : (
                     <Link
                         className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
