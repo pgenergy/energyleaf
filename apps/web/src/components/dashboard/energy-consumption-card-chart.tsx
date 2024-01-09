@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui";
-import { LineChart } from "@energyleaf/ui/components";
+import { LineChart } from "@energyleaf/ui/components/charts";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
