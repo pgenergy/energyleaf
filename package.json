@@ -1,9 +1,9 @@
 {
     "private": true,
     "scripts": {
-        "build": "dotenv -- turbo run build",
-        "build:app": "dotenv -- turbo run build --filter web",
-        "build:admin": "dotenv -- turbo run build --filter admin",
+        "build": "dotenv -- turbo run build --no-daemon",
+        "build:app": "dotenv -- turbo run build --filter web --no-daemon",
+        "build:admin": "dotenv -- turbo run build --filter admin --no-daemon",
         "dev": "dotenv -- turbo run dev",
         "dev:app": "dotenv -- turbo run dev --filter web",
         "dev:admin": "dotenv -- turbo run dev --filter admin",
@@ -11,7 +11,8 @@
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "fix": "pnpm run format && pnpm run lint -- --fix",
         "db:push": "dotenv -- pnpm --filter db run push",
-        "db:studio": "dotenv -- pnpm --filter db run studio"
+        "db:studio": "dotenv -- pnpm --filter db run studio",
+        "proto:compile": "dotenv -- pnpm --filter proto run compile"
     },
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:*",
