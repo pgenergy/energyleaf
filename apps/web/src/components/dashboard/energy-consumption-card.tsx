@@ -1,18 +1,17 @@
 import { redirect } from "next/navigation";
 import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 import { getSession } from "@/lib/auth/auth";
+import { getDevicesByUser } from "@/query/device";
 import { getEnergyDataForUser, getPeaksForUser } from "@/query/energy";
+import { AggregationType } from "@/types/aggregation/aggregation-type";
+import type { PeakAssignment } from "@/types/peaks/peak";
 import { differenceInMinutes } from "date-fns";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 import DashboardDateRange from "./date-range";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
-import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
-import { getDevicesByUser } from "@/query/device";
-import RawEnergyConsumptionCardChart from "./peaks/raw-energy-consumption-card-chart";
-import { AggregationType } from "@/types/aggregation/aggregation-type";
-import type { PeakAssignment } from "@/types/peaks/peak";
+import RawEnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
 interface Props {
     startDate: Date;
@@ -35,10 +34,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
     }));
-    
+
     const realAggregationType = aggregationType || AggregationType.RAW;
     const aggregatedDataInput = getAggregatedEnergy(data, realAggregationType);
     const aggregatedData = aggregatedDataInput.map((entry) => ({
+        id: entry.id,
         energy: entry.energy,
         timestamp: entry.timestamp.toString(),
     }));
@@ -47,7 +47,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     let peakAssignments: PeakAssignment[] = [];
     const devices = noAggregation ? await getDevicesByUser(userId) : [];
-    
+
     if (noAggregation) {
         const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
         const std = Math.sqrt(
@@ -64,23 +64,14 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
             });
 
-        const peaksWithDevicesAssigned = (await getPeaksForUser(startDate, endDate, userId))
-            .map(x => ({
-                id: x.sensor_data.id,
-                device: x.peaks.deviceId
-            }));
-        peakAssignments = peaks.map(x => ({
-            id: x.id,
-            device: peaksWithDevicesAssigned.find((p) => p.id === x.id)?.device
+        const peaksWithDevicesAssigned = (await getPeaksForUser(startDate, endDate, userId)).map((x) => ({
+            id: x.sensor_data.id,
+            device: x.peaks.deviceId,
         }));
-    }
-
-    function Chart() {
-        return (
-            noAggregation ?
-            <RawEnergyConsumptionCardChart data={data} devices={devices} peaks={peakAssignments}  /> :
-            <EnergyConsumptionCardChart data={aggregatedData} />
-        )
+        peakAssignments = peaks.map((x) => ({
+            id: x.id,
+            device: peaksWithDevicesAssigned.find((p) => p.id === x.id)?.device,
+        }));
     }
 
     return (
@@ -102,7 +93,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                         </div>
                     ) : (
-                        <Chart />
+                        <RawEnergyConsumptionCardChart
+                            data={noAggregation ? data : aggregatedData}
+                            devices={devices}
+                            peaks={noAggregation ? undefined : peakAssignments}
+                        />
                     )}
                 </div>
             </CardContent>
