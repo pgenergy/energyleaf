@@ -19,7 +19,7 @@ export function Sidebar({ links }: Props) {
     const pathname = usePathname();
 
     return (
-        <nav className="max-h-[calc(100vh - 3.5rem)] fixed left-0 top-14 flex w-[13%] flex-col gap-4 overflow-scroll py-8">
+        <nav className="max-h-[calc(100vh - 3.5rem)] fixed left-0 top-14 flex hidden w-[13%] flex-col gap-4 overflow-scroll py-8 md:block">
             {links.map((link) => (
                 <Link
                     className={clsx(
