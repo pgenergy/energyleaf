@@ -180,6 +180,18 @@ export default function UserDataForm({ initialData, id }: Props) {
                                 </FormItem>
                             )}
                         />
+                        <FormField
+                            control={form.control}
+                            name="monthlyPayment"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Monatlicher Abschlag</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
                         <div className="col-span-2 flex justify-end">
                             <Button disabled={isPending} type="submit">
                                 {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}

@@ -26,6 +26,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const price = userData?.user_data.basePrice;
     const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
     const cost = price ? (absolut * price).toFixed(2) : null;
+    const monthlyPayment = userData?.user_data.monthlyPayment;
 
     return (
         <Card className="w-full">
@@ -55,7 +56,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                 {cost !== null ? (
                     <>
                     <h1 className="text-center text-2xl font-bold text-primary">{cost} €</h1>
-                    <h2 className="text-center text-xl font-bold text-primary">Mtl. Abschlag : 0.00 €</h2>
+                    <h2 className="text-center text-xl font-bold text-primary">Mtl. Abschlag : {monthlyPayment} €</h2>
                     </>
                 ) : (
                     <Link

@@ -134,6 +134,7 @@ type UpdateUserData = {
     household: number;
     basePrice: number;
     timestamp: Date;
+    monthlyPayment: number;
 };
 
 export async function updateUserData(data: UpdateUserData, id: number) {
@@ -142,7 +143,6 @@ export async function updateUserData(data: UpdateUserData, id: number) {
         if (!oldUserData) {
             throw new Error("Old user data not found");
         }
-
         await trx.insert(historyUserData).values({
             userId: oldUserData.userId,
             timestamp: oldUserData.timestamp,
@@ -155,6 +155,7 @@ export async function updateUserData(data: UpdateUserData, id: number) {
             property: oldUserData.property,
             livingSpace: oldUserData.livingSpace,
             hotWater: oldUserData.hotWater,
+            monthlyPayment: oldUserData.monthlyPayment,
         });
 
         const newHistoryUserData = await trx
