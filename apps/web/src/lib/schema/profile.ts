@@ -26,6 +26,7 @@ export const userDataSchema = z.object({
     budget: z.coerce.number().int().positive({ message: "Bitte gib ein gültiges Budget an." }),
     tariff: z.enum([...userData.tariff.enumValues]).default(userData.tariff.enumValues[0]),
     basePrice: z.coerce.number().positive({ message: "Bitte gib einen gültigen Preis an." }),
+    monthlyPayment: z.coerce.number().int().positive({ message: "Bitte gib einen gültigen monatlichen Abschlag an." }),
 });
 
 export const deleteAccountSchema = z.object({
