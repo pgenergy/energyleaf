@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth/auth";
 import { getEnergyDataForSensor, getElectricitySensorIdForUser } from "@/query/energy";
 import { getUserData } from "@/query/user";
 import { format } from "date-fns";
-import de from "date-fns/locale/de";
+import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";

@@ -1,7 +1,7 @@
 "use server";
 
 import { isRedirectError } from "next/dist/client/components/redirect";
-import { signIn } from "@/lib/auth/auth";
+import { signIn, signOut } from "@/lib/auth/auth";
 import type { signInSchema } from "@/lib/schema/auth";
 
 import "server-only";
@@ -9,7 +9,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import type { z } from "zod";
 
-export default async function signInAction(data: z.infer<typeof signInSchema>) {
+export async function signInAction(data: z.infer<typeof signInSchema>) {
     try {
         await signIn("credentials", {
             email: data.email,
@@ -24,4 +24,8 @@ export default async function signInAction(data: z.infer<typeof signInSchema>) {
             message: "Benutzername oder Passwort falsch",
         };
     }
+}
+
+export async function signOutAction() {
+    await signOut();
 }

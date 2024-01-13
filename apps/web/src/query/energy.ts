@@ -3,7 +3,8 @@ import { cache } from "react";
 import {
     getAvgEnergyConsumptionForSensor as getDbAvgEnergyConsumptionForSensor,
     getAvgEnergyConsumptionForUserInComparison as getDbAvgEnergyConsumptionForUserInComparison,
-    getEnergyForSensorInRange, getElectricitySensorIdForUser as getDbElectricitySensorIdForUser,
+    getEnergyForUserInRange,
+    getPeaksByUser,
 } from "@energyleaf/db/query";
 
 export const getEnergyDataForSensor = cache(async (start: Date, end: Date, sensorId: string) => {
@@ -20,4 +21,12 @@ export const getAvgEnergyConsumptionForUserInComparison = cache(async (userId: s
 
 export const getElectricitySensorIdForUser = cache(async (userId: string) => {
     return getDbElectricitySensorIdForUser(Number(userId));
+});
+
+export const getElectricitySensorIdForUser = cache(async (userId: string) => {
+    return getDbElectricitySensorIdForUser(Number(userId));
+});
+
+export const getPeaksForUser = cache(async (start: Date, end: Date, userId: string) => {
+    return getPeaksByUser(start, end, Number(userId));
 });

@@ -33,27 +33,15 @@ export default function DeviceSortButton({ children, sortOrder, propName }: Prop
 
     if (sortOrder) {
         return (
-            <button
-                className="flex cursor-pointer items-center"
-                onClick={onClick}
-                type="button"
-            >
+            <button className="flex cursor-pointer items-center" onClick={onClick} type="button">
                 <span className="mr-2">{children}</span>
-                {sortOrder === SortOrder.ASC ? (
-                    <SortAsc />
-                ) : (
-                    <SortDesc />
-                )}
+                {sortOrder === SortOrder.ASC ? <SortAsc /> : <SortDesc />}
             </button>
         );
     }
 
     return (
-        <button
-            className="flex cursor-pointer items-center"
-            onClick={onClick}
-            type="button"
-        >
+        <button className="flex cursor-pointer items-center" onClick={onClick} type="button">
             <span className="mr-2">{children}</span>
         </button>
     );

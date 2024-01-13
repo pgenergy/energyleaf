@@ -5,7 +5,7 @@ interface AggregateData {
     timestamp: string;
 }
 
-export function getAggregatedEnergy(data: AggregateData[], aggregationType: string | undefined = AggregationType.HOUR) {
+export function getAggregatedEnergy(data: AggregateData[], aggregationType: string | undefined = AggregationType.RAW) {
     switch (aggregationType) {
         case AggregationType.HOUR:
             return handleHourOption(data);

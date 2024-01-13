@@ -1,7 +1,7 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
-import { sensorData, userData, sensor } from "../schema";
+import { peaks, sensorData, userData, sensor } from "../schema";
 
 /**
  * Get the energy consumption for a sensor in a given time range
@@ -12,8 +12,12 @@ export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId
         .from(sensorData)
         .where(
             and(
-                eq(sensorData.sensorId, sensorId),
-                between(sensorData.timestamp, start, end)
+                eq(sensorData.userId, userId),
+                or(
+                    between(sensorData.timestamp, start, end),
+                    eq(sensorData.timestamp, start),
+                    eq(sensorData.timestamp, end),
+                ),
             ),
         )
         .orderBy(sensorData.timestamp);
@@ -82,27 +86,4 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
     });
 
     return query;
-}
-
-/**
- * Get the sensorId for a user where sensor_type is 'electricity'
- */
-export async function getElectricitySensorIdForUser(userId: number) {
-    const query = await db
-        .select()
-        .from(sensor)
-        .where(
-            and(
-                eq(sensor.user_id, userId),
-                eq(sensor.sensor_type, 'electricity')
-            )
-        );
-
-    if (query.length === 0) {
-        return null;
-    }
-
-    const sensorId = query[0].id;
-
-    return sensorId;
 }

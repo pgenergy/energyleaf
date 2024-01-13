@@ -17,12 +17,8 @@ export const sensorData = mysqlTable("sensor_data", {
         .primaryKey().notNull(),
 });
 
-export const reason = mysqlTable("reason", {
+export const peaks = mysqlTable("peaks", {
     id: int("id").autoincrement().primaryKey().notNull(),
-    userId: int("user_id").notNull(),
-    reason: varchar("reason", { length: 255 }),
-    timestamp: timestamp("timestamp")
-        .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
-    value: int("value").notNull(),
+    sensorDataId: int("sensor_data_id").notNull().unique(),
+    deviceId: int("device_id").notNull(),
 });
