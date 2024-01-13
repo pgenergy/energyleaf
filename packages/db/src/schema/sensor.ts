@@ -19,6 +19,6 @@ export const sensorData = mysqlTable("sensor_data", {
 
 export const peaks = mysqlTable("peaks", {
     id: int("id").autoincrement().primaryKey().notNull(),
-    sensorDataId: int("sensor_data_id").notNull().unique(),
+    sensorId: varchar("sensor_id", { length: 30 }).primaryKey().notNull(),
     deviceId: int("device_id").notNull(),
 });
