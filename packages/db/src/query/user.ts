@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
+import {eq} from "drizzle-orm";
 
 import db from "../";
-import { historyUserData, mail, user, userData } from "../schema";
+import {historyUserData, mail, user, userData} from "../schema";
 
 /**
  * Get a user by id from the database
@@ -185,4 +185,11 @@ export async function getUserDataByUserId(id: number) {
 
 export async function deleteUser(id: number) {
     return await db.delete(user).where(eq(user.id, id));
+}
+
+export async function getAllUsernamesAndMailsOfUsersWithWeeklyMail() {
+    return db.select({email:user.email, username:user.username})
+        .from(user)
+        .innerJoin(mail, eq(user.userId, mail.userId))
+        .where(eq(mail.mailWeekly, true) && eq(user.active, true) && eq(user.deleted, false));
 }
