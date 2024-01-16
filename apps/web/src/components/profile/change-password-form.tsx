@@ -7,11 +7,15 @@ import { PasswordsDoNotMatchError } from "@/types/errors/PasswordsDoNotMatchErro
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2Icon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
 import {
     Button,
-    Card,
     CardContent,
     CardDescription,
     CardHeader,
@@ -44,36 +48,24 @@ export default function ChangePasswordForm({ id }: Props) {
 
     function onSubmitPassword(data: z.infer<typeof passwordSchema>) {
         if (data.newPassword !== data.newPasswordRepeat) {
-            toast({
-                title: "Das neue Passwort stimmt nicht mit der Wiederholung überein",
-                description: "Dein Passwort konnte nicht geändert werden",
-                variant: "destructive",
+            toast.error("Dein Passwort konnte nicht geändert werden", {
+                description: "Das neue Passwort stimmt nicht mit der Wiederholung überein",
             });
             return;
         }
 
-        startTransition(async () => {
-            try {
-                await updateBaseInformationPassword(data, id);
-                toast({
-                    title: "Erfolgreich Passwort aktualisiert",
-                    description: "Dein Passwort wurde erfolgreich geändert",
-                });
-            } catch (e) {
-                if (e instanceof PasswordsDoNotMatchError) {
-                    toast({
-                        title: "Das aktuelle Passwort ist falsch",
-                        description: "Dein Passwort konnte nicht geändert werden",
-                        variant: "destructive",
-                    });
-                } else {
-                    toast({
-                        title: "Fehler beim Aktualisieren des Passworts",
-                        description: "Dein Passwort konnte nicht geändert werden",
-                        variant: "destructive",
-                    });
-                }
-            }
+        startTransition(() => {
+            toast.promise(updateBaseInformationPassword(data, id), {
+                loading: "Speichere...",
+                success: "Erfolgreich aktualisiert",
+                error: (err) => {
+                    if (err instanceof PasswordsDoNotMatchError) {
+                        return "Das aktuelle Passwort ist falsch";
+                    }
+
+                    return "Fehler beim Aktualisieren";
+                },
+            });
         });
     }
 

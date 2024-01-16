@@ -1,47 +1,33 @@
 {
-    "name": "web",
-    "version": "1.0.0",
     "private": true,
     "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "start": "next start",
-        "lint": "next lint"
-    },
-    "dependencies": {
-        "@auth/core": "^0.18.0",
-        "@energyleaf/db": "workspace:^",
-        "@energyleaf/tailwindcss": "workspace:*",
-        "@energyleaf/ui": "workspace:*",
-        "@hookform/resolvers": "^3.3.2",
-        "@sendgrid/mail": "^8.1.0",
-        "@t3-oss/env-nextjs": "^0.7.1",
-        "@types/bcryptjs": "^2.4.5",
-        "bcryptjs": "^2.4.3",
-        "clsx": "^2.0.0",
-        "date-fns": "^2.30.0",
-        "lucide-react": "^0.291.0",
-        "next": "^14.0.1",
-        "next-auth": "5.0.0-beta.3",
-        "next-themes": "^0.2.1",
-        "react": "^18.2.0",
-        "react-day-picker": "^8.9.1",
-        "react-dom": "^18.2.0",
-        "react-hook-form": "^7.47.0",
-        "recharts": "^2.9.2",
-        "server-only": "^0.0.1",
-        "tailwindcss": "^3.3.5",
-        "zod": "^3.22.4"
+        "build": "dotenv -- turbo run build --no-daemon",
+        "build:app": "dotenv -- turbo run build --filter web --no-daemon",
+        "build:admin": "dotenv -- turbo run build --filter admin --no-daemon",
+        "dev": "dotenv -- turbo run dev",
+        "dev:app": "dotenv -- turbo run dev --filter web",
+        "dev:admin": "dotenv -- turbo run dev --filter admin",
+        "lint": "dotenv -- turbo run lint",
+        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "fix": "pnpm run format && pnpm run lint -- --fix",
+        "db:push": "dotenv -- pnpm --filter db run push",
+        "db:studio": "dotenv -- pnpm --filter db run studio",
+        "proto:compile": "dotenv -- pnpm --filter proto run compile"
     },
     "devDependencies": {
-        "@energyleaf/eslint-config": "workspace:*",
         "@energyleaf/tsconfig": "workspace:*",
-        "@next/eslint-plugin-next": "^14.0.1",
-        "@types/node": "^20.8.10",
-        "@types/react": "^18.2.34",
-        "@types/react-dom": "^18.2.14",
-        "autoprefixer": "^10.4.16",
-        "postcss": "^8.4.31",
-        "typescript": "^5.2.2"
+        "@total-typescript/ts-reset": "^0.5.1",
+        "eslint": "^8.56.0",
+        "prettier": "^3.1.1",
+        "turbo": "^1.11.3"
+    },
+    "packageManager": "pnpm@8.6.10",
+    "name": "energyleaf",
+    "dependencies": {
+        "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
+        "dotenv-cli": "^7.3.0",
+        "mysql2": "^3.7.0",
+        "prettier-plugin-tailwindcss": "^0.5.11",
+        "typescript": "^5.3.3"
     }
 }

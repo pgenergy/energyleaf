@@ -1,29 +1,34 @@
-'use client';
+"use client";
 
 import { Dialog, DialogContent, DialogHeader } from "@energyleaf/ui";
+
 import DeviceDetailsForm from "./device-details-form";
 
 interface Props {
     open: boolean;
     setOpen: (open: boolean) => void;
     userId: string;
-    device?: { id: Number, name: String };
+    device?: { id: number; name: string };
 }
 
-export default function DeviceDetailsDialog({ open, setOpen, userId, device}: Props) {
-    var dialogTitle = "Gerät hinzufügen"
+export default function DeviceDetailsDialog({ open, setOpen, userId, device }: Props) {
+    let dialogTitle = "Gerät hinzufügen";
     if (device) {
-        dialogTitle = "Gerät-Details"
+        dialogTitle = "Gerät-Details";
     }
-    
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog onOpenChange={setOpen} open={open}>
             <DialogContent>
-                <DialogHeader>
-                    {dialogTitle}
-                </DialogHeader>
-                <DeviceDetailsForm userId={userId} onInteract={() => setOpen(false)} device={device}/>
+                <DialogHeader>{dialogTitle}</DialogHeader>
+                <DeviceDetailsForm
+                    device={device}
+                    onInteract={() => {
+                        setOpen(false);
+                    }}
+                    userId={userId}
+                />
             </DialogContent>
         </Dialog>
-    )
+    );
 }

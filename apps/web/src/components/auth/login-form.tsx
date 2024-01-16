@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { signInAction } from "@/actions/auth";
 import { loginSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 
 export default function LoginForm() {
-    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [pending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -21,10 +23,17 @@ export default function LoginForm() {
         },
     });
 
-    async function onSubmit(data: z.infer<typeof loginSchema>) {
-        setLoading(true);
-        await signInAction(data.mail, data.password);
-        setLoading(false);
+    function onSubmit(data: z.infer<typeof loginSchema>) {
+        startTransition(() => {
+            toast.promise(signInAction(data.mail, data.password), {
+                loading: "Anmelden...",
+                success: "Erfolgreich angemeldet",
+                error: (err) => {
+                    setError((err as unknown as Error).message);
+                    return "Fehler beim Anmelden";
+                },
+            });
+        });
     }
 
     return (
@@ -58,8 +67,9 @@ export default function LoginForm() {
                         )}
                     />
                     <div className="flex flex-col items-center gap-4">
-                        <Button className="w-full" disabled={loading} type="submit">
-                            {loading ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                        <Button className="w-full" disabled={pending} type="submit">
+                            {pending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Anmelden
                         </Button>
                         <p className="text-sm text-muted-foreground">

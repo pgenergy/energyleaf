@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth/auth";
 import { getEnergyDataForUser } from "@/query/energy";
 import { getUserData } from "@/query/user";
 import { format } from "date-fns";
-import de from "date-fns/locale/de";
+import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
@@ -23,9 +23,10 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
 
     const energyData = await getEnergyDataForUser(startDate, endDate, session.user.id);
     const userData = await getUserData(session.user.id);
-    const price = userData?.user_data.basispreis;
+    const price = userData?.user_data.basePrice;
     const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
     const cost = price ? (absolut * price).toFixed(2) : null;
+    const monthlyPayment = userData?.user_data.monthlyPayment;
 
     return (
         <Card className="w-full">
@@ -53,7 +54,10 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
             </CardHeader>
             <CardContent>
                 {cost !== null ? (
-                    <h1 className="text-center text-2xl font-bold text-primary">{cost} €</h1>
+                    <>
+                        <h1 className="text-center text-2xl font-bold text-primary">{cost} €</h1>
+                        <h2 className="text-center text-xl font-bold text-primary">Mtl. Abschlag : {monthlyPayment} €</h2>
+                    </>
                 ) : (
                     <Link
                         className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"

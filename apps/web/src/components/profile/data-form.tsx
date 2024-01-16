@@ -6,9 +6,10 @@ import { userDataSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
-import { userData, userDataImmobilieEnums, userDataTarfiEnums, userDataWarmwasserEnums } from "@energyleaf/db/schema";
+import { userData, userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/schema";
 import {
     Button,
     Card,
@@ -28,7 +29,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@energyleaf/ui";
-import { useToast } from "@energyleaf/ui/hooks";
 
 interface Props {
     initialData: z.infer<typeof userDataSchema>;
@@ -37,7 +37,6 @@ interface Props {
 
 export default function UserDataForm({ initialData, id }: Props) {
     const [isPending, startTransition] = useTransition();
-    const { toast } = useToast();
     const form = useForm<z.infer<typeof userDataSchema>>({
         resolver: zodResolver(userDataSchema),
         defaultValues: {
@@ -46,20 +45,12 @@ export default function UserDataForm({ initialData, id }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof userDataSchema>) {
-        startTransition(async () => {
-            try {
-                await updateUserDataInformation(data, id);
-                toast({
-                    title: "Erfolgreich aktualisiert",
-                    description: "Deine Daten wurden erfolgreich aktualisiert",
-                });
-            } catch (err) {
-                toast({
-                    title: "Fehler beim aktualisieren",
-                    description: "Deine Daten konnten nicht aktualisiert werden",
-                    variant: "destructive",
-                });
-            }
+        startTransition(() => {
+            toast.promise(updateUserDataInformation(data, id), {
+                loading: "Speichere...",
+                success: "Erfolgreich aktualisiert",
+                error: "Fehler beim Aktualisieren",
+            });
         });
     }
 
@@ -85,9 +76,9 @@ export default function UserDataForm({ initialData, id }: Props) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {userData.immobilie.enumValues.map((value) => (
+                                            {userData.property.enumValues.map((value) => (
                                                 <SelectItem key={value} value={value}>
-                                                    {userDataImmobilieEnums[value]}
+                                                    {userDataPropertyEnums[value]}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -97,7 +88,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="warmWater"
+                            name="hotWater"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Warmwasser</FormLabel>
@@ -108,9 +99,9 @@ export default function UserDataForm({ initialData, id }: Props) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {userData.warmwasser.enumValues.map((value) => (
+                                            {userData.hotWater.enumValues.map((value) => (
                                                 <SelectItem key={value} value={value}>
-                                                    {userDataWarmwasserEnums[value]}
+                                                    {userDataHotWaterEnums[value]}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -120,7 +111,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="tarif"
+                            name="tariff"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Tarif</FormLabel>
@@ -131,9 +122,9 @@ export default function UserDataForm({ initialData, id }: Props) {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {userData.tarif.enumValues.map((value) => (
+                                            {userData.tariff.enumValues.map((value) => (
                                                 <SelectItem key={value} value={value}>
-                                                    {userDataTarfiEnums[value]}
+                                                    {userDataTariffEnums[value]}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -155,7 +146,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="price"
+                            name="basePrice"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Strompreis</FormLabel>
@@ -167,7 +158,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="houseSize"
+                            name="livingSpace"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Wohnfläche</FormLabel>
@@ -183,6 +174,18 @@ export default function UserDataForm({ initialData, id }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Personen im Haushalt</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="monthlyPayment"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Monatlicher Abschlag</FormLabel>
                                     <FormControl>
                                         <Input type="number" {...field} />
                                     </FormControl>

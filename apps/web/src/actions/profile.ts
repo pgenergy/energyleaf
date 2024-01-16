@@ -8,6 +8,7 @@ import type {
     passwordSchema,
     userDataSchema,
 } from "@/lib/schema/profile";
+import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import * as bcrypt from "bcryptjs";
 
 import {
@@ -18,8 +19,6 @@ import {
     updateUser,
     updateUserData,
 } from "@energyleaf/db/query";
-
-import { PasswordsDoNotMatchError } from "../types/errors/PasswordsDoNotMatchError";
 
 import "server-only";
 
@@ -103,12 +102,13 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
             {
                 timestamp: new Date(),
                 budget: data.budget,
-                wohnfläche: data.houseSize,
+                livingSpace: data.livingSpace,
                 household: data.people,
-                immobilie: data.houseType,
-                warmwasser: data.warmWater,
-                tarif: data.tarif,
-                basispreis: data.price,
+                property: data.houseType,
+                hotWater: data.hotWater,
+                tariff: data.tariff,
+                basePrice: data.basePrice,
+                monthlyPayment: data.monthlyPayment,
             },
             user.id,
         );

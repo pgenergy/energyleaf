@@ -1,0 +1,21 @@
+{
+    "name": "@energyleaf/proto",
+    "private": true,
+    "version": "1.0.0",
+    "description": "",
+    "type": "module",
+    "exports": {
+        "./sensor-data": "./lib/sensor-data.ts"
+    },
+    "scripts": {
+        "compile": "protoc --ts_out ./lib --proto_path protos protos/*.proto"
+    },
+    "license": "ISC",
+    "dependencies": {
+        "@protobuf-ts/runtime": "^2.9.3"
+    },
+    "devDependencies": {
+        "@protobuf-ts/plugin": "^2.9.3",
+        "@protobuf-ts/protoc": "^2.9.3"
+    }
+}
