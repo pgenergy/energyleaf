@@ -11,12 +11,6 @@ export const user = mysqlTable("user", {
     isAdmin: boolean("is_admin").default(false).notNull(),
 });
 
-export const token = mysqlTable("token", {
-    tokenId: varchar("token_id", { length: 64 }).notNull(),
-    userId: int("user_id").primaryKey().notNull(),
-    created: timestamp("created").default(sql`CURRENT_TIMESTAMP`).notNull()
-});
-
 export const userData = mysqlTable("user_data", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: int("user_id").notNull(),
