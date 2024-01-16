@@ -55,7 +55,6 @@ export async function createUser(data: CreateUserType) {
             username: data.username,
             email: data.email,
             password: data.password,
-            sensorId: data.sensorId,
         });
 
         const newUser = await trx
