@@ -35,7 +35,6 @@ interface Props {
 
 export default function BaseInformationForm({ username, email, id }: Props) {
     const [changeIsPending, startTransition] = useTransition();
-    const { toast } = useToast();
     const form = useForm<z.infer<typeof baseInformationSchema>>({
         resolver: zodResolver(baseInformationSchema),
         defaultValues: {
