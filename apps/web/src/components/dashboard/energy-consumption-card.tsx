@@ -38,7 +38,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     const data = energyData.map((entry) => ({
         sensorId: entry.sensorId ?? "",
         energy: entry.value,
-        timestamp: entry.timestamp.toString(),
+        timestamp: entry.timestamp ? entry.timestamp.toString() : "",
     }));
     
     const realAggregationType = aggregationType || AggregationType.RAW;
@@ -69,16 +69,23 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
             });
 
-        const peaksWithDevicesAssigned = (await getPeaksBySensor(startDate, endDate, sensorId))
-            .map(x => ({
-                id: x.sensor_data.sensorId,
-                device: x.peaks.deviceId
+            const peaksWithDevicesAssigned = (await getPeaksBySensor(startDate, endDate, sensorId))
+                .map(x => {
+                    if (x.sensor_data !== null) {
+                        return {
+                            id: x.sensor_data.sensorId,
+                            device: x.peaks.deviceId
+                        };
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Boolean);
+            peakAssignments = peaks.map(x => ({
+                sensorId: x.sensorId,
+                device: peaksWithDevicesAssigned.find((p) => p && p.id === x.sensorId)?.device,
+                timestamp: x.timestamp
             }));
-        peakAssignments = peaks.map(x => ({
-            sensorId: x.sensorId ?? "",
-            device: peaksWithDevicesAssigned.find((p) => p.id === x.sensorId)?.device,
-            timestamp: x.timestamp
-        }));
     }
 
     function Chart() {
