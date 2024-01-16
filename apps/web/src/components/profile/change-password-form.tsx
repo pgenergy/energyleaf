@@ -3,10 +3,6 @@
 import { useTransition } from "react";
 import { updateBaseInformationPassword } from "@/actions/profile";
 import { passwordSchema } from "@/lib/schema/profile";
-import { PasswordsDoNotMatchError } from "@/types/errors/PasswordsDoNotMatchError";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -28,7 +24,6 @@ import {
     FormMessage,
     Input,
 } from "@energyleaf/ui";
-import { useToast } from "@energyleaf/ui/hooks";
 
 interface Props {
     id: string;
@@ -36,7 +31,6 @@ interface Props {
 
 export default function ChangePasswordForm({ id }: Props) {
     const [changeIsPending, startTransition] = useTransition();
-    const { toast } = useToast();
     const form = useForm<z.infer<typeof passwordSchema>>({
         resolver: zodResolver(passwordSchema),
         defaultValues: {

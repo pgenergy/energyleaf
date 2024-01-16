@@ -3,9 +3,9 @@
   "license": "MIT",
   "version": "0.0.0",
   "private": true,
-  "files": [
-    "sengrid.ts"
-  ],
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "dependencies": {
     "@sendgrid/mail": "^8.1.0"
   }

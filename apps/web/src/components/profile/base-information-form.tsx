@@ -35,27 +35,17 @@ interface Props {
 
 export default function BaseInformationForm({ username, email, id }: Props) {
     const [changeIsPending, startTransition] = useTransition();
-<<<<<<< HEAD
     const { toast } = useToast();
     const form = useForm<z.infer<typeof baseInformationSchema>>({
         resolver: zodResolver(baseInformationSchema),
-=======
-    const form = useForm<z.infer<typeof baseInfromationSchema>>({
-        resolver: zodResolver(baseInfromationSchema),
->>>>>>> f9059541af288db6fe76a147609f58e90741762f
         defaultValues: {
             username,
             email,
         },
     });
 
-<<<<<<< HEAD
     function onSubmit(data: z.infer<typeof baseInformationSchema>) {
         startTransition(async () => {
-=======
-    function onSubmit(data: z.infer<typeof baseInfromationSchema>) {
-        startTransition(() => {
->>>>>>> f9059541af288db6fe76a147609f58e90741762f
             if (data.email !== email) {
                 return;
             }
