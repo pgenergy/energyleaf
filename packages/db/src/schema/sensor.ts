@@ -2,8 +2,10 @@ import { sql } from "drizzle-orm";
 import { int, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const sensor = mysqlTable("sensor", {
-    id: varchar("sensor_id", { length: 30 }).primaryKey().notNull(),
-    code: varchar("code", { length: 30 }).notNull(),
+    id: int("id").autoincrement().primaryKey().notNull(),
+    key: varchar("key", { length: 40 }),
+    macAddress: varchar("mac_address", { length: 17 }).notNull().unique(),
+    code: varchar("code", { length: 30 }).notNull(), // TODO: Can we remove this?
     version: int("version").default(1).notNull(),
 });
 

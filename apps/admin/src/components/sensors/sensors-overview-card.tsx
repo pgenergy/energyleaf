@@ -1,9 +1,9 @@
-import { createUniqueSensorKey } from "@/actions/sensors";
+import { createSensor } from "@/actions/sensors";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { Plus } from "lucide-react";
 
-export default function SensorsOverviewCard() {
-    const id = createUniqueSensorKey();
+export default async function SensorsOverviewCard() {
+    await createSensor();
     return (
         <Card className="w-full">
             <CardHeader>
@@ -18,7 +18,6 @@ export default function SensorsOverviewCard() {
                     </Button>
                 </div>
                 <p>TODO: Tabelle</p>
-                <p>{id}</p>
             </CardContent>
         </Card>
     );

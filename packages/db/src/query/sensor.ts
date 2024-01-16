@@ -1,7 +1,7 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
-import { peaks, sensorData, user, userData } from "../schema";
+import { peaks, sensor, sensorData, user, userData } from "../schema";
 
 /**
  * Get the energy consumption for a user in a given time range
@@ -140,4 +140,18 @@ export async function insertSensorData(data: { id: string; value: number }) {
     } catch (err) {
         throw err;
     }
+}
+
+export type CreateSensorType = {
+    key: string;
+    macAddress: string;
+};
+
+export async function createSensor(createType: CreateSensorType) {
+    await db.insert(sensor)
+        .values({
+            key: createType.key,
+            code: "1234567890", // TODO: Can we remove this?,
+            macAddress: createType.macAddress
+        });
 }
