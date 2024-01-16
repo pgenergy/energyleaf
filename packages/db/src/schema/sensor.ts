@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { int, mysqlEnum, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, primaryKey, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const sensor = mysqlTable("sensor", {
     id: varchar("sensor_id", { length: 30 }).primaryKey().notNull(),
@@ -10,15 +10,19 @@ export const sensor = mysqlTable("sensor", {
 });
 
 export const sensorData = mysqlTable("sensor_data", {
-    sensorId: varchar("sensor_id", { length: 30 }).primaryKey().notNull(),
+    sensorId: varchar("sensor_id", { length: 30 }),
     value: int("value").notNull(),
     timestamp: timestamp("timestamp")
         .default(sql`CURRENT_TIMESTAMP`)
-        .primaryKey().notNull(),
+}, table => {
+    return {
+        pk: primaryKey({ columns: [table.sensorId, table.timestamp] }),
+    }
 });
 
 export const peaks = mysqlTable("peaks", {
     id: int("id").autoincrement().primaryKey().notNull(),
-    sensorId: varchar("sensor_id", { length: 30 }).primaryKey().notNull(),
+    sensorId: varchar("sensor_id", { length: 30 }).notNull(),
     deviceId: int("device_id").notNull(),
+    timestamp: timestamp("timestamp")
 });
