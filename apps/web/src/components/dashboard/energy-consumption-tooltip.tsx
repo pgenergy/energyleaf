@@ -9,9 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader } from "@energyleaf/ui";
 export default function EnergyConsumptionTooltip({ payload }: TooltipProps<ValueType, NameType>) {
     const data = payload?.[0]?.payload as
         | {
-              energy: number;
-              timestamp: string;
-          }
+        energy: number;
+        timestamp: string;
+    }
         | undefined;
     const energy = data?.energy;
     const timestamp = data?.timestamp;
@@ -20,6 +20,9 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
         return null;
     }
 
+    const searchParams = new URLSearchParams(window.location.search);
+    const aggregationType = searchParams.get('aggregation');
+
     return (
         <Card className="z-10">
             <CardHeader>
@@ -27,7 +30,11 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <p className="text-sm">
-                    <span className="font-bold">Verbrauch:</span> {energy} Wh
+                    <span className="font-bold">Verbrauch:</span> {energy} Wh / {(
+                    aggregationType == "hour" ? "Stunde" :
+                        aggregationType == "day" ? "Tag" :
+                            aggregationType == "month" ? "Monat" : "Jahr"
+                )}
                 </p>
             </CardContent>
         </Card>

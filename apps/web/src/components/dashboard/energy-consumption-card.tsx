@@ -35,7 +35,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
     }));
-    
+
     const realAggregationType = aggregationType || AggregationType.RAW;
     const aggregatedDataInput = getAggregatedEnergy(data, realAggregationType);
     const aggregatedData = aggregatedDataInput.map((entry) => ({
@@ -47,7 +47,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     let peakAssignments: PeakAssignment[] = [];
     const devices = noAggregation ? await getDevicesByUser(userId) : [];
-    
+
     if (noAggregation) {
         const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
         const std = Math.sqrt(
@@ -78,8 +78,8 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     function Chart() {
         return (
             noAggregation ?
-            <RawEnergyConsumptionCardChart data={data} devices={devices} peaks={peakAssignments}  /> :
-            <EnergyConsumptionCardChart data={aggregatedData} />
+                <RawEnergyConsumptionCardChart data={data} devices={devices} peaks={peakAssignments}  /> :
+                <EnergyConsumptionCardChart data={aggregatedData} />
         )
     }
 
@@ -88,7 +88,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
             <CardHeader className="flex flex-row justify-between">
                 <div className="flex flex-col gap-2">
                     <CardTitle>Verbrauch</CardTitle>
-                    <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
+                    <CardDescription>Übersicht deines Verbrauchs im Zeitraum, für eine detaillierte Darstellung Granularität wählen</CardDescription>
                 </div>
                 <div className="flex flex-row gap-4">
                     <DashboardDateRange endDate={endDate} startDate={startDate} />

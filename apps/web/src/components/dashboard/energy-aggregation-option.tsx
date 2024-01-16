@@ -2,14 +2,8 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@energyleaf/ui";
-import { AggregationType } from "@/types/aggregation/aggregation-type";
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
 
 interface Props {
     startDate: Date;
@@ -36,11 +30,10 @@ export default function EnergyAggreation({ startDate, endDate }: Props) {
                     <SelectValue placeholder="Granularität" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value={AggregationType.RAW}>Nicht aggregiert</SelectItem>
-                    <SelectItem value={AggregationType.HOUR}>Stunde</SelectItem>
-                    <SelectItem value={AggregationType.DAY}>Tag</SelectItem>
-                    <SelectItem value={AggregationType.MONTH}>Monat</SelectItem>
-                    <SelectItem value={AggregationType.YEAR}>Jahr</SelectItem>
+                    <SelectItem value="hour">Verbrauch / Stunde</SelectItem>
+                    <SelectItem value="day">Verbrauch / Tag</SelectItem>
+                    <SelectItem value="month">Verbrauch / Monat</SelectItem>
+                    <SelectItem value="year">Verbrauch / Jahr</SelectItem>
                 </SelectContent>
             </Select>
         </div>
