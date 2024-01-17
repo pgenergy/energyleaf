@@ -50,6 +50,7 @@
         "@radix-ui/react-tabs": "^1.0.4",
         "@radix-ui/react-toggle": "^1.0.3",
         "@radix-ui/react-tooltip": "^1.0.7",
+        "@tanstack/react-table": "^8.11.6",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.0",
         "date-fns": "^3.0.6",
