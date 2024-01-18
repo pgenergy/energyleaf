@@ -4,7 +4,7 @@ import { boolean, float, int, mysqlEnum, mysqlTable, timestamp, varchar } from "
 export const user = mysqlTable("user", {
     id: int("id").autoincrement().primaryKey().notNull(),
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
-    email: varchar("email", { length: 30 }).notNull(),
+    email: varchar("email", { length: 256 }).notNull(),
     username: varchar("username", { length: 30 }).notNull(),
     password: varchar("password", { length: 256 }).notNull(),
     sensorId: varchar("sensor_id", { length: 30 }).notNull(),
