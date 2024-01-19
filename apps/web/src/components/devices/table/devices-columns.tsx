@@ -1,17 +1,11 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon, EditIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
-import {
-    Button,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui";
+
+import DeviceActionCell from "./device-action-cell";
 
 export interface DeviceTableType {
     id: number;
@@ -72,31 +66,9 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
     },
     {
         id: "actions",
-        cell: () => {
-            // const device = row.original;
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost">
-                            <MoreVerticalIcon className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Aktionen</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="flex cursor-pointer flex-row gap-2">
-                            <EditIcon className="h-4 w-4" />
-                            Bearbeiten
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="flex cursor-pointer flex-row gap-2 text-destructive">
-                            <TrashIcon className="h-4 w-4" />
-                            Löschen
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
+        cell: ({ row }) => {
+            const device = row.original;
+            return <DeviceActionCell device={device} />;
         },
     },
 ];

@@ -56,7 +56,7 @@ export default async function SiteLayout({ children }: Props) {
                 title="Energyleaf Admin"
             />
             <Sidebar links={navLinks} />
-            <main className="ml-0 md:ml-[13%] mt-14 px-8 py-8">{children}</main>
+            <main className="ml-0 mt-14 px-8 py-8 md:ml-[13%]">{children}</main>
         </>
     );
 }

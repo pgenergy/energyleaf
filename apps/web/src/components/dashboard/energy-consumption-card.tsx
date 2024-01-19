@@ -76,7 +76,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     return (
         <Card className="w-full">
-            <CardHeader className="flex flex-row justify-between">
+            <CardHeader className="flex flex-col md:flex-row justify-start md:justify-between">
                 <div className="flex flex-col gap-2">
                     <CardTitle>Verbrauch</CardTitle>
                     <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>

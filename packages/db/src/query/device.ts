@@ -5,9 +5,7 @@ import { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-
 import db from "..";
 import { device, deviceHistory } from "../schema";
 
-export async function getDevicesByUser(
-    userId: number,
-) {
+export async function getDevicesByUser(userId: number) {
     const query = db.select().from(device).where(eq(device.userId, userId));
 
     return await query;

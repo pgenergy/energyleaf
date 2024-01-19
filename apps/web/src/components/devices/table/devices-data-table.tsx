@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type {
-    SortingState} from "@tanstack/react-table";
+import type { ColumnFiltersState, SortingState } from "@tanstack/react-table";
 import {
     flexRender,
     getCoreRowModel,
+    getFilteredRowModel,
     getSortedRowModel,
     useReactTable,
     type ColumnDef,
@@ -20,6 +20,7 @@ interface DataTableProps<TData, TValue> {
 
 export function DevicesDataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
     const table = useReactTable({
         data,
@@ -27,8 +28,11 @@ export function DevicesDataTable<TData, TValue>({ columns, data }: DataTableProp
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         onSortingChange: setSorting,
+        onColumnFiltersChange: setColumnFilters,
+        getFilteredRowModel: getFilteredRowModel(),
         state: {
             sorting,
+            columnFilters,
         },
     });
 
@@ -64,7 +68,7 @@ export function DevicesDataTable<TData, TValue>({ columns, data }: DataTableProp
                     ) : (
                         <TableRow>
                             <TableCell className="h-24 text-center" colSpan={columns.length}>
-                                No results.
+                                Keine Geräte gefunden.
                             </TableCell>
                         </TableRow>
                     )}

@@ -48,10 +48,10 @@ export default function MobileSidebar({ title, titleLink, links }: Props) {
                         </Link>
                     </SheetTitle>
                 </SheetHeader>
-                <ScrollArea className="my-4 flex h-[calc(100vh-8rem)] flex-col gap-8 pb-10 px-4">
+                <ScrollArea className="my-4 flex h-[calc(100vh-8rem)] flex-col gap-8 px-4 pb-10">
                     {links.map((link) => (
                         <NavLink
-                            className="flex flex-row items-center gap-2 py-2 px-4"
+                            className="flex flex-row items-center gap-2 px-4 py-2"
                             key={link.slug}
                             link={link}
                             onOpenChange={setOpen}

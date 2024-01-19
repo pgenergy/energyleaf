@@ -8,13 +8,20 @@ import { getUserById } from "@energyleaf/db/query";
 
 import "server-only";
 
+import { getSession } from "@/lib/auth/auth";
+
 import {
     createDevice as createDeviceDb,
     deleteDevice as deleteDeviceDb,
     updateDevice as updateDeviceDb,
 } from "@energyleaf/db/query";
 
-export async function createDevice(data: z.infer<typeof deviceSchema>, id: number | string) {
+export async function createDevice(data: z.infer<typeof deviceSchema>) {
+    const session = await getSession();
+    if (!session) {
+        throw new Error("User not logged in");
+    }
+    const id = session.user.id;
     const user = await getUserById(Number(id));
     if (!user) {
         throw new Error("User not found");
@@ -31,7 +38,14 @@ export async function createDevice(data: z.infer<typeof deviceSchema>, id: numbe
     }
 }
 
-export async function updateDevice(data: z.infer<typeof deviceSchema>, id: number | string, userId: number | string) {
+export async function updateDevice(data: z.infer<typeof deviceSchema>, id: number | string) {
+    const session = await getSession();
+    if (!session) {
+        throw new Error("User not logged in");
+    }
+
+    const userId = session.user.id;
+
     const user = await getUserById(Number(userId));
     if (!user) {
         throw new Error("User not found");
@@ -48,7 +62,13 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, id: numbe
     }
 }
 
-export async function deleteDevice(id: number, userId: number | string) {
+export async function deleteDevice(id: number) {
+    const session = await getSession();
+    if (!session) {
+        throw new Error("User not logged in");
+    }
+
+    const userId = session.user.id;
     try {
         await deleteDeviceDb(id, Number(userId));
         revalidatePath("/devices");
