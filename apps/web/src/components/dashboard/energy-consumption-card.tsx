@@ -2,9 +2,9 @@ import { redirect } from "next/navigation";
 import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 import { getSession } from "@/lib/auth/auth";
 import { getDevicesByUser } from "@/query/device";
-import { getEnergyDataForUser, getPeaksForUser } from "@/query/energy";
 import { AggregationType } from "@/types/aggregation/aggregation-type";
 import type { PeakAssignment } from "@/types/peaks/peak";
+import { getEnergyDataForSensor, getElectricitySensorIdForUser, getPeaksBySensor } from "@/query/energy";
 import { differenceInMinutes } from "date-fns";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
@@ -27,12 +27,17 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }
 
     const userId = session.user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
 
-    const energyData = await getEnergyDataForUser(startDate, endDate, userId);
+    if (!sensorId) {
+        throw new Error("Kein Stromsensor für diesen Benutzer gefunden");
+    }
+
+    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const data = energyData.map((entry) => ({
-        id: entry.id,
+        sensorId: entry.sensorId ?? "",
         energy: entry.value,
-        timestamp: entry.timestamp.toString(),
+        timestamp: entry.timestamp ? entry.timestamp.toString() : "",
     }));
 
     const realAggregationType = aggregationType || AggregationType.RAW;
@@ -64,14 +69,23 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
             });
 
-        const peaksWithDevicesAssigned = (await getPeaksForUser(startDate, endDate, userId)).map((x) => ({
-            id: x.sensor_data.id,
-            device: x.peaks.deviceId,
-        }));
-        peakAssignments = peaks.map((x) => ({
-            id: x.id,
-            device: peaksWithDevicesAssigned.find((p) => p.id === x.id)?.device,
-        }));
+            const peaksWithDevicesAssigned = (await getPeaksBySensor(startDate, endDate, sensorId))
+                .map(x => {
+                    if (x.sensor_data !== null) {
+                        return {
+                            id: x.sensor_data.sensorId,
+                            device: x.peaks.deviceId
+                        };
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Boolean);
+            peakAssignments = peaks.map(x => ({
+                sensorId: x.sensorId,
+                device: peaksWithDevicesAssigned.find((p) => p && p.id === x.sensorId)?.device,
+                timestamp: x.timestamp
+            }));
     }
 
     return (
