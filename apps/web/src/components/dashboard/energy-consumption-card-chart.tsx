@@ -9,7 +9,7 @@ import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
 
 interface Props {
-    data: { id: number; energy: number; timestamp: string }[];
+    data: { sensorId: string; energy: number; timestamp: string }[];
     devices: { id: number; userId: number; name: string; created: Date | null }[] | null;
     peaks?: PeakAssignment[];
 }
@@ -19,9 +19,9 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
     const [value, setValue] = useState<Peak | null>(null);
 
     const clickCallback = useCallback(
-        (callbackData: { id: number; energy: number; timestamp: string | number | undefined; device?: number }) => {
+        (callbackData: { id: string; energy: number; timestamp: string | number | undefined; device?: number }) => {
             setValue({
-                id: Number(callbackData.id),
+                sensorId: callbackData.id,
                 energy: Number(callbackData.energy),
                 timestamp: callbackData.timestamp?.toString() || "",
                 device: callbackData.device ? Number(callbackData.device) : undefined,
@@ -34,12 +34,11 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
 
     const convertToAxesValue = useCallback(
         (peak: Peak): Record<string, string | number | undefined> => {
-            const sensorData = data.find((x) => x.id === peak.id);
+            const sensorData = data.find((x) => x.sensorId === peak.sensorId && x.timestamp === peak.timestamp);
 
             return {
                 timestamp: sensorData?.timestamp,
                 energy: sensorData?.energy,
-                id: peak.id,
                 device: peak.device,
             };
         },

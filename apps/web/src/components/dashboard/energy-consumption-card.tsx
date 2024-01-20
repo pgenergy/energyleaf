@@ -2,9 +2,9 @@ import { redirect } from "next/navigation";
 import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 import { getSession } from "@/lib/auth/auth";
 import { getDevicesByUser } from "@/query/device";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor, getPeaksBySensor } from "@/query/energy";
 import { AggregationType } from "@/types/aggregation/aggregation-type";
 import type { PeakAssignment } from "@/types/peaks/peak";
-import { getEnergyDataForSensor, getElectricitySensorIdForUser, getPeaksBySensor } from "@/query/energy";
 import { differenceInMinutes } from "date-fns";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
@@ -43,7 +43,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     const realAggregationType = aggregationType || AggregationType.RAW;
     const aggregatedDataInput = getAggregatedEnergy(data, realAggregationType);
     const aggregatedData = aggregatedDataInput.map((entry) => ({
-        id: entry.id,
+        sensorId: entry.sensorId,
         energy: entry.energy,
         timestamp: entry.timestamp.toString(),
     }));
@@ -69,28 +69,28 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
             });
 
-            const peaksWithDevicesAssigned = (await getPeaksBySensor(startDate, endDate, sensorId))
-                .map(x => {
-                    if (x.sensor_data !== null) {
-                        return {
-                            id: x.sensor_data.sensorId,
-                            device: x.peaks.deviceId
-                        };
-                    } else {
-                        return null;
-                    }
-                })
-                .filter(Boolean);
-            peakAssignments = peaks.map(x => ({
-                sensorId: x.sensorId,
-                device: peaksWithDevicesAssigned.find((p) => p && p.id === x.sensorId)?.device,
-                timestamp: x.timestamp
-            }));
+        const peaksWithDevicesAssigned = (await getPeaksBySensor(startDate, endDate, sensorId))
+            .map((x) => {
+                if (x.sensor_data !== null) {
+                    return {
+                        id: x.sensor_data.sensorId,
+                        device: x.peaks.deviceId,
+                    };
+                }
+
+                return null;
+            })
+            .filter(Boolean);
+        peakAssignments = peaks.map((x) => ({
+            sensorId: x.sensorId,
+            device: peaksWithDevicesAssigned.find((p) => p && p.id === x.sensorId)?.device,
+            timestamp: x.timestamp,
+        }));
     }
 
     return (
         <Card className="w-full">
-            <CardHeader className="flex flex-col md:flex-row justify-start md:justify-between">
+            <CardHeader className="flex flex-col justify-start md:flex-row md:justify-between">
                 <div className="flex flex-col gap-2">
                     <CardTitle>Verbrauch</CardTitle>
                     <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
