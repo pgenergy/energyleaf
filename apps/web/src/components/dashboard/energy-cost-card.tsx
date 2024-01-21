@@ -28,7 +28,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const cost: number | null = price ? parseFloat((absolut * price).toFixed(2)) : null;
 
     const monthlyPayment = userData?.user_data.monthlyPayment;
-   
+
     const calculatePayment = () => {
         if (monthlyPayment !== undefined && monthlyPayment !== null) {
             const startYear = startDate.getFullYear();
@@ -58,9 +58,35 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
             return totalAmount.toFixed(2);
         }
     };
-    
-    const payment = calculatePayment();
 
+    const calculateTotalConsumptionCurrentMonth = () => {
+        const currentDate = new Date();
+        const currentMonthConsumptions = energyData.filter(entry => {
+          const entryDate = new Date(entry.timestamp);
+          return entryDate.getMonth() === currentDate.getMonth() && entryDate.getFullYear() === currentDate.getFullYear();
+        });
+        const totalConsumption = currentMonthConsumptions.reduce((total, entry) => total + entry.value, 0);
+      
+        return totalConsumption;
+      };
+
+
+    const calculatePredictedCost = (): number => {
+        const today: Date = new Date();
+        const firstDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        const daysPassed: number = Math.floor((today.getTime() - firstDayOfMonth.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+
+        const totalConsumptionCurrentMonth = calculateTotalConsumptionCurrentMonth();
+        const monthlyUsage: number = (totalConsumptionCurrentMonth / daysPassed) * lastDayOfMonth.getDate();
+        const daysRemaining: number = lastDayOfMonth.getDate() - daysPassed;
+
+        const predictedConsumption: number = ((monthlyUsage / daysPassed) * daysRemaining) / 1000;
+        const predictedCost: number | null = price ? parseFloat((predictedConsumption * price).toFixed(2)) : null;
+
+        return (cost ?? 0) + (predictedCost ?? 0);
+    };
+    
     return (
         <Card className="w-full">
             <CardHeader>
@@ -89,7 +115,8 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                 {cost !== null ? (
                     <>
                         <h1 className="text-center text-2xl font-bold text-primary">{cost} €</h1>
-                        <h2 className={`text-center ${Number(cost) > Number(payment) ? 'text-red-500' : 'white'}`}>Abschlag: {payment} €</h2>
+                        <p className={`text-center ${Number(cost) > Number(calculatePayment()) ? 'text-red-500' : 'white'}`}>Abschlag: {calculatePayment()} €</p>
+                        <p className="text-center">Hochrechnung 0{new Date().getMonth()+1}.{new Date().getFullYear()}: {calculatePredictedCost()} €</p>
                     </>
                 ) : (
                     <Link
