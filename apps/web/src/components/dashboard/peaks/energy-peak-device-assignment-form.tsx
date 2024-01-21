@@ -23,11 +23,12 @@ import {
 interface Props {
     devices: { id: number; userId: number; name: string; created: Date | null }[];
     initialValues: z.infer<typeof peakSchema>;
-    sensorDataId: number;
+    sensorId: string;
+    timestamp: string;
     onInteract: () => void;
 }
 
-export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorDataId, onInteract }: Props) {
+export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorId, timestamp, onInteract }: Props) {
     const form = useForm<z.infer<typeof peakSchema>>({
         resolver: zodResolver(peakSchema),
         defaultValues: {
@@ -38,7 +39,7 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorD
     function onSubmit(data: z.infer<typeof peakSchema>) {
         toast.promise(
             async () => {
-                await addOrUpdatePeak(data, sensorDataId);
+                await addOrUpdatePeak(data, sensorId, timestamp);
             },
             {
                 loading: "Peak zuweisen...",

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth";
-import { getAvgEnergyConsumptionForUser, getAvgEnergyConsumptionForUserInComparison } from "@/query/energy";
+import { getAvgEnergyConsumptionForSensor, getAvgEnergyConsumptionForUserInComparison, getElectricitySensorIdForUser } from "@/query/energy";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
@@ -11,8 +11,15 @@ export default async function AvgEnergyConsumptionComparisonCard() {
         redirect("/");
     }
 
+    const userId = session.user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
+
+    if (!sensorId) {
+        throw new Error("Kein Stromsensor für diesen Benutzer gefunden");
+    }
+
     const avg = await getAvgEnergyConsumptionForUserInComparison(session.user.id);
-    const avgUser = await getAvgEnergyConsumptionForUser(session.user.id);
+    const avgUser = await getAvgEnergyConsumptionForSensor(sensorId);
 
     return (
         <Card className="w-full">
