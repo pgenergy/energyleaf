@@ -2,17 +2,56 @@ import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
 import { peaks, sensorData, userData, sensor } from "../schema";
+import { AggregationType } from "../types/types";
 
 /**
  * Get the energy consumption for a sensor in a given time range
  */
-export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId: string) {
+export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) {
+    if (aggregation === AggregationType.RAW) {
+        return db
+            .select()
+            .from(sensorData)
+            .where(
+                and(
+                    eq(sensorData.sensorId, sensorId),
+                    or(
+                        between(sensorData.timestamp, start, end),
+                        eq(sensorData.timestamp, start),
+                        eq(sensorData.timestamp, end),
+                    ),
+                ),
+            )
+            .orderBy(sensorData.timestamp);
+    }
+
+    let dateSelect = sql<Date>`DATE_TRUNC('hour', ${sensorData.timestamp})`;
+    switch (aggregation) {
+        case AggregationType.DAY:
+            dateSelect = sql<Date>`DATE_TRUNC('day', ${sensorData.timestamp})`;
+            break;
+        case AggregationType.WEEK:
+            dateSelect = sql<Date>`DATE_TRUNC('week', ${sensorData.timestamp})`;
+            break;
+        case AggregationType.MONTH:
+            dateSelect = sql<Date>`DATE_TRUNC('month', ${sensorData.timestamp})`;
+            break;
+        case AggregationType.YEAR:
+            dateSelect = sql<Date>`DATE_TRUNC('year', ${sensorData.timestamp})`;
+            break;
+    }
+
     return db
-    .select()
-    .from(sensorData)
-    .where(
-        and(
-            eq(sensorData.sensorId, sensorId),
+        .select({
+            id: sensorData.id,
+            sensorId: sensorData.sensorId,
+            value: sql<number>`AVG(${sensorData.value})`,
+            timestamp: dateSelect,
+        })
+        .from(sensorData)
+        .where(
+            and(
+                eq(sensorData.sensorId, sensorId),
                 or(
                     between(sensorData.timestamp, start, end),
                     eq(sensorData.timestamp, start),
@@ -20,7 +59,8 @@ export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId
                 ),
             ),
         )
-        .orderBy(sensorData.timestamp);
+        .groupBy(dateSelect, sensorData.sensorId)
+        .orderBy(dateSelect);
 }
 
 /**
