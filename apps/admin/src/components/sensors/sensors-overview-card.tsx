@@ -1,9 +1,10 @@
-import { createSensor } from "@/actions/sensors";
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
-import { Plus } from "lucide-react";
+import {Plus} from "lucide-react";
 
-export default async function SensorsOverviewCard() {
-    await createSensor();
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import React from "react";
+import SensorsTable from "@/components/sensors/sensors-table";
+
+export default function SensorsOverviewCard() {
     return (
         <Card className="w-full">
             <CardHeader>
@@ -17,7 +18,7 @@ export default async function SensorsOverviewCard() {
                         Sensor registrieren
                     </Button>
                 </div>
-                <p>TODO: Tabelle</p>
+                <SensorsTable/>
             </CardContent>
         </Card>
     );
