@@ -39,7 +39,7 @@ export async function createSensor() {
     });
 }
 
-export async function getSensors() : Promise<SensorWithUser>  {
+export async function getSensors() : Promise<SensorWithUser[]>  {
     const session = await getSession();
     if (!session) {
         throw new Error("User not logged in");

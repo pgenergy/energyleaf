@@ -6,8 +6,8 @@ import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { Button } from "@energyleaf/ui";
 
 export interface SensorTableType {
-    id: number;
-    key: string;
+    id: string;
+    key: string | null;
     user: string | undefined,
     type: string
 }

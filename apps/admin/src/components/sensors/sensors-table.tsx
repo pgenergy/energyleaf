@@ -16,17 +16,14 @@ function mapSensor(sensorWithUser: SensorWithUser) : SensorTableType {
 
     return {
         id: sensor.id,
-        name: sensor.code,
         key: sensor.key,
-        macAddress: sensor.macAddress,
-        code: sensor.code,
         type: sensorTypeDescriptions[sensor.sensor_type],
         user: user?.username,
     };
 }
 
 export default async function SensorsTable() {
-    const sensors= await getSensors();
+    const sensors : SensorWithUser[] = await getSensors();
     const data = sensors.map((sensor: SensorWithUser) => mapSensor(sensor));
     return (
         <DataTable columns={sensorsColumns} data={data} />
