@@ -2,14 +2,9 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@energyleaf/ui";
 import { AggregationType } from "@/types/aggregation/aggregation-type";
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
 
 interface Props {
     startDate: Date;

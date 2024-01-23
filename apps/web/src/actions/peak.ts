@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import type { z } from "zod";
+
 import "server-only";
-import { addOrUpdatePeak as addOrUpdatePeakDb } from "@energyleaf/db/query";
+
 import type { peakSchema } from "@/lib/schema/peak";
+import { addOrUpdatePeak as addOrUpdatePeakDb } from "@energyleaf/db/query";
 
 export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
     try {
