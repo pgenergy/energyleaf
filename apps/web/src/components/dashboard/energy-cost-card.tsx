@@ -14,6 +14,13 @@ interface Props {
     endDate: Date;
 }
 
+interface EnergyEntry {
+    id: number;
+    sensorId: string | null;
+    value: number;
+    timestamp: Date | null;
+  }
+
 export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const session = await getSession();
 
@@ -66,11 +73,11 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
         }
     };
 
-    const calculateTotalConsumptionCurrentMonth = () => {
+    const calculateTotalConsumptionCurrentMonth = (data: EnergyEntry[]): number => {
         const currentDate = new Date();
-        const currentMonthConsumptions = energyData.filter(entry => {
-          const entryDate = new Date(entry.timestamp);
-          return entryDate.getMonth() === currentDate.getMonth() && entryDate.getFullYear() === currentDate.getFullYear();
+        const currentMonthConsumptions = data.filter((entry: EnergyEntry) => {
+            const entryDate = entry.timestamp ? new Date(entry.timestamp) : null;
+            return entryDate && entryDate.getMonth() === currentDate.getMonth() && entryDate.getFullYear() === currentDate.getFullYear();
         });
         const totalConsumption = currentMonthConsumptions.reduce((total, entry) => total + entry.value, 0);
       
@@ -84,7 +91,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
         const lastDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         const daysPassed: number = Math.floor((today.getTime() - firstDayOfMonth.getTime()) / (24 * 60 * 60 * 1000)) + 1;
 
-        const totalConsumptionCurrentMonth = calculateTotalConsumptionCurrentMonth();
+        const totalConsumptionCurrentMonth = calculateTotalConsumptionCurrentMonth(energyData);
         const monthlyUsage: number = (totalConsumptionCurrentMonth / daysPassed) * lastDayOfMonth.getDate();
         const daysRemaining: number = lastDayOfMonth.getDate() - daysPassed;
 
