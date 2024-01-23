@@ -36,7 +36,6 @@ export async function getUserByMail(email: string) {
 export type CreateUserType = {
     email: string;
     password: string;
-    sensorId: string;
     username: string;
 };
 
