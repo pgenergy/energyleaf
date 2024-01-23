@@ -1,7 +1,7 @@
-import { and, between, eq, or, sql } from "drizzle-orm";
+import {and, between, eq, or, sql} from "drizzle-orm";
 
 import db from "..";
-import { peaks, sensor, sensorData, userData } from "../schema";
+import {peaks, sensor, sensorData, SensorType, user, userData} from "../schema";
 
 /**
  * Get the energy consumption for a sensor in a given time range
@@ -141,7 +141,7 @@ export async function getElectricitySensorIdForUser(userId: number) {
     const query = await db
         .select()
         .from(sensor)
-        .where(and(eq(sensor.user_id, userId), eq(sensor.sensor_type, "electricity")));
+        .where(and(eq(sensor.user_id, userId), eq(sensor.sensor_type, SensorType.Electricity)));
 
     if (query.length === 0) {
         return null;
@@ -174,4 +174,31 @@ export async function insertSensorData(data: { sensorId: string; value: number }
     } catch (err) {
         throw err;
     }
+}
+
+export type Sensor = {
+    id: string;
+    key: string | null;
+    macAddress: string;
+    code: string;
+    version: number;
+    sensor_type: SensorType;
+    user_id: number;
+}
+
+export type User = {
+    id: number;
+    created: Date | null;
+    email: string;
+    username: string;
+    password: string;
+    isAdmin: boolean;
+}
+
+export type SensorWithUser = {
+    sensor: Sensor;
+    user: User | null;
+}
+export async function getSensorsWithUser(): Promise<SensorWithUser[]> {
+    return db.select().from(sensor).leftJoin(user, eq(user.id, sensor.user_id));
 }

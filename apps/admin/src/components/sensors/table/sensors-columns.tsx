@@ -9,7 +9,7 @@ export interface SensorTableType {
     id: number;
     key: string;
     user: string | undefined,
-    type: SensorType
+    type: string
 }
 
 export const sensorsColumns: ColumnDef<SensorTableType>[] = [
@@ -58,7 +58,7 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
         cell: ({ row }) => {
             const value: string | undefined = row.getValue("user");
             if (!value) {
-                return null;
+                return <span>-</span>;
             }
             return <span>{value}</span>;
         },
