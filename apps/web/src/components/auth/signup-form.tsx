@@ -28,12 +28,6 @@ export default function SignUpForm() {
 
     function onSubmit(data: z.infer<typeof signupSchema>) {
         setError("");
-        if (data.password !== data.passwordRepeat) {
-            form.setError("passwordRepeat", {
-                type: "manual",
-                message: "Passwörter stimmen nicht überein.",
-            });
-        }
 
         startTransition(() => {
             toast.promise(

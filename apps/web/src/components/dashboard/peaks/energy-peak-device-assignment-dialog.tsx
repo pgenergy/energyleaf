@@ -22,7 +22,7 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, devices
                     <DialogDescription>Wähle ein Gerät aus, was diesen Verbrauch verursacht hat.</DialogDescription>
                 </DialogHeader>
                 <p>Verbrauch: {value.energy}</p>
-                <EnergyPeakDeviceAssignmentForm devices={devices} initialValues={initialValues} onInteract={() => { setOpen(false) }} sensorDataId={value.id}/>
+                <EnergyPeakDeviceAssignmentForm devices={devices} initialValues={initialValues} onInteract={() => { setOpen(false) }} sensorId={value.sensorId} timestamp={value.timestamp}/>
             </DialogContent>
         </Dialog>
     );

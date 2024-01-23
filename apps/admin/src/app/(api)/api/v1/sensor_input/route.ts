@@ -48,7 +48,7 @@ export const POST = async (req: NextRequest) => {
         const data = ELData.fromBinary(binaryData);
         try {
             await insertSensorData({
-                id: data.sensorId,
+                sensorId: data.sensorId,
                 value: data.sensorValue,
             });
         } catch (e) {
