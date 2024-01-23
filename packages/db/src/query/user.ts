@@ -50,12 +50,11 @@ export async function createUser(data: CreateUserType) {
         if (check.length > 0) {
             throw new Error("User already exists");
         }
-
+            
         await trx.insert(user).values({
             username: data.username,
             email: data.email,
             password: data.password,
-            sensorId: data.sensorId,
         });
 
         const newUser = await trx

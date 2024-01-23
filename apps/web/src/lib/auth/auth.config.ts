@@ -34,7 +34,6 @@ export const authOptions: NextAuthConfig = {
                 token.name = passedUser.name;
                 token.email = passedUser.email;
                 token.created = passedUser.created?.toString() ?? null;
-                token.sensorId = passedUser.sensorId;
                 token.admin = passedUser.admin;
             }
 

@@ -1,9 +1,9 @@
 export interface PeakAssignment {
-    id: number;
+    sensorId: string;
     device: number | undefined;
+    timestamp: string;
 }
 
 export interface Peak extends PeakAssignment {
-    timestamp: string;
     energy: number;
 }

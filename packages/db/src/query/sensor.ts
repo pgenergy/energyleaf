@@ -1,30 +1,39 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
-import { peaks, sensor, sensorData, user, userData } from "../schema";
+import { peaks, sensorData, userData, sensor } from "../schema";
 
 /**
- * Get the energy consumption for a user in a given time range
+ * Get the energy consumption for a sensor in a given time range
  */
-export async function getEnergyForUserInRange(start: Date, end: Date, userId: number) {
+export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId: string) {
     return db
-        .select()
-        .from(sensorData)
-        .where(and(eq(sensorData.userId, userId), sensorDataTimeFilter(start, end)))
+    .select()
+    .from(sensorData)
+    .where(
+        and(
+            eq(sensorData.sensorId, sensorId),
+                or(
+                    between(sensorData.timestamp, start, end),
+                    eq(sensorData.timestamp, start),
+                    eq(sensorData.timestamp, end),
+                ),
+            ),
+        )
         .orderBy(sensorData.timestamp);
 }
 
 /**
- * Get the average energy consumption for a user
+ * Get the average energy consumption for a sensor
  */
-export async function getAvgEnergyConsumptionForUser(userId: number) {
+export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
     const query = await db
         .select({
-            userId: sensorData.userId,
+            sensorId: sensorData.sensorId,
             avg: sql<string>`AVG(${sensorData.value})`,
         })
         .from(sensorData)
-        .where(eq(sensorData.userId, userId));
+        .where(eq(sensorData.sensorId, sensorId));
 
     if (query.length === 0) {
         return null;
@@ -52,17 +61,19 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
         const avg = await trx
             .select({
                 avg: sql<string>`AVG(${sensorData.value})`,
-                count: sql<string>`COUNT(${sensorData.value})`,
+                count: sql<string>`COUNT(DISTINCT ${sensor.id})`,
             })
             .from(sensorData)
-            .innerJoin(userData, eq(userData.userId, sensorData.userId))
+            .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
+            .innerJoin(userData, eq(userData.id, sensor.user_id))
             .where(
                 and(
                     eq(userData.livingSpace, user.livingSpace),
                     eq(userData.household, user.household),
                     eq(userData.property, user.property),
                 ),
-            );
+            )
+            .groupBy(userData.livingSpace, userData.household, userData.property);
 
         if (avg.length === 0) {
             return null;
@@ -80,35 +91,37 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
 /**
  *  adds or updates a peak in the database
  */
-export async function addOrUpdatePeak(sensorDataId: number, deviceId: number) {
+export async function addOrUpdatePeak(sensorId: string, timestamp: Date, deviceId: number) {
     return db.transaction(async (trx) => {
-        const data = await trx.select().from(peaks).where(eq(peaks.sensorDataId, sensorDataId));
+        const data = await trx.select().from(peaks)
+            .where(and(eq(peaks.sensorId, sensorId), eq(peaks.timestamp, timestamp)));
 
         if (data.length === 0) {
             return trx.insert(peaks).values({
-                sensorDataId,
+                sensorId,
                 deviceId,
+                timestamp
             });
         }
 
         return trx
             .update(peaks)
             .set({
-                deviceId,
+                deviceId
             })
-            .where(eq(peaks.sensorDataId, sensorDataId));
+            .where(and(eq(peaks.sensorId, sensorId), eq(peaks.timestamp, timestamp)));
     });
 }
 
 /**
  *  gets all peaks for a given device
  */
-export async function getPeaksByUser(start: Date, end: Date, userId: number) {
+export async function getPeaksBySensor(start: Date, end: Date, sensorId: string) {
     return db
         .select()
         .from(peaks)
-        .innerJoin(sensorData, eq(sensorData.id, peaks.sensorDataId))
-        .where(and(eq(sensorData.userId, userId), sensorDataTimeFilter(start, end)));
+        .leftJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
+        .where(and(eq(sensorData.sensorId, sensorId), sensorDataTimeFilter(start, end)));
 }
 
 function sensorDataTimeFilter(start: Date, end: Date) {
@@ -121,10 +134,10 @@ function sensorDataTimeFilter(start: Date, end: Date) {
 /**
  * Insert sensor data
  */
-export async function insertSensorData(data: { id: string; value: number }) {
+export async function insertSensorData(data: { sensorId: string; value: number }) {
     try {
         await db.transaction(async (trx) => {
-            const userData = await trx.select().from(user).where(eq(user.sensorId, data.id));
+            const userData = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
 
             if (userData.length === 0) {
                 trx.rollback();
@@ -132,7 +145,7 @@ export async function insertSensorData(data: { id: string; value: number }) {
             }
 
             await trx.insert(sensorData).values({
-                userId: userData[0].id,
+                sensorId: userData[0].id,
                 value: data.value,
                 timestamp: sql<Date>`NOW()`,
             });
@@ -140,18 +153,4 @@ export async function insertSensorData(data: { id: string; value: number }) {
     } catch (err) {
         throw err;
     }
-}
-
-export type CreateSensorType = {
-    key: string;
-    macAddress: string;
-};
-
-export async function createSensor(createType: CreateSensorType) {
-    await db.insert(sensor)
-        .values({
-            key: createType.key,
-            code: "1234567890", // TODO: Can we remove this?,
-            macAddress: createType.macAddress
-        });
 }
