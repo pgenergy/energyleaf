@@ -48,7 +48,6 @@ export const authOptions: NextAuthConfig = {
                     name: token.name,
                     email: token.email,
                     created: token.created,
-                    sensorId: token.sensorId,
                     admin: token.admin,
                 },
             };
