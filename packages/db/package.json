@@ -15,6 +15,7 @@
         "studio": "drizzle-kit studio"
     },
     "dependencies": {
+        "@energyleaf/lib": "workspace:^",
         "@planetscale/database": "^1.14.0",
         "drizzle-orm": "^0.29.3",
         "nanoid": "^5.0.4"

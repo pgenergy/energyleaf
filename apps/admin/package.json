@@ -11,6 +11,7 @@
     "dependencies": {
         "@auth/core": "^0.21.0",
         "@energyleaf/db": "workspace:^",
+        "@energyleaf/lib": "workspace:^",
         "@energyleaf/proto": "workspace:*",
         "@energyleaf/tailwindcss": "workspace:*",
         "@energyleaf/ui": "workspace:*",

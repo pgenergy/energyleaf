@@ -48,6 +48,9 @@ importers:
       '@energyleaf/db':
         specifier: workspace:^
         version: link:../../packages/db
+      '@energyleaf/lib':
+        specifier: workspace:^
+        version: link:../../packages/lib
       '@energyleaf/proto':
         specifier: workspace:*
         version: link:../../packages/proto
@@ -154,6 +157,9 @@ importers:
       '@energyleaf/db':
         specifier: workspace:^
         version: link:../../packages/db
+      '@energyleaf/lib':
+        specifier: workspace:^
+        version: link:../../packages/lib
       '@energyleaf/tailwindcss':
         specifier: workspace:*
         version: link:../../packages/tailwindcss
@@ -251,6 +257,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@energyleaf/lib':
+        specifier: workspace:^
+        version: link:../lib
       '@planetscale/database':
         specifier: ^1.14.0
         version: 1.14.0
@@ -288,6 +297,21 @@ importers:
       eslint-config-turbo:
         specifier: ^1.11.3
         version: 1.11.3(eslint@8.56.0)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
+
+  packages/lib:
+    devDependencies:
+      '@energyleaf/eslint-config':
+        specifier: workspace:^
+        version: link:../eslint
+      '@energyleaf/tsconfig':
+        specifier: workspace:^
+        version: link:../tsconfig
+      eslint:
+        specifier: ^8.56.0
+        version: 8.56.0
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -334,6 +358,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@energyleaf/lib':
+        specifier: workspace:^
+        version: link:../lib
       '@energyleaf/tailwindcss':
         specifier: workspace:^
         version: link:../tailwindcss
@@ -6018,20 +6045,6 @@ packages:
       named-placeholders: 1.1.3
       seq-queue: 0.0.5
       sqlstring: 2.3.3
-
-  /mysql2@3.7.0:
-    resolution: {integrity: sha512-c45jA3Jc1X8yJKzrWu1GpplBKGwv/wIV6ITZTlCSY7npF2YfJR+6nMP5e+NTQhUeJPSyOQAbGDCGEHbAl8HN9w==}
-    engines: {node: '>= 8.0'}
-    dependencies:
-      denque: 2.1.0
-      generate-function: 2.3.1
-      iconv-lite: 0.6.3
-      long: 5.2.3
-      lru-cache: 8.0.5
-      named-placeholders: 1.1.3
-      seq-queue: 0.0.5
-      sqlstring: 2.3.3
-    dev: false
 
   /mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
