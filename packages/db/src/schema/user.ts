@@ -43,7 +43,7 @@ export const historyUserData = mysqlTable("history_user_data", {
     property: mysqlEnum("property", ["house", "apartment"]),
     livingSpace: int("living_space"),
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
-    monthlyPayment: int("advance_payment_electricity")
+    monthlyPayment: int("advance_payment_electricity"),
 });
 
 export const userDataTariffEnums: Record<(typeof userData.tariff.enumValues)[number], string> = {

@@ -1,18 +1,18 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
-import { peaks, sensorData, userData, sensor } from "../schema";
+import { peaks, sensor, sensorData, userData } from "../schema";
 
 /**
  * Get the energy consumption for a sensor in a given time range
  */
 export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId: string) {
     return db
-    .select()
-    .from(sensorData)
-    .where(
-        and(
-            eq(sensorData.sensorId, sensorId),
+        .select()
+        .from(sensorData)
+        .where(
+            and(
+                eq(sensorData.sensorId, sensorId),
                 or(
                     between(sensorData.timestamp, start, end),
                     eq(sensorData.timestamp, start),
@@ -93,21 +93,23 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
  */
 export async function addOrUpdatePeak(sensorId: string, timestamp: Date, deviceId: number) {
     return db.transaction(async (trx) => {
-        const data = await trx.select().from(peaks)
+        const data = await trx
+            .select()
+            .from(peaks)
             .where(and(eq(peaks.sensorId, sensorId), eq(peaks.timestamp, timestamp)));
 
         if (data.length === 0) {
             return trx.insert(peaks).values({
                 sensorId,
                 deviceId,
-                timestamp
+                timestamp,
             });
         }
 
         return trx
             .update(peaks)
             .set({
-                deviceId
+                deviceId,
             })
             .where(and(eq(peaks.sensorId, sensorId), eq(peaks.timestamp, timestamp)));
     });
@@ -162,12 +164,7 @@ export async function getElectricitySensorIdForUser(userId: number) {
     const query = await db
         .select()
         .from(sensor)
-        .where(
-            and(
-                eq(sensor.user_id, userId),
-                eq(sensor.sensor_type, 'electricity')
-            )
-        );
+        .where(and(eq(sensor.user_id, userId), eq(sensor.sensor_type, "electricity")));
 
     if (query.length === 0) {
         return null;
