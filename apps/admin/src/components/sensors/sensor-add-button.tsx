@@ -10,7 +10,6 @@ export default function SensorAddButton() {
 
     function openDialog() {
         sensorContext.setAddDialogOpen(true);
-        console.log(sensorContext)
     }
 
     return (

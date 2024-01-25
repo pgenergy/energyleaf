@@ -2,14 +2,12 @@
 
 import crypto from 'node:crypto';
 import {
-    createSensor as createSensorDb,
     getSensorsWithUser as getSensorsWithUserDb,
     SensorWithUser
 } from '@energyleaf/db/query';
 
 import 'server-only';
 import {getSession} from "@/lib/auth/auth";
-import {SensorType} from "@energyleaf/db/schema";
 
 /**
  * Generates a new unique sensor key.
@@ -33,10 +31,11 @@ export async function createUniqueSensorKey(): Promise<string> {
  */
 export async function createSensor() {
     const sensorKey: string = await createUniqueSensorKey();
-    await createSensorDb({
-        key: sensorKey,
-        macAddress: '00:00:00:00:00:01' // TODO
-    });
+    return sensorKey + "asdf"
+    // await createSensorDb({
+    //     key: sensorKey,
+    //     macAddress: '00:00:00:00:00:01' // TODO
+    // });
 }
 
 export async function getSensors() : Promise<SensorWithUser[]>  {

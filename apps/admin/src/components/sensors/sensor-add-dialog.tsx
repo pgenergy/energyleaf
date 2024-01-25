@@ -15,7 +15,7 @@ export default function SensorAddDialog() {
             open={sensorContext.addDialogOpen}
         >
             <DialogContent>
-                <DialogHeader>{"Sensor hinzufügen"}</DialogHeader>
+                <DialogHeader>Sensor hinzufügen</DialogHeader>
                 <SensorDetailsForm
                     onCallback={() => {
                         sensorContext.setAddDialogOpen(false);

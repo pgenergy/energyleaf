@@ -1,7 +1,7 @@
 import { AggregationType } from "@/types/aggregation/aggregation-type";
 
 interface AggregateData {
-    sensorId: string;
+    sensorId: number;
     energy: number;
     timestamp: string;
 }

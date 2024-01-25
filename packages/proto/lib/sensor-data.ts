@@ -17,7 +17,7 @@ export interface ELData {
     /**
      * @generated from protobuf field: string sensorId = 1;
      */
-    sensorId: string;
+    sensorId: number;
     /**
      * @generated from protobuf field: float sensorValue = 2;
      */
@@ -45,7 +45,7 @@ class ELData$Type extends MessageType<ELData> {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
                 case /* string sensorId */ 1:
-                    message.sensorId = reader.string();
+                    message.sensorId = reader.int32();
                     break;
                 case /* float sensorValue */ 2:
                     message.sensorValue = reader.float();
@@ -65,7 +65,7 @@ class ELData$Type extends MessageType<ELData> {
     }
     internalBinaryWrite(message: ELData, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* string sensorId = 1; */
-        if (message.sensorId !== "") writer.tag(1, WireType.LengthDelimited).string(message.sensorId);
+        if (message.sensorId !== 0) writer.tag(1, WireType.LengthDelimited).int32(message.sensorId);
         /* float sensorValue = 2; */
         if (message.sensorValue !== 0) writer.tag(2, WireType.Bit32).float(message.sensorValue);
         let u = options.writeUnknownFields;

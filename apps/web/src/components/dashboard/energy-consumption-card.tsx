@@ -27,7 +27,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }
 
     const userId = session.user.id;
-    const sensorId = await getElectricitySensorIdForUser(userId);
+    const sensorId = Number(await getElectricitySensorIdForUser(userId));
 
     if (!sensorId) {
         throw new Error("Kein Stromsensor für diesen Benutzer gefunden");
@@ -35,7 +35,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const data = energyData.map((entry) => ({
-        sensorId: entry.sensorId ?? "",
+        sensorId: entry.sensorId ?? 0,
         energy: entry.value,
         timestamp: entry.timestamp ? entry.timestamp.toString() : "",
     }));
@@ -110,7 +110,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                         <RawEnergyConsumptionCardChart
                             data={noAggregation ? data : aggregatedData}
                             devices={devices}
-                            peaks={noAggregation ? undefined : peakAssignments}
+                            peaks={noAggregation ? peakAssignments : undefined}
                         />
                     )}
                 </div>

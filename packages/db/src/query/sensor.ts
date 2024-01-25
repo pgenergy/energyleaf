@@ -6,7 +6,7 @@ import {peaks, sensor, sensorData, SensorType, user, userData} from "../schema";
 /**
  * Get the energy consumption for a sensor in a given time range
  */
-export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId: string) {
+export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId: number) {
     return db
         .select()
         .from(sensorData)
@@ -26,7 +26,7 @@ export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId
 /**
  * Get the average energy consumption for a sensor
  */
-export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
+export async function getAvgEnergyConsumptionForSensor(sensorId: number) {
     const query = await db
         .select({
             sensorId: sensorData.sensorId,
@@ -91,7 +91,7 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
 /**
  *  adds or updates a peak in the database
  */
-export async function addOrUpdatePeak(sensorId: string, timestamp: Date, deviceId: number) {
+export async function addOrUpdatePeak(sensorId: number, timestamp: Date, deviceId: number) {
     return db.transaction(async (trx) => {
         const data = await trx
             .select()
@@ -118,7 +118,7 @@ export async function addOrUpdatePeak(sensorId: string, timestamp: Date, deviceI
 /**
  *  gets all peaks for a given device
  */
-export async function getPeaksBySensor(start: Date, end: Date, sensorId: string) {
+export async function getPeaksBySensor(start: Date, end: Date, sensorId: number) {
     return db
         .select()
         .from(peaks)
@@ -155,7 +155,7 @@ export async function getElectricitySensorIdForUser(userId: number) {
 /**
  * Insert sensor data
  */
-export async function insertSensorData(data: { sensorId: string; value: number }) {
+export async function insertSensorData(data: { sensorId: number; value: number }) {
     try {
         await db.transaction(async (trx) => {
             const userData = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
@@ -177,11 +177,9 @@ export async function insertSensorData(data: { sensorId: string; value: number }
 }
 
 export type Sensor = {
-    id: string;
+    id: number;
     key: string | null;
     macAddress: string;
-    code: string;
-    version: number;
     sensor_type: SensorType;
     user_id: number;
 }

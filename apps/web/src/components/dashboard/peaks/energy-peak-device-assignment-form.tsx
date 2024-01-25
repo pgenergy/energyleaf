@@ -23,7 +23,7 @@ import {
 interface Props {
     devices: { id: number; userId: number; name: string; created: Date | null }[];
     initialValues: z.infer<typeof peakSchema>;
-    sensorId: string;
+    sensorId: number;
     timestamp: string;
     onInteract: () => void;
 }
