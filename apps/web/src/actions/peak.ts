@@ -6,6 +6,7 @@ import type { z } from "zod";
 import "server-only";
 
 import type { peakSchema } from "@/lib/schema/peak";
+
 import { addOrUpdatePeak as addOrUpdatePeakDb } from "@energyleaf/db/query";
 
 export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId: number, timestamp: string) {

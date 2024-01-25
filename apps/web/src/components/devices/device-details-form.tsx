@@ -23,7 +23,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof deviceSchema>) {
-        const operation = device ? "hinzugefügt" : "aktualisiert";
+        const operation = device ? "aktualisiert" : "hinzugefügt";
         toast.promise(
             async () => {
                 if (!device) {
@@ -59,7 +59,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                     )}
                 />
                 <div className="flex flex-row justify-end">
-                    <Button disabled={!device && !form.formState.isDirty} type="submit">
+                    <Button disabled={device && !form.formState.isDirty} type="submit">
                         Speichern
                     </Button>
                 </div>

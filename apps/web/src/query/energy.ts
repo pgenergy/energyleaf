@@ -3,8 +3,8 @@ import { cache } from "react";
 import {
     getAvgEnergyConsumptionForSensor as getDbAvgEnergyConsumptionForSensor,
     getAvgEnergyConsumptionForUserInComparison as getDbAvgEnergyConsumptionForUserInComparison,
-    getEnergyForSensorInRange as getDbEnergyForSensorInRange,
     getElectricitySensorIdForUser as getDbElectricitySensorIdForUser,
+    getEnergyForSensorInRange as getDbEnergyForSensorInRange,
     getPeaksBySensor as getDbPeaksBySensor,
 } from "@energyleaf/db/query";
 

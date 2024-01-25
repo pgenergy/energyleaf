@@ -19,13 +19,12 @@ export const sensorData = mysqlTable("sensor_data", {
     id: int("id").autoincrement().primaryKey().notNull(),
     sensorId: int("sensor_id"),
     value: int("value").notNull(),
-    timestamp: timestamp("timestamp")
-        .default(sql`CURRENT_TIMESTAMP`)
+    timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const peaks = mysqlTable("peaks", {
     id: int("id").autoincrement().primaryKey().notNull(),
     sensorId: int("sensor_id"),
     deviceId: int("device_id").notNull(),
-    timestamp: timestamp("timestamp")
+    timestamp: timestamp("timestamp"),
 });
