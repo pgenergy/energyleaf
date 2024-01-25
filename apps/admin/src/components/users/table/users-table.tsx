@@ -1,23 +1,19 @@
-import type { UserTableType} from "@/components/users/table/users-table-columns";
 import {usersTableColumns} from "@/components/users/table/users-table-columns";
 import {DataTable} from "@energyleaf/ui/src/ui/data-table";
+import {getAllUsers} from "@/actions/user";
 
-export default function UsersTable() {
-    const dummyData: UserTableType[] = [
-        {
-            id: 1,
-            username: "test",
-            mail: "test@uni-oldenburg.de",
-            active: true
-        },
-        {
-            id: 2,
-            username: "test2",
-            mail: "test2@uni-oldenburg.de",
-            active: false
-        }
-    ];
+export default async function UsersTable() {
+    const users = await getAllUsers();
+    const data = users.map((user) => {
+        return {
+            id: user.id,
+            username: user.username,
+            mail: user.email,
+            active: true, // TODO
+        };
+    });
+
     return (
-        <DataTable columns={usersTableColumns} data={dummyData}/>
+        <DataTable columns={usersTableColumns} data={data}/>
     );
 }

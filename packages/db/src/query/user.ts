@@ -184,3 +184,7 @@ export async function getUserDataByUserId(id: number) {
 export async function deleteUser(id: number) {
     return await db.delete(user).where(eq(user.id, id));
 }
+
+export async function getAllUsers() {
+    return await db.select().from(user);
+}
