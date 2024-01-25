@@ -7,14 +7,14 @@ import { Button } from "@energyleaf/ui";
 
 export interface SensorTableType {
     id: number;
-    key: string | null;
+    macAddress: string;
     user: string | undefined,
     type: string
 }
 
 export const sensorsColumns: ColumnDef<SensorTableType>[] = [
     {
-        accessorKey: "key",
+        accessorKey: "macAddress",
         header: ({ column }) => {
             return (
                 <Button
@@ -23,7 +23,7 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
                     }}
                     variant="ghost"
                 >
-                    Key
+                    MAC-Adresse
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
                     ) : (
@@ -33,34 +33,7 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
             );
         },
         cell: ({ row }) => {
-            return <span>{row.getValue("key")}</span>;
-        },
-    },
-    {
-        accessorKey: "user",
-        header: ({ column }) => {
-            return (
-                <Button
-                    onClick={() => {
-                        column.toggleSorting(column.getIsSorted() === "asc");
-                    }}
-                    variant="ghost"
-                >
-                    Benutzer
-                    {column.getIsSorted() === "asc" ? (
-                        <ChevronUpIcon className="ml-2 h-4 w-4" />
-                    ) : (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
-                    )}
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            const value: string | undefined = row.getValue("user");
-            if (!value) {
-                return <span>-</span>;
-            }
-            return <span>{value}</span>;
+            return <span>{row.getValue("macAddress")}</span>;
         },
     },
     {
@@ -86,6 +59,33 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
             const value: string | undefined = row.getValue("type");
             if (!value) {
                 return null;
+            }
+            return <span>{value}</span>;
+        },
+    },
+    {
+        accessorKey: "user",
+        header: ({ column }) => {
+            return (
+                <Button
+                    onClick={() => {
+                        column.toggleSorting(column.getIsSorted() === "asc");
+                    }}
+                    variant="ghost"
+                >
+                    Benutzer
+                    {column.getIsSorted() === "asc" ? (
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                    )}
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            const value: string | undefined = row.getValue("user");
+            if (!value) {
+                return <span>-</span>;
             }
             return <span>{value}</span>;
         },

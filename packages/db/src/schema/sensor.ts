@@ -12,7 +12,7 @@ export const sensor = mysqlTable("sensor", {
     key: varchar("key", { length: 40 }),
     macAddress: varchar("mac_address", { length: 17 }).notNull().unique(),
     sensor_type: mysqlEnum("sensor_type", sensorTypes).notNull(),
-    user_id: int("user_id").notNull(),
+    user_id: int("user_id"),
 });
 
 export const sensorData = mysqlTable("sensor_data", {

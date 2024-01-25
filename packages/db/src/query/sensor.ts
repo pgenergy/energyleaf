@@ -2,6 +2,7 @@ import {and, between, eq, or, sql} from "drizzle-orm";
 
 import db from "..";
 import {peaks, sensor, sensorData, SensorType, user, userData} from "../schema";
+import {SensorAlreadyExistsError} from "@energyleaf/lib/src/errors/sensor-errors";
 
 /**
  * Get the energy consumption for a sensor in a given time range
@@ -181,7 +182,7 @@ export type Sensor = {
     key: string | null;
     macAddress: string;
     sensor_type: SensorType;
-    user_id: number;
+    user_id: number | null;
 }
 
 export type User = {
@@ -199,4 +200,32 @@ export type SensorWithUser = {
 }
 export async function getSensorsWithUser(): Promise<SensorWithUser[]> {
     return db.select().from(sensor).leftJoin(user, eq(user.id, sensor.user_id));
+}
+
+export interface CreateSensorType {
+    key: string;
+    macAddress: string;
+    sensorType: SensorType;
+}
+
+export async function createSensor(createSensorType: CreateSensorType) : Promise<void> {
+    await db.transaction(async (trx) => {
+        const sensorsWithSameMacAddress = await trx.select()
+            .from(sensor)
+            .where(eq(sensor.macAddress, createSensorType.macAddress));
+        if (sensorsWithSameMacAddress.length > 0) {
+            throw new SensorAlreadyExistsError(createSensorType.macAddress);
+        }
+
+        await trx.insert(sensor).values({
+            key: createSensorType.key,
+            macAddress: createSensorType.macAddress,
+            sensor_type: createSensorType.sensorType,
+        });
+    });
+}
+
+export async function sensorExists(macAddress: string): Promise<boolean> {
+    const query = await db.select().from(sensor).where(eq(sensor.macAddress, macAddress));
+    return query.length > 0;
 }

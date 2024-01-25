@@ -18,6 +18,7 @@ import {
 } from "@energyleaf/ui";
 import {addSensorSchema} from "@/lib/schema/sensor";
 import {SensorType} from "@energyleaf/db/schema";
+import {createSensor, isSensorRegistered} from "@/actions/sensors";
 
 interface Props {
     device?: { id: number; name: string };
@@ -32,16 +33,24 @@ export default function SensorDetailsForm({ onCallback }: Props) {
     function onSubmit(data: z.infer<typeof addSensorSchema>) {
         toast.promise(
             async () => {
-                await new Promise((resolve) => {setTimeout(resolve, 1000)});
+                if (await isSensorRegistered(data.macAddress)) {
+                    form.setError("macAddress", {
+                        message: "MAC-Adresse existiert bereits",
+                    })
+                    throw new Error("MAC-Adresse existiert bereits");
+                }
+
+                await createSensor(data.macAddress, data.sensorType)
             },
             {
                 loading: "Laden...",
-                success: `Erfolgreich hinzugefügt`,
+                success: _ => {
+                    onCallback();
+                    return `Erfolgreich hinzugefügt`;
+                },
                 error: `Fehler beim Hinzufügen`,
             },
         );
-
-        onCallback();
     }
 
     const sensorTypeDescriptions: { [key in SensorType]: string } = {
@@ -55,10 +64,10 @@ export default function SensorDetailsForm({ onCallback }: Props) {
             <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                     control={form.control}
-                    name="id"
+                    name="macAddress"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>ID</FormLabel>
+                            <FormLabel>MAC-Adresse</FormLabel>
                             <FormControl>
                                 <Input {...field} />
                             </FormControl>
@@ -71,10 +80,10 @@ export default function SensorDetailsForm({ onCallback }: Props) {
                     name="sensorType"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>ID</FormLabel>
+                            <FormLabel>Typ</FormLabel>
                             <Select defaultValue={field.value} onValueChange={field.onChange}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Gerät wählen" />
+                                    <SelectValue placeholder="Sensor-Typ wählen" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {Object.values(SensorType).map((type) => (
