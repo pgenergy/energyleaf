@@ -10,7 +10,8 @@ import {
 import {
     getSensorsWithUser as getSensorsWithUserDb,
     createSensor as createSensorDb,
-    resetSensorKey as resetSensorKeyDb
+    resetSensorKey as resetSensorKeyDb,
+    deleteSensor as deleteSensorDb
 } from '@energyleaf/db/query';
 
 import 'server-only';
@@ -60,6 +61,16 @@ export async function resetSensorKey(sensorId: number) {
         revalidatePath("/sensors");
     } catch (e) {
         throw new Error("Error while resetting sensor key");
+    }
+}
+
+export async function deleteSensor(sensorId: number) {
+    await checkIfAdmin();
+    try {
+        await deleteSensorDb(sensorId);
+        revalidatePath("/sensors");
+    } catch (e) {
+        throw new Error("Error while deleting sensor");
     }
 }
 

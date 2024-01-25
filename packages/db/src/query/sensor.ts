@@ -243,3 +243,14 @@ export async function resetSensorKey(sensorId: number, sensorKey: string) {
         }).where(eq(sensor.id, sensorId));
     })
 }
+
+export async function deleteSensor(sensorId: number) {
+    await db.transaction(async (trx) => {
+        const sensors = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
+        if (sensors.length === 0) {
+            throw new Error("Sensor not found");
+        }
+
+        await trx.delete(sensor).where(eq(sensor.id, sensorId));
+    })
+}

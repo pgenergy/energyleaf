@@ -26,6 +26,11 @@ export default function SensorActionCell({ sensor }: Props) {
         sensorContext.setResetKeyDialogOpen(true);
     }
 
+    function openDeleteDialog() {
+        sensorContext.setSensor(sensor);
+        sensorContext.setDeleteDialogOpen(true);
+    }
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -47,6 +52,7 @@ export default function SensorActionCell({ sensor }: Props) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                     className="flex cursor-pointer flex-row gap-2 text-destructive"
+                    onClick={openDeleteDialog}
                 >
                     <TrashIcon className="h-4 w-4" />
                     Löschen
