@@ -7,14 +7,12 @@ interface CustomJWT extends JWT {
     name: string;
     email: string;
     created: string | null;
-    sensorId: string;
     admin: boolean;
 }
 
 interface CustomUser extends AdapterUser {
     id: string;
     created: string | null;
-    sensorId: string;
     admin: boolean;
 }
 
@@ -24,7 +22,6 @@ interface CustomSession extends DefaultSession {
         name: string;
         email: string;
         created: string | null;
-        sensorId: string;
         admin: boolean;
     };
 }

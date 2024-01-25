@@ -1,6 +1,7 @@
 import { AggregationType } from "@/types/aggregation/aggregation-type";
 
 interface AggregateData {
+    sensorId: string;
     energy: number;
     timestamp: string;
 }
@@ -33,11 +34,13 @@ const handleHourOption = (data: AggregateData[]) => {
         if (energyConsumptionPerHour.has(hourKey)) {
             const prevEnergy = energyConsumptionPerHour.get(hourKey)?.energy || 0;
             energyConsumptionPerHour.set(hourKey, {
+                sensorId: value.sensorId,
                 energy: prevEnergy + value.energy,
                 timestamp: value.timestamp,
             });
         } else {
             energyConsumptionPerHour.set(hourKey, {
+                sensorId: value.sensorId,
                 energy: value.energy,
                 timestamp: value.timestamp,
             });
@@ -57,11 +60,13 @@ const handleDayOption = (data: AggregateData[]) => {
         if (energyConsumptionPerDay.has(date)) {
             const prevEnergy = energyConsumptionPerDay.get(date)?.energy || 0;
             energyConsumptionPerDay.set(date, {
+                sensorId: value.sensorId,
                 energy: prevEnergy + value.energy,
                 timestamp: value.timestamp,
             });
         } else {
             energyConsumptionPerDay.set(date, {
+                sensorId: value.sensorId,
                 energy: value.energy,
                 timestamp: value.timestamp,
             });
@@ -84,11 +89,13 @@ const handleMonthOption = (data: AggregateData[]) => {
         if (energyConsumptionPerMonth.has(dateKey)) {
             const prevEnergy = energyConsumptionPerMonth.get(dateKey)?.energy || 0;
             energyConsumptionPerMonth.set(dateKey, {
+                sensorId: value.sensorId,
                 energy: prevEnergy + value.energy,
                 timestamp: value.timestamp,
             });
         } else {
             energyConsumptionPerMonth.set(dateKey, {
+                sensorId: value.sensorId,
                 energy: value.energy,
                 timestamp: value.timestamp,
             });
@@ -108,11 +115,13 @@ const handleYearOption = (data: AggregateData[]) => {
         if (energyConsumptionPerYear.has(year)) {
             const prevEnergy = energyConsumptionPerYear.get(year)?.energy || 0;
             energyConsumptionPerYear.set(year, {
+                sensorId: value.sensorId,
                 energy: prevEnergy + value.energy,
                 timestamp: value.timestamp,
             });
         } else {
             energyConsumptionPerYear.set(year, {
+                sensorId: value.sensorId,
                 energy: value.energy,
                 timestamp: value.timestamp,
             });

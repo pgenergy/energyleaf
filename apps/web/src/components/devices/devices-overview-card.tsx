@@ -1,48 +1,32 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/auth";
-import { getDevicesByUser } from "@/query/device";
+import { Suspense } from "react";
+import { DeviceContextProvider } from "@/hooks/device-hook";
 
-import { device } from "@energyleaf/db/schema";
-import type { SortOrder } from "@energyleaf/db/util";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
 
-import DevicesTable from "./devices-tables";
+import DeviceAddButton from "./device-add-button";
+import { DeviceDeleteDialog } from "./device-delete-dialog";
+import DeviceEditDialog from "./device-edit-dialog";
+import DevicesTable from "./devices-table";
 
-export default async function DevicesOverviewCard({
-    searchParams,
-}: {
-    searchParams: { sortOrder: SortOrder; sortProp: string };
-}) {
-    const session = await getSession();
-    if (!session) {
-        redirect("/");
-    }
-
-    let sortProp: (x: typeof device) => (typeof device)[keyof typeof device] = (x) => x.name;
-    if (searchParams.sortProp) {
-        const prop = Object.keys(device).find((x) => x === searchParams.sortProp) as keyof typeof device | undefined;
-        if (prop) {
-            sortProp = (x) => x[prop];
-        }
-    }
-
-    const userId = session.user.id;
-    const devices = await getDevicesByUser(userId, searchParams.sortOrder, sortProp);
-
+export default function DevicesOverviewCard() {
     return (
-        <Card className="w-full">
-            <CardHeader>
-                <CardTitle>Deine Geräte</CardTitle>
-                <CardDescription>Hier siehst du alle deine Geräte und kannst diese verwalten.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <DevicesTable
-                    devices={devices}
-                    sortOrder={searchParams.sortOrder}
-                    sortProp={searchParams.sortProp}
-                    userId={userId}
-                />
-            </CardContent>
-        </Card>
+        <DeviceContextProvider>
+            <DeviceEditDialog />
+            <DeviceDeleteDialog />
+            <Card className="w-full">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div className="flex flex-col gap-2">
+                        <CardTitle>Deine Geräte</CardTitle>
+                        <CardDescription>Hier siehst du alle deine Geräte und kannst diese verwalten.</CardDescription>
+                    </div>
+                    <DeviceAddButton />
+                </CardHeader>
+                <CardContent>
+                    <Suspense fallback={<Skeleton className="h-96" />}>
+                        <DevicesTable />
+                    </Suspense>
+                </CardContent>
+            </Card>
+        </DeviceContextProvider>
     );
 }

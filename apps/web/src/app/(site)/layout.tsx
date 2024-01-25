@@ -43,11 +43,12 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                         <NavbarAvatar user={session.user} />
                     </>
                 }
+                links={navLinks}
                 title="Energyleaf"
                 titleLink="/dashboard"
             />
             <Sidebar links={navLinks} />
-            <main className="ml-[13%] mt-14 px-8 py-8">{children}</main>
+            <main className="ml-0 mt-14 px-8 py-8 md:ml-[13%]">{children}</main>
             <Footer />
         </>
     );

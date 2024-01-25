@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth";
-import { getEnergyDataForSensor, getElectricitySensorIdForUser } from "@/query/energy";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserData } from "@/query/user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -63,7 +63,9 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                 {cost !== null ? (
                     <>
                         <h1 className="text-center text-2xl font-bold text-primary">{cost} €</h1>
-                        <h2 className="text-center text-xl font-bold text-primary">Mtl. Abschlag : {monthlyPayment} €</h2>
+                        <h2 className="text-center text-xl font-bold text-primary">
+                            Mtl. Abschlag : {monthlyPayment} €
+                        </h2>
                     </>
                 ) : (
                     <Link
