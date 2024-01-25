@@ -229,3 +229,17 @@ export async function sensorExists(macAddress: string): Promise<boolean> {
     const query = await db.select().from(sensor).where(eq(sensor.macAddress, macAddress));
     return query.length > 0;
 }
+
+export async function resetSensorKey(sensorId: number, sensorKey: string) {
+    await db.transaction(async (trx) => {
+        const sensors = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
+        if (sensors.length === 0) {
+            throw new Error("Sensor not found");
+        }
+
+        await trx.update(sensor).set({
+            key: sensorKey,
+            user_id: null
+        }).where(eq(sensor.id, sensorId));
+    })
+}

@@ -4,6 +4,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 import { Button } from "@energyleaf/ui";
+import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
 
 export interface SensorTableType {
     id: number;
@@ -89,5 +90,12 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
             }
             return <span>{value}</span>;
         },
-    }
+    },
+    {
+        id: "actions",
+        cell: ({ row }) => {
+            const sensor = row.original;
+            return <SensorActionCell sensor={sensor} />;
+        },
+    },
 ];

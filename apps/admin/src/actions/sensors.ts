@@ -9,7 +9,8 @@ import {
 } from '@energyleaf/db/query';
 import {
     getSensorsWithUser as getSensorsWithUserDb,
-    createSensor as createSensorDb
+    createSensor as createSensorDb,
+    resetSensorKey as resetSensorKeyDb
 } from '@energyleaf/db/query';
 
 import 'server-only';
@@ -33,7 +34,7 @@ function createUniqueSensorKey(): string {
 export async function createSensor(macAddress: string, sensorType: SensorType): Promise<void> {
     await checkIfAdmin();
 
-    const sensorKey: string = await createUniqueSensorKey();
+    const sensorKey: string = createUniqueSensorKey();
     await createSensorDb({
         key: sensorKey,
         macAddress,
@@ -50,6 +51,16 @@ export async function isSensorRegistered(macAddress: string): Promise<boolean> {
 export async function getSensors() : Promise<SensorWithUser[]>  {
     await checkIfAdmin()
     return getSensorsWithUserDb()
+}
+
+export async function resetSensorKey(sensorId: number) {
+    await checkIfAdmin();
+    try {
+        await resetSensorKeyDb(sensorId, createUniqueSensorKey());
+        revalidatePath("/sensors");
+    } catch (e) {
+        throw new Error("Error while resetting sensor key");
+    }
 }
 
 async function checkIfAdmin() {
