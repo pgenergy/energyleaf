@@ -8,7 +8,7 @@ import {
     ChevronDownIcon,
     ChevronUpIcon
 } from "lucide-react";
-import UserDetailsButton from "@/components/users/table/users-details-button";
+import UserActionCell from "@/components/users/table/user-action-cell";
 
 export interface UserTableType {
     id: number;
@@ -117,7 +117,7 @@ export const usersTableColumns: ColumnDef<UserTableType>[] = [
     {
         id: 'actions',
         cell: ({row}) => {
-            return <UserDetailsButton user={row.original}/>;
+            return <UserActionCell user={row.original}/>
         }
     }
 ]
