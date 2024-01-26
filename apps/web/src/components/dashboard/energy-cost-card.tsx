@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth";
-import { getEnergyDataForSensor, getElectricitySensorIdForUser } from "@/query/energy";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
 import { getUserData } from "@/query/user";
 import { format } from "date-fns";

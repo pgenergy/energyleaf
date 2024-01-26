@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { clsx } from "clsx";
 import { format, isValid } from "date-fns";
 import { Area, AreaChart, Label, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
@@ -110,10 +111,9 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 />
                 {referencePoints
                     ? referencePoints.data.map((value) => {
-                          const dotClassName = referencePoints.callback ? "cursor-pointer" : "cursor-default"
                           return (
                               <ReferenceDot
-                                  className={dotClassName}
+                                  className={clsx(referencePoints.callback ? "cursor-pointer" : "cursor-default")}
                                   fill="hsl(var(--destructive))"
                                   isFront
                                   key={`${value[referencePoints.xKeyName]?.toString()}-${value[

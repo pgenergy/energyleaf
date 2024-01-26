@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth";
-import { getAvgEnergyConsumptionForSensor, getAvgEnergyConsumptionForUserInComparison, getElectricitySensorIdForUser } from "@/query/energy";
+import {
+    getAvgEnergyConsumptionForSensor,
+    getAvgEnergyConsumptionForUserInComparison,
+    getElectricitySensorIdForUser,
+} from "@/query/energy";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 

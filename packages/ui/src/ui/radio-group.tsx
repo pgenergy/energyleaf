@@ -17,7 +17,7 @@ RadioGroup.displayName = RadioGroupPrimitive.Root.displayName;
 const RadioGroupItem = React.forwardRef<
     React.ElementRef<typeof RadioGroupPrimitive.Item>,
     React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- this is used
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- this is used
 >(({ className, children, ...props }, ref) => {
     return (
         <RadioGroupPrimitive.Item
