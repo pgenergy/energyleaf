@@ -25,19 +25,19 @@ export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId
             .orderBy(sensorData.timestamp);
     }
 
-    let dateSelect = sql<Date>`DATE_TRUNC('hour', ${sensorData.timestamp})`;
+    let grouper = sql<string | number>`EXTRACT(hour FROM ${sensorData.timestamp})`;
     switch (aggregation) {
         case AggregationType.DAY:
-            dateSelect = sql<Date>`DATE_TRUNC('day', ${sensorData.timestamp})`;
+            grouper = sql<string | number>`EXTRACT(day FROM ${sensorData.timestamp})`;
             break;
         case AggregationType.WEEK:
-            dateSelect = sql<Date>`DATE_TRUNC('week', ${sensorData.timestamp})`;
+            grouper = sql<string | number>`EXTRACT(week FROM ${sensorData.timestamp})`;
             break;
         case AggregationType.MONTH:
-            dateSelect = sql<Date>`DATE_TRUNC('month', ${sensorData.timestamp})`;
+            grouper = sql<string | number>`EXTRACT(month FROM ${sensorData.timestamp})`;
             break;
         case AggregationType.YEAR:
-            dateSelect = sql<Date>`DATE_TRUNC('year', ${sensorData.timestamp})`;
+            grouper = sql<string | number>`EXTRACT(year FROM ${sensorData.timestamp})`;
             break;
     }
 
@@ -46,7 +46,8 @@ export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId
             id: sensorData.id,
             sensorId: sensorData.sensorId,
             value: sql<number>`AVG(${sensorData.value})`,
-            timestamp: dateSelect,
+            timestamp: sensorData.timestamp,
+            grouper: grouper,
         })
         .from(sensorData)
         .where(
@@ -59,8 +60,8 @@ export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId
                 ),
             ),
         )
-        .groupBy(dateSelect, sensorData.sensorId)
-        .orderBy(dateSelect);
+        .groupBy(grouper, sensorData.sensorId)
+        .orderBy(grouper);
 }
 
 /**
