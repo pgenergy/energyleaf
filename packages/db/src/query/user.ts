@@ -188,3 +188,7 @@ export async function deleteUser(id: number) {
 export async function getAllUsers() {
     return await db.select().from(user);
 }
+
+export async function setUserActive(id: number, active: boolean) {
+    return await db.update(user).set({ active }).where(eq(user.id, id));
+}

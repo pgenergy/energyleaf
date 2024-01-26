@@ -9,7 +9,7 @@ export default async function UsersTable() {
             id: user.id,
             username: user.username,
             mail: user.email,
-            active: true, // TODO
+            active: user.active,
         };
     });
 
