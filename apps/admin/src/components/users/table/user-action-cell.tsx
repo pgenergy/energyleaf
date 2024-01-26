@@ -1,6 +1,6 @@
 "use client";
 
-import {BanIcon, CheckCircle2Icon, InfoIcon, KeyIcon, LockIcon, MoreVerticalIcon, TrashIcon} from "lucide-react";
+import {BanIcon, CheckCircle2Icon, InfoIcon, KeyIcon, MoreVerticalIcon, TrashIcon} from "lucide-react";
 
 import {
     Button,
@@ -16,17 +16,24 @@ import {useRouter} from "next/navigation";
 import {useTransition} from "react";
 import {toast} from "sonner";
 import {setUserActive} from "@/actions/user";
+import {useUserContext} from "@/hooks/user-hook";
 
 interface Props {
     user: UserTableType;
 }
 
-export default function UserActionCell({ user }: Props) {
+export default function UserActionCell({user}: Props) {
     const [pending, startTransition] = useTransition();
     const router = useRouter()
+    const userContext = useUserContext();
 
     function openDetails() {
         router.push(`/users/${user.id}`)
+    }
+
+    function openDeleteDialog() {
+        userContext.setUser(user);
+        userContext.setDeleteDialogOpen(true);
     }
 
     function toggleActive() {
@@ -34,12 +41,10 @@ export default function UserActionCell({ user }: Props) {
             const operation = user.active ? "deaktiviert" : "aktiviert";
 
             toast.promise(
-                async () => await setUserActive(user.id, !user.active),
+                setUserActive(user.id, !user.active),
                 {
                     loading: `User wird ${operation}...`,
-                    success: () => {
-                        return `User wurde erfolgreich ${operation}.`;
-                    },
+                    success: `User wurde erfolgreich ${operation}.`,
                     error: `User konnte aufgrund eines Fehlers nicht ${operation} werden.`,
                 }
             );
@@ -50,18 +55,18 @@ export default function UserActionCell({ user }: Props) {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button size="icon" variant="ghost">
-                    <MoreVerticalIcon className="h-4 w-4" />
+                    <MoreVerticalIcon className="h-4 w-4"/>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Aktionen</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator/>
                 <DropdownMenuItem
                     className="flex cursor-pointer flex-row gap-2"
                     disabled={pending}
                     onClick={openDetails}
                 >
-                    <InfoIcon className="h-4 w-4" />
+                    <InfoIcon className="h-4 w-4"/>
                     Details
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -69,22 +74,23 @@ export default function UserActionCell({ user }: Props) {
                     disabled={pending}
                     onClick={toggleActive}
                 >
-                    {(user.active ? <BanIcon className="h-4 w-4" /> : <CheckCircle2Icon className="h-4 w-4" />)}
+                    {(user.active ? <BanIcon className="h-4 w-4"/> : <CheckCircle2Icon className="h-4 w-4"/>)}
                     {user.active ? "Deaktivieren" : "Aktivieren"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     className="flex cursor-pointer flex-row gap-2"
                     disabled={pending}
                 >
-                    <KeyIcon className="h-4 w-4" />
+                    <KeyIcon className="h-4 w-4"/>
                     Passwort zurücksetzen
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator/>
                 <DropdownMenuItem
                     className="flex cursor-pointer flex-row gap-2 text-destructive"
                     disabled={pending}
+                    onClick={openDeleteDialog}
                 >
-                    <TrashIcon className="h-4 w-4" />
+                    <TrashIcon className="h-4 w-4"/>
                     Löschen
                 </DropdownMenuItem>
             </DropdownMenuContent>

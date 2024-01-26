@@ -1,8 +1,12 @@
 "use server";
 
 import 'server-only';
-import { getAllUsers as getAllUsersDb, setUserActive as setUserActiveDb } from "@energyleaf/db/query";
-import { cache } from "react";
+import {
+    getAllUsers as getAllUsersDb,
+    setUserActive as setUserActiveDb,
+    deleteUser as deleteUserDb
+} from "@energyleaf/db/query";
+import {cache} from "react";
 import {getSession} from "@/lib/auth/auth";
 import {UserNotLoggedInError} from "@energyleaf/lib";
 import {revalidatePath} from "next/cache";
@@ -21,6 +25,17 @@ export async function setUserActive(id: number, active: boolean) {
         revalidatePath("/users")
     } catch (e) {
         throw new Error("Failed to set user active");
+    }
+}
+
+export async function deleteUser(id: number) {
+
+    await validateUserAdmin();
+    try {
+        await deleteUserDb(id);
+        revalidatePath("/users")
+    } catch (e) {
+        throw new Error("Failed to delete user");
     }
 }
 
