@@ -10,6 +10,8 @@ import * as bcrypt from "bcryptjs";
 import type { z } from "zod";
 
 import { createUser, getUserByMail, type CreateUserType } from "@energyleaf/db/query";
+import {UserNotActiveError} from "@energyleaf/lib";
+import {CallbackRouteError} from "@auth/core/errors";
 
 /**
  * Server action for creating a new account
@@ -61,6 +63,10 @@ export async function signInAction(email: string, password: string) {
     } catch (err: unknown) {
         if (isRedirectError(err)) {
             return redirect("/dashboard");
+        }
+
+        if (err instanceof CallbackRouteError && err.cause.err instanceof UserNotActiveError) {
+            throw new Error("Benutzer ist nicht aktiv. Bitte wende dich an einen Administrator.");
         }
 
         throw new Error("Benutername oder Passwort falsch.");
