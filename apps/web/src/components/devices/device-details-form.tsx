@@ -59,7 +59,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                     )}
                 />
                 <div className="flex flex-row justify-end">
-                    <Button disabled={device && !form.formState.isDirty} type="submit">
+                    <Button disabled={device !== undefined && !form.formState.isDirty} type="submit">
                         Speichern
                     </Button>
                 </div>
