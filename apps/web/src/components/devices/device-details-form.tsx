@@ -11,38 +11,35 @@ import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 
 interface Props {
     device?: { id: number; name: string };
-    userId: string;
-    onInteract: () => void;
+    onCallback: () => void;
 }
 
-export default function DeviceDetailsForm({ device, onInteract, userId }: Props) {
-    const isNew = !device;
-    const deviceName = device?.name ?? "";
+export default function DeviceDetailsForm({ device, onCallback }: Props) {
     const form = useForm<z.infer<typeof deviceSchema>>({
         resolver: zodResolver(deviceSchema),
         defaultValues: {
-            deviceName,
+            deviceName: device?.name ?? "",
         },
     });
 
     function onSubmit(data: z.infer<typeof deviceSchema>) {
-        const operation = isNew ? "hinzugefügt" : "aktualisiert";
+        const operation = device ? "aktualisiert" : "hinzugefügt";
         toast.promise(
             async () => {
-                if (isNew) {
-                    await createDevice(data, userId);
+                if (!device) {
+                    await createDevice(data);
                 } else {
-                    await updateDevice(data, Number(device.id), userId);
+                    await updateDevice(data, Number(device.id));
                 }
             },
             {
                 loading: "Laden...",
                 success: `Erfolgreich ${operation}`,
-                error: `Fehler beim ${isNew ? "Hinzufügen" : "Aktualisieren"}`,
+                error: `Fehler beim ${!device ? "Hinzufügen" : "Aktualisieren"}`,
             },
         );
 
-        onInteract();
+        onCallback();
     }
 
     return (
@@ -62,7 +59,7 @@ export default function DeviceDetailsForm({ device, onInteract, userId }: Props)
                     )}
                 />
                 <div className="flex flex-row justify-end">
-                    <Button disabled={!isNew && !form.formState.isDirty} type="submit">
+                    <Button disabled={device && !form.formState.isDirty} type="submit">
                         Speichern
                     </Button>
                 </div>

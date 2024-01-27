@@ -16,5 +16,4 @@ export const signupSchema = z.object({
         .email({ message: "Bitte gib eine gültige E-Mail an." }),
     password: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
     passwordRepeat: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
-    sensorId: z.string().nonempty({ message: "Bitte gib eine Sensor-ID an." }),
 });

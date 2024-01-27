@@ -134,21 +134,23 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
  */
 export async function addOrUpdatePeak(sensorId: string, timestamp: Date, deviceId: number) {
     return db.transaction(async (trx) => {
-        const data = await trx.select().from(peaks)
+        const data = await trx
+            .select()
+            .from(peaks)
             .where(and(eq(peaks.sensorId, sensorId), eq(peaks.timestamp, timestamp)));
 
         if (data.length === 0) {
             return trx.insert(peaks).values({
                 sensorId,
                 deviceId,
-                timestamp
+                timestamp,
             });
         }
 
         return trx
             .update(peaks)
             .set({
-                deviceId
+                deviceId,
             })
             .where(and(eq(peaks.sensorId, sensorId), eq(peaks.timestamp, timestamp)));
     });
@@ -203,12 +205,7 @@ export async function getElectricitySensorIdForUser(userId: number) {
     const query = await db
         .select()
         .from(sensor)
-        .where(
-            and(
-                eq(sensor.user_id, userId),
-                eq(sensor.sensor_type, 'electricity')
-            )
-        );
+        .where(and(eq(sensor.user_id, userId), eq(sensor.sensor_type, "electricity")));
 
     if (query.length === 0) {
         return null;
