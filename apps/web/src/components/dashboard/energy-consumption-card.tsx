@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth";
 import { getDevicesByUser } from "@/query/device";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor, getPeaksBySensor } from "@/query/energy";
-import { AggregationType } from "@/types/aggregation/aggregation-type";
 import type { PeakAssignment } from "@/types/peaks/peak";
 import { differenceInMinutes } from "date-fns";
 
@@ -35,10 +34,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     let aggregation = AggregationType.RAW;
     if (aggregationType) {
-        aggregation = aggregationType as AggregationType;
-        if (!Object.values(AggregationType).includes(aggregation)) {
-            aggregation = AggregationType.RAW;
-        }
+        aggregation = AggregationType[aggregationType.toUpperCase() as keyof typeof AggregationType];
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
@@ -95,7 +91,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 </div>
                 <div className="flex flex-row gap-4">
                     <DashboardDateRange endDate={endDate} startDate={startDate} />
-                    <DashboardEnergyAggregation endDate={endDate} startDate={startDate} />
+                    <DashboardEnergyAggregation endDate={endDate} selected={aggregation} startDate={startDate} />
                 </div>
             </CardHeader>
             <CardContent>
@@ -106,9 +102,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                         </div>
                     ) : (
                         <RawEnergyConsumptionCardChart
-                            data={noAggregation ? data : aggregatedData}
+                            data={data}
                             devices={devices}
-                            peaks={noAggregation ? undefined : peakAssignments}
+                            peaks={hasAggregation ? undefined : peakAssignments}
                         />
                     )}
                 </div>
