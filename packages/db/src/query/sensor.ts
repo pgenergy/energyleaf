@@ -1,13 +1,18 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
 
 import db from "..";
-import { peaks, sensorData, userData, sensor } from "../schema";
+import { peaks, sensor, sensorData, userData } from "../schema";
 import { AggregationType } from "../types/types";
 
 /**
  * Get the energy consumption for a sensor in a given time range
  */
-export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) {
+export async function getEnergyForSensorInRange(
+    start: Date,
+    end: Date,
+    sensorId: string,
+    aggregation = AggregationType.RAW,
+) {
     if (aggregation === AggregationType.RAW) {
         return db
             .select()
@@ -26,27 +31,31 @@ export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId
     }
 
     let grouper = sql<string | number>`EXTRACT(hour FROM ${sensorData.timestamp})`;
+    let timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-%m-%d %H:00:00') AS DATETIME)`;
     switch (aggregation) {
         case AggregationType.DAY:
             grouper = sql<string | number>`EXTRACT(day FROM ${sensorData.timestamp})`;
+            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-%m-%d 00:00:00') AS DATETIME)`;
             break;
         case AggregationType.WEEK:
-            grouper = sql<string | number>`EXTRACT(week FROM ${sensorData.timestamp})`;
+            grouper = sql<string | number>`EXTRACT(week FROM ${sensorData.timestamp})`;
+            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-%m-%d 00:00:00') AS DATETIME)`;
             break;
         case AggregationType.MONTH:
             grouper = sql<string | number>`EXTRACT(month FROM ${sensorData.timestamp})`;
+            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-%m-01 00:00:00') AS DATETIME)`;
             break;
         case AggregationType.YEAR:
             grouper = sql<string | number>`EXTRACT(year FROM ${sensorData.timestamp})`;
+            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-01-01 00:00:00') AS DATETIME)`;
             break;
     }
 
-    return db
+    const query = await db
         .select({
-            id: sensorData.id,
             sensorId: sensorData.sensorId,
             value: sql<number>`AVG(${sensorData.value})`,
-            timestamp: sensorData.timestamp,
+            timestamp: timestamp,
             grouper: grouper,
         })
         .from(sensorData)
@@ -60,8 +69,15 @@ export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId
                 ),
             ),
         )
-        .groupBy(grouper, sensorData.sensorId)
+        .groupBy(grouper, timestamp)
         .orderBy(grouper);
+
+    return query.map((row) => ({
+        id: Math.random(),
+        timestamp: row.timestamp as Date | null,
+        value: Number(row.value),
+        sensorId: row.sensorId as string | null,
+    }));
 }
 
 /**
