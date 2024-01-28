@@ -68,7 +68,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                     <>
                         <h1 className="text-center text-2xl font-bold text-primary">{cost} €</h1>
                         <p className={`text-center ${Number(cost) > Number(calculatedPayment) ? 'text-red-500' : 'white'}`}>Abschlag: {calculatedPayment} €</p>
-                        <p className="text-center">Hochrechnung 0{new Date().getMonth()+1}.{new Date().getFullYear()}: {predictedCost} €</p>
+                        <p className="text-center">Hochrechnung {new Date().getMonth()+1}.{new Date().getFullYear()}: {predictedCost} €</p>
                     </>
                 ) : (
                     <Link
