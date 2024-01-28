@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 
 import DashboardDateRange from "./date-range";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
-import RawEnergyConsumptionCardChart from "./energy-consumption-card-chart";
+import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
 interface Props {
     startDate: Date;
@@ -91,7 +91,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 </div>
                 <div className="flex flex-row gap-4">
                     <DashboardDateRange endDate={endDate} startDate={startDate} />
-                    <DashboardEnergyAggregation endDate={endDate} selected={aggregation} startDate={startDate} />
+                    <DashboardEnergyAggregation selected={aggregation} />
                 </div>
             </CardHeader>
             <CardContent>
@@ -101,7 +101,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                         </div>
                     ) : (
-                        <RawEnergyConsumptionCardChart
+                        <EnergyConsumptionCardChart
                             data={data}
                             devices={devices}
                             peaks={hasAggregation ? undefined : peakAssignments}

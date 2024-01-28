@@ -31,11 +31,12 @@ export async function getEnergyForSensorInRange(
     }
 
     let grouper = sql<string | number>`EXTRACT(hour FROM ${sensorData.timestamp})`;
-    let timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-%m-%d %H:00:00') AS DATETIME)`;
+    // needs to be hacky because we need a fixed date for the grouping
+    let timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '2000-01-01 %H:00:00') AS DATETIME)`;
     switch (aggregation) {
         case AggregationType.DAY:
             grouper = sql<string | number>`EXTRACT(day FROM ${sensorData.timestamp})`;
-            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-%m-%d 00:00:00') AS DATETIME)`;
+            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '2000-01-%d 00:00:00') AS DATETIME)`;
             break;
         case AggregationType.WEEK:
             grouper = sql<string | number>`EXTRACT(week FROM ${sensorData.timestamp})`;
