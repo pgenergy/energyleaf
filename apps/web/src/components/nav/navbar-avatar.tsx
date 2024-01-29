@@ -56,7 +56,7 @@ export default function NavbarAvatar({ user }: Props) {
                 <DropdownMenuItem asChild className="cursor-pointer">
                     <Link href="/profile">
                         <User2Icon className="mr-2 h-4 w-4" />
-                        Profile
+                        Profil
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
