@@ -1,6 +1,15 @@
 "use client";
 
-import {BanIcon, CheckCircle2Icon, InfoIcon, KeyIcon, MoreVerticalIcon, TrashIcon} from "lucide-react";
+import {
+    BanIcon,
+    CheckCircle2Icon,
+    InfoIcon,
+    KeyIcon,
+    MoreVerticalIcon,
+    TrashIcon,
+    UserMinusIcon,
+    UserPlusIcon
+} from "lucide-react";
 
 import {
     Button,
@@ -15,7 +24,7 @@ import type {UserTableType} from "@/components/users/table/users-table-columns";
 import {useRouter} from "next/navigation";
 import {useTransition} from "react";
 import {toast} from "sonner";
-import {setUserActive} from "@/actions/user";
+import {setUserActive, toggleUserAdmin} from "@/actions/user";
 import {useUserContext} from "@/hooks/user-hook";
 
 interface Props {
@@ -51,6 +60,19 @@ export default function UserActionCell({user}: Props) {
         });
     }
 
+    function toggleIsAdmin() {
+        startTransition(() => {
+            toast.promise(
+                toggleUserAdmin(user.id),
+                {
+                    loading: `User-Rechte werden aktualisiert...`,
+                    success: `User-Rechte wurden erfolgreich aktualisiert.`,
+                    error: `User-Rechte konnten aufgrund eines Fehlers nicht aktualisiert werden.`,
+                }
+            );
+        });
+    }
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -76,6 +98,14 @@ export default function UserActionCell({user}: Props) {
                 >
                     {(user.active ? <BanIcon className="h-4 w-4"/> : <CheckCircle2Icon className="h-4 w-4"/>)}
                     {user.active ? "Deaktivieren" : "Aktivieren"}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    className="flex cursor-pointer flex-row gap-2"
+                    disabled={pending}
+                    onClick={toggleIsAdmin}
+                >
+                    {(user.isAdmin ? <UserMinusIcon className="h-4 w-4"/> : <UserPlusIcon className="h-4 w-4"/>)}
+                    {user.isAdmin ? "Adminrechte entziehen" : "Adminrechte geben"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     className="flex cursor-pointer flex-row gap-2"

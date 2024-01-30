@@ -15,6 +15,7 @@ export interface UserTableType {
     username: string;
     mail: string;
     active: boolean;
+    isAdmin: boolean;
 }
 
 export const usersTableColumns: ColumnDef<UserTableType>[] = [

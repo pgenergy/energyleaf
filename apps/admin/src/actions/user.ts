@@ -4,7 +4,8 @@ import 'server-only';
 import {
     getAllUsers as getAllUsersDb,
     setUserActive as setUserActiveDb,
-    deleteUser as deleteUserDb
+    deleteUser as deleteUserDb,
+    toggleUserAdmin as toggleUserAdminDb
 } from "@energyleaf/db/query";
 import {cache} from "react";
 import {getSession} from "@/lib/auth/auth";
@@ -25,6 +26,17 @@ export async function setUserActive(id: number, active: boolean) {
         revalidatePath("/users")
     } catch (e) {
         throw new Error("Failed to set user active");
+    }
+}
+
+export async function toggleUserAdmin(id: number) {
+    await validateUserAdmin();
+
+    try {
+        await toggleUserAdminDb(id);
+        revalidatePath("/users")
+    } catch (e) {
+        throw new Error("Failed to set user admin");
     }
 }
 

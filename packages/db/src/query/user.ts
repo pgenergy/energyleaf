@@ -192,3 +192,15 @@ export async function getAllUsers() {
 export async function setUserActive(id: number, active: boolean) {
     return await db.update(user).set({ active }).where(eq(user.id, id));
 }
+
+export async function toggleUserAdmin(id: number) {
+    await db.transaction(async (trx) => {
+        const query = await trx.select().from(user).where(eq(user.id, id));
+
+        if (query.length === 0) {
+            throw new Error("User not found");
+        }
+
+        await trx.update(user).set({ isAdmin: !query[0].isAdmin }).where(eq(user.id, id));
+    });
+}
