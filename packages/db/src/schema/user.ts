@@ -4,10 +4,9 @@ import { boolean, float, int, mysqlEnum, mysqlTable, timestamp, varchar } from "
 export const user = mysqlTable("user", {
     id: int("id").autoincrement().primaryKey().notNull(),
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
-    email: varchar("email", { length: 30 }).notNull(),
+    email: varchar("email", { length: 256 }).notNull(),
     username: varchar("username", { length: 30 }).notNull(),
     password: varchar("password", { length: 256 }).notNull(),
-    sensorId: varchar("sensor_id", { length: 30 }).notNull(),
     isAdmin: boolean("is_admin").default(false).notNull(),
 });
 
@@ -44,7 +43,7 @@ export const historyUserData = mysqlTable("history_user_data", {
     property: mysqlEnum("property", ["house", "apartment"]),
     livingSpace: int("living_space"),
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
-    monthlyPayment: int("advance_payment_electricity")
+    monthlyPayment: int("advance_payment_electricity"),
 });
 
 export const userDataTariffEnums: Record<(typeof userData.tariff.enumValues)[number], string> = {

@@ -34,23 +34,21 @@ export const authOptions: NextAuthConfig = {
                 token.name = passedUser.name;
                 token.email = passedUser.email;
                 token.created = passedUser.created?.toString() ?? null;
-                token.sensorId = passedUser.sensorId;
                 token.admin = passedUser.admin;
             }
 
             return Promise.resolve(token as CustomJWT satisfies CustomJWT);
         },
-        session: async ({ session, token }) => {
-            const customToken = token as CustomJWT;
+        session: async (params) => {
+            const { session, token } = params as unknown as { session: CustomSession; token: CustomJWT };
             const customSession: CustomSession = {
                 ...session,
                 user: {
-                    id: customToken.id,
-                    name: customToken.name,
-                    email: customToken.email,
-                    created: customToken.created,
-                    sensorId: customToken.sensorId,
-                    admin: customToken.admin,
+                    id: token.id,
+                    name: token.name,
+                    email: token.email,
+                    created: token.created,
+                    admin: token.admin,
                 },
             };
 

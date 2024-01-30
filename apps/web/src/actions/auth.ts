@@ -22,10 +22,20 @@ import { createUser, getUserByMail, type CreateUserType } from "@energyleaf/db/q
  * Server action for creating a new account
  */
 export async function createAccount(data: z.infer<typeof signupSchema>) {
-    const { mail, password, passwordRepeat, sensorId, username } = data;
+    const { mail, password, passwordRepeat, username } = data;
 
     if (password !== passwordRepeat) {
         throw new Error("Passwörter stimmen nicht überein.");
+    }
+
+    if (mail.length >= 256) {
+        throw new Error("E-Mail muss unter dem Zeichenlimit von 256 Zeichen liegen.");
+    }
+    if (username.length >= 30) {
+        throw new Error("Benutzername muss unter dem Zeichenlimit von 30 Zeichen liegen.");
+    }
+    if (password.length >= 256) {
+        throw new Error("Passwort muss unter dem Zeichenlimit von 256 Zeichen liegen.");
     }
 
     const user = await getUserByMail(mail);
@@ -39,7 +49,6 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
         await createUser({
             email: mail,
             password: hash,
-            sensorId,
             username,
         } satisfies CreateUserType);
     } catch (_err) {

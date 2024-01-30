@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 
 export default function SignUpForm() {
     const [isPending, startTransition] = useTransition();
@@ -21,19 +21,12 @@ export default function SignUpForm() {
             mail: "",
             password: "",
             passwordRepeat: "",
-            sensorId: "",
             username: "",
         },
     });
 
     function onSubmit(data: z.infer<typeof signupSchema>) {
         setError("");
-        if (data.password !== data.passwordRepeat) {
-            form.setError("passwordRepeat", {
-                type: "manual",
-                message: "Passwörter stimmen nicht überein.",
-            });
-        }
 
         startTransition(() => {
             toast.promise(
@@ -79,21 +72,6 @@ export default function SignUpForm() {
                                 <FormControl>
                                     <Input placeholder="E-Mail" type="email" {...field} />
                                 </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="sensorId"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormControl>
-                                    <Input placeholder="Sensor Code" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                    Du findest den Sensor Code auf der Rückseite deines Sensors.
-                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}

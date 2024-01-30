@@ -1,24 +1,32 @@
 import { cache } from "react";
 
 import {
-    getAvgEnergyConsumptionForUser as getDbAvgEnergyConsumptionForUser,
+    getAvgEnergyConsumptionForSensor as getDbAvgEnergyConsumptionForSensor,
     getAvgEnergyConsumptionForUserInComparison as getDbAvgEnergyConsumptionForUserInComparison,
-    getEnergyForUserInRange,
-    getPeaksByUser,
+    getElectricitySensorIdForUser as getDbElectricitySensorIdForUser,
+    getEnergyForSensorInRange as getDbEnergyForSensorInRange,
+    getPeaksBySensor as getDbPeaksBySensor,
 } from "@energyleaf/db/query";
+import { AggregationType } from "@energyleaf/db/util";
 
-export const getEnergyDataForUser = cache(async (start: Date, end: Date, userId: string) => {
-    return getEnergyForUserInRange(start, end, Number(userId));
-});
+export const getEnergyDataForSensor = cache(
+    async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) => {
+        return getDbEnergyForSensorInRange(start, end, sensorId, aggregation);
+    },
+);
 
-export const getAvgEnergyConsumptionForUser = cache(async (userId: string) => {
-    return getDbAvgEnergyConsumptionForUser(Number(userId));
+export const getAvgEnergyConsumptionForSensor = cache(async (sensorId: string) => {
+    return getDbAvgEnergyConsumptionForSensor(sensorId);
 });
 
 export const getAvgEnergyConsumptionForUserInComparison = cache(async (userId: string) => {
     return getDbAvgEnergyConsumptionForUserInComparison(Number(userId));
 });
 
-export const getPeaksForUser = cache(async (start: Date, end: Date, userId: string) => {
-    return getPeaksByUser(start, end, Number(userId));
+export const getElectricitySensorIdForUser = cache(async (userId: string) => {
+    return getDbElectricitySensorIdForUser(Number(userId));
+});
+
+export const getPeaksBySensor = cache(async (start: Date, end: Date, sensorId: string) => {
+    return getDbPeaksBySensor(start, end, sensorId);
 });

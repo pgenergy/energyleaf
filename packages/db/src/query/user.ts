@@ -77,7 +77,6 @@ export async function deleteToken(token_id: string) {
 export type CreateUserType = {
     email: string;
     password: string;
-    sensorId: string;
     username: string;
 };
 
@@ -96,7 +95,6 @@ export async function createUser(data: CreateUserType) {
             username: data.username,
             email: data.email,
             password: data.password,
-            sensorId: data.sensorId,
         });
 
         const newUser = await trx

@@ -5,8 +5,11 @@ import type { deviceSchema } from "@/lib/schema/device";
 import type { z } from "zod";
 
 import { getUserById } from "@energyleaf/db/query";
+import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 
 import "server-only";
+
+import { getSession } from "@/lib/auth/auth";
 
 import {
     createDevice as createDeviceDb,
@@ -14,10 +17,15 @@ import {
     updateDevice as updateDeviceDb,
 } from "@energyleaf/db/query";
 
-export async function createDevice(data: z.infer<typeof deviceSchema>, id: number | string) {
+export async function createDevice(data: z.infer<typeof deviceSchema>) {
+    const session = await getSession();
+    if (!session) {
+        throw new UserNotLoggedInError();
+    }
+    const id = session.user.id;
     const user = await getUserById(Number(id));
     if (!user) {
-        throw new Error("User not found");
+        throw new UserNotFoundError();
     }
 
     try {
@@ -31,10 +39,17 @@ export async function createDevice(data: z.infer<typeof deviceSchema>, id: numbe
     }
 }
 
-export async function updateDevice(data: z.infer<typeof deviceSchema>, id: number | string, userId: number | string) {
+export async function updateDevice(data: z.infer<typeof deviceSchema>, id: number | string) {
+    const session = await getSession();
+    if (!session) {
+        throw new UserNotLoggedInError();
+    }
+
+    const userId = session.user.id;
+
     const user = await getUserById(Number(userId));
     if (!user) {
-        throw new Error("User not found");
+        throw new UserNotFoundError();
     }
 
     try {
@@ -48,7 +63,13 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, id: numbe
     }
 }
 
-export async function deleteDevice(id: number, userId: number | string) {
+export async function deleteDevice(id: number) {
+    const session = await getSession();
+    if (!session) {
+        throw new UserNotLoggedInError();
+    }
+
+    const userId = session.user.id;
     try {
         await deleteDeviceDb(id, Number(userId));
         revalidatePath("/devices");

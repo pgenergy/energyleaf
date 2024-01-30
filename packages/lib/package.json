@@ -1,0 +1,16 @@
+{
+    "name": "@energyleaf/lib",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts",
+        "./errors/auth": "./src/errors/auth-errors.ts"
+    },
+    "devDependencies": {
+        "eslint": "^8.56.0",
+        "typescript": "^5.3.3",
+        "@energyleaf/eslint-config": "workspace:^",
+        "@energyleaf/tsconfig": "workspace:^"
+    }
+}
