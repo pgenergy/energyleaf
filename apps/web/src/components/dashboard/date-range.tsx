@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { track } from "@vercel/analytics";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
@@ -34,6 +35,7 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
     };
 
     function onChange(value?: DateRange) {
+        track("changeDashboardDateRange()");
         if (value?.from && value.to) {
             const search = new URLSearchParams();
             searchParams.forEach((v, key) => {

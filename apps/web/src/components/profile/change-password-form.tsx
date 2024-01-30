@@ -5,6 +5,7 @@ import { updateBaseInformationPassword } from "@/actions/profile";
 import { passwordSchema } from "@/lib/schema/profile";
 import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -49,6 +50,7 @@ export default function ChangePasswordForm({ id }: Props) {
         }
 
         startTransition(() => {
+            track("changePassword()");
             toast.promise(updateBaseInformationPassword(data, id), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
