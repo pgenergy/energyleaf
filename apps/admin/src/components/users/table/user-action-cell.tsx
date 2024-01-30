@@ -24,7 +24,7 @@ import type {UserTableType} from "@/components/users/table/users-table-columns";
 import {useRouter} from "next/navigation";
 import {useTransition} from "react";
 import {toast} from "sonner";
-import {setUserActive, toggleUserAdmin} from "@/actions/user";
+import {setUserActive, setUserAdmin} from "@/actions/user";
 import {useUserContext} from "@/hooks/user-hook";
 
 interface Props {
@@ -63,7 +63,7 @@ export default function UserActionCell({user}: Props) {
     function toggleIsAdmin() {
         startTransition(() => {
             toast.promise(
-                toggleUserAdmin(user.id),
+                setUserAdmin(user.id, !user.isAdmin),
                 {
                     loading: `User-Rechte werden aktualisiert...`,
                     success: `User-Rechte wurden erfolgreich aktualisiert.`,

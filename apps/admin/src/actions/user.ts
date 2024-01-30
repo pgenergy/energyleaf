@@ -5,7 +5,7 @@ import {
     getAllUsers as getAllUsersDb,
     setUserActive as setUserActiveDb,
     deleteUser as deleteUserDb,
-    toggleUserAdmin as toggleUserAdminDb,
+    setUserAdmin as setUserAdminDb,
     getUserById,
     updateUser as updateUserDb
 } from "@energyleaf/db/query";
@@ -15,6 +15,7 @@ import {UserNotLoggedInError} from "@energyleaf/lib";
 import {revalidatePath} from "next/cache";
 import type {z} from "zod";
 import type {baseInformationSchema} from "@energyleaf/lib";
+import {userStateSchema} from "@/lib/schema/user";
 
 export const getAllUsers = cache(async () => {
     await validateUserAdmin();
@@ -33,11 +34,11 @@ export async function setUserActive(id: number, active: boolean) {
     }
 }
 
-export async function toggleUserAdmin(id: number) {
+export async function setUserAdmin(id: number, isAdmin: boolean) {
     await validateUserAdmin();
 
     try {
-        await toggleUserAdminDb(id);
+        await setUserAdminDb(id, isAdmin);
         revalidatePath("/users")
     } catch (e) {
         throw new Error("Failed to set user admin");
@@ -75,6 +76,18 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
             },
             id
         );
+        revalidatePath("/users")
+    } catch (e) {
+        throw new Error("Failed to update user");
+    }
+}
+
+export async function updateUserState(data: z.infer<typeof userStateSchema>, id: number) {
+    await validateUserAdmin();
+
+    try {
+        await setUserActiveDb(id, data.active);
+        await setUserAdminDb(id, data.isAdmin);
         revalidatePath("/users")
     } catch (e) {
         throw new Error("Failed to update user");

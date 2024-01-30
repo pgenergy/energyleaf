@@ -14,7 +14,7 @@ interface Props {
 export default async function UserDetailsPage({ params }: Props) {
     const user = await getUser(Number(params.id));
     if (!user) {
-        return null;
+        return <p>Nutzer nicht gefunden</p>;
     }
 
     return (
@@ -26,7 +26,7 @@ export default async function UserDetailsPage({ params }: Props) {
                 <UserSensorsCard/>
             </Suspense>
             <Suspense fallback={<Skeleton className="h-[57rem] w-full"/>}>
-                <UserActionsCard/>
+                <UserActionsCard user={user}/>
             </Suspense>
         </div>
     );

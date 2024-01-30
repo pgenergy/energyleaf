@@ -1,6 +1,15 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
+import UserStateForm from "@/components/users/user-state-form";
 
-export default function UserActionsCard() {
+interface Props {
+    user: {
+        isAdmin: boolean;
+        active: boolean;
+        id: number;
+    }
+}
+
+export default function UserActionsCard({ user }: Props) {
     return (
         <Card className="w-full">
             <CardHeader>
@@ -8,7 +17,7 @@ export default function UserActionsCard() {
                 <CardDescription>Hier kannst du einige Aktionen für den Benutzer ausführen.</CardDescription>
             </CardHeader>
             <CardContent>
-                <p>TODO</p>
+                <UserStateForm active={user.active} id={user.id} isAdmin={user.isAdmin} />
             </CardContent>
         </Card>
     )
