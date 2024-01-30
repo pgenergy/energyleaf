@@ -1,7 +1,7 @@
 "use client";
 
 import {Button, Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
-import UserStateForm from "@/components/users/user-state-form";
+import UserStateForm from "@/components/users/details/user-state-form";
 import {useUserDetailsContext} from "@/hooks/user-detail-hook";
 
 interface Props {

@@ -1,12 +1,12 @@
-import UserInformationCard from "@/components/users/user-information-card";
-import UserActionsCard from "@/components/users/user-actions-card";
+import UserInformationCard from "@/components/users/details/user-information-card";
+import UserActionsCard from "@/components/users/details/user-actions-card";
 import {Skeleton} from "@energyleaf/ui";
 import {Suspense} from "react";
-import UserSensorsCard from "@/components/user-sensors-card";
+import UserSensorsCard from "@/components/users/details/user-sensors-card";
 import {getUser} from "@/actions/user";
 import {UserDetailsContextProvider} from "@/hooks/user-detail-hook";
-import UserDetailsDeleteDialog from "@/components/users/user-details-delete-dialog";
-import {UserResetPasswordDialog} from "@/components/users/user-reset-password-dialog";
+import UserDetailsDeleteDialog from "@/components/users/details/user-details-delete-dialog";
+import {UserResetPasswordDialog} from "@/components/users/details/user-reset-password-dialog";
 
 interface Props {
     params: {
