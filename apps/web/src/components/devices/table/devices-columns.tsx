@@ -1,6 +1,7 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
+import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 import { Button } from "@energyleaf/ui";
@@ -20,6 +21,7 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
             return (
                 <Button
                     onClick={() => {
+                        track("toggleSortAfterDeviceName()");
                         column.toggleSorting(column.getIsSorted() === "asc");
                     }}
                     variant="ghost"
@@ -43,6 +45,7 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
             return (
                 <Button
                     onClick={() => {
+                        track("toggleSortAfterDateOfCreation()");
                         column.toggleSorting(column.getIsSorted() === "asc");
                     }}
                     variant="ghost"

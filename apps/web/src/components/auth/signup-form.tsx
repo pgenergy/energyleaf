@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createAccount, signInAction } from "@/actions/auth";
 import { signupSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ export default function SignUpForm() {
         setError("");
 
         startTransition(() => {
+            track("createAccount()");
             toast.promise(
                 async () => {
                     await createAccount(data);

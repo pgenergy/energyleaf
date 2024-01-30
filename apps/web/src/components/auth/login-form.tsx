@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signInAction } from "@/actions/auth";
 import { loginSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ export default function LoginForm() {
 
     function onSubmit(data: z.infer<typeof loginSchema>) {
         startTransition(() => {
+            track("signIn()");
             toast.promise(signInAction(data.mail, data.password), {
                 loading: "Anmelden...",
                 success: "Erfolgreich angemeldet",

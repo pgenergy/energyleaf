@@ -3,6 +3,7 @@
 import { createDevice, updateDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -23,6 +24,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof deviceSchema>) {
+        device ? track("updateDevice()") : track("addDevice()");
         const operation = device ? "aktualisiert" : "hinzugefügt";
         toast.promise(
             async () => {

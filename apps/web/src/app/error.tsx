@@ -3,6 +3,7 @@
 import type { MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { track } from "@vercel/analytics";
 import { RotateCwIcon } from "lucide-react";
 
 import { Button } from "@energyleaf/ui";
@@ -25,7 +26,14 @@ export default function ErrorPage({ reset }: Props) {
                 <h1 className="text-2xl font-bold">Energyleaf</h1>
             </Link>
             <h1 className="text-lg">Ein Fehler ist aufgetreten</h1>
-            <Button onClick={refresh} type="button" variant="ghost">
+            <Button
+                onClick={() => {
+                    track("ErrorPage.refresh()");
+                    refresh;
+                }}
+                type="button"
+                variant="ghost"
+            >
                 <RotateCwIcon className="mr-2 h-4 w-4" />
                 Erneut versuchen
             </Button>
