@@ -17,7 +17,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                         <h1 className="text-4xl">Energyleaf</h1>
                     </div>
                 </CardHeader>
-            {children}
+                {children}
             </Card>
         </main>
     );

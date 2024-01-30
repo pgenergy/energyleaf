@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import SubmitButton from "@/components/auth/submit-button";
 
 export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
@@ -68,10 +69,7 @@ export default function LoginForm() {
                     />
                     <div className="flex flex-col items-center gap-4">
                         {error ? <p className="text-sm text-destructive">{error}</p> : null}
-                        <Button className="w-full" disabled={pending} type="submit">
-                            {pending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Anmelden
-                        </Button>
+                        <SubmitButton pending={pending} text={"Anmelden"} />
                         <p className="text-sm text-muted-foreground">
                             Noch kein Konto?{" "}
                             <Link className="underline hover:no-underline" href="/signup">

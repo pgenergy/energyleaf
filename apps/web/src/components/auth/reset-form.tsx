@@ -5,19 +5,16 @@ import { useSearchParams } from "next/navigation";
 import { resetPassword, searchForToken } from "@/actions/auth";
 import { resetSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
 import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
-import { useToast } from "@energyleaf/ui/hooks";
+import SubmitButton from "@/components/auth/submit-button";
 
 export default function ResetForm() {
-    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [pending, startTransition] = useTransition();
     const [hasToken, setToken] = useState<boolean>(false);
-    const [isPending, startTransition] = useTransition();
-    const [error, setError] = useState<string>("");
-    const { toast } = useToast();
     const form = useForm<z.infer<typeof resetSchema>>({
         resolver: zodResolver(resetSchema),
         defaultValues: {
@@ -89,10 +86,7 @@ export default function ResetForm() {
                             </FormItem>
                         )}
                     />
-                    <Button className="w-full" disabled={loading} type="submit">
-                        {loading ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        Passwort zurücksetzen
-                    </Button>
+                    <SubmitButton pending={pending} text={"Passwort zurücksetzen"}/>
                 </form>
             </Form>
         </div>

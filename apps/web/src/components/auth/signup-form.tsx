@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { createAccount, signInAction } from "@/actions/auth";
+import SubmitButton from "@/components/auth/submit-button";
 import { signupSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
@@ -10,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 
 export default function SignUpForm() {
     const [isPending, startTransition] = useTransition();
@@ -102,10 +103,7 @@ export default function SignUpForm() {
                     />
                     <div className="flex flex-col items-center gap-4">
                         {error !== "" ? <p className="text-sm text-destructive">{error}</p> : null}
-                        <Button className="w-full" disabled={isPending} type="submit">
-                            {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Konto erstellen
-                        </Button>
+                        <SubmitButton pending={isPending} text={"Konto erstellen"} />
                         <p className="text-sm text-muted-foreground">
                             Du hast bereits ein Konto?{" "}
                             <Link className="underline hover:no-underline" href="/">

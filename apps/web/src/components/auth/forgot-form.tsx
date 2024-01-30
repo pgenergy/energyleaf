@@ -6,14 +6,15 @@ import { forgotSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
-import { useToast } from "@energyleaf/ui/hooks";
+import SubmitButton from "@/components/auth/submit-button";
 
 export default function ForgotForm() {
-    const [loading, setLoading] = useState<boolean>(false);
-    const { toast } = useToast();
+    const [error, setError] = useState<string | null>(null);
+    const [pending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof forgotSchema>>({
         resolver: zodResolver(forgotSchema),
         defaultValues: {
@@ -22,12 +23,15 @@ export default function ForgotForm() {
     });
 
     async function onSubmit(data: z.infer<typeof forgotSchema>) {
-        setLoading(true);
-        await forgotPassword(data);
-        setLoading(false);
-        toast({
-            title: "Email wurde verschickt",
-            description: "",
+        startTransition(() => {
+            toast.promise(forgotPassword(data), {
+                loading: "E-Mail wird versendet...",
+                success: "E-Mail erfolgreich versendet",
+                error: (err) => {
+                    setError((err as unknown as Error).message);
+                    return "Fehler beim Anmelden";
+                },
+            });
         });
     }
 
@@ -49,10 +53,7 @@ export default function ForgotForm() {
                         )}
                     />
                     <div className="flex flex-col items-center gap-4">
-                        <Button className="w-full" disabled={loading} type="submit">
-                            {loading ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Zurücksetzen
-                        </Button>
+                        <SubmitButton pending={pending} text={"Zurücksetzen"} />
                     </div>
                 </form>
             </Form>
