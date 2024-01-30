@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import type {
-    baseInfromationSchema,
     deleteAccountSchema,
     mailSettingsSchema,
     passwordSchema,
@@ -10,6 +9,7 @@ import type {
 } from "@/lib/schema/profile";
 import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import * as bcrypt from "bcryptjs";
+import type { baseInformationSchema } from "@energyleaf/lib";
 
 import {
     deleteUser,
@@ -24,7 +24,7 @@ import "server-only";
 
 import type { z } from "zod";
 
-export async function updateBaseInformationUsername(data: z.infer<typeof baseInfromationSchema>, id: number | string) {
+export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>, id: number | string) {
     const user = await getUserById(Number(id));
     if (!user) {
         throw new Error("User not found");

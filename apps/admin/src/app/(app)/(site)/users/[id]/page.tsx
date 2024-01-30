@@ -1,18 +1,26 @@
-"use client";
-
-import {useParams} from "next/navigation";
 import UserInformationCard from "@/components/users/user-information-card";
 import UserActionsCard from "@/components/users/user-actions-card";
 import {Skeleton} from "@energyleaf/ui";
 import {Suspense} from "react";
 import UserSensorsCard from "@/components/user-sensors-card";
+import {getUser} from "@/actions/user";
 
-export default function UserDetailsPage() {
-    const { id } = useParams<{ id: string }>();
+interface Props {
+    params: {
+        id: string;
+    }
+}
+
+export default async function UserDetailsPage({ params }: Props) {
+    const user = await getUser(Number(params.id));
+    if (!user) {
+        return null;
+    }
+
     return (
         <div className="flex flex-col gap-4">
             <Suspense fallback={<Skeleton className="h-[57rem] w-full"/>}>
-                <UserInformationCard/>
+                <UserInformationCard user={user}/>
             </Suspense>
             <Suspense fallback={<Skeleton className="h-[57rem] w-full"/>}>
                 <UserSensorsCard/>
