@@ -8,7 +8,7 @@ export default function UserSensorsCard() {
                 <CardDescription>Hier kannst du die Sensoren des Nutzers einsehen.</CardDescription>
             </CardHeader>
             <CardContent>
-                <p>TODO</p>
+                <p><b>TODO</b>: PGE-84</p>
             </CardContent>
         </Card>
     )

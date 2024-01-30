@@ -29,10 +29,10 @@ export default async function UserDetailsPage({ params }: Props) {
                     <UserInformationCard user={user}/>
                 </Suspense>
                 <Suspense fallback={<Skeleton className="h-[57rem] w-full"/>}>
-                    <UserSensorsCard/>
+                    <UserActionsCard user={user}/>
                 </Suspense>
                 <Suspense fallback={<Skeleton className="h-[57rem] w-full"/>}>
-                    <UserActionsCard user={user}/>
+                    <UserSensorsCard/>
                 </Suspense>
             </div>
         </UserDetailsContextProvider>
