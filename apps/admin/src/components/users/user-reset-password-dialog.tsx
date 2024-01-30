@@ -13,22 +13,11 @@ import {
 import {useTransition} from "react";
 import {toast} from "sonner";
 import {deleteUser} from "@/actions/user";
+import {useUserDetailsContext} from "@/hooks/user-detail-hook";
 
-interface Props {
-    context: {
-        user: {
-            id: number;
-            username: string;
-        } | undefined;
-        setUser: (user: { id: number; username: string; } | undefined) => void;
-        deleteDialogOpen: boolean;
-        setDeleteDialogOpen: (open: boolean) => void;
-    }
-    onSuccess?: () => void;
-}
-
-export function UserDeleteDialog({ context, onSuccess }: Props) {
+export function UserResetPasswordDialog() {
     const [pending, startTransition] = useTransition();
+    const context = useUserDetailsContext();
 
     if (!context.user) {
         return null;
@@ -37,21 +26,18 @@ export function UserDeleteDialog({ context, onSuccess }: Props) {
     const user = context.user;
 
     function cancel() {
-        context.setDeleteDialogOpen(false);
+        context.setResetPasswordDialogOpen(false);
         context.setUser(undefined);
     }
 
-    function deleteUserAction() {
+    function resetPasswordAction() {
         startTransition(() => {
             toast.promise(
-                deleteUser(user.id),
+                new Promise(resolve => setTimeout(resolve, 2000)), // TODO: PGE-39
                 {
-                    loading: "Nutzer wird gelöscht...",
-                    success: () =>{
-                        onSuccess?.();
-                        return "Nutzer wurde erfolgreich gelöscht."
-                    },
-                    error: "Nutzer konnte aufgrund eines Fehlers nicht gelöscht werden.",
+                    loading: "E-Mail wird gesendet...",
+                    success: "E-Mail wurde erfolgreich gesendet.",
+                    error: "E-Mail konnte aufgrund eines Fehlers nicht gesendet werden.",
                 })
         });
     }
@@ -59,17 +45,17 @@ export function UserDeleteDialog({ context, onSuccess }: Props) {
     return (
         <AlertDialog
             onOpenChange={(value) => {
-                context.setDeleteDialogOpen(value);
+                context.setResetPasswordDialogOpen(value);
                 context.setUser(undefined);
             }}
-            open={context.deleteDialogOpen}
+            open={context.resetPasswordDialogOpen}
         >
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Nutzer löschen</AlertDialogTitle>
+                    <AlertDialogTitle>Passwort zurücksetzen</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Bist du sicher, dass du den Nutzer {`"${user.username}"`} (ID: {user.id}) löschen möchtest?
-                        Dadurch werden alle personenbezogenen Daten des Nutzers gelöscht.
+                        Bist du sicher, dass du dem Nutzer {`"${user.username}"`} (ID: {user.id}) eine E-Mail zum
+                        Zurücksetzen des Passworts senden möchtest?
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -79,9 +65,9 @@ export function UserDeleteDialog({ context, onSuccess }: Props) {
                     <AlertDialogAction
                         className="bg-destructive text-destructive-foreground"
                         disabled={pending}
-                        onClick={deleteUserAction}
+                        onClick={resetPasswordAction}
                     >
-                        Nutzer löschen
+                        Passwort zurücksetzen
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

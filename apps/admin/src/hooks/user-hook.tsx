@@ -25,8 +25,8 @@ export function UserContextProvider({ children }: Props) {
             value={{
                 deleteDialogOpen,
                 setDeleteDialogOpen,
-                user: user,
-                setUser: setUser
+                user,
+                setUser
             }}
         >
             {children}

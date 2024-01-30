@@ -1,12 +1,12 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
 import UsersTable from "@/components/users/table/users-table";
 import {UserContextProvider} from "@/hooks/user-hook";
-import {UserDeleteDialog} from "@/components/users/user-delete-dialog";
+import UsersOverviewDeleteDialog from "@/components/users/users-overview-delete-dialog";
 
 export default function UsersOverviewCard() {
     return (
         <UserContextProvider>
-            <UserDeleteDialog/>
+            <UsersOverviewDeleteDialog/>
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Nutzer</CardTitle>
