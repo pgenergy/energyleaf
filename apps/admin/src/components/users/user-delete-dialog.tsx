@@ -77,7 +77,7 @@ export function UserDeleteDialog({ context, onSuccess }: Props) {
                         Abbrechen
                     </AlertDialogCancel>
                     <AlertDialogAction
-                        className="bg-destructive text-destructive-foreground"
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         disabled={pending}
                         onClick={deleteUserAction}
                     >
