@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/hooks/theme-provider";
 import "@energyleaf/tailwindcss/global.css";
 
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 
 import { Toaster } from "@energyleaf/ui/components/utils";
 
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
                     {children}
                     <Toaster richColors />
                 </ThemeProvider>
+                <Analytics />
             </body>
         </html>
     );
