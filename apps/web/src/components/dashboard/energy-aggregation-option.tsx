@@ -1,37 +1,34 @@
 "use client";
 
 import React from "react";
-import { usePathname, useRouter } from "next/navigation";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@energyleaf/ui";
-import { AggregationType } from "@/types/aggregation/aggregation-type";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { AggregationType } from "@energyleaf/db/util";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
 
 interface Props {
-    startDate: Date;
-    endDate: Date;
+    selected?: AggregationType;
 }
 
-export default function EnergyAggreation({ startDate, endDate }: Props) {
+export default function EnergyAggreation({ selected }: Props) {
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     const onChange = (selectedOption: string) => {
-        const search = new URLSearchParams({
-            start: startDate.toISOString(),
-            end: endDate.toISOString(),
-            aggregation: selectedOption,
+        const search = new URLSearchParams();
+        searchParams.forEach((value, key) => {
+            search.set(key, value);
         });
+        search.set("aggregation", selectedOption.toLowerCase());
+        
         router.push(`${pathname}?${search.toString()}`);
+        router.refresh();
     };
 
     return (
         <div className="flex flex-row justify-end gap-4">
-            <Select onValueChange={onChange}>
+            <Select defaultValue={AggregationType.RAW} onValueChange={onChange} value={selected}>
                 <SelectTrigger>
                     <SelectValue placeholder="Granularität" />
                 </SelectTrigger>

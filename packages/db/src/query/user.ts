@@ -36,7 +36,6 @@ export async function getUserByMail(email: string) {
 export type CreateUserType = {
     email: string;
     password: string;
-    sensorId: string;
     username: string;
 };
 
@@ -50,7 +49,7 @@ export async function createUser(data: CreateUserType) {
         if (check.length > 0) {
             throw new Error("User already exists");
         }
-            
+
         await trx.insert(user).values({
             username: data.username,
             email: data.email,

@@ -1,8 +1,10 @@
 import { ThemeProvider } from "@/hooks/theme-provider";
+
 import "@energyleaf/tailwindcss/global.css";
-import { Toaster } from "@energyleaf/ui/components/utils";
 
 import type { Metadata } from "next";
+
+import { Toaster } from "@energyleaf/ui/components/utils";
 
 export const metadata: Metadata = {
     title: "Energyleaf",
