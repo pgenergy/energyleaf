@@ -1,17 +1,16 @@
 import { redirect } from "next/navigation";
-import { getAggregatedEnergy } from "@/lib/aggregate-energy";
 import { getSession } from "@/lib/auth/auth";
 import { getDevicesByUser } from "@/query/device";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor, getPeaksBySensor } from "@/query/energy";
-import { AggregationType } from "@/types/aggregation/aggregation-type";
 import type { PeakAssignment } from "@/types/peaks/peak";
 import { differenceInMinutes } from "date-fns";
 
+import { AggregationType } from "@energyleaf/db/util";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 import DashboardDateRange from "./date-range";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
-import RawEnergyConsumptionCardChart from "./energy-consumption-card-chart";
+import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
 interface Props {
     startDate: Date;
@@ -33,27 +32,22 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         throw new Error("Kein Stromsensor für diesen Benutzer gefunden");
     }
 
-    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
+    let aggregation = AggregationType.RAW;
+    if (aggregationType) {
+        aggregation = AggregationType[aggregationType.toUpperCase() as keyof typeof AggregationType];
+    }
+    const hasAggregation = aggregation !== AggregationType.RAW;
+    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
     const data = energyData.map((entry) => ({
         sensorId: entry.sensorId ?? "",
         energy: entry.value,
         timestamp: entry.timestamp ? entry.timestamp.toString() : "",
     }));
 
-    const realAggregationType = aggregationType || AggregationType.RAW;
-    const aggregatedDataInput = getAggregatedEnergy(data, realAggregationType);
-    const aggregatedData = aggregatedDataInput.map((entry) => ({
-        sensorId: entry.sensorId,
-        energy: entry.energy,
-        timestamp: entry.timestamp.toString(),
-    }));
-
-    const noAggregation = realAggregationType === AggregationType.RAW;
-
     let peakAssignments: PeakAssignment[] = [];
-    const devices = noAggregation ? await getDevicesByUser(userId) : [];
+    const devices = !hasAggregation ? await getDevicesByUser(userId) : [];
 
-    if (noAggregation) {
+    if (!hasAggregation) {
         const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
         const std = Math.sqrt(
             data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
@@ -97,7 +91,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 </div>
                 <div className="flex flex-row gap-4">
                     <DashboardDateRange endDate={endDate} startDate={startDate} />
-                    <DashboardEnergyAggregation endDate={endDate} startDate={startDate} />
+                    <DashboardEnergyAggregation selected={aggregation} />
                 </div>
             </CardHeader>
             <CardContent>
@@ -107,10 +101,10 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                         </div>
                     ) : (
-                        <RawEnergyConsumptionCardChart
-                            data={noAggregation ? data : aggregatedData}
+                        <EnergyConsumptionCardChart
+                            data={data}
                             devices={devices}
-                            peaks={noAggregation ? undefined : peakAssignments}
+                            peaks={hasAggregation ? undefined : peakAssignments}
                         />
                     )}
                 </div>

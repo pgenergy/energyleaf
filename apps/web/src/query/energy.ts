@@ -7,10 +7,13 @@ import {
     getEnergyForSensorInRange as getDbEnergyForSensorInRange,
     getPeaksBySensor as getDbPeaksBySensor,
 } from "@energyleaf/db/query";
+import { AggregationType } from "@energyleaf/db/util";
 
-export const getEnergyDataForSensor = cache(async (start: Date, end: Date, sensorId: string) => {
-    return getDbEnergyForSensorInRange(start, end, sensorId);
-});
+export const getEnergyDataForSensor = cache(
+    async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) => {
+        return getDbEnergyForSensorInRange(start, end, sensorId, aggregation);
+    },
+);
 
 export const getAvgEnergyConsumptionForSensor = cache(async (sensorId: string) => {
     return getDbAvgEnergyConsumptionForSensor(sensorId);
