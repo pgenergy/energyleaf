@@ -16,8 +16,8 @@ export const POST = async (req: NextRequest) => {
         const code = data.sensorId;
 
         try {
-            const sensorId = await getSensorIdFromSensorToken(code);
             try {
+                const sensorId = await getSensorIdFromSensorToken(code);
                 await insertSensorData({
                     sensorId,
                     value: data.sensorValue,
