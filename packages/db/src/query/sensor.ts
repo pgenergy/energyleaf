@@ -270,38 +270,34 @@ export async function createSensorToken(clientId: string) {
  * This also validates the token and deletes it if it is older than 1 hour
  */
 export async function getSensorIdFromSensorToken(code: string) {
-    try {
-        return db.transaction(async (trx) => {
-            const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.code, code));
+    return db.transaction(async (trx) => {
+        const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.code, code));
 
-            if (tokenData.length === 0) {
-                throw new Error("token/not-found");
-            }
+        if (tokenData.length === 0) {
+            throw new Error("token/not-found");
+        }
 
-            const token = tokenData[0];
-            const tokenDate = token.timestamp;
+        const token = tokenData[0];
+        const tokenDate = token.timestamp;
 
-            if (!tokenDate) {
-                trx.rollback();
-                throw new Error("token/invalid");
-            }
+        if (!tokenDate) {
+            trx.rollback();
+            throw new Error("token/invalid");
+        }
 
-            // check if token is older than 1 hour
-            const now = new Date();
-            if (now.getTime() - tokenDate.getTime() > 3600000) {
-                trx.delete(sensorToken).where(eq(sensorToken.code, code));
-                throw new Error("token/expired");
-            }
+        // check if token is older than 1 hour
+        const now = new Date();
+        if (now.getTime() - tokenDate.getTime() > 3600000) {
+            trx.delete(sensorToken).where(eq(sensorToken.code, code));
+            throw new Error("token/expired");
+        }
 
-            const sensorData = await trx.select().from(sensor).where(eq(sensor.id, token.sensorId));
-            if (sensorData.length === 0) {
-                trx.rollback();
-                throw new Error("sensor/not-found");
-            }
+        const sensorData = await trx.select().from(sensor).where(eq(sensor.id, token.sensorId));
+        if (sensorData.length === 0) {
+            trx.rollback();
+            throw new Error("sensor/not-found");
+        }
 
-            return sensorData[0].id;
-        });
-    } catch (err) {
-        throw err;
-    }
+        return sensorData[0].id;
+    });
 }
