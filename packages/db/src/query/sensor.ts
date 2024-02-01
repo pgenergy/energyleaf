@@ -129,7 +129,7 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
             })
             .from(sensorData)
             .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
-            .innerJoin(userData, eq(userData.id, sensor.user_id))
+            .innerJoin(userData, eq(userData.id, sensor.userId))
             .where(
                 and(
                     eq(userData.livingSpace, user.livingSpace),
@@ -228,7 +228,7 @@ export async function getElectricitySensorIdForUser(userId: number) {
     const query = await db
         .select()
         .from(sensor)
-        .where(and(eq(sensor.user_id, userId), eq(sensor.sensor_type, "electricity")));
+        .where(and(eq(sensor.userId, userId), eq(sensor.sensor_type, "electricity")));
 
     if (query.length === 0) {
         return null;
@@ -246,7 +246,7 @@ export async function createSensorToken(clientId: string) {
     const code = nanoid(30);
     try {
         await db.transaction(async (trx) => {
-            const sensorData = await trx.select().from(sensor).where(eq(sensor.client_id, clientId));
+            const sensorData = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
 
             if (sensorData.length === 0) {
                 trx.rollback();
