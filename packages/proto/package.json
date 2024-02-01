@@ -5,7 +5,10 @@
     "description": "",
     "type": "module",
     "exports": {
-        "./sensor-data": "./lib/sensor-data.ts"
+        "./sensor-data": "./lib/sensor-data.ts",
+        "./auth": "./lib/auth.ts",
+        "./errors": "./lib/errors.ts",
+        "./util": "./util/util.ts"
     },
     "scripts": {
         "compile": "protoc --ts_out ./lib --proto_path protos protos/*.proto"
@@ -16,6 +19,8 @@
     },
     "devDependencies": {
         "@protobuf-ts/plugin": "^2.9.3",
-        "@protobuf-ts/protoc": "^2.9.3"
+        "@protobuf-ts/protoc": "^2.9.3",
+        "@energyleaf/eslint-config": "workspace:^",
+        "@energyleaf/tsconfig": "workspace:^"
     }
 }

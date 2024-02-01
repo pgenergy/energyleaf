@@ -1,76 +1,60 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { insertSensorData } from "@energyleaf/db/query";
+import { getSensorIdFromSensorToken, insertSensorData } from "@energyleaf/db/query";
+import { ErrorResponse } from "@energyleaf/proto/errors";
 import { ELData } from "@energyleaf/proto/sensor-data";
-
-/**
- * Parse the binary data from the request body
- * This is needed because the body is a ReadableStream and the the proto needs a Uint8Array
- *
- * @param data - The request body
- *
- * @returns The binary data as Uint8Array
- */
-const parseData = async (data: ReadableStream<Uint8Array>) => {
-    async function readStream(stream: ReadableStreamDefaultReader<Uint8Array>, result: Uint8Array) {
-        const { value, done } = await stream.read();
-        if (done) {
-            return result;
-        }
-
-        const tmp = new Uint8Array(result.length + value.length);
-        tmp.set(result);
-        tmp.set(value, result.length);
-        return readStream(stream, tmp);
-    }
-
-    const result = new Uint8Array(0);
-    const reader = data.getReader();
-
-    return readStream(reader, result);
-};
+import { parseReadableStream } from "@energyleaf/proto/util";
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;
     if (!body) {
-        return NextResponse.json(
-            {
-                status: "error",
-                message: "No body",
-            },
-            {
-                status: 400,
-            },
-        );
+        return new NextResponse(ErrorResponse.toBinary({ msg: "Invalid body", status: 400 }), { status: 400 });
     }
-    const binaryData = await parseData(body);
+    const binaryData = await parseReadableStream(body);
     try {
         const data = ELData.fromBinary(binaryData);
+        const code = data.sensorId;
+
         try {
-            await insertSensorData({
-                sensorId: data.sensorId,
-                value: data.sensorValue,
-            });
-        } catch (e) {
-            return NextResponse.json(
-                {
-                    status: "error",
-                    error: "Database error",
-                },
-                {
+            try {
+                const sensorId = await getSensorIdFromSensorToken(code);
+                await insertSensorData({
+                    sensorId,
+                    value: data.sensorValue,
+                });
+            } catch (e) {
+                if ((e as unknown as Error).message === "token/expired") {
+                    return new NextResponse(ErrorResponse.toBinary({ msg: "Token expired", status: 401 }), {
+                        status: 401,
+                    });
+                }
+
+                if ((e as unknown as Error).message === "token/invalid") {
+                    return new NextResponse(ErrorResponse.toBinary({ msg: "Token invalid", status: 401 }), {
+                        status: 401,
+                    });
+                }
+
+                if ((e as unknown as Error).message === "token/not-found") {
+                    return new NextResponse(ErrorResponse.toBinary({ msg: "Token not found", status: 404 }), {
+                        status: 404,
+                    });
+                }
+
+                if ((e as unknown as Error).message === "sensor/not-found") {
+                    return new NextResponse(ErrorResponse.toBinary({ msg: "Sensor not found", status: 404 }), {
+                        status: 404,
+                    });
+                }
+
+                return new NextResponse(ErrorResponse.toBinary({ msg: "Database error", status: 500 }), {
                     status: 500,
-                },
-            );
+                });
+            }
+        } catch (err) {
+            return new NextResponse(ErrorResponse.toBinary({ msg: "Unauthorized", status: 401 }), { status: 401 });
         }
     } catch (e) {
-        return NextResponse.json(
-            {
-                status: "error",
-                error: "Invalid data",
-            },
-            {
-                status: 400,
-            },
-        );
+        return new NextResponse(ErrorResponse.toBinary({ msg: "Invalid data", status: 400 }), { status: 400 });
     }
 };
