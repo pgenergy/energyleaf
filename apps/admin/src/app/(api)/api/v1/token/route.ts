@@ -15,7 +15,7 @@ export const POST = async (req: NextRequest) => {
         const data = TokenRequest.fromBinary(binaryData);
         try {
             const code = await createSensorToken(data.clientId);
-            return new NextResponse(TokenResponse.toBinary({ accessToken: code, expiresIn: BigInt(3600) }), {
+            return new NextResponse(TokenResponse.toBinary({ accessToken: code, expiresIn: 3600 }), {
                 status: 200,
             });
         } catch (err) {

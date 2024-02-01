@@ -6,5 +6,5 @@ message TokenRequest {
 
 message TokenResponse {
     string access_token = 1;
-    int64 expires_in = 2;
+    uint32 expires_in = 2;
 }

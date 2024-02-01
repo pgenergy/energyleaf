@@ -28,9 +28,9 @@ export interface TokenResponse {
      */
     accessToken: string;
     /**
-     * @generated from protobuf field: int64 expires_in = 2;
+     * @generated from protobuf field: uint32 expires_in = 2;
      */
-    expiresIn: bigint;
+    expiresIn: number;
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class TokenRequest$Type extends MessageType<TokenRequest> {
@@ -84,13 +84,13 @@ class TokenResponse$Type extends MessageType<TokenResponse> {
     constructor() {
         super("TokenResponse", [
             { no: 1, name: "access_token", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "expires_in", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 0 /*LongType.BIGINT*/ }
+            { no: 2, name: "expires_in", kind: "scalar", T: 13 /*ScalarType.UINT32*/ }
         ]);
     }
     create(value?: PartialMessage<TokenResponse>): TokenResponse {
         const message = globalThis.Object.create((this.messagePrototype!));
         message.accessToken = "";
-        message.expiresIn = BigInt(0);
+        message.expiresIn = 0;
         if (value !== undefined)
             reflectionMergePartial<TokenResponse>(this, message, value);
         return message;
@@ -103,8 +103,8 @@ class TokenResponse$Type extends MessageType<TokenResponse> {
                 case /* string access_token */ 1:
                     message.accessToken = reader.string();
                     break;
-                case /* int64 expires_in */ 2:
-                    message.expiresIn = reader.int64().toBigInt();
+                case /* uint32 expires_in */ 2:
+                    message.expiresIn = reader.uint32();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -121,9 +121,9 @@ class TokenResponse$Type extends MessageType<TokenResponse> {
         /* string access_token = 1; */
         if (message.accessToken !== "")
             writer.tag(1, WireType.LengthDelimited).string(message.accessToken);
-        /* int64 expires_in = 2; */
-        if (message.expiresIn !== BigInt(0))
-            writer.tag(2, WireType.Varint).int64(message.expiresIn);
+        /* uint32 expires_in = 2; */
+        if (message.expiresIn !== 0)
+            writer.tag(2, WireType.Varint).uint32(message.expiresIn);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
