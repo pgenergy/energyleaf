@@ -41,6 +41,12 @@ export const POST = async (req: NextRequest) => {
                     });
                 }
 
+                if ((e as unknown as Error).message === "sensor/not-found") {
+                    return new NextResponse(ErrorResponse.toBinary({ msg: "Sensor not found", status: 404 }), {
+                        status: 404,
+                    });
+                }
+
                 return new NextResponse(ErrorResponse.toBinary({ msg: "Database error", status: 500 }), {
                     status: 500,
                 });

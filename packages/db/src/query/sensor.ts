@@ -242,11 +242,11 @@ export async function getElectricitySensorIdForUser(userId: number) {
 /**
  * Create sensor token
  */
-export async function createSensorToken(sensorId: string) {
+export async function createSensorToken(clientId: string) {
     const code = nanoid(30);
     try {
         await db.transaction(async (trx) => {
-            const sensorData = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
+            const sensorData = await trx.select().from(sensor).where(eq(sensor.client_id, clientId));
 
             if (sensorData.length === 0) {
                 trx.rollback();
@@ -293,7 +293,13 @@ export async function getSensorIdFromSensorToken(code: string) {
                 throw new Error("token/expired");
             }
 
-            return token.sensorId;
+            const sensorData = await trx.select().from(sensor).where(eq(sensor.id, token.sensorId));
+            if (sensorData.length === 0) {
+                trx.rollback();
+                throw new Error("sensor/not-found");
+            }
+
+            return sensorData[0].id;
         });
     } catch (err) {
         throw err;

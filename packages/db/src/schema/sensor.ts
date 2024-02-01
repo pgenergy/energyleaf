@@ -3,7 +3,8 @@ import { int, mysqlEnum, mysqlTable, primaryKey, timestamp, varchar } from "driz
 import { nanoid } from "nanoid";
 
 export const sensor = mysqlTable("sensor", {
-    id: varchar("sensor_id", { length: 30 }).primaryKey().notNull(),
+    id: varchar("sensor_id", { length: 30 }).notNull(),
+    client_id: varchar("client_id", { length: 255 }).primaryKey().notNull(),
     version: int("version").default(1).notNull(),
     sensor_type: mysqlEnum("sensor_type", ["electricity", "gas"]).notNull(),
     user_id: int("user_id").notNull(),
