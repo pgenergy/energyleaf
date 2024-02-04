@@ -15,10 +15,13 @@ export default async function DevicesTable() {
     const devices = await getDevicesByUser(session.user.id);
     const consumptionData = await getAverageConsumptionPerDevice();
 
-    const enrichedDevices = devices.map(device => ({
-        ...device,
-        averageConsumption: consumptionData.find(consumption => consumption.deviceId === device.id)?.averageConsumption || 'N/A',
-    }));
+    const enrichedDevices = devices.map(device => {
+        const consumption = consumptionData.find(consumption => consumption.deviceId === device.id)?.averageConsumption;
+        return {
+            ...device,
+            averageConsumption: typeof consumption === 'string' ? consumption : 'N/A',
+        };
+    });
 
     return (
         <DevicesDataTable
