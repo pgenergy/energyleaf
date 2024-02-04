@@ -11,6 +11,7 @@ export interface DeviceTableType {
     id: number;
     name: string;
     created: Date | null;
+    averageConsumption?: string;
 }
 
 export const devicesColumns: ColumnDef<DeviceTableType>[] = [
@@ -62,6 +63,14 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
             }
 
             return <span>{Intl.DateTimeFormat("de-DE").format(row.getValue("created"))}</span>;
+        },
+    },
+    {
+        accessorKey: "averageConsumption",
+        header: () => "Durchschn. Verbrauch",
+        cell: ({ row }) => {
+            const consumption = row.getValue("averageConsumption");
+            return <span>{consumption ? `${consumption} kWh` : 'N/A'}</span>;
         },
     },
     {
