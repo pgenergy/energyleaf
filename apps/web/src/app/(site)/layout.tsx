@@ -3,7 +3,7 @@ import Footer from "@/components/footer/footer";
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
 import { getSession } from "@/lib/auth/auth";
-import { HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
+import { HomeIcon, LightbulbIcon, LineChartIcon, MicrowaveIcon, SettingsIcon } from "lucide-react";
 
 import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
 
@@ -25,6 +25,18 @@ const navLinks = [
         title: "Geräte",
         path: "/devices",
         icon: <MicrowaveIcon className="mr-2 h-4 w-4" />,
+    },
+    {
+        slug: "linechart",
+        title: "Verbrauch",
+        path: "/linechart",
+        icon: <LineChartIcon className="mr-2 h-4 w-4" />,
+    },
+    {
+        slug: "usermanagement",
+        title: "Nutzerverwaltung",
+        path: "/usermanagement",
+        icon: <SettingsIcon className="mr-2 h-4 w-4" />,
     },
 ];
 

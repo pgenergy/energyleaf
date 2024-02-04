@@ -8,6 +8,7 @@ export const user = mysqlTable("user", {
     username: varchar("username", { length: 30 }).notNull(),
     password: varchar("password", { length: 256 }).notNull(),
     isAdmin: boolean("is_admin").default(false).notNull(),
+    //isActivated: boolean("is_activated").default(false).notNull()
 });
 
 export const userData = mysqlTable("user_data", {
