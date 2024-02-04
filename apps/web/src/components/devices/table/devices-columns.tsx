@@ -69,16 +69,14 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
         accessorKey: "averageConsumption",
         header: () => "Durchschn. Verbrauch",
         cell: ({ row }) => {
-            // Typumwandlung, um sicherzustellen, dass 'consumption' als string behandelt wird
             const consumptionValue = row.getValue("averageConsumption");
             const consumption = typeof consumptionValue === 'number' ? consumptionValue.toString() : consumptionValue;
             
             if (consumption) {
-                // parseFloat kann jetzt sicher angewendet werden, da 'consumption' ein String ist
-                const formattedConsumption = Number(consumption).toLocaleString("de-DE", {
+                const formattedConsumption = `${Number(consumption).toLocaleString("de-DE", {
                     minimumFractionDigits: 2, 
                     maximumFractionDigits: 2 
-                }) + " kWh";
+                })} kWh`;               
                 return <span>{formattedConsumption}</span>;
             }
             return <span>N/A</span>;
