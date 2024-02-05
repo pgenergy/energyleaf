@@ -19,7 +19,7 @@ export default async function DevicesTable() {
         const deviceConsumption = consumptionData.find(consumption => consumption.deviceId === device.id)?.averageConsumption;
         return {
             ...device,
-            averageConsumption: typeof deviceConsumption === 'string' ? deviceConsumption : 'N/A',
+            averageConsumption: typeof deviceConsumption === 'string' ? parseFloat(deviceConsumption) : deviceConsumption ?? 0,
         };
     });
 

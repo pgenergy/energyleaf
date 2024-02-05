@@ -11,7 +11,7 @@ export interface DeviceTableType {
     id: number;
     name: string;
     created: Date | null;
-    averageConsumption?: string;
+    averageConsumption: number;
 }
 
 export const devicesColumns: ColumnDef<DeviceTableType>[] = [

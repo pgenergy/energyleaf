@@ -306,12 +306,16 @@ export async function getSensorIdFromSensorToken(code: string) {
  * Get the average energy consumption per device
  */
 export async function getAverageConsumptionPerDevice() {
-    return db
+    const result = await db
         .select({
             deviceId: peaks.deviceId,
-            averageConsumption: sql`AVG(${sensorData.value})`
+            averageConsumption: sql<number>`AVG(${sensorData.value})`
         })
         .from(peaks)
-        .leftJoin(sensorData, eq(peaks.sensorId, sensorData.sensorId))
-        .groupBy(peaks.deviceId);
+        .innerJoin(sensorData, sql`${peaks.sensorId} = ${sensorData.sensorId} AND ${peaks.timestamp} = ${sensorData.timestamp}`)
+        .groupBy(peaks.deviceId)
+        .execute();
+
+    return result;
 }
+
