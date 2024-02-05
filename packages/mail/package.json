@@ -7,6 +7,6 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@sendgrid/mail": "^8.1.0"
+    "resend": "^3.1.0"
   }
 }

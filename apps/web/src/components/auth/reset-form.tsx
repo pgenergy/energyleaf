@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { useSearchParams } from "next/navigation";
-import { resetPassword, searchForToken } from "@/actions/auth";
+import { useState, useTransition } from "react";
+import {redirect, useSearchParams} from "next/navigation";
+import { resetPassword } from "@/actions/auth";
 import { resetSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
-import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 import SubmitButton from "@/components/auth/submit-button";
+import {toast} from "sonner";
 
 export default function ResetForm() {
     const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
-    const [hasToken, setToken] = useState<boolean>(false);
     const form = useForm<z.infer<typeof resetSchema>>({
         resolver: zodResolver(resetSchema),
         defaultValues: {
@@ -24,36 +24,32 @@ export default function ResetForm() {
     });
 
     const searchParams = useSearchParams();
+    const token = searchParams.get("token");
 
-    useEffect(() => {
-        (async () => {
-            const x = await searchForToken(searchParams.get("token"));
-            setToken(x !== null);
-        })();
-    }, []);
+    function onSubmit(data: z.infer<typeof resetSchema>) {
+        setError("");
+        startTransition(() => {
+            toast.promise(resetPassword(data, token || ""), {
+                loading: "Passwort wird zurückgesetzt...",
+                success: "Passwort erfolgreich zurückgesetzt",
+                error: (err) => {
+                    setError((err as unknown as Error).message);
+                    return "Fehler beim Anmelden";
+                },
+            });
 
-    if (!hasToken || searchParams === null) {
+            if (!error) {
+                redirect("/"); // login page
+            }
+        });
+    }
+
+    if (!token) {
         return (
             <div className="flex flex-col gap-2">
                 <p className="text-xl font-bold">Ungültiges oder abgelaufenes Passwort-Reset-Token</p>
             </div>
-        );
-    }
-
-    async function onSubmit(data: z.infer<typeof resetSchema>) {
-        try {
-            setLoading(true);
-            await resetPassword(data, searchParams.get("token"));
-            toast({
-                title: "Passwort erfolgreich zurückgesetzt",
-            });
-        } catch (e) {
-            toast({
-                title: e,
-            });
-        } finally {
-            setLoading(false);
-        }
+        )
     }
 
     return (
@@ -86,6 +82,7 @@ export default function ResetForm() {
                             </FormItem>
                         )}
                     />
+                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
                     <SubmitButton pending={pending} text={"Passwort zurücksetzen"}/>
                 </form>
             </Form>

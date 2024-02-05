@@ -44,7 +44,7 @@ export default function BaseInformationForm({ username, email, id }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof baseInformationSchema>) {
-        startTransition(async () => {
+        startTransition(() => {
             if (data.email !== email) {
                 return;
             }

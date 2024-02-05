@@ -11,7 +11,9 @@ import * as bcrypt from "bcryptjs";
 import type { z } from "zod";
 import * as jose from "jose";
 
-import { createUser, getUserByMail, type CreateUserType, getUserById } from "@energyleaf/db/query";
+import { createUser, getUserByMail, type CreateUserType, getUserById, updatePassword } from "@energyleaf/db/query";
+import ConfirmReset from "@/components/mail/confirm-reset";
+import PasswordChanged from "@/components/mail/password-changed";
 
 /**
  * Server action for creating a new account
@@ -63,40 +65,37 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         .setSubject(user.id.toString())
         .setIssuedAt()
         .setExpirationTime("1h")
-        .setAudience("energyleaf")
-        .setIssuer("energyleaf")
-        .setNotBefore(new Date())
+        //.setAudience("energyleaf")
+        //.setIssuer("energyleaf")
+        //.setNotBefore(new Date())
+        .setProtectedHeader({ alg: "HS256" })
         .sign(Buffer.from(user.password, "hex"));
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset?token=${token}`;
-    const html = `Diese E-Mail wurde als Antwort auf Ihre Anfrage gesendet, Ihr Passwort zurückzusetzen. Bitte klicken Sie hierzu auf den Link unten. Aus Sicherheitsgründen ist dieser nur eine Stunde gültig.
-<br> <a href="${resetUrl}">${resetUrl}</a>
-<br> Wenn Sie dies nicht angefordert haben, empfehlen wir Ihnen, Ihre Passwörter zu ändern.`;
-
-    await sendMail(mail, "Energyleaf: Passwort zurückseten", html)
+    await sendMail(mail, "Energyleaf: Passwort zurückseten", ConfirmReset({ resetUrl }));
 }
 
-export async function resetPassword(data: z.infer<typeof resetSchema>, token_id: string) {
+export async function resetPassword(data: z.infer<typeof resetSchema>, resetToken: string) {
     const { password: newPassword, passwordRepeat } = data;
 
     if (newPassword !== passwordRepeat) {
         throw new Error("Passwörter stimmen nicht überein.");
     }
 
-    const { sub } = jose.decodeJwt(token_id);
+    const { sub } = jose.decodeJwt(resetToken);
     const user = await getUserById(Number(sub));
 
     if (!user) {
-        // relativ unpräzise Error Message ist ein feature, um möglichst wenig Angriffainformation zu bieten
         throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
     }
 
-    const result = await jose.jwtVerify(token_id, Buffer.from(user.password, "hex"));
+    await jose.jwtVerify(resetToken, Buffer.from(user.password, "hex"));
+    // es wurde keine Exceotion geworfen, also alles gut
 
     const hash = await bcrypt.hash(newPassword, 10);
     await updatePassword({ password: hash }, user.id);
 
-    await sendMail(user.email, "Energyleaf: Passwort wurde geändert", "Sie haben Ihr Energyleaf Passwort geändert. Diese Aktion wurde nicht von Ihnen durchgeführt? Dann ändern Sie unverzüglich Ihre Passwörter.");
+    await sendMail(user.email, "Energyleaf: Passwort wurde geändert", PasswordChanged());
 }
 
 /**
@@ -122,12 +121,4 @@ export async function signInAction(email: string, password: string) {
  */
 export async function signOutAction() {
     await signOut();
-}
-
-export async function searchForToken(tokenId : string | null) {
-    if (tokenId === null) {
-        return null
-    }
-    return await new Promise(() => {});
-    //return await getToken(tokenId);
 }

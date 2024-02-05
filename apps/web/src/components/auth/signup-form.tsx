@@ -6,12 +6,11 @@ import { createAccount, signInAction } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { signupSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 
 export default function SignUpForm() {
     const [isPending, startTransition] = useTransition();

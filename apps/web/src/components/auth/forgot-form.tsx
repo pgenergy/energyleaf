@@ -4,12 +4,11 @@ import { useState, useTransition } from "react";
 import { forgotPassword } from "@/actions/auth";
 import { forgotSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 import SubmitButton from "@/components/auth/submit-button";
 
 export default function ForgotForm() {
@@ -22,7 +21,8 @@ export default function ForgotForm() {
         },
     });
 
-    async function onSubmit(data: z.infer<typeof forgotSchema>) {
+    function onSubmit(data: z.infer<typeof forgotSchema>) {
+        setError("");
         startTransition(() => {
             toast.promise(forgotPassword(data), {
                 loading: "E-Mail wird versendet...",
@@ -53,6 +53,7 @@ export default function ForgotForm() {
                         )}
                     />
                     <div className="flex flex-col items-center gap-4">
+                        {error ? <p className="text-sm text-destructive">{error}</p> : null}
                         <SubmitButton pending={pending} text={"Zurücksetzen"} />
                     </div>
                 </form>

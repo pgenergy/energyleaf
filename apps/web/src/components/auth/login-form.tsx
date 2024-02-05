@@ -5,12 +5,11 @@ import Link from "next/link";
 import { signInAction } from "@/actions/auth";
 import { loginSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 import SubmitButton from "@/components/auth/submit-button";
 
 export default function LoginForm() {
@@ -25,6 +24,7 @@ export default function LoginForm() {
     });
 
     function onSubmit(data: z.infer<typeof loginSchema>) {
+        setError("");
         startTransition(() => {
             toast.promise(signInAction(data.mail, data.password), {
                 loading: "Anmelden...",

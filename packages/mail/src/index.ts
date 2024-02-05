@@ -1,2 +1,2 @@
-import { sendMail } from "./sendgrid";
+import { sendMail } from "./resend";
 export { sendMail };
