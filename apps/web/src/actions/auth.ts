@@ -12,8 +12,8 @@ import type { z } from "zod";
 import * as jose from "jose";
 
 import { createUser, getUserByMail, type CreateUserType, getUserById, updatePassword } from "@energyleaf/db/query";
-import ConfirmReset from "@/components/mail/confirm-reset";
-import PasswordChanged from "@/components/mail/password-changed";
+import ConfirmResetMail from "@/components/mail/confirm-reset-mail";
+import PasswordChangedMail from "@/components/mail/password-changed-mail";
 
 /**
  * Server action for creating a new account
@@ -72,7 +72,7 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         .sign(Buffer.from(user.password, "hex"));
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset?token=${token}`;
-    await sendMail(mail, "Energyleaf: Passwort zurückseten", ConfirmReset({ resetUrl }));
+    await sendMail(mail, "Energyleaf: Passwort zurückseten", ConfirmResetMail({ resetUrl }));
 }
 
 export async function resetPassword(data: z.infer<typeof resetSchema>, resetToken: string) {
@@ -95,7 +95,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     const hash = await bcrypt.hash(newPassword, 10);
     await updatePassword({ password: hash }, user.id);
 
-    await sendMail(user.email, "Energyleaf: Passwort wurde geändert", PasswordChanged());
+    await sendMail(user.email, "Energyleaf: Passwort wurde geändert", PasswordChangedMail());
 }
 
 /**
