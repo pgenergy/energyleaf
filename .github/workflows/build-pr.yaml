@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      NEXTAUTH_URL: http://localhost:3000
       NEXTAUTH_SECRET: <super-secret>
       DATABASE_HOST: localhost
       DATABASE_USERNAME: username
