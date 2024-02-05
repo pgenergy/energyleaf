@@ -301,3 +301,21 @@ export async function getSensorIdFromSensorToken(code: string) {
         return sensorData[0].id;
     });
 }
+
+/**
+ * Get the average energy consumption per device
+ */
+export async function getAverageConsumptionPerDevice() {
+    const result = await db
+        .select({
+            deviceId: peaks.deviceId,
+            averageConsumption: sql<number>`AVG(${sensorData.value})`
+        })
+        .from(peaks)
+        .innerJoin(sensorData, sql`${peaks.sensorId} = ${sensorData.sensorId} AND ${peaks.timestamp} = ${sensorData.timestamp}`)
+        .groupBy(peaks.deviceId)
+        .execute();
+
+    return result;
+}
+

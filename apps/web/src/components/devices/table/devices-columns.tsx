@@ -11,6 +11,7 @@ export interface DeviceTableType {
     id: number;
     name: string;
     created: Date | null;
+    averageConsumption: number;
 }
 
 export const devicesColumns: ColumnDef<DeviceTableType>[] = [
@@ -62,6 +63,23 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
             }
 
             return <span>{Intl.DateTimeFormat("de-DE").format(row.getValue("created"))}</span>;
+        },
+    },
+    {
+        accessorKey: "averageConsumption",
+        header: () => "Durchschn. Verbrauch",
+        cell: ({ row }) => {
+            const consumptionValue = row.getValue("averageConsumption");
+            const consumption = typeof consumptionValue === 'number' ? consumptionValue.toString() : consumptionValue;
+            
+            if (consumption) {
+                const formattedConsumption = `${Number(consumption).toLocaleString("de-DE", {
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                })} kWh`;               
+                return <span>{formattedConsumption}</span>;
+            }
+            return <span>N/A</span>;
         },
     },
     {
