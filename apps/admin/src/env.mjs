@@ -3,7 +3,6 @@ import { z } from "zod";
 
 export const env = createEnv({
     server: {
-        NEXTAUTH_URL: z.string().url(),
         NEXTAUTH_SECRET: z.string(),
 
         DATABASE_HOST: z.string(),
