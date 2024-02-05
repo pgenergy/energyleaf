@@ -15,7 +15,10 @@ export const passwordSchema = z.object({
 
 export const mailSettingsSchema = z.object({
     daily: z.boolean().default(false),
+    dailyTime: z.coerce.date().default(new Date("08-00-00")),
     weekly: z.boolean().default(false),
+    weeklyDay: z.enum(["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]).default("monday"),
+    weeklyTime: z.coerce.date().default(new Date("08-00-00")),
 });
 
 export const userDataSchema = z.object({

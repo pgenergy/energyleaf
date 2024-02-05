@@ -1,7 +1,8 @@
-import {eq} from "drizzle-orm";
+import {and, between, eq, gt, gte, or, sql} from "drizzle-orm";
 
 import db from "../";
-import {historyUserData, mail, user, userData} from "../schema";
+import {historyUserData, mail, sensorData, user, userData} from "../schema";
+import {MySqlTimestamp} from "drizzle-orm/mysql-core/columns/timestamp";
 
 /**
  * Get a user by id from the database
@@ -113,12 +114,21 @@ export async function updatePassword(data: Partial<CreateUserType>, id: number) 
 /**
  * Update the user mail settings data in the database
  */
-export async function updateMailSettings(data: { daily: boolean; weekly: boolean }, id: number) {
+export async function updateMailSettings(data: {
+    dailyTime: Date;
+    daily: boolean;
+    weeklyDay: string;
+    weekly: boolean;
+    weeklyTime: Date
+}, id: number) {
     return await db
         .update(mail)
         .set({
             mailDaily: data.daily,
+            mailDailyTime: data.dailyTime,
             mailWeekly: data.weekly,
+            mailWeeklyDay: data.weeklyDay,
+            mailWeeklyTime: data.weeklyTime,
         })
         .where(eq(mail.userId, id));
 }
@@ -185,9 +195,34 @@ export async function deleteUser(id: number) {
     return await db.delete(user).where(eq(user.id, id));
 }
 
-export async function getAllUsernamesAndMailsOfUsersWithWeeklyMail() {
-    return db.select({email:user.email, username:user.username})
+export async function getUsersWitDueDailyMail() {
+    return db.select({userID: user.id, userName: user.username , email: user.email})
         .from(user)
-        .innerJoin(mail, eq(user.userId, mail.userId))
-        .where(eq(mail.mailWeekly, true) && eq(user.active, true) && eq(user.deleted, false));
+        .innerJoin(mail, eq(user.id, mail.userId))
+        .where(
+            and(
+                eq(mail.mailDaily, true),
+                gt(sql`CAST(CURRENT_DATE as DATE)`,sql`CAST(mail.mailDailyLastSend) as Date`),
+                gte(sql`TIME(CURRENT_TIME)`, mail.mailDailyTime)
+            )
+        );
+}
+
+
+export async function getUsernameAndMailOfDueUsersWithWeeklyMail() {
+    return db.select({email: user.email, username: user.username})
+        .from(user)
+        .innerJoin(mail, eq(user.id, mail.userId))
+        .where(
+            and(
+                eq(mail.mailWeekly, true),
+                or(
+                    and(
+                        gte(sql`WEEKDAY(CURRENT_DATE)`, mail.mailWeeklyDay),
+                        gte(sql`TIME(CURRENT_TIME)`, mail.mailWeeklyTime),
+                    ),
+                ),
+                gte(sql`CURRENT_DATE`, mail.mailWeeklyLastSend)
+            )
+        );
 }
