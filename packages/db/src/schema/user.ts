@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, float, int, mysqlEnum, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {boolean, float, int, mysqlEnum, mysqlTable, time, timestamp, varchar} from "drizzle-orm/mysql-core";
 
 export const user = mysqlTable("user", {
     id: int("id").autoincrement().primaryKey().notNull(),
@@ -65,5 +65,10 @@ export const mail = mysqlTable("mail", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: int("user_id").notNull(),
     mailDaily: boolean("mail_daily").default(true).notNull(),
+    mailDailyTime: time("mail_daily_time").default(sql`'08:00:00'`).notNull(),
+    mailDailyLastSend: timestamp("mail_daily_last_send").default(sql`'2020-01-01 00:00:00'`).notNull(),
     mailWeekly: boolean("mail_weekly").default(true).notNull(),
+    mailWeeklyDay: int("mail_weekly_day").default(0).notNull(),
+    mailWeeklyTime: time("mail_weekly_time").default(sql`'8:00:00'`).notNull(),
+    mailWeeklyLastSend: timestamp("mail_weekly_last_send").default(sql`'2020-01-01 00:00:00'`).notNull(),
 });
