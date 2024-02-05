@@ -23,17 +23,15 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
 
     if (!sensorId) {
         return (
-        <Card className="w-full">
-            <CardHeader>
-                <CardTitle>Absoluter Energieverbrauch</CardTitle>
-                <CardDescription>
-                    Dein Sensor konnte nicht gefunden werden
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
-            </CardContent>
-        </Card>
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Absoluter Energieverbrauch</CardTitle>
+                    <CardDescription>Dein Sensor konnte nicht gefunden werden</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                </CardContent>
+            </Card>
         );
     }
 

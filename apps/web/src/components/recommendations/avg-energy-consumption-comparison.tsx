@@ -19,7 +19,17 @@ export default async function AvgEnergyConsumptionComparisonCard() {
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
-        throw new Error("Kein Stromsensor für diesen Benutzer gefunden");
+        return (
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Absoluter Energieverbrauch</CardTitle>
+                    <CardDescription>Dein Sensor konnte nicht gefunden werden</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                </CardContent>
+            </Card>
+        );
     }
 
     const avg = await getAvgEnergyConsumptionForUserInComparison(session.user.id);
