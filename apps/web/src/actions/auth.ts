@@ -65,9 +65,9 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         .setSubject(user.id.toString())
         .setIssuedAt()
         .setExpirationTime("1h")
-        //.setAudience("energyleaf")
-        //.setIssuer("energyleaf")
-        //.setNotBefore(new Date())
+        .setAudience("energyleaf")
+        .setIssuer("energyleaf")
+        .setNotBefore(new Date())
         .setProtectedHeader({ alg: "HS256" })
         .sign(Buffer.from(user.password, "hex"));
 
@@ -89,8 +89,12 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
         throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
     }
 
-    await jose.jwtVerify(resetToken, Buffer.from(user.password, "hex"));
-    // es wurde keine Exceotion geworfen, also alles gut
+    await jose.jwtVerify(resetToken, Buffer.from(user.password, "hex"), {
+        audience: "energyleaf",
+        issuer: "energyleaf",
+        algorithms: ["HS256"]
+    });
+    // no exception was thrown, so everything is fine
 
     const hash = await bcrypt.hash(newPassword, 10);
     await updatePassword({ password: hash }, user.id);
