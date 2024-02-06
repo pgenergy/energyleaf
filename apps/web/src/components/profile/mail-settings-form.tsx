@@ -22,7 +22,7 @@ import {
     FormDescription,
     FormField,
     FormItem,
-    FormLabel, Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+    FormLabel,
     Switch,
 } from "@energyleaf/ui";
 import DaySelector from "@/components/profile/day-selector";
