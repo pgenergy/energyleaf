@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { userData } from "@energyleaf/db/schema";
+import Weekdays from "@/types/enums/weekDays";
 
 export const baseInfromationSchema = z.object({
     username: z.string().nonempty({ message: "Bitte gib einen Benutzernamen an." }),
@@ -15,10 +16,16 @@ export const passwordSchema = z.object({
 
 export const mailSettingsSchema = z.object({
     daily: z.boolean().default(false),
-    dailyTime: z.coerce.date().default(new Date("08-00-00")),
+    dailyTime: z.coerce.number().int()
+        .positive({message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an."})
+        .max(23, {message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an."})
+        .default(8),
     weekly: z.boolean().default(false),
-    weeklyDay: z.enum(["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]).default("monday"),
-    weeklyTime: z.coerce.date().default(new Date("08-00-00")),
+    weeklyDay: z.nativeEnum(Weekdays).default(Weekdays.Montag),
+    weeklyTime: z.coerce.number().int()
+        .positive({message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an."})
+        .max(23, {message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an."})
+        .default(8)
 });
 
 export const userDataSchema = z.object({

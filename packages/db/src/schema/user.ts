@@ -65,10 +65,10 @@ export const mail = mysqlTable("mail", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: int("user_id").notNull(),
     mailDaily: boolean("mail_daily").default(true).notNull(),
-    mailDailyTime: timestamp("mail_daily_time").default(sql`'08:00:00'`).notNull(),
+    mailDailyTime: int("mail_daily_time").default(8).notNull(),
     mailDailyLastSend: timestamp("mail_daily_last_send").default(sql`'2020-01-01 00:00:00'`).notNull(),
     mailWeekly: boolean("mail_weekly").default(true).notNull(),
     mailWeeklyDay: int("mail_weekly_day").default(0).notNull(),
-    mailWeeklyTime: timestamp("mail_weekly_time").default(sql`'8:00:00'`).notNull(),
+    mailWeeklyTime: int("mail_daily_time").default(8).notNull(),
     mailWeeklyLastSend: timestamp("mail_weekly_last_send").default(sql`'2020-01-01 00:00:00'`).notNull(),
 });

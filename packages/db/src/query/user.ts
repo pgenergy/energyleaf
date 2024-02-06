@@ -115,11 +115,11 @@ export async function updatePassword(data: Partial<CreateUserType>, id: number) 
  * Update the user mail settings data in the database
  */
 export async function updateMailSettings(data: {
-    dailyTime: Date;
     daily: boolean;
-    weeklyDay: string;
+    dailyTime: number;
     weekly: boolean;
-    weeklyTime: Date
+    weeklyTime: number;
+    weeklyDay: number
 }, id: number) {
     return await db
         .update(mail)
