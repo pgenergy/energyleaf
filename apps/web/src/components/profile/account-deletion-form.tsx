@@ -6,7 +6,6 @@ import { deleteAccount } from "@/actions/profile";
 import { deleteAccountSchema } from "@/lib/schema/profile";
 import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -47,7 +46,6 @@ export default function AccountDeletionForm({ id }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof deleteAccountSchema>) {
-        track("deleteAccount()");
         startTransition(() => {
             setOpen(false);
             toast.promise(
@@ -81,7 +79,6 @@ export default function AccountDeletionForm({ id }: Props) {
                     <Button
                         disabled={isPending}
                         onClick={() => {
-                            track("openDialog(deleteAccount)");
                             setOpen(true);
                         }}
                         type="button"
@@ -119,7 +116,6 @@ export default function AccountDeletionForm({ id }: Props) {
                                     <Button
                                         disabled={isPending}
                                         onClick={() => {
-                                            track("closeDialog(deleteAccount)");
                                             setOpen(false);
                                         }}
                                         type="button"

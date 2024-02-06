@@ -1,6 +1,5 @@
 "use client";
 
-import { track } from "@vercel/analytics";
 import { ComputerIcon, MoonIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -34,7 +33,6 @@ export default function ThemeSwitcher() {
                 <DropdownMenuItem
                     className="flex cursor-pointer items-center gap-2"
                     onClick={() => {
-                        track('switchTheme("system")');
                         switchTheme("system");
                     }}
                 >
@@ -44,7 +42,6 @@ export default function ThemeSwitcher() {
                 <DropdownMenuItem
                     className="flex cursor-pointer items-center gap-2"
                     onClick={() => {
-                        track('switchTheme("light")');
                         switchTheme("light");
                     }}
                 >
@@ -54,7 +51,6 @@ export default function ThemeSwitcher() {
                 <DropdownMenuItem
                     className="flex cursor-pointer items-center gap-2"
                     onClick={() => {
-                        track('switchTheme("dark")');
                         switchTheme("dark");
                     }}
                 >
