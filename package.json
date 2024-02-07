@@ -7,6 +7,7 @@
         "dev": "dotenv -- turbo run dev",
         "dev:app": "dotenv -- turbo run dev --filter web",
         "dev:admin": "dotenv -- turbo run dev --filter admin",
+        "dev:mail": "dotenv -- pnpm --filter mail run dev:mail",
         "lint": "dotenv -- turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "fix": "pnpm run format && pnpm run lint -- --fix",

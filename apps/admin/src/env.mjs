@@ -11,6 +11,7 @@ export const env = createEnv({
         DATABASE_NAME: z.string(),
 
         SENDGRID_API_KEY: z.string(),
+        RESEND_API_KEY: z.string(),
     },
     client: {},
     experimental__runtimeEnv: {},

@@ -7,7 +7,8 @@
     "files": [
         "index.ts",
         "global.css",
-        "utils.ts"
+        "utils.ts",
+        "mail-config.ts"
     ],
     "dependencies": {
         "clsx": "^2.1.0",
