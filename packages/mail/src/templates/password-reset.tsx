@@ -22,13 +22,13 @@ interface Props {
 export default function PasswordResetTemplate({ name, link }: Props) {
     return (
         <Html lang="de">
-            <Head />
             <Preview>Energyleaf Passwort zurücksetzen</Preview>
             <Tailwind
                 config={{
                     ...config,
                 }}
             >
+                <Head />
                 <Body className="dark:bg-background-dark dark:text-foreground-dark bg-background font-sans text-foreground">
                     <Container className="mx-auto flex max-w-lg flex-col gap-4 px-8 py-4">
                         <Container>
