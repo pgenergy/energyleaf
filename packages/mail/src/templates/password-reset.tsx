@@ -54,7 +54,7 @@ export default function PasswordResetTemplate({ name, link }: Props) {
                         </Container>
                         <Container className="mt-8 px-4">
                             <Text>
-                                Sollest du nicht um ein neues Passwort gebeten haben, kann diese E-Mail ignoriert
+                                Sollten Sie nicht um ein neues Passwort gebeten haben, kann diese E-Mail ignoriert
                                 werden.
                             </Text>
                         </Container>
