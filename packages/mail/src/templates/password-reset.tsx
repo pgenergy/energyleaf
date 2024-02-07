@@ -21,7 +21,7 @@ interface Props {
 
 export default function PasswordResetTemplate({ name, link }: Props) {
     return (
-        <Html>
+        <Html lang="de">
             <Head />
             <Preview>Energyleaf Passwort zurücksetzen</Preview>
             <Tailwind
@@ -29,21 +29,26 @@ export default function PasswordResetTemplate({ name, link }: Props) {
                     ...config,
                 }}
             >
-                <Body className="bg-background font-sans text-foreground">
+                <Body className="dark:bg-background-dark dark:text-foreground-dark bg-background font-sans text-foreground">
                     <Container className="mx-auto flex max-w-lg flex-col gap-4 px-8 py-4">
                         <Container>
                             <Heading>Passwort zurücksetzen</Heading>
-                            <Hr className="border border-border" />
+                            <Hr className="dark:border-border-dark border border-border" />
                         </Container>
                         <Container className="mb-8 px-4">
                             <Text>
                                 Hallo {name}, <br />
                                 <br />
-                                mit einem Klick auf den folgenden Button kannst du dein Passwort zurücksetzen.
+                                Diese E-Mail wurde als Antwort auf Ihre Anfrage gesendet, Ihr Passwort zurückzusetzen.
+                                Bitte klicken Sie hierzu auf den Link unten. Aus Sicherheitsgründen ist dieser nur eine
+                                Stunde gültig.
                             </Text>
                         </Container>
                         <Container className="flex justify-center">
-                            <Button className="m-0 rounded bg-primary px-4 py-2 text-primary-foreground" href={link}>
+                            <Button
+                                className="dark:text-primary-dark-foreground m-0 rounded bg-primary px-4 py-2 text-primary-foreground"
+                                href={link}
+                            >
                                 Passwort zurücksetzen
                             </Button>
                         </Container>
@@ -53,15 +58,15 @@ export default function PasswordResetTemplate({ name, link }: Props) {
                                 werden.
                             </Text>
                         </Container>
-                        <Container className="flex flex-col gap-2 px-4 text-sm text-muted-foreground mb-8">
-                            <Container>Sollte der Button nicht funktionieren, nutze folgenden Link:</Container>
+                        <Container className="dark:text-muted-dark-foreground mb-8 flex flex-col gap-2 px-4 text-sm text-muted-foreground">
+                            <Container>Sollte der Button nicht funktionieren, nutzen Sie folgenden Link:</Container>
                             <Container>
-                                <Link className="text-primary" href={link}>
+                                <Link className="dark:text-primary-dark-foreground text-primary" href={link}>
                                     {link}
                                 </Link>
                             </Container>
                         </Container>
-                        <Hr className="border border-border" />
+                        <Hr className="dark:border-border-dark border border-border" />
                         <Container className="flex flex-row justify-center gap-4">
                             <Text className="font-bold">Energyleaf</Text>
                         </Container>

@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import {redirect, useSearchParams} from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { resetPassword } from "@/actions/auth";
+import SubmitButton from "@/components/auth/submit-button";
 import { resetSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
-import SubmitButton from "@/components/auth/submit-button";
-import {toast} from "sonner";
 
 export default function ResetForm() {
     const [error, setError] = useState<string | null>(null);
@@ -49,7 +49,7 @@ export default function ResetForm() {
             <div className="flex flex-col gap-2">
                 <p className="text-xl font-bold">Ungültiges oder abgelaufenes Passwort-Reset-Token</p>
             </div>
-        )
+        );
     }
 
     return (
@@ -83,7 +83,7 @@ export default function ResetForm() {
                         )}
                     />
                     {error ? <p className="text-sm text-destructive">{error}</p> : null}
-                    <SubmitButton pending={pending} text={"Passwort zurücksetzen"}/>
+                    <SubmitButton pending={pending} text="Passwort zurücksetzen" />
                 </form>
             </Form>
         </div>

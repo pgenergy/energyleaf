@@ -102,7 +102,7 @@ export default function SignUpForm() {
                     />
                     <div className="flex flex-col items-center gap-4">
                         {error !== "" ? <p className="text-sm text-destructive">{error}</p> : null}
-                        <SubmitButton pending={isPending} text={"Konto erstellen"} />
+                        <SubmitButton pending={isPending} text="Konto erstellen" />
                         <p className="text-sm text-muted-foreground">
                             Du hast bereits ein Konto?{" "}
                             <Link className="underline hover:no-underline" href="/">

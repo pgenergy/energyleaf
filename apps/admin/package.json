@@ -13,6 +13,7 @@
         "@energyleaf/db": "workspace:^",
         "@energyleaf/lib": "workspace:^",
         "@energyleaf/proto": "workspace:*",
+        "@energyleaf/mail": "workspace:*",
         "@energyleaf/tailwindcss": "workspace:*",
         "@energyleaf/ui": "workspace:*",
         "@hookform/resolvers": "^3.3.4",

@@ -1,5 +1,6 @@
-import {Card, CardHeader} from "@energyleaf/ui";
 import Image from "next/image";
+
+import { Card, CardHeader } from "@energyleaf/ui";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     return (

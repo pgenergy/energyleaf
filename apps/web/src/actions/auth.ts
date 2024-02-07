@@ -4,16 +4,15 @@ import "server-only";
 
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { redirect } from "next/navigation";
+import { env } from "@/env.mjs";
 import { signIn, signOut } from "@/lib/auth/auth";
-import { sendMail } from "@energyleaf/mail";
-import type { signupSchema, forgotSchema, resetSchema } from "@/lib/schema/auth";
+import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import * as bcrypt from "bcryptjs";
-import type { z } from "zod";
 import * as jose from "jose";
+import type { z } from "zod";
 
-import { createUser, getUserByMail, type CreateUserType, getUserById, updatePassword } from "@energyleaf/db/query";
-import ConfirmResetMail from "@/components/mail/confirm-reset-mail";
-import PasswordChangedMail from "@/components/mail/password-changed-mail";
+import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
+import { sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 
 /**
  * Server action for creating a new account
@@ -69,10 +68,20 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         .setIssuer("energyleaf")
         .setNotBefore(new Date())
         .setProtectedHeader({ alg: "HS256" })
-        .sign(Buffer.from(user.password, "hex"));
+        .sign(Buffer.from(env.NEXTAUTH_SECRET, "hex"));
 
-    const resetUrl = `${process.env.NEXTAUTH_URL}/reset?token=${token}`;
-    await sendMail(mail, "Energyleaf: Passwort zurückseten", ConfirmResetMail({ resetUrl }));
+    const resetUrl = `https://energyleaf.de/reset?token=${token}`;
+    try {
+        await sendPasswordResetEmail({
+            from: env.RESEND_API_MAIL,
+            to: mail,
+            name: user.username,
+            link: resetUrl,
+            apiKey: env.RESEND_API_KEY,
+        });
+    } catch (err) {
+        throw new Error("Fehler beim Senden der E-Mail.");
+    }
 }
 
 export async function resetPassword(data: z.infer<typeof resetSchema>, resetToken: string) {
@@ -89,17 +98,26 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
         throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
     }
 
-    await jose.jwtVerify(resetToken, Buffer.from(user.password, "hex"), {
+    await jose.jwtVerify(resetToken, Buffer.from(env.NEXTAUTH_SECRET, "hex"), {
         audience: "energyleaf",
         issuer: "energyleaf",
-        algorithms: ["HS256"]
+        algorithms: ["HS256"],
     });
     // no exception was thrown, so everything is fine
 
     const hash = await bcrypt.hash(newPassword, 10);
     await updatePassword({ password: hash }, user.id);
 
-    await sendMail(user.email, "Energyleaf: Passwort wurde geändert", PasswordChangedMail());
+    try {
+        await sendPasswordChangedEmail({
+            from: env.RESEND_API_MAIL,
+            to: user.email,
+            name: user.username,
+            apiKey: env.RESEND_API_KEY,
+        });
+    } catch (err) {
+        throw new Error("Fehler beim Senden der E-Mail.");
+    }
 }
 
 /**

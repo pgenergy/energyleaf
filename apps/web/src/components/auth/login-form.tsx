@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { signInAction } from "@/actions/auth";
+import SubmitButton from "@/components/auth/submit-button";
 import { loginSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -10,7 +11,6 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
-import SubmitButton from "@/components/auth/submit-button";
 
 export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
@@ -69,7 +69,7 @@ export default function LoginForm() {
                     />
                     <div className="flex flex-col items-center gap-4">
                         {error ? <p className="text-sm text-destructive">{error}</p> : null}
-                        <SubmitButton pending={pending} text={"Anmelden"} />
+                        <SubmitButton pending={pending} text="Anmelden" />
                         <p className="text-sm text-muted-foreground">
                             Noch kein Konto?{" "}
                             <Link className="underline hover:no-underline" href="/signup">
