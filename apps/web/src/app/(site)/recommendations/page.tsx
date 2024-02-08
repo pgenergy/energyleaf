@@ -1,21 +1,45 @@
 import { Suspense } from "react";
-import AvgEnergyConsumptionCard from "@/components/recommendations/avg-energy-consumption-card";
-import AvgEnergyConsumptionComparisonCard from "@/components/recommendations/avg-energy-consumption-comparison";
+import { redirect } from "next/navigation";
+import AvgEnergyConsumptionComparisonComponent from "@/components/recommendations/avg-energy-consumption-comparison-component";
+import AvgEnergyConsumptionComponent from "@/components/recommendations/avg-energy-consumption-component";
+import { getSession } from "@/lib/auth/auth";
+import {
+    getAvgEnergyConsumptionForSensor,
+    getAvgEnergyConsumptionForUserInComparison,
+    getElectricitySensorIdForUser,
+} from "@/query/energy";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
 
-export default function RecommendationsPage() {
+export default async function RecommendationsPage() {
+    const session = await getSession();
+
+    if (!session) {
+        redirect("/");
+    }
+
+    const sensorId = await getElectricitySensorIdForUser(session.user.id);
+    let usersAvg: {
+        avg: number;
+        count: number;
+    } | null = null;
+    let ownAvg: number | null = null;
+    if (sensorId) {
+        usersAvg = await getAvgEnergyConsumptionForUserInComparison(session.user.id);
+        ownAvg = await getAvgEnergyConsumptionForSensor(sensorId);
+    }
+
     return (
         <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div>
                     <Suspense fallback={<Skeleton className="h-52 w-full" />}>
-                        <AvgEnergyConsumptionCard />
+                        <AvgEnergyConsumptionComponent avg={ownAvg} sensorId={sensorId} />
                     </Suspense>
                 </div>
                 <div>
                     <Suspense fallback={<Skeleton className="h-52 w-full" />}>
-                        <AvgEnergyConsumptionComparisonCard />
+                        <AvgEnergyConsumptionComparisonComponent avg={usersAvg} avgUser={ownAvg} sensorId={sensorId} />
                     </Suspense>
                 </div>
             </div>

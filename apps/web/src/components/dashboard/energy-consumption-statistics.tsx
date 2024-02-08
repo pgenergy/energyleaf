@@ -1,6 +1,3 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/auth";
-import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -9,22 +6,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 interface Props {
     startDate: Date;
     endDate: Date;
+    sensorId: string | null;
+    energyData: {
+        id: number;
+        timestamp: Date | null;
+        value: number;
+        sensorId: string | null;
+    }[];
 }
 
 interface EnergyDataItem {
     value: number;
 }
 
-export default async function EnergyConsumptionStatisticCard({ startDate, endDate }: Props) {
-    const session = await getSession();
-
-    if (!session) {
-        redirect("/");
-    }
-
-    const userId = session.user.id;
-    const sensorId = await getElectricitySensorIdForUser(userId);
-
+export default function EnergyConsumptionStatisticCard({ startDate, endDate, sensorId, energyData }: Props) {
     if (!sensorId) {
         return (
             <Card className="w-full">
@@ -39,7 +34,6 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
         );
     }
 
-    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const energyValues = energyData.map((entry) => entry.value);
 
     const maxConsumptionEntry: EnergyDataItem = energyData.reduce(

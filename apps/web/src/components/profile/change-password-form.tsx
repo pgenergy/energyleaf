@@ -12,6 +12,7 @@ import type { z } from "zod";
 
 import {
     Button,
+    Card,
     CardContent,
     CardDescription,
     CardHeader,
@@ -69,7 +70,7 @@ export default function ChangePasswordForm({ disabled }: Props) {
     }
 
     return (
-        <div>
+        <Card>
             <CardHeader>
                 <CardTitle>Passwort</CardTitle>
                 <CardDescription>Ändere dein Passwort</CardDescription>
@@ -140,6 +141,6 @@ export default function ChangePasswordForm({ disabled }: Props) {
                     </form>
                 </Form>
             </CardContent>
-        </div>
+        </Card>
     );
 }

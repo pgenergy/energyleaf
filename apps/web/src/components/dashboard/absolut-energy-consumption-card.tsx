@@ -1,6 +1,3 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/auth";
-import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -9,18 +6,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 interface Props {
     startDate: Date;
     endDate: Date;
+    sensorId: string | null;
+    energyData: {
+        id: number;
+        timestamp: Date | null;
+        value: number;
+        sensorId: string | null;
+    }[];
 }
 
-export default async function AbsolutEnergyConsumptionCard({ startDate, endDate }: Props) {
-    const session = await getSession();
-
-    if (!session) {
-        redirect("/");
-    }
-
-    const userId = session.user.id;
-    const sensorId = await getElectricitySensorIdForUser(userId);
-
+export default function AbsolutEnergyConsumptionCard({ startDate, endDate, sensorId, energyData }: Props) {
     if (!sensorId) {
         return (
             <Card className="w-full">
@@ -35,7 +30,6 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
         );
     }
 
-    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0);
 
     return (

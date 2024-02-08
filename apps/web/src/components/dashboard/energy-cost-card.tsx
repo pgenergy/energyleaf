@@ -1,11 +1,8 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
-import { getSession } from "@/lib/auth/auth";
-import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import { getUserData } from "@/query/user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { ArrowRightIcon } from "lucide-react";
 import { ArrowRightIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
@@ -13,18 +10,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 interface Props {
     startDate: Date;
     endDate: Date;
+    sensorId: string | null;
+    energyData: {
+        id: number;
+        timestamp: Date | null;
+        value: number;
+        sensorId: string | null;
+    }[];
+    userData: {
+        user_data: {
+            id: number;
+            userId: number;
+            timestamp: Date;
+            property: "house" | "apartment" | null;
+            budget: number | null;
+            basePrice: number | null;
+            workingPrice: number | null;
+            tariff: "basic" | "eco" | null;
+            limitEnergy: number | null;
+            household: number | null;
+            livingSpace: number | null;
+            hotWater: "electric" | "not_electric" | null;
+            monthlyPayment: number | null;
+        };
+        mail: {
+            id: number;
+            userId: number;
+            mailDaily: boolean;
+            mailWeekly: boolean;
+        };
+    } | null;
 }
 
-export default async function EnergyCostCard({ startDate, endDate }: Props) {
-    const session = await getSession();
-
-    if (!session) {
-        redirect("/");
-    }
-
-    const userId = session.user.id;
-    const sensorId = await getElectricitySensorIdForUser(userId);
-
+export default function EnergyCostCard({ startDate, endDate, sensorId, energyData, userData }: Props) {
     if (!sensorId) {
         return (
             <Card className="w-full">
@@ -39,8 +57,6 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
         );
     }
 
-    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const userData = await getUserData(session.user.id);
     const price = userData?.user_data.basePrice;
     const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
     const cost: number | null = price ? parseFloat((absolut * price).toFixed(2)) : null;
