@@ -10,7 +10,8 @@
         "./hooks": "./src/hooks/index.tsx",
         "./components/nav": "./src/components/nav/index.tsx",
         "./components/charts": "./src/components/charts/index.tsx",
-        "./components/utils": "./src/components/utils/index.tsx"
+        "./components/utils": "./src/components/utils/index.tsx",
+        "./tools": "./src/tools/index.tsx"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:*",
