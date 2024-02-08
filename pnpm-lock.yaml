@@ -75,21 +75,12 @@ importers:
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
-      canvas:
-        specifier: ^2.11.2
-        version: 2.11.2
-      chart.js:
-        specifier: ^4.4.1
-        version: 4.4.1
       clsx:
         specifier: ^2.1.0
         version: 2.1.0
       date-fns:
         specifier: ^3.3.1
         version: 3.3.1
-      jsdom:
-        specifier: ^24.0.0
-        version: 24.0.0(canvas@2.11.2)
       lucide-react:
         specifier: ^0.320.0
         version: 0.320.0(react@18.2.0)
@@ -133,9 +124,6 @@ importers:
       '@types/bcryptjs':
         specifier: ^2.4.6
         version: 2.4.6
-      '@types/jsdom':
-        specifier: ^21.1.6
-        version: 21.1.6
       '@types/node':
         specifier: ^20.11.15
         version: 20.11.15
@@ -460,6 +448,12 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.11.7
         version: 8.11.7(react-dom@18.2.0)(react@18.2.0)
+      canvas:
+        specifier: ^2.11.2
+        version: 2.11.2
+      chart.js:
+        specifier: ^4.4.1
+        version: 4.4.1
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -469,6 +463,9 @@ importers:
       date-fns:
         specifier: ^3.3.1
         version: 3.3.1
+      jsdom:
+        specifier: ^24.0.0
+        version: 24.0.0(canvas@2.11.2)
       lucide-react:
         specifier: ^0.320.0
         version: 0.320.0(react@18.2.0)
@@ -500,6 +497,9 @@ importers:
       '@turbo/gen':
         specifier: ^1.12.2
         version: 1.12.2(@types/node@20.11.15)(typescript@5.3.3)
+      '@types/jsdom':
+        specifier: ^21.1.6
+        version: 21.1.6
       '@types/node':
         specifier: ^20.11.15
         version: 20.11.15
