@@ -26,8 +26,6 @@ import {
     Input,
 } from "@energyleaf/ui";
 
-import ChangePasswordForm from "./change-password-form";
-
 interface Props {
     username: string;
     email: string;
@@ -102,7 +100,6 @@ export default function BaseInformationForm({ username, email, id }: Props) {
                     </form>
                 </Form>
             </CardContent>
-            <ChangePasswordForm id={id} />
         </Card>
     );
 }

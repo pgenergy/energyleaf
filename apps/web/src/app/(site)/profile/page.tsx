@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
-import AccountDeletionForm from "@/components/profile/account-deletion-form";
-import BaseInformationForm from "@/components/profile/base-information-form";
-import UserDataForm from "@/components/profile/data-form";
-import MailSettingsForm from "@/components/profile/mail-settings-form";
+import AccountDeletionComponent from "@/components/profile/account-deletion-component";
+import BaseInformationComponent from "@/components/profile/base-information-component";
+import ChangePasswordComponent from "@/components/profile/change-password-component";
+import UserDataComponent from "@/components/profile/data-component";
+import MailSettingsComponent from "@/components/profile/mail-settings-component";
 import { getSession } from "@/lib/auth/auth";
 import { getUserData } from "@/query/user";
 
@@ -27,14 +28,15 @@ export default async function ProfilePage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationForm email={session.user.email} id={session.user.id} username={session.user.name} />
-            <MailSettingsForm
+            <BaseInformationComponent email={session.user.email} id={session.user.id} username={session.user.name} />
+            <ChangePasswordComponent id={session.user.id} />
+            <MailSettingsComponent
                 daily={userData?.mail.mailDaily || false}
                 id={session.user.id}
                 weekly={userData?.mail.mailWeekly || false}
             />
-            <UserDataForm id={session.user.id} initialData={data} />
-            <AccountDeletionForm id={session.user.id} />
+            <UserDataComponent id={session.user.id} initialData={data} />
+            <AccountDeletionComponent id={session.user.id} />
         </div>
     );
 }

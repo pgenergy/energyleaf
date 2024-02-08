@@ -1,12 +1,18 @@
 import { Suspense } from "react";
-import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
-import EnergyConsumptionCard from "@/components/dashboard/energy-consumption-card";
-import EnergyStatisticsCard from "@/components/dashboard/energy-consumption-statistics";
-import EnergyCostCard from "@/components/dashboard/energy-cost-card";
+import { redirect } from "next/navigation";
+import AbsolutEnergyConsumptionComponent from "@/components/dashboard/absolut-energy-consumption-component";
+import EnergyConsumptionComponent from "@/components/dashboard/energy-consumption-component";
+import EnergyConsumptionStatisticsComponent from "@/components/dashboard/energy-consumption-statistics-component";
+import EnergyCostComponent from "@/components/dashboard/energy-cost-component";
+import { getSession } from "@/lib/auth/auth";
+import { getDevicesByUser } from "@/query/device";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor, getPeaksBySensor } from "@/query/energy";
+import { getUserData } from "@/query/user";
 
+import { AggregationType } from "@energyleaf/db/util";
 import { Skeleton } from "@energyleaf/ui";
 
-export default function DashboardPage({
+export default async function DashboardPage({
     searchParams,
 }: {
     searchParams: { start?: string; end?: string; aggregation?: string };
@@ -25,21 +31,117 @@ export default function DashboardPage({
         endDate.setUTCHours(23, 59, 59, 999);
     }
 
+    const session = await getSession();
+
+    if (!session) {
+        redirect("/");
+    }
+
+    const userId = session.user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
+    let energyData: {
+        id: number;
+        timestamp: Date | null;
+        value: number;
+        sensorId: string | null;
+    }[] = [];
+    let userData: {
+        user_data: {
+            id: number;
+            userId: number;
+            timestamp: Date;
+            property: "house" | "apartment" | null;
+            budget: number | null;
+            basePrice: number | null;
+            workingPrice: number | null;
+            tariff: "basic" | "eco" | null;
+            limitEnergy: number | null;
+            household: number | null;
+            livingSpace: number | null;
+            hotWater: "electric" | "not_electric" | null;
+            monthlyPayment: number | null;
+        };
+        mail: {
+            id: number;
+            userId: number;
+            mailDaily: boolean;
+            mailWeekly: boolean;
+        };
+    } | null = null;
+    let aggregation: AggregationType = AggregationType.RAW;
+    let devices: {
+        id: number;
+        userId: number;
+        name: string;
+        created: Date | null;
+        timestamp: Date;
+    }[] = [];
+    let peaksWithDevicesAssigned: ({
+        id: string;
+        device: number;
+    } | null)[] = [];
+
+    if (sensorId) {
+        energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
+        if (aggregationType) {
+            aggregation = AggregationType[aggregationType.toUpperCase() as keyof typeof AggregationType];
+            energyData = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
+            devices = await getDevicesByUser(userId);
+        }
+        userData = await getUserData(session.user.id);
+        peaksWithDevicesAssigned = (await getPeaksBySensor(startDate, endDate, sensorId))
+            .map((x) => {
+                if (x.sensor_data !== null) {
+                    return {
+                        id: x.sensor_data.sensorId,
+                        device: x.peaks.deviceId,
+                    };
+                }
+
+                return null;
+            })
+            .filter(Boolean);
+    }
+
     return (
         <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <AbsolutEnergyConsumptionCard endDate={endDate} startDate={startDate} />
+                    <AbsolutEnergyConsumptionComponent
+                        endDate={endDate}
+                        energyData={energyData}
+                        sensorId={sensorId}
+                        startDate={startDate}
+                    />
                 </Suspense>
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <EnergyStatisticsCard endDate={endDate} startDate={startDate} />
+                    <EnergyConsumptionStatisticsComponent
+                        endDate={endDate}
+                        energyData={energyData}
+                        sensorId={sensorId}
+                        startDate={startDate}
+                    />
                 </Suspense>
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <EnergyCostCard endDate={endDate} startDate={startDate} />
+                    <EnergyCostComponent
+                        endDate={endDate}
+                        energyData={energyData}
+                        sensorId={sensorId}
+                        startDate={startDate}
+                        userData={userData}
+                    />
                 </Suspense>
             </div>
             <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
-                <EnergyConsumptionCard aggregationType={aggregationType} endDate={endDate} startDate={startDate} />
+                <EnergyConsumptionComponent
+                    aggregation={aggregation}
+                    devices={devices}
+                    endDate={endDate}
+                    energyData={energyData}
+                    peaksWithDevicesAssigned={peaksWithDevicesAssigned}
+                    sensorId={sensorId}
+                    startDate={startDate}
+                />
             </Suspense>
         </div>
     );
