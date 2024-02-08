@@ -12,8 +12,6 @@ export enum DeviceCategory {
 }
 
 export const deviceSchema = z.object({
-  deviceName: z.string().min(1, "Bitte gib einen Gerätenamen an."),
-  category: z.nativeEnum(DeviceCategory).refine((val) => Object.values(DeviceCategory).includes(val), {
-    message: "Bitte wähle eine gültige Kategorie aus.",
-  }),
+  deviceName: z.string().min(1, { message: "Bitte gib einen Gerätenamen an." }),
+  category: z.nativeEnum(DeviceCategory),
 });

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { createDevice, updateDevice } from "@/actions/device";
 import type { z } from "zod";
 
-import {  Button,  Form,  FormControl,  FormField,  FormItem,  FormLabel,  FormMessage,  Input,  Select,} from "@energyleaf/ui";
+import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
 
 interface Props {
   device?: { id: number; name: string; category?: DeviceCategory };
@@ -18,30 +18,27 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
   const form = useForm<z.infer<typeof deviceSchema>>({
     resolver: zodResolver(deviceSchema),
     defaultValues: {
-      deviceName: device?.name ?? "",
-      category: device?.category ?? DeviceCategory.CoolingAndFreezing,
+      deviceName: device?.name ?? '',
+      category: device?.category,
     },
   });
 
-  async function onSubmit(data: z.infer<typeof deviceSchema>) {
-    const operation = device ? "aktualisiert" : "hinzugefügt";
-    await toast.promise(
-      async () => {
-        if (!device) {
-          await createDevice(data);
-        } else {
-          await updateDevice(data, device.id);
-        }
-      },
-      {
-        loading: "Laden...",
-        success: `Gerät erfolgreich ${operation}.`,
-        error: `Fehler beim ${operation} des Geräts.`,
+  const onSubmit = async (data: z.infer<typeof deviceSchema>) => {
+    try {
+      if (device) {
+        await updateDevice(data, device.id);
+        toast.success('Gerät erfolgreich aktualisiert');
+      } else {
+        await createDevice(data);
+        toast.success('Gerät erfolgreich hinzugefügt');
       }
-    );
+      onCallback();
+    } catch (error) {
+      toast.error('Fehler beim Speichern des Geräts');
+      console.error(error);
+    }
+  };
 
-    onCallback();
-}
   return (
     <Form {...form}>
       <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -59,27 +56,32 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
           )}
         />
         <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Kategorie</FormLabel>
-              <FormControl>
-                <Select {...field}>
-                  {Object.entries(DeviceCategory).map(([key, value]) => (
-                    <option key={key} value={key}>
-                      {value}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="flex flex-row justify-end">
-          <Button type="submit">Speichern</Button>
-        </div>
+  control={form.control}
+  name="category"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Kategorie</FormLabel>
+      <FormControl>
+        <Select {...field}>
+          <SelectTrigger>
+            <SelectValue placeholder="Kategorie auswählen" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(DeviceCategory).map(([key, value]) => (
+              <SelectItem key={key} value={key}>{value}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+
+        <Button className="flex flex-row gap-2" disabled={device !== undefined && !form.formState.isDirty} type="submit">
+          Speichern
+        </Button>
       </form>
     </Form>
   );

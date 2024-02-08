@@ -2,13 +2,12 @@
 
 import { getSession } from "@/lib/auth/auth";
 import { createDevice as createDeviceDb, updateDevice as updateDeviceDb, deleteDevice as deleteDeviceDb } from "@energyleaf/db/query";
-import { deviceSchema } from "@/lib/schema/device";
+import { deviceSchema, DeviceCategory } from "@/lib/schema/device";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { UserNotLoggedInError, UserNotFoundError } from "@energyleaf/lib/errors/auth";
 import { getUserById } from "@energyleaf/db/query";
 
-// Funktion zum Erstellen eines neuen Geräts
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
     const session = await getSession();
     if (!session) {
@@ -23,7 +22,7 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         await createDeviceDb({
             name: data.deviceName,
             userId: user.id,
-            category: data.category,
+            category: DeviceCategory[data.category],
         });
         await revalidatePath("/devices");
     } catch (error) {
@@ -37,7 +36,6 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
     if (!session) {
         throw new UserNotLoggedInError();
     }
-
     const user = await getUserById(Number(session.user.id));
     if (!user) {
         throw new UserNotFoundError();
@@ -46,7 +44,7 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
     try {
         await updateDeviceDb(deviceId, {
             name: data.deviceName,
-            category: data.category,
+            category: DeviceCategory[data.category],
         });
         await revalidatePath("/devices");
     } catch (error) {
