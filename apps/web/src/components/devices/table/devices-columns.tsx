@@ -2,9 +2,6 @@
 
 import { type ColumnDef } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-
-import { Button } from "@energyleaf/ui";
-
 import DeviceActionCell from "./device-action-cell";
 
 export interface DeviceTableType {
@@ -12,81 +9,47 @@ export interface DeviceTableType {
     name: string;
     created: Date | null;
     averageConsumption: number;
+    category: string;
 }
 
 export const devicesColumns: ColumnDef<DeviceTableType>[] = [
     {
         accessorKey: "name",
-        header: ({ column }) => {
-            return (
-                <Button
-                    onClick={() => {
-                        column.toggleSorting(column.getIsSorted() === "asc");
-                    }}
-                    variant="ghost"
-                >
-                    Name
-                    {column.getIsSorted() === "asc" ? (
-                        <ChevronUpIcon className="ml-2 h-4 w-4" />
-                    ) : (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
-                    )}
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            return <span>{row.getValue("name")}</span>;
-        },
+        header: ({ column }) => (
+            <div
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                style={{ cursor: "pointer" }}
+            >
+                Name
+                {column.getIsSorted() === "asc" ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            </div>
+        ),
+        cell: ({ row }) => row.getValue("name"),
     },
     {
         accessorKey: "created",
-        header: ({ column }) => {
-            return (
-                <Button
-                    onClick={() => {
-                        column.toggleSorting(column.getIsSorted() === "asc");
-                    }}
-                    variant="ghost"
-                >
-                    Erstellt
-                    {column.getIsSorted() === "asc" ? (
-                        <ChevronUpIcon className="ml-2 h-4 w-4" />
-                    ) : (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
-                    )}
-                </Button>
-            );
-        },
+        header: "Erstellt",
         cell: ({ row }) => {
-            if (!row.getValue("created")) {
-                return null;
+            const created = row.getValue("created");
+            if (typeof created === 'string' || typeof created === 'number' || created instanceof Date) {
+                return Intl.DateTimeFormat("de-DE").format(new Date(created));
+            } else {
+                return "";
             }
-
-            return <span>{Intl.DateTimeFormat("de-DE").format(row.getValue("created"))}</span>;
         },
     },
     {
         accessorKey: "averageConsumption",
-        header: () => "Durchschn. Verbrauch",
-        cell: ({ row }) => {
-            const consumptionValue = row.getValue("averageConsumption");
-            const consumption = typeof consumptionValue === 'number' ? consumptionValue.toString() : consumptionValue;
-            
-            if (consumption) {
-                const formattedConsumption = `${Number(consumption).toLocaleString("de-DE", {
-                    minimumFractionDigits: 2, 
-                    maximumFractionDigits: 2 
-                })} kWh`;               
-                return <span>{formattedConsumption}</span>;
-            }
-            return <span>N/A</span>;
-        },
+        header: "Durchschn. Verbrauch",
+        cell: ({ row }) => `${row.getValue("averageConsumption")} kWh`,
+    },
+    {
+        accessorKey: "category",
+        header: "Kategorie",
+        cell: ({ row }) => row.getValue("category"),
     },
     {
         id: "actions",
-        cell: ({ row }) => {
-            const device = row.original;
-            return <DeviceActionCell device={device} />;
-        },
+        cell: ({ row }) => <DeviceActionCell device={row.original} />,
     },
 ];

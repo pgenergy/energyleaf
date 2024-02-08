@@ -1,29 +1,20 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import type { deviceSchema } from "@/lib/schema/device";
-import type { z } from "zod";
-
-import { getUserById } from "@energyleaf/db/query";
-import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
-
-import "server-only";
-
 import { getSession } from "@/lib/auth/auth";
+import { createDevice as createDeviceDb, updateDevice as updateDeviceDb, deleteDevice as deleteDeviceDb } from "@energyleaf/db/query";
+import { deviceSchema } from "@/lib/schema/device";
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { UserNotLoggedInError, UserNotFoundError } from "@energyleaf/lib/errors/auth";
+import { getUserById } from "@energyleaf/db/query";
 
-import {
-    createDevice as createDeviceDb,
-    deleteDevice as deleteDeviceDb,
-    updateDevice as updateDeviceDb,
-} from "@energyleaf/db/query";
-
+// Funktion zum Erstellen eines neuen Geräts
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
     const session = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
-    const id = session.user.id;
-    const user = await getUserById(Number(id));
+    const user = await getUserById(Number(session.user.id));
     if (!user) {
         throw new UserNotFoundError();
     }
@@ -32,34 +23,35 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         await createDeviceDb({
             name: data.deviceName,
             userId: user.id,
+            category: data.category,
         });
-        revalidatePath("/devices");
-    } catch (e) {
-        throw new Error("Error while creating device");
+        await revalidatePath("/devices");
+    } catch (error) {
+        console.error("Fehler beim Erstellen des Geräts", error);
+        throw new Error("Fehler beim Erstellen des Geräts");
     }
 }
 
-export async function updateDevice(data: z.infer<typeof deviceSchema>, id: number | string) {
+export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId: number) {
     const session = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
-    const userId = session.user.id;
-
-    const user = await getUserById(Number(userId));
+    const user = await getUserById(Number(session.user.id));
     if (!user) {
         throw new UserNotFoundError();
     }
 
     try {
-        await updateDeviceDb(Number(id), {
+        await updateDeviceDb(deviceId, {
             name: data.deviceName,
-            userId: user.id,
+            category: data.category,
         });
-        revalidatePath("/devices");
-    } catch (e) {
-        throw new Error("Error while updating device");
+        await revalidatePath("/devices");
+    } catch (error) {
+        console.error("Fehler beim Aktualisieren des Geräts", error);
+        throw new Error("Fehler beim Aktualisieren des Geräts");
     }
 }
 
@@ -69,11 +61,12 @@ export async function deleteDevice(id: number) {
         throw new UserNotLoggedInError();
     }
 
-    const userId = session.user.id;
     try {
-        await deleteDeviceDb(id, Number(userId));
-        revalidatePath("/devices");
-    } catch (e) {
-        throw new Error("Error while deleting device");
+        await deleteDeviceDb(id, Number(session.user.id));
+        await revalidatePath("/devices");
+    } catch (error) {
+        console.error("Fehler beim Löschen des Geräts", error);
+        throw new Error("Fehler beim Löschen des Geräts");
     }
 }
+

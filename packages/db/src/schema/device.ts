@@ -5,6 +5,7 @@ export const device = mysqlTable("device", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: int("user_id").notNull(),
     name: varchar("name", { length: 30 }).notNull(),
+    category: varchar("category", { length: 50 }).notNull(),
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
     timestamp: timestamp("timestamp").defaultNow().onUpdateNow().notNull(),
 });
@@ -14,6 +15,7 @@ export const deviceHistory = mysqlTable("history_device", {
     deviceId: int("device_id").notNull(),
     userId: int("user_id").notNull(),
     name: varchar("name", { length: 30 }).notNull(),
+    category: varchar("category", { length: 50 }),
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
     timestamp: timestamp("timestamp"),
 });
