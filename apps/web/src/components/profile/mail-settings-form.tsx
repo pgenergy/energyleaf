@@ -25,7 +25,7 @@ import {
     FormLabel,
     Switch,
 } from "@energyleaf/ui";
-import DaySelector from "@/components/profile/day-selector";
+import IntervallSelector from "@/components/profile/intervall-selector";
 
 interface Props {
     daily: boolean;
@@ -62,61 +62,25 @@ export default function MailSettingsForm({daily, dailyTime, weekly, weeklyTime, 
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>E-Mail Einstellungen</CardTitle>
+                <CardTitle>E-Mail & Berichte</CardTitle>
                 <CardDescription>
-                    Hier können Sie einstellen, ob Sie tägliche Übersichten sowie wöchentliche Zusammenfassungen Ihres
-                    Verbrauchs per Mail erhalten möchten.
+                    Hier können Sie einstellen, ob Sie die erstellen Berichte über Ihren Verbrauch per E-Mail erhalten möchten,
+                    und das Intervall der Übersichten und die Erstellungszeit Ihrer Berichte festlegen.
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
                     <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-                        <div className="rounded-lg border border-border p-4">
-                            <FormField
-                                control={form.control}
-                                name="daily"
-                                render={({field}) => (
-                                    <FormItem className="flex gap-4 flex-row items-center justify-between">
-                                        <div className="flex flex-col gap-2">
-                                            <FormLabel>Tägliche E-Mails</FormLabel>
-                                            <FormDescription>
-                                                Erhalte Sie täglich eine E-Mail mit einer Übersicht Ihrer aktuellen
-                                                Verbräuche.
-                                            </FormDescription>
-                                        </div>
-                                        <FormControl>
-                                            <Switch aria-readonly checked={field.value}
-                                                    onCheckedChange={field.onChange}/>
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                            <div className="w-full pt-4">
-                                <FormField
-                                    control={form.control}
-                                    name="dailyTime"
-                                    render={({field}) => (
-                                        <FormItem>
-                                            <FormLabel>Uhrzeit für tägliche E-Mails</FormLabel>
-                                            <FormControl>
-                                                <TimeSelector field={field}/>
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-                        </div>
-                        <div className="rounded-lg border border-border p-4">
                             <FormField
                                 control={form.control}
                                 name="weekly"
                                 render={({field}) => (
                                     <FormItem className="flex flex-row items-center justify-between">
                                         <div className="flex flex-col gap-2">
-                                            <FormLabel>Wöchentliche E-Mails</FormLabel>
+                                            <FormLabel>Senden der Berichte als E-Mails</FormLabel>
                                             <FormDescription>
-                                                Erhalten Sie wöchentlich eine E-Mail mit einer Zusammenfassung Ihres
-                                                vergangenen Verbrauchs.
+                                                Erhalten Sie Ihre Berichte mit einer Zusammenfassung Ihres
+                                                vergangenen Verbrauchs im eingestellten Intervall per Mail.
                                             </FormDescription>
                                         </div>
                                         <FormControl>
@@ -126,25 +90,25 @@ export default function MailSettingsForm({daily, dailyTime, weekly, weeklyTime, 
                                     </FormItem>
                                 )}
                             />
-                            <div className="grid grid-cols-2 gap-4 pt-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="weeklyDay"
                                     render={({field}) => (
                                         <FormItem>
-                                            <FormLabel>Wochentag für wöchentliche Zusammenfassungen</FormLabel>
+                                            <FormLabel>Intervall der Berichte</FormLabel>
                                             <FormControl>
-                                                <DaySelector field={field}/>
+                                                <IntervallSelector field={field}/>
                                             </FormControl>
                                         </FormItem>
                                     )}
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="weeklyTime"
+                                    name="reportTime"
                                     render={({field}) => (
                                         <FormItem>
-                                            <FormLabel>Uhrzeit für wöchentliche Zusammenfassungen</FormLabel>
+                                            <FormLabel>Uhrzeit der Berichte</FormLabel>
                                             <FormControl>
                                                 <TimeSelector field={field}/>
                                             </FormControl>
@@ -152,7 +116,6 @@ export default function MailSettingsForm({daily, dailyTime, weekly, weeklyTime, 
                                     )}
                                 />
                             </div>
-                        </div>
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending} type="submit">
                                 {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin"/> : null}
