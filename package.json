@@ -32,6 +32,7 @@
         "dotenv-cli": "^7.3.0",
         "mysql2": "^3.9.1",
         "prettier-plugin-tailwindcss": "^0.5.11",
+        "react-error-boundary": "^4.0.12",
         "typescript": "^5.3.3",
         "zod": "^3.22.4"
     }
