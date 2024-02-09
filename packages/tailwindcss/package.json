@@ -7,7 +7,8 @@
     "files": [
         "index.ts",
         "global.css",
-        "utils.ts"
+        "utils.ts",
+        "mail-config.ts"
     ],
     "dependencies": {
         "clsx": "^2.1.0",
@@ -17,7 +18,7 @@
     },
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:*",
-        "@types/node": "^20.11.15",
+        "@types/node": "^20.11.16",
         "typescript": "^5.3.3"
     }
 }

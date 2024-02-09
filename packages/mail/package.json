@@ -1,0 +1,29 @@
+{
+    "name": "@energyleaf/mail",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "description": "",
+    "exports": {
+        ".": "./src/lib/mail.tsx"
+    },
+    "devDependencies": {
+        "@energyleaf/eslint-config": "workspace:^",
+        "@energyleaf/tsconfig": "workspace:^",
+        "@types/node": "^20.11.16",
+        "@types/react": "^18.2.55",
+        "@types/react-dom": "^18.2.19",
+        "react": "^18.2.0",
+        "typescript": "^5.3.3"
+    },
+    "scripts": {
+        "dev:mail": "email dev --port 3002 --dir src/templates"
+    },
+    "dependencies": {
+        "@energyleaf/tailwindcss": "workspace:^",
+        "@react-email/components": "0.0.14",
+        "react-email": "2.0.0",
+        "resend": "^3.1.0",
+        "tailwindcss": "^3.4.1"
+    }
+}

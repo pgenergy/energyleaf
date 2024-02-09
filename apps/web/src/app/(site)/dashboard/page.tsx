@@ -16,7 +16,7 @@ export default function DashboardPage({
     const aggregationType = searchParams.aggregation;
     const startDate = startDateString ? new Date(startDateString) : new Date();
     const endDate = endDateString ? new Date(endDateString) : new Date();
-    
+
     if (!startDateString) {
         startDate.setUTCHours(0, 0, 0, 0);
     }

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type {
-    baseInfromationSchema,
+    baseInformationSchema,
     deleteAccountSchema,
     mailSettingsSchema,
     passwordSchema,
@@ -24,7 +24,7 @@ import "server-only";
 
 import type { z } from "zod";
 
-export async function updateBaseInformationUsername(data: z.infer<typeof baseInfromationSchema>, id: number | string) {
+export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>, id: number | string) {
     const user = await getUserById(Number(id));
     if (!user) {
         throw new Error("User not found");

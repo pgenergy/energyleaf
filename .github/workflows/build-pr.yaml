@@ -15,7 +15,8 @@ jobs:
       DATABASE_USERNAME: username
       DATABASE_PASSWORD: password
       DATABASE_NAME: database
-      SENDGRID_API_KEY: <sendgrid-api-key>
+      RESEND_API_KEY: <resend-api-key>
+      RESEND_API_MAIL: <resend-api-mail>
 
     steps:
       - name: Checkout repository

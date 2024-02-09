@@ -21,6 +21,7 @@
         "@protobuf-ts/plugin": "^2.9.3",
         "@protobuf-ts/protoc": "^2.9.3",
         "@energyleaf/eslint-config": "workspace:^",
-        "@energyleaf/tsconfig": "workspace:^"
+        "@energyleaf/tsconfig": "workspace:^",
+        "typescript": "5.3.3"
     }
 }
