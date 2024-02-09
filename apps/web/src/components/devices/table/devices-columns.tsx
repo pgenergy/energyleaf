@@ -4,6 +4,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import DeviceActionCell from "./device-action-cell";
+import { Button } from "@energyleaf/ui";
 import { DeviceCategory } from "@/lib/schema/device";
 
 export interface DeviceTableType {
@@ -17,20 +18,48 @@ export interface DeviceTableType {
 export const devicesColumns: ColumnDef<DeviceTableType>[] = [
     {
         accessorKey: "name",
-        header: ({ column }) => (
-            <div
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                style={{ cursor: "pointer" }}
-            >
-                Name
-                {column.getIsSorted() === "asc" ? <ChevronUpIcon /> : <ChevronDownIcon />}
-            </div>
-        ),
-        cell: ({ row }) => row.getValue("name"),
+        header: ({ column }) => {
+            return (
+                <Button
+                    onClick={() => {
+                        track("toggleSortAfterDeviceName()");
+                        column.toggleSorting(column.getIsSorted() === "asc");
+                    }}
+                    variant="ghost"
+                >
+                    Name
+                    {column.getIsSorted() === "asc" ? (
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                    )}
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            return <span>{row.getValue("name")}</span>;
+        },
     },
     {
         accessorKey: "created",
-        header: "Erstellt",
+        header: ({ column }) => {
+            return (
+                <Button
+                    onClick={() => {
+                        track("toggleSortAfterDateOfCreation()");
+                        column.toggleSorting(column.getIsSorted() === "asc");
+                    }}
+                    variant="ghost"
+                >
+                    Erstellt
+                    {column.getIsSorted() === "asc" ? (
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                    )}
+                </Button>
+            );
+        },
         cell: ({ row }) => {
             const created = row.getValue("created");
             if (typeof created === 'string' || typeof created === 'number' || created instanceof Date) {

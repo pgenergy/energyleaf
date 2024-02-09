@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { track } from "@vercel/analytics";
 import { deviceSchema, DeviceCategory } from '@/lib/schema/device';
 import { toast } from 'sonner';
 import { createDevice, updateDevice } from '@/actions/device';
@@ -33,9 +34,11 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
     }
     try {
       if (device) {
+        track("updateDevice()");
         await updateDevice(data, device.id);
         toast.success('Gerät erfolgreich aktualisiert');
       } else {
+        track("addDevice()");
         await createDevice(data);
         toast.success('Gerät erfolgreich hinzugefügt');
       }
