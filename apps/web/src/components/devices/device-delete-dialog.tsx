@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { deleteDevice } from "@/actions/device";
 import { useDeviceContext } from "@/hooks/device-hook";
+import { track } from "@vercel/analytics";
 import { toast } from "sonner";
 
 import {
@@ -31,6 +32,7 @@ export function DeviceDeleteDialog() {
 
     function deleteDeviceAction() {
         startTransition(() => {
+            track("deleteDevice()");
             if (!deviceContext.device) {
                 return;
             }

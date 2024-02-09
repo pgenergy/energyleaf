@@ -6,6 +6,7 @@ import { signInAction } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { loginSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -26,6 +27,7 @@ export default function LoginForm() {
     function onSubmit(data: z.infer<typeof loginSchema>) {
         setError("");
         startTransition(() => {
+            track("signIn()");
             toast.promise(signInAction(data.mail, data.password), {
                 loading: "Anmelden...",
                 success: "Erfolgreich angemeldet",

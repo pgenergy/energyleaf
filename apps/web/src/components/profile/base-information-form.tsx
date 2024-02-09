@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { updateBaseInformationUsername } from "@/actions/profile";
 import { baseInformationSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -45,6 +46,7 @@ export default function BaseInformationForm({ username, email, id }: Props) {
 
     function onSubmit(data: z.infer<typeof baseInformationSchema>) {
         startTransition(() => {
+            track("updateBaseInformation()");
             if (data.email !== email) {
                 return;
             }
