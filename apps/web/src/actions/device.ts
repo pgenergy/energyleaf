@@ -18,16 +18,21 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         throw new UserNotFoundError();
     }
 
+    const categoryKey = Object.keys(DeviceCategory).find(key => DeviceCategory[key as keyof typeof DeviceCategory] === data.category);
+    if (!categoryKey) {
+        throw new Error("Ungültige Kategorie: " + data.category);
+    }
+
     try {
         await createDeviceDb({
             name: data.deviceName,
             userId: user.id,
-            category: DeviceCategory[data.category],
+            category: categoryKey,
         });
         await revalidatePath("/devices");
     } catch (error) {
         console.error("Fehler beim Erstellen des Geräts", error);
-        throw new Error("Fehler beim Erstellen des Geräts");
+        throw new Error("Fehler beim Erstellen des Geräts: " + error.message);
     }
 }
 
@@ -41,15 +46,20 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         throw new UserNotFoundError();
     }
 
+    const categoryKey = Object.keys(DeviceCategory).find(key => DeviceCategory[key as keyof typeof DeviceCategory] === data.category);
+    if (!categoryKey) {
+        throw new Error("Ungültige Kategorie: " + data.category);
+    }
+
     try {
         await updateDeviceDb(deviceId, {
             name: data.deviceName,
-            category: DeviceCategory[data.category],
+            category: categoryKey,
         });
         await revalidatePath("/devices");
     } catch (error) {
         console.error("Fehler beim Aktualisieren des Geräts", error);
-        throw new Error("Fehler beim Aktualisieren des Geräts");
+        throw new Error("Fehler beim Aktualisieren des Geräts: " + error.message);
     }
 }
 

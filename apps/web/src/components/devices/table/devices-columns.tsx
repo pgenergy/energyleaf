@@ -3,6 +3,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import DeviceActionCell from "./device-action-cell";
+import { DeviceCategory } from "@/lib/schema/device";
 
 export interface DeviceTableType {
     id: number;
@@ -46,7 +47,11 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
     {
         accessorKey: "category",
         header: "Kategorie",
-        cell: ({ row }) => row.getValue("category"),
+        cell: ({ row }) => {
+            const categoryKey = row.getValue("category");
+            const categoryValue = DeviceCategory[categoryKey as keyof typeof DeviceCategory];
+            return categoryValue || 'Unbekannt';
+        },
     },
     {
         id: "actions",

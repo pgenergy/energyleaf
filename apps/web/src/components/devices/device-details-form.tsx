@@ -1,13 +1,14 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { deviceSchema, DeviceCategory } from "@/lib/schema/device";
-import { toast } from "sonner";
-import { createDevice, updateDevice } from "@/actions/device";
-import type { z } from "zod";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { deviceSchema, DeviceCategory } from '@/lib/schema/device';
+import { toast } from 'sonner';
+import { createDevice, updateDevice } from '@/actions/device';
+import type { z } from 'zod';
 
-import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
+import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@energyleaf/ui';
 
 interface Props {
   device?: { id: number; name: string; category?: DeviceCategory };
@@ -23,7 +24,13 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
     },
   });
 
+  const [categoryChanged, setCategoryChanged] = useState(false);
+
   const onSubmit = async (data: z.infer<typeof deviceSchema>) => {
+    if (!data.category) {
+      toast.error('Kategorie ist erforderlich');
+      return;
+    }
     try {
       if (device) {
         await updateDevice(data, device.id);
@@ -34,13 +41,19 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
       }
       onCallback();
     } catch (error) {
-      toast.error('Fehler beim Speichern des Geräts');
+      toast.error('Fehler beim Speichern des Geräts: ' + error.message);
       console.error(error);
     }
   };
 
-  const handleCategoryChange = (value: DeviceCategory) => {
-    form.setValue('category', value);
+  const handleCategoryChange = (value: string) => {
+    const categoryKey = Object.keys(DeviceCategory).find(key => DeviceCategory[key as keyof typeof DeviceCategory] === value);
+    if (categoryKey) {
+      form.setValue('category', DeviceCategory[categoryKey as keyof typeof DeviceCategory]);
+      setCategoryChanged(true);
+    } else {
+      console.error('Ungültiger Kategoriewert', value);
+    }
   };
 
   return (
@@ -75,7 +88,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(DeviceCategory).map(([key, value]) => (
-                      <SelectItem key={key} value={key}>{value}</SelectItem>
+                      <SelectItem key={key} value={value}>{value}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -84,7 +97,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
             </FormItem>
           )}
         />
-        <Button className="flex flex-row gap-2" disabled={device !== undefined && !form.formState.isDirty} type="submit">
+        <Button className="flex flex-row gap-2" disabled={device !== undefined && !form.formState.isDirty && !categoryChanged} type="submit">
           Speichern
         </Button>
       </form>
