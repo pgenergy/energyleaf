@@ -39,6 +39,10 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
     }
   };
 
+  const handleCategoryChange = (value: DeviceCategory) => {
+    form.setValue('category', value);
+  };
+
   return (
     <Form {...form}>
       <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -56,29 +60,30 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
           )}
         />
         <FormField
-  control={form.control}
-  name="category"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Kategorie</FormLabel>
-      <FormControl>
-        <Select {...field}>
-          <SelectTrigger>
-            <SelectValue placeholder="Kategorie auswählen" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(DeviceCategory).map(([key, value]) => (
-              <SelectItem key={key} value={key}>{value}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
-
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Kategorie</FormLabel>
+              <FormControl>
+                <Select
+                  value={field.value}
+                  onValueChange={handleCategoryChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Kategorie auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(DeviceCategory).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>{value}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button className="flex flex-row gap-2" disabled={device !== undefined && !form.formState.isDirty} type="submit">
           Speichern
         </Button>
