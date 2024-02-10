@@ -3,6 +3,7 @@
 import { addOrUpdatePeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -37,6 +38,7 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
     });
 
     function onSubmit(data: z.infer<typeof peakSchema>) {
+        track("assignEnergyPeakToDevice()");
         toast.promise(
             async () => {
                 await addOrUpdatePeak(data, sensorId, timestamp);

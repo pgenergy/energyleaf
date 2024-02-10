@@ -16,9 +16,9 @@
     },
     "dependencies": {
         "@energyleaf/lib": "workspace:^",
-        "@planetscale/database": "^1.14.0",
+        "@planetscale/database": "^1.15.0",
         "drizzle-orm": "^0.29.3",
-        "nanoid": "^5.0.4"
+        "nanoid": "^5.0.5"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",

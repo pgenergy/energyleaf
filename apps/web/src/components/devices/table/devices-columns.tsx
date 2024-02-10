@@ -1,6 +1,7 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
+import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 import { Button } from "@energyleaf/ui";
@@ -11,6 +12,7 @@ export interface DeviceTableType {
     id: number;
     name: string;
     created: Date | null;
+    averageConsumption: number;
 }
 
 export const devicesColumns: ColumnDef<DeviceTableType>[] = [
@@ -20,6 +22,7 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
             return (
                 <Button
                     onClick={() => {
+                        track("toggleSortAfterDeviceName()");
                         column.toggleSorting(column.getIsSorted() === "asc");
                     }}
                     variant="ghost"
@@ -43,6 +46,7 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
             return (
                 <Button
                     onClick={() => {
+                        track("toggleSortAfterDateOfCreation()");
                         column.toggleSorting(column.getIsSorted() === "asc");
                     }}
                     variant="ghost"
@@ -62,6 +66,23 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
             }
 
             return <span>{Intl.DateTimeFormat("de-DE").format(row.getValue("created"))}</span>;
+        },
+    },
+    {
+        accessorKey: "averageConsumption",
+        header: () => "Durchschn. Verbrauch",
+        cell: ({ row }) => {
+            const consumptionValue = row.getValue("averageConsumption");
+            const consumption = typeof consumptionValue === 'number' ? consumptionValue.toString() : consumptionValue;
+            
+            if (consumption) {
+                const formattedConsumption = `${Number(consumption).toLocaleString("de-DE", {
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                })} kWh`;               
+                return <span>{formattedConsumption}</span>;
+            }
+            return <span>N/A</span>;
         },
     },
     {

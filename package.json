@@ -7,6 +7,7 @@
         "dev": "dotenv -- turbo run dev",
         "dev:app": "dotenv -- turbo run dev --filter web",
         "dev:admin": "dotenv -- turbo run dev --filter admin",
+        "dev:mail": "dotenv -- pnpm --filter mail run dev:mail",
         "lint": "dotenv -- turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "fix": "pnpm run format && pnpm run lint -- --fix",
@@ -18,13 +19,14 @@
         "@energyleaf/tsconfig": "workspace:*",
         "@total-typescript/ts-reset": "^0.5.1",
         "eslint": "^8.56.0",
-        "prettier": "^3.2.4",
-        "turbo": "^1.12.2"
+        "prettier": "^3.2.5",
+        "turbo": "^1.12.3"
     },
     "packageManager": "pnpm@8.6.10",
     "name": "energyleaf",
     "dependencies": {
         "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
+        "@vercel/analytics": "^1.1.2",
         "dotenv-cli": "^7.3.0",
         "mysql2": "^3.9.1",
         "prettier-plugin-tailwindcss": "^0.5.11",

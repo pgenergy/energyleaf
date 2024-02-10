@@ -2,8 +2,9 @@
 
 import { useTransition } from "react";
 import { updateBaseInformationUsername } from "@/actions/profile";
-import { baseInfromationSchema } from "@/lib/schema/profile";
+import { baseInformationSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -35,16 +36,17 @@ interface Props {
 
 export default function BaseInformationForm({ username, email, id }: Props) {
     const [changeIsPending, startTransition] = useTransition();
-    const form = useForm<z.infer<typeof baseInfromationSchema>>({
-        resolver: zodResolver(baseInfromationSchema),
+    const form = useForm<z.infer<typeof baseInformationSchema>>({
+        resolver: zodResolver(baseInformationSchema),
         defaultValues: {
             username,
             email,
         },
     });
 
-    function onSubmit(data: z.infer<typeof baseInfromationSchema>) {
+    function onSubmit(data: z.infer<typeof baseInformationSchema>) {
         startTransition(() => {
+            track("updateBaseInformation()");
             if (data.email !== email) {
                 return;
             }

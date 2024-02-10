@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { updateUserDataInformation } from "@/actions/profile";
 import { userDataSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -46,6 +47,7 @@ export default function UserDataForm({ initialData, id }: Props) {
 
     function onSubmit(data: z.infer<typeof userDataSchema>) {
         startTransition(() => {
+            track("updateUserData()");
             toast.promise(updateUserDataInformation(data, id), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",

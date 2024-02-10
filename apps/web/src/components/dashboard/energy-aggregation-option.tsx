@@ -2,6 +2,7 @@
 
 import React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { track } from "@vercel/analytics";
 
 import { AggregationType } from "@energyleaf/db/util";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
@@ -16,12 +17,13 @@ export default function EnergyAggreation({ selected }: Props) {
     const searchParams = useSearchParams();
 
     const onChange = (selectedOption: string) => {
+        track("changeAggregationOption()");
         const search = new URLSearchParams();
         searchParams.forEach((value, key) => {
             search.set(key, value);
         });
         search.set("aggregation", selectedOption.toLowerCase());
-        
+
         router.push(`${pathname}?${search.toString()}`);
         router.refresh();
     };

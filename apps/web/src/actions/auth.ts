@@ -4,12 +4,15 @@ import "server-only";
 
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { redirect } from "next/navigation";
+import { env } from "@/env.mjs";
 import { signIn, signOut } from "@/lib/auth/auth";
-import type { signupSchema } from "@/lib/schema/auth";
+import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import * as bcrypt from "bcryptjs";
+import * as jose from "jose";
 import type { z } from "zod";
 
-import { createUser, getUserByMail, type CreateUserType } from "@energyleaf/db/query";
+import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
+import { sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 
 /**
  * Server action for creating a new account
@@ -46,6 +49,74 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
         } satisfies CreateUserType);
     } catch (_err) {
         throw new Error("Fehler beim Erstellen des Accounts.");
+    }
+}
+
+export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
+    const { mail } = data;
+
+    const user = await getUserByMail(mail);
+    if (!user) {
+        throw new Error("E-Mail wird nicht verwendet.");
+    }
+
+    const token = await new jose.SignJWT()
+        .setSubject(user.id.toString())
+        .setIssuedAt()
+        .setExpirationTime("1h")
+        .setAudience("energyleaf")
+        .setIssuer("energyleaf")
+        .setNotBefore(new Date())
+        .setProtectedHeader({ alg: "HS256" })
+        .sign(Buffer.from(env.NEXTAUTH_SECRET, "hex"));
+
+    const resetUrl = `https://${env.VERCEL_URL || env.NEXTAUTH_URL || 'energyleaf.de'}/reset?token=${token}`;
+    try {
+        await sendPasswordResetEmail({
+            from: env.RESEND_API_MAIL,
+            to: mail,
+            name: user.username,
+            link: resetUrl,
+            apiKey: env.RESEND_API_KEY,
+        });
+    } catch (err) {
+        throw new Error("Fehler beim Senden der E-Mail.");
+    }
+}
+
+export async function resetPassword(data: z.infer<typeof resetSchema>, resetToken: string) {
+    const { password: newPassword, passwordRepeat } = data;
+
+    if (newPassword !== passwordRepeat) {
+        throw new Error("Passwörter stimmen nicht überein.");
+    }
+
+    const { sub } = jose.decodeJwt(resetToken);
+    const user = await getUserById(Number(sub));
+
+    if (!user) {
+        throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
+    }
+
+    await jose.jwtVerify(resetToken, Buffer.from(env.NEXTAUTH_SECRET, "hex"), {
+        audience: "energyleaf",
+        issuer: "energyleaf",
+        algorithms: ["HS256"],
+    });
+    // no exception was thrown, so everything is fine
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    await updatePassword({ password: hash }, user.id);
+
+    try {
+        await sendPasswordChangedEmail({
+            from: env.RESEND_API_MAIL,
+            to: user.email,
+            name: user.username,
+            apiKey: env.RESEND_API_KEY,
+        });
+    } catch (err) {
+        throw new Error("Fehler beim Senden der E-Mail.");
     }
 }
 
