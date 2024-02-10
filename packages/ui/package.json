@@ -10,13 +10,15 @@
         "./hooks": "./src/hooks/index.tsx",
         "./components/nav": "./src/components/nav/index.tsx",
         "./components/charts": "./src/components/charts/index.tsx",
-        "./components/utils": "./src/components/utils/index.tsx"
+        "./components/utils": "./src/components/utils/index.tsx",
+        "./tools": "./src/tools/index.tsx"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:*",
         "@energyleaf/tsconfig": "workspace:*",
         "@turbo/gen": "^1.12.3",
-        "@types/node": "^20.11.16",
+        "@types/jsdom": "^21.1.6",
+        "@types/node": "^20.11.17",
         "@types/react": "^18.2.55",
         "@types/react-dom": "^18.2.19",
         "next": "^14.1.0",
@@ -59,7 +61,7 @@
         "next-themes": "^0.2.1",
         "react-day-picker": "^8.10.0",
         "react-hook-form": "^7.50.1",
-        "recharts": "^2.11.0",
+        "recharts": "^2.12.0",
         "sonner": "^1.4.0",
         "zod": "^3.22.4"
     }
