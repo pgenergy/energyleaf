@@ -54,6 +54,17 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
         }
     };
 
+    const computeTimestampLabel = (aggregation) => {
+        switch (aggregation) {
+            case AggregationType.YEAR: return ' Wh / Jahr';
+            case AggregationType.MONTH: return ' Wh / Monat';
+            case AggregationType.WEEK: return ' Wh / Wochen';
+            case AggregationType.DAY: return ' Wh / Tag';
+            case AggregationType.HOUR: return ' Wh / Stunde';
+            default: return ' Wh (Einheit nicht spezifiziert)';
+        }
+    };
+
     return (
         <Card className="z-10">
             <CardHeader>
@@ -61,7 +72,7 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <p className="text-sm">
-                    <span className="font-bold">Verbrauch:</span> {energy} Wh
+                    <span className="font-bold">Verbrauch:</span> {energy} {computeTimestampLabel(aggregation)}
                 </p>
             </CardContent>
         </Card>

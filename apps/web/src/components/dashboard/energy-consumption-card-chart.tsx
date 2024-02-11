@@ -7,14 +7,16 @@ import { LineChart } from "@energyleaf/ui/components/charts";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
+import {AggregationType} from "@energyleaf/db/src/types/types";
 
 interface Props {
     data: { sensorId: string; energy: number; timestamp: string }[];
     devices: { id: number; userId: number; name: string; created: Date | null }[] | null;
     peaks?: PeakAssignment[];
+    aggregation?: string
 }
 
-export default function EnergyConsumptionCardChart({ data, peaks, devices }: Props) {
+export default function EnergyConsumptionCardChart({ data, peaks, devices, aggregation }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<Peak | null>(null);
 
@@ -45,6 +47,17 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
         [data],
     );
 
+    const computeTimestampLabel = (aggregation) => {
+        switch (aggregation) {
+            case AggregationType.YEAR: return ' (in Jahren)';
+            case AggregationType.MONTH: return ' (in Monaten)';
+            case AggregationType.WEEK: return ' (in Wochen)';
+            case AggregationType.DAY: return ' (in Tagen)';
+            case AggregationType.HOUR: return ' (in Stunden)';
+            default: return ' (Einheit nicht spezifiziert)';
+        }
+    };
+
     return (
         <>
             {value && devices ? (
@@ -66,7 +79,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
                 tooltip={{
                     content: EnergyConsumptionTooltip,
                 }}
-                xAxes={{ dataKey: "timestamp" }}
+                xAxes={{ dataKey: "timestamp", name: "Vergangene Zeit" + computeTimestampLabel(aggregation)}}
                 yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
             />
         </>
