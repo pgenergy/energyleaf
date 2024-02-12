@@ -1,6 +1,6 @@
 "use client";
 
-import { type ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import DeviceActionCell from "./device-action-cell";
@@ -61,18 +61,29 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
             );
         },
         cell: ({ row }) => {
-            const created = row.getValue("created");
-            if (typeof created === 'string' || typeof created === 'number' || created instanceof Date) {
-                return Intl.DateTimeFormat("de-DE").format(new Date(created));
-            } else {
-                return "";
+            if (!row.getValue("created")) {
+                return null;
             }
+
+            return <span>{Intl.DateTimeFormat("de-DE").format(row.getValue("created"))}</span>;
         },
     },
     {
         accessorKey: "averageConsumption",
-        header: "Durchschn. Verbrauch",
-        cell: ({ row }) => `${row.getValue("averageConsumption")} kWh`,
+        header: () => "Durchschn. Verbrauch",
+        cell: ({ row }) => {
+            const consumptionValue = row.getValue("averageConsumption");
+            const consumption = typeof consumptionValue === 'number' ? consumptionValue.toString() : consumptionValue;
+            
+            if (consumption) {
+                const formattedConsumption = `${Number(consumption).toLocaleString("de-DE", {
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                })} kWh`;               
+                return <span>{formattedConsumption}</span>;
+            }
+            return <span>N/A</span>;
+        },
     },
     {
         accessorKey: "category",
@@ -80,7 +91,7 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
         cell: ({ row }) => {
             const categoryKey = row.getValue("category");
             const categoryValue = DeviceCategory[categoryKey as keyof typeof DeviceCategory];
-            return categoryValue || 'Unbekannt';
+            return categoryValue;
         },
     },
     {

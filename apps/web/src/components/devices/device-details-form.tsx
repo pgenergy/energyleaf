@@ -28,34 +28,33 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
   const [categoryChanged, setCategoryChanged] = useState(false);
 
   const onSubmit = async (data: z.infer<typeof deviceSchema>) => {
-    if (!data.category) {
+    if (typeof data.category === 'undefined') {
       toast.error('Kategorie ist erforderlich');
       return;
     }
     try {
       if (device) {
-        track("updateDevice()");
+        track("updateDevice");
         await updateDevice(data, device.id);
         toast.success('Gerät erfolgreich aktualisiert');
       } else {
-        track("addDevice()");
+        track("createDevice");
         await createDevice(data);
         toast.success('Gerät erfolgreich hinzugefügt');
       }
       onCallback();
-    } catch (error) {
-      toast.error('Fehler beim Speichern des Geräts: ' + error.message);
-      console.error(error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(`Fehler beim Speichern des Geräts: ${error.message}`);
+      }
     }
   };
 
   const handleCategoryChange = (value: string) => {
-    const categoryKey = Object.keys(DeviceCategory).find(key => DeviceCategory[key as keyof typeof DeviceCategory] === value);
-    if (categoryKey) {
-      form.setValue('category', DeviceCategory[categoryKey as keyof typeof DeviceCategory]);
+    const categoryKey = Object.keys(DeviceCategory).find(key => DeviceCategory[key] === value);
+    if (categoryKey && Object.values(DeviceCategory).includes(value as DeviceCategory)) {
+      form.setValue('category', value as DeviceCategory);
       setCategoryChanged(true);
-    } else {
-      console.error('Ungültiger Kategoriewert', value);
     }
   };
 
@@ -83,8 +82,8 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
               <FormLabel>Kategorie</FormLabel>
               <FormControl>
                 <Select
-                  value={field.value}
                   onValueChange={handleCategoryChange}
+                  value={field.value}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Kategorie auswählen" />
@@ -100,7 +99,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
             </FormItem>
           )}
         />
-        <Button className="flex flex-row gap-2" disabled={device !== undefined && !form.formState.isDirty && !categoryChanged} type="submit">
+        <Button className="mt-4" disabled={device !== undefined && !form.formState.isDirty && !categoryChanged} type="submit">
           Speichern
         </Button>
       </form>
