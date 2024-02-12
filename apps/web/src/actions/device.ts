@@ -16,12 +16,20 @@ import {
     deleteDevice as deleteDeviceDb,
     updateDevice as updateDeviceDb,
 } from "@energyleaf/db/query";
+import { addDeviceCookieStore, isDemoUser, removeDeviceCookieStore, updateDeviceCookieStore } from "@/lib/demo/demo";
+import { cookies } from "next/headers";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
     const session = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
+
+    if (await isDemoUser()) {
+        addDeviceCookieStore(cookies(), data.deviceName); 
+        return;
+    }
+
     const id = session.user.id;
     const user = await getUserById(Number(id));
     if (!user) {
@@ -43,6 +51,11 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, id: numbe
     const session = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
+    }
+
+    if (await isDemoUser()) {
+        updateDeviceCookieStore(cookies(), id, data.deviceName);
+        return;
     }
 
     const userId = session.user.id;
@@ -67,6 +80,11 @@ export async function deleteDevice(id: number) {
     const session = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
+    }
+
+    if (await isDemoUser()) {
+        removeDeviceCookieStore(cookies(), id);
+        return;
     }
 
     const userId = session.user.id;

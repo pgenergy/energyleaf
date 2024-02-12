@@ -33,10 +33,10 @@ import {
 
 interface Props {
     initialData: z.infer<typeof userDataSchema>;
-    id: string;
+    disabled?: boolean;
 }
 
-export default function UserDataForm({ initialData, id }: Props) {
+export default function UserDataForm({ initialData, disabled }: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof userDataSchema>>({
         resolver: zodResolver(userDataSchema),
@@ -46,9 +46,10 @@ export default function UserDataForm({ initialData, id }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof userDataSchema>) {
+        if (disabled) return;
         startTransition(() => {
             track("updateUserData()");
-            toast.promise(updateUserDataInformation(data, id), {
+            toast.promise(updateUserDataInformation(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
                 error: "Fehler beim Aktualisieren",
@@ -71,7 +72,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Hausart</FormLabel>
-                                    <Select defaultValue={field.value} onValueChange={field.onChange}>
+                                    <Select defaultValue={field.value} disabled={disabled} onValueChange={field.onChange}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Hausart wählen" />
@@ -94,7 +95,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Warmwasser</FormLabel>
-                                    <Select defaultValue={field.value} onValueChange={field.onChange}>
+                                    <Select defaultValue={field.value} disabled={disabled} onValueChange={field.onChange}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Warmwasser wählen" />
@@ -117,7 +118,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Tarif</FormLabel>
-                                    <Select defaultValue={field.value} onValueChange={field.onChange}>
+                                    <Select defaultValue={field.value} disabled={disabled} onValueChange={field.onChange}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Tarif wählen" />
@@ -141,7 +142,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                                 <FormItem>
                                     <FormLabel>Budget</FormLabel>
                                     <FormControl>
-                                        <Input type="number" {...field} />
+                                        <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -153,7 +154,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                                 <FormItem>
                                     <FormLabel>Strompreis</FormLabel>
                                     <FormControl>
-                                        <Input type="number" {...field} />
+                                        <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -165,7 +166,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                                 <FormItem>
                                     <FormLabel>Wohnfläche</FormLabel>
                                     <FormControl>
-                                        <Input type="number" {...field} />
+                                        <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -177,7 +178,7 @@ export default function UserDataForm({ initialData, id }: Props) {
                                 <FormItem>
                                     <FormLabel>Personen im Haushalt</FormLabel>
                                     <FormControl>
-                                        <Input type="number" {...field} />
+                                        <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -189,13 +190,13 @@ export default function UserDataForm({ initialData, id }: Props) {
                                 <FormItem>
                                     <FormLabel>Monatlicher Abschlag</FormLabel>
                                     <FormControl>
-                                        <Input type="number" {...field} />
+                                        <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
                         <div className="col-span-2 flex justify-end">
-                            <Button disabled={isPending} type="submit">
+                            <Button disabled={isPending || disabled} type="submit">
                                 {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
                                 Speichern
                             </Button>

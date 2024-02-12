@@ -23,11 +23,18 @@ import {
 import "server-only";
 
 import type { z } from "zod";
+import { getSession } from "@/lib/auth/auth";
+import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 
-export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>, id: number | string) {
-    const user = await getUserById(Number(id));
+export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
+    const session = await getSession();
+    if (!session) {
+        throw new UserNotLoggedInError();
+    }
+
+    const user = await getUserById(Number(session.user.id));
     if (!user) {
-        throw new Error("User not found");
+        throw new UserNotFoundError();
     }
 
     try {
@@ -45,10 +52,16 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
     }
 }
 
-export async function updateBaseInformationPassword(data: z.infer<typeof passwordSchema>, id: number | string) {
-    const user = await getUserById(Number(id));
+export async function updateBaseInformationPassword(data: z.infer<typeof passwordSchema>) {
+    const session = await getSession();
+
+    if (!session) {
+        throw new UserNotLoggedInError();
+    }
+
+    const user = await getUserById(Number(session.user.id));
     if (!user) {
-        throw new Error("User not found");
+        throw new UserNotFoundError();
     }
     const match = await bcrypt.compare(data.oldPassword, user.password);
     if (!match) {
@@ -70,10 +83,16 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
     }
 }
 
-export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>, id: number | string) {
-    const user = await getUserById(Number(id));
+export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>) {
+    const session = await getSession();
+
+    if (!session) {
+        throw new UserNotLoggedInError();
+    }
+
+    const user = await getUserById(Number(session.user.id));
     if (!user) {
-        throw new Error("User not found");
+        throw new UserNotFoundError();
     }
 
     try {
@@ -91,10 +110,16 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
     }
 }
 
-export async function updateUserDataInformation(data: z.infer<typeof userDataSchema>, id: number | string) {
-    const user = await getUserById(Number(id));
+export async function updateUserDataInformation(data: z.infer<typeof userDataSchema>) {
+    const session = await getSession();
+
+    if (!session) {
+        throw new UserNotLoggedInError();
+    }
+
+    const user = await getUserById(Number(session.user.id));
     if (!user) {
-        throw new Error("User not found");
+        throw new UserNotFoundError();
     }
 
     try {
@@ -119,11 +144,18 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
     }
 }
 
-export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>, id: number | string) {
-    const user = await getUserById(Number(id));
-    if (!user) {
-        throw new Error("User not found");
+export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
+    const session = await getSession();
+
+    if (!session) {
+        throw new UserNotLoggedInError();
     }
+
+    const user = await getUserById(Number(session.user.id));
+    if (!user) {
+        throw new UserNotFoundError();
+    }
+
     const match = await bcrypt.compare(data.password, user.password);
     if (!match) {
         throw new PasswordsDoNotMatchError();

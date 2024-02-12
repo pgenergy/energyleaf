@@ -5,6 +5,7 @@ import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
 import { getSession } from "@/lib/auth/auth";
 import { getUserData } from "@/query/user";
+import { isDemoUser } from "@/lib/demo/demo";
 
 export default async function ProfilePage() {
     const session = await getSession();
@@ -12,6 +13,8 @@ export default async function ProfilePage() {
     if (!session?.user.id || !session.user.email || !session.user.name) {
         redirect("/");
     }
+
+    const isDemo = await isDemoUser();
 
     const userData = await getUserData(session.user.id);
     const data = {
@@ -27,14 +30,10 @@ export default async function ProfilePage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationForm email={session.user.email} id={session.user.id} username={session.user.name} />
-            <MailSettingsForm
-                daily={userData?.mail.mailDaily || false}
-                id={session.user.id}
-                weekly={userData?.mail.mailWeekly || false}
-            />
-            <UserDataForm id={session.user.id} initialData={data} />
-            <AccountDeletionForm id={session.user.id} />
+            <BaseInformationForm disabled={isDemo} email={session.user.email} username={session.user.name} />
+            <MailSettingsForm daily={userData?.mail.mailDaily || false} disabled={isDemo} weekly={userData?.mail.mailWeekly || false} />
+            <UserDataForm disabled={isDemo} initialData={data} />
+            <AccountDeletionForm disabled={isDemo} />
         </div>
     );
 }

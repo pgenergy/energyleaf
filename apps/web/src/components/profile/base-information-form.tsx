@@ -31,10 +31,10 @@ import ChangePasswordForm from "./change-password-form";
 interface Props {
     username: string;
     email: string;
-    id: string;
+    disabled?: boolean;
 }
 
-export default function BaseInformationForm({ username, email, id }: Props) {
+export default function BaseInformationForm({ username, email, disabled }: Props) {
     const [changeIsPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof baseInformationSchema>>({
         resolver: zodResolver(baseInformationSchema),
@@ -45,12 +45,15 @@ export default function BaseInformationForm({ username, email, id }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof baseInformationSchema>) {
+        if (disabled) {
+            return;
+        }
         startTransition(() => {
             track("updateBaseInformation()");
             if (data.email !== email) {
                 return;
             }
-            toast.promise(updateBaseInformationUsername(data, id), {
+            toast.promise(updateBaseInformationUsername(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
                 error: "Fehler beim Aktualisieren",
@@ -74,7 +77,7 @@ export default function BaseInformationForm({ username, email, id }: Props) {
                                 <FormItem>
                                     <FormLabel>Benutzername</FormLabel>
                                     <FormControl>
-                                        <Input {...field} />
+                                        <Input {...field} disabled={disabled} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -94,7 +97,7 @@ export default function BaseInformationForm({ username, email, id }: Props) {
                             )}
                         />
                         <div className="col-span-2 flex flex-row justify-end">
-                            <Button disabled={changeIsPending} type="submit" value="username">
+                            <Button disabled={changeIsPending || disabled} type="submit" value="username">
                                 {changeIsPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
                                 Speichern
                             </Button>
@@ -102,7 +105,7 @@ export default function BaseInformationForm({ username, email, id }: Props) {
                     </form>
                 </Form>
             </CardContent>
-            <ChangePasswordForm id={id} />
+            <ChangePasswordForm />
         </Card>
     );
 }

@@ -27,10 +27,10 @@ import {
 } from "@energyleaf/ui";
 
 interface Props {
-    id: string;
-}
+    disabled?: boolean;
+};
 
-export default function ChangePasswordForm({ id }: Props) {
+export default function ChangePasswordForm({ disabled }: Props) {
     const [changeIsPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof passwordSchema>>({
         resolver: zodResolver(passwordSchema),
@@ -42,6 +42,9 @@ export default function ChangePasswordForm({ id }: Props) {
     });
 
     function onSubmitPassword(data: z.infer<typeof passwordSchema>) {
+        if (disabled) {
+            return;
+        }
         if (data.newPassword !== data.newPasswordRepeat) {
             toast.error("Dein Passwort konnte nicht geändert werden", {
                 description: "Das neue Passwort stimmt nicht mit der Wiederholung überein",
@@ -51,7 +54,7 @@ export default function ChangePasswordForm({ id }: Props) {
 
         startTransition(() => {
             track("changePassword()");
-            toast.promise(updateBaseInformationPassword(data, id), {
+            toast.promise(updateBaseInformationPassword(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
                 error: (err) => {
@@ -81,7 +84,7 @@ export default function ChangePasswordForm({ id }: Props) {
                                 <FormItem>
                                     <FormLabel>Aktuelles Passwort</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Aktuelles Passwort" type="password" {...field} />
+                                        <Input placeholder="Aktuelles Passwort" type="password" {...field} disabled={disabled} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -94,7 +97,7 @@ export default function ChangePasswordForm({ id }: Props) {
                                 <FormItem>
                                     <FormLabel>Neues Passwort</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Neues Passwort" type="password" {...field} />
+                                        <Input placeholder="Neues Passwort" type="password" {...field} disabled={disabled} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -107,14 +110,14 @@ export default function ChangePasswordForm({ id }: Props) {
                                 <FormItem>
                                     <FormLabel>Passwort Wiederholen</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Passwort Wiederholen" type="password" {...field} />
+                                        <Input placeholder="Passwort Wiederholen" type="password" {...field} disabled={disabled} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <div className="col-span-2 flex flex-row justify-end">
-                            <Button disabled={changeIsPending} type="submit" value="password">
+                            <Button disabled={changeIsPending || disabled} type="submit" value="password">
                                 {changeIsPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
                                 Speichern
                             </Button>
