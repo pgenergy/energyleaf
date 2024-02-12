@@ -33,7 +33,7 @@ import {
 
 interface Props {
     disabled?: boolean;
-};
+}
 
 export default function AccountDeletionForm({ disabled }: Props) {
     const [isPending, startTransition] = useTransition();
@@ -112,7 +112,12 @@ export default function AccountDeletionForm({ disabled }: Props) {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
-                                                <Input placeholder="Passwort" type="password" {...field} disabled={disabled} />
+                                                <Input
+                                                    placeholder="Passwort"
+                                                    type="password"
+                                                    {...field}
+                                                    disabled={disabled}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

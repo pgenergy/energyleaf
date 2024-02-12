@@ -166,7 +166,7 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
     const max = 100;
     const min = 50;
     while (currentDate < end) {
-        const value = currentDate.getSeconds() % max + min;
+        const value = (currentDate.getSeconds() % max) + min;
         data.push({
             id: idx,
             sensorId: "demo_sensor",

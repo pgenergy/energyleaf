@@ -9,15 +9,15 @@ import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/
 
 import "server-only";
 
+import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/auth";
+import { addDeviceCookieStore, isDemoUser, removeDeviceCookieStore, updateDeviceCookieStore } from "@/lib/demo/demo";
 
 import {
     createDevice as createDeviceDb,
     deleteDevice as deleteDeviceDb,
     updateDevice as updateDeviceDb,
 } from "@energyleaf/db/query";
-import { addDeviceCookieStore, isDemoUser, removeDeviceCookieStore, updateDeviceCookieStore } from "@/lib/demo/demo";
-import { cookies } from "next/headers";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
     const session = await getSession();
@@ -26,7 +26,7 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
     }
 
     if (await isDemoUser()) {
-        addDeviceCookieStore(cookies(), data.deviceName); 
+        addDeviceCookieStore(cookies(), data.deviceName);
         return;
     }
 

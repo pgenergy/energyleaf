@@ -22,8 +22,9 @@ import {
 
 import "server-only";
 
-import type { z } from "zod";
 import { getSession } from "@/lib/auth/auth";
+import type { z } from "zod";
+
 import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {

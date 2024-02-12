@@ -1,8 +1,10 @@
 import { cache } from "react";
+
 import "server-only";
 
-import { getUserById as getDbUserById, getUserData as getDbUserDataById } from "@energyleaf/db/query";
 import { getDemoUserData } from "@/lib/demo/demo";
+
+import { getUserById as getDbUserById, getUserData as getDbUserDataById } from "@energyleaf/db/query";
 
 /**
  * Cached query to retrive user data
@@ -16,7 +18,7 @@ export const getUserById = cache(async (id: string) => {
             password: "demo",
             isAdmin: false,
             created: new Date(),
-        }; 
+        };
     }
 
     return getDbUserById(Number(id));

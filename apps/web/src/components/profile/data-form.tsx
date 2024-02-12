@@ -72,7 +72,11 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Hausart</FormLabel>
-                                    <Select defaultValue={field.value} disabled={disabled} onValueChange={field.onChange}>
+                                    <Select
+                                        defaultValue={field.value}
+                                        disabled={disabled}
+                                        onValueChange={field.onChange}
+                                    >
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Hausart wählen" />
@@ -95,7 +99,11 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Warmwasser</FormLabel>
-                                    <Select defaultValue={field.value} disabled={disabled} onValueChange={field.onChange}>
+                                    <Select
+                                        defaultValue={field.value}
+                                        disabled={disabled}
+                                        onValueChange={field.onChange}
+                                    >
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Warmwasser wählen" />
@@ -118,7 +126,11 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Tarif</FormLabel>
-                                    <Select defaultValue={field.value} disabled={disabled} onValueChange={field.onChange}>
+                                    <Select
+                                        defaultValue={field.value}
+                                        disabled={disabled}
+                                        onValueChange={field.onChange}
+                                    >
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Tarif wählen" />

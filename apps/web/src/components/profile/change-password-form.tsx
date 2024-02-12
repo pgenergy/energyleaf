@@ -28,7 +28,7 @@ import {
 
 interface Props {
     disabled?: boolean;
-};
+}
 
 export default function ChangePasswordForm({ disabled }: Props) {
     const [changeIsPending, startTransition] = useTransition();
@@ -84,7 +84,12 @@ export default function ChangePasswordForm({ disabled }: Props) {
                                 <FormItem>
                                     <FormLabel>Aktuelles Passwort</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Aktuelles Passwort" type="password" {...field} disabled={disabled} />
+                                        <Input
+                                            placeholder="Aktuelles Passwort"
+                                            type="password"
+                                            {...field}
+                                            disabled={disabled}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -97,7 +102,12 @@ export default function ChangePasswordForm({ disabled }: Props) {
                                 <FormItem>
                                     <FormLabel>Neues Passwort</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Neues Passwort" type="password" {...field} disabled={disabled} />
+                                        <Input
+                                            placeholder="Neues Passwort"
+                                            type="password"
+                                            {...field}
+                                            disabled={disabled}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -110,7 +120,12 @@ export default function ChangePasswordForm({ disabled }: Props) {
                                 <FormItem>
                                     <FormLabel>Passwort Wiederholen</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Passwort Wiederholen" type="password" {...field} disabled={disabled} />
+                                        <Input
+                                            placeholder="Passwort Wiederholen"
+                                            type="password"
+                                            {...field}
+                                            disabled={disabled}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

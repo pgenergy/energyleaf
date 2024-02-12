@@ -78,7 +78,12 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
                                         </FormDescription>
                                     </div>
                                     <FormControl>
-                                        <Switch aria-readonly checked={field.value} disabled={disabled} onCheckedChange={field.onChange} />
+                                        <Switch
+                                            aria-readonly
+                                            checked={field.value}
+                                            disabled={disabled}
+                                            onCheckedChange={field.onChange}
+                                        />
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -95,7 +100,12 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
                                         </FormDescription>
                                     </div>
                                     <FormControl>
-                                        <Switch aria-readonly checked={field.value} disabled={disabled} onCheckedChange={field.onChange} />
+                                        <Switch
+                                            aria-readonly
+                                            checked={field.value}
+                                            disabled={disabled}
+                                            onCheckedChange={field.onChange}
+                                        />
                                     </FormControl>
                                 </FormItem>
                             )}

@@ -3,9 +3,11 @@
 import "server-only";
 
 import { isRedirectError } from "next/dist/client/components/redirect";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
 import { signIn, signOut } from "@/lib/auth/auth";
+import { isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import * as bcrypt from "bcryptjs";
 import * as jose from "jose";
@@ -13,8 +15,6 @@ import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
 import { sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
-import { cookies } from "next/headers";
-import { isDemoUser } from "@/lib/demo/demo";
 
 /**
  * Server action for creating a new account
@@ -80,7 +80,7 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         .setProtectedHeader({ alg: "HS256" })
         .sign(Buffer.from(env.NEXTAUTH_SECRET, "hex"));
 
-    const resetUrl = `https://${env.VERCEL_URL || env.NEXTAUTH_URL || 'energyleaf.de'}/reset?token=${token}`;
+    const resetUrl = `https://${env.VERCEL_URL || env.NEXTAUTH_URL || "energyleaf.de"}/reset?token=${token}`;
     try {
         await sendPasswordResetEmail({
             from: env.RESEND_API_MAIL,
@@ -154,7 +154,7 @@ export async function signInAction(email: string, password: string) {
 export async function signOutAction() {
     if (await isDemoUser()) {
         const cookieStore = cookies();
-        cookieStore.delete("demo_devices"); 
+        cookieStore.delete("demo_devices");
         cookieStore.delete("demo_peaks");
     }
 

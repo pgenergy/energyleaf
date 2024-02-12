@@ -1,9 +1,11 @@
 import { cache } from "react";
+
 import "server-only";
 
-import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
-import { getDevicesCookieStore } from "@/lib/demo/demo";
 import { cookies } from "next/headers";
+import { getDevicesCookieStore } from "@/lib/demo/demo";
+
+import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
 
 /**
  * Cached query to retrieve the devices per user.
