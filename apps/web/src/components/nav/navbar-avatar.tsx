@@ -72,7 +72,7 @@ export default function NavbarAvatar({ user }: Props) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer text-destructive" onClick={onSignOut}>
                     <LogOutIcon className="mr-2 h-4 w-4" />
-                    {user.id === "-1" ? "Demo Beenden" : "Abmelden"}
+                    {user.id === "-1" ? "Demo beenden" : "Abmelden"}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
