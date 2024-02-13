@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import LoginForm from "@/components/auth/login-form";
 import LoginError from "@/components/auth/login-form-error";
-import ErrorBoundary from "@/components/error-boundary";
+import ErrorBoundary from "@/components/error/error-boundary";
 
 import { CardContent, Skeleton } from "@energyleaf/ui";
 

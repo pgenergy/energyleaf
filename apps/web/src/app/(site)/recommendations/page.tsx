@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import ErrorBoundary from "@/components/error-boundary";
+import ErrorBoundary from "@/components/error/error-boundary";
 import AvgEnergyConsumptionCard from "@/components/recommendations/avg-energy-consumption-card";
 import AvgEnergyConsumptionError from "@/components/recommendations/avg-energy-consumption-card-error";
 import AvgEnergyConsumptionComparisonCard from "@/components/recommendations/avg-energy-consumption-comparison";

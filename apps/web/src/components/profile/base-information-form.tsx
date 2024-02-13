@@ -27,7 +27,7 @@ import {
     Skeleton,
 } from "@energyleaf/ui";
 
-import ErrorBoundary from "../error-boundary";
+import ErrorBoundary from "../error/error-boundary";
 import ChangePasswordForm from "./change-password-form";
 import ChangePasswordError from "./change-password-form-error";
 
