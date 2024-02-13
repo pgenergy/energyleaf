@@ -1,6 +1,5 @@
 "use server";
 
-import { isRedirectError } from "next/dist/client/components/redirect";
 import { signIn, signOut } from "@/lib/auth/auth";
 import type { signInSchema } from "@/lib/schema/auth";
 
@@ -8,6 +7,7 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 import type { z } from "zod";
+import { AuthError } from "next-auth";
 
 export async function signInAction(data: z.infer<typeof signInSchema>) {
     try {
@@ -16,14 +16,23 @@ export async function signInAction(data: z.infer<typeof signInSchema>) {
             password: data.password,
         });
     } catch (err) {
-        if (isRedirectError(err)) {
-            redirect("/");
+        if (err instanceof AuthError) {
+            switch (err.type) {
+                case 'CredentialsSignin':
+                    return {
+                        message: "Benutzername oder Passwort falsch",
+                    };
+                default:
+                    return {
+                        message: "Fehler beim Anmelden",
+                    };
+            }
         }
 
-        return {
-            message: "Benutzername oder Passwort falsch",
-        };
+        throw err;
     }
+
+    redirect("/dashboard");
 }
 
 export async function signOutAction() {

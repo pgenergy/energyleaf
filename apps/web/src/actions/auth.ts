@@ -2,7 +2,6 @@
 
 import "server-only";
 
-import { isRedirectError } from "next/dist/client/components/redirect";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
@@ -11,6 +10,7 @@ import { isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import * as bcrypt from "bcryptjs";
 import * as jose from "jose";
+import { AuthError } from "next-auth";
 import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
@@ -139,13 +139,20 @@ export async function signInAction(email: string, password: string) {
             email,
             password,
         });
-    } catch (err: unknown) {
-        if (isRedirectError(err)) {
-            return redirect("/dashboard");
+    } catch (err) {
+        if (err instanceof AuthError) {
+            switch (err.type) {
+                case "CredentialsSignin":
+                    throw new Error("Benutzername oder Passwort falsch");
+                default:
+                    throw new Error("Fehler beim Anmelden");
+            }
         }
 
-        throw new Error("Benutername oder Passwort falsch.");
+        throw err;
     }
+
+    redirect("/dashboard");
 }
 
 /**
