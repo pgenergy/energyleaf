@@ -1,17 +1,23 @@
-import { getAvgEnergyConsumptionForSensor } from "@/query/energy";
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth/auth";
+import {
+    getAvgEnergyConsumptionForSensor,
+    getAvgEnergyConsumptionForUserInComparison,
+    getElectricitySensorIdForUser,
+} from "@/query/energy";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
-interface Props {
-    sensorId: string | null;
-    avg: {
-        avg: number;
-        count: number;
-    } | null;
-    avgUser: number | null;
-}
+export default async function AvgEnergyConsumptionComparisonCard() {
+    const session = await getSession();
 
-export default function AvgEnergyConsumptionComparisonCard({ sensorId, avg, avgUser }: Props) {
+    if (!session) {
+        redirect("/");
+    }
+
+    const userId = session.user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
+
     if (!sensorId) {
         return (
             <Card className="w-full">
@@ -26,11 +32,14 @@ export default function AvgEnergyConsumptionComparisonCard({ sensorId, avg, avgU
         );
     }
 
+    const avg = await getAvgEnergyConsumptionForUserInComparison(session.user.id);
+    const avgUser = await getAvgEnergyConsumptionForSensor(sensorId);
+
     return (
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Durchschnittlicher Energieverbrauch</CardTitle>
-                <CardDescription>Im Vergleich zu anderen Nutzern mit Vergleichbaren Daten</CardDescription>
+                <CardDescription>Im Vergleich zu anderen Nutzern mit vergleichbaren Daten</CardDescription>
             </CardHeader>
             <CardContent>
                 {avg && avgUser ? (

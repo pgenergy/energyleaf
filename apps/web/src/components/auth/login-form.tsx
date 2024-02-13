@@ -4,21 +4,25 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { signInAction } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
-import type { loginSchema } from "@/lib/schema/auth";
+import { loginSchema } from "@/lib/schema/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
-import type { UseFormReturn } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 
-interface Props {
-    form: UseFormReturn<z.infer<typeof loginSchema>>;
-}
-
-export default function LoginForm({ form }: Props) {
+export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
+    const form = useForm<z.infer<typeof loginSchema>>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            mail: "",
+            password: "",
+        },
+    });
 
     function onSubmit(data: z.infer<typeof loginSchema>) {
         setError("");

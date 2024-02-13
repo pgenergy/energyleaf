@@ -1,11 +1,18 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import AccountDeletionComponent from "@/components/profile/account-deletion-component";
-import BaseInformationComponent from "@/components/profile/base-information-component";
-import ChangePasswordComponent from "@/components/profile/change-password-component";
-import UserDataComponent from "@/components/profile/data-component";
-import MailSettingsComponent from "@/components/profile/mail-settings-component";
+import ErrorBoundary from "@/components/error-boundary";
+import AccountDeletionForm from "@/components/profile/account-deletion-form";
+import AccountDeletionError from "@/components/profile/account-deletion-form-error";
+import BaseInformationForm from "@/components/profile/base-information-form";
+import BaseInformationError from "@/components/profile/base-information-form-error";
+import UserDataForm from "@/components/profile/data-form";
+import UserDataError from "@/components/profile/data-form-error";
+import MailSettingsForm from "@/components/profile/mail-settings-form";
+import MailSettingsError from "@/components/profile/mail-settings-form-error";
 import { getSession } from "@/lib/auth/auth";
 import { getUserData } from "@/query/user";
+
+import { Skeleton } from "@energyleaf/ui";
 
 export default async function ProfilePage() {
     const session = await getSession();
@@ -28,15 +35,30 @@ export default async function ProfilePage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationComponent email={session.user.email} id={session.user.id} username={session.user.name} />
-            <ChangePasswordComponent id={session.user.id} />
-            <MailSettingsComponent
-                daily={userData?.mail.mailDaily || false}
-                id={session.user.id}
-                weekly={userData?.mail.mailWeekly || false}
-            />
-            <UserDataComponent id={session.user.id} initialData={data} />
-            <AccountDeletionComponent id={session.user.id} />
+            <ErrorBoundary fallback={BaseInformationError}>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <BaseInformationForm email={session.user.email} id={session.user.id} username={session.user.name} />
+                </Suspense>
+            </ErrorBoundary>
+            <ErrorBoundary fallback={MailSettingsError}>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <MailSettingsForm
+                        daily={userData?.mail.mailDaily || false}
+                        id={session.user.id}
+                        weekly={userData?.mail.mailWeekly || false}
+                    />
+                </Suspense>
+            </ErrorBoundary>
+            <ErrorBoundary fallback={UserDataError}>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <UserDataForm id={session.user.id} initialData={data} />
+                </Suspense>
+            </ErrorBoundary>
+            <ErrorBoundary fallback={AccountDeletionError}>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <AccountDeletionForm id={session.user.id} />
+                </Suspense>
+            </ErrorBoundary>
         </div>
     );
 }

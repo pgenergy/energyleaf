@@ -1,11 +1,19 @@
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth/auth";
+import { getAvgEnergyConsumptionForSensor, getElectricitySensorIdForUser } from "@/query/energy";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
-interface Props {
-    sensorId: string | null;
-    avg: number | null;
-}
+export default async function AvgEnergyConsumptionCard() {
+    const session = await getSession();
 
-export default function AvgEnergyConsumptionCard({ sensorId, avg }: Props) {
+    if (!session) {
+        redirect("/");
+    }
+
+    const userId = session.user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
+
     if (!sensorId) {
         return (
             <Card className="w-full">
@@ -19,6 +27,8 @@ export default function AvgEnergyConsumptionCard({ sensorId, avg }: Props) {
             </Card>
         );
     }
+
+    const avg = await getAvgEnergyConsumptionForSensor(sensorId);
 
     return (
         <Card className="w-full">

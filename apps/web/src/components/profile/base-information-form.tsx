@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { Suspense, useTransition } from "react";
 import { updateBaseInformationUsername } from "@/actions/profile";
 import { baseInformationSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +24,12 @@ import {
     FormLabel,
     FormMessage,
     Input,
+    Skeleton,
 } from "@energyleaf/ui";
+
+import ErrorBoundary from "../error-boundary";
+import ChangePasswordForm from "./change-password-form";
+import ChangePasswordError from "./change-password-form-error";
 
 interface Props {
     username: string;
@@ -100,6 +105,11 @@ export default function BaseInformationForm({ username, email, id }: Props) {
                     </form>
                 </Form>
             </CardContent>
+            <ErrorBoundary fallback={ChangePasswordError}>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <ChangePasswordForm id={id} />
+                </Suspense>
+            </ErrorBoundary>
         </Card>
     );
 }
