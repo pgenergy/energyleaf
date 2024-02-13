@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import DeviceOverviewError from "@/components/devices/device-overview-card-error";
 import DevicesOverviewCard from "@/components/devices/devices-overview-card";
-import ErrorBoundary from "@/components/error-boundary";
+import ErrorBoundary from "@/components/error/error-boundary";
 
 import { Skeleton } from "@energyleaf/ui";
 

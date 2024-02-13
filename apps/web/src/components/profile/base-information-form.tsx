@@ -10,7 +10,7 @@ import type { baseInformationSchema } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
 import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
 
-import ErrorBoundary from "../error-boundary";
+import ErrorBoundary from "../error/error-boundary";
 import ChangePasswordForm from "./change-password-form";
 import ChangePasswordError from "./change-password-form-error";
 

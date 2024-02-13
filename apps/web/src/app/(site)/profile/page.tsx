@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import ErrorBoundary from "@/components/error-boundary";
+import ErrorBoundary from "@/components/error/error-boundary";
 import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import AccountDeletionError from "@/components/profile/account-deletion-form-error";
 import BaseInformationForm from "@/components/profile/base-information-form";
