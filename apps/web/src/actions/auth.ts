@@ -143,7 +143,7 @@ export async function signInAction(email: string, password: string) {
         if (err instanceof AuthError) {
             switch (err.type) {
                 case "CredentialsSignin":
-                    throw new Error("Benutzername oder Passwort falsch");
+                    throw new Error("E-Mail oder Passwort falsch");
                 default:
                     throw new Error("Fehler beim Anmelden");
             }

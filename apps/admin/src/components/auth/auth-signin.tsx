@@ -27,7 +27,7 @@ export default function AuthForm() {
             try {
                 await signInAction(data);
             } catch (err) {
-                setError((err as unknown as Error).message);
+                setError("E-Mail oder Passwort ist falsch");
             }
         });
     };

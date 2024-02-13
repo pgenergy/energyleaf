@@ -20,7 +20,7 @@ export async function signInAction(data: z.infer<typeof signInSchema>) {
             switch (err.type) {
                 case 'CredentialsSignin':
                     return {
-                        message: "Benutzername oder Passwort falsch",
+                        message: "E-Mail oder Passwort falsch",
                     };
                 default:
                     return {
