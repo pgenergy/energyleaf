@@ -24,9 +24,10 @@ export default function AuthForm() {
     const onSubmit = (data: z.infer<typeof signInSchema>) => {
         startTransition(async () => {
             setError(null);
-            const res = await signInAction(data);
-            if (res) {
-                setError(res.message);
+            try {
+                await signInAction(data);
+            } catch (err) {
+                setError((err as unknown as Error).message);
             }
         });
     };
