@@ -19,7 +19,7 @@ export default function DeviceAddButton() {
             className="flex flex-row gap-2"
             onClick={() => {
                 track("openDialog(addDevice)");
-                openDialog;
+                openDialog();
             }}
         >
             <PlusIcon className="h-4 w-4" />
