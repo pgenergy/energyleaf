@@ -309,13 +309,15 @@ export async function getAverageConsumptionPerDevice() {
     const result = await db
         .select({
             deviceId: peaks.deviceId,
-            averageConsumption: sql<number>`AVG(${sensorData.value})`
+            averageConsumption: sql<number>`AVG(${sensorData.value})`,
         })
         .from(peaks)
-        .innerJoin(sensorData, sql`${peaks.sensorId} = ${sensorData.sensorId} AND ${peaks.timestamp} = ${sensorData.timestamp}`)
+        .innerJoin(
+            sensorData,
+            sql`${peaks.sensorId} = ${sensorData.sensorId} AND ${peaks.timestamp} = ${sensorData.timestamp}`,
+        )
         .groupBy(peaks.deviceId)
         .execute();
 
     return result;
 }
-

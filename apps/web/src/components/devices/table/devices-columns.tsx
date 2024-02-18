@@ -1,11 +1,13 @@
 "use client";
 
+import { DeviceCategory } from "@/lib/schema/device";
 import type { ColumnDef } from "@tanstack/react-table";
 import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import DeviceActionCell from "./device-action-cell";
+
 import { Button } from "@energyleaf/ui";
-import { DeviceCategory } from "@/lib/schema/device";
+
+import DeviceActionCell from "./device-action-cell";
 
 export interface DeviceTableType {
     id: number;
@@ -73,13 +75,13 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
         header: () => "Durchschn. Verbrauch",
         cell: ({ row }) => {
             const consumptionValue = row.getValue("averageConsumption");
-            const consumption = typeof consumptionValue === 'number' ? consumptionValue.toString() : consumptionValue;
-            
+            const consumption = typeof consumptionValue === "number" ? consumptionValue.toString() : consumptionValue;
+
             if (consumption) {
                 const formattedConsumption = `${Number(consumption).toLocaleString("de-DE", {
-                    minimumFractionDigits: 2, 
-                    maximumFractionDigits: 2 
-                })} kWh`;               
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                })} kWh`;
                 return <span>{formattedConsumption}</span>;
             }
             return <span>N/A</span>;
