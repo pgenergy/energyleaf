@@ -17,7 +17,6 @@ export type CreateDeviceType = {
     category: string;
 };
 
-
 export async function createDevice(data: CreateDeviceType) {
     await db.insert(device).values({
         name: data.name,
@@ -30,13 +29,15 @@ export async function updateDevice(id: number, data: Partial<CreateDeviceType>) 
     await db.transaction(async (trx) => {
         const deviceToUpdate = await getDeviceById(trx, id);
         await copyToHistoryTable(trx, deviceToUpdate);
-        await trx.update(device).set({
-            name: data.name,
-            category: data.category,
-        }).where(eq(device.id, id));
+        await trx
+            .update(device)
+            .set({
+                name: data.name,
+                category: data.category,
+            })
+            .where(eq(device.id, id));
     });
 }
-
 
 export async function deleteDevice(id: number, userId: number) {
     return db.transaction(async (trx) => {

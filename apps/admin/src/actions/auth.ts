@@ -6,8 +6,8 @@ import type { signInSchema } from "@/lib/schema/auth";
 import "server-only";
 
 import { redirect } from "next/navigation";
-import type { z } from "zod";
 import { AuthError } from "next-auth";
+import type { z } from "zod";
 
 export async function signInAction(data: z.infer<typeof signInSchema>) {
     try {
@@ -18,7 +18,7 @@ export async function signInAction(data: z.infer<typeof signInSchema>) {
     } catch (err) {
         if (err instanceof AuthError) {
             switch (err.type) {
-                case 'CredentialsSignin':
+                case "CredentialsSignin":
                     return {
                         message: "E-Mail oder Passwort falsch",
                     };
