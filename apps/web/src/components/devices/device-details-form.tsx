@@ -27,12 +27,12 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
 
   const [categoryChanged, setCategoryChanged] = useState(false);
 
-  const onSubmit = async (data: z.infer<typeof deviceSchema>) => {
+  const onSubmit = (data: z.infer<typeof deviceSchema>) => {
     if (typeof data.category === 'undefined') {
       toast.error('Kategorie ist erforderlich');
       return;
     }
-    await toast.promise(
+    toast.promise(
       device ? updateDevice(data, device.id) : createDevice(data),
       {
         loading: device ? "Speichern..." : "Erstellen...",
