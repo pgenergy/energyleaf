@@ -32,20 +32,14 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
       toast.error('Kategorie ist erforderlich');
       return;
     }
-    toast.promise(
+    await toast.promise(
       device ? updateDevice(data, device.id) : createDevice(data),
       {
         loading: device ? "Speichern..." : "Erstellen...",
         success: () => {
-          if (device) {
-            track("updateDevice");
-            onCallback();
-            return "Gerät aktualisiert.";
-          } else {
-            track("createDevice");
-            onCallback();
-            return "Gerät hinzugefügt.";
-          }
+          track(device ? "updateDevice" : "createDevice");
+          onCallback();
+          return device ? "Gerät aktualisiert." : "Gerät hinzugefügt.";
         },
         error: "Es ist ein Fehler aufgetreten."
       }
