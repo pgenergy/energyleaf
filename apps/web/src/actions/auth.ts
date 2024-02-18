@@ -70,7 +70,7 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         .setProtectedHeader({ alg: "HS256" })
         .sign(Buffer.from(env.NEXTAUTH_SECRET, "hex"));
 
-    const resetUrl = `https://${env.VERCEL_URL || env.NEXTAUTH_URL || 'energyleaf.de'}/reset?token=${token}`;
+    const resetUrl = `https://${env.VERCEL_URL || env.NEXTAUTH_URL || "energyleaf.de"}/reset?token=${token}`;
     try {
         await sendPasswordResetEmail({
             from: env.RESEND_API_MAIL,
