@@ -14,7 +14,7 @@ export async function isDemoUser() {
     return true;
 }
 
-export function addDeviceCookieStore(cookies: ReadonlyRequestCookies, name: string) {
+export function addDeviceCookieStore(cookies: ReadonlyRequestCookies, name: string, category?: string) {
     const devices = cookies.get("demo_devices");
     if (!devices) {
         cookies.set(
@@ -39,6 +39,7 @@ export function addDeviceCookieStore(cookies: ReadonlyRequestCookies, name: stri
         created: new Date(),
         timestamp: new Date(),
         userId: -1,
+        category: category || "demo",
     });
     cookies.set("demo_devices", JSON.stringify(parsedDevices));
 }

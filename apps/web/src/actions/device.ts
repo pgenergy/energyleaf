@@ -26,7 +26,7 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
     }
 
     if (await isDemoUser()) {
-        addDeviceCookieStore(cookies(), data.deviceName);
+        addDeviceCookieStore(cookies(), data.deviceName, data.category);
         return;
     }
 
