@@ -8,6 +8,7 @@ import type { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { UserNotLoggedInError, UserNotFoundError } from "@energyleaf/lib/errors/auth";
 import { getUserById } from "@energyleaf/db/query";
+import "server-only";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
     const session = await getSession();
@@ -33,7 +34,7 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         revalidatePath("/devices");
     } catch (error: unknown) {
         if (error instanceof Error) {
-            throw new Error(`Fehler beim Erstellen des Geräts: ${error.message}`);
+            throw new Error(`Fehler beim Erstellen des Geräts`);
         }
     }
 }

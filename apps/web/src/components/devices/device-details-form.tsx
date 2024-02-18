@@ -32,22 +32,24 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
       toast.error('Kategorie ist erforderlich');
       return;
     }
-    try {
-      if (device) {
-        track("updateDevice");
-        await updateDevice(data, device.id);
-        toast.success('Gerät erfolgreich aktualisiert');
-      } else {
-        track("createDevice");
-        await createDevice(data);
-        toast.success('Gerät erfolgreich hinzugefügt');
+    toast.promise(
+      device ? updateDevice(data, device.id) : createDevice(data),
+      {
+        loading: device ? "Speichern..." : "Erstellen...",
+        success: () => {
+          if (device) {
+            track("updateDevice");
+            onCallback();
+            return "Gerät aktualisiert.";
+          } else {
+            track("createDevice");
+            onCallback();
+            return "Gerät hinzugefügt.";
+          }
+        },
+        error: "Es ist ein Fehler aufgetreten."
       }
-      onCallback();
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(`Fehler beim Speichern des Geräts: ${error.message}`);
-      }
-    }
+    );
   };
 
   const handleCategoryChange = (value: string) => {
