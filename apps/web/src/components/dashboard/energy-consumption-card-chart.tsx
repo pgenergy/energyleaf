@@ -7,7 +7,7 @@ import { LineChart } from "@energyleaf/ui/components/charts";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
-import {AggregationType} from "@energyleaf/db/src/types/types";
+import {AggregationType} from "@energyleaf/db/util";
 
 interface Props {
     data: { sensorId: string; energy: number; timestamp: string }[];
@@ -47,8 +47,8 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
         [data],
     );
 
-    const computeTimestampLabel = (aggregation) => {
-        switch (aggregation) {
+    const computeTimestampLabel = (aggregationParam) => {
+        switch (aggregationParam) {
             case AggregationType.YEAR: return ' (in Jahren)';
             case AggregationType.MONTH: return ' (in Monaten)';
             case AggregationType.WEEK: return ' (in Wochen)';

@@ -54,8 +54,8 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
         }
     };
 
-    const computeTimestampLabel = (aggregation) => {
-        switch (aggregation) {
+    const computeTimestampLabel = (aggregationParam) => {
+        switch (aggregationParam) {
             case AggregationType.YEAR: return ' Wh / Jahr';
             case AggregationType.MONTH: return ' Wh / Monat';
             case AggregationType.WEEK: return ' Wh / Wochen';

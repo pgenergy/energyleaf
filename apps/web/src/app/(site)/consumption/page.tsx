@@ -1,17 +1,7 @@
 import { Suspense } from "react";
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@energyleaf/ui";
+import { Card } from "@energyleaf/ui";
 import EnergyConsumptionCard from "@/components/dashboard/energy-consumption-card";
-import {Skeleton} from "@energyleaf/ui/src/ui";
+import {Skeleton} from "@energyleaf/ui";
 
 export default function ConsumptionPage({searchParams,}: {
     searchParams: { start?: string; end?: string; aggregation?: string };
