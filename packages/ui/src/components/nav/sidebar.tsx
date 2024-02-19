@@ -19,6 +19,10 @@ interface Props {
 export function Sidebar({ links }: Props) {
     const pathname = usePathname();
 
+    function isSelected(link: NavLink) {
+        return (link.path !== "/" && pathname.startsWith(link.path)) || pathname === link.path;
+    }
+
     return (
         <nav className="fixed left-0 top-14 hidden w-[13%] md:flex">
             <ScrollArea className="max-h-[calc(100vh - 3.5rem)] flex w-full flex-col gap-4 py-8">
@@ -26,8 +30,8 @@ export function Sidebar({ links }: Props) {
                     <Link
                         className={clsx(
                             {
-                                "hover:bg-accent": pathname !== link.path,
-                                "bg-primary text-primary-foreground": pathname === link.path,
+                                "hover:bg-accent": !isSelected(link),
+                                "bg-primary text-primary-foreground": isSelected(link),
                             },
                             "flex flex-row items-center rounded-r-full px-4 py-2 font-medium",
                         )}

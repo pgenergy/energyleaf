@@ -9,3 +9,11 @@ export class UserNotFoundError extends Error {
         super("User not found");
     }
 }
+
+export class UserNotActiveError extends Error {
+    static type = "UserNotActiveError";
+
+    constructor() {
+        super("User is not active");
+    }
+}

@@ -15,6 +15,8 @@ import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
 import { sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
+import {buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError} from "@energyleaf/lib";
+import {CallbackRouteError} from "@auth/core/errors";
 
 /**
  * Server action for creating a new account
@@ -70,17 +72,9 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         throw new Error("E-Mail wird nicht verwendet.");
     }
 
-    const token = await new jose.SignJWT()
-        .setSubject(user.id.toString())
-        .setIssuedAt()
-        .setExpirationTime("1h")
-        .setAudience("energyleaf")
-        .setIssuer("energyleaf")
-        .setNotBefore(new Date())
-        .setProtectedHeader({ alg: "HS256" })
-        .sign(Buffer.from(env.NEXTAUTH_SECRET, "hex"));
+    const token = await getResetPasswordToken({userId: user.id, secret: env.NEXTAUTH_SECRET});
+    const resetUrl = buildResetPasswordUrl({env, token});
 
-    const resetUrl = `https://${env.VERCEL_URL || env.NEXTAUTH_URL || "energyleaf.de"}/reset?token=${token}`;
     try {
         await sendPasswordResetEmail({
             from: env.RESEND_API_MAIL,
@@ -147,6 +141,10 @@ export async function signInAction(email: string, password: string) {
                 default:
                     throw new Error("Fehler beim Anmelden");
             }
+        }
+
+        if (err instanceof CallbackRouteError && err.cause?.err instanceof UserNotActiveError) {
+            throw new Error("Benutzer ist nicht aktiv. Bitte wenden Sie sich an einen Administrator.");
         }
 
         throw err;
