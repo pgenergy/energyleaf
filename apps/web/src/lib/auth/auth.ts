@@ -6,6 +6,7 @@ import Credentials from "next-auth/providers/credentials";
 import { getUserByMail } from "@energyleaf/db/query";
 
 import { authOptions } from "./auth.config";
+import {UserNotActiveError} from "@energyleaf/lib";
 
 export const { auth, signIn, signOut } = NextAuth({
     ...authOptions,
@@ -29,10 +30,25 @@ export const { auth, signIn, signOut } = NextAuth({
                     return null;
                 }
                 const email = credentials.email as string;
+
+                if (email === "demo@energyleaf.de") {
+                    return {
+                        id: "-1",
+                        name: "Demo User",
+                        email: "demo@energyleaf.de",
+                        created: new Date().toString(),
+                        admin: false,
+                    };
+                }
+
                 const password = credentials.password as string;
                 const user = await getUserByMail(email);
                 if (!user) {
                     return null;
+                }
+
+                if (!user.isActive) {
+                    throw new UserNotActiveError();
                 }
 
                 const match = await bcrypt.compare(password, user.password);

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message TokenRequest {
+    string client_id = 1;
+}
+
+message TokenResponse {
+    string access_token = 1;
+    uint32 expires_in = 2;
+}

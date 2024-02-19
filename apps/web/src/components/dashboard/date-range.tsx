@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { track } from "@vercel/analytics";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
@@ -17,6 +18,7 @@ interface Props {
 export default function DashboardDateRange({ startDate, endDate }: Props) {
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     const dateString = () => {
         if (startDate.toDateString() === endDate.toDateString()) {
@@ -33,11 +35,14 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
     };
 
     function onChange(value?: DateRange) {
+        track("changeDashboardDateRange()");
         if (value?.from && value.to) {
-            const search = new URLSearchParams({
-                start: value.from.toISOString(),
-                end: value.to.toISOString(),
+            const search = new URLSearchParams();
+            searchParams.forEach((v, key) => {
+                search.set(key, v);
             });
+            search.set("start", value.from.toISOString());
+            search.set("end", value.to.toISOString());
             router.push(`${pathname}?${search.toString()}`);
         }
     }

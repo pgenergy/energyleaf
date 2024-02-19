@@ -21,7 +21,7 @@ export async function getUserById(id: number) {
 /**
  * Get a user by mail from the database
  *
- * @param id<number> The id of the user
+ * @param email<string> The email of the user
  *
  * @returns The user or null if not found
  */
@@ -36,7 +36,6 @@ export async function getUserByMail(email: string) {
 export type CreateUserType = {
     email: string;
     password: string;
-    sensorId: string;
     username: string;
 };
 
@@ -184,4 +183,16 @@ export async function getUserDataByUserId(id: number) {
 
 export async function deleteUser(id: number) {
     return await db.delete(user).where(eq(user.id, id));
+}
+
+export async function getAllUsers() {
+    return await db.select().from(user);
+}
+
+export async function setUserActive(id: number, isActive: boolean) {
+    return await db.update(user).set({ isActive }).where(eq(user.id, id));
+}
+
+export async function setUserAdmin(id: number, isAdmin: boolean) {
+    return await db.update(user).set({ isAdmin }).where(eq(user.id, id));
 }

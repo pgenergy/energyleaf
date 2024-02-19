@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { updateMailInformation } from "@/actions/profile";
 import { mailSettingsSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -28,10 +29,10 @@ import {
 interface Props {
     daily: boolean;
     weekly: boolean;
-    id: string;
+    disabled?: boolean;
 }
 
-export default function MailSettingsForm({ daily, weekly, id }: Props) {
+export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),
@@ -42,8 +43,10 @@ export default function MailSettingsForm({ daily, weekly, id }: Props) {
     });
 
     function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
+        if (disabled) return;
         startTransition(() => {
-            toast.promise(updateMailInformation(data, id), {
+            track("updateMailSettings()");
+            toast.promise(updateMailInformation(data), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
                 error: "Deine Einstellungen konnten nicht aktualisiert werden",
@@ -75,7 +78,12 @@ export default function MailSettingsForm({ daily, weekly, id }: Props) {
                                         </FormDescription>
                                     </div>
                                     <FormControl>
-                                        <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                                        <Switch
+                                            aria-readonly
+                                            checked={field.value}
+                                            disabled={disabled}
+                                            onCheckedChange={field.onChange}
+                                        />
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -92,13 +100,18 @@ export default function MailSettingsForm({ daily, weekly, id }: Props) {
                                         </FormDescription>
                                     </div>
                                     <FormControl>
-                                        <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                                        <Switch
+                                            aria-readonly
+                                            checked={field.value}
+                                            disabled={disabled}
+                                            onCheckedChange={field.onChange}
+                                        />
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
                         <div className="flex flex-row justify-end">
-                            <Button disabled={isPending} type="submit">
+                            <Button disabled={isPending || disabled} type="submit">
                                 {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
                                 Speichern
                             </Button>

@@ -53,22 +53,26 @@ export default function NavbarAvatar({ user }: Props) {
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link href="/profile">
-                        <User2Icon className="mr-2 h-4 w-4" />
-                        Profile
-                    </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link href="/faq">
-                        <LightbulbIcon className="mr-2 h-4 w-4" />
-                        FAQ
-                    </Link>
-                </DropdownMenuItem>
+                {user.id !== "-1" ? (
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link href="/profile">
+                            <User2Icon className="mr-2 h-4 w-4" />
+                            Profil
+                        </Link>
+                    </DropdownMenuItem>
+                ) : null}
+                {user.id !== "-1" ? (
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link href="/faq">
+                            <LightbulbIcon className="mr-2 h-4 w-4" />
+                            FAQ
+                        </Link>
+                    </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer text-destructive" onClick={onSignOut}>
                     <LogOutIcon className="mr-2 h-4 w-4" />
-                    Abmelden
+                    {user.id === "-1" ? "Demo beenden" : "Abmelden"}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

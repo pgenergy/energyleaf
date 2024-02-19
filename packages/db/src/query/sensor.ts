@@ -1,15 +1,69 @@
 import {and, between, eq, or, sql} from "drizzle-orm";
-
+import {peaks, sensor, sensorData, sensorToken, SensorType, user, userData} from "../schema";
+import {nanoid} from "nanoid";
 import db from "..";
-import {peaks, sensor, sensorData, SensorType, user, userData} from "../schema";
-import {SensorAlreadyExistsError} from "@energyleaf/lib/src/errors/sensor-errors";
+import {AggregationType} from "../types/types";
 
 /**
  * Get the energy consumption for a sensor in a given time range
  */
-export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId: number) {
-    return db
-        .select()
+export async function getEnergyForSensorInRange(
+    start: Date,
+    end: Date,
+    sensorId: string,
+    aggregation = AggregationType.RAW,
+) {
+    if (aggregation === AggregationType.RAW) {
+        const query = await db
+            .select()
+            .from(sensorData)
+            .where(
+                and(
+                    eq(sensorData.sensorId, sensorId),
+                    or(
+                        between(sensorData.timestamp, start, end),
+                        eq(sensorData.timestamp, start),
+                        eq(sensorData.timestamp, end),
+                    ),
+                ),
+            )
+            .orderBy(sensorData.timestamp);
+
+        return query.map((row, index) => ({
+            ...row,
+            id: index,
+        }));
+    }
+
+    let grouper = sql<string | number>`EXTRACT(hour FROM ${sensorData.timestamp})`;
+    // needs to be hacky because we need a fixed date for the grouping
+    let timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '2000-01-01 %H:00:00') AS DATETIME)`;
+    switch (aggregation) {
+        case AggregationType.DAY:
+            grouper = sql<string | number>`WEEKDAY(${sensorData.timestamp})`;
+            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '2000-01-%d 00:00:00') AS DATETIME)`;
+            break;
+        case AggregationType.WEEK:
+            grouper = sql<string | number>`EXTRACT(week FROM ${sensorData.timestamp})`;
+            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-%m-%d 00:00:00') AS DATETIME)`;
+            break;
+        case AggregationType.MONTH:
+            grouper = sql<string | number>`EXTRACT(month FROM ${sensorData.timestamp})`;
+            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-%m-01 00:00:00') AS DATETIME)`;
+            break;
+        case AggregationType.YEAR:
+            grouper = sql<string | number>`EXTRACT(year FROM ${sensorData.timestamp})`;
+            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-01-01 00:00:00') AS DATETIME)`;
+            break;
+    }
+
+    const query = await db
+        .select({
+            sensorId: sensorData.sensorId,
+            value: sql<number>`AVG(${sensorData.value})`,
+            timestamp: timestamp,
+            grouper: grouper,
+        })
         .from(sensorData)
         .where(
             and(
@@ -21,13 +75,21 @@ export async function getEnergyForSensorInRange(start: Date, end: Date, sensorId
                 ),
             ),
         )
-        .orderBy(sensorData.timestamp);
+        .groupBy(grouper, timestamp)
+        .orderBy(grouper);
+
+    return query.map((row, index) => ({
+        id: index,
+        timestamp: row.timestamp as Date | null,
+        value: Number(row.value),
+        sensorId: row.sensorId as string | null,
+    }));
 }
 
 /**
  * Get the average energy consumption for a sensor
  */
-export async function getAvgEnergyConsumptionForSensor(sensorId: number) {
+export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
     const query = await db
         .select({
             sensorId: sensorData.sensorId,
@@ -66,7 +128,7 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
             })
             .from(sensorData)
             .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
-            .innerJoin(userData, eq(userData.id, sensor.user_id))
+            .innerJoin(userData, eq(userData.id, sensor.userId))
             .where(
                 and(
                     eq(userData.livingSpace, user.livingSpace),
@@ -119,7 +181,7 @@ export async function addOrUpdatePeak(sensorId: number, timestamp: Date, deviceI
 /**
  *  gets all peaks for a given device
  */
-export async function getPeaksBySensor(start: Date, end: Date, sensorId: number) {
+export async function getPeaksBySensor(start: Date, end: Date, sensorId: string) {
     return db
         .select()
         .from(peaks)
@@ -142,21 +204,19 @@ export async function getElectricitySensorIdForUser(userId: number) {
     const query = await db
         .select()
         .from(sensor)
-        .where(and(eq(sensor.user_id, userId), eq(sensor.sensor_type, SensorType.Electricity)));
+        .where(and(eq(sensor.userId, userId), eq(sensor.sensor_type, SensorType.Electricity)));
 
     if (query.length === 0) {
         return null;
     }
 
-    const sensorId = query[0].id;
-
-    return sensorId;
+    return query[0].id;
 }
 
 /**
  * Insert sensor data
  */
-export async function insertSensorData(data: { sensorId: number; value: number }) {
+export async function insertSensorData(data: { sensorId: string; value: number }) {
     try {
         await db.transaction(async (trx) => {
             const userData = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
@@ -178,11 +238,11 @@ export async function insertSensorData(data: { sensorId: number; value: number }
 }
 
 export type Sensor = {
-    id: number;
-    key: string | null;
-    macAddress: string;
+    id: string;
+    clientId: string;
+    version: number;
     sensor_type: SensorType;
-    user_id: number | null;
+    userId: number | null;
 }
 
 export type User = {
@@ -192,6 +252,7 @@ export type User = {
     username: string;
     password: string;
     isAdmin: boolean;
+    isActive: boolean;
 }
 
 export type SensorWithUser = {
@@ -199,7 +260,7 @@ export type SensorWithUser = {
     user: User | null;
 }
 export async function getSensorsWithUser(): Promise<SensorWithUser[]> {
-    return db.select().from(sensor).leftJoin(user, eq(user.id, sensor.user_id));
+    return db.select().from(sensor).leftJoin(user, eq(user.id, sensor.userId));
 }
 
 export interface CreateSensorType {
@@ -209,42 +270,43 @@ export interface CreateSensorType {
 }
 
 export async function createSensor(createSensorType: CreateSensorType) : Promise<void> {
-    await db.transaction(async (trx) => {
-        const sensorsWithSameMacAddress = await trx.select()
-            .from(sensor)
-            .where(eq(sensor.macAddress, createSensorType.macAddress));
-        if (sensorsWithSameMacAddress.length > 0) {
-            throw new SensorAlreadyExistsError(createSensorType.macAddress);
-        }
-
-        await trx.insert(sensor).values({
-            key: createSensorType.key,
-            macAddress: createSensorType.macAddress,
-            sensor_type: createSensorType.sensorType,
-        });
-    });
+    // await db.transaction(async (trx) => {
+    //     const sensorsWithSameMacAddress = await trx.select()
+    //         .from(sensor)
+    //         .where(eq(sensor.macAddress, createSensorType.macAddress));
+    //     if (sensorsWithSameMacAddress.length > 0) {
+    //         throw new SensorAlreadyExistsError(createSensorType.macAddress);
+    //     }
+    //
+    //     await trx.insert(sensor).values({
+    //         key: createSensorType.key,
+    //         macAddress: createSensorType.macAddress,
+    //         sensor_type: createSensorType.sensorType,
+    //     });
+    // });
 }
 
 export async function sensorExists(macAddress: string): Promise<boolean> {
-    const query = await db.select().from(sensor).where(eq(sensor.macAddress, macAddress));
-    return query.length > 0;
+    // const query = await db.select().from(sensor).where(eq(sensor.macAddress, macAddress));
+    // return query.length > 0;
+    return false;
 }
 
 export async function resetSensorKey(sensorId: number, sensorKey: string) {
-    await db.transaction(async (trx) => {
-        const sensors = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
-        if (sensors.length === 0) {
-            throw new Error("Sensor not found");
-        }
-
-        await trx.update(sensor).set({
-            key: sensorKey,
-            user_id: null
-        }).where(eq(sensor.id, sensorId));
-    })
+    // await db.transaction(async (trx) => {
+    //     const sensors = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
+    //     if (sensors.length === 0) {
+    //         throw new Error("Sensor not found");
+    //     }
+    //
+    //     await trx.update(sensor).set({
+    //         key: sensorKey,
+    //         user_id: null
+    //     }).where(eq(sensor.id, sensorId));
+    // })
 }
 
-export async function deleteSensor(sensorId: number) {
+export async function deleteSensor(sensorId: string) {
     await db.transaction(async (trx) => {
         const sensors = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
         if (sensors.length === 0) {
@@ -253,4 +315,87 @@ export async function deleteSensor(sensorId: number) {
 
         await trx.delete(sensor).where(eq(sensor.id, sensorId));
     })
+}
+
+/**
+ * Create sensor token
+ */
+export async function createSensorToken(clientId: string) {
+    const code = nanoid(30);
+    try {
+        await db.transaction(async (trx) => {
+            const sensorData = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
+
+            if (sensorData.length === 0) {
+                trx.rollback();
+                throw new Error("sensor/not-found");
+            }
+
+            await trx.insert(sensorToken).values({
+                code: code,
+                sensorId: sensorData[0].id,
+            });
+        });
+
+        return code;
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
+ * Get the sensor id from a sensor token
+ * This also validates the token and deletes it if it is older than 1 hour
+ */
+export async function getSensorIdFromSensorToken(code: string) {
+    return db.transaction(async (trx) => {
+        const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.code, code));
+
+        if (tokenData.length === 0) {
+            throw new Error("token/not-found");
+        }
+
+        const token = tokenData[0];
+        const tokenDate = token.timestamp;
+
+        if (!tokenDate) {
+            trx.rollback();
+            throw new Error("token/invalid");
+        }
+
+        // check if token is older than 1 hour
+        const now = new Date();
+        if (now.getTime() - tokenDate.getTime() > 3600000) {
+            trx.delete(sensorToken).where(eq(sensorToken.code, code));
+            throw new Error("token/expired");
+        }
+
+        const sensorData = await trx.select().from(sensor).where(eq(sensor.id, token.sensorId));
+        if (sensorData.length === 0) {
+            trx.rollback();
+            throw new Error("sensor/not-found");
+        }
+
+        return sensorData[0].id;
+    });
+}
+
+/**
+ * Get the average energy consumption per device
+ */
+export async function getAverageConsumptionPerDevice() {
+    const result = await db
+        .select({
+            deviceId: peaks.deviceId,
+            averageConsumption: sql<number>`AVG(${sensorData.value})`,
+        })
+        .from(peaks)
+        .innerJoin(
+            sensorData,
+            sql`${peaks.sensorId} = ${sensorData.sensorId} AND ${peaks.timestamp} = ${sensorData.timestamp}`,
+        )
+        .groupBy(peaks.deviceId)
+        .execute();
+
+    return result;
 }

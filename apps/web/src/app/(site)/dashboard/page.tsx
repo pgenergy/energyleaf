@@ -17,6 +17,14 @@ export default function DashboardPage({
     const startDate = startDateString ? new Date(startDateString) : new Date();
     const endDate = endDateString ? new Date(endDateString) : new Date();
 
+    if (!startDateString) {
+        startDate.setUTCHours(0, 0, 0, 0);
+    }
+
+    if (!endDateString) {
+        endDate.setUTCHours(23, 59, 59, 999);
+    }
+
     return (
         <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
