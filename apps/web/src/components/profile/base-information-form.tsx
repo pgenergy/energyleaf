@@ -16,6 +16,7 @@ import {
 import ChangePasswordForm from "./change-password-form";
 import type {baseInformationSchema} from "@energyleaf/lib";
 import {UserBaseInformationForm} from "@energyleaf/ui/components/forms";
+import { track } from "@vercel/analytics";
 
 interface Props {
     username: string;
@@ -28,6 +29,7 @@ export default function BaseInformationForm({ username, email, id }: Props) {
 
     function onSubmit(data: z.infer<typeof baseInformationSchema>) {
         startTransition(() => {
+            track("updateBaseInformation()");
             if (data.email !== email) {
                 return;
             }

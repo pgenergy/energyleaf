@@ -1,8 +1,9 @@
+import { env } from "@/env.mjs";
 import type { CustomJWT, CustomSession, CustomUser } from "@/types/auth";
 import type { NextAuthConfig } from "next-auth";
 
 const publicRoutes = ["/legal"];
-const unprotectedRoutes = ["/", "/signup"];
+const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset"];
 
 export const authOptions: NextAuthConfig = {
     providers: [],
@@ -12,6 +13,7 @@ export const authOptions: NextAuthConfig = {
     pages: {
         signIn: "/",
     },
+    secret: env.NEXTAUTH_SECRET,
     callbacks: {
         async authorized({ request, auth }) {
             const loggedIn = Boolean(auth?.user);

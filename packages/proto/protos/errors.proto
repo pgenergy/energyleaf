@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message ErrorResponse {
+    string msg = 1;
+    uint32 status = 2;
+}

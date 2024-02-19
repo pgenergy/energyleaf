@@ -1,5 +1,5 @@
 import {usersTableColumns} from "@/components/users/table/users-table-columns";
-import {DataTable} from "@energyleaf/ui/src/ui/data-table";
+import {DataTable} from "@energyleaf/ui";
 import {getAllUsers} from "@/actions/user";
 
 export default async function UsersTable() {
