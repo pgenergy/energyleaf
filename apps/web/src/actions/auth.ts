@@ -13,7 +13,7 @@ import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
 import { sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
-import {UserNotActiveError} from "@energyleaf/lib";
+import {buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError} from "@energyleaf/lib";
 import {CallbackRouteError} from "@auth/core/errors";
 
 /**
@@ -62,17 +62,9 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         throw new Error("E-Mail wird nicht verwendet.");
     }
 
-    const token = await new jose.SignJWT()
-        .setSubject(user.id.toString())
-        .setIssuedAt()
-        .setExpirationTime("1h")
-        .setAudience("energyleaf")
-        .setIssuer("energyleaf")
-        .setNotBefore(new Date())
-        .setProtectedHeader({ alg: "HS256" })
-        .sign(Buffer.from(env.NEXTAUTH_SECRET, "hex"));
+    const token = await getResetPasswordToken({userId: user.id, secret: env.NEXTAUTH_SECRET});
+    const resetUrl = buildResetPasswordUrl({env, token});
 
-    const resetUrl = `https://${env.VERCEL_URL || env.NEXTAUTH_URL || 'energyleaf.de'}/reset?token=${token}`;
     try {
         await sendPasswordResetEmail({
             from: env.RESEND_API_MAIL,

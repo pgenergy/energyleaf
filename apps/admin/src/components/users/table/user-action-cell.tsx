@@ -26,6 +26,7 @@ import {useTransition} from "react";
 import {toast} from "sonner";
 import {setUserActive, setUserAdmin} from "@/actions/user";
 import {useUserContext} from "@/hooks/user-hook";
+import {resetUserPassword} from "@/actions/auth";
 
 interface Props {
     user: UserTableType;
@@ -73,6 +74,19 @@ export default function UserActionCell({user}: Props) {
         });
     }
 
+    function sendUserForgetPasswordEmail() {
+        startTransition(() => {
+            toast.promise(
+                resetUserPassword(user.id),
+                {
+                    loading: `Passwort zurücksetzen Email wird gesendet...`,
+                    success: `Passwort zurücksetzen Email wurde erfolgreich gesendet.`,
+                    error: `Passwort zurücksetzen Email konnte aufgrund eines Fehlers nicht gesendet werden.`,
+                }
+            );
+        });
+    }
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -110,6 +124,7 @@ export default function UserActionCell({user}: Props) {
                 <DropdownMenuItem
                     className="flex cursor-pointer flex-row gap-2"
                     disabled={pending}
+                    onClick={sendUserForgetPasswordEmail}
                 >
                     <KeyIcon className="h-4 w-4"/>
                     Passwort zurücksetzen
