@@ -13,8 +13,6 @@ import * as jose from "jose";
 import { AuthError } from "next-auth";
 import type { z } from "zod";
 
-import {UserNotActiveError} from "@energyleaf/lib";
-import {CallbackRouteError} from "@auth/core/errors";
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
 import { sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 import {buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError} from "@energyleaf/lib";

@@ -16,6 +16,7 @@ import {
 import ChangePasswordForm from "./change-password-form";
 import {UserBaseInformationForm} from "@energyleaf/ui/components/forms";
 import { track } from "@vercel/analytics";
+import type {baseInformationSchema} from "@energyleaf/lib";
 
 interface Props {
     username: string;
