@@ -7,6 +7,9 @@
         "next.js",
         "library.js"
     ],
+    "scripts": {
+        "clean": "git clean -xdf node_modules"
+    },
     "devDependencies": {
         "@vercel/style-guide": "^5.2.0",
         "eslint-config-turbo": "^1.12.4",

@@ -13,7 +13,8 @@
         "fix": "pnpm run format && pnpm run lint -- --fix",
         "db:push": "dotenv -- pnpm --filter db run push",
         "db:studio": "dotenv -- pnpm --filter db run studio",
-        "proto:compile": "dotenv -- pnpm --filter proto run compile"
+        "proto:compile": "dotenv -- pnpm --filter proto run compile",
+        "clean": "turbo run clean && git clean -xdf .turbo node_modules"
     },
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:*",

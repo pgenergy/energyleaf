@@ -3,10 +3,11 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
-        "dev": "next dev --turbo",
+        "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "clean": "git clean -xdf .next .turbo node_modules"
     },
     "dependencies": {
         "@auth/core": "^0.26.3",
