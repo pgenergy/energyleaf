@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import type {
-    baseInformationSchema,
     deleteAccountSchema,
     mailSettingsSchema,
     passwordSchema,

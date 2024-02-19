@@ -15,7 +15,7 @@ import {UserNotLoggedInError} from "@energyleaf/lib";
 import {revalidatePath} from "next/cache";
 import type {z} from "zod";
 import type {baseInformationSchema} from "@energyleaf/lib";
-import {userStateSchema} from "@/lib/schema/user";
+import type {userStateSchema} from "@/lib/schema/user";
 
 export const getAllUsers = cache(async () => {
     await validateUserAdmin();

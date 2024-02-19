@@ -2,9 +2,6 @@
 
 import { useTransition } from "react";
 import { updateBaseInformationUsername } from "@/actions/profile";
-
-import type { baseInformationSchema } from "@/lib/schema/profile";
-import { track } from "@vercel/analytics";
 import { toast } from "sonner";
 import type { z } from "zod";
 
@@ -18,6 +15,7 @@ import {
 
 import ChangePasswordForm from "./change-password-form";
 import {UserBaseInformationForm} from "@energyleaf/ui/components/forms";
+import { track } from "@vercel/analytics";
 
 interface Props {
     username: string;
