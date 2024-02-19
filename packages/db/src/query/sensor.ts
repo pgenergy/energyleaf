@@ -3,7 +3,7 @@ import {peaks, sensor, sensorData, sensorToken, SensorType, user, userData} from
 import {nanoid} from "nanoid";
 import db from "..";
 import {AggregationType} from "../types/types";
-import {SensorAlreadyExistsError} from "@energyleaf/lib/src/errors/sensor-errors";
+import {SensorAlreadyExistsError} from "@energyleaf/lib";
 
 /**
  * Get the energy consumption for a sensor in a given time range
@@ -155,7 +155,7 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
 /**
  *  adds or updates a peak in the database
  */
-export async function addOrUpdatePeak(sensorId: number, timestamp: Date, deviceId: number) {
+export async function addOrUpdatePeak(sensorId: string, timestamp: Date, deviceId: number) {
     return db.transaction(async (trx) => {
         const data = await trx
             .select()
@@ -282,30 +282,14 @@ export async function createSensor(createSensorType: CreateSensorType) : Promise
             clientId: createSensorType.macAddress,
             sensor_type: createSensorType.sensorType,
             id: nanoid(30),
-            version: 1,
-            userId: 33,
+            version: 1
         });
     });
 }
 
 export async function sensorExists(macAddress: string): Promise<boolean> {
-    // const query = await db.select().from(sensor).where(eq(sensor.macAddress, macAddress));
-    // return query.length > 0;
-    return false;
-}
-
-export async function resetSensorKey(sensorId: number, sensorKey: string) {
-    // await db.transaction(async (trx) => {
-    //     const sensors = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
-    //     if (sensors.length === 0) {
-    //         throw new Error("Sensor not found");
-    //     }
-    //
-    //     await trx.update(sensor).set({
-    //         key: sensorKey,
-    //         user_id: null
-    //     }).where(eq(sensor.id, sensorId));
-    // })
+    const query = await db.select().from(sensor).where(eq(sensor.clientId, macAddress));
+    return query.length > 0;
 }
 
 export async function deleteSensor(sensorId: string) {

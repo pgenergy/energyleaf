@@ -6,8 +6,6 @@ import type {SensorTableType} from "@/components/sensors/table/sensors-columns";
 export type SensorContextType = {
     addDialogOpen: boolean;
     setAddDialogOpen: (open: boolean) => void;
-    resetKeyDialogOpen: boolean;
-    setResetKeyDialogOpen: (open: boolean) => void;
     deleteDialogOpen: boolean;
     setDeleteDialogOpen: (open: boolean) => void;
     sensor: SensorTableType | undefined;
@@ -22,7 +20,6 @@ interface Props {
 
 export function SensorContextProvider({ children }: Props) {
     const [addDialogOpen, setAddDialogOpen] = useState(false);
-    const [resetKeyDialogOpen, setResetKeyDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [sensor, setSensor] = useState<SensorTableType | undefined>(undefined);
 
@@ -31,8 +28,6 @@ export function SensorContextProvider({ children }: Props) {
             value={{
                 addDialogOpen,
                 setAddDialogOpen,
-                resetKeyDialogOpen,
-                setResetKeyDialogOpen,
                 deleteDialogOpen,
                 setDeleteDialogOpen,
                 sensor,

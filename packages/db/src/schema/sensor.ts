@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { int, mysqlEnum, mysqlTable, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
+import {string} from "zod";
 
 export enum SensorType {
     Electricity = "electricity",
@@ -13,7 +14,7 @@ export const sensor = mysqlTable("sensor", {
     clientId: varchar("client_id", { length: 255 }).primaryKey().notNull(),
     version: int("version").default(1).notNull(),
     sensor_type: mysqlEnum("sensor_type", sensorTypes).notNull(),
-    userId: int("user_id").notNull(),
+    userId: int("user_id"),
 });
 
 export const sensorToken = mysqlTable("sensor_token", {
@@ -44,7 +45,7 @@ export const sensorData = mysqlTable(
 
 export const peaks = mysqlTable("peaks", {
     id: int("id").autoincrement().primaryKey().notNull(),
-    sensorId: int("sensor_id"),
+    sensorId: varchar("sensor_id", { length: 30 }).notNull(),
     deviceId: int("device_id").notNull(),
     timestamp: timestamp("timestamp"),
 });

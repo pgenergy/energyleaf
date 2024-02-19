@@ -1,6 +1,5 @@
 "use server";
 
-import crypto from 'node:crypto';
 import type {
     SensorWithUser
 } from '@energyleaf/db/query';
@@ -10,7 +9,6 @@ import {
 import {
     getSensorsWithUser as getSensorsWithUserDb,
     createSensor as createSensorDb,
-    resetSensorKey as resetSensorKeyDb,
     deleteSensor as deleteSensorDb
 } from '@energyleaf/db/query';
 
@@ -21,23 +19,11 @@ import {revalidatePath} from "next/cache";
 import {UserNotLoggedInError} from "@energyleaf/lib";
 
 /**
- * Generates a new unique sensor key.
- * 
- * @returns a 40 character long hex string
- */
-function createUniqueSensorKey(): string {
-    return crypto.randomBytes(20).toString('hex')
-}
-
-/**
  * Creates a new sensor.
  */
 export async function createSensor(macAddress: string, sensorType: SensorType): Promise<void> {
     await checkIfAdmin();
-
-    const sensorKey: string = createUniqueSensorKey();
     await createSensorDb({
-        key: sensorKey,
         macAddress,
         sensorType
     });
@@ -46,7 +32,7 @@ export async function createSensor(macAddress: string, sensorType: SensorType): 
 
 export async function isSensorRegistered(macAddress: string): Promise<boolean> {
     await checkIfAdmin();
-    return await sensorExists(macAddress);
+    return sensorExists(macAddress);
 }
 
 export async function getSensors() : Promise<SensorWithUser[]>  {
@@ -54,17 +40,7 @@ export async function getSensors() : Promise<SensorWithUser[]>  {
     return getSensorsWithUserDb()
 }
 
-export async function resetSensorKey(sensorId: number) {
-    await checkIfAdmin();
-    try {
-        await resetSensorKeyDb(sensorId, createUniqueSensorKey());
-        revalidatePath("/sensors");
-    } catch (e) {
-        throw new Error("Error while resetting sensor key");
-    }
-}
-
-export async function deleteSensor(sensorId: number) {
+export async function deleteSensor(sensorId: string) {
     await checkIfAdmin();
     try {
         await deleteSensorDb(sensorId);

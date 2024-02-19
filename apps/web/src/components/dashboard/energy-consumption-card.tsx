@@ -26,7 +26,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }
 
     const userId = session.user.id;
-    const sensorId = Number(await getElectricitySensorIdForUser(userId));
+    const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
         return (

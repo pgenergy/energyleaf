@@ -7,7 +7,7 @@ import { Button } from "@energyleaf/ui";
 import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
 
 export interface SensorTableType {
-    id: number;
+    id: string;
     clientId: string;
     user: string | undefined,
     type: string

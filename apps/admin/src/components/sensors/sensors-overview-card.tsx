@@ -4,14 +4,12 @@ import SensorsTable from "@/components/sensors/sensors-table";
 import SensorAddButton from "@/components/sensors/sensor-add-button";
 import {SensorContextProvider} from "@/hooks/sensor-hook";
 import SensorAddDialog from "@/components/sensors/sensor-add-dialog";
-import {SensorResetKeyDialog} from "@/components/sensors/sensor-reset-key-dialog";
 import {SensorDeleteDialog} from "@/components/sensors/sensor-delete-dialog";
 
 export default function SensorsOverviewCard() {
     return (
         <SensorContextProvider>
             <SensorAddDialog/>
-            <SensorResetKeyDialog/>
             <SensorDeleteDialog/>
             <Card className="w-full">
                 <CardHeader>
