@@ -1,7 +1,8 @@
 import { and, between, eq, or, sql } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
 import db from "..";
-import { peaks, sensor, sensorData, userData } from "../schema";
+import { peaks, sensor, sensorData, sensorToken, userData } from "../schema";
 import { AggregationType } from "../types/types";
 
 /**
@@ -14,7 +15,7 @@ export async function getEnergyForSensorInRange(
     aggregation = AggregationType.RAW,
 ) {
     if (aggregation === AggregationType.RAW) {
-        return db
+        const query = await db
             .select()
             .from(sensorData)
             .where(
@@ -28,6 +29,11 @@ export async function getEnergyForSensorInRange(
                 ),
             )
             .orderBy(sensorData.timestamp);
+
+        return query.map((row, index) => ({
+            ...row,
+            id: index,
+        }));
     }
 
     let grouper = sql<string | number>`EXTRACT(hour FROM ${sensorData.timestamp})`;
@@ -35,7 +41,7 @@ export async function getEnergyForSensorInRange(
     let timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '2000-01-01 %H:00:00') AS DATETIME)`;
     switch (aggregation) {
         case AggregationType.DAY:
-            grouper = sql<string | number>`EXTRACT(day FROM ${sensorData.timestamp})`;
+            grouper = sql<string | number>`WEEKDAY(${sensorData.timestamp})`;
             timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '2000-01-%d 00:00:00') AS DATETIME)`;
             break;
         case AggregationType.WEEK:
@@ -73,8 +79,8 @@ export async function getEnergyForSensorInRange(
         .groupBy(grouper, timestamp)
         .orderBy(grouper);
 
-    return query.map((row) => ({
-        id: Math.random(),
+    return query.map((row, index) => ({
+        id: index,
         timestamp: row.timestamp as Date | null,
         value: Number(row.value),
         sensorId: row.sensorId as string | null,
@@ -123,7 +129,7 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: number)
             })
             .from(sensorData)
             .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
-            .innerJoin(userData, eq(userData.id, sensor.user_id))
+            .innerJoin(userData, eq(userData.id, sensor.userId))
             .where(
                 and(
                     eq(userData.livingSpace, user.livingSpace),
@@ -222,7 +228,7 @@ export async function getElectricitySensorIdForUser(userId: number) {
     const query = await db
         .select()
         .from(sensor)
-        .where(and(eq(sensor.user_id, userId), eq(sensor.sensor_type, "electricity")));
+        .where(and(eq(sensor.userId, userId), eq(sensor.sensor_type, "electricity")));
 
     if (query.length === 0) {
         return null;
@@ -231,4 +237,87 @@ export async function getElectricitySensorIdForUser(userId: number) {
     const sensorId = query[0].id;
 
     return sensorId;
+}
+
+/**
+ * Create sensor token
+ */
+export async function createSensorToken(clientId: string) {
+    const code = nanoid(30);
+    try {
+        await db.transaction(async (trx) => {
+            const sensorData = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
+
+            if (sensorData.length === 0) {
+                trx.rollback();
+                throw new Error("sensor/not-found");
+            }
+
+            await trx.insert(sensorToken).values({
+                code: code,
+                sensorId: sensorData[0].id,
+            });
+        });
+
+        return code;
+    } catch (err) {
+        throw err;
+    }
+}
+
+/**
+ * Get the sensor id from a sensor token
+ * This also validates the token and deletes it if it is older than 1 hour
+ */
+export async function getSensorIdFromSensorToken(code: string) {
+    return db.transaction(async (trx) => {
+        const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.code, code));
+
+        if (tokenData.length === 0) {
+            throw new Error("token/not-found");
+        }
+
+        const token = tokenData[0];
+        const tokenDate = token.timestamp;
+
+        if (!tokenDate) {
+            trx.rollback();
+            throw new Error("token/invalid");
+        }
+
+        // check if token is older than 1 hour
+        const now = new Date();
+        if (now.getTime() - tokenDate.getTime() > 3600000) {
+            trx.delete(sensorToken).where(eq(sensorToken.code, code));
+            throw new Error("token/expired");
+        }
+
+        const sensorData = await trx.select().from(sensor).where(eq(sensor.id, token.sensorId));
+        if (sensorData.length === 0) {
+            trx.rollback();
+            throw new Error("sensor/not-found");
+        }
+
+        return sensorData[0].id;
+    });
+}
+
+/**
+ * Get the average energy consumption per device
+ */
+export async function getAverageConsumptionPerDevice() {
+    const result = await db
+        .select({
+            deviceId: peaks.deviceId,
+            averageConsumption: sql<number>`AVG(${sensorData.value})`,
+        })
+        .from(peaks)
+        .innerJoin(
+            sensorData,
+            sql`${peaks.sensorId} = ${sensorData.sensorId} AND ${peaks.timestamp} = ${sensorData.timestamp}`,
+        )
+        .groupBy(peaks.deviceId)
+        .execute();
+
+    return result;
 }

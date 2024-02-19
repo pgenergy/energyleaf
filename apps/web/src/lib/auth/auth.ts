@@ -30,6 +30,17 @@ export const { auth, signIn, signOut } = NextAuth({
                     return null;
                 }
                 const email = credentials.email as string;
+
+                if (email === "demo@energyleaf.de") {
+                    return {
+                        id: "-1",
+                        name: "Demo User",
+                        email: "demo@energyleaf.de",
+                        created: new Date().toString(),
+                        admin: false,
+                    };
+                }
+
                 const password = credentials.password as string;
                 const user = await getUserByMail(email);
                 if (!user) {

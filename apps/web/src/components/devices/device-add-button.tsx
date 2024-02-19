@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeviceContext } from "@/hooks/device-hook";
+import { track } from "@vercel/analytics";
 import { PlusIcon } from "lucide-react";
 
 import { Button } from "@energyleaf/ui";
@@ -14,7 +15,13 @@ export default function DeviceAddButton() {
     }
 
     return (
-        <Button className="flex flex-row gap-2" onClick={openDialog}>
+        <Button
+            className="flex flex-row gap-2"
+            onClick={() => {
+                track("openDialog(addDevice)");
+                openDialog();
+            }}
+        >
             <PlusIcon className="h-4 w-4" />
             <span className="hidden md:inline-block">Gerät hinzufügen</span>
         </Button>

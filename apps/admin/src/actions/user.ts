@@ -20,7 +20,7 @@ import {userStateSchema} from "@/lib/schema/user";
 export const getAllUsers = cache(async () => {
     await validateUserAdmin();
 
-    return await getAllUsersDb();
+    return getAllUsersDb();
 });
 
 export async function setUserActive(id: number, active: boolean) {

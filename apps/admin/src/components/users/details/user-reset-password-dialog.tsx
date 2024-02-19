@@ -12,7 +12,6 @@ import {
 } from "@energyleaf/ui";
 import {useTransition} from "react";
 import {toast} from "sonner";
-import {deleteUser} from "@/actions/user";
 import {useUserDetailsContext} from "@/hooks/user-detail-hook";
 
 export function UserResetPasswordDialog() {
@@ -33,7 +32,10 @@ export function UserResetPasswordDialog() {
     function resetPasswordAction() {
         startTransition(() => {
             toast.promise(
-                new Promise(resolve => setTimeout(resolve, 2000)), // TODO: PGE-39
+                new Promise(resolve => {
+                    setTimeout(resolve, 2000)
+                    resolve(undefined)
+                }), // TODO: PGE-39
                 {
                     loading: "E-Mail wird gesendet...",
                     success: "E-Mail wurde erfolgreich gesendet.",

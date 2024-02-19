@@ -40,17 +40,17 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
         }
 
         if (aggregation === AggregationType.DAY) {
-            return `Tag: ${  format(new Date(timestamp), "dd")}`;
+            return `Tag: ${format(new Date(timestamp), "dd")}`;
         }
 
         if (aggregation === AggregationType.MONTH) {
-            return `Monat: ${  format(new Date(timestamp), "MMMM", {
+            return `Monat: ${format(new Date(timestamp), "MMMM", {
                 locale: de,
             })}`;
         }
 
         if (aggregation === AggregationType.YEAR) {
-            return `Jahr: ${  format(new Date(timestamp), "yyyy")}`;
+            return `Jahr: ${format(new Date(timestamp), "yyyy")}`;
         }
     };
 
