@@ -89,7 +89,7 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
                     </div>
                     <div>
                         <h2 className="text-center text-xl font-semibold text-primary">Letzter</h2>
-                        <p className="text-center">{lastValue ?? 0} kWh</p>
+                        <p className="text-center">{lastValue?.toFixed(2) ?? 0} kWh</p>
                     </div>
                 </div>
             </CardContent>

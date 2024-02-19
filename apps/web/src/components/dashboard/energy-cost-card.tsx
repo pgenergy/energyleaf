@@ -83,7 +83,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                             Abschlag: {calculatedPayment} €
                         </p>
                         <p className="text-center">
-                            Hochrechnung {new Date().getMonth() + 1}.{new Date().getFullYear()}: {predictedCost} €
+                            Hochrechnung {new Date().getMonth() + 1}.{new Date().getFullYear()}: {predictedCost.toFixed(2)} €
                         </p>
                     </>
                 ) : (
