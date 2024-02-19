@@ -36,7 +36,7 @@ export const { auth, signIn, signOut } = NextAuth({
                     return null;
                 }
 
-                if (!user.active) {
+                if (!user.isActive) {
                     throw new UserNotActiveError();
                 }
 

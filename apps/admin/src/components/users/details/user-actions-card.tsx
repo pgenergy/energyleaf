@@ -7,7 +7,7 @@ import {useUserDetailsContext} from "@/hooks/user-detail-hook";
 interface Props {
     user: {
         isAdmin: boolean;
-        active: boolean;
+        isActive: boolean;
         id: number;
         username: string;
     }
@@ -33,7 +33,7 @@ export default function UserActionsCard({ user }: Props) {
                 <CardDescription>Hier kannst du den Status des Benutzers einsehen und ändern.</CardDescription>
             </CardHeader>
             <CardContent>
-                <UserStateForm active={user.active} id={user.id} isAdmin={user.isAdmin}/>
+                <UserStateForm active={user.isActive} id={user.id} isAdmin={user.isAdmin}/>
             </CardContent>
             <CardHeader>
                 <CardTitle>Aktionen</CardTitle>

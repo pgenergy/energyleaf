@@ -13,6 +13,7 @@ import {
 import {useTransition} from "react";
 import {toast} from "sonner";
 import {useUserDetailsContext} from "@/hooks/user-detail-hook";
+import {resetUserPassword} from "@/actions/auth";
 
 export function UserResetPasswordDialog() {
     const [pending, startTransition] = useTransition();
@@ -32,10 +33,7 @@ export function UserResetPasswordDialog() {
     function resetPasswordAction() {
         startTransition(() => {
             toast.promise(
-                new Promise(resolve => {
-                    setTimeout(resolve, 2000)
-                    resolve(undefined)
-                }), // TODO: PGE-39
+                resetUserPassword(user.id),
                 {
                     loading: "E-Mail wird gesendet...",
                     success: "E-Mail wurde erfolgreich gesendet.",

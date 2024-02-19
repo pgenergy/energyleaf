@@ -189,8 +189,8 @@ export async function getAllUsers() {
     return await db.select().from(user);
 }
 
-export async function setUserActive(id: number, active: boolean) {
-    return await db.update(user).set({ active }).where(eq(user.id, id));
+export async function setUserActive(id: number, isActive: boolean) {
+    return await db.update(user).set({ isActive }).where(eq(user.id, id));
 }
 
 export async function setUserAdmin(id: number, isAdmin: boolean) {
