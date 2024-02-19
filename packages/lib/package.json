@@ -7,6 +7,9 @@
         ".": "./src/index.ts",
         "./errors/auth": "./src/errors/auth-errors.ts"
     },
+    "scripts": {
+        "clean": "git clean -xdf node_modules"
+    },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",
         "@energyleaf/tsconfig": "workspace:^",

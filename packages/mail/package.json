@@ -17,7 +17,8 @@
         "typescript": "^5.3.3"
     },
     "scripts": {
-        "dev:mail": "email dev --port 3002 --dir src/templates"
+        "dev:mail": "email dev --port 3002 --dir src/templates",
+        "clean": "git clean -xdf node_modules"
     },
     "dependencies": {
         "@energyleaf/tailwindcss": "workspace:^",

@@ -4,7 +4,9 @@
     "type": "module",
     "private": true,
     "license": "MIT",
-    "scripts": {},
+    "scripts": {
+        "clean": "git clean -xdf node_modules"
+    },
     "exports": {
         ".": "./src/ui/index.tsx",
         "./hooks": "./src/hooks/index.tsx",
