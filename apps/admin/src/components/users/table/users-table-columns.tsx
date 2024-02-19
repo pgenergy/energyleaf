@@ -14,7 +14,7 @@ export interface UserTableType {
     id: number;
     username: string;
     mail: string;
-    active: boolean;
+    isActive: boolean;
     isAdmin: boolean;
 }
 
@@ -89,7 +89,7 @@ export const usersTableColumns: ColumnDef<UserTableType>[] = [
         },
     },
     {
-        accessorKey: 'active',
+        accessorKey: 'isActive',
         header: ({column}) => {
             return (
                 <Button

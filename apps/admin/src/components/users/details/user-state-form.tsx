@@ -30,8 +30,8 @@ export default function UserStateForm({ isAdmin, active, id }: Props) {
         startTransition(() => {
             toast.promise(updateUserState(data, id), {
                 loading: "Aktualisiere Benutzer...",
-                success: "Benutzer erfolgreich aktualisiert",
-                error: "Der Benutzer konnte nicht aktualisiert werden",
+                success: "Benutzer erfolgreich aktualisiert.",
+                error: "Der Benutzer konnte nicht aktualisiert werden.",
             });
         });
     }

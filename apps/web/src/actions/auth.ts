@@ -65,8 +65,8 @@ export async function signInAction(email: string, password: string) {
             return redirect("/dashboard");
         }
 
-        if (err instanceof CallbackRouteError && err.cause.err instanceof UserNotActiveError) {
-            throw new Error("Benutzer ist nicht aktiv. Bitte wende dich an einen Administrator.");
+        if (err instanceof CallbackRouteError && err.cause && err.cause.err instanceof UserNotActiveError) {
+            throw new Error("Benutzer ist nicht aktiv. Bitte wenden Sie sich an einen Administrator.");
         }
 
         throw new Error("Benutername oder Passwort falsch.");

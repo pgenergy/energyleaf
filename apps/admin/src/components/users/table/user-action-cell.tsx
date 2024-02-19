@@ -47,10 +47,10 @@ export default function UserActionCell({user}: Props) {
 
     function toggleActive() {
         startTransition(() => {
-            const operation = user.active ? "deaktiviert" : "aktiviert";
+            const operation = user.isActive ? "deaktiviert" : "aktiviert";
 
             toast.promise(
-                setUserActive(user.id, !user.active),
+                setUserActive(user.id, !user.isActive),
                 {
                     loading: `User wird ${operation}...`,
                     success: `User wurde erfolgreich ${operation}.`,
@@ -96,8 +96,8 @@ export default function UserActionCell({user}: Props) {
                     disabled={pending}
                     onClick={toggleActive}
                 >
-                    {(user.active ? <BanIcon className="h-4 w-4"/> : <CheckCircle2Icon className="h-4 w-4"/>)}
-                    {user.active ? "Deaktivieren" : "Aktivieren"}
+                    {(user.isActive ? <BanIcon className="h-4 w-4"/> : <CheckCircle2Icon className="h-4 w-4"/>)}
+                    {user.isActive ? "Deaktivieren" : "Aktivieren"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     className="flex cursor-pointer flex-row gap-2"
