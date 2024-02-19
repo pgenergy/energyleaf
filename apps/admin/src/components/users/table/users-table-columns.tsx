@@ -108,7 +108,7 @@ export const usersTableColumns: ColumnDef<UserTableType>[] = [
             );
         },
         cell: ({row}) => {
-            const active = row.getValue<boolean>("active");
+            const active = row.getValue<boolean>("isActive");
             return (
                 active ? <CheckCircle2Icon className="text-green-500"/>
                     : <BanIcon className="text-red-500"/>
