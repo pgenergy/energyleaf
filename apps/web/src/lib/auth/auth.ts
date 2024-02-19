@@ -8,7 +8,7 @@ import { getUserByMail } from "@energyleaf/db/query";
 import { authOptions } from "./auth.config";
 import {UserNotActiveError} from "@energyleaf/lib";
 
-export const { auth, signIn, signOut } = NextAuth({
+export const { auth, signIn, signOut, handlers: { GET, POST} } = NextAuth({
     ...authOptions,
     providers: [
         Credentials({
