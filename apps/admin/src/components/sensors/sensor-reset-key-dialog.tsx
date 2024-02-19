@@ -60,7 +60,7 @@ export function SensorResetKeyDialog() {
                     <AlertDialogTitle>Sensor-Key zurücksetzen</AlertDialogTitle>
                     <AlertDialogDescription>
                         Bist du sicher, dass du den Key vom Sensor mit der MAC-Adresse
-                        {`"${sensorContext.sensor.macAddress}"`} löschen möchtest? Dadurch wird der zugeordnete Benutzer
+                        {`"${sensorContext.sensor.clientId}"`} löschen möchtest? Dadurch wird der zugeordnete Benutzer
                         zum Sensor entfernt und kann von einem anderen Benutzer verwendet werden.
                     </AlertDialogDescription>
                 </AlertDialogHeader>

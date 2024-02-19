@@ -58,7 +58,7 @@ export function SensorDeleteDialog() {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Sensor löschen</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Bist du sicher, dass du den Sensor {`"${sensorContext.sensor.macAddress}"`} löschen möchtest?
+                        Bist du sicher, dass du den Sensor {`"${sensorContext.sensor.clientId}"`} löschen möchtest?
                         Hierbei werden auch alle Daten gelöscht, die mit diesem Sensor verknüpft sind.
                     </AlertDialogDescription>
                 </AlertDialogHeader>

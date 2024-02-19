@@ -3,6 +3,7 @@ import {peaks, sensor, sensorData, sensorToken, SensorType, user, userData} from
 import {nanoid} from "nanoid";
 import db from "..";
 import {AggregationType} from "../types/types";
+import {SensorAlreadyExistsError} from "@energyleaf/lib/src/errors/sensor-errors";
 
 /**
  * Get the energy consumption for a sensor in a given time range
@@ -264,26 +265,27 @@ export async function getSensorsWithUser(): Promise<SensorWithUser[]> {
 }
 
 export interface CreateSensorType {
-    key: string;
     macAddress: string;
     sensorType: SensorType;
 }
 
 export async function createSensor(createSensorType: CreateSensorType) : Promise<void> {
-    // await db.transaction(async (trx) => {
-    //     const sensorsWithSameMacAddress = await trx.select()
-    //         .from(sensor)
-    //         .where(eq(sensor.macAddress, createSensorType.macAddress));
-    //     if (sensorsWithSameMacAddress.length > 0) {
-    //         throw new SensorAlreadyExistsError(createSensorType.macAddress);
-    //     }
-    //
-    //     await trx.insert(sensor).values({
-    //         key: createSensorType.key,
-    //         macAddress: createSensorType.macAddress,
-    //         sensor_type: createSensorType.sensorType,
-    //     });
-    // });
+    await db.transaction(async (trx) => {
+        const sensorsWithSameMacAddress = await trx.select()
+            .from(sensor)
+            .where(eq(sensor.clientId, createSensorType.macAddress));
+        if (sensorsWithSameMacAddress.length > 0) {
+            throw new SensorAlreadyExistsError(createSensorType.macAddress);
+        }
+
+        await trx.insert(sensor).values({
+            clientId: createSensorType.macAddress,
+            sensor_type: createSensorType.sensorType,
+            id: nanoid(30),
+            version: 1,
+            userId: 33,
+        });
+    });
 }
 
 export async function sensorExists(macAddress: string): Promise<boolean> {

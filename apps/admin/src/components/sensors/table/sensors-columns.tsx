@@ -8,14 +8,14 @@ import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
 
 export interface SensorTableType {
     id: number;
-    macAddress: string;
+    clientId: string;
     user: string | undefined,
     type: string
 }
 
 export const sensorsColumns: ColumnDef<SensorTableType>[] = [
     {
-        accessorKey: "macAddress",
+        accessorKey: "clientId",
         header: ({ column }) => {
             return (
                 <Button
@@ -34,7 +34,7 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
             );
         },
         cell: ({ row }) => {
-            return <span>{row.getValue("macAddress")}</span>;
+            return <span>{row.getValue("clientId")}</span>;
         },
     },
     {
