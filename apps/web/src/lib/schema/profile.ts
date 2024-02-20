@@ -15,11 +15,11 @@ export const passwordSchema = z.object({
 
 export const mailSettingsSchema = z.object({
     receiveMails: z.boolean().default(true),
-    reportInterval: z.coerce.number().int()
+    interval: z.coerce.number().int()
         .positive({message: "Bitte geben Sie ein gültiges Intervall an."})
         .max(7, {message: "Bitte geben Sie ein gültiges Intervall an."})
         .default(3),
-    reportTime: z.coerce.number().int()
+    time: z.coerce.number().int()
         .positive({message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an."})
         .max(23, {message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an."})
         .default(6)

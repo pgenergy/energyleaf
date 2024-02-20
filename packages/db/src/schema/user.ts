@@ -62,11 +62,11 @@ export const userDataHotWaterEnums: Record<(typeof userData.hotWater.enumValues)
     not_electric: "Nicht elektrisch",
 };
 
-export const mail = mysqlTable("mail", {
+export const reports = mysqlTable("reports", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: int("user_id").notNull(),
-    receiveMails: boolean("receive_daily").default(true).notNull(),
-    reportInterval: int("report_interval").default(3).notNull(),
-    reportTime: int("report_time").default(6).notNull(),
-    timestampLastReport: timestamp("mail_weekly_last_send").default(sql`'2020-01-01 00:00:00'`).notNull(),
+    receiveMails: boolean("receive_mails").default(true).notNull(),
+    interval: int("interval").default(3).notNull(),
+    time: int("time").default(6).notNull(),
+    timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
 });

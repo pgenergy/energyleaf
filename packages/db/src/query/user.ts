@@ -1,7 +1,7 @@
 import {and, between, eq, gt, gte, or, sql} from "drizzle-orm";
 
 import db from "../";
-import {historyUserData, mail, sensorData, user, userData} from "../schema";
+import {historyUserData, reports, sensorData, user, userData} from "../schema";
 import {MySqlTimestamp} from "drizzle-orm/mysql-core/columns/timestamp";
 
 /**
@@ -22,7 +22,7 @@ export async function getUserById(id: number) {
 /**
  * Get a user by mail from the database
  *
- * @param id<number> The id of the user
+ * @param email<string> The mail of the user
  *
  * @returns The user or null if not found
  */
@@ -74,7 +74,7 @@ export async function createUser(data: CreateUserType) {
             userId: id,
         });
 
-        await trx.insert(mail).values({
+        await trx.insert(reports).values({
             userId: id,
         });
     });
@@ -87,7 +87,7 @@ export async function getUserData(id: number) {
     const data = await db
         .select()
         .from(userData)
-        .innerJoin(mail, eq(userData.userId, mail.userId))
+        .innerJoin(reports, eq(userData.userId, reports.userId))
         .where(eq(userData.userId, id));
 
     if (data.length === 0) {
@@ -116,18 +116,18 @@ export async function updatePassword(data: Partial<CreateUserType>, id: number) 
  */
 export async function updateMailSettings(data: {
     receiveMails: boolean;
-    reportInterval: number;
-    reportTime: number;
+    interval: number;
+    time: number;
 }, id: number) {
     return await db
-        .update(mail)
+        .update(reports)
         .set({
             receiveMails: data.receiveMails,
-            reportInterval: data.reportInterval,
-            reportTime: data.reportTime
+            interval: data.interval,
+            time: data.time
 
         })
-        .where(eq(mail.userId, id));
+        .where(eq(reports.userId, id));
 }
 
 type UpdateUserData = {
@@ -192,34 +192,33 @@ export async function deleteUser(id: number) {
     return await db.delete(user).where(eq(user.id, id));
 }
 
-export async function getUsersWitDueDailyMail() {
-    return db.select({userID: user.id, userName: user.username, email: user.email})
+export async function getUsersWitDueReport() {
+    return db.select({userID: user.id, userName: user.username, receiveMail:reports.receiveMails, email: user.email})
         .from(user)
-        .innerJoin(mail, eq(user.id, mail.userId))
+        .innerJoin(reports, eq(user.id, reports.userId))
         .where(
             and(
-                eq(mail.mailDaily, true),
-                gt(sql`CAST(CURRENT_DATE as DATE)`, sql`CAST(mail.mailDailyLastSend) as Date`),
-                gte(sql`TIME(CURRENT_TIME)`, mail.mailDailyTime)
+                gt(sql`CAST(CURRENT_DATE as DATE)`, sql`CAST(mail.mail) as Date`),
+                gte(sql`TIME(CURRENT_TIME)`, reports.time)
             )
         );
 }
 
 
-export async function getUsernameAndMailOfDueUsersWithWeeklyMail() {
-    return db.select({email: user.email, username: user.username})
-        .from(user)
-        .innerJoin(mail, eq(user.id, mail.userId))
-        .where(
-            and(
-                eq(mail.mailWeekly, true),
-                or(
-                    and(
-                        gte(sql`WEEKDAY(CURRENT_DATE)`, mail.mailWeeklyDay),
-                        gte(sql`TIME(CURRENT_TIME)`, mail.mailWeeklyTime),
-                    ),
-                ),
-                gte(sql`CURRENT_DATE`, mail.mailWeeklyLastSend)
-            )
-        );
-}
+// export async function getUsernameAndMailOfDueUsersWithWeeklyMail() {
+//     return db.select({email: user.email, username: user.username})
+//         .from(user)
+//         .innerJoin(mail, eq(user.id, mail.userId))
+//         .where(
+//             and(
+//                 eq(mail.mailWeekly, true),
+//                 or(
+//                     and(
+//                         gte(sql`WEEKDAY(CURRENT_DATE)`, mail.mailWeeklyDay),
+//                         gte(sql`TIME(CURRENT_TIME)`, mail.mailWeeklyTime),
+//                     ),
+//                 ),
+//                 gte(sql`CURRENT_DATE`, mail.mailWeeklyLastSend)
+//             )
+//         );
+// }

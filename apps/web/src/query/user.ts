@@ -1,7 +1,10 @@
 import { cache } from "react";
 
-import { getUserById as getDbUserById, getUserData as getDbUserDataById ,
-    getUsersWitDueDailyMail as getDbUsersWithDueDailyMail} from "@energyleaf/db/query";
+import {
+    getUserById as getDbUserById,
+    getUserData as getDbUserDataById,
+    getUsersWitDueReport as getDbUsersWitDueReport
+} from "@energyleaf/db/query";
 
 /**
  * Cached query to retrive user data
@@ -18,8 +21,8 @@ export const getUserData = cache(async (id: string) => {
 });
 
 /**
- * Get users with due daily mail to sent to
+ * Get users with due report to create and send reports
  */
-export const getUsersWitDueDailyMail = cache(async () => {
-    return getDbUsersWithDueDailyMail();
+export const getUsersWitDueReport = cache(async () => {
+    return getDbUsersWitDueReport();
 });

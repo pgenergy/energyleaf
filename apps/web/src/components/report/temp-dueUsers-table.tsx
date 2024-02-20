@@ -1,12 +1,12 @@
 
-import { getUsersWitDueDailyMail } from "@/query/user";
+import { getUsersWitDueReport } from "@/query/user";
 
 import { devicesColumns } from "./table/devices-columns";
 import { DevicesDataTable } from "./table/devices-data-table";
 
 export default async function DevicesTable() {
 
-    const user = await getUsersWitDueDailyMail();
+    const user = await getUsersWitDueReport();
 
     return (
         <DevicesDataTable

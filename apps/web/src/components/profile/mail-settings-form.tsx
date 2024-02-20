@@ -30,18 +30,18 @@ import {
 interface Props {
     id: string;
     receiveMails: boolean;
-    reportInterval: number;
-    reportTime: number;
+    interval: number;
+    time: number;
 }
 
-export default function MailSettingsForm({id, receiveMails, reportInterval, reportTime}: Props) {
+export default function MailSettingsForm({id, receiveMails, interval, time}: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),
         defaultValues: {
             receiveMails,
-            reportInterval,
-            reportTime
+            interval,
+            time
         },
     });
 
@@ -90,7 +90,7 @@ export default function MailSettingsForm({id, receiveMails, reportInterval, repo
                         <div className="grid grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
-                                name="reportInterval"
+                                name="interval"
                                 render={({field}) => (
                                     <FormItem>
                                         <FormLabel>Intervall der Berichte</FormLabel>
@@ -102,7 +102,7 @@ export default function MailSettingsForm({id, receiveMails, reportInterval, repo
                             />
                             <FormField
                                 control={form.control}
-                                name="reportTime"
+                                name="time"
                                 render={({field}) => (
                                     <FormItem>
                                         <FormLabel>Uhrzeit der Berichte</FormLabel>
