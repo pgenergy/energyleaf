@@ -4,7 +4,7 @@ import * as React from "react";
 
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@energyleaf/ui";
 
-export default function IntervallSelector({field}) {
+export default function IntervalSelector({field}) {
     return (
         <Select defaultValue={field.value} onValueChange={field.onChange}>
             <SelectTrigger>

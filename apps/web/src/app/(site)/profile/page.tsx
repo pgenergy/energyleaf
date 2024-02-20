@@ -1,10 +1,10 @@
-import { redirect } from "next/navigation";
+import {redirect} from "next/navigation";
 import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
-import { getSession } from "@/lib/auth/auth";
-import { getUserData } from "@/query/user";
+import {getSession} from "@/lib/auth/auth";
+import {getUserData} from "@/query/user";
 
 export default async function ProfilePage() {
     const session = await getSession();
@@ -27,14 +27,15 @@ export default async function ProfilePage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationForm email={session.user.email} id={session.user.id} username={session.user.name} />
+            <BaseInformationForm email={session.user.email} id={session.user.id} username={session.user.name}/>
             <MailSettingsForm
-                daily={userData?.mail.mailDaily || false}
                 id={session.user.id}
-                weekly={userData?.mail.mailWeekly || false}
+                receiveMails={userData?.mail.receiveMails || false}
+                reportInterval={userData?.mail.reportInterval || 3}
+                reportTime={userData?.mail.reportTime || 6}
             />
-            <UserDataForm id={session.user.id} initialData={data} />
-            <AccountDeletionForm id={session.user.id} />
+            <UserDataForm id={session.user.id} initialData={data}/>
+            <AccountDeletionForm id={session.user.id}/>
         </div>
     );
 }

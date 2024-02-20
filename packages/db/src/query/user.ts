@@ -115,20 +115,17 @@ export async function updatePassword(data: Partial<CreateUserType>, id: number) 
  * Update the user mail settings data in the database
  */
 export async function updateMailSettings(data: {
-    daily: boolean;
-    dailyTime: number;
-    weekly: boolean;
-    weeklyTime: number;
-    weeklyDay: number
+    receiveMails: boolean;
+    reportInterval: number;
+    reportTime: number;
 }, id: number) {
     return await db
         .update(mail)
         .set({
-            mailDaily: data.daily,
-            mailDailyTime: data.dailyTime,
-            mailWeekly: data.weekly,
-            mailWeeklyDay: data.weeklyDay,
-            mailWeeklyTime: data.weeklyTime,
+            receiveMails: data.receiveMails,
+            reportInterval: data.reportInterval,
+            reportTime: data.reportTime
+
         })
         .where(eq(mail.userId, id));
 }
@@ -196,13 +193,13 @@ export async function deleteUser(id: number) {
 }
 
 export async function getUsersWitDueDailyMail() {
-    return db.select({userID: user.id, userName: user.username , email: user.email})
+    return db.select({userID: user.id, userName: user.username, email: user.email})
         .from(user)
         .innerJoin(mail, eq(user.id, mail.userId))
         .where(
             and(
                 eq(mail.mailDaily, true),
-                gt(sql`CAST(CURRENT_DATE as DATE)`,sql`CAST(mail.mailDailyLastSend) as Date`),
+                gt(sql`CAST(CURRENT_DATE as DATE)`, sql`CAST(mail.mailDailyLastSend) as Date`),
                 gte(sql`TIME(CURRENT_TIME)`, mail.mailDailyTime)
             )
         );

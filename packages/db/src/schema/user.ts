@@ -58,17 +58,15 @@ export const userDataPropertyEnums: Record<(typeof userData.property.enumValues)
 
 export const userDataHotWaterEnums: Record<(typeof userData.hotWater.enumValues)[number], string> = {
     electric: "Elektrisch",
+
     not_electric: "Nicht elektrisch",
 };
 
 export const mail = mysqlTable("mail", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: int("user_id").notNull(),
-    mailDaily: boolean("mail_daily").default(true).notNull(),
-    mailDailyTime: int("mail_daily_time").default(8).notNull(),
-    mailDailyLastSend: timestamp("mail_daily_last_send").default(sql`'2020-01-01 00:00:00'`).notNull(),
-    mailWeekly: boolean("mail_weekly").default(true).notNull(),
-    mailWeeklyDay: int("mail_weekly_day").default(0).notNull(),
-    mailWeeklyTime: int("mail_weekly_time").default(8).notNull(),
-    mailWeeklyLastSend: timestamp("mail_weekly_last_send").default(sql`'2020-01-01 00:00:00'`).notNull(),
+    receiveMails: boolean("receive_daily").default(true).notNull(),
+    reportInterval: int("report_interval").default(3).notNull(),
+    reportTime: int("report_time").default(6).notNull(),
+    timestampLastReport: timestamp("mail_weekly_last_send").default(sql`'2020-01-01 00:00:00'`).notNull(),
 });

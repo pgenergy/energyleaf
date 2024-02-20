@@ -79,11 +79,9 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
     try {
         await updateMailSettings(
             {
-                daily: data.daily,
-                dailyTime: data.dailyTime,
-                weekly: data.weekly,
-                weeklyDay: data.weeklyDay,
-                weeklyTime: data.weeklyTime,
+                receiveMails: data.receiveMails,
+                reportInterval: data.reportInterval,
+                reportTime: data.reportTime
             },
             user.id,
         );
