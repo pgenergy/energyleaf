@@ -31,8 +31,8 @@ export default async function ProfilePage() {
             <MailSettingsForm
                 id={session.user.id}
                 receiveMails={userData?.reports.receiveMails || false}
-                reportInterval={userData?.reports.interval || 3}
-                reportTime={userData?.reports.time || 6}
+                interval={userData?.reports.interval || 3}
+                time={userData?.reports.time || 6}
             />
             <UserDataForm id={session.user.id} initialData={data}/>
             <AccountDeletionForm id={session.user.id}/>

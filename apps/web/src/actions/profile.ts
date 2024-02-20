@@ -71,6 +71,8 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
 }
 
 export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>, id: number | string) {
+    console.log(data)
+
     const user = await getUserById(Number(id));
     if (!user) {
         throw new Error("User not found");
@@ -80,8 +82,8 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
         await updateMailSettings(
             {
                 receiveMails: data.receiveMails,
-                reportInterval: data.reportInterval,
-                reportTime: data.reportTime
+                interval: data.interval,
+                time: data.time
             },
             user.id,
         );

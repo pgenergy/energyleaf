@@ -37,13 +37,14 @@ interface Props {
 export default function MailSettingsForm({id, receiveMails, interval, time}: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
-        resolver: zodResolver(mailSettingsSchema),
-        defaultValues: {
-            receiveMails,
-            interval,
-            time
-        },
-    });
+            resolver: zodResolver(mailSettingsSchema),
+            defaultValues: {
+                receiveMails,
+                interval: interval.toString(),
+                time: time.toString()
+            },
+        }
+    );
 
     function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
         startTransition(() => {

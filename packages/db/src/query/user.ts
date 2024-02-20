@@ -1,8 +1,7 @@
 import {and, between, eq, gt, gte, or, sql} from "drizzle-orm";
 
 import db from "../";
-import {historyUserData, reports, sensorData, user, userData} from "../schema";
-import {MySqlTimestamp} from "drizzle-orm/mysql-core/columns/timestamp";
+import {historyUserData, reports, user, userData} from "../schema";
 
 /**
  * Get a user by id from the database
@@ -101,14 +100,14 @@ export async function getUserData(id: number) {
  * Update the user data in the database
  */
 export async function updateUser(data: Partial<CreateUserType>, id: number) {
-    return await db.update(user).set(data).where(eq(user.id, id));
+    return db.update(user).set(data).where(eq(user.id, id));
 }
 
 /**
  * Update the user's password in the database
  */
 export async function updatePassword(data: Partial<CreateUserType>, id: number) {
-    return await db.update(user).set(data).where(eq(user.id, id));
+    return db.update(user).set(data).where(eq(user.id, id));
 }
 
 /**
@@ -119,13 +118,12 @@ export async function updateMailSettings(data: {
     interval: number;
     time: number;
 }, id: number) {
-    return await db
+    return db
         .update(reports)
         .set({
             receiveMails: data.receiveMails,
             interval: data.interval,
             time: data.time
-
         })
         .where(eq(reports.userId, id));
 }
@@ -189,11 +187,15 @@ export async function getUserDataByUserId(id: number) {
 }
 
 export async function deleteUser(id: number) {
-    return await db.delete(user).where(eq(user.id, id));
+    return db.delete(user).where(eq(user.id, id));
 }
 
 export async function getUsersWitDueReport() {
-    return db.select({userID: user.id, userName: user.username, receiveMail:reports.receiveMails, email: user.email})
+    const timeStampLast = db.select({timeStampLast: reports.timestampLast}).from(reports).where(eq(reports.userId, user.id));
+    const interval = db.select({interval: reports.interval}).from(reports).where(eq(reports.userId, user.id));
+
+
+    return db.select({userID: user.id, userName: user.username, receiveMail: reports.receiveMails, email: user.email})
         .from(user)
         .innerJoin(reports, eq(user.id, reports.userId))
         .where(
