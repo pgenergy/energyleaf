@@ -1,4 +1,4 @@
-import {and, between, eq, gt, gte, or, sql} from "drizzle-orm";
+import {and, between, eq, gt, gte, lte, or, sql} from "drizzle-orm";
 
 import db from "../";
 import {historyUserData, reports, user, userData} from "../schema";
@@ -202,17 +202,13 @@ export async function getUsersWitDueReport() {
         .select({userId: user.id, userName: user.username, email: user.email, receiveMails: reports.receiveMails})
         .from(reports)
         .innerJoin(user, eq(user.id, reports.userId))
-        .where(or(
-            and(
-                eq(reports.receiveMails, true),
-                or(
-                    gt(sql`SELECT DATEDIFF(reports.timestampLast, NOW()) FROM reports;`, reports.interval),
-                    and(
-                        eq(sql`SELECT DATEDIFF(reports.timestampLast, NOW()) FROM reports;`, reports.interval),
-                        gt(sql`time`, new Date().getHours())
-                    )
-                )
-            ),
-            eq(reports.receiveMails, true)
-        ));
+        .where(
+            or(
+                gt(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reports.interval),
+                and(
+                    eq(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reports.interval),
+                    lte(reports.time, new Date().getHours())
+                ),
+            )
+        );
 }

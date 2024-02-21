@@ -11,7 +11,7 @@ export default function ReportPage() {
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Fällige User für Daily-Mail</CardTitle>
-                    <CardDescription>Hier siehst du den Verbauch deiner Geräte</CardDescription>
+                    <CardDescription>Hier siehst du übergangsweise alle User, bei denen ein Report fällig ist</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-row justify-center">
