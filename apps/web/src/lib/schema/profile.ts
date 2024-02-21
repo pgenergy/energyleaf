@@ -2,11 +2,6 @@ import { z } from "zod";
 
 import { userData } from "@energyleaf/db/schema";
 
-export const baseInfromationSchema = z.object({
-    username: z.string().nonempty({ message: "Bitte gib einen Benutzernamen an." }),
-    email: z.string().email({ message: "Bitte gib eine gültige E-Mail-Adresse an." }),
-});
-
 export const passwordSchema = z.object({
     oldPassword: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
     newPassword: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),

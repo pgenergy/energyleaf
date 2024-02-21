@@ -4,7 +4,8 @@
         "**/.env.*local"
     ],
     "globalEnv": [
-        ".env"
+        ".env",
+        "NEXTAUTH_URL"
     ],
     "pipeline": {
         "build": {
@@ -20,6 +21,10 @@
             ]
         },
         "lint": {},
+        "clean": {
+            "cache": false,
+            "persistent": false
+        },
         "dev": {
             "dotEnv": [
                 ".env"

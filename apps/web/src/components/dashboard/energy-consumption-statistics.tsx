@@ -26,7 +26,17 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
-        throw new Error("Kein Stromsensor für diesen Benutzer gefunden");
+        return (
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Verbrauchsstatistiken</CardTitle>
+                    <CardDescription>Dein Sensor konnte nicht gefunden werden</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                </CardContent>
+            </Card>
+        );
     }
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
@@ -79,7 +89,7 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
                     </div>
                     <div>
                         <h2 className="text-center text-xl font-semibold text-primary">Letzter</h2>
-                        <p className="text-center">{lastValue ?? 0} kWh</p>
+                        <p className="text-center">{lastValue?.toFixed(2) ?? 0} kWh</p>
                     </div>
                 </div>
             </CardContent>

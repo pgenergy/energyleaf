@@ -21,7 +21,7 @@ export async function getUserById(id: number) {
 /**
  * Get a user by mail from the database
  *
- * @param email<string> The mail of the user
+ * @param email<string> The email of the user
  *
  * @returns The user or null if not found
  */
@@ -190,6 +190,18 @@ export async function deleteUser(id: number) {
     return db.delete(user).where(eq(user.id, id));
 }
 
+export async function getAllUsers() {
+    return await db.select().from(user);
+}
+
+export async function setUserActive(id: number, isActive: boolean) {
+    return await db.update(user).set({ isActive }).where(eq(user.id, id));
+}
+
+export async function setUserAdmin(id: number, isAdmin: boolean) {
+    return await db.update(user).set({ isAdmin }).where(eq(user.id, id));
+}   
+   
 /**
  * Get users with due report to create and send reports
  * the report is due if the current date is greater than the last report date + interval or

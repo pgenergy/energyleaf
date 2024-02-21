@@ -12,13 +12,14 @@
     },
     "scripts": {
         "push": "drizzle-kit push:mysql",
-        "studio": "drizzle-kit studio"
+        "studio": "drizzle-kit studio",
+        "clean": "git clean -xdf node_modules"
     },
     "dependencies": {
         "@energyleaf/lib": "workspace:^",
-        "@planetscale/database": "^1.14.0",
+        "@planetscale/database": "^1.16.0",
         "drizzle-orm": "^0.29.3",
-        "nanoid": "^5.0.4"
+        "nanoid": "^5.0.5"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",

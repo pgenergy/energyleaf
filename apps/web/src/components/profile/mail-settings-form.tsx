@@ -4,6 +4,7 @@ import React, {useTransition} from "react";
 import {updateMailInformation} from "@/actions/profile";
 import {mailSettingsSchema} from "@/lib/schema/profile";
 import {zodResolver} from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import {Loader2Icon} from "lucide-react";
 import {useForm} from "react-hook-form";
 import {toast} from "sonner";
@@ -47,9 +48,11 @@ export default function MailSettingsForm({id, receiveMails, interval, time}: Pro
     );
 
     function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
+        if (disabled) return;
         startTransition(() => {
-            toast.promise(updateMailInformation(data, id), {
-                loading: "Aktualisiere Einstellungen...",
+            track("updateMailSettings()");
+            toast.promise(updateMailInformation(data), {
+                loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
                 error: "Ihre Einstellungen konnten nicht aktualisiert werden",
             });

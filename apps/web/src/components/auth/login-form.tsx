@@ -3,9 +3,10 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { signInAction } from "@/actions/auth";
+import SubmitButton from "@/components/auth/submit-button";
 import { loginSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
+import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -24,12 +25,14 @@ export default function LoginForm() {
     });
 
     function onSubmit(data: z.infer<typeof loginSchema>) {
+        setError("");
         startTransition(() => {
+            track("signIn()");
             toast.promise(signInAction(data.mail, data.password), {
                 loading: "Anmelden...",
                 success: "Erfolgreich angemeldet",
-                error: (err) => {
-                    setError((err as unknown as Error).message);
+                error: () => {
+                    setError("E-Mail oder Passwort ist falsch");
                     return "Fehler beim Anmelden";
                 },
             });
@@ -68,19 +71,33 @@ export default function LoginForm() {
                     />
                     <div className="flex flex-col items-center gap-4">
                         {error ? <p className="text-sm text-destructive">{error}</p> : null}
-                        <Button className="w-full" disabled={pending} type="submit">
-                            {pending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Anmelden
-                        </Button>
+                        <SubmitButton pending={pending} text="Anmelden" />
                         <p className="text-sm text-muted-foreground">
                             Noch kein Konto?{" "}
                             <Link className="underline hover:no-underline" href="/signup">
                                 Konto erstellen
                             </Link>
                         </p>
+                        <p className="text-sm text-muted-foreground">
+                            <Link className="underline hover:no-underline" href="/forgot">
+                                Passwort vergessen?
+                            </Link>
+                        </p>
                     </div>
                 </form>
             </Form>
+            <div className="mt-4 flex flex-col border-t border-border pt-4 text-sm text-muted-foreground">
+                <p>Sie können sich auch eine Demo ansehen mit einem Klick auf den Button unten.</p>
+                <Button
+                    className="text-sm"
+                    onClick={() => {
+                        onSubmit({ mail: "demo@energyleaf.de", password: "demo" });
+                    }}
+                    variant="link"
+                >
+                    Demo starten
+                </Button>
+            </div>
         </div>
     );
 }

@@ -22,7 +22,17 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
-        throw new Error("Kein Stromsensor für diesen Benutzer gefunden");
+        return (
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Absoluter Energieverbrauch</CardTitle>
+                    <CardDescription>Dein Sensor konnte nicht gefunden werden</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                </CardContent>
+            </Card>
+        );
     }
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
@@ -53,7 +63,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <h1 className="text-center text-2xl font-bold text-primary">{absolut} Wh</h1>
+                <h1 className="text-center text-2xl font-bold text-primary">{absolut.toFixed(2)} Wh</h1>
             </CardContent>
         </Card>
     );

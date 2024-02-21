@@ -3,8 +3,9 @@ import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
-import {getSession} from "@/lib/auth/auth";
-import {getUserData} from "@/query/user";
+import { getSession } from "@/lib/auth/auth";
+import { isDemoUser } from "@/lib/demo/demo";
+import { getUserData } from "@/query/user";
 
 export default async function ProfilePage() {
     const session = await getSession();
@@ -12,6 +13,8 @@ export default async function ProfilePage() {
     if (!session?.user.id || !session.user.email || !session.user.name) {
         redirect("/");
     }
+
+    const isDemo = await isDemoUser();
 
     const userData = await getUserData(session.user.id);
     const data = {
@@ -34,8 +37,8 @@ export default async function ProfilePage() {
                 interval={userData?.reports.interval || 3}
                 time={userData?.reports.time || 6}
             />
-            <UserDataForm id={session.user.id} initialData={data}/>
-            <AccountDeletionForm id={session.user.id}/>
+            <UserDataForm i disabled={isDemo} initialData={data}/>
+            <AccountDeletionForm  disabled={isDemo} />
         </div>
     );
 }

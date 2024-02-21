@@ -40,17 +40,17 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
         }
 
         if (aggregation === AggregationType.DAY) {
-            return `Tag: ${  format(new Date(timestamp), "dd")}`;
+            return `Tag: ${format(new Date(timestamp), "dd")}`;
         }
 
         if (aggregation === AggregationType.MONTH) {
-            return `Monat: ${  format(new Date(timestamp), "MMMM", {
+            return `Monat: ${format(new Date(timestamp), "MMMM", {
                 locale: de,
             })}`;
         }
 
         if (aggregation === AggregationType.YEAR) {
-            return `Jahr: ${  format(new Date(timestamp), "yyyy")}`;
+            return `Jahr: ${format(new Date(timestamp), "yyyy")}`;
         }
     };
 
@@ -61,7 +61,7 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <p className="text-sm">
-                    <span className="font-bold">Verbrauch:</span> {energy} Wh
+                    <span className="font-bold">Verbrauch:</span> {energy.toFixed(2)} Wh
                 </p>
             </CardContent>
         </Card>
