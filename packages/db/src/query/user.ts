@@ -190,37 +190,29 @@ export async function deleteUser(id: number) {
     return db.delete(user).where(eq(user.id, id));
 }
 
+/**
+ * Get users with due report to create and send reports
+ * the report is due if the current date is greater than the last report date + interval or
+ * if the current date is equal to the last report date + interval and the current time is greater than the report time
+ *
+ * @returns The users with due report
+ */
 export async function getUsersWitDueReport() {
-    const timeStampLast = db.select({timeStampLast: reports.timestampLast}).from(reports).where(eq(reports.userId, user.id));
-    const interval = db.select({interval: reports.interval}).from(reports).where(eq(reports.userId, user.id));
-
-
-    return db.select({userID: user.id, userName: user.username, receiveMail: reports.receiveMails, email: user.email})
-        .from(user)
-        .innerJoin(reports, eq(user.id, reports.userId))
-        .where(
+    return db
+        .select({userId: user.id, userName: user.username, email: user.email, receiveMails: reports.receiveMails})
+        .from(reports)
+        .innerJoin(user, eq(user.id, reports.userId))
+        .where(or(
             and(
-                gt(sql`CAST(CURRENT_DATE as DATE)`, sql`CAST(mail.mail) as Date`),
-                gte(sql`TIME(CURRENT_TIME)`, reports.time)
-            )
-        );
+                eq(reports.receiveMails, true),
+                or(
+                    gt(sql`SELECT DATEDIFF(reports.timestampLast, NOW()) FROM reports;`, reports.interval),
+                    and(
+                        eq(sql`SELECT DATEDIFF(reports.timestampLast, NOW()) FROM reports;`, reports.interval),
+                        gt(sql`time`, new Date().getHours())
+                    )
+                )
+            ),
+            eq(reports.receiveMails, true)
+        ));
 }
-
-
-// export async function getUsernameAndMailOfDueUsersWithWeeklyMail() {
-//     return db.select({email: user.email, username: user.username})
-//         .from(user)
-//         .innerJoin(mail, eq(user.id, mail.userId))
-//         .where(
-//             and(
-//                 eq(mail.mailWeekly, true),
-//                 or(
-//                     and(
-//                         gte(sql`WEEKDAY(CURRENT_DATE)`, mail.mailWeeklyDay),
-//                         gte(sql`TIME(CURRENT_TIME)`, mail.mailWeeklyTime),
-//                     ),
-//                 ),
-//                 gte(sql`CURRENT_DATE`, mail.mailWeeklyLastSend)
-//             )
-//         );
-// }
