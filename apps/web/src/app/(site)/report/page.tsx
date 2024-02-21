@@ -2,6 +2,7 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton} fro
 import React, {Suspense} from "react";
 import AvgEnergyConsumptionCard from "@/components/recommendations/avg-energy-consumption-card";
 import AvgEnergyConsumptionComparisonCard from "@/components/recommendations/avg-energy-consumption-comparison";
+import DueUsersTable from "@/components/report/temp-dueUsers-table";
 
 
 export default function ReportPage() {
@@ -14,7 +15,7 @@ export default function ReportPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-row justify-center">
-                        <p className="text-muted-foreground">Noch keine Geräte vorhanden</p>
+                        <DueUsersTable/>
                     </div>
                 </CardContent>
             </Card>
