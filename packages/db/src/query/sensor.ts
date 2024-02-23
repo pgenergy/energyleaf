@@ -1,4 +1,4 @@
-import { and, between, eq, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import db from "..";
@@ -200,7 +200,7 @@ function sensorDataTimeFilter(start: Date, end: Date) {
 /**
  * Insert sensor data
  */
-export async function insertSensorData(data: { sensorId: string; value: number }) {
+export async function insertSensorData(data: { sensorId: string; value: number; sum: boolean }) {
     try {
         await db.transaction(async (trx) => {
             const userData = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
@@ -210,11 +210,35 @@ export async function insertSensorData(data: { sensorId: string; value: number }
                 throw new Error("Sensor not found");
             }
 
-            await trx.insert(sensorData).values({
-                sensorId: userData[0].id,
-                value: data.value,
-                timestamp: sql<Date>`NOW()`,
-            });
+            if (data.sum) {
+                const lastEntry = await trx
+                    .select()
+                    .from(sensorData)
+                    .where(eq(sensorData.sensorId, userData[0].id))
+                    .orderBy(desc(sensorData.timestamp))
+                    .limit(1);
+
+                if (lastEntry.length === 0) {
+                    await trx.insert(sensorData).values({
+                        sensorId: userData[0].id,
+                        value: data.value,
+                        timestamp: sql<Date>`NOW()`,
+                    });
+                    return;
+                }
+
+                await trx.insert(sensorData).values({
+                    sensorId: userData[0].id,
+                    value: data.value + lastEntry[0].value,
+                    timestamp: sql<Date>`NOW()`,
+                });
+            } else {
+                await trx.insert(sensorData).values({
+                    sensorId: userData[0].id,
+                    value: data.value,
+                    timestamp: sql<Date>`NOW()`,
+                });
+            }
         });
     } catch (err) {
         throw err;
@@ -263,6 +287,26 @@ export async function createSensorToken(clientId: string) {
     } catch (err) {
         throw err;
     }
+}
+
+/**
+ * Get the script and needsScript for a sensor
+ */
+export async function getSensorScript(clientId: string) {
+    const query = await db
+        .select({
+            script: sensor.script,
+            needsScript: sensor.needsScript,
+        })
+        .from(sensor)
+        .where(eq(sensor.clientId, clientId))
+        .limit(1);
+
+    if (query.length === 0) {
+        return null;
+    }
+
+    return query[0];
 }
 
 /**
