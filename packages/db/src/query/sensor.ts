@@ -264,6 +264,10 @@ export async function getSensorsWithUser(): Promise<SensorWithUser[]> {
     return db.select().from(sensor).leftJoin(user, eq(user.id, sensor.userId));
 }
 
+export async function getSensorsByUser(userId: number) {
+    return db.select().from(sensor).where(eq(sensor.userId, userId));
+}
+
 export interface CreateSensorType {
     macAddress: string;
     sensorType: SensorType;

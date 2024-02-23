@@ -7,14 +7,23 @@ import {Button} from "@energyleaf/ui";
 import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
 import React from "react";
 import SensorUserAssignmentForm from "@/components/sensors/sensor-user-assignment-form";
+import {SensorType} from "@energyleaf/db/schema";
 
 export interface SensorTableType {
     id: string;
     clientId: string;
+    type: SensorType
+}
+
+export interface SensorOverviewTableType extends SensorTableType {
     user_name: string | undefined,
     user_id: number | undefined,
-    type: string
 }
+
+const sensorTypeDescriptions: { [key in SensorType]: string } = {
+    [SensorType.Electricity]: "Strom",
+    [SensorType.Gas]: "Gas",
+};
 
 export const sensorsColumns: ColumnDef<SensorTableType>[] = [
     {
@@ -60,13 +69,18 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
             );
         },
         cell: ({row}) => {
-            const value: string | undefined = row.getValue("type");
+            const sensorType: SensorType = row.original.type;
+            const value = sensorTypeDescriptions[sensorType];
             if (!value) {
                 return null;
             }
             return <span>{value}</span>;
         },
     },
+];
+
+export const sensorsOverviewColumns: ColumnDef<SensorOverviewTableType>[] = [
+    ...sensorsColumns.map((def) => def as ColumnDef<SensorOverviewTableType>),
     {
         accessorKey: "user_name",
         header: ({column}) => {
