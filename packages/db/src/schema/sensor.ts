@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, int, mysqlEnum, mysqlTable, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { boolean, int, mysqlEnum, mysqlTable, timestamp, uniqueIndex, varchar, float } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
 
 export const sensor = mysqlTable("sensor", {
@@ -26,7 +26,7 @@ export const sensorData = mysqlTable(
     {
         id: int("id").autoincrement().primaryKey().notNull(),
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-        value: int("value").notNull(),
+        value: float("value").notNull(),
         timestamp: timestamp("timestamp")
             .notNull()
             .default(sql`CURRENT_TIMESTAMP`),
