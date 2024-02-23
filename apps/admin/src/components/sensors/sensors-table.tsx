@@ -11,7 +11,7 @@ function mapSensor(sensorWithUser: SensorWithUser) : SensorOverviewTableType {
     return {
         id: sensor.id,
         clientId: sensor.clientId,
-        type: sensor.sensor_type,
+        type: sensor.sensorType,
         user_name: user?.username,
         user_id: user?.id,
     };

@@ -206,7 +206,7 @@ export async function getElectricitySensorIdForUser(userId: number) {
         const query = await trx
             .select()
             .from(sensor)
-            .where(and(eq(sensor.userId, userId), eq(sensor.sensor_type, SensorType.Electricity)));
+            .where(and(eq(sensor.userId, userId), eq(sensor.sensorType, SensorType.Electricity)));
 
         if (query.length > 0) {
             return query[0].id;
@@ -216,7 +216,7 @@ export async function getElectricitySensorIdForUser(userId: number) {
         const history = await trx
             .select()
             .from(sensorHistory)
-            .where(and(eq(sensorHistory.userId, userId), eq(sensorHistory.sensor_type, SensorType.Electricity)));
+            .where(and(eq(sensorHistory.userId, userId), eq(sensorHistory.sensorType, SensorType.Electricity)));
         if (history.length === 0) {
             return null;
         }
@@ -253,7 +253,7 @@ export type Sensor = {
     id: string;
     clientId: string;
     version: number;
-    sensor_type: SensorType;
+    sensorType: SensorType;
     userId: number | null;
 }
 
@@ -295,7 +295,7 @@ export async function createSensor(createSensorType: CreateSensorType) : Promise
 
         await trx.insert(sensor).values({
             clientId: createSensorType.macAddress,
-            sensor_type: createSensorType.sensorType,
+            sensorType: createSensorType.sensorType,
             id: nanoid(30),
             version: 1
         });
@@ -397,7 +397,7 @@ export async function assignSensorToUser(sensorId: string, userId: number | null
                 await trx.insert(sensorHistory).values({
                     sensorId: currentSensor.id,
                     userId: currentSensor.userId,
-                    sensor_type: currentSensor.sensor_type,
+                    sensorType: currentSensor.sensorType,
                     clientId: currentSensor.clientId,
                 });
             }

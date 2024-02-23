@@ -13,14 +13,14 @@ export const sensor = mysqlTable("sensor", {
     id: varchar("sensor_id", {length: 30}).notNull().unique(),
     clientId: varchar("client_id", {length: 255}).primaryKey().notNull(),
     version: int("version").default(1).notNull(),
-    sensor_type: mysqlEnum("sensor_type", sensorTypes).notNull(),
+    sensorType: mysqlEnum("sensor_type", sensorTypes).notNull(),
     userId: int("user_id"),
 });
 
 export const sensorHistory = mysqlTable("sensor_history", {
         sensorId: varchar("sensor_id", {length: 30}).notNull(),
         userId: int("user_id").notNull(),
-        sensor_type: mysqlEnum("sensor_type", sensorTypes).notNull(),
+        sensorType: mysqlEnum("sensor_type", sensorTypes).notNull(),
         clientId: varchar("client_id", {length: 255}).notNull()
     },
     (table) => {

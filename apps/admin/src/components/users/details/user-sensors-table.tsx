@@ -8,11 +8,11 @@ interface Props {
     userId: number;
 }
 
-function mapSensor(sensorInput: {id: string, clientId: string, sensor_type: SensorType}): SensorTableType {
+function mapSensor(sensorInput: {id: string, clientId: string, sensorType: SensorType}): SensorTableType {
     return {
         id: sensorInput.id,
         clientId: sensorInput.clientId,
-        type: sensorInput.sensor_type,
+        type: sensorInput.sensorType,
     }
 }
 
