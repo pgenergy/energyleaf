@@ -36,3 +36,4 @@ export * from "./textarea";
 export * from "./toogle";
 export * from "./tooltip";
 export * from "./data-table";
+export * from "./spinner";

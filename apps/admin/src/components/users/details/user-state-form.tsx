@@ -1,7 +1,16 @@
 "use client";
 
-import {Button, Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Switch} from "@energyleaf/ui";
-import {Loader2Icon} from "lucide-react";
+import {
+    Button,
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    Spinner,
+    Switch
+} from "@energyleaf/ui";
 import {useForm} from "react-hook-form";
 import type {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -75,7 +84,7 @@ export default function UserStateForm({ isAdmin, active, id }: Props) {
                 />
                 <div className="flex flex-row justify-end">
                     <Button disabled={isPending} type="submit">
-                        {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                         Speichern
                     </Button>
                 </div>
