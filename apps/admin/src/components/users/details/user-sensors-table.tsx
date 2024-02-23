@@ -1,8 +1,8 @@
 import {DataTable} from "@energyleaf/ui";
-import {sensorsColumns, SensorTableType} from "@/components/sensors/table/sensors-columns";
+import {sensorsColumns, type SensorTableType} from "@/components/sensors/table/sensors-columns";
 import React from "react";
 import {getSensorsByUser} from "@/actions/user";
-import {SensorType} from "@energyleaf/db/schema";
+import type {SensorType} from "@energyleaf/db/schema";
 
 interface Props {
     userId: number;

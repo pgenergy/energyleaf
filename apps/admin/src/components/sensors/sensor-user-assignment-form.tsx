@@ -1,4 +1,4 @@
-import {ControllerRenderProps, FieldValues, useForm} from "react-hook-form";
+import {type ControllerRenderProps, useForm} from "react-hook-form";
 import type {z} from "zod";
 import {assignUserToSensorSchema} from "@/lib/schema/sensor";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -6,7 +6,7 @@ import {Form, FormField, Spinner} from "@energyleaf/ui";
 import UserSelector from "@/components/users/user-selector";
 import {toast} from "sonner";
 import {assignUserToSensor} from "@/actions/sensors";
-import React, {useTransition} from "react";
+import {useState} from "react";
 
 interface Props {
     sensorId: string;
@@ -22,7 +22,7 @@ export default function SensorUserAssignmentForm({sensorId, selectedUserId, sele
         }
     });
 
-    const [isSaving, setIsSaving] = React.useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     function onSubmit(data: z.infer<typeof assignUserToSensorSchema>) {
         toast.promise(
@@ -57,7 +57,7 @@ export default function SensorUserAssignmentForm({sensorId, selectedUserId, sele
                     name="userId"
                     render={({field}) => (
                         (
-                            isSaving ? <Spinner/> : <UserSelector onUserSelected={(id) => onFieldChange(field, id)}
+                            isSaving ? <Spinner/> : <UserSelector onUserSelected={(id) => {onFieldChange(field, id)}}
                                                                   selectedUserId={field.value}
                                                                   selectedUserName={selectedUserName}/>
                         )

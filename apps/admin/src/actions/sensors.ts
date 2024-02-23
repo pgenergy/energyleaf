@@ -17,9 +17,9 @@ import 'server-only';
 import {getSession} from "@/lib/auth/auth";
 import type {SensorType} from "@energyleaf/db/schema";
 import {revalidatePath} from "next/cache";
-import {type baseInformationSchema, UserNotLoggedInError} from "@energyleaf/lib";
+import {UserNotLoggedInError} from "@energyleaf/lib";
 import type {z} from "zod";
-import {assignUserToSensorSchema} from "@/lib/schema/sensor";
+import type {assignUserToSensorSchema} from "@/lib/schema/sensor";
 
 /**
  * Creates a new sensor.

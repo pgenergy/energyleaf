@@ -101,7 +101,7 @@ export async function getSensorsByUser(id: number) {
     try {
         return await getSensorsByUserDb(id);
     } catch (e) {
-        throw new Error("Failed to get sensors of user " + id);
+        throw new Error(`Failed to get sensors of user ${id}`);
     }
 }
 

@@ -1,10 +1,9 @@
 import {DataTable} from "@energyleaf/ui";
 import React from "react";
-import type {SensorOverviewTableType, SensorTableType} from "@/components/sensors/table/sensors-columns";
+import type {SensorOverviewTableType} from "@/components/sensors/table/sensors-columns";
 import {sensorsOverviewColumns} from "@/components/sensors/table/sensors-columns";
 import {getSensors} from "@/actions/sensors";
 import type {SensorWithUser} from "@energyleaf/db/query";
-import {SensorType} from "@energyleaf/db/schema";
 
 function mapSensor(sensorWithUser: SensorWithUser) : SensorOverviewTableType {
     const {sensor, user} = sensorWithUser;

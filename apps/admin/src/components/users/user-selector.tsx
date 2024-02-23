@@ -6,7 +6,7 @@ import {
     DropdownMenuTrigger,
     Input, Spinner
 } from "@energyleaf/ui";
-import React, {useEffect, useMemo, useRef, useTransition} from "react";
+import {type ChangeEvent, useEffect, useMemo, useRef, useState, useTransition} from "react";
 import {getAllUsers} from "@/actions/user";
 
 interface User {
@@ -22,9 +22,9 @@ interface Props {
 
 export default function UserSelector({selectedUserId, onUserSelected, selectedUserName}: Props) {
     const [isLoading, startLoadTransition] = useTransition()
-    const [users, setUsers] = React.useState<User[]>([])
-    const [search, setSearch] = React.useState("")
-    const [isOpen, setIsOpen] = React.useState(false)
+    const [users, setUsers] = useState<User[]>([])
+    const [search, setSearch] = useState("")
+    const [isOpen, setIsOpen] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
@@ -42,39 +42,38 @@ export default function UserSelector({selectedUserId, onUserSelected, selectedUs
         }
 
         startLoadTransition(async () => {
-            const users = (await getAllUsers())
+            const allUsers = (await getAllUsers())
                 .map((user) => ({
                     id: user.id,
                     name: user.username,
                 }))
-            setUsers(users)
+            setUsers(allUsers)
         })
     }
 
-    function onSearchTextChanged(event: React.ChangeEvent<HTMLInputElement>) {
+    function onSearchTextChanged(event: ChangeEvent<HTMLInputElement>) {
         setSearch(event.target.value)
     }
 
-    function filterUser(user: User): boolean {
-        return user.name.toLowerCase().includes(search.toLowerCase())
-    }
-
-    const filteredUsers = useMemo(() => users.filter(filterUser), [users, search])
+    const filteredUsers = useMemo(
+        () => users.filter((user) => user.name.toLowerCase().includes(search.toLowerCase())),
+        [users, search]
+    )
     const slicedUsers = useMemo(() => {
-        let slicedUsers = [...filteredUsers];
+        let filteredUsersCopy = [...filteredUsers];
 
-        if (search === "" && selectedUserId !== undefined) {
-            slicedUsers = slicedUsers.filter(user => user.id !== selectedUserId).slice(0, 4);
+        if (search === "" && selectedUserId !== undefined) { // selected user should be part of the list when no search is active
+            filteredUsersCopy = filteredUsersCopy.filter(user => user.id !== selectedUserId).slice(0, 4);
             const selectedUser = users.find(user => user.id === selectedUserId)
             if (selectedUser) {
-                slicedUsers.push(selectedUser);
+                filteredUsersCopy.push(selectedUser);
             }
         } else {
-            slicedUsers = slicedUsers.slice(0, 5);
+            filteredUsersCopy = filteredUsersCopy.slice(0, 5);
         }
 
-        return slicedUsers;
-    }, [filteredUsers, selectedUserId])
+        return filteredUsersCopy;
+    }, [filteredUsers, selectedUserId, search, users])
 
     return (
         <DropdownMenu onOpenChange={loadUsers}>
@@ -86,8 +85,10 @@ export default function UserSelector({selectedUserId, onUserSelected, selectedUs
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>
-                    <Input ref={inputRef} placeholder="Suchen" onChange={onSearchTextChanged}
-                           onKeyDown={(e) => e.stopPropagation()}/>
+                    <Input onChange={onSearchTextChanged}
+                           onKeyDown={(e) => { e.stopPropagation()}}
+                           placeholder="Suchen"
+                           ref={inputRef}/>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator/>
                 {
@@ -98,15 +99,18 @@ export default function UserSelector({selectedUserId, onUserSelected, selectedUs
                         :
                         <>
                             <DropdownMenuCheckboxItem checked={selectedUserId === null}
-                                                      onClick={_ => onUserSelected(null)}>
+                                                      onClick={_ => {onUserSelected(null)}}>
                                 <i>Nicht zugeordnet</i>
                             </DropdownMenuCheckboxItem>
                             <DropdownMenuSeparator/>
 
 
                             {slicedUsers.map((user) => (
-                                <DropdownMenuCheckboxItem key={user.id} onClick={_ => onUserSelected(user.id)}
-                                                          checked={user.id === selectedUserId}>
+                                <DropdownMenuCheckboxItem checked={user.id === selectedUserId}
+                                                          key={user.id}
+                                                          onClick={_ => {
+                                                              onUserSelected(user.id)
+                                                          }}>
                                     {user.name}
                                 </DropdownMenuCheckboxItem>
                             ))}
