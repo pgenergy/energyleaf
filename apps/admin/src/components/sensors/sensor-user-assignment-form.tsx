@@ -9,12 +9,12 @@ import {assignUserToSensor} from "@/actions/sensors";
 import {useState} from "react";
 
 interface Props {
-    sensorId: string;
+    clientId: string;
     selectedUserId: number | undefined;
     selectedUserName: string | undefined;
 }
 
-export default function SensorUserAssignmentForm({sensorId, selectedUserId, selectedUserName}: Props) {
+export default function SensorUserAssignmentForm({clientId, selectedUserId, selectedUserName}: Props) {
     const form = useForm<z.infer<typeof assignUserToSensorSchema>>({
         resolver: zodResolver(assignUserToSensorSchema),
         defaultValues: {
@@ -28,7 +28,7 @@ export default function SensorUserAssignmentForm({sensorId, selectedUserId, sele
         toast.promise(
             async () => {
                 setIsSaving(true);
-                await assignUserToSensor(data, sensorId)
+                await assignUserToSensor(data, clientId)
             },
             {
                 loading: "Zuweisung wird durchgeführt...",

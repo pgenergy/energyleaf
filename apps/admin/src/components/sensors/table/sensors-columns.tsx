@@ -103,8 +103,8 @@ export const sensorsOverviewColumns: ColumnDef<SensorOverviewTableType>[] = [
         cell: ({row}) => {
             const userId: number | undefined = row.original.user_id;
             const userName: string | undefined = row.original.user_name;
-            const sensorId: string = row.original.id;
-            return <SensorUserAssignmentForm selectedUserId={userId} selectedUserName={userName} sensorId={sensorId}/>
+            const clientId: string = row.original.clientId;
+            return <SensorUserAssignmentForm selectedUserId={userId} selectedUserName={userName} clientId={clientId}/>
         },
     },
     {

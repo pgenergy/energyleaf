@@ -381,9 +381,9 @@ export async function getSensorIdFromSensorToken(code: string) {
     });
 }
 
-export async function assignSensorToUser(sensorId: string, userId: number | null) {
+export async function assignSensorToUser(clientId: string, userId: number | null) {
     await db.transaction(async (trx) => {
-        const query = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
+        const query = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
         if (query.length === 0) {
             throw new Error("sensor/not-found");
         }
@@ -415,7 +415,7 @@ export async function assignSensorToUser(sensorId: string, userId: number | null
 
         await trx.update(sensor)
             .set({userId: userId, id: newId})
-            .where(eq(sensor.id, sensorId));
+            .where(eq(sensor.clientId, clientId));
     });
 }
 

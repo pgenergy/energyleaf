@@ -53,10 +53,10 @@ export async function deleteSensor(sensorId: string) {
     }
 }
 
-export async function assignUserToSensor(data: z.infer<typeof assignUserToSensorSchema>, sensorId: string) {
+export async function assignUserToSensor(data: z.infer<typeof assignUserToSensorSchema>, clientId: string) {
     await checkIfAdmin();
     try {
-        await assignSensorToUserDb(sensorId, data.userId)
+        await assignSensorToUserDb(clientId, data.userId)
         revalidatePath("/sensors");
     } catch (e) {
         throw new Error("Error while assigning user to sensor");
