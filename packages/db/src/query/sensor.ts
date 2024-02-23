@@ -1,5 +1,5 @@
 import {and, between, eq, or, sql} from "drizzle-orm";
-import {peaks, sensor, sensorData, sensorToken, SensorType, user, userData} from "../schema";
+import {peaks, sensor, sensorData, sensorHistory, sensorToken, SensorType, user, userData} from "../schema";
 import {nanoid} from "nanoid";
 import db from "..";
 import {AggregationType} from "../types/types";
@@ -202,16 +202,27 @@ function sensorDataTimeFilter(start: Date, end: Date) {
  * Get the sensorId for a user where sensor_type is 'electricity'
  */
 export async function getElectricitySensorIdForUser(userId: number) {
-    const query = await db
-        .select()
-        .from(sensor)
-        .where(and(eq(sensor.userId, userId), eq(sensor.sensor_type, SensorType.Electricity)));
+    return await db.transaction(async (trx) => {
+        const query = await trx
+            .select()
+            .from(sensor)
+            .where(and(eq(sensor.userId, userId), eq(sensor.sensor_type, SensorType.Electricity)));
 
-    if (query.length === 0) {
-        return null;
-    }
+        if (query.length > 0) {
+            return query[0].id;
+        }
 
-    return query[0].id;
+        // User has no sensor in sensor table? Then check the sensor_history table
+        const history = await trx
+            .select()
+            .from(sensorHistory)
+            .where(and(eq(sensorHistory.userId, userId), eq(sensorHistory.sensor_type, SensorType.Electricity)));
+        if (history.length === 0) {
+            return null;
+        }
+
+        return history[0].sensorId;
+    });
 }
 
 /**
@@ -372,7 +383,39 @@ export async function getSensorIdFromSensorToken(code: string) {
 
 export async function assignSensorToUser(sensorId: string, userId: number | null) {
     await db.transaction(async (trx) => {
-        await trx.update(sensor).set({userId: userId}).where(eq(sensor.id, sensorId));
+        const query = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
+        if (query.length === 0) {
+            throw new Error("sensor/not-found");
+        }
+
+        const currentSensor = query[0];
+        if (currentSensor.userId) {
+            // Safe in history table so that the previous user can still see his data
+            const contains = await trx.select().from(sensorHistory)
+                .where(and(eq(sensorHistory.userId, currentSensor.userId), eq(sensorHistory.clientId, currentSensor.clientId)));
+            if (contains.length === 0) {
+                await trx.insert(sensorHistory).values({
+                    sensorId: currentSensor.id,
+                    userId: currentSensor.userId,
+                    sensor_type: currentSensor.sensor_type,
+                    clientId: currentSensor.clientId,
+                });
+            }
+        }
+
+        let newId = nanoid(30);
+        if (userId) {
+            // Restore the previous sensor ID of the user
+            const historyQuery = await trx.select().from(sensorHistory)
+                .where(and(eq(sensorHistory.userId, userId), eq(sensorHistory.clientId, currentSensor.clientId)));
+            if (historyQuery.length > 0) {
+                newId = historyQuery[0].sensorId;
+            }
+        }
+
+        await trx.update(sensor)
+            .set({userId: userId, id: newId})
+            .where(eq(sensor.id, sensorId));
     });
 }
 
