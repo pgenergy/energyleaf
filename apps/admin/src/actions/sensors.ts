@@ -9,14 +9,17 @@ import {
 import {
     getSensorsWithUser as getSensorsWithUserDb,
     createSensor as createSensorDb,
-    deleteSensor as deleteSensorDb
+    deleteSensor as deleteSensorDb,
+    assignSensorToUser as assignSensorToUserDb
 } from '@energyleaf/db/query';
 
 import 'server-only';
 import {getSession} from "@/lib/auth/auth";
 import type {SensorType} from "@energyleaf/db/schema";
 import {revalidatePath} from "next/cache";
-import {UserNotLoggedInError} from "@energyleaf/lib";
+import {type baseInformationSchema, UserNotLoggedInError} from "@energyleaf/lib";
+import type {z} from "zod";
+import {assignUserToSensorSchema} from "@/lib/schema/sensor";
 
 /**
  * Creates a new sensor.
@@ -47,6 +50,16 @@ export async function deleteSensor(sensorId: string) {
         revalidatePath("/sensors");
     } catch (e) {
         throw new Error("Error while deleting sensor");
+    }
+}
+
+export async function assignUserToSensor(data: z.infer<typeof assignUserToSensorSchema>, sensorId: string) {
+    await checkIfAdmin();
+    try {
+        await assignSensorToUserDb(sensorId, data.userId)
+        revalidatePath("/sensors");
+    } catch (e) {
+        throw new Error("Error while assigning user to sensor");
     }
 }
 

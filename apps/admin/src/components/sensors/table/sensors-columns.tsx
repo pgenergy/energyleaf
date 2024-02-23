@@ -1,22 +1,25 @@
 "use client";
 
-import { type ColumnDef } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import {type ColumnDef} from "@tanstack/react-table";
+import {ChevronDownIcon, ChevronUpIcon} from "lucide-react";
 
-import { Button } from "@energyleaf/ui";
+import {Button} from "@energyleaf/ui";
 import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
+import React from "react";
+import SensorUserAssignmentForm from "@/components/sensors/sensor-user-assignment-form";
 
 export interface SensorTableType {
     id: string;
     clientId: string;
-    user: string | undefined,
+    user_name: string | undefined,
+    user_id: number | undefined,
     type: string
 }
 
 export const sensorsColumns: ColumnDef<SensorTableType>[] = [
     {
         accessorKey: "clientId",
-        header: ({ column }) => {
+        header: ({column}) => {
             return (
                 <Button
                     onClick={() => {
@@ -26,20 +29,20 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
                 >
                     MAC-Adresse
                     {column.getIsSorted() === "asc" ? (
-                        <ChevronUpIcon className="ml-2 h-4 w-4" />
+                        <ChevronUpIcon className="ml-2 h-4 w-4"/>
                     ) : (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                        <ChevronDownIcon className="ml-2 h-4 w-4"/>
                     )}
                 </Button>
             );
         },
-        cell: ({ row }) => {
+        cell: ({row}) => {
             return <span>{row.getValue("clientId")}</span>;
         },
     },
     {
         accessorKey: "type",
-        header: ({ column }) => {
+        header: ({column}) => {
             return (
                 <Button
                     onClick={() => {
@@ -49,14 +52,14 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
                 >
                     Typ
                     {column.getIsSorted() === "asc" ? (
-                        <ChevronUpIcon className="ml-2 h-4 w-4" />
+                        <ChevronUpIcon className="ml-2 h-4 w-4"/>
                     ) : (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                        <ChevronDownIcon className="ml-2 h-4 w-4"/>
                     )}
                 </Button>
             );
         },
-        cell: ({ row }) => {
+        cell: ({row}) => {
             const value: string | undefined = row.getValue("type");
             if (!value) {
                 return null;
@@ -65,8 +68,8 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
         },
     },
     {
-        accessorKey: "user",
-        header: ({ column }) => {
+        accessorKey: "user_name",
+        header: ({column}) => {
             return (
                 <Button
                     onClick={() => {
@@ -76,26 +79,25 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
                 >
                     Benutzer
                     {column.getIsSorted() === "asc" ? (
-                        <ChevronUpIcon className="ml-2 h-4 w-4" />
+                        <ChevronUpIcon className="ml-2 h-4 w-4"/>
                     ) : (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                        <ChevronDownIcon className="ml-2 h-4 w-4"/>
                     )}
                 </Button>
             );
         },
-        cell: ({ row }) => {
-            const value: string | undefined = row.getValue("user");
-            if (!value) {
-                return <span>-</span>;
-            }
-            return <span>{value}</span>;
+        cell: ({row}) => {
+            const userId: number | undefined = row.original.user_id;
+            const userName: string | undefined = row.original.user_name;
+            const sensorId: string = row.original.id;
+            return <SensorUserAssignmentForm selectedUserId={userId} selectedUserName={userName} sensorId={sensorId}/>
         },
     },
     {
         id: "actions",
-        cell: ({ row }) => {
+        cell: ({row}) => {
             const sensor = row.original;
-            return <SensorActionCell sensor={sensor} />;
+            return <SensorActionCell sensor={sensor}/>;
         },
     },
 ];

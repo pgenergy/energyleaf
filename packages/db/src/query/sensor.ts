@@ -366,6 +366,12 @@ export async function getSensorIdFromSensorToken(code: string) {
     });
 }
 
+export async function assignSensorToUser(sensorId: string, userId: number | null) {
+    await db.transaction(async (trx) => {
+        await trx.update(sensor).set({userId: userId}).where(eq(sensor.id, sensorId));
+    });
+}
+
 /**
  * Get the average energy consumption per device
  */
