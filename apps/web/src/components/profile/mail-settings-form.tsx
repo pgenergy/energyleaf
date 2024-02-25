@@ -1,11 +1,10 @@
 "use client";
 
-import { useTransition } from "react";
+import React, { useTransition } from "react";
 import { updateMailInformation } from "@/actions/profile";
 import { mailSettingsSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
-import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -22,7 +21,7 @@ import {
     FormDescription,
     FormField,
     FormItem,
-    FormLabel,
+    FormLabel, Spinner,
     Switch,
 } from "@energyleaf/ui";
 
@@ -112,7 +111,7 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
                         />
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending || disabled} type="submit">
-                                {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                                 Speichern
                             </Button>
                         </div>

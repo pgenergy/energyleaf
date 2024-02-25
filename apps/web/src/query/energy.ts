@@ -66,5 +66,6 @@ export const getPeaksBySensor = cache(async (start: Date, end: Date, sensorId: s
             };
         });
     }
+
     return getDbPeaksBySensor(start, end, sensorId);
 });

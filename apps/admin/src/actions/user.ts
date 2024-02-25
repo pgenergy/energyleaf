@@ -7,7 +7,8 @@ import {
     deleteUser as deleteUserDb,
     setUserAdmin as setUserAdminDb,
     getUserById,
-    updateUser as updateUserDb
+    updateUser as updateUserDb,
+    getSensorsByUser as getSensorsByUserDb
 } from "@energyleaf/db/query";
 import {cache} from "react";
 import {getSession} from "@/lib/auth/auth";
@@ -91,6 +92,16 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
         revalidatePath("/users")
     } catch (e) {
         throw new Error("Failed to update user");
+    }
+}
+
+export async function getSensorsByUser(id: number) {
+    await validateUserAdmin();
+
+    try {
+        return await getSensorsByUserDb(id);
+    } catch (e) {
+        throw new Error(`Failed to get sensors of user ${id}`);
     }
 }
 
