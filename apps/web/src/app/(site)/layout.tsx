@@ -26,12 +26,6 @@ const navLinks = [
         path: "/devices",
         icon: <MicrowaveIcon className="mr-2 h-4 w-4" />,
     },
-    {
-        slug: "consumption",
-        title: "Verbrauch",
-        path: "/consumption",
-        icon: <LineChartIcon className="mr-2 h-4 w-4" />,
-    },
 ];
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
