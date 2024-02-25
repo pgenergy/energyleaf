@@ -11,12 +11,11 @@ import type { z } from "zod";
 import {
     deleteUser as deleteUserDb,
     getAllUsers as getAllUsersDb,
+    getSensorsByUser as getSensorsByUserDb,
     getUserById,
     setUserActive as setUserActiveDb,
     setUserAdmin as setUserAdminDb,
-    getUserById,
     updateUser as updateUserDb,
-    getSensorsByUser as getSensorsByUserDb
 } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib";
 import type { baseInformationSchema } from "@energyleaf/lib";

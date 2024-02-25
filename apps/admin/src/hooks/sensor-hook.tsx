@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
-import type {SensorTableType} from "@/components/sensors/table/sensors-columns";
+import type { SensorTableType } from "@/components/sensors/table/sensors-columns";
 
 export type SensorContextType = {
     addDialogOpen: boolean;
@@ -31,7 +31,7 @@ export function SensorContextProvider({ children }: Props) {
                 deleteDialogOpen,
                 setDeleteDialogOpen,
                 sensor,
-                setSensor
+                setSensor,
             }}
         >
             {children}

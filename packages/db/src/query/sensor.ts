@@ -1,9 +1,11 @@
-import {and, between, eq, or, sql} from "drizzle-orm";
-import {peaks, sensor, sensorData, sensorHistory, sensorToken, SensorType, user, userData} from "../schema";
-import {nanoid} from "nanoid";
-import db from "..";
-import {AggregationType} from "../types/types";
-import {SensorAlreadyExistsError} from "@energyleaf/lib";
+import { and, between, desc, eq, or, sql } from "drizzle-orm";
+import { nanoid } from "nanoid";
+
+import { SensorAlreadyExistsError } from "@energyleaf/lib";
+
+import db from "../";
+import { peaks, sensor, sensorData, sensorHistory, sensorToken, SensorType, user, userData } from "../schema";
+import { AggregationType } from "../types/types";
 
 /**
  * Get the energy consumption for a sensor in a given time range
@@ -299,7 +301,7 @@ export type Sensor = {
     version: number;
     sensorType: SensorType;
     userId: number | null;
-}
+};
 
 export type User = {
     id: number;
@@ -309,12 +311,12 @@ export type User = {
     password: string;
     isAdmin: boolean;
     isActive: boolean;
-}
+};
 
 export type SensorWithUser = {
     sensor: Sensor;
     user: User | null;
-}
+};
 export async function getSensorsWithUser(): Promise<SensorWithUser[]> {
     return db.select().from(sensor).leftJoin(user, eq(user.id, sensor.userId));
 }
@@ -328,9 +330,10 @@ export interface CreateSensorType {
     sensorType: SensorType;
 }
 
-export async function createSensor(createSensorType: CreateSensorType) : Promise<void> {
+export async function createSensor(createSensorType: CreateSensorType): Promise<void> {
     await db.transaction(async (trx) => {
-        const sensorsWithSameMacAddress = await trx.select()
+        const sensorsWithSameMacAddress = await trx
+            .select()
             .from(sensor)
             .where(eq(sensor.clientId, createSensorType.macAddress));
         if (sensorsWithSameMacAddress.length > 0) {
@@ -341,7 +344,7 @@ export async function createSensor(createSensorType: CreateSensorType) : Promise
             clientId: createSensorType.macAddress,
             sensorType: createSensorType.sensorType,
             id: nanoid(30),
-            version: 1
+            version: 1,
         });
     });
 }
@@ -359,7 +362,7 @@ export async function deleteSensor(sensorId: string) {
         }
 
         await trx.delete(sensor).where(eq(sensor.id, sensorId));
-    })
+    });
 }
 
 /**
@@ -455,8 +458,15 @@ export async function assignSensorToUser(clientId: string, userId: number | null
         const currentSensor = query[0];
         if (currentSensor.userId) {
             // Safe in history table so that the previous user can still see his data
-            const contains = await trx.select().from(sensorHistory)
-                .where(and(eq(sensorHistory.userId, currentSensor.userId), eq(sensorHistory.clientId, currentSensor.clientId)));
+            const contains = await trx
+                .select()
+                .from(sensorHistory)
+                .where(
+                    and(
+                        eq(sensorHistory.userId, currentSensor.userId),
+                        eq(sensorHistory.clientId, currentSensor.clientId),
+                    ),
+                );
             if (contains.length === 0) {
                 await trx.insert(sensorHistory).values({
                     sensorId: currentSensor.id,
@@ -470,16 +480,16 @@ export async function assignSensorToUser(clientId: string, userId: number | null
         let newId = nanoid(30);
         if (userId) {
             // Restore the previous sensor ID of the user
-            const historyQuery = await trx.select().from(sensorHistory)
+            const historyQuery = await trx
+                .select()
+                .from(sensorHistory)
                 .where(and(eq(sensorHistory.userId, userId), eq(sensorHistory.clientId, currentSensor.clientId)));
             if (historyQuery.length > 0) {
                 newId = historyQuery[0].sensorId;
             }
         }
 
-        await trx.update(sensor)
-            .set({userId: userId, id: newId})
-            .where(eq(sensor.clientId, clientId));
+        await trx.update(sensor).set({ userId: userId, id: newId }).where(eq(sensor.clientId, clientId));
     });
 }
 

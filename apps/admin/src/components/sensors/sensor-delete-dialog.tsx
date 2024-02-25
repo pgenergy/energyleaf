@@ -1,6 +1,9 @@
 "use client";
 
 import { useTransition } from "react";
+import { deleteSensor } from "@/actions/sensors";
+import { useSensorContext } from "@/hooks/sensor-hook";
+import { toast } from "sonner";
 
 import {
     AlertDialog,
@@ -12,9 +15,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@energyleaf/ui";
-import {useSensorContext} from "@/hooks/sensor-hook";
-import {toast} from "sonner";
-import {deleteSensor} from "@/actions/sensors";
 
 export function SensorDeleteDialog() {
     const sensorContext = useSensorContext();

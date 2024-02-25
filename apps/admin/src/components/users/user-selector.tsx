@@ -1,13 +1,17 @@
+import { useEffect, useMemo, useRef, useState, useTransition, type ChangeEvent } from "react";
+import { getAllUsers } from "@/actions/user";
+
 import {
-    DropdownMenu, DropdownMenuCheckboxItem,
-    DropdownMenuContent, DropdownMenuItem,
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-    Input, Spinner
+    Input,
+    Spinner,
 } from "@energyleaf/ui";
-import {type ChangeEvent, useEffect, useMemo, useRef, useState, useTransition} from "react";
-import {getAllUsers} from "@/actions/user";
 
 interface User {
     id: number;
@@ -20,51 +24,51 @@ interface Props {
     onUserSelected: (userId: number | null) => void;
 }
 
-export default function UserSelector({selectedUserId, onUserSelected, selectedUserName}: Props) {
-    const [isLoading, startLoadTransition] = useTransition()
-    const [users, setUsers] = useState<User[]>([])
-    const [search, setSearch] = useState("")
-    const [isOpen, setIsOpen] = useState(false)
-    const inputRef = useRef<HTMLInputElement>(null)
+export default function UserSelector({ selectedUserId, onUserSelected, selectedUserName }: Props) {
+    const [isLoading, startLoadTransition] = useTransition();
+    const [users, setUsers] = useState<User[]>([]);
+    const [search, setSearch] = useState("");
+    const [isOpen, setIsOpen] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (isOpen && inputRef.current) {
-            inputRef.current.focus()
+            inputRef.current.focus();
         }
-    }, [isOpen])
+    }, [isOpen]);
 
     function loadUsers(isOpened: boolean) {
-        setIsOpen(isOpened)
+        setIsOpen(isOpened);
         if (!isOpened) {
-            setUsers([])
-            setSearch("")
-            return
+            setUsers([]);
+            setSearch("");
+            return;
         }
 
         startLoadTransition(async () => {
-            const allUsers = (await getAllUsers())
-                .map((user) => ({
-                    id: user.id,
-                    name: user.username,
-                }))
-            setUsers(allUsers)
-        })
+            const allUsers = (await getAllUsers()).map((user) => ({
+                id: user.id,
+                name: user.username,
+            }));
+            setUsers(allUsers);
+        });
     }
 
     function onSearchTextChanged(event: ChangeEvent<HTMLInputElement>) {
-        setSearch(event.target.value)
+        setSearch(event.target.value);
     }
 
     const filteredUsers = useMemo(
         () => users.filter((user) => user.name.toLowerCase().includes(search.toLowerCase())),
-        [users, search]
-    )
+        [users, search],
+    );
     const slicedUsers = useMemo(() => {
         let filteredUsersCopy = [...filteredUsers];
 
-        if (search === "" && selectedUserId !== undefined) { // selected user should be part of the list when no search is active
-            filteredUsersCopy = filteredUsersCopy.filter(user => user.id !== selectedUserId).slice(0, 4);
-            const selectedUser = users.find(user => user.id === selectedUserId)
+        if (search === "" && selectedUserId !== undefined) {
+            // selected user should be part of the list when no search is active
+            filteredUsersCopy = filteredUsersCopy.filter((user) => user.id !== selectedUserId).slice(0, 4);
+            const selectedUser = users.find((user) => user.id === selectedUserId);
             if (selectedUser) {
                 filteredUsersCopy.push(selectedUser);
             }
@@ -73,49 +77,58 @@ export default function UserSelector({selectedUserId, onUserSelected, selectedUs
         }
 
         return filteredUsersCopy;
-    }, [filteredUsers, selectedUserId, search, users])
+    }, [filteredUsers, selectedUserId, search, users]);
 
     return (
         <DropdownMenu onOpenChange={loadUsers}>
             <DropdownMenuTrigger>
-                {selectedUserId && selectedUserName
-                    ? (<a href={`/users/${selectedUserId}`}>{selectedUserName}</a>)
-                    : (<i>Nicht zugeordnet</i>)
-                }
+                {selectedUserId && selectedUserName ? (
+                    <a href={`/users/${selectedUserId}`}>{selectedUserName}</a>
+                ) : (
+                    <i>Nicht zugeordnet</i>
+                )}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>
-                    <Input onChange={onSearchTextChanged}
-                           onKeyDown={(e) => { e.stopPropagation()}}
-                           placeholder="Suchen"
-                           ref={inputRef}/>
+                    <Input
+                        onChange={onSearchTextChanged}
+                        onKeyDown={(e) => {
+                            e.stopPropagation();
+                        }}
+                        placeholder="Suchen"
+                        ref={inputRef}
+                    />
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator/>
-                {
-                    isLoading ?
-                        <DropdownMenuItem disabled>
-                            <Spinner/>
-                        </DropdownMenuItem>
-                        :
-                        <>
-                            <DropdownMenuCheckboxItem checked={selectedUserId === null}
-                                                      onClick={_ => {onUserSelected(null)}}>
-                                <i>Nicht zugeordnet</i>
+                <DropdownMenuSeparator />
+                {isLoading ? (
+                    <DropdownMenuItem disabled>
+                        <Spinner />
+                    </DropdownMenuItem>
+                ) : (
+                    <>
+                        <DropdownMenuCheckboxItem
+                            checked={selectedUserId === null}
+                            onClick={(_) => {
+                                onUserSelected(null);
+                            }}
+                        >
+                            <i>Nicht zugeordnet</i>
+                        </DropdownMenuCheckboxItem>
+                        <DropdownMenuSeparator />
+
+                        {slicedUsers.map((user) => (
+                            <DropdownMenuCheckboxItem
+                                checked={user.id === selectedUserId}
+                                key={user.id}
+                                onClick={(_) => {
+                                    onUserSelected(user.id);
+                                }}
+                            >
+                                {user.name}
                             </DropdownMenuCheckboxItem>
-                            <DropdownMenuSeparator/>
-
-
-                            {slicedUsers.map((user) => (
-                                <DropdownMenuCheckboxItem checked={user.id === selectedUserId}
-                                                          key={user.id}
-                                                          onClick={_ => {
-                                                              onUserSelected(user.id)
-                                                          }}>
-                                    {user.name}
-                                </DropdownMenuCheckboxItem>
-                            ))}
-                        </>
-                }
+                        ))}
+                    </>
+                )}
             </DropdownMenuContent>
         </DropdownMenu>
     );

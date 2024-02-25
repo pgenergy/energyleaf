@@ -1,5 +1,7 @@
 "use client";
 
+import type { SensorTableType } from "@/components/sensors/table/sensors-columns";
+import { useSensorContext } from "@/hooks/sensor-hook";
 import { MoreVerticalIcon, TrashIcon } from "lucide-react";
 
 import {
@@ -11,8 +13,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
-import type {SensorTableType} from "@/components/sensors/table/sensors-columns";
-import {useSensorContext} from "@/hooks/sensor-hook";
 
 interface Props {
     sensor: SensorTableType;

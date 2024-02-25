@@ -1,5 +1,13 @@
 "use client";
 
+import { useTransition } from "react";
+import { updateUserState } from "@/actions/user";
+import { userStateSchema } from "@/lib/schema/user";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+
 import {
     Button,
     Form,
@@ -9,17 +17,8 @@ import {
     FormItem,
     FormLabel,
     Spinner,
-    Switch
+    Switch,
 } from "@energyleaf/ui";
-import {useForm} from "react-hook-form";
-import type {z} from "zod";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {userStateSchema} from "@/lib/schema/user";
-import {useTransition} from "react";
-import {toast} from "sonner";
-import {updateUserState} from "@/actions/user";
-
-import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Switch } from "@energyleaf/ui";
 
 interface Props {
     isAdmin: boolean;
