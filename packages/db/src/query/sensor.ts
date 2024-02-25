@@ -1,10 +1,19 @@
 import { and, between, desc, eq, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
+import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
+
 import db from "../";
 import { peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
-import { AggregationType, SensorInsertType, SensorSelectType, SensorSelectTypeWithUser, SensorType, UserDataSelectType, UserSelectType } from "../types/types";
-import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
+import {
+    AggregationType,
+    SensorInsertType,
+    SensorSelectType,
+    SensorSelectTypeWithUser,
+    SensorType,
+    UserDataSelectType,
+    UserSelectType,
+} from "../types/types";
 
 /**
  * Get the energy consumption for a sensor in a given time range
@@ -342,8 +351,11 @@ export async function updateSensor(sensorId: string, data: Partial<SensorInsertT
         if (data.script) {
             data.needsScript = true;
         }
-        
-        await trx.update(sensor).set({ ...data }).where(eq(sensor.id, sensorId));
+
+        await trx
+            .update(sensor)
+            .set({ ...data })
+            .where(eq(sensor.id, sensorId));
     });
 }
 

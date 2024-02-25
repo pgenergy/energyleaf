@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import type { SensorSelectType} from "@energyleaf/db/util";
+import type { SensorSelectType } from "@energyleaf/db/util";
 import { SensorType, SensorTypeMap } from "@energyleaf/db/util";
 import {
     Button,
@@ -27,7 +27,7 @@ import {
 } from "@energyleaf/ui";
 
 interface Props {
-    sensor?: SensorSelectType
+    sensor?: SensorSelectType;
     onCallback: () => void;
 }
 

@@ -11,8 +11,8 @@ import {
     varchar,
 } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
-import { SensorType } from "../types/types";
 
+import { SensorType } from "../types/types";
 
 const sensorTypes = [SensorType.Electricity, SensorType.Gas] as const;
 
