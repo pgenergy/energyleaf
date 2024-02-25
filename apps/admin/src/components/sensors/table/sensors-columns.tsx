@@ -6,14 +6,9 @@ import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
 import { type ColumnDef } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
-import type { SensorSelectType } from "@energyleaf/db/util";
+import type { SensorSelectType, SensorSelectTypeWithUser } from "@energyleaf/db/util";
 import { SensorTypeMap } from "@energyleaf/db/util";
 import { Button } from "@energyleaf/ui";
-
-export interface SensorOverviewTableType extends SensorSelectType {
-    user_name: string | undefined;
-    user_id: number | undefined;
-}
 
 export const sensorsColumns: ColumnDef<SensorSelectType>[] = [
     {
@@ -69,8 +64,8 @@ export const sensorsColumns: ColumnDef<SensorSelectType>[] = [
     },
 ];
 
-export const sensorsOverviewColumns: ColumnDef<SensorOverviewTableType>[] = [
-    ...sensorsColumns.map((def) => def as ColumnDef<SensorOverviewTableType>),
+export const sensorsOverviewColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
+    ...sensorsColumns.map((def) => def as ColumnDef<SensorSelectTypeWithUser>),
     {
         accessorKey: "user_name",
         header: ({ column }) => {
@@ -91,16 +86,16 @@ export const sensorsOverviewColumns: ColumnDef<SensorOverviewTableType>[] = [
             );
         },
         cell: ({ row }) => {
-            const userId: number | undefined = row.original.user_id;
-            const userName: string | undefined = row.original.user_name;
-            const clientId: string = row.original.clientId;
+            const userId: number | undefined = row.original.user?.id || undefined;
+            const userName: string | undefined = row.original.user?.username || undefined;
+            const clientId: string = row.original.sensor.clientId;
             return <SensorUserAssignmentForm clientId={clientId} selectedUserId={userId} selectedUserName={userName} />;
         },
     },
     {
         id: "actions",
         cell: ({ row }) => {
-            const sensor = row.original;
+            const sensor = row.original.sensor;
             return <SensorActionCell sensor={sensor} />;
         },
     },
