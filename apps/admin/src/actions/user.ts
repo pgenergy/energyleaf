@@ -1,21 +1,23 @@
 "use server";
 
-import 'server-only';
+import "server-only";
+
+import { cache } from "react";
+import { revalidatePath } from "next/cache";
+import { getSession } from "@/lib/auth/auth";
+import type { userStateSchema } from "@/lib/schema/user";
+import type { z } from "zod";
+
 import {
-    getAllUsers as getAllUsersDb,
-    setUserActive as setUserActiveDb,
     deleteUser as deleteUserDb,
-    setUserAdmin as setUserAdminDb,
+    getAllUsers as getAllUsersDb,
     getUserById,
-    updateUser as updateUserDb
+    setUserActive as setUserActiveDb,
+    setUserAdmin as setUserAdminDb,
+    updateUser as updateUserDb,
 } from "@energyleaf/db/query";
-import {cache} from "react";
-import {getSession} from "@/lib/auth/auth";
-import {UserNotLoggedInError} from "@energyleaf/lib";
-import {revalidatePath} from "next/cache";
-import type {z} from "zod";
-import type {baseInformationSchema} from "@energyleaf/lib";
-import type {userStateSchema} from "@/lib/schema/user";
+import { UserNotLoggedInError } from "@energyleaf/lib";
+import type { baseInformationSchema } from "@energyleaf/lib";
 
 export const getAllUsers = cache(async () => {
     await validateUserAdmin();
@@ -28,7 +30,7 @@ export async function setUserActive(id: number, active: boolean) {
 
     try {
         await setUserActiveDb(id, active);
-        revalidatePath("/users")
+        revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to set user active");
     }
@@ -39,7 +41,7 @@ export async function setUserAdmin(id: number, isAdmin: boolean) {
 
     try {
         await setUserAdminDb(id, isAdmin);
-        revalidatePath("/users")
+        revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to set user admin");
     }
@@ -49,7 +51,7 @@ export async function deleteUser(id: number) {
     await validateUserAdmin();
     try {
         await deleteUserDb(id);
-        revalidatePath("/users")
+        revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to delete user");
     }
@@ -74,9 +76,9 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
                 username: data.username,
                 email: data.email,
             },
-            id
+            id,
         );
-        revalidatePath("/users")
+        revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to update user");
     }
@@ -88,7 +90,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
     try {
         await setUserActiveDb(id, data.active);
         await setUserAdminDb(id, data.isAdmin);
-        revalidatePath("/users")
+        revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to update user");
     }

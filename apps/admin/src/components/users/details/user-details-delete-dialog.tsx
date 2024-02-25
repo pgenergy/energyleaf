@@ -1,16 +1,16 @@
 "use client";
 
-import {useUserDetailsContext} from "@/hooks/user-detail-hook";
-import {UserDeleteDialog} from "@/components/users/user-delete-dialog";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
+import { UserDeleteDialog } from "@/components/users/user-delete-dialog";
+import { useUserDetailsContext } from "@/hooks/user-detail-hook";
 
 export default function UserDetailsDeleteDialog() {
     const context = useUserDetailsContext();
-    const router = useRouter()
+    const router = useRouter();
 
     function onSuccess() {
-        router.push(`/users`)
+        router.push(`/users`);
     }
 
-    return <UserDeleteDialog context={context} onSuccess={onSuccess}/>;
+    return <UserDeleteDialog context={context} onSuccess={onSuccess} />;
 }

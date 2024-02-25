@@ -8,15 +8,15 @@ import { env } from "@/env.mjs";
 import { signIn, signOut } from "@/lib/auth/auth";
 import { isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
+import { CallbackRouteError } from "@auth/core/errors";
 import * as bcrypt from "bcryptjs";
 import * as jose from "jose";
 import { AuthError } from "next-auth";
 import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
+import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
 import { sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
-import {buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError} from "@energyleaf/lib";
-import {CallbackRouteError} from "@auth/core/errors";
 
 /**
  * Server action for creating a new account
@@ -72,8 +72,8 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         throw new Error("E-Mail wird nicht verwendet.");
     }
 
-    const token = await getResetPasswordToken({userId: user.id, secret: env.NEXTAUTH_SECRET});
-    const resetUrl = buildResetPasswordUrl({env, token});
+    const token = await getResetPasswordToken({ userId: user.id, secret: env.NEXTAUTH_SECRET });
+    const resetUrl = buildResetPasswordUrl({ env, token });
 
     try {
         await sendPasswordResetEmail({

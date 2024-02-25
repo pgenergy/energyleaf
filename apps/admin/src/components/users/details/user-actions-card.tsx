@@ -1,8 +1,9 @@
 "use client";
 
-import {Button, Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
 import UserStateForm from "@/components/users/details/user-state-form";
-import {useUserDetailsContext} from "@/hooks/user-detail-hook";
+import { useUserDetailsContext } from "@/hooks/user-detail-hook";
+
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 interface Props {
     user: {
@@ -10,7 +11,7 @@ interface Props {
         isActive: boolean;
         id: number;
         username: string;
-    }
+    };
 }
 
 export default function UserActionsCard({ user }: Props) {
@@ -33,7 +34,7 @@ export default function UserActionsCard({ user }: Props) {
                 <CardDescription>Hier kannst du den Status des Benutzers einsehen und ändern.</CardDescription>
             </CardHeader>
             <CardContent>
-                <UserStateForm active={user.isActive} id={user.id} isAdmin={user.isAdmin}/>
+                <UserStateForm active={user.isActive} id={user.id} isAdmin={user.isAdmin} />
             </CardContent>
             <CardHeader>
                 <CardTitle>Aktionen</CardTitle>
@@ -50,5 +51,5 @@ export default function UserActionsCard({ user }: Props) {
                 </div>
             </CardContent>
         </Card>
-    )
+    );
 }

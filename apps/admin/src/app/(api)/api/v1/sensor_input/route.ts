@@ -58,6 +58,8 @@ export const POST = async (req: NextRequest) => {
             });
         }
     } catch (err) {
-        return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "Invalid data" }), { status: 400 });
+        return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "Invalid data" }), {
+            status: 400,
+        });
     }
 };

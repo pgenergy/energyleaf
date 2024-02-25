@@ -1,14 +1,15 @@
 "use client";
 
-import {Button, Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Switch} from "@energyleaf/ui";
-import {Loader2Icon} from "lucide-react";
-import {useForm} from "react-hook-form";
-import type {z} from "zod";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {userStateSchema} from "@/lib/schema/user";
-import {useTransition} from "react";
-import {toast} from "sonner";
-import {updateUserState} from "@/actions/user";
+import { useTransition } from "react";
+import { updateUserState } from "@/actions/user";
+import { userStateSchema } from "@/lib/schema/user";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2Icon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+
+import { Button, Form, FormControl, FormDescription, FormField, FormItem, FormLabel, Switch } from "@energyleaf/ui";
 
 interface Props {
     isAdmin: boolean;
@@ -63,9 +64,7 @@ export default function UserStateForm({ isAdmin, active, id }: Props) {
                         <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
                             <div className="flex flex-col gap-2">
                                 <FormLabel>Admin</FormLabel>
-                                <FormDescription>
-                                    Gibt an, ob der Benutzer ein Administrator ist.
-                                </FormDescription>
+                                <FormDescription>Gibt an, ob der Benutzer ein Administrator ist.</FormDescription>
                             </div>
                             <FormControl>
                                 <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />

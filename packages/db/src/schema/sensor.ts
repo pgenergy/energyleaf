@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, int, mysqlEnum, mysqlTable, timestamp, uniqueIndex, varchar, float } from "drizzle-orm/mysql-core";
+import { boolean, float, int, mysqlEnum, mysqlTable, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
 
 export const sensor = mysqlTable("sensor", {

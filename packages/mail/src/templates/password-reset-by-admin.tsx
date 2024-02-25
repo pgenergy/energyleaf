@@ -40,9 +40,8 @@ export default function PasswordResetByAdminTemplate({ name, link }: Props) {
                                 Hallo {name}, <br />
                                 <br />
                                 diese E-Mail wurde von einem Administrator gesendet, damit Sie Ihr Password zurücksetzen
-                                können.
-                                Bitte klicken Sie hierzu auf den Link unten. Aus Sicherheitsgründen ist dieser nur eine
-                                Stunde gültig.
+                                können. Bitte klicken Sie hierzu auf den Link unten. Aus Sicherheitsgründen ist dieser
+                                nur eine Stunde gültig.
                             </Text>
                         </Container>
                         <Container className="flex justify-center">
@@ -54,9 +53,7 @@ export default function PasswordResetByAdminTemplate({ name, link }: Props) {
                             </Button>
                         </Container>
                         <Container className="mt-8 px-4">
-                            <Text>
-                                Sollten Sie kein neues Password benötigen, kann diese E-Mail ignoriert werden.
-                            </Text>
+                            <Text>Sollten Sie kein neues Password benötigen, kann diese E-Mail ignoriert werden.</Text>
                         </Container>
                         <Container className="dark:text-muted-dark-foreground mb-8 flex flex-col gap-2 px-4 text-sm text-muted-foreground">
                             <Container>Sollte der Button nicht funktionieren, nutzen Sie folgenden Link:</Container>

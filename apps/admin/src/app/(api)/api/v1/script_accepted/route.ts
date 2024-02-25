@@ -1,8 +1,9 @@
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+
 import { getSensorIdFromSensorToken, updateNeedsScript } from "@energyleaf/db/query";
 import { ScriptAcceptedRequest, ScriptAcceptedResponse } from "@energyleaf/proto";
 import { parseReadableStream } from "@energyleaf/proto/util";
-import type { NextRequest} from "next/server";
-import { NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;
@@ -24,15 +25,21 @@ export const POST = async (req: NextRequest) => {
             return new NextResponse(ScriptAcceptedResponse.toBinary({ status: 204 }), { status: 204 });
         } catch (err) {
             if ((err as unknown as Error).message === "token/expired") {
-                return new NextResponse(ScriptAcceptedResponse.toBinary({ statusMessage: "Token expired", status: 401 }), {
-                    status: 401,
-                });
+                return new NextResponse(
+                    ScriptAcceptedResponse.toBinary({ statusMessage: "Token expired", status: 401 }),
+                    {
+                        status: 401,
+                    },
+                );
             }
 
             if ((err as unknown as Error).message === "token/invalid") {
-                return new NextResponse(ScriptAcceptedResponse.toBinary({ statusMessage: "Token invalid", status: 401 }), {
-                    status: 401,
-                });
+                return new NextResponse(
+                    ScriptAcceptedResponse.toBinary({ statusMessage: "Token invalid", status: 401 }),
+                    {
+                        status: 401,
+                    },
+                );
             }
 
             if ((err as unknown as Error).message === "token/notfound") {
@@ -62,4 +69,4 @@ export const POST = async (req: NextRequest) => {
             status: 400,
         });
     }
-}
+};
