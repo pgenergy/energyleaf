@@ -1,7 +1,8 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import type { z } from "zod";
+import {Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Spinner} from "../../ui";
+import {useForm} from "react-hook-form";
+import type {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {baseInformationSchema} from "@energyleaf/lib";
 
 import { baseInformationSchema } from "@energyleaf/lib";
 
@@ -55,7 +56,7 @@ export function UserBaseInformationForm({ username, email, changeIsPending, onSu
                 />
                 <div className="col-span-2 flex flex-row justify-end">
                     <Button disabled={changeIsPending} type="submit" value="username">
-                        {changeIsPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {changeIsPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                         Speichern
                     </Button>
                 </div>

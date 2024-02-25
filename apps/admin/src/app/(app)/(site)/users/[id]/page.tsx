@@ -32,8 +32,8 @@ export default async function UserDetailsPage({ params }: Props) {
                 <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
                     <UserActionsCard user={user} />
                 </Suspense>
-                <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
-                    <UserSensorsCard />
+                <Suspense fallback={<Skeleton className="h-[57rem] w-full"/>}>
+                    <UserSensorsCard userId={user.id}/>
                 </Suspense>
             </div>
         </UserDetailsContextProvider>
