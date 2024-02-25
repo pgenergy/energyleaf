@@ -1,5 +1,5 @@
 export interface PeakAssignment {
-    sensorId: string;
+    sensorId: string | number;
     device: number | undefined;
     timestamp: string;
 }

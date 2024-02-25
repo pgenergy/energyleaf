@@ -1,11 +1,10 @@
 "use client";
 
-import { useTransition } from "react";
+import React, { useTransition } from "react";
 import { updateUserDataInformation } from "@/actions/profile";
 import { userDataSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
-import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -28,7 +27,7 @@ import {
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue,
+    SelectValue, Spinner,
 } from "@energyleaf/ui";
 
 interface Props {
@@ -209,7 +208,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                         />
                         <div className="col-span-2 flex justify-end">
                             <Button disabled={isPending || disabled} type="submit">
-                                {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                                 Speichern
                             </Button>
                         </div>
