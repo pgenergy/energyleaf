@@ -49,12 +49,12 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
 
     const computeTimestampLabel = (aggregationParam) => {
         switch (aggregationParam) {
-            case AggregationType.YEAR: return ' (in Jahren)';
-            case AggregationType.MONTH: return ' (in Monaten)';
-            case AggregationType.WEEK: return ' (in Wochen)';
-            case AggregationType.DAY: return ' (in Tagen)';
-            case AggregationType.HOUR: return ' (in Stunden)';
-            default: return ' (Einheit nicht spezifiziert)';
+            case AggregationType.YEAR: return '(in Jahren)';
+            case AggregationType.MONTH: return '(in Monaten)';
+            case AggregationType.WEEK: return '(in Wochen)';
+            case AggregationType.DAY: return '(in Tagen)';
+            case AggregationType.HOUR: return '(in Stunden)';
+            default: return '(Einheit nicht spezifiziert)';
         }
     };
 
