@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
+import { DemoBanner } from "@/components/footer/demo-banner";
 import Footer from "@/components/footer/footer";
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
 import { getSession } from "@/lib/auth/auth";
-import { HomeIcon, LightbulbIcon, MicrowaveIcon, LineChartIcon } from "lucide-react";
+import { isDemoUser } from "@/lib/demo/demo";
+import { HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
 
 import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
 
@@ -34,6 +36,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     if (!session) {
         redirect("/");
     }
+
+    const isDemo = await isDemoUser();
+
     return (
         <>
             <Navbar
@@ -49,6 +54,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
             />
             <Sidebar links={navLinks} />
             <main className="ml-0 mt-14 px-8 py-8 md:ml-[13%]">{children}</main>
+            {isDemo ? <DemoBanner /> : null}
             <Footer />
         </>
     );

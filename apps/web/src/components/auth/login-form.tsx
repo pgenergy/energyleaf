@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 
 export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
@@ -31,8 +31,8 @@ export default function LoginForm() {
             toast.promise(signInAction(data.mail, data.password), {
                 loading: "Anmelden...",
                 success: "Erfolgreich angemeldet",
-                error: (err) => {
-                    setError((err as unknown as Error).message);
+                error: () => {
+                    setError("E-Mail oder Passwort ist falsch");
                     return "Fehler beim Anmelden";
                 },
             });
@@ -86,6 +86,18 @@ export default function LoginForm() {
                     </div>
                 </form>
             </Form>
+            <div className="mt-4 flex flex-col border-t border-border pt-4 text-sm text-muted-foreground">
+                <p>Sie können sich auch eine Demo ansehen mit einem Klick auf den Button unten.</p>
+                <Button
+                    className="text-sm"
+                    onClick={() => {
+                        onSubmit({ mail: "demo@energyleaf.de", password: "demo" });
+                    }}
+                    variant="link"
+                >
+                    Demo starten
+                </Button>
+            </div>
         </div>
     );
 }

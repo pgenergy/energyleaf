@@ -2,23 +2,31 @@
 
 import "server-only";
 
-import { isRedirectError } from "next/dist/client/components/redirect";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
 import { signIn, signOut } from "@/lib/auth/auth";
+import { isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import * as bcrypt from "bcryptjs";
 import * as jose from "jose";
+import { AuthError } from "next-auth";
 import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
 import { sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
+import {buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError} from "@energyleaf/lib";
+import {CallbackRouteError} from "@auth/core/errors";
 
 /**
  * Server action for creating a new account
  */
 export async function createAccount(data: z.infer<typeof signupSchema>) {
     const { mail, password, passwordRepeat, username } = data;
+
+    if (mail === "demo@energyleaf.de") {
+        throw new Error("Demo-Account kann nicht erstellt werden.");
+    }
 
     if (password !== passwordRepeat) {
         throw new Error("Passwörter stimmen nicht überein.");
@@ -55,22 +63,18 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
 export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
     const { mail } = data;
 
+    if (mail === "demo@energyleaf.de") {
+        throw new Error("Demo-Account kann nicht zurückgesetzt werden.");
+    }
+
     const user = await getUserByMail(mail);
     if (!user) {
         throw new Error("E-Mail wird nicht verwendet.");
     }
 
-    const token = await new jose.SignJWT()
-        .setSubject(user.id.toString())
-        .setIssuedAt()
-        .setExpirationTime("1h")
-        .setAudience("energyleaf")
-        .setIssuer("energyleaf")
-        .setNotBefore(new Date())
-        .setProtectedHeader({ alg: "HS256" })
-        .sign(Buffer.from(env.NEXTAUTH_SECRET, "hex"));
+    const token = await getResetPasswordToken({userId: user.id, secret: env.NEXTAUTH_SECRET});
+    const resetUrl = buildResetPasswordUrl({env, token});
 
-    const resetUrl = `https://${env.VERCEL_URL || env.NEXTAUTH_URL || 'energyleaf.de'}/reset?token=${token}`;
     try {
         await sendPasswordResetEmail({
             from: env.RESEND_API_MAIL,
@@ -129,18 +133,35 @@ export async function signInAction(email: string, password: string) {
             email,
             password,
         });
-    } catch (err: unknown) {
-        if (isRedirectError(err)) {
-            return redirect("/dashboard");
+    } catch (err) {
+        if (err instanceof AuthError) {
+            switch (err.type) {
+                case "CredentialsSignin":
+                    throw new Error("E-Mail oder Passwort falsch");
+                default:
+                    throw new Error("Fehler beim Anmelden");
+            }
         }
 
-        throw new Error("Benutername oder Passwort falsch.");
+        if (err instanceof CallbackRouteError && err.cause?.err instanceof UserNotActiveError) {
+            throw new Error("Benutzer ist nicht aktiv. Bitte wenden Sie sich an einen Administrator.");
+        }
+
+        throw err;
     }
+
+    redirect("/dashboard");
 }
 
 /**
  * Server action to sign a user out
  */
 export async function signOutAction() {
+    if (await isDemoUser()) {
+        const cookieStore = cookies();
+        cookieStore.delete("demo_devices");
+        cookieStore.delete("demo_peaks");
+    }
+
     await signOut();
 }

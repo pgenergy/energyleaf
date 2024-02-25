@@ -1,6 +1,7 @@
 "use client";
 
-import { type ColumnDef } from "@tanstack/react-table";
+import { DeviceCategory } from "@/lib/schema/device";
+import type { ColumnDef } from "@tanstack/react-table";
 import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
@@ -13,6 +14,7 @@ export interface DeviceTableType {
     name: string;
     created: Date | null;
     averageConsumption: number;
+    category: string;
 }
 
 export const devicesColumns: ColumnDef<DeviceTableType>[] = [
@@ -73,23 +75,29 @@ export const devicesColumns: ColumnDef<DeviceTableType>[] = [
         header: () => "Durchschn. Verbrauch",
         cell: ({ row }) => {
             const consumptionValue = row.getValue("averageConsumption");
-            const consumption = typeof consumptionValue === 'number' ? consumptionValue.toString() : consumptionValue;
-            
+            const consumption = typeof consumptionValue === "number" ? consumptionValue.toString() : consumptionValue;
+
             if (consumption) {
                 const formattedConsumption = `${Number(consumption).toLocaleString("de-DE", {
-                    minimumFractionDigits: 2, 
-                    maximumFractionDigits: 2 
-                })} kWh`;               
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                })} kWh`;
                 return <span>{formattedConsumption}</span>;
             }
             return <span>N/A</span>;
         },
     },
     {
-        id: "actions",
+        accessorKey: "category",
+        header: "Kategorie",
         cell: ({ row }) => {
-            const device = row.original;
-            return <DeviceActionCell device={device} />;
+            const categoryKey = row.getValue("category");
+            const categoryValue = DeviceCategory[categoryKey as keyof typeof DeviceCategory];
+            return categoryValue;
         },
+    },
+    {
+        id: "actions",
+        cell: ({ row }) => <DeviceActionCell device={row.original} />,
     },
 ];

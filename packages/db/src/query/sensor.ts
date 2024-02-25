@@ -1,9 +1,9 @@
-import { and, between, eq, or, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
-
+import {and, between, eq, or, sql} from "drizzle-orm";
+import {peaks, sensor, sensorData, sensorHistory, sensorToken, SensorType, user, userData} from "../schema";
+import {nanoid} from "nanoid";
 import db from "..";
-import { peaks, sensor, sensorData, sensorToken, userData } from "../schema";
-import { AggregationType } from "../types/types";
+import {AggregationType} from "../types/types";
+import {SensorAlreadyExistsError} from "@energyleaf/lib";
 
 /**
  * Get the energy consumption for a sensor in a given time range
@@ -197,6 +197,34 @@ function sensorDataTimeFilter(start: Date, end: Date) {
         eq(sensorData.timestamp, end),
     );
 }
+
+/**
+ * Get the sensorId for a user where sensor_type is 'electricity'
+ */
+export async function getElectricitySensorIdForUser(userId: number) {
+    return await db.transaction(async (trx) => {
+        const query = await trx
+            .select()
+            .from(sensor)
+            .where(and(eq(sensor.userId, userId), eq(sensor.sensorType, SensorType.Electricity)));
+
+        if (query.length > 0) {
+            return query[0].id;
+        }
+
+        // User has no sensor in sensor table? Then check the sensor_history table
+        const history = await trx
+            .select()
+            .from(sensorHistory)
+            .where(and(eq(sensorHistory.userId, userId), eq(sensorHistory.sensorType, SensorType.Electricity)));
+        if (history.length === 0) {
+            return null;
+        }
+
+        return history[0].sensorId;
+    });
+}
+
 /**
  * Insert sensor data
  */
@@ -221,22 +249,73 @@ export async function insertSensorData(data: { sensorId: string; value: number }
     }
 }
 
-/**
- * Get the sensorId for a user where sensor_type is 'electricity'
- */
-export async function getElectricitySensorIdForUser(userId: number) {
-    const query = await db
-        .select()
-        .from(sensor)
-        .where(and(eq(sensor.userId, userId), eq(sensor.sensor_type, "electricity")));
+export type Sensor = {
+    id: string;
+    clientId: string;
+    version: number;
+    sensorType: SensorType;
+    userId: number | null;
+}
 
-    if (query.length === 0) {
-        return null;
-    }
+export type User = {
+    id: number;
+    created: Date | null;
+    email: string;
+    username: string;
+    password: string;
+    isAdmin: boolean;
+    isActive: boolean;
+}
 
-    const sensorId = query[0].id;
+export type SensorWithUser = {
+    sensor: Sensor;
+    user: User | null;
+}
+export async function getSensorsWithUser(): Promise<SensorWithUser[]> {
+    return db.select().from(sensor).leftJoin(user, eq(user.id, sensor.userId));
+}
 
-    return sensorId;
+export async function getSensorsByUser(userId: number) {
+    return db.select().from(sensor).where(eq(sensor.userId, userId));
+}
+
+export interface CreateSensorType {
+    macAddress: string;
+    sensorType: SensorType;
+}
+
+export async function createSensor(createSensorType: CreateSensorType) : Promise<void> {
+    await db.transaction(async (trx) => {
+        const sensorsWithSameMacAddress = await trx.select()
+            .from(sensor)
+            .where(eq(sensor.clientId, createSensorType.macAddress));
+        if (sensorsWithSameMacAddress.length > 0) {
+            throw new SensorAlreadyExistsError(createSensorType.macAddress);
+        }
+
+        await trx.insert(sensor).values({
+            clientId: createSensorType.macAddress,
+            sensorType: createSensorType.sensorType,
+            id: nanoid(30),
+            version: 1
+        });
+    });
+}
+
+export async function sensorExists(macAddress: string): Promise<boolean> {
+    const query = await db.select().from(sensor).where(eq(sensor.clientId, macAddress));
+    return query.length > 0;
+}
+
+export async function deleteSensor(sensorId: string) {
+    await db.transaction(async (trx) => {
+        const sensors = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
+        if (sensors.length === 0) {
+            throw new Error("Sensor not found");
+        }
+
+        await trx.delete(sensor).where(eq(sensor.id, sensorId));
+    })
 }
 
 /**
@@ -302,6 +381,44 @@ export async function getSensorIdFromSensorToken(code: string) {
     });
 }
 
+export async function assignSensorToUser(clientId: string, userId: number | null) {
+    await db.transaction(async (trx) => {
+        const query = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
+        if (query.length === 0) {
+            throw new Error("sensor/not-found");
+        }
+
+        const currentSensor = query[0];
+        if (currentSensor.userId) {
+            // Safe in history table so that the previous user can still see his data
+            const contains = await trx.select().from(sensorHistory)
+                .where(and(eq(sensorHistory.userId, currentSensor.userId), eq(sensorHistory.clientId, currentSensor.clientId)));
+            if (contains.length === 0) {
+                await trx.insert(sensorHistory).values({
+                    sensorId: currentSensor.id,
+                    userId: currentSensor.userId,
+                    sensorType: currentSensor.sensorType,
+                    clientId: currentSensor.clientId,
+                });
+            }
+        }
+
+        let newId = nanoid(30);
+        if (userId) {
+            // Restore the previous sensor ID of the user
+            const historyQuery = await trx.select().from(sensorHistory)
+                .where(and(eq(sensorHistory.userId, userId), eq(sensorHistory.clientId, currentSensor.clientId)));
+            if (historyQuery.length > 0) {
+                newId = historyQuery[0].sensorId;
+            }
+        }
+
+        await trx.update(sensor)
+            .set({userId: userId, id: newId})
+            .where(eq(sensor.clientId, clientId));
+    });
+}
+
 /**
  * Get the average energy consumption per device
  */
@@ -309,13 +426,15 @@ export async function getAverageConsumptionPerDevice() {
     const result = await db
         .select({
             deviceId: peaks.deviceId,
-            averageConsumption: sql<number>`AVG(${sensorData.value})`
+            averageConsumption: sql<number>`AVG(${sensorData.value})`,
         })
         .from(peaks)
-        .innerJoin(sensorData, sql`${peaks.sensorId} = ${sensorData.sensorId} AND ${peaks.timestamp} = ${sensorData.timestamp}`)
+        .innerJoin(
+            sensorData,
+            sql`${peaks.sensorId} = ${sensorData.sensorId} AND ${peaks.timestamp} = ${sensorData.timestamp}`,
+        )
         .groupBy(peaks.deviceId)
         .execute();
 
     return result;
 }
-

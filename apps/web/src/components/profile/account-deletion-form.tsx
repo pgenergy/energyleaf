@@ -6,7 +6,6 @@ import { deleteAccount } from "@/actions/profile";
 import { deleteAccountSchema } from "@/lib/schema/profile";
 import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -28,14 +27,14 @@ import {
     FormField,
     FormItem,
     FormMessage,
-    Input,
+    Input, Spinner,
 } from "@energyleaf/ui";
 
 interface Props {
-    id: string;
+    disabled?: boolean;
 }
 
-export default function AccountDeletionForm({ id }: Props) {
+export default function AccountDeletionForm({ disabled }: Props) {
     const [isPending, startTransition] = useTransition();
     const [open, setOpen] = useState(false);
     const form = useForm<z.infer<typeof deleteAccountSchema>>({
@@ -48,9 +47,12 @@ export default function AccountDeletionForm({ id }: Props) {
     function onSubmit(data: z.infer<typeof deleteAccountSchema>) {
         startTransition(() => {
             setOpen(false);
+            if (disabled) {
+                return;
+            }
             toast.promise(
                 async () => {
-                    await deleteAccount(data, id);
+                    await deleteAccount(data);
                     await signOutAction();
                 },
                 {
@@ -79,12 +81,15 @@ export default function AccountDeletionForm({ id }: Props) {
                     <Button
                         disabled={isPending}
                         onClick={() => {
+                            if (disabled) {
+                                return;
+                            }
                             setOpen(true);
                         }}
                         type="button"
                         variant="destructive"
                     >
-                        {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                         Account löschen
                     </Button>
                 </div>
@@ -106,7 +111,12 @@ export default function AccountDeletionForm({ id }: Props) {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
-                                                <Input placeholder="Passwort" type="password" {...field} />
+                                                <Input
+                                                    placeholder="Passwort"
+                                                    type="password"
+                                                    {...field}
+                                                    disabled={disabled}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -121,11 +131,11 @@ export default function AccountDeletionForm({ id }: Props) {
                                         type="button"
                                         variant="outline"
                                     >
-                                        {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                        {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                                         Abbrechen
                                     </Button>
-                                    <Button disabled={isPending} type="submit" variant="destructive">
-                                        {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                    <Button disabled={isPending || disabled} type="submit" variant="destructive">
+                                        {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                                         Löschen
                                     </Button>
                                 </div>

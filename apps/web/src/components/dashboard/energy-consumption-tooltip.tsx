@@ -72,7 +72,7 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <p className="text-sm">
-                    <span className="font-bold">Verbrauch:</span> {energy} {computeTimestampLabel(aggregation)}
+                    <span className="font-bold">Verbrauch:</span> {energy.toFixed(2)} {computeTimestampLabel(aggregation)}
                 </p>
             </CardContent>
         </Card>

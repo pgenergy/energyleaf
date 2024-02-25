@@ -45,7 +45,7 @@ export default async function AvgEnergyConsumptionComparisonCard() {
                 {avg && avgUser ? (
                     <p className="text-center text-2xl text-primary">
                         <span className="font-bold">Durchschnitt: </span>
-                        {avg.avg} Wh
+                        {avg.avg.toFixed(2)} Wh
                     </p>
                 ) : (
                     <p className="text-center text-muted-foreground">Keine Daten vorhanden</p>

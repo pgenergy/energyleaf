@@ -7,10 +7,17 @@
         ".": "./src/index.ts",
         "./errors/auth": "./src/errors/auth-errors.ts"
     },
+    "scripts": {
+        "clean": "git clean -xdf node_modules"
+    },
     "devDependencies": {
+        "@energyleaf/eslint-config": "workspace:^",
+        "@energyleaf/tsconfig": "workspace:^",
         "eslint": "^8.56.0",
         "typescript": "^5.3.3",
-        "@energyleaf/eslint-config": "workspace:^",
-        "@energyleaf/tsconfig": "workspace:^"
+        "@types/node": "^20.11.17"
+    },
+    "dependencies": {
+        "jose": "^5.2.1"
     }
 }

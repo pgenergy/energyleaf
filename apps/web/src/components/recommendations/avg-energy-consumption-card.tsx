@@ -38,7 +38,7 @@ export default async function AvgEnergyConsumptionCard() {
             </CardHeader>
             <CardContent>
                 {avg ? (
-                    <h1 className="text-center text-2xl font-bold text-primary">{avg} Wh</h1>
+                    <h1 className="text-center text-2xl font-bold text-primary">{avg.toFixed(2)} Wh</h1>
                 ) : (
                     <p className="text-center text-muted-foreground">Keine Daten vorhanden</p>
                 )}

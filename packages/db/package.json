@@ -12,7 +12,8 @@
     },
     "scripts": {
         "push": "drizzle-kit push:mysql",
-        "studio": "drizzle-kit studio"
+        "studio": "drizzle-kit studio",
+        "clean": "git clean -xdf node_modules"
     },
     "dependencies": {
         "@energyleaf/lib": "workspace:^",

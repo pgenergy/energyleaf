@@ -11,7 +11,8 @@
         "./util": "./util/util.ts"
     },
     "scripts": {
-        "compile": "protoc --ts_out ./lib --proto_path protos protos/*.proto"
+        "compile": "protoc --ts_out ./lib --proto_path protos protos/*.proto",
+        "clean": "git clean -xdf node_modules"
     },
     "license": "ISC",
     "dependencies": {
