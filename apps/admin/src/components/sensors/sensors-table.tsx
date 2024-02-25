@@ -3,23 +3,21 @@ import { getSensors } from "@/actions/sensors";
 import type { SensorOverviewTableType } from "@/components/sensors/table/sensors-columns";
 import { sensorsOverviewColumns } from "@/components/sensors/table/sensors-columns";
 
-import type { SensorWithUser } from "@energyleaf/db/query";
+import type { SensorSelectTypeWithUser } from "@energyleaf/db/util";
 import { DataTable } from "@energyleaf/ui";
 
-function mapSensor(sensorWithUser: SensorWithUser): SensorOverviewTableType {
+function mapSensor(sensorWithUser: SensorSelectTypeWithUser): SensorOverviewTableType {
     const { sensor, user } = sensorWithUser;
 
     return {
-        id: sensor.id,
-        clientId: sensor.clientId,
-        type: sensor.sensorType,
-        user_name: user?.username,
-        user_id: user?.id,
+        ...sensor,
+        user_name: user ? user.username : undefined,
+        user_id: user ? user.id : undefined,
     };
 }
 
 export default async function SensorsTable() {
-    const sensors: SensorWithUser[] = await getSensors();
-    const data = sensors.map((sensor: SensorWithUser) => mapSensor(sensor));
+    const sensors: SensorSelectTypeWithUser[] = await getSensors();
+    const data = sensors.map((sensor: SensorSelectTypeWithUser) => mapSensor(sensor));
     return <DataTable columns={sensorsOverviewColumns} data={data} />;
 }

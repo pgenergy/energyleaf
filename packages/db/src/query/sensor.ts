@@ -1,11 +1,10 @@
 import { and, between, desc, eq, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
-import { SensorAlreadyExistsError } from "@energyleaf/lib";
-
 import db from "../";
-import { peaks, sensor, sensorData, sensorHistory, sensorToken, SensorType, user, userData } from "../schema";
-import { AggregationType } from "../types/types";
+import { peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
+import { AggregationType, SensorInsertType, SensorSelectType, SensorSelectTypeWithUser, SensorType, UserDataSelectType, UserSelectType } from "../types/types";
+import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 
 /**
  * Get the energy consumption for a sensor in a given time range
@@ -295,29 +294,7 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
     }
 }
 
-export type Sensor = {
-    id: string;
-    clientId: string;
-    version: number;
-    sensorType: SensorType;
-    userId: number | null;
-};
-
-export type User = {
-    id: number;
-    created: Date | null;
-    email: string;
-    username: string;
-    password: string;
-    isAdmin: boolean;
-    isActive: boolean;
-};
-
-export type SensorWithUser = {
-    sensor: Sensor;
-    user: User | null;
-};
-export async function getSensorsWithUser(): Promise<SensorWithUser[]> {
+export async function getSensorsWithUser(): Promise<SensorSelectTypeWithUser[]> {
     return db.select().from(sensor).leftJoin(user, eq(user.id, sensor.userId));
 }
 
@@ -325,10 +302,11 @@ export async function getSensorsByUser(userId: number) {
     return db.select().from(sensor).where(eq(sensor.userId, userId));
 }
 
-export interface CreateSensorType {
+type CreateSensorType = {
     macAddress: string;
     sensorType: SensorType;
-}
+    script?: string;
+};
 
 export async function createSensor(createSensorType: CreateSensorType): Promise<void> {
     await db.transaction(async (trx) => {
@@ -345,7 +323,27 @@ export async function createSensor(createSensorType: CreateSensorType): Promise<
             sensorType: createSensorType.sensorType,
             id: nanoid(30),
             version: 1,
+            script: createSensorType.script,
+            needsScript: createSensorType.script ? true : false,
         });
+    });
+}
+
+/**
+ * Update the sensor data
+ */
+export async function updateSensor(sensorId: string, data: Partial<SensorInsertType>) {
+    return db.transaction(async (trx) => {
+        const sensors = await trx.select().from(sensor).where(eq(sensor.id, sensorId));
+        if (sensors.length === 0) {
+            throw new Error("Sensor not found");
+        }
+
+        if (data.script) {
+            data.needsScript = true;
+        }
+        
+        await trx.update(sensor).set({ ...data }).where(eq(sensor.id, sensorId));
     });
 }
 

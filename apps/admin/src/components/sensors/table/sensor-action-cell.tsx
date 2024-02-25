@@ -1,9 +1,9 @@
 "use client";
 
-import type { SensorTableType } from "@/components/sensors/table/sensors-columns";
 import { useSensorContext } from "@/hooks/sensor-hook";
-import { MoreVerticalIcon, TrashIcon } from "lucide-react";
+import { Edit2Icon, MoreVerticalIcon, TrashIcon } from "lucide-react";
 
+import type { SensorSelectType } from "@energyleaf/db/util";
 import {
     Button,
     DropdownMenu,
@@ -15,7 +15,7 @@ import {
 } from "@energyleaf/ui";
 
 interface Props {
-    sensor: SensorTableType;
+    sensor: SensorSelectType;
 }
 
 export default function SensorActionCell({ sensor }: Props) {
@@ -24,6 +24,11 @@ export default function SensorActionCell({ sensor }: Props) {
     function openDeleteDialog() {
         sensorContext.setSensor(sensor);
         sensorContext.setDeleteDialogOpen(true);
+    }
+
+    function openEditDialog() {
+        sensorContext.setSensor(sensor);
+        sensorContext.setEditDialogOpen(true);
     }
 
     return (
@@ -35,6 +40,11 @@ export default function SensorActionCell({ sensor }: Props) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Aktionen</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="flex cursor-pointer flex-row gap-2" onClick={openEditDialog}>
+                    <Edit2Icon className="h-4 w-4" />
+                    Bearbeiten
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                     className="flex cursor-pointer flex-row gap-2 text-destructive"

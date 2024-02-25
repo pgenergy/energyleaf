@@ -11,11 +11,8 @@ import {
     varchar,
 } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
+import { SensorType } from "../types/types";
 
-export enum SensorType {
-    Electricity = "electricity",
-    Gas = "gas",
-}
 
 const sensorTypes = [SensorType.Electricity, SensorType.Gas] as const;
 

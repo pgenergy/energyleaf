@@ -6,26 +6,16 @@ import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
 import { type ColumnDef } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
-import { SensorType } from "@energyleaf/db/schema";
+import type { SensorSelectType } from "@energyleaf/db/util";
+import { SensorTypeMap } from "@energyleaf/db/util";
 import { Button } from "@energyleaf/ui";
 
-export interface SensorTableType {
-    id: string;
-    clientId: string;
-    type: SensorType;
-}
-
-export interface SensorOverviewTableType extends SensorTableType {
+export interface SensorOverviewTableType extends SensorSelectType {
     user_name: string | undefined;
     user_id: number | undefined;
 }
 
-const sensorTypeDescriptions: { [key in SensorType]: string } = {
-    [SensorType.Electricity]: "Strom",
-    [SensorType.Gas]: "Gas",
-};
-
-export const sensorsColumns: ColumnDef<SensorTableType>[] = [
+export const sensorsColumns: ColumnDef<SensorSelectType>[] = [
     {
         accessorKey: "clientId",
         header: ({ column }) => {
@@ -69,8 +59,8 @@ export const sensorsColumns: ColumnDef<SensorTableType>[] = [
             );
         },
         cell: ({ row }) => {
-            const sensorType: SensorType = row.original.type;
-            const value = sensorTypeDescriptions[sensorType];
+            const sensorType = row.original.sensorType;
+            const value = SensorTypeMap[sensorType];
             if (!value) {
                 return null;
             }
