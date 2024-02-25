@@ -83,6 +83,28 @@ export interface SensorDataResponse {
     statusMessage?: string;
 }
 /**
+ * @generated from protobuf message ScriptAcceptedRequest
+ */
+export interface ScriptAcceptedRequest {
+    /**
+     * @generated from protobuf field: string access_token = 1;
+     */
+    accessToken: string;
+}
+/**
+ * @generated from protobuf message ScriptAcceptedResponse
+ */
+export interface ScriptAcceptedResponse {
+    /**
+     * @generated from protobuf field: uint32 status = 1;
+     */
+    status: number; // In range of 200-299 correct, else bad
+    /**
+     * @generated from protobuf field: optional string status_message = 2;
+     */
+    statusMessage?: string;
+}
+/**
  * @generated from protobuf enum SensorType
  */
 export enum SensorType {
@@ -357,3 +379,104 @@ class SensorDataResponse$Type extends MessageType<SensorDataResponse> {
  * @generated MessageType for protobuf message SensorDataResponse
  */
 export const SensorDataResponse = new SensorDataResponse$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ScriptAcceptedRequest$Type extends MessageType<ScriptAcceptedRequest> {
+    constructor() {
+        super("ScriptAcceptedRequest", [
+            { no: 1, name: "access_token", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ScriptAcceptedRequest>): ScriptAcceptedRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.accessToken = "";
+        if (value !== undefined)
+            reflectionMergePartial<ScriptAcceptedRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ScriptAcceptedRequest): ScriptAcceptedRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string access_token */ 1:
+                    message.accessToken = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ScriptAcceptedRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string access_token = 1; */
+        if (message.accessToken !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.accessToken);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ScriptAcceptedRequest
+ */
+export const ScriptAcceptedRequest = new ScriptAcceptedRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ScriptAcceptedResponse$Type extends MessageType<ScriptAcceptedResponse> {
+    constructor() {
+        super("ScriptAcceptedResponse", [
+            { no: 1, name: "status", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
+            { no: 2, name: "status_message", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ScriptAcceptedResponse>): ScriptAcceptedResponse {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.status = 0;
+        if (value !== undefined)
+            reflectionMergePartial<ScriptAcceptedResponse>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ScriptAcceptedResponse): ScriptAcceptedResponse {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* uint32 status */ 1:
+                    message.status = reader.uint32();
+                    break;
+                case /* optional string status_message */ 2:
+                    message.statusMessage = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ScriptAcceptedResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* uint32 status = 1; */
+        if (message.status !== 0)
+            writer.tag(1, WireType.Varint).uint32(message.status);
+        /* optional string status_message = 2; */
+        if (message.statusMessage !== undefined)
+            writer.tag(2, WireType.LengthDelimited).string(message.statusMessage);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message ScriptAcceptedResponse
+ */
+export const ScriptAcceptedResponse = new ScriptAcceptedResponse$Type();

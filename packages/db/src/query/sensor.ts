@@ -377,3 +377,15 @@ export async function getAverageConsumptionPerDevice() {
 
     return result;
 }
+
+/**
+ * Update the needsScript for a sensor
+ */
+export async function updateNeedsScript(sensorId: string, needsScript: boolean) {
+    return db
+        .update(sensor)
+        .set({
+            needsScript,
+        })
+        .where(eq(sensor.id, sensorId));
+}
