@@ -79,7 +79,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
                 tooltip={{
                     content: EnergyConsumptionTooltip,
                 }}
-                xAxes={{ dataKey: "timestamp", name: "Vergangene Zeit" + computeTimestampLabel(aggregation)}}
+                xAxes={{ dataKey: "timestamp", name: "Vergangene Zeit " + computeTimestampLabel(aggregation)}}
                 yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
             />
         </>
