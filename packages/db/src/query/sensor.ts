@@ -1,4 +1,4 @@
-import { and, between, desc, eq, getTableColumns, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import db from "../";
@@ -14,16 +14,9 @@ export async function getEnergyForSensorInRange(
     sensorId: string,
     aggregation = AggregationType.RAW,
 ) {
-    const { value, ...colums } = getTableColumns(sensorData);
     if (aggregation === AggregationType.RAW) {
         const query = await db
-            .select({
-                ...colums,
-                value: sql<number>`
-                    CASE WHEN lag(${sensorData.value}) OVER (PARTITION BY ${sensorData.id} ORDER BY ${sensorData.timestamp}) IS NULL THEN 0
-                        ELSE ${sensorData.value} - lag(${sensorData.value}) OVER (PARTITION BY ${sensorData.id} ORDER BY ${sensorData.timestamp})
-                    END AS value`,
-            })
+            .select()
             .from(sensorData)
             .where(
                 and(
@@ -37,10 +30,21 @@ export async function getEnergyForSensorInRange(
             )
             .orderBy(sensorData.timestamp);
 
-        return query.map((row, index) => ({
-            ...row,
-            id: index,
-        }));
+        return query.map((row, index) => {
+            if (index === 0) {
+                return {
+                    ...row,
+                    id: index,
+                    value: Number(0),
+                };
+            }
+
+            return {
+                ...row,
+                id: index,
+                value: Number(row.value) - Number(query[index - 1].value),
+            };
+        });
     }
 
     let grouper = sql<string | number>`EXTRACT(hour FROM ${sensorData.timestamp})`;
@@ -65,15 +69,10 @@ export async function getEnergyForSensorInRange(
             break;
     }
 
-    let valueQuery = sql<number>`AVG(
-        CASE WHEN lag(${sensorData.value}) OVER (PARTITION BY ${sensorData.id}, ${grouper}, ${timestamp} ORDER BY ${grouper}) IS NULL THEN 0
-            ELSE ${sensorData.value} - lag(${sensorData.value}) OVER (PARTITION BY ${sensorData.id}, ${grouper}, ${timestamp} ORDER BY ${grouper})
-        END) AS value`;
-
     const query = await db
         .select({
             sensorId: sensorData.sensorId,
-            value: valueQuery,
+            value: sql<string>`AVG(${sensorData.value})`,
             timestamp: timestamp,
             grouper: grouper,
         })
@@ -91,12 +90,21 @@ export async function getEnergyForSensorInRange(
         .groupBy(grouper, timestamp)
         .orderBy(grouper);
 
-    return query.map((row, index) => ({
-        id: index,
-        timestamp: row.timestamp as Date | null,
-        value: Number(row.value),
-        sensorId: row.sensorId as string | null,
-    }));
+    return query.map((row, index) => {
+        if (index === 0) {
+            return {
+                ...row,
+                id: index,
+                value: Number(0),
+            };
+        }
+
+        return {
+            ...row,
+            id: index,
+            value: Number(row.value) - Number(query[index - 1].value),
+        };
+    });
 }
 
 /**
