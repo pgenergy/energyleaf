@@ -13,6 +13,7 @@ import {
     Button,
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -124,7 +125,8 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                     name="script"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Gerät</FormLabel>
+                            <FormLabel>Skript</FormLabel>
+                            <FormDescription>Dieses Skript ist optional</FormDescription>
                             <FormControl>
                                 <Textarea {...field} />
                             </FormControl>
