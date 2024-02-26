@@ -6,13 +6,13 @@ import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
 import { type ColumnDef } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
-import type { SensorSelectType, SensorSelectTypeWithUser } from "@energyleaf/db/util";
+import type { SensorSelectTypeWithUser } from "@energyleaf/db/util";
 import { SensorTypeMap } from "@energyleaf/db/util";
 import { Button } from "@energyleaf/ui";
 
-export const sensorsColumns: ColumnDef<SensorSelectType>[] = [
+export const sensorsColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
     {
-        accessorKey: "clientId",
+        accessorKey: "sensor.clientId",
         header: ({ column }) => {
             return (
                 <Button
@@ -31,11 +31,12 @@ export const sensorsColumns: ColumnDef<SensorSelectType>[] = [
             );
         },
         cell: ({ row }) => {
-            return <span>{row.getValue("clientId")}</span>;
+            const clientId = row.original.sensor.clientId;
+            return <span>{clientId}</span>;
         },
     },
     {
-        accessorKey: "type",
+        accessorKey: "sensor.sensorType",
         header: ({ column }) => {
             return (
                 <Button
@@ -54,7 +55,7 @@ export const sensorsColumns: ColumnDef<SensorSelectType>[] = [
             );
         },
         cell: ({ row }) => {
-            const sensorType = row.original.sensorType;
+            const sensorType = row.original.sensor.sensorType;
             const value = SensorTypeMap[sensorType];
             if (!value) {
                 return null;
@@ -65,9 +66,9 @@ export const sensorsColumns: ColumnDef<SensorSelectType>[] = [
 ];
 
 export const sensorsOverviewColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
-    ...sensorsColumns.map((def) => def as ColumnDef<SensorSelectTypeWithUser>),
+    ...sensorsColumns,
     {
-        accessorKey: "user_name",
+        accessorKey: "user.username",
         header: ({ column }) => {
             return (
                 <Button

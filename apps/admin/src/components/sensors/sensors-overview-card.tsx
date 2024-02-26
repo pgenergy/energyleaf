@@ -6,12 +6,14 @@ import SensorsTable from "@/components/sensors/sensors-table";
 import { SensorContextProvider } from "@/hooks/sensor-hook";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import SensorEditDialog from "./sensor-edit-dialog";
 
 export default function SensorsOverviewCard() {
     return (
         <SensorContextProvider>
             <SensorAddDialog />
             <SensorDeleteDialog />
+            <SensorEditDialog />
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Sensoren</CardTitle>

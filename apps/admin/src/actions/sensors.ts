@@ -38,7 +38,7 @@ export async function createSensor(macAddress: string, sensorType: SensorType, s
 export async function updateSensor(sensorId: string, data: Partial<SensorInsertType>) {
     await checkIfAdmin();
     if (data.script === "") {
-        data.script = undefined;
+        data.script = null;
     }
     try {
         await updateSensorDb(sensorId, data);

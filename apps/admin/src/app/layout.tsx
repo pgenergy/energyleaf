@@ -9,7 +9,7 @@ export const revalidate = 0;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="de">
+        <html lang="de" suppressHydrationWarning>
             <head />
             <body>{children}</body>
         </html>
