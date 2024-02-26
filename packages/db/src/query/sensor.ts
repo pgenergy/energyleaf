@@ -8,11 +8,8 @@ import { peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData }
 import {
     AggregationType,
     SensorInsertType,
-    SensorSelectType,
     SensorSelectTypeWithUser,
     SensorType,
-    UserDataSelectType,
-    UserSelectType,
 } from "../types/types";
 
 /**

@@ -22,7 +22,7 @@ export const sensor = mysqlTable("sensor", {
     version: int("version").default(1).notNull(),
     sensorType: mysqlEnum("sensor_type", sensorTypes).notNull(),
     userId: int("user_id"),
-    needsScript: boolean("needs_script").default(true).notNull(),
+    needsScript: boolean("needs_script").default(false).notNull(),
     script: varchar("script", { length: 255 }),
 });
 
