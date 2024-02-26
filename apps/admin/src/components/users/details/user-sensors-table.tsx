@@ -10,5 +10,9 @@ interface Props {
 
 export default async function UserSensorsTable({ userId }: Props) {
     const sensors = await getSensorsByUser(userId);
-    return <DataTable columns={sensorsColumns} data={sensors} />;
+    const data = sensors.map((sensor) => ({
+        sensor,
+        user: null,
+    }));
+    return <DataTable columns={sensorsColumns} data={data} />;
 }
