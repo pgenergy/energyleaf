@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
-import type {UserTableType} from "@/components/users/table/users-table-columns";
+import type { UserTableType } from "@/components/users/table/users-table-columns";
 
 export type UserContextType = {
     deleteDialogOpen: boolean;
@@ -26,7 +26,7 @@ export function UserContextProvider({ children }: Props) {
                 deleteDialogOpen,
                 setDeleteDialogOpen,
                 user,
-                setUser
+                setUser,
             }}
         >
             {children}

@@ -1,5 +1,9 @@
 "use client";
 
+import { useTransition } from "react";
+import { deleteUser } from "@/actions/user";
+import { toast } from "sonner";
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -10,20 +14,19 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@energyleaf/ui";
-import {useTransition} from "react";
-import {toast} from "sonner";
-import {deleteUser} from "@/actions/user";
 
 interface Props {
     context: {
-        user: {
-            id: number;
-            username: string;
-        } | undefined;
-        setUser: (user: { id: number; username: string; } | undefined) => void;
+        user:
+            | {
+                  id: number;
+                  username: string;
+              }
+            | undefined;
+        setUser: (user: { id: number; username: string } | undefined) => void;
         deleteDialogOpen: boolean;
         setDeleteDialogOpen: (open: boolean) => void;
-    }
+    };
     onSuccess?: () => void;
 }
 
@@ -43,16 +46,14 @@ export function UserDeleteDialog({ context, onSuccess }: Props) {
 
     function deleteUserAction() {
         startTransition(() => {
-            toast.promise(
-                deleteUser(user.id),
-                {
-                    loading: "Nutzer wird gelöscht...",
-                    success: () =>{
-                        onSuccess?.();
-                        return "Nutzer wurde erfolgreich gelöscht."
-                    },
-                    error: "Nutzer konnte aufgrund eines Fehlers nicht gelöscht werden.",
-                })
+            toast.promise(deleteUser(user.id), {
+                loading: "Nutzer wird gelöscht...",
+                success: () => {
+                    onSuccess?.();
+                    return "Nutzer wurde erfolgreich gelöscht.";
+                },
+                error: "Nutzer konnte aufgrund eines Fehlers nicht gelöscht werden.",
+            });
         });
     }
 

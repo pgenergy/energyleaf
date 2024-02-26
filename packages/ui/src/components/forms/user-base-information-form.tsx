@@ -1,8 +1,10 @@
-import {Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Spinner} from "../../ui";
-import {useForm} from "react-hook-form";
-import type {z} from "zod";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {baseInformationSchema} from "@energyleaf/lib";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+
+import { baseInformationSchema } from "@energyleaf/lib";
+
+import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Spinner } from "../../ui";
 
 interface Props {
     username: string;
@@ -21,7 +23,7 @@ export function UserBaseInformationForm({ username, email, changeIsPending, onSu
         },
     });
 
-    return(
+    return (
         <Form {...form}>
             <form className="grid grid-cols-2 gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
@@ -58,5 +60,5 @@ export function UserBaseInformationForm({ username, email, changeIsPending, onSu
                 </div>
             </form>
         </Form>
-    )
+    );
 }

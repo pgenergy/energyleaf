@@ -5,22 +5,25 @@ import { useSensorContext } from "@/hooks/sensor-hook";
 
 import { Dialog, DialogContent, DialogHeader } from "@energyleaf/ui";
 
-export default function SensorAddDialog() {
+export default function SensorEditDialog() {
     const sensorContext = useSensorContext();
 
     return (
         <Dialog
             onOpenChange={(value) => {
-                sensorContext.setAddDialogOpen(value);
+                sensorContext.setEditDialogOpen(value);
+                sensorContext.setSensor(undefined);
             }}
-            open={sensorContext.addDialogOpen}
+            open={sensorContext.editDialogOpen}
         >
             <DialogContent>
-                <DialogHeader>Sensor hinzufügen</DialogHeader>
+                <DialogHeader>Sensor bearbeiten</DialogHeader>
                 <SensorDetailsForm
                     onCallback={() => {
-                        sensorContext.setAddDialogOpen(false);
+                        sensorContext.setEditDialogOpen(false);
+                        sensorContext.setSensor(undefined);
                     }}
+                    sensor={sensorContext.sensor}
                 />
             </DialogContent>
         </Dialog>

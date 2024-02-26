@@ -1,16 +1,19 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import React from "react";
-import SensorsTable from "@/components/sensors/sensors-table";
 import SensorAddButton from "@/components/sensors/sensor-add-button";
-import {SensorContextProvider} from "@/hooks/sensor-hook";
 import SensorAddDialog from "@/components/sensors/sensor-add-dialog";
-import {SensorDeleteDialog} from "@/components/sensors/sensor-delete-dialog";
+import { SensorDeleteDialog } from "@/components/sensors/sensor-delete-dialog";
+import SensorsTable from "@/components/sensors/sensors-table";
+import { SensorContextProvider } from "@/hooks/sensor-hook";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import SensorEditDialog from "./sensor-edit-dialog";
 
 export default function SensorsOverviewCard() {
     return (
         <SensorContextProvider>
-            <SensorAddDialog/>
-            <SensorDeleteDialog/>
+            <SensorAddDialog />
+            <SensorDeleteDialog />
+            <SensorEditDialog />
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Sensoren</CardTitle>
@@ -18,9 +21,9 @@ export default function SensorsOverviewCard() {
                 </CardHeader>
                 <CardContent>
                     <div className="flex justify-end">
-                        <SensorAddButton/>
+                        <SensorAddButton />
                     </div>
-                    <SensorsTable/>
+                    <SensorsTable />
                 </CardContent>
             </Card>
         </SensorContextProvider>

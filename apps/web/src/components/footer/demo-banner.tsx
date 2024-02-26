@@ -1,12 +1,12 @@
 "use client";
 
 import { useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
 import { toast } from "sonner";
 
 import { Button } from "@energyleaf/ui";
-import Link from "next/link";
 
 export function DemoBanner() {
     const [pending, startTransition] = useTransition();
@@ -30,7 +30,7 @@ export function DemoBanner() {
             <div className="flex flex-row items-center justify-center gap-2 text-sm">
                 <p>Derzeit ist der Demo Modus aktiv</p>
                 <Button
-                    className="text-primary-foreground underline hover:text-primary-foreground hover:no-underline text-sm"
+                    className="text-sm text-primary-foreground underline hover:text-primary-foreground hover:no-underline"
                     disabled={pending}
                     onClick={() => {
                         signOut();
@@ -42,7 +42,11 @@ export function DemoBanner() {
             </div>
             <div className="flex flex-row items-center justify-center gap-2">
                 <p>Haben Sie interesse? Dann füllen sie folgendes Formular aus</p>
-                <Link className="text-primary-foreground underline hover:no-underline" href="https://forms.gle/rCLGkkNQoJQ51a7SA" target="_blank">
+                <Link
+                    className="text-primary-foreground underline hover:no-underline"
+                    href="https://forms.gle/rCLGkkNQoJQ51a7SA"
+                    target="_blank"
+                >
                     Zum Formular
                 </Link>
             </div>

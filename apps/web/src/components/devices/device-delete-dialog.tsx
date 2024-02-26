@@ -15,6 +15,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
+    buttonVariants,
 } from "@energyleaf/ui";
 
 export function DeviceDeleteDialog() {
@@ -69,7 +70,7 @@ export function DeviceDeleteDialog() {
                         Abbrechen
                     </AlertDialogCancel>
                     <AlertDialogAction
-                        className="bg-destructive text-destructive-foreground"
+                        className={buttonVariants({ variant: "destructive" })}
                         disabled={pending}
                         onClick={deleteDeviceAction}
                     >

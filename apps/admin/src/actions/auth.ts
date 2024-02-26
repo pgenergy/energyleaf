@@ -6,12 +6,13 @@ import type { signInSchema } from "@/lib/schema/auth";
 import "server-only";
 
 import { redirect } from "next/navigation";
+import { env } from "@/env.mjs";
 import { AuthError } from "next-auth";
 import type { z } from "zod";
-import {sendPasswordResetMailForUser} from "@energyleaf/mail";
-import {env} from "@/env.mjs";
-import {getUserById} from "@energyleaf/db/query";
-import {buildResetPasswordUrl, getResetPasswordToken} from "@energyleaf/lib";
+
+import { getUserById } from "@energyleaf/db/query";
+import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
+import { sendPasswordResetMailForUser } from "@energyleaf/mail";
 
 export async function signInAction(data: z.infer<typeof signInSchema>) {
     try {
@@ -53,7 +54,7 @@ export async function resetUserPassword(userId: number) {
         userId: user.id,
         secret: env.NEXTAUTH_SECRET,
     });
-    const resetUrl = buildResetPasswordUrl({env,  token})
+    const resetUrl = buildResetPasswordUrl({ env, token });
 
     try {
         await sendPasswordResetMailForUser({

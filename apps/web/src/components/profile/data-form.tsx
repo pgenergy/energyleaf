@@ -27,7 +27,8 @@ import {
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue, Spinner,
+    SelectValue,
+    Spinner,
 } from "@energyleaf/ui";
 
 interface Props {

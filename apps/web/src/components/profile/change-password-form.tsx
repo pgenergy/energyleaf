@@ -22,7 +22,8 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-    Input, Spinner,
+    Input,
+    Spinner,
 } from "@energyleaf/ui";
 
 interface Props {

@@ -1,12 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type {
-    deleteAccountSchema,
-    mailSettingsSchema,
-    passwordSchema,
-    userDataSchema,
-} from "@/lib/schema/profile";
+import type { deleteAccountSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
 import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import * as bcrypt from "bcryptjs";
 
@@ -24,8 +19,8 @@ import "server-only";
 import { getSession } from "@/lib/auth/auth";
 import type { z } from "zod";
 
+import type { baseInformationSchema } from "@energyleaf/lib";
 import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
-import type {baseInformationSchema} from "@energyleaf/lib";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
     const session = await getSession();

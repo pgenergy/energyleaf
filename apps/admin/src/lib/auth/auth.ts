@@ -4,9 +4,9 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { getUserByMail } from "@energyleaf/db/query";
+import { UserNotActiveError } from "@energyleaf/lib";
 
 import { authOptions } from "./auth.config";
-import {UserNotActiveError} from "@energyleaf/lib";
 
 export const { auth, signIn, signOut } = NextAuth({
     ...authOptions,
