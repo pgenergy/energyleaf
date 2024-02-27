@@ -4,8 +4,7 @@ import React, {useTransition} from "react";
 import {updateMailInformation} from "@/actions/profile";
 import {mailSettingsSchema} from "@/lib/schema/profile";
 import {zodResolver} from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
-import {Loader2Icon} from "lucide-react";
+import {track} from "@vercel/analytics";
 import {useForm} from "react-hook-form";
 import {toast} from "sonner";
 import type {z} from "zod";
@@ -30,13 +29,13 @@ import {
 } from "@energyleaf/ui";
 
 interface Props {
-    id: string;
     receiveMails: boolean;
     interval: number;
     time: number;
+    disabled?: boolean;
 }
 
-export default function MailSettingsForm({id, receiveMails, interval, time}: Props) {
+export default function MailSettingsForm({receiveMails, interval, time, disabled}: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
             resolver: zodResolver(mailSettingsSchema),
@@ -120,7 +119,7 @@ export default function MailSettingsForm({id, receiveMails, interval, time}: Pro
                         </div>
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending || disabled} type="submit">
-                                {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
+                                {isPending ? <Spinner className="mr-2 h-4 w-4"/> : null}
                                 Speichern
                             </Button>
                         </div>
