@@ -1,12 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import React, { useTransition } from "react";
 import { updateBaseInformationPassword } from "@/actions/profile";
 import { passwordSchema } from "@/lib/schema/profile";
 import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
-import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -24,6 +23,7 @@ import {
     FormLabel,
     FormMessage,
     Input,
+    Spinner,
 } from "@energyleaf/ui";
 
 interface Props {
@@ -133,7 +133,7 @@ export default function ChangePasswordForm({ disabled }: Props) {
                         />
                         <div className="col-span-2 flex flex-row justify-end">
                             <Button disabled={changeIsPending || disabled} type="submit" value="password">
-                                {changeIsPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                {changeIsPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                                 Speichern
                             </Button>
                         </div>

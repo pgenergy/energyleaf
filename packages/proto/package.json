@@ -5,9 +5,7 @@
     "description": "",
     "type": "module",
     "exports": {
-        "./sensor-data": "./lib/sensor-data.ts",
-        "./auth": "./lib/auth.ts",
-        "./errors": "./lib/errors.ts",
+        ".": "./lib/energyleaf.ts",
         "./util": "./util/util.ts"
     },
     "scripts": {

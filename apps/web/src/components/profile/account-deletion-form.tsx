@@ -6,7 +6,6 @@ import { deleteAccount } from "@/actions/profile";
 import { deleteAccountSchema } from "@/lib/schema/profile";
 import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -29,6 +28,7 @@ import {
     FormItem,
     FormMessage,
     Input,
+    Spinner,
 } from "@energyleaf/ui";
 
 interface Props {
@@ -90,7 +90,7 @@ export default function AccountDeletionForm({ disabled }: Props) {
                         type="button"
                         variant="destructive"
                     >
-                        {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                         Account löschen
                     </Button>
                 </div>
@@ -132,11 +132,11 @@ export default function AccountDeletionForm({ disabled }: Props) {
                                         type="button"
                                         variant="outline"
                                     >
-                                        {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                        {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                                         Abbrechen
                                     </Button>
                                     <Button disabled={isPending || disabled} type="submit" variant="destructive">
-                                        {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                        {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                                         Löschen
                                     </Button>
                                 </div>

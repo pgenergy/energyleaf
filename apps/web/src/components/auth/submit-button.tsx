@@ -1,6 +1,4 @@
-import { Loader2Icon } from "lucide-react";
-
-import { Button } from "@energyleaf/ui";
+import { Button, Spinner } from "@energyleaf/ui";
 
 interface Props {
     pending: boolean;
@@ -10,7 +8,7 @@ interface Props {
 export default function SubmitButton({ text, pending }: Props) {
     return (
         <Button className="w-full" disabled={pending} type="submit">
-            {pending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {pending ? <Spinner className="mr-2 h-4 w-4" /> : null}
             {text}
         </Button>
     );

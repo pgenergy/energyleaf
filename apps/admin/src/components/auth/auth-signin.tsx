@@ -4,11 +4,10 @@ import { useState, useTransition } from "react";
 import { signInAction } from "@/actions/auth";
 import { signInSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
-import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input } from "@energyleaf/ui";
+import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Spinner } from "@energyleaf/ui";
 
 export default function AuthForm() {
     const [error, setError] = useState<string | null>(null);
@@ -63,7 +62,7 @@ export default function AuthForm() {
                 />
                 {error ? <p className="text-destructive">{error}</p> : null}
                 <Button className="flex flex-row gap-2" disabled={pending} type="submit">
-                    {pending ? <Loader2Icon className="2-4 h-4 animate-spin" /> : null}
+                    {pending ? <Spinner className="2-4 h-4" /> : null}
                     Anmelden
                 </Button>
             </form>

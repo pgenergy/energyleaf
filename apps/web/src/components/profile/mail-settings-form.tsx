@@ -25,6 +25,7 @@ import {
     FormField,
     FormItem,
     FormLabel,
+    Spinner,
     Switch,
 } from "@energyleaf/ui";
 
@@ -118,8 +119,8 @@ export default function MailSettingsForm({id, receiveMails, interval, time}: Pro
                             />
                         </div>
                         <div className="flex flex-row justify-end">
-                            <Button disabled={isPending} type="submit">
-                                {isPending ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin"/> : null}
+                            <Button disabled={isPending || disabled} type="submit">
+                                {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                                 Speichern
                             </Button>
                         </div>

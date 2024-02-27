@@ -5,7 +5,8 @@
     "type": "module",
     "exports": {
         ".": "./src/index.ts",
-        "./errors/auth": "./src/errors/auth-errors.ts"
+        "./errors/auth": "./src/errors/auth-errors.ts",
+        "./errors/sensor": "./src/errors/sensor-errors.ts"
     },
     "scripts": {
         "clean": "git clean -xdf node_modules"

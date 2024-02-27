@@ -1,60 +1,65 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getSensorIdFromSensorToken, insertSensorData } from "@energyleaf/db/query";
-import { ErrorResponse } from "@energyleaf/proto/errors";
-import { ELData } from "@energyleaf/proto/sensor-data";
+import { SensorDataRequest, SensorDataResponse, SensorType } from "@energyleaf/proto";
 import { parseReadableStream } from "@energyleaf/proto/util";
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;
     if (!body) {
-        return new NextResponse(ErrorResponse.toBinary({ msg: "Invalid body", status: 400 }), { status: 400 });
+        return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "No body" }), {
+            status: 400,
+        });
     }
-    const binaryData = await parseReadableStream(body);
     try {
-        const data = ELData.fromBinary(binaryData);
-        const code = data.sensorId;
+        const binaryData = await parseReadableStream(body);
+        const data = SensorDataRequest.fromBinary(binaryData);
 
         try {
-            try {
-                const sensorId = await getSensorIdFromSensorToken(code);
-                await insertSensorData({
-                    sensorId,
-                    value: data.sensorValue,
-                });
-            } catch (e) {
-                if ((e as unknown as Error).message === "token/expired") {
-                    return new NextResponse(ErrorResponse.toBinary({ msg: "Token expired", status: 401 }), {
-                        status: 401,
-                    });
-                }
+            const sensorId = await getSensorIdFromSensorToken(data.accessToken);
+            const needsSum = data.type === SensorType.ANALOG_ELECTRICITY;
 
-                if ((e as unknown as Error).message === "token/invalid") {
-                    return new NextResponse(ErrorResponse.toBinary({ msg: "Token invalid", status: 401 }), {
-                        status: 401,
-                    });
-                }
+            await insertSensorData({ sensorId, value: data.value, sum: needsSum });
 
-                if ((e as unknown as Error).message === "token/not-found") {
-                    return new NextResponse(ErrorResponse.toBinary({ msg: "Token not found", status: 404 }), {
-                        status: 404,
-                    });
-                }
-
-                if ((e as unknown as Error).message === "sensor/not-found") {
-                    return new NextResponse(ErrorResponse.toBinary({ msg: "Sensor not found", status: 404 }), {
-                        status: 404,
-                    });
-                }
-
-                return new NextResponse(ErrorResponse.toBinary({ msg: "Database error", status: 500 }), {
-                    status: 500,
+            return new NextResponse(SensorDataResponse.toBinary({ status: 204 }), { status: 204 });
+        } catch (e) {
+            if ((e as unknown as Error).message === "token/expired") {
+                return new NextResponse(SensorDataResponse.toBinary({ statusMessage: "Token expired", status: 401 }), {
+                    status: 401,
                 });
             }
-        } catch (err) {
-            return new NextResponse(ErrorResponse.toBinary({ msg: "Unauthorized", status: 401 }), { status: 401 });
+
+            if ((e as unknown as Error).message === "token/invalid") {
+                return new NextResponse(SensorDataResponse.toBinary({ statusMessage: "Token invalid", status: 401 }), {
+                    status: 401,
+                });
+            }
+
+            if ((e as unknown as Error).message === "token/notfound") {
+                return new NextResponse(
+                    SensorDataResponse.toBinary({ statusMessage: "Token not found", status: 404 }),
+                    {
+                        status: 404,
+                    },
+                );
+            }
+
+            if ((e as unknown as Error).message === "sensor/notfound") {
+                return new NextResponse(
+                    SensorDataResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }),
+                    {
+                        status: 404,
+                    },
+                );
+            }
+
+            return new NextResponse(SensorDataResponse.toBinary({ statusMessage: "Database error", status: 500 }), {
+                status: 500,
+            });
         }
-    } catch (e) {
-        return new NextResponse(ErrorResponse.toBinary({ msg: "Invalid data", status: 400 }), { status: 400 });
+    } catch (err) {
+        return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "Invalid data" }), {
+            status: 400,
+        });
     }
 };
