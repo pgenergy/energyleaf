@@ -261,7 +261,6 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
             const userData = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
 
             if (userData.length === 0) {
-                trx.rollback();
                 throw new Error("Sensor not found");
             }
 
@@ -382,7 +381,6 @@ export async function createSensorToken(clientId: string) {
             const sensorData = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
 
             if (sensorData.length === 0) {
-                trx.rollback();
                 throw new Error("sensor/not-found");
             }
 
@@ -434,7 +432,6 @@ export async function getSensorIdFromSensorToken(code: string) {
         const tokenDate = token.timestamp;
 
         if (!tokenDate) {
-            trx.rollback();
             throw new Error("token/invalid");
         }
 
@@ -447,7 +444,6 @@ export async function getSensorIdFromSensorToken(code: string) {
 
         const sensorData = await trx.select().from(sensor).where(eq(sensor.id, token.sensorId));
         if (sensorData.length === 0) {
-            trx.rollback();
             throw new Error("sensor/not-found");
         }
 

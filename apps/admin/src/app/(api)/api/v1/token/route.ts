@@ -22,7 +22,6 @@ export const POST = async (req: NextRequest) => {
 
         try {
             const code = await createSensorToken(data.clientId);
-
             const scriptData = await getSensorScript(data.clientId);
             if (!scriptData) {
                 return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
