@@ -152,7 +152,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             name="budget"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Budget</FormLabel>
+                                    <FormLabel>Budget (in €)</FormLabel>
                                     <FormControl>
                                         <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
@@ -164,7 +164,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             name="basePrice"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Strompreis</FormLabel>
+                                    <FormLabel>Strompreis (in €)</FormLabel>
                                     <FormControl>
                                         <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
@@ -176,7 +176,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             name="livingSpace"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Wohnfläche</FormLabel>
+                                    <FormLabel>Wohnfläche (in m²)</FormLabel>
                                     <FormControl>
                                         <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
@@ -200,7 +200,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             name="monthlyPayment"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Monatlicher Abschlag</FormLabel>
+                                    <FormLabel>Monatlicher Abschlag (in €)</FormLabel>
                                     <FormControl>
                                         <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
