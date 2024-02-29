@@ -1,5 +1,5 @@
-import React from "react";
-import { render } from "@react-email/components";
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- This is a React file
+import * as React from "react";
 import { Resend } from "resend";
 
 import PasswordChangedTemplate from "../templates/password-changed";
@@ -9,6 +9,7 @@ import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
 interface MailOptions {
     apiKey: string;
     from: string;
+    to: string;
 }
 
 /**
@@ -20,7 +21,6 @@ function createResend(apiKey: string) {
 }
 
 interface PasswordResetMailOptions extends MailOptions {
-    to: string;
     name: string;
     link: string;
 }
@@ -38,7 +38,7 @@ interface PasswordResetMailOptions extends MailOptions {
  * @throws An error if the email could not be sent
  */
 export async function sendPasswordResetEmail({ from, to, name, link, apiKey }: PasswordResetMailOptions) {
-    return await sendPasswordResetMailByTemplate({ from, to, apiKey }, PasswordResetTemplate({ name, link }));
+    return sendPasswordResetMailByTemplate({ from, to, apiKey }, PasswordResetTemplate({ name, link }));
 }
 
 /**
@@ -54,10 +54,10 @@ export async function sendPasswordResetEmail({ from, to, name, link, apiKey }: P
  * @throws An error if the email could not be sent
  */
 export async function sendPasswordResetMailForUser({ from, to, name, link, apiKey }: PasswordResetMailOptions) {
-    return await sendPasswordResetMailByTemplate({ from, to, apiKey }, PasswordResetByAdminTemplate({ name, link }));
+    return sendPasswordResetMailByTemplate({ from, to, apiKey }, PasswordResetByAdminTemplate({ name, link }));
 }
 
-async function sendPasswordResetMailByTemplate({ from, to, apiKey }, template: React.JSX.Element) {
+async function sendPasswordResetMailByTemplate({ from, to, apiKey }: MailOptions, template: React.JSX.Element) {
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
