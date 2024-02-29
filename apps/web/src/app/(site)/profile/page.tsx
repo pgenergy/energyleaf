@@ -1,17 +1,25 @@
 import { Suspense } from "react";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import ErrorBoundary from "@/components/error/error-boundary";
 import ErrorBoundary from "@/components/error/error-boundary";
 import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import AccountDeletionError from "@/components/profile/account-deletion-form-error";
+import AccountDeletionError from "@/components/profile/account-deletion-form-error";
 import BaseInformationForm from "@/components/profile/base-information-form";
+import BaseInformationError from "@/components/profile/base-information-form-error";
 import BaseInformationError from "@/components/profile/base-information-form-error";
 import UserDataForm from "@/components/profile/data-form";
 import UserDataError from "@/components/profile/data-form-error";
+import UserDataError from "@/components/profile/data-form-error";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
+import MailSettingsError from "@/components/profile/mail-settings-form-error";
 import MailSettingsError from "@/components/profile/mail-settings-form-error";
 import { getSession } from "@/lib/auth/auth";
 import { isDemoUser } from "@/lib/demo/demo";
 import { getUserData } from "@/query/user";
+
+import { Skeleton } from "@energyleaf/ui";
 
 import { Skeleton } from "@energyleaf/ui";
 
