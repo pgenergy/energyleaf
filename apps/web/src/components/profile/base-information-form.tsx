@@ -57,7 +57,7 @@ export default function BaseInformationForm({ username, email, disabled }: Props
             </CardContent>
             <ErrorBoundary fallback={ChangePasswordError}>
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <ChangePasswordForm id={id} />
+                    <ChangePasswordForm />
                 </Suspense>
             </ErrorBoundary>
         </Card>

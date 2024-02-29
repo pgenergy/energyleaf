@@ -40,12 +40,7 @@ export default async function ProfilePage() {
         <div className="flex flex-col gap-4">
             <ErrorBoundary fallback={BaseInformationError}>
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <BaseInformationForm
-                        disabled={isDemo}
-                        email={session.user.email}
-                        id={session.user.id}
-                        username={session.user.name}
-                    />
+                    <BaseInformationForm disabled={isDemo} email={session.user.email} username={session.user.name} />
                 </Suspense>
             </ErrorBoundary>
             <ErrorBoundary fallback={MailSettingsError}>
@@ -53,19 +48,18 @@ export default async function ProfilePage() {
                     <MailSettingsForm
                         daily={userData?.mail.mailDaily || false}
                         disabled={isDemo}
-                        id={session.user.id}
                         weekly={userData?.mail.mailWeekly || false}
                     />
                 </Suspense>
             </ErrorBoundary>
             <ErrorBoundary fallback={UserDataError}>
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <UserDataForm disabled={isDemo} id={session.user.id} initialData={data} />
+                    <UserDataForm disabled={isDemo} initialData={data} />
                 </Suspense>
             </ErrorBoundary>
             <ErrorBoundary fallback={AccountDeletionError}>
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <AccountDeletionForm disabled={isDemo} id={session.user.id} />
+                    <AccountDeletionForm disabled={isDemo} />
                 </Suspense>
             </ErrorBoundary>
         </div>
