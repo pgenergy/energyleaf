@@ -1,16 +1,18 @@
 "use client";
 
-import { useTransition } from "react";
+import { Suspense, useTransition } from "react";
 import { updateBaseInformationUsername } from "@/actions/profile";
 import { track } from "@vercel/analytics";
 import { toast } from "sonner";
 import type { z } from "zod";
 
 import type { baseInformationSchema } from "@energyleaf/lib";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
 import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
 
+import ErrorBoundary from "../error-boundary";
 import ChangePasswordForm from "./change-password-form";
+import ChangePasswordError from "./change-password-form-error";
 
 interface Props {
     username: string;
@@ -53,7 +55,11 @@ export default function BaseInformationForm({ username, email, disabled }: Props
                     username={username}
                 />
             </CardContent>
-            <ChangePasswordForm />
+            <ErrorBoundary fallback={ChangePasswordError}>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <ChangePasswordForm id={id} />
+                </Suspense>
+            </ErrorBoundary>
         </Card>
     );
 }
