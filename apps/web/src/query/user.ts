@@ -12,7 +12,7 @@ import { getUserById as getDbUserById, getUserData as getDbUserDataById } from "
 export const getUserById = cache(async (id: string) => {
     if (id === "demo") {
         return {
-            id: -1,
+            id: "demo",
             email: "demo@energyleaf.de",
             username: "Demo User",
             password: "demo",

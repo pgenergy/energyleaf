@@ -4,7 +4,7 @@ import "server-only";
 
 import { cache } from "react";
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth/auth";
+import { getActionSession } from "@/lib/auth/auth.action";
 import type { userStateSchema } from "@/lib/schema/user";
 import type { z } from "zod";
 
@@ -108,7 +108,7 @@ export async function getSensorsByUser(id: string) {
 }
 
 async function validateUserAdmin() {
-    const { user, session } = await getSession();
+    const { user, session } = await getActionSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }

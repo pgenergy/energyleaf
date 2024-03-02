@@ -12,13 +12,14 @@ import { getUserById, getUserByMail } from "@energyleaf/db/query";
 import { Argon2id } from "oslo/password";
 import { UserNotActiveError, buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import { sendPasswordResetMailForUser } from "@energyleaf/mail";
-import { getSession, lucia } from "@/lib/auth/auth";
 import { cookies } from "next/headers";
+import { getActionSession } from "@/lib/auth/auth.action";
+import { lucia } from "@/lib/auth/auth.config";
 
 export async function signInAction(data: z.infer<typeof signInSchema>) {
-    const { session } = await getSession();
+    const { session } = await getActionSession();
     if (session) {
-        redirect("/dashboard");
+        redirect("/");
     }
 
     const user = await getUserByMail(data.email);
@@ -46,7 +47,7 @@ export async function signInAction(data: z.infer<typeof signInSchema>) {
 }
 
 export async function signOutAction() {
-    const { session } = await getSession();
+    const { session } = await getActionSession();
     if (!session) {
         return;
     }

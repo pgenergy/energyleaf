@@ -5,7 +5,8 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
-import { getSession, lucia } from "@/lib/auth/auth";
+import { getActionSession } from "@/lib/auth/auth.action";
+import { lucia } from "@/lib/auth/auth.config";
 import { isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import * as jose from "jose";
@@ -130,7 +131,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
  * Server action to sign a user in
  */
 export async function signInAction(email: string, password: string) {
-    const { session } = await getSession();
+    const { session } = await getActionSession();
     if (session) {
         redirect("/dashboard");
     }
@@ -167,7 +168,7 @@ export async function signOutAction() {
         return;
     }
 
-    const { session } = await getSession();
+    const { session } = await getActionSession();
     if (!session) {
         return;
     }

@@ -3,7 +3,7 @@ import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
-import { getSession } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { getUserData } from "@/query/user";
 import ChangePasswordForm from "@/components/profile/change-password-form";

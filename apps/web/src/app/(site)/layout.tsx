@@ -3,7 +3,7 @@ import { DemoBanner } from "@/components/footer/demo-banner";
 import Footer from "@/components/footer/footer";
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
-import { getSession } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
 

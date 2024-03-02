@@ -1,14 +1,8 @@
-import { cache } from "react";
 import { cookies } from "next/headers";
-import { env } from "@/env.mjs";
-import type { Session, User } from "lucia";
-import { Lucia } from "lucia";
-
-import { adapter } from "@energyleaf/db/adapter";
-
 import "server-only";
+import { lucia } from "./auth.config";
 
-export const getSession = cache(async (): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
+export const getActionSession = async () => {
     const demoMode = cookies().get("demo_mode")?.value === "true";
     if (demoMode) {
         return {
@@ -50,26 +44,4 @@ export const getSession = cache(async (): Promise<{ user: User; session: Session
         // ignore
     }
     return result;
-});
-
-export const lucia = new Lucia(adapter, {
-    sessionCookie: {
-        name: "auth_session",
-        expires: false,
-        attributes: {
-            domain: `.${env.VERCEL_URL || env.NEXTAUTH_URL || "localhost"}`,
-            sameSite: "lax",
-            secure: env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview",
-        },
-    },
-    getUserAttributes: (attributes) => {
-        return {
-            id: attributes.id,
-            name: attributes.name,
-            email: attributes.email,
-            created: attributes.created,
-            isAdmin: attributes.isAdmin,
-            isActive: attributes.isActive,
-        };
-    },
-});
+};

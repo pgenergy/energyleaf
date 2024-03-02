@@ -2,10 +2,10 @@ import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension
 
 import type { DeviceSelectType, PeakSelectType, SensorDataSelectType, UserDataType } from "@energyleaf/db/types";
 
-import { getSession } from "../auth/auth";
+import { getActionSession } from "../auth/auth.action";
 
 export async function isDemoUser() {
-    const { session, user } = await getSession();
+    const { session, user } = await getActionSession();
 
     if (!session || user.id !== "demo" || user.email !== "demo@energyleaf.de") {
         return false;

@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.server";
 import { getDevicesByUser } from "@/query/device";
 
 import { getAverageConsumptionPerDevice } from "@energyleaf/db/query";

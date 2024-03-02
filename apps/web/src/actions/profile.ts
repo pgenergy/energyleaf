@@ -15,14 +15,14 @@ import {
 
 import "server-only";
 
-import { getSession } from "@/lib/auth/auth";
+import { getActionSession } from "@/lib/auth/auth.action";
 import type { z } from "zod";
 
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
-    const { user, session } = await getSession();
+    const { user, session } = await getActionSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
@@ -48,7 +48,7 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
 }
 
 export async function updateBaseInformationPassword(data: z.infer<typeof passwordSchema>) {
-    const { user, session } = await getSession();
+    const { user, session } = await getActionSession();
 
     if (!session) {
         throw new UserNotLoggedInError();
@@ -79,7 +79,7 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
 }
 
 export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>) {
-    const { user, session } = await getSession();
+    const { user, session } = await getActionSession();
 
     if (!session) {
         throw new UserNotLoggedInError();
@@ -106,7 +106,7 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
 }
 
 export async function updateUserDataInformation(data: z.infer<typeof userDataSchema>) {
-    const { user, session } = await getSession();
+    const { user, session } = await getActionSession();
 
     if (!session) {
         throw new UserNotLoggedInError();
@@ -140,7 +140,7 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
 }
 
 export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
-    const { user, session } = await getSession();
+    const { user, session } = await getActionSession();
 
     if (!session) {
         throw new UserNotLoggedInError();

@@ -1,4 +1,4 @@
-import type { lucia } from "@/lib/auth/auth";
+import type { lucia } from "@/lib/auth/auth.config";
 
 declare module "lucia" {
     interface Register {
