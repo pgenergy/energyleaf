@@ -16,10 +16,13 @@ interface Props {
 }
 
 export default async function UserDetailsPage({ params }: Props) {
-    const user = await getUser(Number(params.id));
+    const user = await getUser(params.id);
     if (!user) {
         return <p>Nutzer nicht gefunden</p>;
     }
+
+    // Clear password before rendering
+    user.password = "";
 
     return (
         <UserDetailsContextProvider>

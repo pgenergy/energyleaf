@@ -14,7 +14,7 @@ import { addOrUpdatePeak as addOrUpdatePeakDb } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 
 export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
-    const session = await getSession();
+    const { session } = await getSession();
 
     if (!session) {
         throw new UserNotLoggedInError();

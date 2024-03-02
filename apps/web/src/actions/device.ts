@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { DeviceCategory } from "@/lib/schema/device";
 import type { deviceSchema } from "@/lib/schema/device";
 import type { z } from "zod";
 
@@ -18,9 +17,10 @@ import "server-only";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/auth";
 import { addDeviceCookieStore, isDemoUser, removeDeviceCookieStore, updateDeviceCookieStore } from "@/lib/demo/demo";
+import { DeviceCategory } from "@energyleaf/db/types";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
-    const session = await getSession();
+    const { user, session } = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
@@ -30,9 +30,9 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         return;
     }
 
-    const id = session.user.id;
-    const user = await getUserById(Number(id));
-    if (!user) {
+    const id = user.id;
+    const dbuser = await getUserById(id);
+    if (!dbuser) {
         throw new UserNotFoundError();
     }
 
@@ -58,7 +58,7 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
 }
 
 export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId: number) {
-    const session = await getSession();
+    const { user, session } = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
@@ -68,10 +68,9 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         return;
     }
 
-    const userId = session.user.id;
-
-    const user = await getUserById(Number(userId));
-    if (!user) {
+    const userId = user.id;
+    const dbuser = await getUserById(userId);
+    if (!dbuser) {
         throw new UserNotFoundError();
     }
 
@@ -97,7 +96,7 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
 }
 
 export async function deleteDevice(deviceId: number) {
-    const session = await getSession();
+    const { user, session } = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
@@ -107,9 +106,9 @@ export async function deleteDevice(deviceId: number) {
         return;
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     try {
-        await deleteDeviceDb(deviceId, Number(userId));
+        await deleteDeviceDb(deviceId, userId);
         revalidatePath("/devices");
     } catch (error: unknown) {
         if (error instanceof Error) {

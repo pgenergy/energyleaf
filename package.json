@@ -20,7 +20,7 @@
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:*",
         "@total-typescript/ts-reset": "^0.5.1",
-        "eslint": "^8.56.0",
+        "eslint": "^8.57.0",
         "prettier": "^3.2.5",
         "turbo": "^1.12.4"
     },
@@ -28,9 +28,9 @@
     "name": "energyleaf",
     "dependencies": {
         "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
-        "@vercel/analytics": "^1.2.1",
+        "@vercel/analytics": "^1.2.2",
         "dotenv-cli": "^7.3.0",
-        "mysql2": "^3.9.1",
+        "mysql2": "^3.9.2",
         "prettier-plugin-tailwindcss": "^0.5.11",
         "typescript": "^5.3.3",
         "zod": "^3.22.4"

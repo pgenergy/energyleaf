@@ -1,84 +1,75 @@
-import type { CustomSession } from "@/types/auth";
-import * as bcrypt from "bcryptjs";
-import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import { cache } from "react";
+import { cookies } from "next/headers";
+import { env } from "@/env.mjs";
+import type { Session, User } from "lucia";
+import { Lucia } from "lucia";
 
-import { getUserByMail } from "@energyleaf/db/query";
-import { UserNotActiveError } from "@energyleaf/lib";
+import { adapter } from "@energyleaf/db/adapter";
 
-import { authOptions } from "./auth.config";
+import "server-only";
 
-export const {
-    auth,
-    signIn,
-    signOut,
-    handlers: { GET, POST },
-} = NextAuth({
-    ...authOptions,
-    providers: [
-        Credentials({
-            name: "credentials",
-            credentials: {
-                email: {
-                    label: "E-Mail",
-                    type: "email",
-                    placeholder: "E-Mail",
-                },
-                password: {
-                    label: "Passwort",
-                    type: "password",
-                    placeholder: "Passwort",
-                },
+export const getSession = cache(async (): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
+    const demoMode = cookies().get("demo_mode")?.value === "true";
+    if (demoMode) {
+        return {
+            user: {
+                id: "demo",
+                name: "Demo Nutzer",
+                email: "demo@energyleaf.de",
+                created: new Date().toISOString(),
+                isAdmin: false,
+                isActive: true,
             },
-            async authorize(credentials) {
-                if (!credentials.email || !credentials.password) {
-                    return null;
-                }
-                const email = credentials.email as string;
-
-                if (email === "demo@energyleaf.de") {
-                    return {
-                        id: "-1",
-                        name: "Demo User",
-                        email: "demo@energyleaf.de",
-                        created: new Date().toString(),
-                        admin: false,
-                    };
-                }
-
-                const password = credentials.password as string;
-                const user = await getUserByMail(email);
-                if (!user) {
-                    return null;
-                }
-
-                if (!user.isActive) {
-                    throw new UserNotActiveError();
-                }
-
-                const match = await bcrypt.compare(password, user.password);
-                if (!match) {
-                    return null;
-                }
-
-                return {
-                    id: user.id.toString(),
-                    name: user.username,
-                    email: user.email,
-                    created: user.created?.toString() ?? null,
-                    admin: user.isAdmin || false,
-                };
+            session: {
+                id: "demo",
+                userId: "demo",
+                fresh: false,
+                expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
             },
-        }),
-    ],
-});
-
-export const getSession = async () => {
-    const session = await auth();
-
-    if (!session) {
-        return null;
+        };
+    }
+    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+    if (!sessionId) {
+        return {
+            user: null,
+            session: null,
+        };
     }
 
-    return session as CustomSession;
-};
+    const result = await lucia.validateSession(sessionId);
+    try {
+        if (result.session && result.session.fresh) {
+            const sessionCookie = lucia.createSessionCookie(result.session.id);
+            cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+        }
+        if (!result.session) {
+            const sessionCookie = lucia.createBlankSessionCookie();
+            cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+        }
+    } catch {
+        // ignore
+    }
+    return result;
+});
+
+export const lucia = new Lucia(adapter, {
+    sessionCookie: {
+        name: "auth_session",
+        expires: false,
+        attributes: {
+            domain: `.${env.VERCEL_URL || env.NEXTAUTH_URL || "localhost"}`,
+            sameSite: "lax",
+            secure: env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview",
+        },
+    },
+    getUserAttributes: (attributes) => {
+        return {
+            id: attributes.id,
+            name: attributes.name,
+            email: attributes.email,
+            created: attributes.created,
+            isAdmin: attributes.isAdmin,
+            isActive: attributes.isActive,
+        };
+    },
+});

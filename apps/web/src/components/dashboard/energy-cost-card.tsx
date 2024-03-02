@@ -16,13 +16,13 @@ interface Props {
 }
 
 export default async function EnergyCostCard({ startDate, endDate }: Props) {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         redirect("/");
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
@@ -40,7 +40,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     }
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const userData = await getUserData(session.user.id);
+    const userData = await getUserData(userId);
     const price = userData?.user_data.basePrice;
     const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
     const cost: number | null = price ? parseFloat((absolut * price).toFixed(2)) : null;

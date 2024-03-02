@@ -16,7 +16,7 @@ import { getSession } from "@/lib/auth/auth";
 import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import type { z } from "zod";
 
-import type { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "@energyleaf/db/util";
+import type { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "@energyleaf/db/types";
 import { UserNotLoggedInError } from "@energyleaf/lib";
 
 /**
@@ -75,12 +75,12 @@ export async function assignUserToSensor(data: z.infer<typeof assignUserToSensor
 }
 
 async function checkIfAdmin() {
-    const session = await getSession();
+    const { user, session } = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
-    if (!session.user.admin) {
+    if (!user.isAdmin) {
         throw new Error("User is not admin");
     }
 }

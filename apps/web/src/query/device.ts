@@ -11,8 +11,8 @@ import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
  * Cached query to retrieve the devices per user.
  */
 export const getDevicesByUser = cache(async (id: string) => {
-    if (id === "-1") {
+    if (id === "demo") {
         return getDevicesCookieStore(cookies());
     }
-    return getDbDevicesByUser(Number(id));
+    return getDbDevicesByUser(id);
 });

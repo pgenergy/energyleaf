@@ -10,7 +10,7 @@ import { getUserById as getDbUserById, getUserData as getDbUserDataById } from "
  * Cached query to retrive user data
  */
 export const getUserById = cache(async (id: string) => {
-    if (id === "-1") {
+    if (id === "demo") {
         return {
             id: -1,
             email: "demo@energyleaf.de",
@@ -21,15 +21,15 @@ export const getUserById = cache(async (id: string) => {
         };
     }
 
-    return getDbUserById(Number(id));
+    return getDbUserById(id);
 });
 
 /**
  * Cached query to retrive user data
  */
 export const getUserData = cache(async (id: string) => {
-    if (id === "-1") {
+    if (id === "demo") {
         return getDemoUserData();
     }
-    return getDbUserDataById(Number(id));
+    return getDbUserDataById(id);
 });

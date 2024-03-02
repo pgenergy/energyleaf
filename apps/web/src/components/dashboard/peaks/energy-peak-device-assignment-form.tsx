@@ -20,9 +20,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@energyleaf/ui";
+import type { DeviceSelectType } from "@energyleaf/db/types";
 
 interface Props {
-    devices: { id: number; userId: number; name: string; created: Date | null }[];
+    devices: DeviceSelectType[];
     initialValues: z.infer<typeof peakSchema>;
     sensorId: string;
     timestamp: string;

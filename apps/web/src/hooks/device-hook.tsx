@@ -1,10 +1,11 @@
 "use client";
 
+import type { DeviceSelectType } from "@energyleaf/db/types";
 import { createContext, useContext, useState } from "react";
 
 export type DeviceContextType = {
-    device?: { id: number; name: string; created: Date | null };
-    setDevice: (device?: { id: number; name: string; created: Date | null }) => void;
+    device?: DeviceSelectType;
+    setDevice: (device?: DeviceSelectType) => void;
     dialogOpen: boolean;
     setDialogOpen: (open: boolean) => void;
     deleteDialogOpen: boolean;
@@ -20,7 +21,7 @@ interface Props {
 export function DeviceContextProvider({ children }: Props) {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [device, setDevice] = useState<{ id: number; name: string; created: Date | null } | undefined>(undefined);
+    const [device, setDevice] = useState<DeviceSelectType | undefined>(undefined);
 
     return (
         <deviceContext.Provider

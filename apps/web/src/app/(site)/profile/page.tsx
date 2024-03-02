@@ -6,17 +6,18 @@ import MailSettingsForm from "@/components/profile/mail-settings-form";
 import { getSession } from "@/lib/auth/auth";
 import { isDemoUser } from "@/lib/demo/demo";
 import { getUserData } from "@/query/user";
+import ChangePasswordForm from "@/components/profile/change-password-form";
 
 export default async function ProfilePage() {
-    const session = await getSession();
-
-    if (!session?.user.id || !session.user.email || !session.user.name) {
+    const { session, user } = await getSession();
+    
+    if (!session) {
         redirect("/");
     }
 
     const isDemo = await isDemoUser();
 
-    const userData = await getUserData(session.user.id);
+    const userData = await getUserData(user.id);
     const data = {
         houseType: userData?.user_data.property || "house",
         livingSpace: userData?.user_data.livingSpace || 0,
@@ -30,7 +31,7 @@ export default async function ProfilePage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationForm disabled={isDemo} email={session.user.email} username={session.user.name} />
+            <BaseInformationForm disabled={isDemo} email={user.email} username={user.name} />
             <MailSettingsForm
                 daily={userData?.mail.mailDaily || false}
                 disabled={isDemo}
@@ -38,6 +39,7 @@ export default async function ProfilePage() {
             />
             <UserDataForm disabled={isDemo} initialData={data} />
             <AccountDeletionForm disabled={isDemo} />
+            <ChangePasswordForm />
         </div>
     );
 }

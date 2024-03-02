@@ -4,7 +4,7 @@ import React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
 
-import { AggregationType } from "@energyleaf/db/util";
+import { AggregationType } from "@energyleaf/db/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
 
 interface Props {

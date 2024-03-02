@@ -5,7 +5,7 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor, getPeaksBySensor
 import type { PeakAssignment } from "@/types/peaks/peak";
 import { differenceInMinutes } from "date-fns";
 
-import { AggregationType } from "@energyleaf/db/util";
+import { AggregationType } from "@energyleaf/db/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 import DashboardDateRange from "./date-range";
@@ -19,13 +19,13 @@ interface Props {
 }
 
 export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         redirect("/");
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {

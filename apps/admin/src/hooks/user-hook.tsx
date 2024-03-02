@@ -1,13 +1,13 @@
 "use client";
 
+import type { UserSelectType } from "@energyleaf/db/types";
 import React, { createContext, useContext, useState } from "react";
-import type { UserTableType } from "@/components/users/table/users-table-columns";
 
 export type UserContextType = {
     deleteDialogOpen: boolean;
     setDeleteDialogOpen: (open: boolean) => void;
-    user: UserTableType | undefined;
-    setUser: (sensor: UserTableType | undefined) => void;
+    user: UserSelectType | undefined;
+    setUser: (sensor: UserSelectType | undefined) => void;
 } | null;
 
 const userContext = createContext<UserContextType>(null);
@@ -18,7 +18,7 @@ interface Props {
 
 export function UserContextProvider({ children }: Props) {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [user, setUser] = useState<UserTableType | undefined>(undefined);
+    const [user, setUser] = useState<UserSelectType | undefined>(undefined);
 
     return (
         <userContext.Provider

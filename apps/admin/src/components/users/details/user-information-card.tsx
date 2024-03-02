@@ -8,13 +8,10 @@ import type { z } from "zod";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
+import type { UserSelectType } from "@energyleaf/db/types";
 
 interface Props {
-    user: {
-        id: number;
-        username: string;
-        email: string;
-    };
+    user: UserSelectType;
 }
 
 export default function UserInformationCard({ user }: Props) {

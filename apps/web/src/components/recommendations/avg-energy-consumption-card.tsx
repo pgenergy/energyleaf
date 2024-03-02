@@ -5,13 +5,13 @@ import { getAvgEnergyConsumptionForSensor, getElectricitySensorIdForUser } from 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 export default async function AvgEnergyConsumptionCard() {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         redirect("/");
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {

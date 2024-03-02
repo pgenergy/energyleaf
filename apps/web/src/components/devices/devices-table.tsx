@@ -7,13 +7,13 @@ import { devicesColumns } from "./table/devices-columns";
 import { DevicesDataTable } from "./table/devices-data-table";
 
 export default async function DevicesTable() {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         return null;
     }
 
-    const devices = await getDevicesByUser(session.user.id);
+    const devices = await getDevicesByUser(user.id);
     const consumptionData = await getAverageConsumptionPerDevice();
 
     const enrichedDevices = devices.map((device) => {

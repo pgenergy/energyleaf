@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type { deleteAccountSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
-import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
-import * as bcrypt from "bcryptjs";
+import { Argon2id } from "oslo/password";
 
 import {
     deleteUser,
@@ -20,16 +19,16 @@ import { getSession } from "@/lib/auth/auth";
 import type { z } from "zod";
 
 import type { baseInformationSchema } from "@energyleaf/lib";
-import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
+import { PasswordsDoNotMatchError, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
-    const session = await getSession();
+    const { user, session } = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
-    const user = await getUserById(Number(session.user.id));
-    if (!user) {
+    const dbuser = await getUserById(user.id);
+    if (!dbuser) {
         throw new UserNotFoundError();
     }
 
@@ -49,22 +48,22 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
 }
 
 export async function updateBaseInformationPassword(data: z.infer<typeof passwordSchema>) {
-    const session = await getSession();
+    const { user, session } = await getSession();
 
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
-    const user = await getUserById(Number(session.user.id));
-    if (!user) {
+    const dbuser = await getUserById(user.id);
+    if (!dbuser) {
         throw new UserNotFoundError();
     }
-    const match = await bcrypt.compare(data.oldPassword, user.password);
+    const match = await new Argon2id().verify(dbuser.password, data.oldPassword);
     if (!match) {
         throw new PasswordsDoNotMatchError();
     }
 
-    const hash = await bcrypt.hash(data.newPassword, 10);
+    const hash = await new Argon2id().hash(data.newPassword);
     try {
         await updatePassword(
             {
@@ -80,14 +79,14 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
 }
 
 export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>) {
-    const session = await getSession();
+    const { user, session } = await getSession();
 
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
-    const user = await getUserById(Number(session.user.id));
-    if (!user) {
+    const dbuser = await getUserById(user.id);
+    if (!dbuser) {
         throw new UserNotFoundError();
     }
 
@@ -107,14 +106,14 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
 }
 
 export async function updateUserDataInformation(data: z.infer<typeof userDataSchema>) {
-    const session = await getSession();
+    const { user, session } = await getSession();
 
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
-    const user = await getUserById(Number(session.user.id));
-    if (!user) {
+    const dbuser = await getUserById(user.id);
+    if (!dbuser) {
         throw new UserNotFoundError();
     }
 
@@ -141,18 +140,18 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
 }
 
 export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
-    const session = await getSession();
+    const { user, session } = await getSession();
 
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
-    const user = await getUserById(Number(session.user.id));
-    if (!user) {
+    const dbuser = await getUserById(user.id);
+    if (!dbuser) {
         throw new UserNotFoundError();
     }
 
-    const match = await bcrypt.compare(data.password, user.password);
+    const match = await new Argon2id().verify(dbuser.password, data.password);
     if (!match) {
         throw new PasswordsDoNotMatchError();
     }

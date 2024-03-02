@@ -4,7 +4,6 @@ import { useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
-import type { CustomSession } from "@/types/auth";
 import { LightbulbIcon, LogOutIcon, User2Icon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -18,9 +17,10 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
+import type { User } from "lucia";
 
 interface Props {
-    user: CustomSession["user"];
+    user: User;
 }
 
 export default function NavbarAvatar({ user }: Props) {

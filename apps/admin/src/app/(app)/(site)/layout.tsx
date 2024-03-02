@@ -38,10 +38,10 @@ const navLinks = [
 ];
 
 export default async function SiteLayout({ children }: Props) {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
-        redirect("/");
+        redirect("/auth");
     }
     return (
         <>
@@ -49,7 +49,7 @@ export default async function SiteLayout({ children }: Props) {
                 actions={
                     <>
                         <ThemeSwitcher />
-                        <NavbarAvatar user={session.user} />
+                        <NavbarAvatar user={user} />
                     </>
                 }
                 links={navLinks}

@@ -12,9 +12,10 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
+import type { DeviceSelectType } from "@energyleaf/db/types";
 
 interface Props {
-    device: { id: number; name: string; created: Date | null };
+    device: DeviceSelectType;
 }
 
 export default function DeviceActionCell({ device }: Props) {

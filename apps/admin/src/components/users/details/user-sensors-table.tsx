@@ -5,7 +5,7 @@ import { sensorsColumns } from "@/components/sensors/table/sensors-columns";
 import { DataTable } from "@energyleaf/ui";
 
 interface Props {
-    userId: number;
+    userId: string;
 }
 
 export default async function UserSensorsTable({ userId }: Props) {

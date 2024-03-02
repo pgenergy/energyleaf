@@ -7,7 +7,7 @@ import {
     getEnergyForSensorInRange as getDbEnergyForSensorInRange,
     getPeaksBySensor as getDbPeaksBySensor,
 } from "@energyleaf/db/query";
-import { AggregationType } from "@energyleaf/db/util";
+import { AggregationType } from "@energyleaf/db/types";
 
 import "server-only";
 
@@ -36,7 +36,7 @@ export const getAvgEnergyConsumptionForSensor = cache(async (sensorId: string) =
 });
 
 export const getAvgEnergyConsumptionForUserInComparison = cache(async (userId: string) => {
-    if (userId === "-1") {
+    if (userId === "demo") {
         const demoStart = new Date(new Date().setHours(0, 0, 0, 0));
         const demoEnd = new Date(new Date().setHours(23, 59, 59, 999));
         const data = getDemoSensorData(demoStart, demoEnd);
@@ -44,14 +44,14 @@ export const getAvgEnergyConsumptionForUserInComparison = cache(async (userId: s
         const count = data.length;
         return { avg, count };
     }
-    return getDbAvgEnergyConsumptionForUserInComparison(Number(userId));
+    return getDbAvgEnergyConsumptionForUserInComparison(userId);
 });
 
 export const getElectricitySensorIdForUser = cache(async (userId: string) => {
-    if (userId === "-1") {
+    if (userId === "demo") {
         return "demo_sensor";
     }
-    return getDbElectricitySensorIdForUser(Number(userId));
+    return getDbElectricitySensorIdForUser(userId);
 });
 
 export const getPeaksBySensor = cache(async (start: Date, end: Date, sensorId: string) => {

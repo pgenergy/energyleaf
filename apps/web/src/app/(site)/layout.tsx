@@ -31,7 +31,7 @@ const navLinks = [
 ];
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         redirect("/");
@@ -45,7 +45,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                 actions={
                     <>
                         <ThemeSwitcher />
-                        <NavbarAvatar user={session.user} />
+                        <NavbarAvatar user={user} />
                     </>
                 }
                 links={navLinks}

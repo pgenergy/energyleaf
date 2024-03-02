@@ -14,23 +14,14 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@energyleaf/ui";
+import { useUserContext } from "@/hooks/user-hook";
 
 interface Props {
-    context: {
-        user:
-            | {
-                  id: number;
-                  username: string;
-              }
-            | undefined;
-        setUser: (user: { id: number; username: string } | undefined) => void;
-        deleteDialogOpen: boolean;
-        setDeleteDialogOpen: (open: boolean) => void;
-    };
     onSuccess?: () => void;
 }
 
-export function UserDeleteDialog({ context, onSuccess }: Props) {
+export function UserDeleteDialog({ onSuccess }: Props) {
+    const context = useUserContext();
     const [pending, startTransition] = useTransition();
 
     if (!context.user) {

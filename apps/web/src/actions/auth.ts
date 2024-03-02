@@ -5,13 +5,11 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
-import { signIn, signOut } from "@/lib/auth/auth";
+import { getSession, lucia } from "@/lib/auth/auth";
 import { isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
-import { CallbackRouteError } from "@auth/core/errors";
-import * as bcrypt from "bcryptjs";
 import * as jose from "jose";
-import { AuthError } from "next-auth";
+import { Argon2id } from "oslo/password";
 import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
@@ -47,7 +45,7 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
         throw new Error("E-Mail wird bereits verwendet.");
     }
 
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await new Argon2id().hash(password);
 
     try {
         await createUser({
@@ -96,7 +94,11 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     const { sub } = jose.decodeJwt(resetToken);
-    const user = await getUserById(Number(sub));
+    if (!sub) {
+        throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
+    }
+
+    const user = await getUserById(sub);
 
     if (!user) {
         throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
@@ -109,7 +111,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     });
     // no exception was thrown, so everything is fine
 
-    const hash = await bcrypt.hash(newPassword, 10);
+    const hash = await new Argon2id().hash(newPassword);
     await updatePassword({ password: hash }, user.id);
 
     try {
@@ -128,28 +130,28 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
  * Server action to sign a user in
  */
 export async function signInAction(email: string, password: string) {
-    try {
-        await signIn("credentials", {
-            email,
-            password,
-        });
-    } catch (err) {
-        if (err instanceof AuthError) {
-            switch (err.type) {
-                case "CredentialsSignin":
-                    throw new Error("E-Mail oder Passwort falsch");
-                default:
-                    throw new Error("Fehler beim Anmelden");
-            }
-        }
-
-        if (err instanceof CallbackRouteError && err.cause?.err instanceof UserNotActiveError) {
-            throw new Error("Benutzer ist nicht aktiv. Bitte wenden Sie sich an einen Administrator.");
-        }
-
-        throw err;
+    const { session } = await getSession();
+    if (session) {
+        redirect("/dashboard");
     }
 
+    const user = await getUserByMail(email);
+    if (!user) {
+        throw new Error("E-Mail oder Passwort falsch.");
+    }
+
+    if (!user.isActive) {
+        throw new UserNotActiveError();
+    }
+
+    const passwordMatch = await new Argon2id().verify(user.password, password);
+    if (!passwordMatch) {
+        throw new Error("E-Mail oder Passwort falsch.");
+    }
+
+    const newSession = await lucia.createSession(user.id, user);
+    const cookie = lucia.createSessionCookie(newSession.id);
+    cookies().set(cookie.name, cookie.value, cookie.attributes);
     redirect("/dashboard");
 }
 
@@ -161,7 +163,15 @@ export async function signOutAction() {
         const cookieStore = cookies();
         cookieStore.delete("demo_devices");
         cookieStore.delete("demo_peaks");
+        cookieStore.delete("demo_mode");
+        return;
     }
 
-    await signOut();
+    const { session } = await getSession();
+    if (!session) {
+        return;
+    }
+
+    await lucia.invalidateSession(session.id);
+    redirect("/");
 }

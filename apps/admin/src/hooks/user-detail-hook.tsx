@@ -1,5 +1,6 @@
 "use client";
 
+import type { UserSelectType } from "@energyleaf/db/types";
 import React, { createContext, useContext, useState } from "react";
 
 export type UserDetailsContextType = {
@@ -7,8 +8,8 @@ export type UserDetailsContextType = {
     setDeleteDialogOpen: (open: boolean) => void;
     resetPasswordDialogOpen: boolean;
     setResetPasswordDialogOpen: (open: boolean) => void;
-    user: { id: number; username: string } | undefined;
-    setUser: (user: { id: number; username: string } | undefined) => void;
+    user: UserSelectType | undefined;
+    setUser: (user: UserSelectType | undefined) => void;
 } | null;
 
 const userDetailsContext = createContext<UserDetailsContextType>(null);
@@ -20,7 +21,7 @@ interface Props {
 export function UserDetailsContextProvider({ children }: Props) {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
-    const [user, setUser] = useState<{ id: number; username: string } | undefined>(undefined);
+    const [user, setUser] = useState<UserSelectType | undefined>(undefined);
 
     return (
         <userDetailsContext.Provider

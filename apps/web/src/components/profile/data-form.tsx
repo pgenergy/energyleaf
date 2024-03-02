@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { userData, userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/schema";
+import { userData } from "@energyleaf/db/schema";
 import {
     Button,
     Card,
@@ -30,6 +30,7 @@ import {
     SelectValue,
     Spinner,
 } from "@energyleaf/ui";
+import { userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/types";
 
 interface Props {
     initialData: z.infer<typeof userDataSchema>;

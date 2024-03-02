@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createDevice, updateDevice } from "@/actions/device";
-import { DeviceCategory, deviceSchema } from "@/lib/schema/device";
+import { deviceSchema } from "@/lib/schema/device";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
@@ -24,9 +24,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@energyleaf/ui";
+import { DeviceCategory} from "@energyleaf/db/types";
+import type { DeviceSelectType } from "@energyleaf/db/types";
 
 interface Props {
-    device?: { id: number; name: string; category?: DeviceCategory };
+    device?: DeviceSelectType;
     onCallback: () => void;
 }
 
@@ -35,7 +37,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
         resolver: zodResolver(deviceSchema),
         defaultValues: {
             deviceName: device?.name ?? "",
-            category: device?.category,
+            category: device?.category as DeviceCategory,
         },
     });
 

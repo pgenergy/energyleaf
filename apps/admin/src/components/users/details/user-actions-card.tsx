@@ -2,16 +2,12 @@
 
 import UserStateForm from "@/components/users/details/user-state-form";
 import { useUserDetailsContext } from "@/hooks/user-detail-hook";
+import type { UserSelectType } from "@energyleaf/db/types";
 
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 interface Props {
-    user: {
-        isAdmin: boolean;
-        isActive: boolean;
-        id: number;
-        username: string;
-    };
+    user: UserSelectType; 
 }
 
 export default function UserActionsCard({ user }: Props) {

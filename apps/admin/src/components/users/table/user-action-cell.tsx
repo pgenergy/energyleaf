@@ -4,7 +4,6 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { resetUserPassword } from "@/actions/auth";
 import { setUserActive, setUserAdmin } from "@/actions/user";
-import type { UserTableType } from "@/components/users/table/users-table-columns";
 import { useUserContext } from "@/hooks/user-hook";
 import {
     BanIcon,
@@ -27,9 +26,10 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
+import type { UserSelectType } from "@energyleaf/db/types";
 
 interface Props {
-    user: UserTableType;
+    user: UserSelectType;
 }
 
 export default function UserActionCell({ user }: Props) {

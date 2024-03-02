@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { signOutAction } from "@/actions/auth";
 import { deleteAccount } from "@/actions/profile";
 import { deleteAccountSchema } from "@/lib/schema/profile";
-import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -30,6 +29,7 @@ import {
     Input,
     Spinner,
 } from "@energyleaf/ui";
+import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
 
 interface Props {
     disabled?: boolean;

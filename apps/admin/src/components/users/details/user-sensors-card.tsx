@@ -3,7 +3,7 @@ import UserSensorsTable from "@/components/users/details/user-sensors-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 interface Props {
-    userId: number;
+    userId: string;
 }
 
 export default function UserSensorsCard({ userId }: Props) {

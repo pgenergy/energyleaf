@@ -7,10 +7,11 @@ import { LineChart } from "@energyleaf/ui/components/charts";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
+import type { DeviceSelectType } from "@energyleaf/db/types";
 
 interface Props {
     data: { sensorId: string | number; energy: number; timestamp: string }[];
-    devices: { id: number; userId: number; name: string; created: Date | null }[] | null;
+    devices: DeviceSelectType[] | null;
     peaks?: PeakAssignment[];
 }
 

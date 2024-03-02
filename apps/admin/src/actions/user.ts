@@ -26,7 +26,7 @@ export const getAllUsers = cache(async () => {
     return getAllUsersDb();
 });
 
-export async function setUserActive(id: number, active: boolean) {
+export async function setUserActive(id: string, active: boolean) {
     await validateUserAdmin();
 
     try {
@@ -37,7 +37,7 @@ export async function setUserActive(id: number, active: boolean) {
     }
 }
 
-export async function setUserAdmin(id: number, isAdmin: boolean) {
+export async function setUserAdmin(id: string, isAdmin: boolean) {
     await validateUserAdmin();
 
     try {
@@ -48,7 +48,7 @@ export async function setUserAdmin(id: number, isAdmin: boolean) {
     }
 }
 
-export async function deleteUser(id: number) {
+export async function deleteUser(id: string) {
     await validateUserAdmin();
     try {
         await deleteUserDb(id);
@@ -58,7 +58,7 @@ export async function deleteUser(id: number) {
     }
 }
 
-export async function getUser(id: number) {
+export async function getUser(id: string) {
     await validateUserAdmin();
 
     try {
@@ -68,7 +68,7 @@ export async function getUser(id: number) {
     }
 }
 
-export async function updateUser(data: z.infer<typeof baseInformationSchema>, id: number) {
+export async function updateUser(data: z.infer<typeof baseInformationSchema>, id: string) {
     await validateUserAdmin();
 
     try {
@@ -85,7 +85,7 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
     }
 }
 
-export async function updateUserState(data: z.infer<typeof userStateSchema>, id: number) {
+export async function updateUserState(data: z.infer<typeof userStateSchema>, id: string) {
     await validateUserAdmin();
 
     try {
@@ -97,7 +97,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
     }
 }
 
-export async function getSensorsByUser(id: number) {
+export async function getSensorsByUser(id: string) {
     await validateUserAdmin();
 
     try {
@@ -108,12 +108,12 @@ export async function getSensorsByUser(id: number) {
 }
 
 async function validateUserAdmin() {
-    const session = await getSession();
+    const { user, session } = await getSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
-    if (!session.user.admin) {
+    if (!user.isAdmin) {
         throw new Error("User is not an admin");
     }
 }

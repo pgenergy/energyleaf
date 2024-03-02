@@ -3,12 +3,13 @@ import type { Peak } from "@/types/peaks/peak";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui";
 
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
+import type { DeviceSelectType } from "@energyleaf/db/types";
 
 interface Props {
     open: boolean;
     setOpen: (open: boolean) => void;
     value: Peak;
-    devices: { id: number; userId: number; name: string; created: Date | null }[];
+    devices: DeviceSelectType[];
 }
 
 export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, devices }: Props) {

@@ -136,7 +136,7 @@ export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
 /**
  * get the average energy consumption for a user in comparison to other users with similar data
  */
-export async function getAvgEnergyConsumptionForUserInComparison(userId: number) {
+export async function getAvgEnergyConsumptionForUserInComparison(userId: string) {
     const query = await db.transaction(async (trx) => {
         const data = await trx.select().from(userData).where(eq(userData.userId, userId));
 
@@ -228,7 +228,7 @@ function sensorDataTimeFilter(start: Date, end: Date) {
 /**
  * Get the sensorId for a user where sensor_type is 'electricity'
  */
-export async function getElectricitySensorIdForUser(userId: number) {
+export async function getElectricitySensorIdForUser(userId: string) {
     return await db.transaction(async (trx) => {
         const query = await trx
             .select()
@@ -303,7 +303,7 @@ export async function getSensorsWithUser(): Promise<SensorSelectTypeWithUser[]> 
     return db.select().from(sensor).leftJoin(user, eq(user.id, sensor.userId));
 }
 
-export async function getSensorsByUser(userId: number) {
+export async function getSensorsByUser(userId: string) {
     return db.select().from(sensor).where(eq(sensor.userId, userId));
 }
 
@@ -451,7 +451,7 @@ export async function getSensorIdFromSensorToken(code: string) {
     });
 }
 
-export async function assignSensorToUser(clientId: string, userId: number | null) {
+export async function assignSensorToUser(clientId: string, userId: string | null) {
     await db.transaction(async (trx) => {
         const query = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
         if (query.length === 0) {
