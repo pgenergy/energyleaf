@@ -1,15 +1,18 @@
-import { useEffect, useMemo, useRef, useState, useTransition, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { getAllUsers } from "@/actions/user";
+import { CheckIcon } from "lucide-react";
 
+import { cn } from "@energyleaf/tailwindcss/utils";
 import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-    Input,
+    Button,
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
     Spinner,
 } from "@energyleaf/ui";
 
@@ -27,7 +30,6 @@ interface Props {
 export default function UserSelector({ selectedUserId, onUserSelected, selectedUserName }: Props) {
     const [isLoading, startLoadTransition] = useTransition();
     const [users, setUsers] = useState<User[]>([]);
-    const [search, setSearch] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -41,7 +43,6 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
         setIsOpen(isOpened);
         if (!isOpened) {
             setUsers([]);
-            setSearch("");
             return;
         }
 
@@ -54,82 +55,42 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
         });
     }
 
-    function onSearchTextChanged(event: ChangeEvent<HTMLInputElement>) {
-        setSearch(event.target.value);
-    }
-
-    const filteredUsers = useMemo(
-        () => users.filter((user) => user.name.toLowerCase().includes(search.toLowerCase())),
-        [users, search],
-    );
-    const slicedUsers = useMemo(() => {
-        let filteredUsersCopy = [...filteredUsers];
-
-        if (search === "" && selectedUserId !== undefined) {
-            // selected user should be part of the list when no search is active
-            filteredUsersCopy = filteredUsersCopy.filter((user) => user.id !== selectedUserId).slice(0, 4);
-            const selectedUser = users.find((user) => user.id === selectedUserId);
-            if (selectedUser) {
-                filteredUsersCopy.push(selectedUser);
-            }
-        } else {
-            filteredUsersCopy = filteredUsersCopy.slice(0, 5);
-        }
-
-        return filteredUsersCopy;
-    }, [filteredUsers, selectedUserId, search, users]);
-
     return (
-        <DropdownMenu onOpenChange={loadUsers}>
-            <DropdownMenuTrigger>
-                {selectedUserId && selectedUserName ? (
-                    <a href={`/users/${selectedUserId}`}>{selectedUserName}</a>
-                ) : (
-                    <i>Nicht zugeordnet</i>
-                )}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel>
-                    <Input
-                        onChange={onSearchTextChanged}
-                        onKeyDown={(e) => {
-                            e.stopPropagation();
-                        }}
-                        placeholder="Suchen"
-                        ref={inputRef}
-                    />
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {isLoading ? (
-                    <DropdownMenuItem disabled>
-                        <Spinner />
-                    </DropdownMenuItem>
-                ) : (
-                    <>
-                        <DropdownMenuCheckboxItem
-                            checked={selectedUserId === null}
-                            onClick={(_) => {
-                                onUserSelected(null);
-                            }}
-                        >
-                            <i>Nicht zugeordnet</i>
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuSeparator />
-
-                        {slicedUsers.map((user) => (
-                            <DropdownMenuCheckboxItem
-                                checked={user.id === selectedUserId}
-                                key={user.id}
-                                onClick={(_) => {
-                                    onUserSelected(user.id);
-                                }}
-                            >
-                                {user.name}
-                            </DropdownMenuCheckboxItem>
-                        ))}
-                    </>
-                )}
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Popover onOpenChange={loadUsers} open={isOpen}>
+            <PopoverTrigger asChild>
+                <Button aria-expanded={isOpen} role="combobox" size="sm" variant="ghost">
+                    {selectedUserName || "Nicht zugeordnet"}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+                <Command>
+                    <CommandInput placeholder="Nutzer Suchen" />
+                    <CommandEmpty>Kein Nutzer gefunden</CommandEmpty>
+                    <CommandGroup>
+                        {isLoading ? (
+                            <Spinner />
+                        ) : (
+                            users.map((user) => (
+                                <CommandItem
+                                    key={user.id}
+                                    onSelect={() => {
+                                        onUserSelected(user.id);
+                                    }}
+                                    value={user.name}
+                                >
+                                    <CheckIcon
+                                        className={cn(
+                                            "mr-2 h-4 w-4",
+                                            selectedUserId === user.id ? "opacity-100" : "opacity-0",
+                                        )}
+                                    />
+                                    {user.name}
+                                </CommandItem>
+                            ))
+                        )}
+                    </CommandGroup>
+                </Command>
+            </PopoverContent>
+        </Popover>
     );
 }
