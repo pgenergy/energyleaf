@@ -10,6 +10,7 @@ enum SensorType {
 message TokenRequest {
     string client_id = 1;
 	SensorType type = 2;
+    optional bool need_script = 3;
 }
 
 message TokenResponse {

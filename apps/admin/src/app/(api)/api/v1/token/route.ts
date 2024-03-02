@@ -32,7 +32,7 @@ export const POST = async (req: NextRequest) => {
                 });
             }
 
-            if (scriptData.needsScript && scriptData.script) {
+            if ((scriptData.needsScript && scriptData.script) || (data.needScript && scriptData.script)) {
                 return new NextResponse(
                     TokenResponse.toBinary({
                         status: 200,
