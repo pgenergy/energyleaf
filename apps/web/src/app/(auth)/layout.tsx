@@ -21,7 +21,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                         <Image
                             alt="Energyleaf Logo"
                             className="h-16 w-16"
-                            placeholder="blur"
                             src={logo}
                         />
                         <h1 className="text-4xl">Energyleaf</h1>

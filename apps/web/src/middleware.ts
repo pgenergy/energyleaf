@@ -6,6 +6,7 @@ const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset"];
 
 export default async function middleware(req: NextRequest) {
     const { user } = await getActionSession();
+    console.log(user);
     const loggedIn = Boolean(user);
     const path = req.nextUrl.pathname;
 
