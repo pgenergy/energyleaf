@@ -3,6 +3,7 @@
 import { useDeviceContext } from "@/hooks/device-hook";
 import { EditIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
 
+import type { DeviceSelectType } from "@energyleaf/db/types";
 import {
     Button,
     DropdownMenu,
@@ -12,7 +13,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
-import type { DeviceSelectType } from "@energyleaf/db/types";
 
 interface Props {
     device: DeviceSelectType;

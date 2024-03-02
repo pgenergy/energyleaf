@@ -1,7 +1,8 @@
 "use client";
 
-import type { UserSelectType } from "@energyleaf/db/types";
 import React, { createContext, useContext, useState } from "react";
+
+import type { UserSelectType } from "@energyleaf/db/types";
 
 export type UserDetailsContextType = {
     deleteDialogOpen: boolean;

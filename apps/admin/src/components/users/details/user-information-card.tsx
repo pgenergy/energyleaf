@@ -5,10 +5,10 @@ import { updateUser } from "@/actions/user";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import type { UserSelectType } from "@energyleaf/db/types";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
-import type { UserSelectType } from "@energyleaf/db/types";
 
 interface Props {
     user: UserSelectType;

@@ -9,6 +9,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import { DeviceCategory } from "@energyleaf/db/types";
+import type { DeviceSelectType } from "@energyleaf/db/types";
 import {
     Button,
     Form,
@@ -24,8 +26,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@energyleaf/ui";
-import { DeviceCategory} from "@energyleaf/db/types";
-import type { DeviceSelectType } from "@energyleaf/db/types";
 
 interface Props {
     device?: DeviceSelectType;
@@ -37,7 +37,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
         resolver: zodResolver(deviceSchema),
         defaultValues: {
             deviceName: device?.name ?? "",
-            category: device?.category as DeviceCategory,
+            category: device?.category ? (device.category as keyof typeof DeviceCategory) : undefined,
         },
     });
 
@@ -59,10 +59,9 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
         });
     };
 
-    const handleCategoryChange = (value: string) => {
-        const categoryKey = Object.keys(DeviceCategory).find((key) => DeviceCategory[key] === value);
-        if (categoryKey && Object.values(DeviceCategory).includes(value as DeviceCategory)) {
-            form.setValue("category", value as DeviceCategory);
+    const handleCategoryChange = (key: string) => {
+        if (Object.keys(DeviceCategory).includes(key)) {
+            form.setValue("category", key);
             setCategoryChanged(true);
         }
     };
@@ -96,7 +95,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {Object.entries(DeviceCategory).map(([key, value]) => (
-                                            <SelectItem key={key} value={value}>
+                                            <SelectItem key={key} value={key}>
                                                 {value}
                                             </SelectItem>
                                         ))}

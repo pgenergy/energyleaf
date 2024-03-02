@@ -1,16 +1,16 @@
 import { redirect } from "next/navigation";
 import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
+import ChangePasswordForm from "@/components/profile/change-password-form";
 import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { getUserData } from "@/query/user";
-import ChangePasswordForm from "@/components/profile/change-password-form";
 
 export default async function ProfilePage() {
     const { session, user } = await getSession();
-    
+
     if (!session) {
         redirect("/");
     }
@@ -31,7 +31,8 @@ export default async function ProfilePage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationForm disabled={isDemo} email={user.email} username={user.name} />
+            <BaseInformationForm disabled={isDemo} email={user.email} username={user.username} />
+            <ChangePasswordForm />
             <MailSettingsForm
                 daily={userData?.mail.mailDaily || false}
                 disabled={isDemo}
@@ -39,7 +40,6 @@ export default async function ProfilePage() {
             />
             <UserDataForm disabled={isDemo} initialData={data} />
             <AccountDeletionForm disabled={isDemo} />
-            <ChangePasswordForm />
         </div>
     );
 }

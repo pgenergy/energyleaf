@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
+import type { User } from "lucia";
 import { LogOutIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,7 +17,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
-import type { User } from "lucia";
 
 interface Props {
     user: User;
@@ -43,7 +43,7 @@ export default function NavbarAvatar({ user }: Props) {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                    <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

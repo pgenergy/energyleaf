@@ -9,7 +9,7 @@ declare module "lucia" {
 
 interface DatabaseUserAttributes {
     id: string;
-    name: string;
+    username: string;
     email: string;
     created: string | null;
     isAdmin: boolean;

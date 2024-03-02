@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
 import {
     Button,
     Card,
@@ -29,7 +30,6 @@ import {
     Input,
     Spinner,
 } from "@energyleaf/ui";
-import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
 
 interface Props {
     disabled?: boolean;

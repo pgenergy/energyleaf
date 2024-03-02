@@ -57,6 +57,7 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
     } catch (_err) {
         throw new Error("Fehler beim Erstellen des Accounts.");
     }
+    redirect("/created");
 }
 
 export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
@@ -150,7 +151,7 @@ export async function signInAction(email: string, password: string) {
         throw new Error("E-Mail oder Passwort falsch.");
     }
 
-    const newSession = await lucia.createSession(user.id, user);
+    const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
     redirect("/dashboard");

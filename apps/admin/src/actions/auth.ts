@@ -4,17 +4,17 @@ import type { signInSchema } from "@/lib/schema/auth";
 
 import "server-only";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
+import { getActionSession } from "@/lib/auth/auth.action";
+import { lucia } from "@/lib/auth/auth.config";
+import { Argon2id } from "oslo/password";
 import type { z } from "zod";
 
 import { getUserById, getUserByMail } from "@energyleaf/db/query";
-import { Argon2id } from "oslo/password";
-import { UserNotActiveError, buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
+import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
 import { sendPasswordResetMailForUser } from "@energyleaf/mail";
-import { cookies } from "next/headers";
-import { getActionSession } from "@/lib/auth/auth.action";
-import { lucia } from "@/lib/auth/auth.config";
 
 export async function signInAction(data: z.infer<typeof signInSchema>) {
     const { session } = await getActionSession();
@@ -40,7 +40,7 @@ export async function signInAction(data: z.infer<typeof signInSchema>) {
         throw new Error("E-Mail oder Passwort falsch.");
     }
 
-    const newSession = await lucia.createSession(user.id, user);
+    const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
     redirect("/");

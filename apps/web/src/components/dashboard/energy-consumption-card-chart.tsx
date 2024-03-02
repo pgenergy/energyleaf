@@ -3,11 +3,11 @@
 import React, { useCallback, useState } from "react";
 import type { Peak, PeakAssignment } from "@/types/peaks/peak";
 
+import type { DeviceSelectType } from "@energyleaf/db/types";
 import { LineChart } from "@energyleaf/ui/components/charts";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
-import type { DeviceSelectType } from "@energyleaf/db/types";
 
 interface Props {
     data: { sensorId: string | number; energy: number; timestamp: string }[];

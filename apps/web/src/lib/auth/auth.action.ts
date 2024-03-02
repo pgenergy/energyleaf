@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
+
 import "server-only";
+
 import { lucia } from "./auth.config";
 
 export const getActionSession = async () => {
@@ -8,7 +10,7 @@ export const getActionSession = async () => {
         return {
             user: {
                 id: "demo",
-                name: "Demo Nutzer",
+                username: "Demo Nutzer",
                 email: "demo@energyleaf.de",
                 created: new Date().toISOString(),
                 isAdmin: false,
@@ -23,7 +25,6 @@ export const getActionSession = async () => {
         };
     }
     const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
-    console.log(sessionId);
     if (!sessionId) {
         return {
             user: null,
@@ -32,7 +33,6 @@ export const getActionSession = async () => {
     }
 
     const result = await lucia.validateSession(sessionId);
-    console.log(result);
     try {
         if (result.session && result.session.fresh) {
             const sessionCookie = lucia.createSessionCookie(result.session.id);

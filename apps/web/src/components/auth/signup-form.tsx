@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { createAccount, signInAction } from "@/actions/auth";
+import { createAccount } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { signupSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,13 +32,12 @@ export default function SignUpForm() {
             toast.promise(
                 async () => {
                     await createAccount(data);
-                    await signInAction(data.mail, data.password);
                 },
                 {
                     loading: "Erstelle Konto...",
                     success: "Konto erfolgreich erstellt",
-                    error: (err) => {
-                        setError((err as unknown as Error).message);
+                    error: () => {
+                        setError("Konto konnte nicht erstellt werden");
                         return "Konto konnte nicht erstellt werden";
                     },
                 },

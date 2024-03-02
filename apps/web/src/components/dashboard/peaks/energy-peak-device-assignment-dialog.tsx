@@ -1,9 +1,9 @@
 import type { Peak } from "@/types/peaks/peak";
 
+import type { DeviceSelectType } from "@energyleaf/db/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui";
 
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
-import type { DeviceSelectType } from "@energyleaf/db/types";
 
 interface Props {
     open: boolean;

@@ -17,7 +17,6 @@ import "server-only";
 import { cookies } from "next/headers";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { addDeviceCookieStore, isDemoUser, removeDeviceCookieStore, updateDeviceCookieStore } from "@/lib/demo/demo";
-import { DeviceCategory } from "@energyleaf/db/types";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
     const { user, session } = await getActionSession();
@@ -36,18 +35,11 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         throw new UserNotFoundError();
     }
 
-    const categoryKey = Object.keys(DeviceCategory).find(
-        (key) => DeviceCategory[key as keyof typeof DeviceCategory] === data.category,
-    );
-    if (!categoryKey) {
-        throw new Error(`Ungültige Kategorie: ${data.category}`);
-    }
-
     try {
         await createDeviceDb({
             name: data.deviceName,
             userId: user.id,
-            category: categoryKey,
+            category: data.category,
         });
         revalidatePath("/devices");
     } catch (error: unknown) {
@@ -74,18 +66,11 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         throw new UserNotFoundError();
     }
 
-    const categoryKey = Object.keys(DeviceCategory).find(
-        (key) => DeviceCategory[key as keyof typeof DeviceCategory] === data.category,
-    );
-    if (!categoryKey) {
-        throw new Error(`Ungültige Kategorie: ${data.category}`);
-    }
-
     try {
         await updateDeviceDb(deviceId, {
             name: data.deviceName,
             userId: user.id,
-            category: categoryKey,
+            category: data.category,
         });
         revalidatePath("/devices");
     } catch (error: unknown) {

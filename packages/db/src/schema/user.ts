@@ -3,7 +3,10 @@ import { boolean, datetime, float, int, mysqlEnum, mysqlTable, timestamp, varcha
 import { nanoid } from "nanoid";
 
 export const user = mysqlTable("user", {
-    id: varchar("id", { length: 30 }).primaryKey().notNull().$defaultFn(() => nanoid(30)),
+    id: varchar("id", { length: 30 })
+        .primaryKey()
+        .notNull()
+        .$defaultFn(() => nanoid(30)),
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
     email: varchar("email", { length: 256 }).notNull(),
     username: varchar("username", { length: 30 }).notNull(),
@@ -31,14 +34,14 @@ export const userData = mysqlTable("user_data", {
 });
 
 export const session = mysqlTable("session", {
-	id: varchar("id", { length: 255 }).primaryKey(),
-	userId: varchar("user_id", { length: 30 }).notNull(),
-	expiresAt: datetime("expires_at").notNull()
+    id: varchar("id", { length: 255 }).primaryKey(),
+    userId: varchar("user_id", { length: 30 }).notNull(),
+    expiresAt: datetime("expires_at").notNull(),
 });
 
 export const historyUserData = mysqlTable("history_user_data", {
     id: int("id").autoincrement().primaryKey().notNull(),
-	userId: varchar("user_id", { length: 30 }).notNull(),
+    userId: varchar("user_id", { length: 30 }).notNull(),
     timestamp: timestamp("timestamp")
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),
@@ -53,7 +56,6 @@ export const historyUserData = mysqlTable("history_user_data", {
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
     monthlyPayment: int("advance_payment_electricity"),
 });
-
 
 export const mail = mysqlTable("mail", {
     id: int("id").autoincrement().primaryKey().notNull(),

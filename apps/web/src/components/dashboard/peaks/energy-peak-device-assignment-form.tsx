@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import type { DeviceSelectType } from "@energyleaf/db/types";
 import {
     Button,
     Form,
@@ -20,7 +21,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@energyleaf/ui";
-import type { DeviceSelectType } from "@energyleaf/db/types";
 
 interface Props {
     devices: DeviceSelectType[];

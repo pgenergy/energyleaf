@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { deleteUser } from "@/actions/user";
+import { useUserContext } from "@/hooks/user-hook";
 import { toast } from "sonner";
 
 import {
@@ -14,7 +15,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@energyleaf/ui";
-import { useUserContext } from "@/hooks/user-hook";
 
 interface Props {
     onSuccess?: () => void;

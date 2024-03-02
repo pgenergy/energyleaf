@@ -4,10 +4,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
+import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui";
 
 import DeviceActionCell from "./device-action-cell";
-import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
 
 export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
     {

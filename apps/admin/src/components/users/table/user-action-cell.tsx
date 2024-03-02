@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import type { UserSelectType } from "@energyleaf/db/types";
 import {
     Button,
     DropdownMenu,
@@ -26,7 +27,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
-import type { UserSelectType } from "@energyleaf/db/types";
 
 interface Props {
     user: UserSelectType;

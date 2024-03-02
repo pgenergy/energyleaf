@@ -12,12 +12,12 @@ import {
 import "server-only";
 
 import { revalidatePath } from "next/cache";
+import { getActionSession } from "@/lib/auth/auth.action";
 import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import type { z } from "zod";
 
 import type { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "@energyleaf/db/types";
 import { UserNotLoggedInError } from "@energyleaf/lib";
-import { getActionSession } from "@/lib/auth/auth.action";
 
 /**
  * Creates a new sensor.
