@@ -6,6 +6,7 @@ import {
     mysqlEnum,
     mysqlTable,
     primaryKey,
+    text,
     timestamp,
     uniqueIndex,
     varchar,
@@ -23,7 +24,7 @@ export const sensor = mysqlTable("sensor", {
     sensorType: mysqlEnum("sensor_type", sensorTypes).notNull(),
     userId: varchar("user_id", { length: 30}),
     needsScript: boolean("needs_script").default(false).notNull(),
-    script: varchar("script", { length: 255 }),
+    script: text("script"),
 });
 
 export const sensorHistory = mysqlTable(

@@ -39,7 +39,7 @@ export default async function AvgEnergyConsumptionComparisonCard() {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Durchschnittlicher Energieverbrauch</CardTitle>
-                <CardDescription>Im Vergleich zu anderen Nutzern mit Vergleichbaren Daten</CardDescription>
+                <CardDescription>Im Vergleich zu anderen Nutzern mit vergleichbaren Daten</CardDescription>
             </CardHeader>
             <CardContent>
                 {avg && avgUser ? (

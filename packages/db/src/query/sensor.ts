@@ -5,12 +5,7 @@ import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 
 import db from "../";
 import { peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
-import {
-    AggregationType,
-    SensorInsertType,
-    SensorSelectTypeWithUser,
-    SensorType,
-} from "../types/types";
+import { AggregationType, SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 /**
  * Get the energy consumption for a sensor in a given time range
