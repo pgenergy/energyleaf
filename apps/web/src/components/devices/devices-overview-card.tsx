@@ -3,10 +3,12 @@ import { DeviceContextProvider } from "@/hooks/device-hook";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
 
+import ErrorBoundary from "../error/error-boundary";
 import DeviceAddButton from "./device-add-button";
 import { DeviceDeleteDialog } from "./device-delete-dialog";
 import DeviceEditDialog from "./device-edit-dialog";
 import DevicesTable from "./devices-table";
+import DevicesTableError from "./table/devices-table-error";
 
 export default function DevicesOverviewCard() {
     return (
@@ -22,9 +24,11 @@ export default function DevicesOverviewCard() {
                     <DeviceAddButton />
                 </CardHeader>
                 <CardContent>
-                    <Suspense fallback={<Skeleton className="h-96" />}>
-                        <DevicesTable />
-                    </Suspense>
+                    <ErrorBoundary fallback={DevicesTableError}>
+                        <Suspense fallback={<Skeleton className="h-96" />}>
+                            <DevicesTable />
+                        </Suspense>
+                    </ErrorBoundary>
                 </CardContent>
             </Card>
         </DeviceContextProvider>
