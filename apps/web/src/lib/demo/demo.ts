@@ -173,12 +173,12 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
         { timestamp: "08:00:00", value: 2.05 },
         { timestamp: "09:00:00", value: 0.77 },
         { timestamp: "10:00:00", value: 0.43 },
-        { timestamp: "11:00:00", value: 0.40 },
-        { timestamp: "12:00:00", value: 0.50 },
-        { timestamp: "13:00:00", value: 0.40 },
+        { timestamp: "11:00:00", value: 0.4 },
+        { timestamp: "12:00:00", value: 0.5 },
+        { timestamp: "13:00:00", value: 0.4 },
         { timestamp: "14:00:00", value: 1.58 },
         { timestamp: "15:00:00", value: 0.53 },
-        { timestamp: "16:00:00", value: 0.80 },
+        { timestamp: "16:00:00", value: 0.8 },
         { timestamp: "17:00:00", value: 0.62 },
         { timestamp: "18:00:00", value: 0.71 },
         { timestamp: "19:00:00", value: 0.69 },
@@ -186,21 +186,23 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
         { timestamp: "21:00:00", value: 0.76 },
         { timestamp: "22:00:00", value: 0.48 },
         { timestamp: "23:00:00", value: 0.35 },
-    ];    
+    ];
 
-    return fixedData.map((item, index) => {
-        const date = new Date(start);
-        const [hours, minutes, seconds] = item.timestamp.split(":").map(Number);
-        date.setHours(hours, minutes, seconds, 0);
+    return fixedData
+        .map((item, index) => {
+            const date = new Date(start);
+            const [hours, minutes, seconds] = item.timestamp.split(":").map(Number);
+            date.setHours(hours, minutes, seconds, 0);
 
-        if (date >= start && date <= end) {
-            return {
-                id: index + 1,
-                sensorId: "demo_sensor",
-                value: item.value,
-                timestamp: date,
-            };
-        }
-        return null;
-    }).filter(item => item !== null) as SensorDataSelectType[];
+            if (date >= start && date <= end) {
+                return {
+                    id: index + 1,
+                    sensorId: "demo_sensor",
+                    value: item.value,
+                    timestamp: date,
+                };
+            }
+            return null;
+        })
+        .filter((item) => item !== null) as SensorDataSelectType[];
 }
