@@ -3,7 +3,7 @@ import { DeviceContextProvider } from "@/hooks/device-hook";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
 
-import ErrorBoundary from "../error/error-boundary";
+import { ErrorBoundary } from "@energyleaf/ui/error";
 import DeviceAddButton from "./device-add-button";
 import { DeviceDeleteDialog } from "./device-delete-dialog";
 import DeviceEditDialog from "./device-edit-dialog";
