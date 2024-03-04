@@ -1,8 +1,8 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
-import UserConsumptionCardContent from "@/components/users/details/user-consumption-card-content";
+import UserConsumptionCardContent from "@/components/users/details/consumption/user-consumption-card-content";
 import React from "react";
-import UserConsumptionDateRange from "@/components/users/details/user-consumption-date-range";
-import UserConsumptionAggregationOption from "@/components/users/details/user-consumption-aggregation-option";
+import UserConsumptionDateRange from "@/components/users/details/consumption/user-consumption-date-range";
+import UserConsumptionAggregationOption from "@/components/users/details/consumption/user-consumption-aggregation-option";
 
 interface Props {
     userId: number;

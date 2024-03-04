@@ -10,7 +10,7 @@ import UserSensorsCard from "@/components/users/details/user-sensors-card";
 import { UserDetailsContextProvider } from "@/hooks/user-detail-hook";
 
 import { Skeleton } from "@energyleaf/ui";
-import UserConsumptionCard from "@/components/users/details/user-consumption-card";
+import UserConsumptionCard from "@/components/users/details/consumption/user-consumption-card";
 
 interface Props {
     params: {
