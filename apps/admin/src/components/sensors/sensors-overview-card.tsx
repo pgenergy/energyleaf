@@ -1,13 +1,15 @@
-import React from "react";
+import React, {Suspense} from "react";
 import SensorAddButton from "@/components/sensors/sensor-add-button";
 import SensorAddDialog from "@/components/sensors/sensor-add-dialog";
 import { SensorDeleteDialog } from "@/components/sensors/sensor-delete-dialog";
 import SensorsTable from "@/components/sensors/sensors-table";
 import { SensorContextProvider } from "@/hooks/sensor-hook";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton} from "@energyleaf/ui";
 
 import SensorEditDialog from "./sensor-edit-dialog";
+import SensorsTableError from "@/components/sensors/table/sensors-table-error";
+import {ErrorBoundary} from "@energyleaf/ui/error";
 
 export default function SensorsOverviewCard() {
     return (
@@ -24,7 +26,11 @@ export default function SensorsOverviewCard() {
                     <div className="flex justify-end">
                         <SensorAddButton />
                     </div>
-                    <SensorsTable />
+                    <ErrorBoundary fallback={SensorsTableError}>
+                        <Suspense fallback={<Skeleton className="h-96" />}>
+                            <SensorsTable />
+                        </Suspense>
+                    </ErrorBoundary>
                 </CardContent>
             </Card>
         </SensorContextProvider>
