@@ -2,23 +2,26 @@
 
 import "server-only";
 
-import { cache } from "react";
-import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth/auth";
-import type { userStateSchema } from "@/lib/schema/user";
-import type { z } from "zod";
+import {cache} from "react";
+import {revalidatePath} from "next/cache";
+import {getSession} from "@/lib/auth/auth";
+import type {userStateSchema} from "@/lib/schema/user";
+import type {z} from "zod";
 
 import {
     deleteUser as deleteUserDb,
     getAllUsers as getAllUsersDb,
+    getElectricitySensorIdForUser,
+    getEnergyForSensorInRange,
     getSensorsByUser as getSensorsByUserDb,
     getUserById,
     setUserActive as setUserActiveDb,
     setUserAdmin as setUserAdminDb,
     updateUser as updateUserDb,
 } from "@energyleaf/db/query";
-import { UserNotLoggedInError } from "@energyleaf/lib";
-import type { baseInformationSchema } from "@energyleaf/lib";
+import type {baseInformationSchema} from "@energyleaf/lib";
+import {UserNotLoggedInError} from "@energyleaf/lib";
+import {AggregationType} from "@energyleaf/db/util";
 
 export const getAllUsers = cache(async () => {
     await validateUserAdmin();
@@ -104,6 +107,30 @@ export async function getSensorsByUser(id: number) {
         return await getSensorsByUserDb(id);
     } catch (e) {
         throw new Error(`Failed to get sensors of user ${id}`);
+    }
+}
+
+export async function getElectricitySensorByUser(id: number) {
+    await validateUserAdmin();
+
+    try {
+        return await getElectricitySensorIdForUser(id);
+    } catch (e) {
+        throw new Error(`Failed to get electricity sensor of user ${id}`);
+    }
+}
+
+export async function getConsumptionBySensor(sensorId: string) {
+    await validateUserAdmin();
+
+    try {
+        const demoStart = new Date(2024, 2, 1);
+        const demoEnd = new Date(new Date().setHours(23, 59, 59, 999));
+        demoEnd.setFullYear(2025, 1, 1)
+
+        return getEnergyForSensorInRange(demoStart, demoEnd, sensorId, AggregationType.RAW);
+    } catch (e) {
+        throw new Error(`Failed to get consumption of sensor ${sensorId}`);
     }
 }
 

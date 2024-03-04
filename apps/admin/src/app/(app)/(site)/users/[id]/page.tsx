@@ -8,6 +8,7 @@ import UserSensorsCard from "@/components/users/details/user-sensors-card";
 import { UserDetailsContextProvider } from "@/hooks/user-detail-hook";
 
 import { Skeleton } from "@energyleaf/ui";
+import UserConsumptionCard from "@/components/users/details/user-consumption-card";
 
 interface Props {
     params: {
@@ -34,6 +35,9 @@ export default async function UserDetailsPage({ params }: Props) {
                 </Suspense>
                 <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
                     <UserSensorsCard userId={user.id} />
+                </Suspense>
+                <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
+                    <UserConsumptionCard userId={user.id} />
                 </Suspense>
             </div>
         </UserDetailsContextProvider>

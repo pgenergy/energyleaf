@@ -229,9 +229,6 @@ importers:
       react-hook-form:
         specifier: ^7.50.1
         version: 7.50.1(react@18.2.0)
-      recharts:
-        specifier: ^2.12.0
-        version: 2.12.0(react-dom@18.2.0)(react@18.2.0)
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
