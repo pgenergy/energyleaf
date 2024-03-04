@@ -184,20 +184,23 @@ export async function signInDemoAction() {
  * Server action to sign a user out
  */
 export async function signOutAction() {
-    if (await isDemoUser()) {
-        const cookieStore = cookies();
-        cookieStore.delete("demo_data");
-        cookieStore.delete("demo_devices");
-        cookieStore.delete("demo_peaks");
-        cookieStore.delete("demo_mode");
-        return;
-    }
-
     const { session } = await getActionSession();
     if (!session) {
         return;
     }
 
     await lucia.invalidateSession(session.id);
+    redirect("/");
+}
+
+export async function signOutDemoAction() {
+    if (!await isDemoUser()) {
+        throw new Error("Not a demo user");
+    }
+    const cookieStore = cookies();
+    cookieStore.delete("demo_data");
+    cookieStore.delete("demo_devices");
+    cookieStore.delete("demo_peaks");
+    cookieStore.delete("demo_mode");
     redirect("/");
 }
