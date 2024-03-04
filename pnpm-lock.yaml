@@ -81,9 +81,6 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.13.2
         version: 8.13.2(react-dom@18.2.0)(react@18.2.0)
-      bcryptjs:
-        specifier: ^2.4.3
-        version: 2.4.3
       clsx:
         specifier: ^2.1.0
         version: 2.1.0
@@ -136,9 +133,6 @@ importers:
       '@energyleaf/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
-      '@types/bcryptjs':
-        specifier: ^2.4.6
-        version: 2.4.6
       '@types/node':
         specifier: ^20.11.24
         version: 20.11.24
@@ -190,9 +184,6 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.13.2
         version: 8.13.2(react-dom@18.2.0)(react@18.2.0)
-      bcryptjs:
-        specifier: ^2.4.3
-        version: 2.4.3
       clsx:
         specifier: ^2.1.0
         version: 2.1.0
@@ -251,9 +242,6 @@ importers:
       '@next/eslint-plugin-next':
         specifier: ^14.1.0
         version: 14.1.0
-      '@types/bcryptjs':
-        specifier: ^2.4.6
-        version: 2.4.6
       '@types/node':
         specifier: ^20.11.24
         version: 20.11.24
@@ -4483,10 +4471,6 @@ packages:
     dev: false
     optional: true
 
-  /@types/bcryptjs@2.4.6:
-    resolution: {integrity: sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==}
-    dev: true
-
   /@types/cookie@0.4.1:
     resolution: {integrity: sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q==}
     dev: false
@@ -5350,10 +5334,6 @@ packages:
     resolution: {integrity: sha512-4Bcg1P8xhUuqcii/S0Z9wiHIrQVPMermM1any+MX5GeGD7faD3/msQUDGLol9wOcz4/jbg/WJnGqoJF6LiBdtg==}
     engines: {node: '>=10.0.0'}
     dev: true
-
-  /bcryptjs@2.4.3:
-    resolution: {integrity: sha512-V/Hy/X9Vt7f3BbPJEi8BdVFMByHi+jNXrYkW3huaybV/kQ0KJg0Y6PkEMbn+zeT+i+SiKZ/HMqJGIIt4LZDqNQ==}
-    dev: false
 
   /binary-extensions@2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
