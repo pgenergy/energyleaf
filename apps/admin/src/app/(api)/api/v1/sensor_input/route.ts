@@ -9,6 +9,9 @@ export const POST = async (req: NextRequest) => {
     if (!body) {
         return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "No body" }), {
             status: 400,
+            headers: {
+                "Content-Type": "application/x-protobuf",
+            },
         });
     }
     try {
@@ -21,17 +24,28 @@ export const POST = async (req: NextRequest) => {
 
             await insertSensorData({ sensorId, value: data.value, sum: needsSum });
 
-            return new NextResponse(SensorDataResponse.toBinary({ status: 204 }), { status: 204 });
+            return new NextResponse(SensorDataResponse.toBinary({ status: 204 }), {
+                status: 204,
+                headers: {
+                    "Content-Type": "application/x-protobuf",
+                },
+            });
         } catch (e) {
             if ((e as unknown as Error).message === "token/expired") {
                 return new NextResponse(SensorDataResponse.toBinary({ statusMessage: "Token expired", status: 401 }), {
                     status: 401,
+                    headers: {
+                        "Content-Type": "application/x-protobuf",
+                    },
                 });
             }
 
             if ((e as unknown as Error).message === "token/invalid") {
                 return new NextResponse(SensorDataResponse.toBinary({ statusMessage: "Token invalid", status: 401 }), {
                     status: 401,
+                    headers: {
+                        "Content-Type": "application/x-protobuf",
+                    },
                 });
             }
 
@@ -40,6 +54,9 @@ export const POST = async (req: NextRequest) => {
                     SensorDataResponse.toBinary({ statusMessage: "Token not found", status: 404 }),
                     {
                         status: 404,
+                        headers: {
+                            "Content-Type": "application/x-protobuf",
+                        },
                     },
                 );
             }
@@ -49,17 +66,26 @@ export const POST = async (req: NextRequest) => {
                     SensorDataResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }),
                     {
                         status: 404,
+                        headers: {
+                            "Content-Type": "application/x-protobuf",
+                        },
                     },
                 );
             }
 
             return new NextResponse(SensorDataResponse.toBinary({ statusMessage: "Database error", status: 500 }), {
                 status: 500,
+                headers: {
+                    "Content-Type": "application/x-protobuf",
+                },
             });
         }
     } catch (err) {
         return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "Invalid data" }), {
             status: 400,
+            headers: {
+                "Content-Type": "application/x-protobuf",
+            },
         });
     }
 };

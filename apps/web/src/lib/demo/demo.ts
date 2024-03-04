@@ -161,25 +161,48 @@ export function getDemoUserData() {
 }
 
 export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[] {
-    const data: SensorDataSelectType[] = [];
-    let currentDate = new Date(start);
-    let idx = 1;
-    const max = 100;
-    const min = 70;
-    while (currentDate < end) {
-        const value = (Math.sin(currentDate.getTime() / 150_000_00) * (max - min)) / 2 + (max + min) / 2;
-        data.push({
-            id: idx,
-            sensorId: "demo_sensor",
-            value,
-            timestamp: currentDate,
-        });
-        currentDate = new Date(currentDate.getTime() + 60000);
-        idx++;
-    }
+    const fixedData = [
+        { timestamp: "00:00:00", value: 0.37 },
+        { timestamp: "01:00:00", value: 0.39 },
+        { timestamp: "02:00:00", value: 0.41 },
+        { timestamp: "03:00:00", value: 0.43 },
+        { timestamp: "04:00:00", value: 0.48 },
+        { timestamp: "05:00:00", value: 0.47 },
+        { timestamp: "06:00:00", value: 0.47 },
+        { timestamp: "07:00:00", value: 0.87 },
+        { timestamp: "08:00:00", value: 2.05 },
+        { timestamp: "09:00:00", value: 0.77 },
+        { timestamp: "10:00:00", value: 0.43 },
+        { timestamp: "11:00:00", value: 0.4 },
+        { timestamp: "12:00:00", value: 0.5 },
+        { timestamp: "13:00:00", value: 0.4 },
+        { timestamp: "14:00:00", value: 1.58 },
+        { timestamp: "15:00:00", value: 0.53 },
+        { timestamp: "16:00:00", value: 0.8 },
+        { timestamp: "17:00:00", value: 0.62 },
+        { timestamp: "18:00:00", value: 0.71 },
+        { timestamp: "19:00:00", value: 0.69 },
+        { timestamp: "20:00:00", value: 0.75 },
+        { timestamp: "21:00:00", value: 0.76 },
+        { timestamp: "22:00:00", value: 0.48 },
+        { timestamp: "23:00:00", value: 0.35 },
+    ];
 
-    data[Math.floor(data.length / 5)].value = 130;
-    data[Math.floor(data.length / 2)].value = 120;
+    return fixedData
+        .map((item, index) => {
+            const date = new Date(start);
+            const [hours, minutes, seconds] = item.timestamp.split(":").map(Number);
+            date.setHours(hours, minutes, seconds, 0);
 
-    return data;
+            if (date >= start && date <= end) {
+                return {
+                    id: index + 1,
+                    sensorId: "demo_sensor",
+                    value: item.value,
+                    timestamp: date,
+                };
+            }
+            return null;
+        })
+        .filter((item) => item !== null) as SensorDataSelectType[];
 }

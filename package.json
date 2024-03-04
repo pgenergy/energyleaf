@@ -8,6 +8,7 @@
         "dev:app": "dotenv -- turbo run dev --filter web",
         "dev:admin": "dotenv -- turbo run dev --filter admin",
         "dev:mail": "dotenv -- pnpm --filter mail run dev:mail",
+        "start": "dotenv -- turbo run start",
         "lint": "dotenv -- turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "fix": "pnpm run format && pnpm run lint -- --fix",
@@ -31,6 +32,7 @@
         "dotenv-cli": "^7.3.0",
         "mysql2": "^3.9.1",
         "prettier-plugin-tailwindcss": "^0.5.11",
+        "react-error-boundary": "^4.0.12",
         "typescript": "^5.3.3",
         "zod": "^3.22.4"
     }
