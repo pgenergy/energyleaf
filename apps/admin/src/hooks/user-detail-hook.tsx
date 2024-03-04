@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
+import {AggregationType} from "@energyleaf/db/util";
 
 export type UserDetailsContextType = {
     deleteDialogOpen: boolean;
@@ -13,6 +14,8 @@ export type UserDetailsContextType = {
     setStartDate: (date: Date) => void;
     endDate: Date;
     setEndDate: (date: Date) => void;
+    aggregationType: AggregationType;
+    setAggregationType: (aggregationType: AggregationType) => void;
 } | null;
 
 const userDetailsContext = createContext<UserDetailsContextType>(null);
@@ -30,6 +33,8 @@ export function UserDetailsContextProvider({ children }: Props) {
     const [startDate, setStartDate] = useState(new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0));
     const [endDate, setEndDate] = useState(new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59));
 
+    const [aggregationType, setAggregationType] = useState<AggregationType>(AggregationType.RAW);
+
     return (
         <userDetailsContext.Provider
             value={{
@@ -43,6 +48,8 @@ export function UserDetailsContextProvider({ children }: Props) {
                 setStartDate,
                 endDate,
                 setEndDate,
+                aggregationType,
+                setAggregationType
             }}
         >
             {children}

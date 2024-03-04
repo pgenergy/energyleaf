@@ -32,7 +32,12 @@ function useConsumptionData(userId: number) {
                 return;
             }
 
-            const energyData = await getConsumptionBySensor(sensorId, context.startDate, context.endDate);
+            const energyData = await getConsumptionBySensor(
+                sensorId,
+                context.startDate,
+                context.endDate,
+                context.aggregationType
+            );
             const formattedData = energyData.map((entry) => ({
                 sensorId: entry.sensorId || 0,
                 energy: entry.value,
@@ -43,7 +48,7 @@ function useConsumptionData(userId: number) {
         };
 
         fetchData();
-    }, [userId, context.startDate, context.endDate]);
+    }, [userId, context.startDate, context.endDate, context.aggregationType]);
 
     return data;
 }

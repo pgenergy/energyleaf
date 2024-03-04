@@ -3,6 +3,7 @@ import UserConsumptionCardContent from "@/components/users/details/user-consumpt
 import React from "react";
 import UserConsumptionDateRange from "@/components/users/details/user-consumption-date-range";
 import {useUserDetailsContext} from "@/hooks/user-detail-hook";
+import UserConsumptionAggregationOption from "@/components/users/details/user-consumption-aggregation-option";
 
 interface Props {
     userId: number;
@@ -18,6 +19,7 @@ export default function UserConsumptionCard({ userId }: Props) {
                 </div>
                 <div className="flex flex-row gap-4">
                     <UserConsumptionDateRange />
+                    <UserConsumptionAggregationOption />
                 </div>
             </CardHeader>
             <CardContent>

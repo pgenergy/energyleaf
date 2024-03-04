@@ -120,11 +120,11 @@ export async function getElectricitySensorByUser(id: number) {
     }
 }
 
-export async function getConsumptionBySensor(sensorId: string, startDate: Date, endDate: Date) {
+export async function getConsumptionBySensor(sensorId: string, startDate: Date, endDate: Date, aggregationType: AggregationType) {
     await validateUserAdmin();
 
     try {
-        return getEnergyForSensorInRange(startDate, endDate, sensorId, AggregationType.RAW);
+        return getEnergyForSensorInRange(startDate, endDate, sensorId, aggregationType);
     } catch (e) {
         throw new Error(`Failed to get consumption of sensor ${sensorId}`);
     }
