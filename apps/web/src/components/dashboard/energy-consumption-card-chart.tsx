@@ -4,10 +4,10 @@ import React, { useCallback, useState } from "react";
 import type { Peak, PeakAssignment } from "@/types/peaks/peak";
 
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
-import {EnergyConsumptionChart} from "@energyleaf/ui/components/charts";
+import {EnergyConsumptionChart, type EnergyData} from "@energyleaf/ui/components/charts";
 
 interface Props {
-    data: { sensorId: string | number; energy: number; timestamp: string }[];
+    data: EnergyData[];
     devices: { id: number; userId: number; name: string; created: Date | null }[] | null;
     peaks?: PeakAssignment[];
 }
@@ -35,9 +35,9 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
             const sensorData = data.find((x) => x.sensorId === peak.sensorId && x.timestamp === peak.timestamp);
 
             return {
-                id: sensorData?.sensorId,
-                timestamp: sensorData?.timestamp,
-                energy: sensorData?.energy,
+                sensorId: sensorData?.sensorId ?? "",
+                timestamp: sensorData?.timestamp || "",
+                energy: sensorData?.energy ?? 0,
                 device: peak.device,
             };
         },

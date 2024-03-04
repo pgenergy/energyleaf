@@ -5,7 +5,7 @@ import React from "react";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
 interface Props {
-    data: { sensorId: string | number; energy: number; timestamp: string }[];
+    data: EnergyData[];
     referencePoints?: {
         data: Record<string, string | number | undefined>[];
         xKeyName: string;
@@ -13,6 +13,12 @@ interface Props {
         callback?: (value: Record<string, string | number | undefined>) => void;
     };
 }
+
+export type EnergyData = {
+    sensorId: string | number;
+    energy: number;
+    timestamp: string;
+};
 
 export function EnergyConsumptionChart({ data, referencePoints }: Props) {
     return <LineChart

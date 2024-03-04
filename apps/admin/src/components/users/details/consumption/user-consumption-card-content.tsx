@@ -1,7 +1,7 @@
 "use client";
 
 import {getConsumptionBySensor, getElectricitySensorByUser} from "@/actions/user";
-import {EnergyConsumptionChart} from "@energyleaf/ui/components/charts";
+import {EnergyConsumptionChart, type EnergyData} from "@energyleaf/ui/components/charts";
 import {useUserDetailsContext} from "@/hooks/user-detail-hook";
 import {useEffect, useState} from "react";
 
@@ -23,7 +23,7 @@ export default function UserConsumptionCardContent({ userId }: Props) {
 
 function useConsumptionData(userId: number) {
     const context = useUserDetailsContext();
-    const [data, setData] = useState<{sensorId: string | number, energy: number, timestamp: string}[]>([]);
+    const [data, setData] = useState<EnergyData[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
