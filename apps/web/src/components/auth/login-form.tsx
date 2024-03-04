@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { signInAction } from "@/actions/auth";
+import { signInAction, signInDemoAction } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { loginSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,7 @@ import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } fr
 export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
+    const [demoPending, setDemoPending] = useTransition();
     const form = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -24,6 +25,17 @@ export default function LoginForm() {
             password: "",
         },
     });
+
+    function onDemo() {
+        setDemoPending(() => {
+            track("demo()");
+            toast.promise(signInDemoAction, {
+                loading: "Starte Demo...",
+                success: "Demo gestartet",
+                error: "Fehler beim Starten der Demo",
+            });
+        });
+    }
 
     function onSubmit(data: z.infer<typeof loginSchema>) {
         setError("");
@@ -96,12 +108,12 @@ export default function LoginForm() {
                 <p>Sie können sich auch eine Demo ansehen mit einem Klick auf den Button unten.</p>
                 <Button
                     className="text-sm"
-                    onClick={() => {
-                        onSubmit({ mail: "demo@energyleaf.de", password: "demo" });
-                    }}
+                    disabled={demoPending}
+                    onClick={() => onDemo}
+                    type="button"
                     variant="link"
                 >
-                    Demo starten
+                    {demoPending ? "Starte Demo..." : "Demo starten"}
                 </Button>
             </div>
         </div>

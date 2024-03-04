@@ -7,10 +7,10 @@ import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
-import { isDemoUser } from "@/lib/demo/demo";
+import { getDemoUserData, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import * as jose from "jose";
-import { Argon2id } from "oslo/password";
+import { Argon2id, Bcrypt } from "oslo/password";
 import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
@@ -146,14 +146,37 @@ export async function signInAction(email: string, password: string) {
         throw new UserNotActiveError();
     }
 
-    const passwordMatch = await new Argon2id().verify(user.password, password);
-    if (!passwordMatch) {
-        throw new Error("E-Mail oder Passwort falsch.");
+    const argonMatch = await new Argon2id().verify(user.password, password);
+    if (!argonMatch) {
+        const bcryptMatch = await new Bcrypt().verify(user.password, password);
+        if (!bcryptMatch) {
+            throw new Error("E-Mail oder Passwort falsch.");
+        } else {
+            const hash = await new Argon2id().hash(password);
+            await updatePassword({ password: hash }, user.id); 
+        }
     }
+
 
     const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
+    redirect("/dashboard");
+}
+
+/**
+ * Server action to sign a user in as demo
+ */
+export async function signInDemoAction() {
+    const { session } = await getActionSession();
+    if (session) {
+        redirect("/dashboard");
+    }
+
+    const cookieStore = cookies();
+
+    cookieStore.set("demo_mode", "true");
+    cookieStore.set("demo_data", JSON.stringify(getDemoUserData()));
     redirect("/dashboard");
 }
 
@@ -163,6 +186,7 @@ export async function signInAction(email: string, password: string) {
 export async function signOutAction() {
     if (await isDemoUser()) {
         const cookieStore = cookies();
+        cookieStore.delete("demo_data");
         cookieStore.delete("demo_devices");
         cookieStore.delete("demo_peaks");
         cookieStore.delete("demo_mode");
