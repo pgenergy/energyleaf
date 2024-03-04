@@ -10,7 +10,7 @@ export default function AccountCreatedPage() {
                     <p className="text-xl font-bold">Ihr Konto wurde erstellt.</p>
                     <p className="text-sm text-muted-foreground">
                         Wenn wir Ihren Sensor aktivieren, erhalten Sie eine E-Mail. <br />
-                        Mit erhalt der E-Mail können Sie sich einloggen und Ihre Daten einsehen.
+                        Mit Erhalt der E-Mail können Sie sich einloggen und Ihre Daten einsehen.
                     </p>
                 </div>
                 <Separator />
