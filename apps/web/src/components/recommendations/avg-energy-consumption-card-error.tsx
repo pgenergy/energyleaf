@@ -9,7 +9,7 @@ export default function AvgEnergyConsumptionError({ resetErrorBoundary }: Fallba
         <Card>
             <CardHeader>
                 <CardTitle>Durchschnittlicher Energieverbrauch</CardTitle>
-                <CardDescription>Dein durchschnittlicher Energieverbrauch</CardDescription>
+                <CardDescription>Ihr durchschnittlicher Energieverbrauch</CardDescription>
             </CardHeader>
             <CardContent>
                 <h1>Ein Fehler ist aufgetreten</h1>

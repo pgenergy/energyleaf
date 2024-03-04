@@ -18,7 +18,7 @@ export default function DevicesOverviewCard() {
             <Card className="w-full">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div className="flex flex-col gap-2">
-                        <CardTitle>Deine Geräte</CardTitle>
+                        <CardTitle>Ihre Geräte</CardTitle>
                         <CardDescription>Hier sehen Sie alle Ihre Geräte und können diese verwalten.</CardDescription>
                     </div>
                     <DeviceAddButton />

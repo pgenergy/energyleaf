@@ -49,7 +49,7 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
             toast.promise(updateMailInformation(data), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
-                error: "Deine Einstellungen konnten nicht aktualisiert werden",
+                error: "Ihre Einstellungen konnten nicht aktualisiert werden",
             });
         });
     }

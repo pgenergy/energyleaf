@@ -58,7 +58,7 @@ export default function AccountDeletionForm({ disabled }: Props) {
                 },
                 {
                     loading: "Lösche...",
-                    success: "Deine Account wurde erfolgreich gelöscht",
+                    success: "Ihr Account wurde erfolgreich gelöscht",
                     error: (err) => {
                         if (err instanceof PasswordsDoNotMatchError) {
                             return "Bitte geben Sie das richtige Passwort an";

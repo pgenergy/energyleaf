@@ -28,7 +28,7 @@ export default function RecommendationsPage() {
             </div>
             <Card className="w-full">
                 <CardHeader>
-                    <CardTitle>Deine Geräte</CardTitle>
+                    <CardTitle>Ihre Geräte</CardTitle>
                     <CardDescription>Hier sehen Sie den Verbauch Ihrer Geräte</CardDescription>
                 </CardHeader>
                 <CardContent>
