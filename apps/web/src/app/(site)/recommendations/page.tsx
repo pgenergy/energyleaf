@@ -29,7 +29,7 @@ export default function RecommendationsPage() {
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Deine Geräte</CardTitle>
-                    <CardDescription>Hier siehst du den Verbauch deiner Geräte</CardDescription>
+                    <CardDescription>Hier sehen Sie den Verbauch Ihrer Geräte</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-row justify-center">

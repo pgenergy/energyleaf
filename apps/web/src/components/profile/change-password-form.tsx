@@ -46,7 +46,7 @@ export default function ChangePasswordForm({ disabled }: Props) {
             return;
         }
         if (data.newPassword !== data.newPasswordRepeat) {
-            toast.error("Dein Passwort konnte nicht geändert werden", {
+            toast.error("Ihr Passwort konnte nicht geändert werden", {
                 description: "Das neue Passwort stimmt nicht mit der Wiederholung überein",
             });
             return;
@@ -72,7 +72,7 @@ export default function ChangePasswordForm({ disabled }: Props) {
         <div>
             <CardHeader>
                 <CardTitle>Passwort</CardTitle>
-                <CardDescription>Ändere dein Passwort</CardDescription>
+                <CardDescription>Ändern Sie Ihr Passwort</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
