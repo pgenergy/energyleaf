@@ -3,7 +3,7 @@
 import {track} from "@vercel/analytics";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {DateRangePicker} from "@energyleaf/ui/components/utils";
-import {DateRange} from "react-day-picker";
+import type {DateRange} from "react-day-picker";
 
 interface Props {
     startDate: Date;
@@ -28,5 +28,5 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
         }
     }
 
-    return <DateRangePicker startDate={startDate} endDate={endDate} onChange={onChange} />;
+    return <DateRangePicker endDate={endDate} onChange={onChange} startDate={startDate} />;
 }

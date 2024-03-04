@@ -15,5 +15,5 @@ export default function UserConsumptionDateRange() {
         }
     }
 
-    return <DateRangePicker endDate={context.endDate} startDate={context.startDate} onChange={dr => setDates(dr)} />
+    return <DateRangePicker endDate={context.endDate} onChange={dr => { setDates(dr) }} startDate={context.startDate} />
 }

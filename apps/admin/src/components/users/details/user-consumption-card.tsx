@@ -2,7 +2,6 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energy
 import UserConsumptionCardContent from "@/components/users/details/user-consumption-card-content";
 import React from "react";
 import UserConsumptionDateRange from "@/components/users/details/user-consumption-date-range";
-import {useUserDetailsContext} from "@/hooks/user-detail-hook";
 import UserConsumptionAggregationOption from "@/components/users/details/user-consumption-aggregation-option";
 
 interface Props {

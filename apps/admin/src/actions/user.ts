@@ -21,7 +21,7 @@ import {
 } from "@energyleaf/db/query";
 import type {baseInformationSchema} from "@energyleaf/lib";
 import {UserNotLoggedInError} from "@energyleaf/lib";
-import {AggregationType} from "@energyleaf/db/util";
+import type {AggregationType} from "@energyleaf/db/util";
 
 export const getAllUsers = cache(async () => {
     await validateUserAdmin();

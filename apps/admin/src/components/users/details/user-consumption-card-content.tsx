@@ -38,16 +38,19 @@ function useConsumptionData(userId: number) {
                 context.endDate,
                 context.aggregationType
             );
-            const formattedData = energyData.map((entry) => ({
+            return energyData.map((entry) => ({
                 sensorId: entry.sensorId || 0,
                 energy: entry.value,
                 timestamp: entry.timestamp.toString(),
             }));
-
-            setData(formattedData);
         };
 
-        fetchData();
+        fetchData()
+            .catch(() => [])
+            .then(
+                (x) => { setData(x || [] ) },
+                () => { setData([]) }
+            );
     }, [userId, context.startDate, context.endDate, context.aggregationType]);
 
     return data;
