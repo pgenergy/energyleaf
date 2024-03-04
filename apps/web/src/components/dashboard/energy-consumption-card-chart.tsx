@@ -3,10 +3,8 @@
 import React, { useCallback, useState } from "react";
 import type { Peak, PeakAssignment } from "@/types/peaks/peak";
 
-import { LineChart } from "@energyleaf/ui/components/charts";
-
-import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
+import {EnergyConsumptionChart} from "@energyleaf/ui/components/charts";
 
 interface Props {
     data: { sensorId: string | number; energy: number; timestamp: string }[];
@@ -51,9 +49,8 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
             {value && devices ? (
                 <EnergyPeakDeviceAssignmentDialog devices={devices} open={open} setOpen={setOpen} value={value} />
             ) : null}
-            <LineChart
+            <EnergyConsumptionChart
                 data={data}
-                keyName="energy"
                 referencePoints={
                     peaks
                         ? {
@@ -64,11 +61,6 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
                           }
                         : undefined
                 }
-                tooltip={{
-                    content: EnergyConsumptionTooltip,
-                }}
-                xAxes={{ dataKey: "timestamp" }}
-                yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
             />
         </>
     );
