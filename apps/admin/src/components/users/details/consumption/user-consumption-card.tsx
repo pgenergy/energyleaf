@@ -14,7 +14,7 @@ export default function UserConsumptionCard({ userId }: Props) {
             <CardHeader className="flex flex-col justify-start md:flex-row md:justify-between">
                 <div className="flex flex-col gap-2">
                     <CardTitle>Verbrauch</CardTitle>
-                    <CardDescription>Hier kannst du den Verbrauch des Nutzers einsehen.</CardDescription>
+                    <CardDescription>Hier können Sie den Verbrauch des Nutzers einsehen.</CardDescription>
                 </div>
                 <div className="flex flex-row gap-4">
                     <UserConsumptionDateRange />
