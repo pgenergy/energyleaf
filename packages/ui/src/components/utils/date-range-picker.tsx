@@ -1,25 +1,20 @@
 "use client";
 
 import { useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { track } from "@vercel/analytics";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
-import { Button, Calendar, Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui";
+import { Button, Calendar, Popover, PopoverContent, PopoverTrigger } from "../../ui";
 
 interface Props {
     startDate: Date;
     endDate: Date;
+    onChange: (value?: DateRange) => void;
 }
 
-export default function DashboardDateRange({ startDate, endDate }: Props) {
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
-
+export function DateRangePicker({ startDate, endDate, onChange }: Props) {
     const dateString = () => {
         if (startDate.toDateString() === endDate.toDateString()) {
             return format(startDate, "PPP", {
@@ -33,19 +28,6 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
             locale: de,
         })}`;
     };
-
-    function onChange(value?: DateRange) {
-        track("changeDashboardDateRange()");
-        if (value?.from && value.to) {
-            const search = new URLSearchParams();
-            searchParams.forEach((v, key) => {
-                search.set(key, v);
-            });
-            search.set("start", value.from.toISOString());
-            search.set("end", value.to.toISOString());
-            router.push(`${pathname}?${search.toString()}`);
-        }
-    }
 
     const getWeek = useMemo(() => {
         const date = new Date();
@@ -66,6 +48,13 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
         return { from: monthStart, to: monthEnd };
     }, []);
 
+    const getToday = useMemo(() => {
+        const date = new Date();
+        const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+        const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+        return { from: startDate, to: endDate };
+    }, []);
+
     return (
         <div className="flex flex-row justify-end gap-4">
             <Popover>
@@ -79,7 +68,7 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
                     <div className="flex flex-row flex-wrap gap-2">
                         <Button
                             onClick={() => {
-                                router.push(pathname);
+                                onChange(getToday)
                             }}
                             variant="outline"
                         >

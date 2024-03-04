@@ -1,3 +1,5 @@
+"use server";
+
 import { Suspense } from "react";
 import { getUser } from "@/actions/user";
 import UserActionsCard from "@/components/users/details/user-actions-card";

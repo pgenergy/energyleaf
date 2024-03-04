@@ -8,9 +8,9 @@ import { differenceInMinutes } from "date-fns";
 import { AggregationType } from "@energyleaf/db/util";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
-import DashboardDateRange from "./date-range";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
+import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 
 interface Props {
     startDate: Date;

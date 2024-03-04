@@ -9,6 +9,10 @@ export type UserDetailsContextType = {
     setResetPasswordDialogOpen: (open: boolean) => void;
     user: { id: number; username: string } | undefined;
     setUser: (user: { id: number; username: string } | undefined) => void;
+    startDate: Date;
+    setStartDate: (date: Date) => void;
+    endDate: Date;
+    setEndDate: (date: Date) => void;
 } | null;
 
 const userDetailsContext = createContext<UserDetailsContextType>(null);
@@ -22,6 +26,10 @@ export function UserDetailsContextProvider({ children }: Props) {
     const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
     const [user, setUser] = useState<{ id: number; username: string } | undefined>(undefined);
 
+    const date = new Date();
+    const [startDate, setStartDate] = useState(new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0));
+    const [endDate, setEndDate] = useState(new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59));
+
     return (
         <userDetailsContext.Provider
             value={{
@@ -31,6 +39,10 @@ export function UserDetailsContextProvider({ children }: Props) {
                 setResetPasswordDialogOpen,
                 user,
                 setUser,
+                startDate,
+                setStartDate,
+                endDate,
+                setEndDate,
             }}
         >
             {children}
