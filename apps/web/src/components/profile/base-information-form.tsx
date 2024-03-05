@@ -46,6 +46,7 @@ export default function BaseInformationForm({ username, email, disabled }: Props
             <CardContent>
                 <UserBaseInformationForm
                     changeIsPending={changeIsPending}
+                    disabled={disabled}
                     email={email}
                     onSubmit={onSubmit}
                     username={username}

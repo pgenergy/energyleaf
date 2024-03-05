@@ -56,7 +56,7 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
     }
 
     if (await isDemoUser()) {
-        updateDeviceCookieStore(cookies(), deviceId, data.deviceName);
+        updateDeviceCookieStore(cookies(), deviceId, data.deviceName, data.category);
         return;
     }
 

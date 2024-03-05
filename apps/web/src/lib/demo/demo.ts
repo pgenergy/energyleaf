@@ -26,6 +26,7 @@ export function addDeviceCookieStore(cookies: ReadonlyRequestCookies, name: stri
                     created: new Date(),
                     timestamp: new Date(),
                     userId: "demo",
+                    category: category || null,
                 } as DeviceSelectType,
             ]),
         );
@@ -70,7 +71,7 @@ export function getDevicesCookieStore(cookies: ReadonlyRequestCookies) {
     }));
 }
 
-export function updateDeviceCookieStore(cookies: ReadonlyRequestCookies, id: string | number, name: string) {
+export function updateDeviceCookieStore(cookies: ReadonlyRequestCookies, id: string | number, name: string, category?: string) {
     const devices = cookies.get("demo_devices");
     if (!devices) {
         return;
@@ -84,6 +85,7 @@ export function updateDeviceCookieStore(cookies: ReadonlyRequestCookies, id: str
 
     device.name = name;
     device.timestamp = new Date();
+    device.category = category || "";
     cookies.set("demo_devices", JSON.stringify(parsedDevices));
 }
 
@@ -132,7 +134,7 @@ export function getPeaksCookieStore(cookies: ReadonlyRequestCookies) {
     }));
 }
 
-export function getDemoUserData() {
+export function getUserDataCookieStore() {
     const data: UserDataType = {
         mail: {
             id: 1,
@@ -158,6 +160,20 @@ export function getDemoUserData() {
     };
 
     return data;
+}
+
+export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data: Partial<UserDataType>) {
+    const userData = cookies.get("demo_data");
+    if (!userData) {
+        return;
+    }
+
+    const newData = {
+        ...JSON.parse(userData.value) as UserDataType,
+        ...data,
+    };
+
+    cookies.set("demo_data", JSON.stringify(newData));
 }
 
 export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[] {

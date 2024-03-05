@@ -2,9 +2,11 @@ import { cache } from "react";
 
 import "server-only";
 
-import { getDemoUserData } from "@/lib/demo/demo";
+import { getUserDataCookieStore } from "@/lib/demo/demo";
 
 import { getUserById as getDbUserById, getUserData as getDbUserDataById } from "@energyleaf/db/query";
+import { cookies } from "next/headers";
+import type { UserDataType } from "@energyleaf/db/types";
 
 /**
  * Cached query to retrive user data
@@ -29,7 +31,12 @@ export const getUserById = cache(async (id: string) => {
  */
 export const getUserData = cache(async (id: string) => {
     if (id === "demo") {
-        return getDemoUserData();
+        const data = cookies().get("demo_data")?.value;
+        if (!data) {
+            return getUserDataCookieStore();
+        }
+
+        return JSON.parse(data) as UserDataType;
     }
     return getDbUserDataById(id);
 });

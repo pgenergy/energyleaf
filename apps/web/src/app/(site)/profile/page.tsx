@@ -32,13 +32,13 @@ export default async function ProfilePage() {
     return (
         <div className="flex flex-col gap-4">
             <BaseInformationForm disabled={isDemo} email={user.email} username={user.username} />
-            <ChangePasswordForm />
+            <ChangePasswordForm disabled={isDemo} />
             <MailSettingsForm
                 daily={userData?.mail.mailDaily || false}
                 disabled={isDemo}
                 weekly={userData?.mail.mailWeekly || false}
             />
-            <UserDataForm disabled={isDemo} initialData={data} />
+            <UserDataForm initialData={data} />
             <AccountDeletionForm disabled={isDemo} />
         </div>
     );

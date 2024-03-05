@@ -80,7 +80,7 @@ export default function AccountDeletionForm({ disabled }: Props) {
             <CardContent>
                 <div className="flex flex-row justify-end">
                     <Button
-                        disabled={isPending}
+                        disabled={isPending || disabled}
                         onClick={() => {
                             if (disabled) {
                                 return;

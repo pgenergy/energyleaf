@@ -15,9 +15,12 @@ import {
 
 import "server-only";
 
+import { cookies } from "next/headers";
 import { getActionSession } from "@/lib/auth/auth.action";
+import { isDemoUser, updateUserDataCookieStore } from "@/lib/demo/demo";
 import type { z } from "zod";
 
+import type { UserDataType } from "@energyleaf/db/types";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 
@@ -110,6 +113,25 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
 
     if (!session) {
         throw new UserNotLoggedInError();
+    }
+
+    if (await isDemoUser()) {
+        updateUserDataCookieStore(cookies(), {
+            user_data: {
+                timestamp: new Date(),
+                hotWater: data.hotWater,
+                tariff: data.tariff,
+                basePrice: data.basePrice,
+                monthlyPayment: data.monthlyPayment,
+                budget: data.budget,
+                livingSpace: data.livingSpace,
+                household: data.people,
+                property: data.houseType,
+            },
+        } as Partial<UserDataType>);
+        revalidatePath("/profile");
+        revalidatePath("/dashboard");
+        return;
     }
 
     const dbuser = await getUserById(user.id);

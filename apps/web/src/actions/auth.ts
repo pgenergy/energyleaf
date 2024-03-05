@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
-import { getDemoUserData, isDemoUser } from "@/lib/demo/demo";
+import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import * as jose from "jose";
 import { Argon2id, Bcrypt } from "oslo/password";
@@ -176,7 +176,7 @@ export async function signInDemoAction() {
     const cookieStore = cookies();
 
     cookieStore.set("demo_mode", "true");
-    cookieStore.set("demo_data", JSON.stringify(getDemoUserData()));
+    cookieStore.set("demo_data", JSON.stringify(getUserDataCookieStore()));
     redirect("/dashboard");
 }
 
@@ -190,6 +190,7 @@ export async function signOutAction() {
     }
 
     await lucia.invalidateSession(session.id);
+    cookies().delete("auth_session");
     redirect("/");
 }
 

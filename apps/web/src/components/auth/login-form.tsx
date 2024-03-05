@@ -109,7 +109,7 @@ export default function LoginForm() {
                 <Button
                     className="text-sm"
                     disabled={demoPending}
-                    onClick={() => onDemo}
+                    onClick={onDemo}
                     type="button"
                     variant="link"
                 >
