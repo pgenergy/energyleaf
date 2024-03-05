@@ -370,25 +370,44 @@ export async function deleteSensor(sensorId: string) {
  * Create sensor token
  */
 export async function createSensorToken(clientId: string) {
-    const code = nanoid(30);
-    try {
-        await db.transaction(async (trx) => {
-            const sensorData = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
+    const dbReturn = await db.transaction(async (trx) => {
+        const sensorData = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
+        if (sensorData.length === 0) {
+            return {
+                error: "sensor/not-found",
+                code: null,
+            };
+        }
 
-            if (sensorData.length === 0) {
-                throw new Error("sensor/not-found");
-            }
+        const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
+        if (tokenData.length > 0) {
+            const token = tokenData[0];
+            trx.delete(sensorToken).where(eq(sensorToken.code, token.code));
+        }
 
-            await trx.insert(sensorToken).values({
-                code: code,
-                sensorId: sensorData[0].id,
-            });
+        const code = nanoid(30);
+        await trx.insert(sensorToken).values({
+            code: code,
+            sensorId: sensorData[0].id,
         });
 
-        return code;
-    } catch (err) {
-        throw err;
+        return {
+            error: null,
+            code: code,
+        };
+    });
+
+    const { error, code } = dbReturn;
+
+    if (error) {
+        throw new Error(error);
     }
+
+    if (!code) {
+        throw new Error("sensor/not-found");
+    }
+
+    return code;
 }
 
 /**
@@ -416,34 +435,62 @@ export async function getSensorScript(clientId: string) {
  * This also validates the token and deletes it if it is older than 1 hour
  */
 export async function getSensorIdFromSensorToken(code: string) {
-    return db.transaction(async (trx) => {
+    const dbReturn = await db.transaction(async (trx) => {
         const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.code, code));
 
         if (tokenData.length === 0) {
-            throw new Error("token/not-found");
+            return {
+                error: "token/not-found",
+                sensorId: null,
+            };
         }
 
         const token = tokenData[0];
         const tokenDate = token.timestamp;
 
         if (!tokenDate) {
-            throw new Error("token/invalid");
+            trx.delete(sensorToken).where(eq(sensorToken.code, code));
+            return {
+                error: "token/invalid",
+                sensorId: null,
+            };
         }
 
         // check if token is older than 1 hour
         const now = new Date();
         if (now.getTime() - tokenDate.getTime() > 3600000) {
             trx.delete(sensorToken).where(eq(sensorToken.code, code));
-            throw new Error("token/expired");
+            return {
+                error: "token/invalid",
+                sensorId: null,
+            };
         }
 
         const sensorData = await trx.select().from(sensor).where(eq(sensor.id, token.sensorId));
         if (sensorData.length === 0) {
-            throw new Error("sensor/not-found");
+            return {
+                error: "sensor/not-found",
+                sensorId: null,
+            };
         }
 
-        return sensorData[0].id;
+        return {
+            error: null,
+            sensorId: sensorData[0].id,
+        };
     });
+
+    const { error, sensorId } = dbReturn;
+
+    if (error) {
+        throw new Error(error);
+    }
+
+    if (!sensorId) {
+        throw new Error("sensor/not-found");
+    }
+
+    return sensorId;
 }
 
 export async function assignSensorToUser(clientId: string, userId: number | null) {
