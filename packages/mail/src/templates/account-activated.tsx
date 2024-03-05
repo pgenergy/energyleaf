@@ -6,10 +6,10 @@ interface Props {
     name: string;
 }
 
-export default function AccountCreatedTemplate({ name }: Props) {
+export default function AccountActivatedTemplate({ name }: Props) {
     return (
         <Html lang="de">
-            <Preview>Energyleaf Konto erstellt.</Preview>
+            <Preview>Energyleaf Konto aktiviert.</Preview>
             <Head />
             <Tailwind
                 config={{
@@ -19,21 +19,19 @@ export default function AccountCreatedTemplate({ name }: Props) {
                 <Body className="bg-background font-sans text-foreground">
                     <Container className="mx-auto flex max-w-lg flex-col gap-4 px-8 py-4">
                         <Container>
-                            <Heading>Konto erstellt</Heading>
+                            <Heading>Konto aktiviert</Heading>
                             <Hr className="border border-border" />
                         </Container>
                         <Container className="px-4">
                             <Text>
                                 Hallo {name}, <br />
                                 <br />
-                                Ihr Konto wurde erfolgreich erstellt.
-                                <br />
-                                Sobald wir Ihren Sensor installiert haben, können Sie sich mit ihren Zugangsdaten
+                                Ihr Konto wurde erfolgreich aktiviert. Sie können sich jetzt mit Ihren Zugangsdaten
                                 einloggen.
                             </Text>
                         </Container>
                         <Container className="px-4 text-muted-foreground">
-                            <Text>Sollten Sie dieses Konto nicht erstellt haben, kontaktieren Sie uns bitte.</Text>
+                            <Text>Sollten Sie kein Konto erstellt haben, kontaktieren Sie uns bitte.</Text>
                         </Container>
                         <Hr className="border border-border" />
                         <Container className="flex flex-row justify-center gap-4">

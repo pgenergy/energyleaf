@@ -4,6 +4,7 @@ import "server-only";
 
 import { cache } from "react";
 import { revalidatePath } from "next/cache";
+import { env } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import type { userStateSchema } from "@/lib/schema/user";
 import type { z } from "zod";
@@ -19,6 +20,7 @@ import {
 } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib";
 import type { baseInformationSchema } from "@energyleaf/lib";
+import { sendAccountActivatedEmail } from "@energyleaf/mail";
 
 export const getAllUsers = cache(async () => {
     await validateUserAdmin();
@@ -31,6 +33,17 @@ export async function setUserActive(id: string, active: boolean) {
 
     try {
         await setUserActiveDb(id, active);
+        if (active) {
+            const user = await getUserById(id);
+            if (user) {
+                await sendAccountActivatedEmail({
+                    to: user.email,
+                    name: user.username,
+                    from: env.RESEND_API_MAIL,
+                    apiKey: env.RESEND_API_KEY,
+                });
+            }
+        }
         revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to set user active");
