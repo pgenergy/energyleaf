@@ -66,6 +66,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         const dataAboveThreshold = data
             .filter((x) => x.energy > threshold);
 
+        const now = new Date(2024, 3, 3, 23, 50, 0);
         const peakWindows = dataAboveThreshold.reduce((acc, curr) => {
             const currentGroup = acc[acc.length - 1];
 
@@ -76,7 +77,8 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
             }
 
             return acc;
-        }, [] as Array<Array<{sensorId: string | number, energy: number, timestamp: string}>>);
+        }, [] as Array<Array<{sensorId: string | number, energy: number, timestamp: string}>>)
+            .filter((x) => differenceInMinutes(now, new Date(x[0].timestamp)) >= 60);
 
         const peaks = peakWindows.map(group => {
             return group.reduce((prev, current) => (prev.energy >= current.energy) ? prev : current);
