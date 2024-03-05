@@ -8,6 +8,8 @@ import type { z } from "zod";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
+import ErrorCard from "@/components/error/error-card";
+import type {FallbackProps} from "react-error-boundary";
 
 interface Props {
     user: {
@@ -16,6 +18,8 @@ interface Props {
         email: string;
     };
 }
+
+const cardTitle: string = "Informationen";
 
 export default function UserInformationCard({ user }: Props) {
     const [changeIsPending, startTransition] = useTransition();
@@ -33,7 +37,7 @@ export default function UserInformationCard({ user }: Props) {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Informationen</CardTitle>
+                <CardTitle>{cardTitle}</CardTitle>
                 <CardDescription>
                     Hier kannst du die Informationen von Nutzer {user.id} einsehen und ändern.
                 </CardDescription>
@@ -48,5 +52,11 @@ export default function UserInformationCard({ user }: Props) {
                 />
             </CardContent>
         </Card>
+    );
+}
+
+export function UserInformationCardError({ resetErrorBoundary }: FallbackProps) {
+    return (
+        <ErrorCard title={cardTitle} resetErrorBoundary={resetErrorBoundary} />
     );
 }

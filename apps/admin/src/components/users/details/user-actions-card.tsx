@@ -4,6 +4,8 @@ import UserStateForm from "@/components/users/details/user-state-form";
 import { useUserDetailsContext } from "@/hooks/user-detail-hook";
 
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import ErrorCard from "@/components/error/error-card";
+import type {FallbackProps} from "react-error-boundary";
 
 interface Props {
     user: {
@@ -13,6 +15,8 @@ interface Props {
         username: string;
     };
 }
+
+const cardTitle: string = "Status";
 
 export default function UserActionsCard({ user }: Props) {
     const userDetailsContext = useUserDetailsContext();
@@ -30,7 +34,7 @@ export default function UserActionsCard({ user }: Props) {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Status</CardTitle>
+                <CardTitle>{cardTitle}</CardTitle>
                 <CardDescription>Hier kannst du den Status des Benutzers einsehen und ändern.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -52,4 +56,8 @@ export default function UserActionsCard({ user }: Props) {
             </CardContent>
         </Card>
     );
+}
+
+export function UserActionsCardError({ resetErrorBoundary }: FallbackProps) {
+    return <ErrorCard title={cardTitle} resetErrorBoundary={resetErrorBoundary} />;
 }
