@@ -15,7 +15,7 @@ import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
 import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
-import { sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
+import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 
 /**
  * Server action for creating a new account
@@ -54,6 +54,12 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
             password: hash,
             username,
         } satisfies CreateUserType);
+        await sendAccountCreatedEmail({
+            to: mail,
+            name: username,
+            apiKey: env.RESEND_API_KEY,
+            from: env.RESEND_API_MAIL,
+        });
     } catch (_err) {
         throw new Error("Fehler beim Erstellen des Accounts.");
     }
