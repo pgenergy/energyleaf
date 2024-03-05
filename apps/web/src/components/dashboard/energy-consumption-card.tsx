@@ -63,15 +63,24 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
             data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
         );
         const threshold = mean + 2 * std;
-        const peaks = data
-            .filter((x) => x.energy > threshold)
-            .filter((x, i, arr) => {
-                if (i === 0) {
-                    return true;
-                }
+        const dataAboveThreshold = data
+            .filter((x) => x.energy > threshold);
 
-                return differenceInMinutes(new Date(x.timestamp), new Date(arr[i - 1].timestamp)) > 60;
-            });
+        const peakWindows = dataAboveThreshold.reduce((acc, curr) => {
+            const currentGroup = acc[acc.length - 1];
+
+            if (!currentGroup || differenceInMinutes(new Date(curr.timestamp), new Date(currentGroup[0].timestamp)) >= 60) {
+                acc.push([curr]);
+            } else {
+                currentGroup.push(curr);
+            }
+
+            return acc;
+        }, [] as Array<Array<{sensorId: string | number, energy: number, timestamp: string}>>);
+
+        const peaks = peakWindows.map(group => {
+            return group.reduce((prev, current) => (prev.energy >= current.energy) ? prev : current);
+        });
 
         const peaksWithDevicesAssigned = (await getPeaksBySensor(startDate, endDate, sensorId))
             .map((x) => {
