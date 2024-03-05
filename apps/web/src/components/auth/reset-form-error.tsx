@@ -2,7 +2,6 @@
 
 import type { FallbackProps } from "react-error-boundary";
 
-import { Button } from "@energyleaf/ui";
 import {TryAgainErrorHint} from "@energyleaf/ui/error";
 
 export default function ResetError({ resetErrorBoundary }: FallbackProps) {

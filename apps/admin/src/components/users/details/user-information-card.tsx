@@ -19,7 +19,7 @@ interface Props {
     };
 }
 
-const cardTitle: string = "Informationen";
+const cardTitle = "Informationen";
 
 export default function UserInformationCard({ user }: Props) {
     const [changeIsPending, startTransition] = useTransition();
@@ -57,6 +57,6 @@ export default function UserInformationCard({ user }: Props) {
 
 export function UserInformationCardError({ resetErrorBoundary }: FallbackProps) {
     return (
-        <ErrorCard title={cardTitle} resetErrorBoundary={resetErrorBoundary} />
+        <ErrorCard resetErrorBoundary={resetErrorBoundary} title={cardTitle} />
     );
 }

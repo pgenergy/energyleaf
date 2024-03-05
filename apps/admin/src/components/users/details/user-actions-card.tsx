@@ -16,7 +16,7 @@ interface Props {
     };
 }
 
-const cardTitle: string = "Status";
+const cardTitle = "Status";
 
 export default function UserActionsCard({ user }: Props) {
     const userDetailsContext = useUserDetailsContext();
@@ -59,5 +59,5 @@ export default function UserActionsCard({ user }: Props) {
 }
 
 export function UserActionsCardError({ resetErrorBoundary }: FallbackProps) {
-    return <ErrorCard title={cardTitle} resetErrorBoundary={resetErrorBoundary} />;
+    return <ErrorCard resetErrorBoundary={resetErrorBoundary} title={cardTitle} />;
 }
