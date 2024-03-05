@@ -66,7 +66,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         const dataAboveThreshold = data
             .filter((x) => x.energy > threshold);
 
-        const now = new Date(2024, 3, 3, 23, 50, 0);
+        const now = new Date();
         const peakWindows = dataAboveThreshold.reduce((acc, curr) => {
             const currentGroup = acc[acc.length - 1];
 
