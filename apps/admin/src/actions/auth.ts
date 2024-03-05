@@ -42,7 +42,7 @@ export async function signInAction(data: z.infer<typeof signInSchema>) {
             throw new Error("E-Mail oder Passwort falsch.");
         } else {
             const hash = await new Argon2id().hash(data.password);
-            await updatePassword({ password: hash }, user.id); 
+            await updatePassword({ password: hash }, user.id);
         }
     }
 

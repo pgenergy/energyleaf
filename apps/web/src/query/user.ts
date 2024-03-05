@@ -2,10 +2,10 @@ import { cache } from "react";
 
 import "server-only";
 
+import { cookies } from "next/headers";
 import { getUserDataCookieStore } from "@/lib/demo/demo";
 
 import { getUserById as getDbUserById, getUserData as getDbUserDataById } from "@energyleaf/db/query";
-import { cookies } from "next/headers";
 import type { UserDataType } from "@energyleaf/db/types";
 
 /**

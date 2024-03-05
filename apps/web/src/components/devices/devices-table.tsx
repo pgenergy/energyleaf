@@ -1,7 +1,5 @@
 import { getSession } from "@/lib/auth/auth.server";
-import { getDevicesByUser } from "@/query/device";
-
-import { getAverageConsumptionPerDevice } from "@energyleaf/db/query";
+import { getAverageConsumptionPerDevice, getDevicesByUser } from "@/query/device";
 
 import { devicesColumns } from "./table/devices-columns";
 import { DevicesDataTable } from "./table/devices-data-table";
@@ -14,7 +12,7 @@ export default async function DevicesTable() {
     }
 
     const devices = await getDevicesByUser(user.id);
-    const consumptionData = await getAverageConsumptionPerDevice();
+    const consumptionData = await getAverageConsumptionPerDevice(user.id);
 
     const enrichedDevices = devices.map((device) => {
         const deviceConsumption = consumptionData.find(

@@ -1,10 +1,10 @@
 import Image from "next/image";
+import { DemoBanner } from "@/components/footer/demo-banner";
 
 import { Card, CardHeader } from "@energyleaf/ui";
 
 import bg from "../../../public/image/bg/login.png";
 import logo from "../../../public/image/logo/logo.png";
-import { DemoBanner } from "@/components/footer/demo-banner";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     return (

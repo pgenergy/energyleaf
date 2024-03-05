@@ -153,10 +153,9 @@ export async function signInAction(email: string, password: string) {
             throw new Error("E-Mail oder Passwort falsch.");
         } else {
             const hash = await new Argon2id().hash(password);
-            await updatePassword({ password: hash }, user.id); 
+            await updatePassword({ password: hash }, user.id);
         }
     }
-
 
     const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
@@ -195,7 +194,7 @@ export async function signOutAction() {
 }
 
 export async function signOutDemoAction() {
-    if (!await isDemoUser()) {
+    if (!(await isDemoUser())) {
         throw new Error("Not a demo user");
     }
     const cookieStore = cookies();

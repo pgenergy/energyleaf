@@ -86,7 +86,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 return null;
             })
             .filter(Boolean);
-    
+
         peakAssignments = peaks.map((x) => ({
             sensorId: x.sensorId,
             device: peaksWithDevicesAssigned.find(

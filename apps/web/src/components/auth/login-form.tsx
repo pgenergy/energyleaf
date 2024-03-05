@@ -106,13 +106,7 @@ export default function LoginForm() {
             </Form>
             <div className="mt-4 flex flex-col border-t border-border pt-4 text-sm text-muted-foreground">
                 <p>Sie können sich auch eine Demo ansehen mit einem Klick auf den Button unten.</p>
-                <Button
-                    className="text-sm"
-                    disabled={demoPending}
-                    onClick={onDemo}
-                    type="button"
-                    variant="link"
-                >
+                <Button className="text-sm" disabled={demoPending} onClick={onDemo} type="button" variant="link">
                     {demoPending ? "Starte Demo..." : "Demo starten"}
                 </Button>
             </div>

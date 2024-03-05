@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 
 import db from "../";
-import { peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
+import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import { AggregationType, SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 /**
@@ -494,17 +494,16 @@ export async function assignSensorToUser(clientId: string, userId: string | null
 /**
  * Get the average energy consumption per device
  */
-export async function getAverageConsumptionPerDevice() {
+export async function getAverageConsumptionPerDevice(userId: string) {
     const result = await db
         .select({
             deviceId: peaks.deviceId,
             averageConsumption: sql<number>`AVG(${sensorData.value})`,
         })
-        .from(peaks)
-        .innerJoin(
-            sensorData,
-            sql`${peaks.sensorId} = ${sensorData.sensorId} AND ${peaks.timestamp} = ${sensorData.timestamp}`,
-        )
+        .from(device)
+        .innerJoin(peaks, and(eq(device.id, peaks.deviceId)))
+        .innerJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
+        .where(eq(device.userId, userId))
         .groupBy(peaks.deviceId)
         .execute();
 
