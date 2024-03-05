@@ -3,6 +3,7 @@
 import type { FallbackProps } from "react-error-boundary";
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui";
+import {TryAgainErrorHint} from "@energyleaf/ui/error";
 
 export default function AbsolutEnergyConsumptionError({ resetErrorBoundary }: FallbackProps) {
     return (
@@ -11,8 +12,7 @@ export default function AbsolutEnergyConsumptionError({ resetErrorBoundary }: Fa
                 <CardTitle>Absoluter Energieverbrauch</CardTitle>
             </CardHeader>
             <CardContent>
-                <h1>Ein Fehler ist aufgetreten</h1>
-                <Button onClick={resetErrorBoundary}>Erneut versuchen</Button>
+                <TryAgainErrorHint resetErrorBoundary={resetErrorBoundary}/>
             </CardContent>
         </Card>
     );

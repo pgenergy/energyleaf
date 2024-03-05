@@ -1,6 +1,5 @@
-import {Button, Card, CardContent, CardHeader, CardTitle} from "@energyleaf/ui";
-import {RotateCwIcon} from "lucide-react";
-import TryAgainErrorHint from "@/components/error/try-again-error-hint";
+import {Card, CardContent, CardHeader, CardTitle} from "@energyleaf/ui";
+import {TryAgainErrorHint} from "@energyleaf/ui/error";
 
 interface Props {
     title: string;
@@ -13,7 +12,7 @@ export default function ErrorCard({title, resetErrorBoundary}: Props) {
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
             </CardHeader>
-            <CardContent className="flex justify-center items-center flex-col">
+            <CardContent>
                 <TryAgainErrorHint resetErrorBoundary={resetErrorBoundary}/>
             </CardContent>
         </Card>
