@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth";
 import { getDevicesByUser } from "@/query/device";
-import { getElectricitySensorIdForUser, getEnergyDataForSensor, getPeaksBySensor } from "@/query/energy";
-import type { PeakAssignment } from "@/types/peaks/peak";
-import { differenceInMinutes } from "date-fns";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
+import type { PeakAssignment } from "@/types/consumption/peak";
 
 import { AggregationType } from "@energyleaf/db/util";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
@@ -11,6 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 import DashboardDateRange from "./date-range";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
+import type ConsumptionData from "@/types/consumption/consumption-data";
+import calculatePeaks from "@/lib/consumption/peak-calculation";
 
 interface Props {
     startDate: Date;
@@ -48,60 +49,16 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
-    const data = energyData.map((entry) => ({
+    const data: ConsumptionData[] = energyData.map((entry) => ({
         sensorId: entry.sensorId || 0,
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
     }));
 
-    let peakAssignments: PeakAssignment[] = [];
     const devices = !hasAggregation ? await getDevicesByUser(userId) : [];
-
-    if (!hasAggregation) {
-        const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
-        const std = Math.sqrt(
-            data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
-        );
-        const threshold = mean + 2 * std;
-        const dataAboveThreshold = data
-            .filter((x) => x.energy > threshold);
-
-        const now = new Date();
-        const peakWindows = dataAboveThreshold.reduce((acc, curr) => {
-            const currentGroup = acc[acc.length - 1];
-
-            if (!currentGroup || differenceInMinutes(new Date(curr.timestamp), new Date(currentGroup[0].timestamp)) >= 60) {
-                acc.push([curr]);
-            } else {
-                currentGroup.push(curr);
-            }
-
-            return acc;
-        }, [] as Array<Array<{sensorId: string | number, energy: number, timestamp: string}>>)
-            .filter((x) => differenceInMinutes(now, new Date(x[0].timestamp)) >= 60);
-
-        const peaks = peakWindows.map(group => {
-            return group.reduce((prev, current) => (prev.energy >= current.energy) ? prev : current);
-        });
-
-        const peaksWithDevicesAssigned = (await getPeaksBySensor(startDate, endDate, sensorId))
-            .map((x) => {
-                if (x.sensor_data !== null) {
-                    return {
-                        id: x.sensor_data.sensorId,
-                        device: x.peaks.deviceId,
-                    };
-                }
-
-                return null;
-            })
-            .filter(Boolean);
-        peakAssignments = peaks.map((x) => ({
-            sensorId: x.sensorId,
-            device: peaksWithDevicesAssigned.find((p) => p && p.id === x.sensorId)?.device,
-            timestamp: x.timestamp,
-        }));
-    }
+    const peakAssignments: PeakAssignment[] = !hasAggregation
+        ? await calculatePeaks(data, startDate, endDate, sensorId)
+        : [];
 
     return (
         <Card className="w-full">
