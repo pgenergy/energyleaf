@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
+import {energyDataJoinUserData, getCalculatedPayment, getPredictedCost} from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import { getUserData } from "@/query/user";
+import {getUserData, getUserDataHistory} from "@/query/user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
@@ -40,12 +40,16 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     }
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const userData = await getUserData(session.user.id);
-    const price = userData?.user_data.basePrice;
+    const userData = await getUserDataHistory(session.user.id);
+    const joinedData = energyDataJoinUserData(energyData, userData);
+
+    console.log(joinedData)
+
+    const price = 0; // TODO
     const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
     const cost: number | null = price ? parseFloat((absolut * price).toFixed(2)) : null;
 
-    const monthlyPayment = userData?.user_data.monthlyPayment;
+    const monthlyPayment = 0; // TODO
     const calculatedPayment = getCalculatedPayment(monthlyPayment, startDate, endDate);
     const predictedCost = (cost ?? 0) + getPredictedCost(price, energyData);
 

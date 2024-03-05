@@ -1,8 +1,29 @@
+import {UserDataSelectType} from "@energyleaf/db/util";
+
 interface EnergyEntry {
     id: number;
     sensorId: string | null;
     value: number;
-    timestamp: Date | null;
+    timestamp: Date;
+}
+
+interface EnergyEntryWithUserData {
+    energyData: EnergyEntry;
+    userData: UserDataSelectType | undefined;
+}
+
+export function energyDataJoinUserData(energyData: EnergyEntry[], userData: UserDataSelectType[]): EnergyEntryWithUserData[] {
+    const sortedUserDataHistory = [...userData].sort((a, b) => (a.timestamp?.getTime() || 0) - (b.timestamp?.getTime() || 0));
+    const sortedSensorData = [...energyData].sort((a, b) => (a.timestamp?.getTime() || 0) - (b.timestamp?.getTime() || 0));
+
+    // Map over userDataHistory and find corresponding sensorData
+    return sortedSensorData.map(sensorData => {
+        const userDataEntry = sortedUserDataHistory.findLast(userData => userData.timestamp?.getTime() <= sensorData.timestamp?.getTime());
+        return {
+            userData: userDataEntry,
+            energyData: sensorData
+        };
+    });
 }
 
 export function getCalculatedPayment(
