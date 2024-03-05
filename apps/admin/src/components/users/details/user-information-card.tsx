@@ -39,7 +39,6 @@ export default function UserInformationCard({ user }: Props) {
                 <UserBaseInformationForm
                     changeIsPending={changeIsPending}
                     email={user.email}
-                    mailDisabled={false}
                     onSubmit={onSubmit}
                     username={user.username}
                 />

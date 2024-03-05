@@ -26,6 +26,7 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
 
     if (await isDemoUser()) {
         addDeviceCookieStore(cookies(), data.deviceName, data.category);
+        revalidatePath("/devices");
         return;
     }
 
@@ -57,6 +58,7 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
 
     if (await isDemoUser()) {
         updateDeviceCookieStore(cookies(), deviceId, data.deviceName, data.category);
+        revalidatePath("/devices");
         return;
     }
 
@@ -88,6 +90,7 @@ export async function deleteDevice(deviceId: number) {
 
     if (await isDemoUser()) {
         removeDeviceCookieStore(cookies(), deviceId);
+        revalidatePath("/devices");
         return;
     }
 
