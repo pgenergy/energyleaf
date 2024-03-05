@@ -40,16 +40,11 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
 
     function onSubmit(data: z.infer<typeof peakSchema>) {
         track("assignEnergyPeakToDevice()");
-        toast.promise(
-            async () => {
-                await addOrUpdatePeak(data, sensorId, timestamp);
-            },
-            {
-                loading: "Peak zuweisen...",
-                success: `Erfolgreich zugewiesen`,
-                error: `Das Gerät konnte dem Peak nicht zugewiesen werden.`,
-            },
-        );
+        toast.promise(addOrUpdatePeak(data, sensorId, timestamp), {
+            loading: "Peak zuweisen...",
+            success: `Erfolgreich zugewiesen`,
+            error: `Das Gerät konnte dem Peak nicht zugewiesen werden.`,
+        });
 
         onInteract();
     }

@@ -71,7 +71,12 @@ export function getDevicesCookieStore(cookies: ReadonlyRequestCookies) {
     }));
 }
 
-export function updateDeviceCookieStore(cookies: ReadonlyRequestCookies, id: string | number, name: string, category?: string) {
+export function updateDeviceCookieStore(
+    cookies: ReadonlyRequestCookies,
+    id: string | number,
+    name: string,
+    category?: string,
+) {
     const devices = cookies.get("demo_devices");
     if (!devices) {
         return;
@@ -95,6 +100,7 @@ export function addOrUpdatePeakCookieStore(
     deviceId: string | number,
 ) {
     const peaks = cookies.get("demo_peaks");
+    const date = new Date(timestamp);
     if (!peaks) {
         cookies.set(
             "demo_peaks",
@@ -103,7 +109,7 @@ export function addOrUpdatePeakCookieStore(
                     id: 1,
                     sensorId: "demo_sensor",
                     deviceId,
-                    timestamp: new Date(timestamp),
+                    timestamp: date,
                 } as PeakSelectType,
             ]),
         );
@@ -115,7 +121,7 @@ export function addOrUpdatePeakCookieStore(
         id: parsedPeaks.length + 1,
         sensorId: "demo_sensor",
         deviceId: Number(deviceId),
-        timestamp: new Date(timestamp),
+        timestamp: date,
     });
     cookies.set("demo_peaks", JSON.stringify(parsedPeaks));
 }
@@ -128,10 +134,13 @@ export function getPeaksCookieStore(cookies: ReadonlyRequestCookies) {
 
     const data = JSON.parse(peaks.value) as PeakSelectType[];
 
-    return data.map((d) => ({
-        ...d,
-        timestamp: d.timestamp ? new Date(d.timestamp) : null,
-    }));
+    return data.map((d) => {
+        const date = d.timestamp ? new Date(d.timestamp) : new Date();
+        return {
+            ...d,
+            timestamp: date,
+        };
+    });
 }
 
 export function getUserDataCookieStore() {
@@ -169,7 +178,7 @@ export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data:
     }
 
     const newData = {
-        ...JSON.parse(userData.value) as UserDataType,
+        ...(JSON.parse(userData.value) as UserDataType),
         ...data,
     };
 
@@ -206,7 +215,7 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
 
     return fixedData
         .map((item, index) => {
-            const date = new Date(start);
+            const date = new Date();
             const [hours, minutes, seconds] = item.timestamp.split(":").map(Number);
             date.setHours(hours, minutes, seconds, 0);
 

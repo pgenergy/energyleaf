@@ -22,6 +22,7 @@ export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId
 
     if (await isDemoUser()) {
         addOrUpdatePeakCookieStore(cookies(), timestamp, data.deviceId);
+        revalidatePath("/dashboard");
         return;
     }
 

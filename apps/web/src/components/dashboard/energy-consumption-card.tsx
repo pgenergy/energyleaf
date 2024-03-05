@@ -79,15 +79,19 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     return {
                         id: x.sensor_data.sensorId,
                         device: x.peaks.deviceId,
+                        timestamp: x.peaks.timestamp,
                     };
                 }
 
                 return null;
             })
             .filter(Boolean);
+    
         peakAssignments = peaks.map((x) => ({
             sensorId: x.sensorId,
-            device: peaksWithDevicesAssigned.find((p) => p && p.id === x.sensorId)?.device,
+            device: peaksWithDevicesAssigned.find(
+                (p) => p && p.id === x.sensorId && p.timestamp?.getTime() === new Date(x.timestamp).getTime(),
+            )?.device,
             timestamp: x.timestamp,
         }));
     }

@@ -62,7 +62,7 @@ export const getPeaksBySensor = cache(async (start: Date, end: Date, sensorId: s
         return peaks.map((p) => {
             return {
                 peaks: p,
-                sensor_data: sensorData.find((s) => s.timestamp === p.timestamp) || null,
+                sensor_data: sensorData.find((s) => s.timestamp.getTime() === p.timestamp.getTime()) || null,
             };
         });
     }
