@@ -31,8 +31,6 @@ export const POST = async (req: NextRequest) => {
                 },
             });
         } catch (e) {
-            // eslint-disable-next-line no-console -- For debug purposes
-            console.error(e);
             if ((e as unknown as Error).message === "token/expired") {
                 return new NextResponse(SensorDataResponse.toBinary({ statusMessage: "Token expired", status: 401 }), {
                     status: 401,
