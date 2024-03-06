@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 
-import db from "../";
+import db, { genId } from "../";
 import { peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import { AggregationType, SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
 
@@ -36,14 +36,14 @@ export async function getEnergyForSensorInRange(
             if (index === 0) {
                 return {
                     ...row,
-                    id: index,
+                    id: row.id,
                     value: Number(0),
                 };
             }
 
             return {
                 ...row,
-                id: index,
+                id: row.id,
                 value: Number(row.value) - Number(query[index - 1].value),
             };
         });
@@ -96,14 +96,14 @@ export async function getEnergyForSensorInRange(
         if (index === 0) {
             return {
                 ...row,
-                id: index,
+                id: index.toString(),
                 value: Number(0),
             };
         }
 
         return {
             ...row,
-            id: index,
+            id: index.toString(),
             value: Number(row.value) - Number(query[index - 1].value),
         };
     });
