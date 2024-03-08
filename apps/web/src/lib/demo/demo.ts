@@ -134,11 +134,13 @@ export function getPeaksCookieStore(cookies: ReadonlyRequestCookies) {
 
 export function getDemoUserData() {
     const data: UserDataType = {
-        mail: {
+        reports: {
             id: 1,
             userId: -1,
-            mailDaily: true,
-            mailWeekly: false,
+            receiveMails: false,
+            interval: 3,
+            time: 8,
+            timestampLast: new Date(),
         },
         user_data: {
             id: 1,
