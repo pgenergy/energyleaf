@@ -53,8 +53,8 @@ export function UserResetPasswordDialog() {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Passwort zurücksetzen</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Bist du sicher, dass du dem Nutzer {`"${user.username}"`} (ID: {user.id}) eine E-Mail zum
-                        Zurücksetzen des Passworts senden möchtest?
+                        Sind Sie sicher, dass Sie dem Nutzer {`"${user.username}"`} (ID: {user.id}) eine E-Mail zum
+                        Zurücksetzen des Passworts senden möchten?
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

@@ -8,8 +8,7 @@ interface Props {
     children: React.ReactNode;
     fallback: React.FC<FallbackProps>;
 }
-
-export default function ErrorBoundary({ children, fallback }: Props) {
+function ErrorBoundary({ children, fallback }: Props) {
     return (
         <Eb
             FallbackComponent={fallback}
@@ -24,3 +23,5 @@ export default function ErrorBoundary({ children, fallback }: Props) {
         </Eb>
     );
 }
+
+export { ErrorBoundary };

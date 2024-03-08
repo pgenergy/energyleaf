@@ -58,13 +58,13 @@ export default function AccountDeletionForm({ disabled }: Props) {
                 },
                 {
                     loading: "Lösche...",
-                    success: "Deine Account wurde erfolgreich gelöscht",
+                    success: "Ihr Account wurde erfolgreich gelöscht",
                     error: (err) => {
                         if (err instanceof PasswordsDoNotMatchError) {
-                            return "Bitte gib das richtige Passwort an";
+                            return "Bitte geben Sie das richtige Passwort an";
                         }
 
-                        return "Dein Account konnte nicht gelöscht werden";
+                        return "Ihr Account konnte nicht gelöscht werden";
                     },
                 },
             );
@@ -75,7 +75,7 @@ export default function AccountDeletionForm({ disabled }: Props) {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Account löschen</CardTitle>
-                <CardDescription>Hier kannst du deinen Account löschen.</CardDescription>
+                <CardDescription>Hier können Sie Ihren Account löschen.</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="flex flex-row justify-end">
@@ -98,11 +98,11 @@ export default function AccountDeletionForm({ disabled }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Account löschen</DialogTitle>
-                            <DialogDescription>Bestätige, dass du deinen Account löschen möchtest.</DialogDescription>
+                            <DialogDescription>Bestätigen Sie, dass Sie Ihren Account löschen möchten.</DialogDescription>
                         </DialogHeader>
                         <p>
-                            Gib zur Bestätigung dein Passwort an. Das wird dich von deinem Account abmelden und du wirst
-                            dich nicht mehr anmelden können. Diese Aktion kann nicht rückgängig gemacht werden!
+                            Geben Sie zur Bestätigung Ihr Passwort an. Das wird Sie von Ihrem Account abmelden und Sie
+                            werden sich nicht mehr anmelden können. Diese Aktion kann nicht rückgängig gemacht werden!
                         </p>
                         <Form {...form}>
                             <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>

@@ -21,7 +21,7 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, devices
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Geräteauswahl</DialogTitle>
-                    <DialogDescription>Wähle ein Gerät aus, was diesen Verbrauch verursacht hat.</DialogDescription>
+                    <DialogDescription>Wählen Sie ein Gerät aus, was diesen Verbrauch verursacht hat.</DialogDescription>
                 </DialogHeader>
                 <p>Verbrauch: {value.energy}</p>
                 <EnergyPeakDeviceAssignmentForm

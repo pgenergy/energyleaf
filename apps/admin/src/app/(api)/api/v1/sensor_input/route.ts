@@ -24,8 +24,8 @@ export const POST = async (req: NextRequest) => {
 
             await insertSensorData({ sensorId, value: data.value, sum: needsSum });
 
-            return new NextResponse(SensorDataResponse.toBinary({ status: 204 }), {
-                status: 204,
+            return new NextResponse(SensorDataResponse.toBinary({ status: 200 }), {
+                status: 200,
                 headers: {
                     "Content-Type": "application/x-protobuf",
                 },
