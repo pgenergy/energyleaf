@@ -41,11 +41,12 @@ export default function MailSettingsForm({receiveMails, interval, time, disabled
             resolver: zodResolver(mailSettingsSchema),
             defaultValues: {
                 receiveMails,
-                interval: interval.toString(),
-                time: time.toString()
+                interval: interval,
+                time: time
             },
         }
     );
+    console.log(form.getValues())
 
     function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
         if (disabled) return;
@@ -96,10 +97,11 @@ export default function MailSettingsForm({receiveMails, interval, time, disabled
                                 control={form.control}
                                 name="interval"
                                 render={({field}) => (
+
                                     <FormItem>
                                         <FormLabel>Intervall der Berichte</FormLabel>
                                         <FormControl>
-                                            <IntervalSelector field={field}/>
+                                            <IntervalSelector value={field.value} onChange={field.onChange}/>
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -111,7 +113,7 @@ export default function MailSettingsForm({receiveMails, interval, time, disabled
                                     <FormItem>
                                         <FormLabel>Uhrzeit der Berichte</FormLabel>
                                         <FormControl>
-                                            <TimeSelector field={field}/>
+                                            <TimeSelector value={field.value} onChange={field.onChange}/>
                                         </FormControl>
                                     </FormItem>
                                 )}

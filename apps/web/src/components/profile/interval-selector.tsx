@@ -4,9 +4,14 @@ import * as React from "react";
 
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@energyleaf/ui";
 
-export default function IntervalSelector({field}) {
+interface Props {
+    value: number;
+    onChange: (value: number) => void;
+}
+
+export default function IntervalSelector({value, onChange}: Props) {
     return (
-        <Select defaultValue={field.value} onValueChange={field.onChange}>
+        <Select defaultValue={value.toString()} onValueChange={x => onChange(Number(x))}>
             <SelectTrigger>
                 <SelectValue placeholder="Intervall auswählen"/>
             </SelectTrigger>
