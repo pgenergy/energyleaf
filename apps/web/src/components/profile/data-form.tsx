@@ -61,7 +61,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Benutzerdaten</CardTitle>
-                <CardDescription>Ändere deine Benutzerdaten</CardDescription>
+                <CardDescription>Ändern Sie Ihre Benutzerdaten</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>

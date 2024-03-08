@@ -41,7 +41,7 @@ export function DemoBanner() {
                 </Button>
             </div>
             <div className="flex flex-row items-center justify-center gap-2">
-                <p>Haben Sie interesse? Dann füllen sie folgendes Formular aus</p>
+                <p>Haben Sie interesse? Dann füllen Sie folgendes Formular aus</p>
                 <Link
                     className="text-primary-foreground underline hover:no-underline"
                     href="https://forms.gle/rCLGkkNQoJQ51a7SA"

@@ -14,7 +14,7 @@ export default function ProfileErrorPage({ reset }: Props) {
                 <CardHeader>
                     <CardTitle>Es ist ein Fehler aufgetreten</CardTitle>
                     <CardDescription>
-                        Beim Laden deiner Daten ist ein Fehler aufgetreten. Bitte versuche es später erneut.
+                        Beim Laden Ihrer Daten ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.
                     </CardDescription>
                     <CardContent className="flex flex-row justify-center px-8 py-4">
                         <Button onClick={() => reset}>Seite neu laden</Button>
