@@ -25,7 +25,7 @@ export const POST = async (req: NextRequest) => {
 
             await updateNeedsScript(sensorId, false);
 
-            return new NextResponse(ScriptAcceptedResponse.toBinary({ status: 204 }), { status: 204 });
+            return new NextResponse(ScriptAcceptedResponse.toBinary({ status: 200 }), { status: 200 });
         } catch (err) {
             if ((err as unknown as Error).message === "token/expired") {
                 return new NextResponse(

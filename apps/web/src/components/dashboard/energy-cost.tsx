@@ -1,4 +1,4 @@
-import {UserDataSelectType} from "@energyleaf/db/util";
+import {UserDataSelectType, SensorDataSelectType} from "@energyleaf/db/util";
 
 interface EnergyEntry {
     id: number;
@@ -59,22 +59,18 @@ export function getCalculatedPayment(
     return null;
 }
 
-export function getCalculatedTotalConsumptionCurrentMonth(data: EnergyEntry[]): number {
+export function getCalculatedTotalConsumptionCurrentMonth(data: SensorDataSelectType[]): number {
     const currentDate = new Date();
-    const currentMonthConsumptions = data.filter((entry: EnergyEntry) => {
-        const entryDate = entry.timestamp ? new Date(entry.timestamp) : null;
-        return (
-            entryDate &&
-            entryDate.getMonth() === currentDate.getMonth() &&
-            entryDate.getFullYear() === currentDate.getFullYear()
-        );
+    const currentMonthConsumptions = data.filter((entry) => {
+        const entryDate = new Date(entry.timestamp);
+        return entryDate.getMonth() === currentDate.getMonth() && entryDate.getFullYear() === currentDate.getFullYear();
     });
     const totalConsumption = currentMonthConsumptions.reduce((total, entry) => total + entry.value, 0);
 
     return totalConsumption;
 }
 
-export function getPredictedCost(price: number | null | undefined, energyData: EnergyEntry[]): number {
+export function getPredictedCost(price: number | null | undefined, energyData: SensorDataSelectType[]): number {
     const today: Date = new Date();
     const firstDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth(), 1);
     const lastDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0);

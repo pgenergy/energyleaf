@@ -24,8 +24,8 @@ export default function FaqPage() {
                         <AccordionItem value="item-1">
                             <AccordionTrigger>Was bringt mir die Nutzung der Energyleaf-App?</AccordionTrigger>
                             <AccordionContent>
-                                In der App wird dein ganz persönliches Verbrauchsverhalten dargestellt. Dies ermöglicht
-                                es dir, den Überblick über Deinen Stromverbrauch zu behalten.
+                                In der App wird Ihr ganz persönliches Verbrauchsverhalten dargestellt. Dies ermöglicht
+                                es Ihnen, den Überblick über Ihren Stromverbrauch zu behalten.
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="item-2">

@@ -7,14 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 export default function UsersOverviewCard() {
     return (
         <UserContextProvider>
-            <UsersOverviewDeleteDialog />
+            <UsersOverviewDeleteDialog/>
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Nutzer</CardTitle>
-                    <CardDescription>Hier kannst du alle registrierten Nutzer einsehen.</CardDescription>
+                    <CardDescription>Hier können Sie alle registrierten Nutzer einsehen.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <UsersTable />
+                    <UsersTable/>
                 </CardContent>
             </Card>
         </UserContextProvider>
