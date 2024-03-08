@@ -40,60 +40,46 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     }
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const userData = await getUserData(session.user.id);
-    const price = userData?.user_data.basePrice;
-    const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
-    const cost: number | null = price ? parseFloat((absolut * price).toFixed(2)) : null;
+    const userData = await getUserData(userId);
+    const price = userData?.user_data?.basePrice || null;
+    const absolute = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
+    const cost = price ? parseFloat((absolute * price).toFixed(2)) : null;
 
-    const monthlyPayment = userData?.user_data.monthlyPayment;
-    const calculatedPayment = getCalculatedPayment(monthlyPayment, startDate, endDate);
-    const predictedCost = (cost ?? 0) + getPredictedCost(price, energyData);
+    const monthlyPayment = userData?.user_data?.monthlyPayment;
+    let formattedCalculatedPayment = "N/A";
+    let calculatedPayment: string | null = null;
+
+    if (monthlyPayment !== null && monthlyPayment !== undefined) {
+        calculatedPayment = getCalculatedPayment(monthlyPayment, startDate, endDate);
+        formattedCalculatedPayment = calculatedPayment !== null ? parseFloat(calculatedPayment).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A";
+    }
+
+    const predictedCost = (cost ?? 0) + (price ? getPredictedCost(price, energyData) : 0);
+    const formattedPredictedCost = predictedCost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const forecastMonth = format(new Date(), "MMMM yyyy", {locale: de});
 
     return (
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Energiekosten</CardTitle>
                 <CardDescription>
-                    {startDate.toDateString() === endDate.toDateString() ? (
-                        <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}
-                        </>
-                    ) : (
-                        <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}{" "}
-                            -{" "}
-                            {format(endDate, "PPP", {
-                                locale: de,
-                            })}
-                        </>
-                    )}
+                    {format(startDate, "PPP", {locale: de})} - {format(endDate, "PPP", {locale: de})}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 {cost !== null ? (
                     <>
-                        <h1 className="text-center text-2xl font-bold text-primary">{cost} €</h1>
-                        <p
-                            className={`text-center ${Number(cost) > Number(calculatedPayment) ? "text-red-500" : "white"}`}
-                        >
-                            Abschlag: {calculatedPayment} €
+                        <h1 className="text-center text-2xl font-bold text-primary">{cost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</h1>
+                        <p className={`text-center ${cost > parseFloat(calculatedPayment ?? '0') ? "text-red-500" : "text-primary"}`}>
+                            Abschlag: {formattedCalculatedPayment} €
                         </p>
                         <p className="text-center">
-                            Hochrechnung {new Date().getMonth() + 1}.{new Date().getFullYear()}:{" "}
-                            {predictedCost.toFixed(2)} €
+                            Hochrechnung {forecastMonth}: {formattedPredictedCost} €
                         </p>
                     </>
                 ) : (
-                    <Link
-                        className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
-                        href="/profile"
-                    >
-                        Preis im Profil festlegen
-                        <ArrowRightIcon className="h-4 w-4" />
+                    <Link href="/profile" className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground">
+                        Preis im Profil festlegen <ArrowRightIcon className="h-4 w-4" />
                     </Link>
                 )}
             </CardContent>
