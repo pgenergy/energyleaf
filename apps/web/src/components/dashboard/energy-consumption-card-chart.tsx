@@ -68,7 +68,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
                     content: EnergyConsumptionTooltip,
                 }}
                 xAxes={{ dataKey: "timestamp" }}
-                yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
+                yAxes={{ dataKey: "energy", name: "Energieverbauch in kWh" }}
             />
         </>
     );
