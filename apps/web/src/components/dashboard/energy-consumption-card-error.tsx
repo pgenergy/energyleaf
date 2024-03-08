@@ -10,7 +10,7 @@ export default function EnergyConsumptionError({ resetErrorBoundary }: FallbackP
         <Card>
             <CardHeader>
                 <CardTitle>Verbrauch</CardTitle>
-                <CardDescription>Übersicht deines Verbrauchs im Zeitraum</CardDescription>
+                <CardDescription>Übersicht Ihres Verbrauchs im Zeitraum</CardDescription>
             </CardHeader>
             <CardContent>
                 <TryAgainErrorHint resetErrorBoundary={resetErrorBoundary}/>

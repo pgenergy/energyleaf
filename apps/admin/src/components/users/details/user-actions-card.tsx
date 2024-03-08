@@ -35,14 +35,14 @@ export default function UserActionsCard({ user }: Props) {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>{cardTitle}</CardTitle>
-                <CardDescription>Hier kannst du den Status des Benutzers einsehen und ändern.</CardDescription>
+                <CardDescription>Hier können Sie den Status des Benutzers einsehen und ändern.</CardDescription>
             </CardHeader>
             <CardContent>
                 <UserStateForm active={user.isActive} id={user.id} isAdmin={user.isAdmin} />
             </CardContent>
             <CardHeader>
                 <CardTitle>Aktionen</CardTitle>
-                <CardDescription>Hier kannst du einige Aktionen zu dem Benutzer ausführen.</CardDescription>
+                <CardDescription>Hier können Sie einige Aktionen zu dem Benutzer ausführen.</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="inline-flex flex-col">

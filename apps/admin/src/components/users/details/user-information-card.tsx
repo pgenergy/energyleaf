@@ -39,7 +39,7 @@ export default function UserInformationCard({ user }: Props) {
             <CardHeader>
                 <CardTitle>{cardTitle}</CardTitle>
                 <CardDescription>
-                    Hier kannst du die Informationen von Nutzer {user.id} einsehen und ändern.
+                    Hier können Sie die Informationen von Nutzer {user.id} einsehen und ändern.
                 </CardDescription>
             </CardHeader>
             <CardContent>

@@ -20,7 +20,7 @@ export default function SensorsOverviewCard() {
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Sensoren</CardTitle>
-                    <CardDescription>Hier kannst du alle registrierten Sensoren einsehen.</CardDescription>
+                    <CardDescription>Hier können Sie alle registrierten Sensoren einsehen.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex justify-end">

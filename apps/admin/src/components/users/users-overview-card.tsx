@@ -11,7 +11,7 @@ export default function UsersOverviewCard() {
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Nutzer</CardTitle>
-                    <CardDescription>Hier kannst du alle registrierten Nutzer einsehen.</CardDescription>
+                    <CardDescription>Hier können Sie alle registrierten Nutzer einsehen.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <UsersTable/>
