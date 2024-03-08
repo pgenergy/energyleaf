@@ -19,7 +19,7 @@ export default async function AvgEnergyConsumptionCard() {
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Absoluter Energieverbrauch</CardTitle>
-                    <CardDescription>Dein Sensor konnte nicht gefunden werden</CardDescription>
+                    <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
@@ -34,7 +34,7 @@ export default async function AvgEnergyConsumptionCard() {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Durchschnittlicher Energieverbrauch</CardTitle>
-                <CardDescription>Dein durchschnittlicher Energieverbrauch</CardDescription>
+                <CardDescription>Ihr durchschnittlicher Energieverbrauch</CardDescription>
             </CardHeader>
             <CardContent>
                 {avg ? (

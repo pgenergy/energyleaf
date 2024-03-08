@@ -8,7 +8,7 @@ export default function AuthPage() {
             <CardHeader>
                 <CardTitle>Energyleaf Admin Login</CardTitle>
                 <CardDescription>
-                    Logge dich ins Admin Dashboard ein, um deine Energyleaf-Instanz zu verwalten.
+                    Loggen Sie sich ins Admin Dashboard ein, um Ihre Energyleaf-Instanz zu verwalten.
                 </CardDescription>
             </CardHeader>
             <CardContent>
