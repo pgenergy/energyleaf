@@ -36,10 +36,3 @@ export const getUserData = cache(async (id: string) => {
     }
     return getDbUserDataById(Number(id));
 });
-
-/**
- * Get users with due report to create and send reports
- */
-export const getUsersWitDueReport = cache(async () => {
-    return getDbUsersWitDueReport();
-});

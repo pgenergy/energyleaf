@@ -1,6 +1,6 @@
-import {getUsersWitDueReport} from "@/query/user";
+import {getUsersWitDueReport} from "@energyleaf/db/query";
 
-export async function sendMailToEveryUserWithWeeklyMail() {
+export async function createReportsAndSendMails() {
     const userReportData = await getUsersWitDueReport();
 
     for (const unserReport of userReportData) {
