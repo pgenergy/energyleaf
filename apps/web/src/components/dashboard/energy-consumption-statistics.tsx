@@ -58,38 +58,22 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
             <CardHeader>
                 <CardTitle>Verbrauchsstatistiken</CardTitle>
                 <CardDescription>
-                    {startDate.toDateString() === endDate.toDateString() ? (
-                        <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}
-                        </>
-                    ) : (
-                        <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}{" "}
-                            -{" "}
-                            {format(endDate, "PPP", {
-                                locale: de,
-                            })}
-                        </>
-                    )}
+                    {format(startDate, "PPP", {locale: de})} - {format(endDate, "PPP", {locale: de})}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-3 gap-4">
                     <div>
                         <h2 className="text-center text-xl font-semibold text-primary">Max.</h2>
-                        <p className="text-center">{maxConsumption} kWh</p>
+                        <p className="text-center">{maxConsumption.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} kWh</p>
                     </div>
                     <div>
                         <h2 className="text-center text-xl font-semibold text-primary">⌀</h2>
-                        <p className="text-center">{averageConsumption.toFixed(2)} kWh</p>
+                        <p className="text-center">{averageConsumption.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} kWh</p>
                     </div>
                     <div>
                         <h2 className="text-center text-xl font-semibold text-primary">Letzter</h2>
-                        <p className="text-center">{lastValue?.toFixed(2) ?? 0} kWh</p>
+                        <p className="text-center">{(lastValue ?? 0).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} kWh</p>
                     </div>
                 </div>
             </CardContent>
