@@ -41,15 +41,16 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const userData = await getUserData(userId);
-    const price = userData?.user_data?.basePrice || null;
+
+    const price = userData ? userData.user_data.basePrice || null : null;
     const absolute = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
     const cost = price ? parseFloat((absolute * price).toFixed(2)) : null;
 
-    const monthlyPayment = userData?.user_data?.monthlyPayment;
+    const monthlyPayment = userData ? userData.user_data.monthlyPayment : null;
     let formattedCalculatedPayment = "N/A";
     let calculatedPayment: string | null = null;
 
-    if (monthlyPayment !== null && monthlyPayment !== undefined) {
+    if (monthlyPayment !== null) {
         calculatedPayment = getCalculatedPayment(monthlyPayment, startDate, endDate);
         formattedCalculatedPayment = calculatedPayment !== null ? parseFloat(calculatedPayment).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A";
     }
@@ -70,7 +71,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                 {cost !== null ? (
                     <>
                         <h1 className="text-center text-2xl font-bold text-primary">{cost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</h1>
-                        <p className={`text-center ${cost > parseFloat(calculatedPayment ?? '0') ? "text-red-500" : "text-primary"}`}>
+                        <p className={`text-center ${cost > (parseFloat(calculatedPayment ?? '0')) ? "text-red-500" : "text-primary"}`}>
                             Abschlag: {formattedCalculatedPayment} €
                         </p>
                         <p className="text-center">
