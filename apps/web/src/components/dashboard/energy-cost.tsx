@@ -1,7 +1,7 @@
-import {UserDataSelectType, SensorDataSelectType} from "@energyleaf/db/util";
+import type {UserDataSelectType, SensorDataSelectType} from "@energyleaf/db/util";
 
 interface EnergyEntry {
-    id: number;
+    id: string;
     sensorId: string | null;
     value: number;
     timestamp: Date;
