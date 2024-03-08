@@ -1,5 +1,4 @@
 import {Suspense} from "react";
-import {getUser} from "@/actions/user";
 import UserActionsCard, {UserActionsCardError} from "@/components/users/details/user-actions-card";
 import UserDetailsDeleteDialog from "@/components/users/details/user-details-delete-dialog";
 import UserInformationCard, {UserInformationCardError} from "@/components/users/details/user-information-card";
@@ -13,6 +12,7 @@ import UserConsumptionCard, {
 } from "@/components/users/details/consumption/user-consumption-card";
 import {ErrorBoundary} from "@energyleaf/ui/error";
 import UserSensorsCardError from "@/components/users/details/user-sensors-card-error";
+import {getUser} from "@/query/user";
 
 interface Props {
     params: {

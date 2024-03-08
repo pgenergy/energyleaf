@@ -2,32 +2,19 @@
 
 import "server-only";
 
-import {cache} from "react";
 import {revalidatePath} from "next/cache";
 import {getSession} from "@/lib/auth/auth";
 import type {userStateSchema} from "@/lib/schema/user";
 import type {z} from "zod";
 
 import {
-    deleteUser as deleteUserDb,
-    getAllUsers as getAllUsersDb,
-    getElectricitySensorIdForUser,
-    getEnergyForSensorInRange,
-    getSensorsByUser as getSensorsByUserDb,
-    getUserById,
+    deleteUser as deleteUserDb, getAllUsers as getAllUsersDb,
     setUserActive as setUserActiveDb,
     setUserAdmin as setUserAdminDb,
     updateUser as updateUserDb,
 } from "@energyleaf/db/query";
 import type {baseInformationSchema} from "@energyleaf/lib";
 import {UserNotLoggedInError} from "@energyleaf/lib";
-import type {AggregationType} from "@energyleaf/db/util";
-
-export const getAllUsers = cache(async () => {
-    await validateUserAdmin();
-
-    return getAllUsersDb();
-});
 
 export async function setUserActive(id: number, active: boolean) {
     await validateUserAdmin();
@@ -61,16 +48,6 @@ export async function deleteUser(id: number) {
     }
 }
 
-export async function getUser(id: number) {
-    await validateUserAdmin();
-
-    try {
-        return await getUserById(id);
-    } catch (e) {
-        throw new Error("Failed to get user");
-    }
-}
-
 export async function updateUser(data: z.infer<typeof baseInformationSchema>, id: number) {
     await validateUserAdmin();
 
@@ -100,34 +77,9 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
     }
 }
 
-export async function getSensorsByUser(id: number) {
+export async function getAllUsers() {
     await validateUserAdmin();
-
-    try {
-        return await getSensorsByUserDb(id);
-    } catch (e) {
-        throw new Error(`Failed to get sensors of user ${id}`);
-    }
-}
-
-export async function getElectricitySensorByUser(id: number) {
-    await validateUserAdmin();
-
-    try {
-        return await getElectricitySensorIdForUser(id);
-    } catch (e) {
-        throw new Error(`Failed to get electricity sensor of user ${id}`);
-    }
-}
-
-export async function getConsumptionBySensor(sensorId: string, startDate: Date, endDate: Date, aggregationType: AggregationType) {
-    await validateUserAdmin();
-
-    try {
-        return getEnergyForSensorInRange(startDate, endDate, sensorId, aggregationType);
-    } catch (e) {
-        throw new Error(`Failed to get consumption of sensor ${sensorId}`);
-    }
+    return getAllUsersDb();
 }
 
 async function validateUserAdmin() {

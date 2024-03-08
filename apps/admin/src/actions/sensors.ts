@@ -3,8 +3,7 @@
 import {
     assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
-    deleteSensor as deleteSensorDb,
-    getSensorsWithUser as getSensorsWithUserDb,
+    deleteSensor as deleteSensorDb, getElectricitySensorIdForUser, getEnergyForSensorInRange,
     sensorExists,
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
@@ -16,7 +15,7 @@ import { getSession } from "@/lib/auth/auth";
 import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import type { z } from "zod";
 
-import type { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "@energyleaf/db/util";
+import type {AggregationType, SensorInsertType, SensorType} from "@energyleaf/db/util";
 import { UserNotLoggedInError } from "@energyleaf/lib";
 
 /**
@@ -53,9 +52,14 @@ export async function isSensorRegistered(macAddress: string): Promise<boolean> {
     return sensorExists(macAddress);
 }
 
-export async function getSensors(): Promise<SensorSelectTypeWithUser[]> {
+export async function getElectricitySensorByUser(id: number) {
     await checkIfAdmin();
-    return getSensorsWithUserDb();
+    return getElectricitySensorIdForUser(id);
+}
+
+export async function getConsumptionBySensor(sensorId: string, startDate: Date, endDate: Date, aggregationType: AggregationType) {
+    await checkIfAdmin();
+    return getEnergyForSensorInRange(startDate, endDate, sensorId, aggregationType);
 }
 
 export async function deleteSensor(sensorId: string) {

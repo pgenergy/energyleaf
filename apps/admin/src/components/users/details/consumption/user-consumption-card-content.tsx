@@ -1,9 +1,9 @@
 "use client";
 
-import {getConsumptionBySensor, getElectricitySensorByUser} from "@/actions/user";
 import {EnergyConsumptionChart, type EnergyData} from "@energyleaf/ui/components/charts";
 import {useUserDetailsContext} from "@/hooks/user-detail-hook";
 import {useEffect, useState} from "react";
+import {getConsumptionBySensor, getElectricitySensorByUser} from "@/actions/sensors";
 
 interface Props {
     userId: number;
