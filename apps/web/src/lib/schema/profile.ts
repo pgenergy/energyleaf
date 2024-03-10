@@ -24,7 +24,7 @@ export const userDataSchema = z.object({
     monthlyPayment: z.coerce
         .number()
         .int()
-        .positive({ message: "Bitte geben einen gültigen monatlichen Abschlag an." }),
+        .positive({ message: "Bitte geben Sie einen gültigen monatlichen Abschlag an." }),
 });
 
 export const deleteAccountSchema = z.object({
