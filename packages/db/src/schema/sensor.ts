@@ -57,6 +57,7 @@ export const sensorData = mysqlTable(
         id: varchar("id", { length: 35 })
             .primaryKey()
             .notNull()
+            .default(sql`UUID()`)
             .$defaultFn(() => nanoid(35)),
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
         value: float("value").notNull(),

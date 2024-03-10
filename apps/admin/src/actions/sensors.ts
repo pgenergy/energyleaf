@@ -12,12 +12,11 @@ import {
 import "server-only";
 
 import { revalidatePath } from "next/cache";
-import { getActionSession } from "@/lib/auth/auth.action";
+import { checkIfAdmin } from "@/lib/auth/auth.action";
 import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import type { z } from "zod";
 
 import type { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "@energyleaf/db/types";
-import { UserNotLoggedInError } from "@energyleaf/lib";
 
 /**
  * Creates a new sensor.
@@ -71,16 +70,5 @@ export async function assignUserToSensor(data: z.infer<typeof assignUserToSensor
         revalidatePath("/sensors");
     } catch (e) {
         throw new Error("Error while assigning user to sensor");
-    }
-}
-
-async function checkIfAdmin() {
-    const { user, session } = await getActionSession();
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    if (!user.isAdmin) {
-        throw new Error("User is not admin");
     }
 }

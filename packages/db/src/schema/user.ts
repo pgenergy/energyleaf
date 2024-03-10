@@ -6,6 +6,7 @@ export const user = mysqlTable("user", {
     id: varchar("id", { length: 30 })
         .primaryKey()
         .notNull()
+        .default(sql`UUID()`)
         .$defaultFn(() => nanoid(30)),
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
     email: varchar("email", { length: 256 }).notNull(),

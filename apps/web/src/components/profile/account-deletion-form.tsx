@@ -98,7 +98,9 @@ export default function AccountDeletionForm({ disabled }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Account löschen</DialogTitle>
-                            <DialogDescription>Bestätigen Sie, dass Sie Ihren Account löschen möchten.</DialogDescription>
+                            <DialogDescription>
+                                Bestätigen Sie, dass Sie Ihren Account löschen möchten.
+                            </DialogDescription>
                         </DialogHeader>
                         <p>
                             Geben Sie zur Bestätigung Ihr Passwort an. Das wird Sie von Ihrem Account abmelden und Sie

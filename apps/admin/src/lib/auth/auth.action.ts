@@ -28,3 +28,13 @@ export const getActionSession = async () => {
     }
     return result;
 };
+
+export const checkIfAdmin = async () => {
+    const { user, session } = await getActionSession();
+    if (!session) {
+        throw new Error("Not logged in");
+    }
+    if (!user.isAdmin) {
+        throw new Error("Not an admin");
+    }
+};

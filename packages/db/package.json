@@ -18,9 +18,9 @@
     },
     "dependencies": {
         "@energyleaf/lib": "workspace:^",
-        "@lucia-auth/adapter-drizzle": "^1.0.2",
+        "@lucia-auth/adapter-drizzle": "^1.0.3",
         "@planetscale/database": "^1.16.0",
-        "drizzle-orm": "^0.29.4",
+        "drizzle-orm": "^0.30.1",
         "nanoid": "^5.0.6"
     },
     "devDependencies": {
@@ -29,6 +29,6 @@
         "drizzle-kit": "^0.20.14",
         "eslint": "^8.57.0",
         "mysql2": "^3.9.2",
-        "typescript": "^5.3.3"
+        "typescript": "^5.4.2"
     }
 }

@@ -3,8 +3,8 @@ import { nanoid } from "nanoid";
 
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 
-import db, { genId } from "../";
-import { peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
+import db from "../";
+import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import { AggregationType, SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 /**

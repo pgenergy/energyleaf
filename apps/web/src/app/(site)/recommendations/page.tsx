@@ -1,11 +1,11 @@
 import { Suspense } from "react";
-import { ErrorBoundary } from "@energyleaf/ui/error";
 import AvgEnergyConsumptionCard from "@/components/recommendations/avg-energy-consumption-card";
 import AvgEnergyConsumptionError from "@/components/recommendations/avg-energy-consumption-card-error";
 import AvgEnergyConsumptionComparisonCard from "@/components/recommendations/avg-energy-consumption-comparison";
 import AvgEnergyConsumptionComparisonError from "@/components/recommendations/avg-energy-consumption-comparison-error";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
+import { ErrorBoundary } from "@energyleaf/ui/error";
 
 export default function RecommendationsPage() {
     return (

@@ -8,14 +8,14 @@ import { UserDeleteDialog } from "./user-delete-dialog";
 export default function UsersOverviewCard() {
     return (
         <UserContextProvider>
-            <UsersOverviewDeleteDialog/>
+            <UserDeleteDialog />
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Nutzer</CardTitle>
                     <CardDescription>Hier können Sie alle registrierten Nutzer einsehen.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <UsersTable/>
+                    <UsersTable />
                 </CardContent>
             </Card>
         </UserContextProvider>

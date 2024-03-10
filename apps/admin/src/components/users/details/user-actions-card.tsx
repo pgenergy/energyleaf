@@ -1,12 +1,12 @@
 "use client";
 
+import ErrorCard from "@/components/error/error-card";
 import UserStateForm from "@/components/users/details/user-state-form";
 import { useUserDetailsContext } from "@/hooks/user-detail-hook";
+import type { FallbackProps } from "react-error-boundary";
 
 import type { UserSelectType } from "@energyleaf/db/types";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
-import ErrorCard from "@/components/error/error-card";
-import type {FallbackProps} from "react-error-boundary";
 
 interface Props {
     user: UserSelectType;
