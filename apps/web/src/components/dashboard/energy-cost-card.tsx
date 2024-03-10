@@ -48,7 +48,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
 
     const monthlyPayment = userData ? userData.user_data.monthlyPayment ?? 0 : 0;
     let formattedCalculatedPayment = "N/A";
-    let calculatedPayment: string = "0";
+    let calculatedPayment = "0";
 
     if (monthlyPayment > 0) {
         calculatedPayment = getCalculatedPayment(monthlyPayment, startDate, endDate);
@@ -82,22 +82,15 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                {cost !== null ? (
-                    <>
-                        <h1 className="text-center text-2xl font-bold text-primary">{cost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</h1>
-                        <p className={`text-center ${cost > (parseFloat(calculatedPayment ?? '0')) ? "text-red-500" : "text-primary"}`}>
-                            Abschlag: {formattedCalculatedPayment} €
-                        </p>
-                        <p className="text-center">
-                            Hochrechnung {forecastMonth}: {formattedPredictedCost} €
-                        </p>
-                    </>
-                ) : (
-                    <Link href="/profile" className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground">
-                        Preis im Profil festlegen  
-                        <ArrowRightIcon className="h-4 w-4" /> 
-                    </Link>
-                )}
+                <>
+                    <h1 className="text-center text-2xl font-bold text-primary">{cost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</h1>
+                    <p className={`text-center ${cost > parseFloat(calculatedPayment) ? "text-red-500" : "text-primary"}`}>
+                        Abschlag: {formattedCalculatedPayment} €
+                    </p>
+                    <p className="text-center">
+                        Hochrechnung {forecastMonth}: {formattedPredictedCost} €
+                    </p>
+                </>
             </CardContent>
         </Card>
     );
