@@ -103,7 +103,7 @@ export default function SignUpForm() {
                         {error !== "" ? <p className="text-sm text-destructive">{error}</p> : null}
                         <SubmitButton pending={isPending} text="Konto erstellen" />
                         <p className="text-sm text-muted-foreground">
-                            Du hast bereits ein Konto?{" "}
+                            Sie haben bereits ein Konto?{" "}
                             <Link className="underline hover:no-underline" href="/">
                                 Anmelden
                             </Link>

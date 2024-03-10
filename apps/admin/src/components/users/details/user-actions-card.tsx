@@ -5,10 +5,14 @@ import { useUserDetailsContext } from "@/hooks/user-detail-hook";
 
 import type { UserSelectType } from "@energyleaf/db/types";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import ErrorCard from "@/components/error/error-card";
+import type {FallbackProps} from "react-error-boundary";
 
 interface Props {
     user: UserSelectType;
 }
+
+const cardTitle = "Status";
 
 export default function UserActionsCard({ user }: Props) {
     const userDetailsContext = useUserDetailsContext();
@@ -26,15 +30,15 @@ export default function UserActionsCard({ user }: Props) {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Status</CardTitle>
-                <CardDescription>Hier kannst du den Status des Benutzers einsehen und ändern.</CardDescription>
+                <CardTitle>{cardTitle}</CardTitle>
+                <CardDescription>Hier können Sie den Status des Benutzers einsehen und ändern.</CardDescription>
             </CardHeader>
             <CardContent>
                 <UserStateForm active={user.isActive} id={user.id} isAdmin={user.isAdmin} />
             </CardContent>
             <CardHeader>
                 <CardTitle>Aktionen</CardTitle>
-                <CardDescription>Hier kannst du einige Aktionen zu dem Benutzer ausführen.</CardDescription>
+                <CardDescription>Hier können Sie einige Aktionen zu dem Benutzer ausführen.</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="inline-flex flex-col">
@@ -48,4 +52,8 @@ export default function UserActionsCard({ user }: Props) {
             </CardContent>
         </Card>
     );
+}
+
+export function UserActionsCardError({ resetErrorBoundary }: FallbackProps) {
+    return <ErrorCard resetErrorBoundary={resetErrorBoundary} title={cardTitle} />;
 }

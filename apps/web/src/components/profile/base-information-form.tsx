@@ -41,7 +41,7 @@ export default function BaseInformationForm({ username, email, disabled }: Props
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Meine Daten</CardTitle>
-                <CardDescription>Deine persönlichen Daten</CardDescription>
+                <CardDescription>Ihre persönlichen Daten</CardDescription>
             </CardHeader>
             <CardContent>
                 <UserBaseInformationForm

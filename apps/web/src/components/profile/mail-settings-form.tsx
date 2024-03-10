@@ -49,7 +49,7 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
             toast.promise(updateMailInformation(data), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
-                error: "Deine Einstellungen konnten nicht aktualisiert werden",
+                error: "Ihre Einstellungen konnten nicht aktualisiert werden",
             });
         });
     }
@@ -59,8 +59,8 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
             <CardHeader>
                 <CardTitle>E-Mail Einstellungen</CardTitle>
                 <CardDescription>
-                    Hier kannst du einstellen, ob du täglich oder wöchentlich eine Mail mit deinen aktuellen Verbräuchen
-                    erhalten möchtest.
+                    Hier können Sie einstellen, ob Sie täglich oder wöchentlich eine Mail mit Ihren aktuellen
+                    Verbräuchen erhalten möchten.
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -74,7 +74,7 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
                                     <div className="flex flex-col gap-2">
                                         <FormLabel>Tägliche E-Mails</FormLabel>
                                         <FormDescription>
-                                            Erhalte täglich eine E-Mail mit deinen aktuellen Verbräuchen.
+                                            Erhalten Sie täglich eine E-Mail mit Ihren aktuellen Verbräuchen.
                                         </FormDescription>
                                     </div>
                                     <FormControl>
@@ -96,7 +96,7 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
                                     <div className="flex flex-col gap-2">
                                         <FormLabel>Wöchentliche E-Mails</FormLabel>
                                         <FormDescription>
-                                            Erhalte wöchentlich eine E-Mail mit deinen aktuellen Verbräuchen.
+                                            Erhalten Sie wöchentlich eine E-Mail mit Ihren aktuellen Verbräuchen.
                                         </FormDescription>
                                     </div>
                                     <FormControl>

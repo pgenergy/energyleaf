@@ -221,7 +221,7 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
 
             if (date >= start && date <= end) {
                 return {
-                    id: index + 1,
+                    id: index.toString(),
                     sensorId: "demo_sensor",
                     value: item.value,
                     timestamp: date,

@@ -60,7 +60,7 @@ export default function LoginForm() {
     return (
         <div className="flex flex-col gap-2">
             <p className="text-xl font-bold">Willkommen bei Energyleaf!</p>
-            <p className="mb-2 text-muted-foreground">Bitte logge dich ein, um fortzufahren.</p>
+            <p className="mb-2 text-muted-foreground">Bitte loggen Sie sich ein, um fortzufahren.</p>
             <Form {...form}>
                 <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField

@@ -9,10 +9,14 @@ import type { UserSelectType } from "@energyleaf/db/types";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
+import ErrorCard from "@/components/error/error-card";
+import type {FallbackProps} from "react-error-boundary";
 
 interface Props {
     user: UserSelectType;
 }
+
+const cardTitle = "Informationen";
 
 export default function UserInformationCard({ user }: Props) {
     const [changeIsPending, startTransition] = useTransition();
@@ -30,9 +34,9 @@ export default function UserInformationCard({ user }: Props) {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Informationen</CardTitle>
+                <CardTitle>{cardTitle}</CardTitle>
                 <CardDescription>
-                    Hier kannst du die Informationen von Nutzer {user.id} einsehen und ändern.
+                    Hier können Sie die Informationen von Nutzer {user.id} einsehen und ändern.
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -44,5 +48,11 @@ export default function UserInformationCard({ user }: Props) {
                 />
             </CardContent>
         </Card>
+    );
+}
+
+export function UserInformationCardError({ resetErrorBoundary }: FallbackProps) {
+    return (
+        <ErrorCard resetErrorBoundary={resetErrorBoundary} title={cardTitle} />
     );
 }

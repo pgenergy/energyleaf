@@ -60,7 +60,7 @@ export function UserDeleteDialog({ onSuccess }: Props) {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Nutzer löschen</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Bist du sicher, dass du den Nutzer {`"${user.username}"`} (ID: {user.id}) löschen möchtest?
+                        Sind Sie sicher, dass Sie den Nutzer {`"${user.username}"`} (ID: {user.id}) löschen möchten?
                         Dadurch werden alle personenbezogenen Daten des Nutzers gelöscht.
                     </AlertDialogDescription>
                 </AlertDialogHeader>

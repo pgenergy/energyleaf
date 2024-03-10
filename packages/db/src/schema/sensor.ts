@@ -54,7 +54,10 @@ export const sensorToken = mysqlTable("sensor_token", {
 export const sensorData = mysqlTable(
     "sensor_data",
     {
-        id: int("id").autoincrement().primaryKey().notNull(),
+        id: varchar("id", { length: 35 })
+            .primaryKey()
+            .notNull()
+            .$defaultFn(() => nanoid(35)),
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
         value: float("value").notNull(),
         timestamp: timestamp("timestamp")

@@ -11,7 +11,7 @@ export default function UserSensorsCard({ userId }: Props) {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Sensoren</CardTitle>
-                <CardDescription>Hier kannst du die Sensoren des Nutzers einsehen.</CardDescription>
+                <CardDescription>Hier können Sie die Sensoren des Nutzers einsehen.</CardDescription>
             </CardHeader>
             <CardContent>
                 <UserSensorsTable userId={userId} />
