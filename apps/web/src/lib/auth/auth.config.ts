@@ -8,7 +8,6 @@ export const lucia = new Lucia(adapter, {
         name: "auth_session",
         expires: false,
         attributes: {
-            domain: (env.VERCEL_URL || env.NEXTAUTH_URL || "localhost").replace(/https?:\/\//, "").replace(/:\d+$/, ""),
             sameSite: "lax",
             secure: env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview",
         },
