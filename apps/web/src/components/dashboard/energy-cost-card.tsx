@@ -42,20 +42,20 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const userData = await getUserData(userId);
 
-    const price = userData ? userData.user_data.basePrice || null : null;
-    const absolute = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
-    const cost = price ? parseFloat((absolute * price).toFixed(2)) : null;
+    const price = userData ? userData.user_data.basePrice ?? 0 : 0;
+    const absolute = energyData.reduce((acc, cur) => acc + cur.value, 0);
+    const cost = parseFloat((absolute * price).toFixed(2));
 
-    const monthlyPayment = userData ? userData.user_data.monthlyPayment : null;
+    const monthlyPayment = userData ? userData.user_data.monthlyPayment ?? 0 : 0;
     let formattedCalculatedPayment = "N/A";
-    let calculatedPayment: string | null = null;
+    let calculatedPayment: string = "0";
 
-    if (monthlyPayment !== null) {
+    if (monthlyPayment > 0) {
         calculatedPayment = getCalculatedPayment(monthlyPayment, startDate, endDate);
-        formattedCalculatedPayment = calculatedPayment !== null ? parseFloat(calculatedPayment).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A";
+        formattedCalculatedPayment = parseFloat(calculatedPayment).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    const predictedCost = (cost ?? 0) + (price ? getPredictedCost(price, energyData) : 0);
+    const predictedCost = getPredictedCost(price, energyData);
     const formattedPredictedCost = predictedCost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const forecastMonth = format(new Date(), "MMMM yyyy", {locale: de});
 
@@ -64,7 +64,21 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
             <CardHeader>
                 <CardTitle>Energiekosten</CardTitle>
                 <CardDescription>
-                    {format(startDate, "PPP", {locale: de})} - {format(endDate, "PPP", {locale: de})}
+                    {startDate.toDateString() === endDate.toDateString() ? (
+                        <>
+                            {format(startDate, "PPP", {
+                                locale: de,
+                            })}
+                        </>
+                    ) : (
+                        <>
+                            {format(startDate, "PPP", {
+                                locale: de,
+                            })} - {format(endDate, "PPP", {
+                                locale: de,
+                            })}
+                        </>
+                    )}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -80,7 +94,8 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                     </>
                 ) : (
                     <Link href="/profile" className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground">
-                        Preis im Profil festlegen <ArrowRightIcon className="h-4 w-4" />
+                        Preis im Profil festlegen  
+                        <ArrowRightIcon className="h-4 w-4" /> 
                     </Link>
                 )}
             </CardContent>

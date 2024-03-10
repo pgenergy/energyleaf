@@ -1,36 +1,32 @@
 import type { SensorDataSelectType } from "@energyleaf/db/util";
 
 export function getCalculatedPayment(
-    monthlyPayment: number | null | undefined,
+    monthlyPayment: number,
     startDate: Date,
     endDate: Date,
-): string | null {
-    if (monthlyPayment) {
-        const startYear = startDate.getFullYear();
-        const endYear = endDate.getFullYear();
-        const startMonth = startDate.getMonth();
-        const endMonth = endDate.getMonth();
+): string {
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const endMonth = endDate.getMonth();
 
-        let totalAmount = 0;
+    let totalAmount = 0;
 
-        for (let year = startYear; year <= endYear; year++) {
-            const monthStart = year === startYear ? startMonth : 0;
-            const monthEnd = year === endYear ? endMonth : 11;
+    for (let year = startYear; year <= endYear; year++) {
+        const monthStart = year === startYear ? startMonth : 0;
+        const monthEnd = year === endYear ? endMonth : 11;
 
-            for (let month = monthStart; month <= monthEnd; month++) {
-                const firstDayOfMonth = year === startYear && month === startMonth ? startDate.getDate() : 1;
-                const lastDayOfMonth =
-                    year === endYear && month === endMonth ? endDate.getDate() : new Date(year, month + 1, 0).getDate();
-                const daysOfMonth = new Date(year, month + 1, 0).getDate();
-                const paymentPerDay = monthlyPayment / daysOfMonth;
-                const pastDaysInMonth = lastDayOfMonth - firstDayOfMonth + 1;
-                const paymentPerMonth = paymentPerDay * pastDaysInMonth;
-                totalAmount += paymentPerMonth;
-            }
+        for (let month = monthStart; month <= monthEnd; month++) {
+            const firstDayOfMonth = year === startYear && month === startMonth ? startDate.getDate() : 1;
+            const lastDayOfMonth = year === endYear && month === endMonth ? endDate.getDate() : new Date(year, month + 1, 0).getDate();
+            const daysOfMonth = new Date(year, month + 1, 0).getDate();
+            const paymentPerDay = monthlyPayment / daysOfMonth;
+            const pastDaysInMonth = lastDayOfMonth - firstDayOfMonth + 1;
+            const paymentPerMonth = paymentPerDay * pastDaysInMonth;
+            totalAmount += paymentPerMonth;
         }
-        return totalAmount.toFixed(2);
     }
-    return null;
+    return totalAmount.toFixed(2);
 }
 
 export function getCalculatedTotalConsumptionCurrentMonth(data: SensorDataSelectType[]): number {
@@ -44,7 +40,10 @@ export function getCalculatedTotalConsumptionCurrentMonth(data: SensorDataSelect
     return totalConsumption;
 }
 
-export function getPredictedCost(price: number | null | undefined, energyData: SensorDataSelectType[]): number {
+export function getPredictedCost(
+    price: number,
+    energyData: SensorDataSelectType[],
+): number {
     const today: Date = new Date();
     const firstDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth(), 1);
     const lastDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -54,7 +53,5 @@ export function getPredictedCost(price: number | null | undefined, energyData: S
     const monthlyUsage: number = (totalConsumptionCurrentMonth / daysPassed) * lastDayOfMonth.getDate();
 
     const predictedConsumption: number = monthlyUsage - totalConsumptionCurrentMonth;
-    const predictedCost: number | null = price ? parseFloat((predictedConsumption * (price / 1000)).toFixed(2)) : null;
-
-    return predictedCost ?? 0;
+    return parseFloat((predictedConsumption * (price / 1000)).toFixed(2));
 }
