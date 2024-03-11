@@ -16,6 +16,8 @@
         "@energyleaf/tailwindcss": "workspace:*",
         "@energyleaf/ui": "workspace:*",
         "@hookform/resolvers": "^3.3.4",
+        "@node-rs/argon2": "^1.8.0",
+        "@node-rs/bcrypt": "^1.10.0",
         "@t3-oss/env-nextjs": "^0.9.2",
         "@tanstack/react-table": "^8.13.2",
         "clsx": "^2.1.0",
