@@ -100,7 +100,7 @@ export default function MailSettingsForm({receiveMails, interval, time, disabled
                                     <FormItem>
                                         <FormLabel>Intervall der Berichte</FormLabel>
                                         <FormControl>
-                                            <IntervalSelector value={field.value} onChange={field.onChange}/>
+                                            <IntervalSelector onChange={field.onChange} value={field.value}/>
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -112,7 +112,7 @@ export default function MailSettingsForm({receiveMails, interval, time, disabled
                                     <FormItem>
                                         <FormLabel>Uhrzeit der Berichte</FormLabel>
                                         <FormControl>
-                                            <TimeSelector value={field.value} onChange={field.onChange}/>
+                                            <TimeSelector onChange={field.onChange} value={field.value}/>
                                         </FormControl>
                                     </FormItem>
                                 )}
