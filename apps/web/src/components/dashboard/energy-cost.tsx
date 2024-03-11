@@ -13,17 +13,24 @@ interface EnergyEntryWithUserData {
 }
 
 export function energyDataJoinUserData(energyData: EnergyEntry[], userData: UserDataSelectType[]): EnergyEntryWithUserData[] {
-    const sortedUserDataHistory = [...userData].reverse();
-    const sortedSensorData = [...energyData].reverse();
-
     // Map over userDataHistory and find corresponding sensorData
-    return sortedSensorData.map(sensorData => {
-        const userDataEntry = sortedUserDataHistory.findLast(x => x.timestamp.getTime() <= sensorData.timestamp.getTime());
+    return energyData.map(sensorData => {
+        const userDataEntry = userData.findLast(x => x.timestamp.getTime() <= sensorData.timestamp.getTime());
         return {
             userData: userDataEntry,
             energyData: sensorData
         };
     });
+}
+
+export function calculateCosts(joinedData: EnergyEntryWithUserData[]): number {
+    return joinedData.reduce(
+        (acc, cur) => {
+            const consumptionInKWh = cur.energyData.value / 1000;
+            return acc + consumptionInKWh * (cur.userData?.basePrice ?? 0);
+        },
+        0
+    )
 }
 
 export function getCalculatedPayment(

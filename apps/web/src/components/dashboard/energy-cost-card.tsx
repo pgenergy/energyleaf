@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {energyDataJoinUserData, getCalculatedPayment, getPredictedCost} from "@/components/dashboard/energy-cost";
+import {
+    calculateCosts,
+    energyDataJoinUserData,
+    getCalculatedPayment,
+    getPredictedCost
+} from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { format } from "date-fns";
@@ -43,13 +48,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const userData = await getUserDataHistory(userId);
     const joinedData = energyDataJoinUserData(energyData, userData);
 
-    const rawCosts = joinedData.reduce(
-        (acc, cur) => {
-            const consumptionInKWh = cur.energyData.value / 1000;
-            return acc + consumptionInKWh * (cur.userData?.basePrice ?? 0);
-        },
-        0
-    )
+    const rawCosts = calculateCosts(joinedData);
     const costString = rawCosts === 0 ? null : rawCosts.toFixed(2);
     const cost = costString ? parseFloat(costString) : null;
 
