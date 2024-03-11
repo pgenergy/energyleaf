@@ -9,7 +9,6 @@ import { ArrowRightIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import {getUserDataHistory} from "@/query/user";
-import {UserDataSelectType} from "@energyleaf/db/types";
 
 interface Props {
     startDate: Date;

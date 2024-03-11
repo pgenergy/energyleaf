@@ -1,4 +1,4 @@
-import {SensorDataSelectType, UserDataSelectType} from "@energyleaf/db/types";
+import type {SensorDataSelectType, UserDataSelectType} from "@energyleaf/db/types";
 
 interface EnergyEntry {
     id: string;
@@ -13,12 +13,9 @@ interface EnergyEntryWithUserData {
 }
 
 export function energyDataJoinUserData(energyData: EnergyEntry[], userData: UserDataSelectType[]): EnergyEntryWithUserData[] {
-    const sortedUserDataHistory = [...userData].sort((a, b) => (a.timestamp?.getTime() || 0) - (b.timestamp?.getTime() || 0));
-    const sortedSensorData = [...energyData].sort((a, b) => (a.timestamp?.getTime() || 0) - (b.timestamp?.getTime() || 0));
-
     // Map over userDataHistory and find corresponding sensorData
-    return sortedSensorData.map(sensorData => {
-        const userDataEntry = sortedUserDataHistory.findLast(userData => userData.timestamp?.getTime() <= sensorData.timestamp?.getTime());
+    return energyData.map(sensorData => {
+        const userDataEntry = userData.findLast(x => x.timestamp.getTime() <= sensorData.timestamp.getTime());
         return {
             userData: userDataEntry,
             energyData: sensorData
@@ -67,9 +64,9 @@ export function getCalculatedPayment(
  * It will get the monthly payment for the last user data entry that is valid for the given month and year.
  */
 function getMonthlyPaymentForMonth(userDataHistory: UserDataSelectType[], month: number, year: number): number {
-    const entry = [...userDataHistory].reverse().find(entry =>
-        entry.timestamp?.getFullYear() < year ||
-        (entry.timestamp?.getFullYear() === year && entry.timestamp?.getMonth() <= month)
+    const entry = [...userDataHistory].reverse().find(x =>
+        x.timestamp.getFullYear() < year ||
+        (x.timestamp.getFullYear() === year && x.timestamp.getMonth() <= month)
     );
     return entry?.monthlyPayment ?? 0;
 }
@@ -88,7 +85,7 @@ export function getPredictedCost(userData: UserDataSelectType[], energyData: Sen
         return 0;
     }
 
-    const price = getLatestUserData(userData)?.basePrice;
+    const price = getLatestUserData(userData).basePrice;
 
     const today: Date = new Date();
     const firstDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth(), 1);
