@@ -62,6 +62,10 @@ export function getCalculatedPayment(
     return totalAmount.toFixed(2);
 }
 
+/**
+ * Gets the monthly payment for a given month and year.
+ * It will get the monthly payment for the last user data entry that is valid for the given month and year.
+ */
 function getMonthlyPaymentForMonth(userDataHistory: UserDataSelectType[], month: number, year: number): number {
     const entry = [...userDataHistory].reverse().find(entry =>
         entry.timestamp?.getFullYear() < year ||
