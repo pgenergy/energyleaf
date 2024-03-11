@@ -1,4 +1,4 @@
-import type {UserDataSelectType, SensorDataSelectType} from "@energyleaf/db/util";
+import type {SensorDataSelectType, UserDataSelectType} from "@energyleaf/db/util";
 
 interface EnergyEntry {
     id: string;
@@ -27,36 +27,47 @@ export function energyDataJoinUserData(energyData: EnergyEntry[], userData: User
 }
 
 export function getCalculatedPayment(
-    monthlyPayment: number | null | undefined,
+    userDataHistory: UserDataSelectType[],
     startDate: Date,
     endDate: Date,
 ): string | null {
-    if (monthlyPayment) {
-        const startYear = startDate.getFullYear();
-        const endYear = endDate.getFullYear();
-        const startMonth = startDate.getMonth();
-        const endMonth = endDate.getMonth();
-
-        let totalAmount = 0;
-
-        for (let year = startYear; year <= endYear; year++) {
-            const monthStart = year === startYear ? startMonth : 0;
-            const monthEnd = year === endYear ? endMonth : 11;
-
-            for (let month = monthStart; month <= monthEnd; month++) {
-                const firstDayOfMonth = year === startYear && month === startMonth ? startDate.getDate() : 1;
-                const lastDayOfMonth =
-                    year === endYear && month === endMonth ? endDate.getDate() : new Date(year, month + 1, 0).getDate();
-                const daysOfMonth = new Date(year, month + 1, 0).getDate();
-                const paymentPerDay = monthlyPayment / daysOfMonth;
-                const pastDaysInMonth = lastDayOfMonth - firstDayOfMonth + 1;
-                const paymentPerMonth = paymentPerDay * pastDaysInMonth;
-                totalAmount += paymentPerMonth;
-            }
-        }
-        return totalAmount.toFixed(2);
+    if (userDataHistory.length === 0) {
+        return null;
     }
-    return null;
+
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const endMonth = endDate.getMonth();
+
+    let totalAmount = 0;
+
+    for (let year = startYear; year <= endYear; year++) {
+        const monthStart = year === startYear ? startMonth : 0;
+        const monthEnd = year === endYear ? endMonth : 11;
+
+        for (let month = monthStart; month <= monthEnd; month++) {
+            const firstDayOfMonth = year === startYear && month === startMonth ? startDate.getDate() : 1;
+            const lastDayOfMonth =
+                year === endYear && month === endMonth ? endDate.getDate() : new Date(year, month + 1, 0).getDate();
+            const daysOfMonth = new Date(year, month + 1, 0).getDate();
+
+            const monthlyPayment = getMonthlyPaymentForMonth(userDataHistory, month, year);
+            const paymentPerDay = monthlyPayment / daysOfMonth;
+            const pastDaysInMonth = lastDayOfMonth - firstDayOfMonth + 1;
+            const paymentPerMonth = paymentPerDay * pastDaysInMonth;
+            totalAmount += paymentPerMonth;
+        }
+    }
+    return totalAmount.toFixed(2);
+}
+
+function getMonthlyPaymentForMonth(userDataHistory: UserDataSelectType[], month: number, year: number): number {
+    const entry = [...userDataHistory].reverse().find(entry =>
+        entry.timestamp?.getFullYear() < year ||
+        (entry.timestamp?.getFullYear() === year && entry.timestamp?.getMonth() <= month)
+    );
+    return entry?.monthlyPayment ?? 0;
 }
 
 export function getCalculatedTotalConsumptionCurrentMonth(data: SensorDataSelectType[]): number {
@@ -65,9 +76,7 @@ export function getCalculatedTotalConsumptionCurrentMonth(data: SensorDataSelect
         const entryDate = new Date(entry.timestamp);
         return entryDate.getMonth() === currentDate.getMonth() && entryDate.getFullYear() === currentDate.getFullYear();
     });
-    const totalConsumption = currentMonthConsumptions.reduce((total, entry) => total + entry.value, 0);
-
-    return totalConsumption;
+    return currentMonthConsumptions.reduce((total, entry) => total + entry.value, 0);
 }
 
 export function getPredictedCost(price: number | null | undefined, energyData: SensorDataSelectType[]): number {

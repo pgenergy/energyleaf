@@ -43,17 +43,17 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const userData = await getUserDataHistory(session.user.id);
     const joinedData = energyDataJoinUserData(energyData, userData);
 
-    const costString = joinedData.reduce(
+    const rawCosts = joinedData.reduce(
         (acc, cur) => {
             const consumptionInKWh = cur.energyData.value / 1000;
             return acc + consumptionInKWh * (cur.userData?.basePrice ?? 0);
         },
         0
-    ).toFixed(2);
-    const cost = parseFloat(costString);
+    )
+    const costString = rawCosts === 0 ? null : rawCosts.toFixed(2);
+    const cost = costString ? parseFloat(costString) : null;
 
-    const monthlyPayment = 0; // TODO
-    const calculatedPayment = 0; // TODO
+    const calculatedPayment = getCalculatedPayment(userData, startDate, endDate);
     const predictedCost = 0; // TODO
 
     return (
