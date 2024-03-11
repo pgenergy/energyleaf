@@ -170,7 +170,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                                     <FormControl>
                                         <>
                                             <Input type="number" {...field} disabled={disabled} />
-                                            {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+                                            {fieldState.error ? <FormMessage>{fieldState.error.message}</FormMessage> : null}
                                         </>
                                     </FormControl>
                                 </FormItem>
