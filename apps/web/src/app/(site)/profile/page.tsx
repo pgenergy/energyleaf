@@ -32,10 +32,10 @@ export default async function ProfilePage() {
         <div className="flex flex-col gap-4">
             <BaseInformationForm email={session.user.email} username={session.user.name}/>
             <MailSettingsForm
-                receiveMails={userData?.reports.receiveMails || false}
-                interval={userData?.reports.interval || 3}
-                time={userData?.reports.time || 6}
                 disabled={isDemo}
+                interval={userData?.reports.interval || 3}
+                receiveMails={userData?.reports.receiveMails || false}
+                time={userData?.reports.time || 6}
             />
             <UserDataForm disabled={isDemo} initialData={data}/>
             <AccountDeletionForm  disabled={isDemo} />

@@ -1,5 +1,5 @@
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
-import React, {Suspense} from "react";
+import {Card, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
+import React from "react";
 
 
 export default function ReportPage() {

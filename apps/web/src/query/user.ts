@@ -5,8 +5,7 @@ import "server-only";
 import {getDemoUserData} from "@/lib/demo/demo";
 
 import {
-    getUserById as getDbUserById, getUserData as getDbUserDataById,
-    getUsersWitDueReport as getDbUsersWitDueReport
+    getUserById as getDbUserById, getUserData as getDbUserDataById
 } from "@energyleaf/db/query";
 
 /**
