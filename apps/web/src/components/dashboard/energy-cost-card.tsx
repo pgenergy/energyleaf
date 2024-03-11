@@ -9,6 +9,7 @@ import { ArrowRightIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import {getUserDataHistory} from "@/query/user";
+import {UserDataSelectType} from "@energyleaf/db/types";
 
 interface Props {
     startDate: Date;
@@ -40,7 +41,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     }
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const userData = await getUserDataHistory(session.user.id);
+    const userData = await getUserDataHistory(userId);
     const joinedData = energyDataJoinUserData(energyData, userData);
 
     const rawCosts = joinedData.reduce(

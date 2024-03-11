@@ -10,7 +10,7 @@ import {
     getUserData as getDbUserDataById,
     getUserDataHistory as getDbUserDataHistoryById
 } from "@energyleaf/db/query";
-import type { UserDataType } from "@energyleaf/db/types";
+import type {UserDataSelectType, UserDataType} from "@energyleaf/db/types";
 
 /**
  * Cached query to retrive user data
@@ -48,10 +48,10 @@ export const getUserData = cache(async (id: string) => {
 /**
  * Cached query to retrieve the history of the given user's data
  */
-export const getUserDataHistory = cache(async (id: string) => {
+export const getUserDataHistory = cache(async (id: string): Promise<UserDataSelectType[]> => {
     if (id === "demo") {
         const userData = await getUserData(id);
-        return userData ? [userData] : [];
+        return userData ? [userData.user_data] : [];
     }
-    return getDbUserDataHistoryById(Number(id));
+    return await getDbUserDataHistoryById(id);
 });

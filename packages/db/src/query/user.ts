@@ -99,7 +99,7 @@ export async function getUserData(id: string) {
 /**
  * Gets the history of user data from the database
  */
-export async function getUserDataHistory(id: number) {
+export async function getUserDataHistory(id: string) {
     return await db.transaction(async (trx) => {
         return trx
             .select()
