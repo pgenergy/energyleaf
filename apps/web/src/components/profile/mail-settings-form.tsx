@@ -96,7 +96,6 @@ export default function MailSettingsForm({receiveMails, interval, time, disabled
                                 control={form.control}
                                 name="interval"
                                 render={({field}) => (
-
                                     <FormItem>
                                         <FormLabel>Intervall der Berichte</FormLabel>
                                         <FormControl>

@@ -1,14 +1,14 @@
 "use client";
 
-import { useTransition } from "react";
-import { updateBaseInformationUsername } from "@/actions/profile";
-import { track } from "@vercel/analytics";
-import { toast } from "sonner";
-import type { z } from "zod";
+import {useTransition} from "react";
+import {updateBaseInformationUsername} from "@/actions/profile";
+import {track} from "@vercel/analytics";
+import {toast} from "sonner";
+import type {z} from "zod";
 
-import type { baseInformationSchema } from "@energyleaf/lib";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
-import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
+import type {baseInformationSchema} from "@energyleaf/lib";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
+import {UserBaseInformationForm} from "@energyleaf/ui/components/forms";
 
 import ChangePasswordForm from "./change-password-form";
 
@@ -18,7 +18,7 @@ interface Props {
     disabled?: boolean;
 }
 
-export default function BaseInformationForm({ username, email, disabled }: Props) {
+export default function BaseInformationForm({username, email, disabled}: Props) {
     const [changeIsPending, startTransition] = useTransition();
 
     function onSubmit(data: z.infer<typeof baseInformationSchema>) {
@@ -53,7 +53,7 @@ export default function BaseInformationForm({ username, email, disabled }: Props
                     username={username}
                 />
             </CardContent>
-            <ChangePasswordForm />
+            <ChangePasswordForm/>
         </Card>
     );
 }

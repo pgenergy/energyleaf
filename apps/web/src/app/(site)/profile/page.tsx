@@ -30,7 +30,7 @@ export default async function ProfilePage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationForm email={session.user.email} username={session.user.name}/>
+            <BaseInformationForm disabled={isDemo} email={session.user.email} username={session.user.name}/>
             <MailSettingsForm
                 disabled={isDemo}
                 interval={userData?.reports.interval || 3}

@@ -11,15 +11,17 @@ interface Props {
 
 export default function IntervalSelector({value, onChange}: Props) {
     return (
-        <Select defaultValue={value.toString()} onValueChange={x => {onChange(Number(x))}}>
+        <Select defaultValue={value.toString()} onValueChange={x => {
+            onChange(Number(x))
+        }}>
             <SelectTrigger>
                 <SelectValue placeholder="Intervall auswählen"/>
             </SelectTrigger>
             <SelectContent>
                 {[1, 2, 3, 4, 5, 6, 7].map((possibleValues) => (
-                <SelectItem key={possibleValues} value={possibleValues.toString()}>
-                    {(getString(possibleValues))}
-                </SelectItem>
+                    <SelectItem key={possibleValues} value={possibleValues.toString()}>
+                        {(getString(possibleValues))}
+                    </SelectItem>
                 ))}
             </SelectContent>
         </Select>
@@ -27,15 +29,11 @@ export default function IntervalSelector({value, onChange}: Props) {
 }
 
 function getString(value: number) {
-    let returnValue = "";
     if (value === 1) {
-        returnValue = "Täglich";
+        return "Täglich";
+    } else if (value === 7) {
+        return "Wöchentlich";
+    } else {
+        return `Alle ${value} Tage`;
     }
-    else if (value === 7) {
-        returnValue = "Wöchentlich";
-    }
-    else {
-        returnValue = `Alle ${value} Tage`;
-    }
-    return returnValue;
 }

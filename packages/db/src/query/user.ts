@@ -74,7 +74,8 @@ export async function createUser(data: CreateUserType) {
         });
 
         await trx.insert(reports).values({
-            userId: id
+            userId: id,
+            timestampLast: new Date(),
         });
     });
 }
@@ -203,9 +204,9 @@ export async function setUserAdmin(id: number, isAdmin: boolean) {
 }
 
 /**
- * Get users with due report to create and send reports
- * the report is due if the current date is greater than the last report date + interval or
- * if the current date is equal to the last report date + interval and the current time is greater than the report time
+ * Get users with due report to create and send reports </br>
+ * the report is due if the current date is greater than the last report date + interval or </br>
+ * if the current date is equal to the last report date + interval and the current time is greater than the report time </br>
  *
  * @returns The users with due report
  */
