@@ -74,7 +74,7 @@ export async function createUser(data: CreateUserType) {
         });
 
         await trx.insert(reports).values({
-            userId: id,
+            userId: id
         });
     });
 }
