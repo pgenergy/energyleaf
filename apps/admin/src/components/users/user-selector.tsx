@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useTransition } from "react";
-import { getAllUsers } from "@/actions/user";
+import { getAllUsersAction } from "@/actions/user";
 import { CheckIcon } from "lucide-react";
 
 import { cn } from "@energyleaf/tailwindcss/utils";
@@ -10,6 +10,7 @@ import {
     CommandGroup,
     CommandInput,
     CommandItem,
+    CommandList,
     Popover,
     PopoverContent,
     PopoverTrigger,
@@ -47,10 +48,11 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
         }
 
         startLoadTransition(async () => {
-            const allUsers = (await getAllUsers()).map((user) => ({
+            const allUsers = (await getAllUsersAction()).map((user) => ({
                 id: user.id,
                 name: user.username,
             }));
+
             setUsers(allUsers);
         });
     }
@@ -65,30 +67,39 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
             <PopoverContent className="p-0">
                 <Command>
                     <CommandInput placeholder="Nutzer Suchen" />
-                    <CommandEmpty>Kein Nutzer gefunden</CommandEmpty>
-                    <CommandGroup>
-                        {isLoading ? (
-                            <Spinner />
-                        ) : (
-                            users.map((user) => (
-                                <CommandItem
-                                    key={user.id}
-                                    onSelect={() => {
-                                        onUserSelected(user.id);
-                                    }}
-                                    value={user.name}
-                                >
-                                    <CheckIcon
-                                        className={cn(
-                                            "mr-2 h-4 w-4",
-                                            selectedUserId === user.id ? "opacity-100" : "opacity-0",
-                                        )}
-                                    />
-                                    {user.name}
-                                </CommandItem>
-                            ))
-                        )}
-                    </CommandGroup>
+                    <CommandList>
+                        <CommandEmpty>
+                            {isLoading ? (
+                                <div className="flex justify-center">
+                                    <Spinner />
+                                </div>
+                            ) : (
+                                "Kein Nutzer gefunden"
+                            )}
+                        </CommandEmpty>
+                        <CommandGroup>
+                            {!isLoading
+                                ? users.map((user) => (
+                                      <CommandItem
+                                          key={user.id}
+                                          onSelect={(currentValue) => {
+                                              onUserSelected(currentValue);
+                                              setIsOpen(false);
+                                          }}
+                                          value={user.name}
+                                      >
+                                          <CheckIcon
+                                              className={cn(
+                                                  "mr-2 h-4 w-4",
+                                                  selectedUserId === user.id ? "opacity-100" : "opacity-0",
+                                              )}
+                                          />
+                                          {user.name}
+                                      </CommandItem>
+                                  ))
+                                : null}
+                        </CommandGroup>
+                    </CommandList>
                 </Command>
             </PopoverContent>
         </Popover>

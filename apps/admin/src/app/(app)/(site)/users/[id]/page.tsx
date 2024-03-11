@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { getUser } from "@/actions/user";
 import UserActionsCard, { UserActionsCardError } from "@/components/users/details/user-actions-card";
 import UserDetailsDeleteDialog from "@/components/users/details/user-details-delete-dialog";
 import UserInformationCard, { UserInformationCardError } from "@/components/users/details/user-information-card";
@@ -10,6 +9,7 @@ import { UserDetailsContextProvider } from "@/hooks/user-detail-hook";
 
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import { getUserById } from "@/query/user";
 
 interface Props {
     params: {
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default async function UserDetailsPage({ params }: Props) {
-    const user = await getUser(params.id);
+    const user = await getUserById(params.id);
     if (!user) {
         return <p>Nutzer nicht gefunden</p>;
     }

@@ -2,7 +2,6 @@
 
 import { useTransition } from "react";
 import { deleteUser } from "@/actions/user";
-import { useUserContext } from "@/hooks/user-hook";
 import { toast } from "sonner";
 
 import {
@@ -15,13 +14,14 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@energyleaf/ui";
+import { useUserDetailsContext } from "@/hooks/user-detail-hook";
 
 interface Props {
     onSuccess?: () => void;
 }
 
 export function UserDeleteDialog({ onSuccess }: Props) {
-    const context = useUserContext();
+    const context = useUserDetailsContext();
     const [pending, startTransition] = useTransition();
 
     if (!context.user) {

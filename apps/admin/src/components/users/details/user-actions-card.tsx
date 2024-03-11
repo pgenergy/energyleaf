@@ -41,7 +41,7 @@ export default function UserActionsCard({ user }: Props) {
                 <CardDescription>Hier können Sie einige Aktionen zu dem Benutzer ausführen.</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="inline-flex flex-col">
+                <div className="flex flex-row justify-evenly items-center">
                     <Button className="mb-2" onClick={resetPassword} variant="destructive">
                         Passwort zurücksetzen
                     </Button>
