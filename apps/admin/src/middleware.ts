@@ -16,7 +16,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (![...publicRoutes, ...unprotectedRoutes].includes(path) && !loggedIn) {
-        return NextResponse.redirect(`${url}/login`);
+        return NextResponse.redirect(`${url}/auth`);
     }
 
     return NextResponse.next();
