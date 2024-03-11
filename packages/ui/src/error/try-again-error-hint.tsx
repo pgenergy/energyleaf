@@ -1,7 +1,8 @@
 "use client";
 
-import {Button} from "../ui";
-import {RotateCwIcon} from "lucide-react";
+import { RotateCwIcon } from "lucide-react";
+
+import { Button } from "../ui";
 
 interface Props {
     resetErrorBoundary: () => void;
@@ -9,12 +10,12 @@ interface Props {
 
 export function TryAgainErrorHint({ resetErrorBoundary }: Props) {
     return (
-        <div className="flex justify-center items-center flex-col">
+        <div className="flex flex-col items-center justify-center">
             <h1 className="text-lg">Ein Fehler ist aufgetreten.</h1>
             <Button onClick={resetErrorBoundary} type="button" variant="ghost">
-                <RotateCwIcon className="mr-2 h-4 w-4"/>
+                <RotateCwIcon className="mr-2 h-4 w-4" />
                 Erneut versuchen
             </Button>
         </div>
-    )
+    );
 }

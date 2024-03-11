@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
-import type { Peak, PeakAssignment } from "@/types/peaks/peak";
+import type { Peak, PeakAssignment } from "@/types/consumption/peak";
 
+import type { DeviceSelectType } from "@energyleaf/db/types";
 import { LineChart } from "@energyleaf/ui/components/charts";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
@@ -10,7 +11,7 @@ import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-ass
 
 interface Props {
     data: { sensorId: string | number; energy: number; timestamp: string }[];
-    devices: { id: number; userId: number; name: string; created: Date | null }[] | null;
+    devices: DeviceSelectType[] | null;
     peaks?: PeakAssignment[];
 }
 

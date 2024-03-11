@@ -4,12 +4,12 @@ import { useState, useTransition } from "react";
 import { signOutAction } from "@/actions/auth";
 import { deleteAccount } from "@/actions/profile";
 import { deleteAccountSchema } from "@/lib/schema/profile";
-import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
 import {
     Button,
     Card,
@@ -80,7 +80,7 @@ export default function AccountDeletionForm({ disabled }: Props) {
             <CardContent>
                 <div className="flex flex-row justify-end">
                     <Button
-                        disabled={isPending}
+                        disabled={isPending || disabled}
                         onClick={() => {
                             if (disabled) {
                                 return;
@@ -98,7 +98,9 @@ export default function AccountDeletionForm({ disabled }: Props) {
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Account löschen</DialogTitle>
-                            <DialogDescription>Bestätigen Sie, dass Sie Ihren Account löschen möchten.</DialogDescription>
+                            <DialogDescription>
+                                Bestätigen Sie, dass Sie Ihren Account löschen möchten.
+                            </DialogDescription>
                         </DialogHeader>
                         <p>
                             Geben Sie zur Bestätigung Ihr Passwort an. Das wird Sie von Ihrem Account abmelden und Sie

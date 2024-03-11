@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {energyDataJoinUserData, getCalculatedPayment, getPredictedCost} from "@/components/dashboard/energy-cost";
-import { getSession } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import {getUserDataHistory} from "@/query/user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import {getUserDataHistory} from "@/query/user";
 
 interface Props {
     startDate: Date;
@@ -16,13 +16,13 @@ interface Props {
 }
 
 export default async function EnergyCostCard({ startDate, endDate }: Props) {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         redirect("/");
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {

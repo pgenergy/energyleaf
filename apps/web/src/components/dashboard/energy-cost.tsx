@@ -1,4 +1,4 @@
-import type {SensorDataSelectType, UserDataSelectType} from "@energyleaf/db/util";
+import {SensorDataSelectType, UserDataSelectType} from "@energyleaf/db/types";
 
 interface EnergyEntry {
     id: string;
