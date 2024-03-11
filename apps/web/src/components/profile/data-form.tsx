@@ -23,6 +23,7 @@ import {
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
     Input,
     Select,
     SelectContent,
@@ -163,11 +164,14 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                         <FormField
                             control={form.control}
                             name="basePrice"
-                            render={({ field }) => (
+                            render={({ field, fieldState }) => (
                                 <FormItem>
-                                    <FormLabel>Strompreis (in €)</FormLabel>
+                                    <FormLabel>Strompreis (in €/kWh)</FormLabel>
                                     <FormControl>
-                                        <Input type="number" {...field} disabled={disabled} />
+                                        <>
+                                            <Input type="number" {...field} disabled={disabled} />
+                                            {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+                                        </>
                                     </FormControl>
                                 </FormItem>
                             )}

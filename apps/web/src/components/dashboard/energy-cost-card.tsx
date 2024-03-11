@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
     calculateCosts,
-    energyDataJoinUserData,
     getCalculatedPayment,
     getPredictedCost
 } from "@/components/dashboard/energy-cost";
