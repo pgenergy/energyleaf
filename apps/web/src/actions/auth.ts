@@ -152,15 +152,26 @@ export async function signInAction(email: string, password: string) {
         throw new UserNotActiveError();
     }
 
-    const argonMatch = await new Argon2id().verify(user.password, password);
-    if (!argonMatch) {
-        const bcryptMatch = await new Bcrypt().verify(user.password, password);
-        if (!bcryptMatch) {
+    let match = false;
+
+    try {
+        match = await new Argon2id().verify(user.password, password);
+        // eslint-disable-next-line no-console -- debug
+        console.log(match);
+    } catch (err) {
+        // eslint-disable-next-line no-console -- debug
+        console.error(err);
+        match = await new Bcrypt().verify(user.password, password);
+        if (!match) {
             throw new Error("E-Mail oder Passwort falsch.");
-        } else {
-            const hash = await new Argon2id().hash(password);
-            await updatePassword({ password: hash }, user.id);
         }
+
+        const hash = await new Argon2id().hash(password);
+        await updatePassword({ password: hash }, user.id);
+    }
+
+    if (!match) {
+        throw new Error("E-Mail oder Passwort falsch.");
     }
 
     const newSession = await lucia.createSession(user.id, {});
