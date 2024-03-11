@@ -54,7 +54,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const cost = costString ? parseFloat(costString) : null;
 
     const calculatedPayment = getCalculatedPayment(userData, startDate, endDate);
-    const predictedCost = 0; // TODO
+    const predictedCost = (cost ?? 0) + getPredictedCost(userData, energyData);
 
     return (
         <Card className="w-full">

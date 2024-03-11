@@ -79,7 +79,13 @@ export function getCalculatedTotalConsumptionCurrentMonth(data: SensorDataSelect
     return currentMonthConsumptions.reduce((total, entry) => total + entry.value, 0);
 }
 
-export function getPredictedCost(price: number | null | undefined, energyData: SensorDataSelectType[]): number {
+export function getPredictedCost(userData: UserDataSelectType[], energyData: SensorDataSelectType[]): number {
+    if (userData.length === 0 || energyData.length === 0) {
+        return 0;
+    }
+
+    const price = getLatestUserData(userData)?.basePrice;
+
     const today: Date = new Date();
     const firstDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth(), 1);
     const lastDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -92,4 +98,8 @@ export function getPredictedCost(price: number | null | undefined, energyData: S
     const predictedCost: number | null = price ? parseFloat((predictedConsumption * (price / 1000)).toFixed(2)) : null;
 
     return predictedCost ?? 0;
+}
+
+function getLatestUserData(userData: UserDataSelectType[]): UserDataSelectType {
+    return userData[userData.length - 1];
 }
