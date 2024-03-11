@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth";
@@ -5,6 +6,7 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import { getUserData } from "@/query/user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { ArrowRightIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
@@ -80,16 +82,22 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <>
-                    <h1 className="text-center text-2xl font-bold text-primary">{cost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</h1>
-                    <p className={`text-center ${cost > parseFloat(calculatedPayment) ? "text-red-500" : "text-primary"}`}>
-                        Abschlag: {formattedCalculatedPayment} €
-                    </p>
-                    <p className="text-center">
-                        Hochrechnung {forecastMonth}: {formattedPredictedCost} €
-                    </p>
-                </>
+                {price > 0 ? (
+                    <>
+                        <h1 className="text-center text-2xl font-bold text-primary">{cost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</h1>
+                        <p className={`text-center ${cost > parseFloat(calculatedPayment) ? "text-red-500" : "text-primary"}`}>
+                            Abschlag: {formattedCalculatedPayment} €
+                        </p>
+                        <p className="text-center">
+                            Hochrechnung {forecastMonth}: {formattedPredictedCost} €
+                        </p>
+                    </>
+                ) : (
+                    <Link href="/profile" className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground">
+                        Preis im Profil festlegen <ArrowRightIcon className="h-4 w-4" />
+                    </Link>
+                )}
             </CardContent>
         </Card>
-    );
+    );    
 }
