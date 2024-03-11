@@ -46,9 +46,8 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const userData = await getUserDataHistory(userId);
-    const joinedData = energyDataJoinUserData(energyData, userData);
 
-    const rawCosts = calculateCosts(joinedData);
+    const rawCosts = calculateCosts(userData, energyData);
     const costString = rawCosts === 0 ? null : rawCosts.toFixed(2);
     const cost = costString ? parseFloat(costString) : null;
 
