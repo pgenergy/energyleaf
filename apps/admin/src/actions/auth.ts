@@ -35,15 +35,22 @@ export async function signInAction(data: z.infer<typeof signInSchema>) {
         throw new Error("Keine Berechtigung.");
     }
 
-    const argonMatch = await new Argon2id().verify(user.password, data.password);
-    if (!argonMatch) {
-        const bcryptMatch = await new Bcrypt().verify(user.password, data.password);
-        if (!bcryptMatch) {
+    let match = false;
+
+    try {
+        match = await new Argon2id().verify(user.password, data.password);
+    } catch (err) {
+        match = await new Bcrypt().verify(user.password, data.password);
+        if (!match) {
             throw new Error("E-Mail oder Passwort falsch.");
-        } else {
-            const hash = await new Argon2id().hash(data.password);
-            await updatePassword({ password: hash }, user.id);
         }
+
+        const hash = await new Argon2id().hash(data.password);
+        await updatePassword({ password: hash }, user.id);
+    }
+
+    if (!match) {
+        throw new Error("E-Mail oder Passwort falsch.");
     }
 
     const newSession = await lucia.createSession(user.id, {});
