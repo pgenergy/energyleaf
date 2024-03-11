@@ -156,7 +156,11 @@ export async function signInAction(email: string, password: string) {
 
     try {
         match = await new Argon2id().verify(user.password, password);
+        // eslint-disable-next-line no-console -- debug
+        console.log(match);
     } catch (err) {
+        // eslint-disable-next-line no-console -- debug
+        console.error(err);
         match = await new Bcrypt().verify(user.password, password);
         if (!match) {
             throw new Error("E-Mail oder Passwort falsch.");
