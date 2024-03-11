@@ -195,13 +195,13 @@ export async function getAllUsers() {
 }
 
 export async function setUserActive(id: number, isActive: boolean) {
-    return await db.update(user).set({ isActive }).where(eq(user.id, id));
+    return await db.update(user).set({isActive}).where(eq(user.id, id));
 }
 
 export async function setUserAdmin(id: number, isAdmin: boolean) {
-    return await db.update(user).set({ isAdmin }).where(eq(user.id, id));
-}   
-   
+    return await db.update(user).set({isAdmin}).where(eq(user.id, id));
+}
+
 /**
  * Get users with due report to create and send reports
  * the report is due if the current date is greater than the last report date + interval or
@@ -223,4 +223,8 @@ export async function getUsersWitDueReport() {
                 ),
             )
         );
+}
+
+export async function updateLastReportTimestamp(userId: number) {
+    return db.update(reports).set({timestampLast: new Date()}).where(eq(reports.userId, userId));
 }

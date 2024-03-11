@@ -1,9 +1,10 @@
-import {getUsersWitDueReport} from "@energyleaf/db/query";
+import {getUsersWitDueReport, updateLastReportTimestamp} from "@energyleaf/db/query";
 
 export async function createReportsAndSendMails() {
     const userReportData = await getUsersWitDueReport();
 
-    for (const unserReport of userReportData) {
-            // todo sent mail
-    }
+    await Promise.all(userReportData.map(async (userReport) => {
+        //todo: create report and send mail
+        await updateLastReportTimestamp(userReport.userId);
+    }));
 }
