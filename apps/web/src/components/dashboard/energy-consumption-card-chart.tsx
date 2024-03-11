@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
-import type { Peak, PeakAssignment } from "@/types/peaks/peak";
+import type { Peak, PeakAssignment } from "@/types/consumption/peak";
 
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import { LineChart } from "@energyleaf/ui/components/charts";

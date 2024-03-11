@@ -1,4 +1,4 @@
-import type { Peak } from "@/types/peaks/peak";
+import type { Peak } from "@/types/consumption/peak";
 
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui";
