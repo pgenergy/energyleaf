@@ -29,18 +29,22 @@ function splitIntoWindows(data: ConsumptionData[]): ConsumptionData[][] {
     const now = new Date();
     return data.reduce<ConsumptionData[][]>(
         (acc, curr) => {
-            const currentGroup = acc[acc.length - 1];
-
-            if (differenceInMinutes(new Date(curr.timestamp), new Date(currentGroup[0].timestamp)) >= peakWindowWidthInMinutes) {
+            if (acc.length === 0) {
                 acc.push([curr]);
             } else {
-                currentGroup.push(curr);
+                const currentGroup = acc[acc.length - 1];
+
+                if (currentGroup.length > 0 && differenceInMinutes(new Date(curr.timestamp), new Date(currentGroup[0].timestamp)) >= peakWindowWidthInMinutes) {
+                    acc.push([curr]);
+                } else {
+                    currentGroup.push(curr);
+                }
             }
 
             return acc;
         },
         []
-    ).filter((x) => differenceInMinutes(now, new Date(x[0].timestamp)) >= peakWindowWidthInMinutes); // ignore groups that are less than 60 minutes old as they are not complete
+    ).filter((x) => x.length > 0 && differenceInMinutes(now, new Date(x[0].timestamp)) >= peakWindowWidthInMinutes);
 }
 
 function calculatePeakThreshold(data: ConsumptionData[]): number {
