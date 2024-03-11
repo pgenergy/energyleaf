@@ -9,7 +9,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { userData, userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/schema";
+import { userData } from "@energyleaf/db/schema";
+import { userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/types";
 import {
     Button,
     Card,

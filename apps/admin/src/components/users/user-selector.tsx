@@ -17,14 +17,14 @@ import {
 } from "@energyleaf/ui";
 
 interface User {
-    id: number;
+    id: string;
     name: string;
 }
 
 interface Props {
     selectedUserName?: string | null;
-    selectedUserId?: number | null;
-    onUserSelected: (userId: number | null) => void;
+    selectedUserId?: string | null;
+    onUserSelected: (userId: string | null) => void;
 }
 
 export default function UserSelector({ selectedUserId, onUserSelected, selectedUserName }: Props) {

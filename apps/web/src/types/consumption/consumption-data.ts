@@ -1,5 +1,5 @@
 export default interface ConsumptionData {
-    sensorId: string | number,
-    energy: number,
-    timestamp: string
+    sensorId: string | number;
+    energy: number;
+    timestamp: string;
 }

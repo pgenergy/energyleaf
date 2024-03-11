@@ -1,50 +1,68 @@
 "use server";
 
-import { signIn, signOut } from "@/lib/auth/auth";
 import type { signInSchema } from "@/lib/schema/auth";
 
 import "server-only";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
-import { AuthError } from "next-auth";
+import { getActionSession } from "@/lib/auth/auth.action";
+import { lucia } from "@/lib/auth/auth.config";
+import { Argon2id, Bcrypt } from "oslo/password";
 import type { z } from "zod";
 
-import { getUserById } from "@energyleaf/db/query";
-import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
+import { getUserById, getUserByMail, updatePassword } from "@energyleaf/db/query";
+import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
 import { sendPasswordResetMailForUser } from "@energyleaf/mail";
 
 export async function signInAction(data: z.infer<typeof signInSchema>) {
-    try {
-        await signIn("credentials", {
-            email: data.email,
-            password: data.password,
-        });
-    } catch (err) {
-        if (err instanceof AuthError) {
-            switch (err.type) {
-                case "CredentialsSignin":
-                    return {
-                        message: "E-Mail oder Passwort falsch",
-                    };
-                default:
-                    return {
-                        message: "Fehler beim Anmelden",
-                    };
-            }
-        }
-
-        throw err;
+    const { session } = await getActionSession();
+    if (session) {
+        redirect("/");
     }
 
-    redirect("/dashboard");
+    const user = await getUserByMail(data.email);
+    if (!user) {
+        throw new Error("E-Mail oder Passwort falsch.");
+    }
+
+    if (!user.isActive) {
+        throw new UserNotActiveError();
+    }
+
+    if (!user.isAdmin) {
+        throw new Error("Keine Berechtigung.");
+    }
+
+    const argonMatch = await new Argon2id().verify(user.password, data.password);
+    if (!argonMatch) {
+        const bcryptMatch = await new Bcrypt().verify(user.password, data.password);
+        if (!bcryptMatch) {
+            throw new Error("E-Mail oder Passwort falsch.");
+        } else {
+            const hash = await new Argon2id().hash(data.password);
+            await updatePassword({ password: hash }, user.id);
+        }
+    }
+
+    const newSession = await lucia.createSession(user.id, {});
+    const cookie = lucia.createSessionCookie(newSession.id);
+    cookies().set(cookie.name, cookie.value, cookie.attributes);
+    redirect("/");
 }
 
 export async function signOutAction() {
-    await signOut();
+    const { session } = await getActionSession();
+    if (!session) {
+        return;
+    }
+
+    await lucia.invalidateSession(session.id);
+    redirect("/auth");
 }
 
-export async function resetUserPassword(userId: number) {
+export async function resetUserPassword(userId: string) {
     const user = await getUserById(userId);
     if (!user) {
         throw new Error("User nicht gefunden.");

@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import UsersOverviewCard from "@/components/users/users-overview-card";
+import { UsersOverviewCardError } from "@/components/users/users-overview-card-error";
 
 import { Skeleton } from "@energyleaf/ui";
-import {ErrorBoundary} from "@energyleaf/ui/error";
-import {UsersOverviewCardError} from "@/components/users/users-overview-card-error";
+import { ErrorBoundary } from "@energyleaf/ui/error";
 
 export default function UsersPage() {
     return (

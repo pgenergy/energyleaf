@@ -2,9 +2,9 @@
 
 import "server-only";
 
-import { cache } from "react";
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth/auth";
+import { env } from "@/env.mjs";
+import { checkIfAdmin } from "@/lib/auth/auth.action";
 import type { userStateSchema } from "@/lib/schema/user";
 import type { z } from "zod";
 
@@ -17,28 +17,37 @@ import {
     setUserAdmin as setUserAdminDb,
     updateUser as updateUserDb,
 } from "@energyleaf/db/query";
-import { UserNotLoggedInError } from "@energyleaf/lib";
 import type { baseInformationSchema } from "@energyleaf/lib";
+import { sendAccountActivatedEmail } from "@energyleaf/mail";
 
-export const getAllUsers = cache(async () => {
-    await validateUserAdmin();
-
+export async function getAllUsers() {
+    await checkIfAdmin();
     return getAllUsersDb();
-});
+}
 
-export async function setUserActive(id: number, active: boolean) {
-    await validateUserAdmin();
-
+export async function setUserActive(id: string, active: boolean) {
+    await checkIfAdmin();
     try {
         await setUserActiveDb(id, active);
+        if (active) {
+            const user = await getUserById(id);
+            if (user) {
+                await sendAccountActivatedEmail({
+                    to: user.email,
+                    name: user.username,
+                    from: env.RESEND_API_MAIL,
+                    apiKey: env.RESEND_API_KEY,
+                });
+            }
+        }
         revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to set user active");
     }
 }
 
-export async function setUserAdmin(id: number, isAdmin: boolean) {
-    await validateUserAdmin();
+export async function setUserAdmin(id: string, isAdmin: boolean) {
+    await checkIfAdmin();
 
     try {
         await setUserAdminDb(id, isAdmin);
@@ -48,8 +57,9 @@ export async function setUserAdmin(id: number, isAdmin: boolean) {
     }
 }
 
-export async function deleteUser(id: number) {
-    await validateUserAdmin();
+export async function deleteUser(id: string) {
+    await checkIfAdmin();
+
     try {
         await deleteUserDb(id);
         revalidatePath("/users");
@@ -58,8 +68,8 @@ export async function deleteUser(id: number) {
     }
 }
 
-export async function getUser(id: number) {
-    await validateUserAdmin();
+export async function getUser(id: string) {
+    await checkIfAdmin();
 
     try {
         return await getUserById(id);
@@ -68,8 +78,8 @@ export async function getUser(id: number) {
     }
 }
 
-export async function updateUser(data: z.infer<typeof baseInformationSchema>, id: number) {
-    await validateUserAdmin();
+export async function updateUser(data: z.infer<typeof baseInformationSchema>, id: string) {
+    await checkIfAdmin();
 
     try {
         await updateUserDb(
@@ -85,8 +95,8 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
     }
 }
 
-export async function updateUserState(data: z.infer<typeof userStateSchema>, id: number) {
-    await validateUserAdmin();
+export async function updateUserState(data: z.infer<typeof userStateSchema>, id: string) {
+    await checkIfAdmin();
 
     try {
         await setUserActiveDb(id, data.active);
@@ -97,23 +107,12 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
     }
 }
 
-export async function getSensorsByUser(id: number) {
-    await validateUserAdmin();
+export async function getSensorsByUser(id: string) {
+    await checkIfAdmin();
 
     try {
         return await getSensorsByUserDb(id);
     } catch (e) {
         throw new Error(`Failed to get sensors of user ${id}`);
-    }
-}
-
-async function validateUserAdmin() {
-    const session = await getSession();
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    if (!session.user.admin) {
-        throw new Error("User is not an admin");
     }
 }
