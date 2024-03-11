@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getActionSession } from "./lib/auth/auth.action";
 
-const publicRoutes = ["/legal"];
+const publicRoutes = ["/legal", "/privacy"];
 const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created"];
 
 export default async function middleware(req: NextRequest) {
