@@ -40,7 +40,7 @@ export default function LegalPage() {
                 </Link>
             </p>
             <p>
-                <span className="font-bold">3. Verantwortlicher des Forschungsprojektes Energyleaf</span>
+                <span className="font-bold">Verantwortlicher des Forschungsprojektes Energyleaf</span>
                 <br />
                 Prof. Dr. Philipp Staudt
                 <br />

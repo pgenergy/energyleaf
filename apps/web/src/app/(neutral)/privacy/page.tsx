@@ -183,7 +183,7 @@ export default function PrivacyPage() {
                 Ergebnisse der Fragebögen bleiben nach Abschluss der Studie erhalten, jedoch werden sie wie die
                 Stromverbrauchs- und Klickdaten von jeglicher Verbindung zur spezifischen Person entkoppelt. Diese Daten
                 sollen im Rahmen von Folgeprojekten in den nächsten Jahren weiter genutzt werden können und deshalb zu
-                diesem Zweck noch mehrere Jahre im intern innerhalb des Lehrstuhls von Prof. Staudt gespeichert werden.
+                diesem Zweck noch mehrere Jahre intern innerhalb des Lehrstuhls von Prof. Staudt gespeichert werden.
                 Ausgenommen hiervon sind die Daten, zu deren Weiterleitung und/oder Aufbewahrung wir gesetzlich
                 verpflichtet sind.
             </p>
