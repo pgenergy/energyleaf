@@ -13,7 +13,7 @@ import {
 import type {UserDataSelectType, UserDataType} from "@energyleaf/db/types";
 
 /**
- * Cached query to retrive user data
+ * Cached query to retrieve user data
  */
 export const getUserById = cache(async (id: string) => {
     if (id === "demo") {
