@@ -16,8 +16,9 @@ import {
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
     Spinner,
-    Switch,
+    Switch
 } from "@energyleaf/ui";
 
 interface Props {
@@ -63,6 +64,7 @@ export default function UserStateForm({ isAdmin, active, id }: Props) {
                             <FormControl>
                                 <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
                             </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />
@@ -78,6 +80,7 @@ export default function UserStateForm({ isAdmin, active, id }: Props) {
                             <FormControl>
                                 <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
                             </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />
