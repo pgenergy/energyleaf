@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { createDevice, updateDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
 import { zodResolver } from "@hookform/resolvers/zod";
