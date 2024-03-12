@@ -7,11 +7,8 @@ export default async function UsersTable() {
     const users = await getAllUsers();
     const data = users.map((user) => {
         return {
-            id: user.id,
-            username: user.username,
-            mail: user.email,
-            isActive: user.isActive,
-            isAdmin: user.isAdmin,
+            ...user,
+            password: "",
         };
     });
 

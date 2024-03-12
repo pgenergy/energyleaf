@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
-import { getSession } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.server";
 import { AreaChartIcon, CpuIcon, HomeIcon, Users2Icon } from "lucide-react";
 
 import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
@@ -38,10 +38,10 @@ const navLinks = [
 ];
 
 export default async function SiteLayout({ children }: Props) {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
-        redirect("/");
+        redirect("/auth");
     }
     return (
         <>
@@ -49,7 +49,7 @@ export default async function SiteLayout({ children }: Props) {
                 actions={
                     <>
                         <ThemeSwitcher />
-                        <NavbarAvatar user={session.user} />
+                        <NavbarAvatar user={user} />
                     </>
                 }
                 links={navLinks}

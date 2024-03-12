@@ -3,15 +3,16 @@
 import React, { useTransition } from "react";
 import { updateBaseInformationPassword } from "@/actions/profile";
 import { passwordSchema } from "@/lib/schema/profile";
-import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
 import {
     Button,
+    Card,
     CardContent,
     CardDescription,
     CardHeader,
@@ -69,7 +70,7 @@ export default function ChangePasswordForm({ disabled }: Props) {
     }
 
     return (
-        <div>
+        <Card>
             <CardHeader>
                 <CardTitle>Passwort</CardTitle>
                 <CardDescription>Ändern Sie Ihr Passwort</CardDescription>
@@ -140,6 +141,6 @@ export default function ChangePasswordForm({ disabled }: Props) {
                     </form>
                 </Form>
             </CardContent>
-        </div>
+        </Card>
     );
 }

@@ -23,7 +23,7 @@ import {
 interface Props {
     isAdmin: boolean;
     active: boolean;
-    id: number;
+    id: string;
 }
 
 export default function UserStateForm({ isAdmin, active, id }: Props) {

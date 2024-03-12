@@ -1,15 +1,16 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
-import {AggregationType} from "@energyleaf/db/util";
+
+import {AggregationType, type UserSelectType} from "@energyleaf/db/types";
 
 export type UserDetailsContextType = {
     deleteDialogOpen: boolean;
     setDeleteDialogOpen: (open: boolean) => void;
     resetPasswordDialogOpen: boolean;
     setResetPasswordDialogOpen: (open: boolean) => void;
-    user: { id: number; username: string } | undefined;
-    setUser: (user: { id: number; username: string } | undefined) => void;
+    user: UserSelectType | undefined;
+    setUser: (user: UserSelectType | undefined) => void;
     startDate: Date;
     setStartDate: (date: Date) => void;
     endDate: Date;
@@ -27,7 +28,7 @@ interface Props {
 export function UserDetailsContextProvider({ children }: Props) {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
-    const [user, setUser] = useState<{ id: number; username: string } | undefined>(undefined);
+    const [user, setUser] = useState<UserSelectType | undefined>(undefined);
 
     const date = new Date();
     const [startDate, setStartDate] = useState(new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0));

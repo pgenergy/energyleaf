@@ -7,9 +7,9 @@ import EnergyConsumptionStatisticCard from "@/components/dashboard/energy-consum
 import EnergyConsumptionStatisticsError from "@/components/dashboard/energy-consumption-statistics-error";
 import EnergyCostCard from "@/components/dashboard/energy-cost-card";
 import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
-import { ErrorBoundary } from "@energyleaf/ui/error";
 
 import { Skeleton } from "@energyleaf/ui";
+import { ErrorBoundary } from "@energyleaf/ui/error";
 
 export default function DashboardPage({
     searchParams,

@@ -20,11 +20,14 @@ interface Props {
     };
 }
 
-export default async function UserDetailsPage({params}: Props) {
-    const user = await getUser(Number(params.id));
+export default async function UserDetailsPage({ params }: Props) {
+    const user = await getUser(params.id);
     if (!user) {
         return <p>Nutzer nicht gefunden</p>;
     }
+
+    // Clear password before rendering
+    user.password = "";
 
     return (
         <UserDetailsContextProvider>
@@ -32,8 +35,8 @@ export default async function UserDetailsPage({params}: Props) {
             <UserResetPasswordDialog/>
             <div className="flex flex-col gap-4">
                 <ErrorBoundary fallback={UserInformationCardError}>
-                    <Suspense fallback={<Skeleton className="h-[57rem] w-full"/>}>
-                        <UserInformationCard user={user}/>
+                    <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
+                        <UserInformationCard user={user} />
                     </Suspense>
                 </ErrorBoundary>
                 <ErrorBoundary fallback={UserActionsCardError}>

@@ -1,4 +1,4 @@
-import type { SensorDataSelectType } from "@energyleaf/db/util";
+import type { SensorDataSelectType } from "@energyleaf/db/types";
 
 export function getCalculatedPayment(
     monthlyPayment: number | null | undefined,

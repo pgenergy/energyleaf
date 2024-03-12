@@ -6,7 +6,7 @@ import {useEffect, useState} from "react";
 import {getConsumptionBySensor, getElectricitySensorByUser} from "@/actions/sensors";
 
 interface Props {
-    userId: number;
+    userId: string;
 }
 
 export default function UserConsumptionCardContent({ userId }: Props) {
@@ -21,7 +21,7 @@ export default function UserConsumptionCardContent({ userId }: Props) {
     </div>;
 }
 
-function useConsumptionData(userId: number) {
+function useConsumptionData(userId: string) {
     const context = useUserDetailsContext();
     const [data, setData] = useState<EnergyData[]>([]);
 

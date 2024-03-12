@@ -9,7 +9,7 @@ import type {FallbackProps} from "react-error-boundary";
 import ErrorCard from "@/components/error/error-card";
 
 interface Props {
-    userId: number;
+    userId: string;
 }
 
 const cardTitle = "Verbrauch";

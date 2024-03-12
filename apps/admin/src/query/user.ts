@@ -8,6 +8,6 @@ export const getAllUsers = cache(async () => {
     return getAllUsersDb();
 });
 
-export const getUser = cache(async (id: number) => {
+export const getUser = cache(async (id: string) => {
     return getUserById(id);
 });

@@ -4,17 +4,10 @@ import UserActionCell from "@/components/users/table/user-action-cell";
 import type { ColumnDef } from "@tanstack/react-table";
 import { BanIcon, CheckCircle2Icon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
+import type { UserSelectType } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui";
 
-export interface UserTableType {
-    id: number;
-    username: string;
-    mail: string;
-    isActive: boolean;
-    isAdmin: boolean;
-}
-
-export const usersTableColumns: ColumnDef<UserTableType>[] = [
+export const usersTableColumns: ColumnDef<UserSelectType>[] = [
     {
         accessorKey: "id",
         header: ({ column }) => {

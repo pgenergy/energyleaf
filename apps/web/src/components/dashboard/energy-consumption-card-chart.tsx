@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
-import type { Peak, PeakAssignment } from "@/types/peaks/peak";
+import type { Peak, PeakAssignment } from "@/types/consumption/peak";
 
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
 import {EnergyConsumptionChart, type EnergyData} from "@energyleaf/ui/components/charts";
+import type {DeviceSelectType} from "@energyleaf/db/types";
 
 interface Props {
     data: EnergyData[];
-    devices: { id: number; userId: number; name: string; created: Date | null }[] | null;
+    devices: DeviceSelectType[] | null;
     peaks?: PeakAssignment[];
 }
 

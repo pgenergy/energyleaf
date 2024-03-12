@@ -6,8 +6,8 @@ import { de } from "date-fns/locale";
 import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
-import { Card, CardContent, CardDescription, CardHeader } from "../../../ui";
-import {AggregationType} from "@energyleaf/db/util";
+import { Card, CardContent, CardDescription, CardHeader } from "@energyleaf/ui";
+import {AggregationType} from "@energyleaf/db/types";
 
 export default function EnergyConsumptionTooltip({ payload }: TooltipProps<ValueType, NameType>) {
     const searchParams = useSearchParams();

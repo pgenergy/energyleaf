@@ -5,7 +5,7 @@ import { DataTable } from "@energyleaf/ui";
 import {getSensorsByUser} from "@/query/sensor";
 
 interface Props {
-    userId: number;
+    userId: string;
 }
 
 export default async function UserSensorsTable({ userId }: Props) {
