@@ -37,17 +37,11 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
         resolver: zodResolver(deviceSchema),
         defaultValues: {
             deviceName: device?.name ?? "",
-            category: device?.category ? (device.category as keyof typeof DeviceCategory) : undefined,
+            category: device?.category ? (device.category as keyof typeof DeviceCategory) : "",
         },
     });
 
-    const [categoryChanged, setCategoryChanged] = useState(false);
-
     const onSubmit = (data: z.infer<typeof deviceSchema>) => {
-        if (typeof data.category === "undefined") {
-            toast.error("Kategorie ist erforderlich");
-            return;
-        }
         toast.promise(device ? updateDevice(data, device.id) : createDevice(data), {
             loading: device ? "Speichern..." : "Erstellen...",
             success: () => {
@@ -57,13 +51,6 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
             },
             error: "Es ist ein Fehler aufgetreten.",
         });
-    };
-
-    const handleCategoryChange = (key: string) => {
-        if (Object.keys(DeviceCategory).includes(key)) {
-            form.setValue("category", key);
-            setCategoryChanged(true);
-        }
     };
 
     return (
@@ -89,7 +76,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                         <FormItem>
                             <FormLabel>Kategorie</FormLabel>
                             <FormControl>
-                                <Select onValueChange={handleCategoryChange} value={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Kategorie auswählen" />
                                     </SelectTrigger>
@@ -108,7 +95,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                 />
                 <Button
                     className="mt-4"
-                    disabled={device !== undefined && !form.formState.isDirty && !categoryChanged}
+                    disabled={device !== undefined && !form.formState.isDirty}
                     type="submit"
                 >
                     Speichern
