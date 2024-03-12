@@ -11,7 +11,7 @@ import { Button, Calendar, Popover, PopoverContent, PopoverTrigger } from "../..
 interface Props {
     startDate: Date;
     endDate: Date;
-    onChange: (value?: DateRange) => void;
+    onChange: (value: DateRange) => void;
 }
 
 export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate, onChange }: Props) {
@@ -92,7 +92,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
                     <div className="flex flex-row flex-wrap gap-2">
                         <Button
                             onClick={() => {
-                                onChange(getToday)
+                                onChangeInternal(getToday)
                             }}
                             variant="outline"
                         >
@@ -100,7 +100,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
                         </Button>
                         <Button
                             onClick={() => {
-                                onChange(getWeek);
+                                onChangeInternal(getWeek);
                             }}
                             variant="outline"
                         >
@@ -108,7 +108,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
                         </Button>
                         <Button
                             onClick={() => {
-                                onChange(getMonth);
+                                onChangeInternal(getMonth);
                             }}
                             variant="outline"
                         >

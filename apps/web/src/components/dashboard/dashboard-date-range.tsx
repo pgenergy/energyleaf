@@ -15,9 +15,10 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    function onChange(value?: DateRange) {
+    function onChange(value: DateRange) {
         track("changeDashboardDateRange()");
-        if (value?.from && value.to) {
+
+        if (value.from && value.to) {
             const search = new URLSearchParams();
             searchParams.forEach((v, key) => {
                 search.set(key, v);

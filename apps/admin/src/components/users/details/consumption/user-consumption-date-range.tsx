@@ -8,12 +8,12 @@ import type { DateRange } from "react-day-picker";
 export default function UserConsumptionDateRange() {
     const context = useUserDetailsContext();
 
-    function setDates(dr: DateRange | undefined) {
-        if (dr?.from && dr.to) {
+    function setDates(dr: DateRange) {
+        if (dr.from && dr.to) {
             context.setStartDate(dr.from);
             context.setEndDate(dr.to);
         }
     }
 
-    return <DateRangePicker endDate={context.endDate} onChange={dr => { setDates(dr) }} startDate={context.startDate} />
+    return <DateRangePicker endDate={context.endDate} onChange={setDates} startDate={context.startDate} />
 }
