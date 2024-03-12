@@ -11,10 +11,12 @@ import type { z } from "zod";
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import {
     Button,
-    Form, FormControl,
+    Form,
+    FormControl,
     FormField,
     FormItem,
-    FormLabel, FormMessage,
+    FormLabel,
+    FormMessage,
     Select,
     SelectContent,
     SelectItem,
