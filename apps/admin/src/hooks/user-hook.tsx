@@ -7,6 +7,8 @@ import type { UserSelectType } from "@energyleaf/db/types";
 export type UserContextType = {
     deleteDialogOpen: boolean;
     setDeleteDialogOpen: (open: boolean) => void;
+    passwordResetDialogOpen: boolean;
+    setPasswordResetDialogOpen: (open: boolean) => void;
     user: UserSelectType | undefined;
     setUser: (sensor: UserSelectType | undefined) => void;
 } | null;
@@ -19,6 +21,7 @@ interface Props {
 
 export function UserContextProvider({ children }: Props) {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [passwordResetDialogOpen, setPasswordResetDialogOpen] = useState(false);
     const [user, setUser] = useState<UserSelectType | undefined>(undefined);
 
     return (
@@ -26,6 +29,8 @@ export function UserContextProvider({ children }: Props) {
             value={{
                 deleteDialogOpen,
                 setDeleteDialogOpen,
+                passwordResetDialogOpen,
+                setPasswordResetDialogOpen,
                 user,
                 setUser,
             }}

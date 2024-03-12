@@ -5,11 +5,11 @@ import UserInformationCard, { UserInformationCardError } from "@/components/user
 import { UserResetPasswordDialog } from "@/components/users/details/user-reset-password-dialog";
 import UserSensorsCard from "@/components/users/details/user-sensors-card";
 import UserSensorsCardError from "@/components/users/details/user-sensors-card-error";
-import { UserDetailsContextProvider } from "@/hooks/user-detail-hook";
+import { UserContextProvider } from "@/hooks/user-hook";
+import { getUserById } from "@/query/user";
 
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
-import { getUserById } from "@/query/user";
 
 interface Props {
     params: {
@@ -27,7 +27,7 @@ export default async function UserDetailsPage({ params }: Props) {
     user.password = "";
 
     return (
-        <UserDetailsContextProvider>
+        <UserContextProvider>
             <UserDetailsDeleteDialog />
             <UserResetPasswordDialog />
             <div className="flex flex-col gap-4">
@@ -47,6 +47,6 @@ export default async function UserDetailsPage({ params }: Props) {
                     </Suspense>
                 </ErrorBoundary>
             </div>
-        </UserDetailsContextProvider>
+        </UserContextProvider>
     );
 }
