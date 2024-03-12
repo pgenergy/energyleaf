@@ -28,6 +28,10 @@ export default function DashboardDateRange({ startDate: initStartDate, endDate: 
     }, [initStartDate, initEndDate]);
     const [range, setRange] = useState<DateRange | undefined>(initRange);
 
+    const calFooter = useMemo(() => {
+       return range?.from && range?.to ? null : <p>Bitte geben Sie einen Zeitraum an.</p>;
+    }, [range]);
+
     const dateString = () => {
         if (initStartDate.toDateString() === initEndDate.toDateString()) {
             return format(initStartDate, "PPP", {
@@ -121,6 +125,7 @@ export default function DashboardDateRange({ startDate: initStartDate, endDate: 
                         mode="range"
                         onSelect={onChange}
                         selected={range}
+                        footer={calFooter}
                     />
                 </PopoverContent>
             </Popover>
