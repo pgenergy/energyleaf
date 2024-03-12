@@ -29,7 +29,7 @@ export default function DashboardDateRange({ startDate: initStartDate, endDate: 
     const [range, setRange] = useState<DateRange | undefined>(initRange);
 
     const calFooter = useMemo(() => {
-       return range?.from && range?.to ? null : <p>Bitte geben Sie einen Zeitraum an.</p>;
+       return range?.from && range.to ? null : <p>Bitte geben Sie einen Zeitraum an.</p>;
     }, [range]);
 
     const dateString = () => {
