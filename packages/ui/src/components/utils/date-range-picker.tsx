@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
@@ -14,20 +14,40 @@ interface Props {
     onChange: (value?: DateRange) => void;
 }
 
-export function DateRangePicker({ startDate, endDate, onChange }: Props) {
+export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate, onChange }: Props) {
+    const initRange = useMemo(() => {
+        return {
+            from: initStartDate,
+            to: initEndDate,
+        };
+    }, [initStartDate, initEndDate]);
+    const [range, setRange] = useState<DateRange | undefined>(initRange);
+
+    const calFooter = useMemo(() => {
+       return range?.from && range.to ? null : <p>Bitte geben Sie einen Zeitraum an.</p>;
+    }, [range]);
+
     const dateString = () => {
-        if (startDate.toDateString() === endDate.toDateString()) {
-            return format(startDate, "PPP", {
+        if (initStartDate.toDateString() === initEndDate.toDateString()) {
+            return format(initStartDate, "PPP", {
                 locale: de,
             });
         }
 
-        return `${format(startDate, "PPP", {
+        return `${format(initStartDate, "PPP", {
             locale: de,
-        })} - ${format(endDate, "PPP", {
+        })} - ${format(initEndDate, "PPP", {
             locale: de,
         })}`;
     };
+
+    function onChangeInternal(value?: DateRange) {
+        setRange(value);
+
+        if (value?.from && value.to) {
+            onChange(value);
+        }
+    }
 
     const getWeek = useMemo(() => {
         const date = new Date();
@@ -57,7 +77,11 @@ export function DateRangePicker({ startDate, endDate, onChange }: Props) {
 
     return (
         <div className="flex flex-row justify-end gap-4">
-            <Popover>
+            <Popover onOpenChange={ (isOpen) => {
+                if (!isOpen) {
+                    setRange(initRange);
+                }
+            }}>
                 <PopoverTrigger asChild>
                     <Button className="justify-start text-left font-normal" variant="outline">
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -94,11 +118,9 @@ export function DateRangePicker({ startDate, endDate, onChange }: Props) {
                     <Calendar
                         initialFocus
                         mode="range"
-                        onSelect={onChange}
-                        selected={{
-                            from: startDate,
-                            to: endDate,
-                        }}
+                        onSelect={onChangeInternal}
+                        selected={range}
+                        footer={calFooter}
                     />
                 </PopoverContent>
             </Popover>
