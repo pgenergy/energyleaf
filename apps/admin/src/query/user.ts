@@ -1,5 +1,7 @@
 import { cache } from "react";
 
+import "server-only";
+
 import { getAllUsers as getAllUsersDb, getUserById as getUserByIdDb } from "@energyleaf/db/query";
 
 export const getAllUsers = cache(async () => {
