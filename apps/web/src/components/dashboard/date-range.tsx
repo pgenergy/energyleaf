@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
 import { format } from "date-fns";
@@ -15,27 +15,37 @@ interface Props {
     endDate: Date;
 }
 
-export default function DashboardDateRange({ startDate, endDate }: Props) {
+export default function DashboardDateRange({ startDate: initStartDate, endDate: initEndDate }: Props) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
+    const initRange = useMemo(() => {
+        return {
+            from: initStartDate,
+            to: initEndDate,
+        };
+    }, [initStartDate, initEndDate]);
+    const [range, setRange] = useState<DateRange | undefined>(initRange);
+
     const dateString = () => {
-        if (startDate.toDateString() === endDate.toDateString()) {
-            return format(startDate, "PPP", {
+        if (initStartDate.toDateString() === initEndDate.toDateString()) {
+            return format(initStartDate, "PPP", {
                 locale: de,
             });
         }
 
-        return `${format(startDate, "PPP", {
+        return `${format(initStartDate, "PPP", {
             locale: de,
-        })} - ${format(endDate, "PPP", {
+        })} - ${format(initEndDate, "PPP", {
             locale: de,
         })}`;
     };
 
     function onChange(value?: DateRange) {
         track("changeDashboardDateRange()");
+        setRange(value);
+
         if (value?.from && value.to) {
             const search = new URLSearchParams();
             searchParams.forEach((v, key) => {
@@ -68,7 +78,11 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
 
     return (
         <div className="flex flex-row justify-end gap-4">
-            <Popover>
+            <Popover onOpenChange={ (isOpen) => {
+                if (!isOpen) {
+                    setRange(initRange);
+                }
+            }}>
                 <PopoverTrigger asChild>
                     <Button className="justify-start text-left font-normal" variant="outline">
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -106,10 +120,7 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
                         initialFocus
                         mode="range"
                         onSelect={onChange}
-                        selected={{
-                            from: startDate,
-                            to: endDate,
-                        }}
+                        selected={range}
                     />
                 </PopoverContent>
             </Popover>
