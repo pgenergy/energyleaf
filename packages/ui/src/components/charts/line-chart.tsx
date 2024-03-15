@@ -38,7 +38,9 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
         const minDate = min(dates);
         const maxDate = max(dates);
         const diffDays = differenceInCalendarDays(maxDate, minDate);
-        let lastSeenDate = "";
+        
+        let lastSeenHour = "";
+        let lastSeenDate = ""; // Verschiebung nach außen, um den Zustand zwischen den Aufrufen zu behalten
     
         return (value: string) => {
             if (!isValid(parseISO(value))) {
@@ -49,8 +51,14 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
             const hourStr = format(date, "HH") + ":00";
     
             if (diffDays <= 1) {
-                return hourStr;
+                // Jede volle Stunde nur einmal anzeigen
+                if (lastSeenHour !== hourStr) {
+                    lastSeenHour = hourStr;
+                    return hourStr;
+                }
+                return '';
             } else {
+                // Datum nur einmal anzeigen
                 if (lastSeenDate !== dateStr) {
                     lastSeenDate = dateStr;
                     return dateStr;
@@ -58,7 +66,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 return '';
             }
         };
-    }, [data, xAxes]);           
+    }, [data, xAxes]);                  
 
     return (
         <ResponsiveContainer height="100%" width="100%">
