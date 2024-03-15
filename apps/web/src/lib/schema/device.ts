@@ -1,17 +1,12 @@
 import { z } from "zod";
 
-export enum DeviceCategory {
-    CoolingAndFreezing = "Kühl- und Gefriergeräte",
-    CookingAndBaking = "Koch- und Backgeräte",
-    CleaningAndLaundry = "Reinigungs- und Wäschegeräte",
-    EntertainmentAndComputers = "Unterhaltungselektronik und Computer",
-    SmallKitchenAppliances = "Kleingeräte Küche",
-    ClimateAndHeating = "Klima- und Heizgeräte",
-    Lighting = "Beleuchtung",
-    Care = "Pflege",
-}
+import { DeviceCategory } from "@energyleaf/db/types";
 
 export const deviceSchema = z.object({
-    deviceName: z.string().min(1, { message: "Bitte gib einen Gerätenamen an." }),
-    category: z.nativeEnum(DeviceCategory),
+    deviceName: z.string().min(1, { message: "Bitte geben Sie einen Gerätenamen an." }),
+    category: z.string().min(1, { message: "Bitte geben Sie eine Kategorie an." })
+        .refine(
+            (value) => Object.keys(DeviceCategory).includes(value as DeviceCategory),
+            { message: "Bitte wählen Sie eine Kategorie aus."}
+        )
 });

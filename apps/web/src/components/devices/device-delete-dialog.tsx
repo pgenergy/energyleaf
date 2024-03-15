@@ -15,6 +15,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
+    buttonVariants,
 } from "@energyleaf/ui";
 
 export function DeviceDeleteDialog() {
@@ -60,7 +61,7 @@ export function DeviceDeleteDialog() {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Gerät löschen</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Bist du sicher, dass du das Gerät {`"${deviceContext.device.name}"`} löschen möchtest? Hierbei
+                        Sind Sie sicher, dass Sie das Gerät {`"${deviceContext.device.name}"`} löschen möchten? Hierbei
                         werden auch alle Daten gelöscht, die mit diesem Gerät verknüpft sind.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -69,7 +70,7 @@ export function DeviceDeleteDialog() {
                         Abbrechen
                     </AlertDialogCancel>
                     <AlertDialogAction
-                        className="bg-destructive text-destructive-foreground"
+                        className={buttonVariants({ variant: "destructive" })}
                         disabled={pending}
                         onClick={deleteDeviceAction}
                     >

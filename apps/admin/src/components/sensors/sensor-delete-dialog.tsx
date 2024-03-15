@@ -1,6 +1,9 @@
 "use client";
 
 import { useTransition } from "react";
+import { deleteSensor } from "@/actions/sensors";
+import { useSensorContext } from "@/hooks/sensor-hook";
+import { toast } from "sonner";
 
 import {
     AlertDialog,
@@ -11,10 +14,8 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
+    buttonVariants,
 } from "@energyleaf/ui";
-import {useSensorContext} from "@/hooks/sensor-hook";
-import {toast} from "sonner";
-import {deleteSensor} from "@/actions/sensors";
 
 export function SensorDeleteDialog() {
     const sensorContext = useSensorContext();
@@ -58,7 +59,7 @@ export function SensorDeleteDialog() {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Sensor löschen</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Bist du sicher, dass du den Sensor {`"${sensorContext.sensor.clientId}"`} löschen möchtest?
+                        Sind Sie sicher, dass Sie den Sensor {`"${sensorContext.sensor.clientId}"`} löschen möchten?
                         Hierbei werden auch alle Daten gelöscht, die mit diesem Sensor verknüpft sind.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -67,7 +68,7 @@ export function SensorDeleteDialog() {
                         Abbrechen
                     </AlertDialogCancel>
                     <AlertDialogAction
-                        className="bg-destructive text-destructive-foreground"
+                        className={buttonVariants({ variant: "destructive" })}
                         disabled={pending}
                         onClick={deleteSensorAction}
                     >

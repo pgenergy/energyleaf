@@ -1,25 +1,26 @@
-import {type ControllerRenderProps, useForm} from "react-hook-form";
-import type {z} from "zod";
-import {assignUserToSensorSchema} from "@/lib/schema/sensor";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {Form, FormField, Spinner} from "@energyleaf/ui";
+import { useState } from "react";
+import { assignUserToSensor } from "@/actions/sensors";
 import UserSelector from "@/components/users/user-selector";
-import {toast} from "sonner";
-import {assignUserToSensor} from "@/actions/sensors";
-import {useState} from "react";
+import { assignUserToSensorSchema } from "@/lib/schema/sensor";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type ControllerRenderProps } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+
+import { Form, FormField, Spinner } from "@energyleaf/ui";
 
 interface Props {
     clientId: string;
-    selectedUserId: number | undefined;
+    selectedUserId: string | undefined;
     selectedUserName: string | undefined;
 }
 
-export default function SensorUserAssignmentForm({clientId, selectedUserId, selectedUserName}: Props) {
+export default function SensorUserAssignmentForm({ clientId, selectedUserId, selectedUserName }: Props) {
     const form = useForm<z.infer<typeof assignUserToSensorSchema>>({
         resolver: zodResolver(assignUserToSensorSchema),
         defaultValues: {
-            userId: selectedUserId
-        }
+            userId: selectedUserId,
+        },
     });
 
     const [isSaving, setIsSaving] = useState(false);
@@ -28,23 +29,23 @@ export default function SensorUserAssignmentForm({clientId, selectedUserId, sele
         toast.promise(
             async () => {
                 setIsSaving(true);
-                await assignUserToSensor(data, clientId)
+                await assignUserToSensor(data, clientId);
             },
             {
                 loading: "Zuweisung wird durchgeführt...",
-                success: _ => {
+                success: (_) => {
                     setIsSaving(false);
                     return `Der Sensor wurde erfolgreich zum Benutzer zugeordnet.`;
                 },
-                error: _ => {
+                error: (_) => {
                     setIsSaving(false);
-                    return `Fehler beim Zuweisen`
+                    return `Fehler beim Zuweisen`;
                 },
             },
         );
     }
 
-    function onFieldChange(field: ControllerRenderProps<{ userId: number | null }, "userId">, id: number | null) {
+    function onFieldChange(field: ControllerRenderProps<{ userId: string | null }, "userId">, id: string | null) {
         field.onChange(id);
         onSubmit(form.getValues());
     }
@@ -55,15 +56,21 @@ export default function SensorUserAssignmentForm({clientId, selectedUserId, sele
                 <FormField
                     control={form.control}
                     name="userId"
-                    render={({field}) => (
-                        (
-                            isSaving ? <Spinner/> : <UserSelector onUserSelected={(id) => {onFieldChange(field, id)}}
-                                                                  selectedUserId={field.value}
-                                                                  selectedUserName={selectedUserName}/>
+                    render={({ field }) =>
+                        isSaving ? (
+                            <Spinner />
+                        ) : (
+                            <UserSelector
+                                onUserSelected={(id) => {
+                                    onFieldChange(field, id);
+                                }}
+                                selectedUserId={field.value}
+                                selectedUserName={selectedUserName}
+                            />
                         )
-                    )}
+                    }
                 />
             </form>
         </Form>
-    )
+    );
 }

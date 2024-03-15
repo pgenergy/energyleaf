@@ -1,8 +1,9 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader } from "@energyleaf/ui";
-import {useSensorContext} from "@/hooks/sensor-hook";
 import SensorDetailsForm from "@/components/sensors/sensor-details-form";
+import { useSensorContext } from "@/hooks/sensor-hook";
+
+import { Dialog, DialogContent, DialogHeader } from "@energyleaf/ui";
 
 export default function SensorAddDialog() {
     const sensorContext = useSensorContext();

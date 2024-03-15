@@ -1,15 +1,18 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
-import type {SensorTableType} from "@/components/sensors/table/sensors-columns";
+
+import type { SensorSelectType } from "@energyleaf/db/types";
 
 export type SensorContextType = {
     addDialogOpen: boolean;
     setAddDialogOpen: (open: boolean) => void;
     deleteDialogOpen: boolean;
     setDeleteDialogOpen: (open: boolean) => void;
-    sensor: SensorTableType | undefined;
-    setSensor: (sensor: SensorTableType | undefined) => void;
+    editDialogOpen: boolean;
+    setEditDialogOpen: (open: boolean) => void;
+    sensor: SensorSelectType | undefined;
+    setSensor: (sensor: SensorSelectType | undefined) => void;
 } | null;
 
 const sensorContext = createContext<SensorContextType>(null);
@@ -21,7 +24,8 @@ interface Props {
 export function SensorContextProvider({ children }: Props) {
     const [addDialogOpen, setAddDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [sensor, setSensor] = useState<SensorTableType | undefined>(undefined);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [sensor, setSensor] = useState<SensorSelectType | undefined>(undefined);
 
     return (
         <sensorContext.Provider
@@ -30,8 +34,10 @@ export function SensorContextProvider({ children }: Props) {
                 setAddDialogOpen,
                 deleteDialogOpen,
                 setDeleteDialogOpen,
+                editDialogOpen,
+                setEditDialogOpen,
                 sensor,
-                setSensor
+                setSensor,
             }}
         >
             {children}

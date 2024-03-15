@@ -1,52 +1,56 @@
 "use client";
 
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
-import type {z} from "zod";
-import type {baseInformationSchema} from "@energyleaf/lib";
-import {useTransition} from "react";
-import {toast} from "sonner";
-import {updateUser} from "@/actions/user";
-import {UserBaseInformationForm} from "@energyleaf/ui/components/forms";
+import { useTransition } from "react";
+import { updateUser } from "@/actions/user";
+import ErrorCard from "@/components/error/error-card";
+import type { FallbackProps } from "react-error-boundary";
+import { toast } from "sonner";
+import type { z } from "zod";
+
+import type { UserSelectType } from "@energyleaf/db/types";
+import type { baseInformationSchema } from "@energyleaf/lib";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
 
 interface Props {
-    user: {
-        id: number;
-        username: string;
-        email: string;
-    }
+    user: UserSelectType;
 }
 
-export default function UserInformationCard({ user } : Props) {
+const cardTitle = "Informationen";
+
+export default function UserInformationCard({ user }: Props) {
     const [changeIsPending, startTransition] = useTransition();
 
     function onSubmit(data: z.infer<typeof baseInformationSchema>) {
         startTransition(() => {
-            toast.promise(
-                updateUser(data, user.id),
-                {
-                    loading: "Speichere...",
-                    success: "Erfolgreich aktualisiert",
-                    error: "Fehler beim Aktualisieren",
-                }
-            );
+            toast.promise(updateUser(data, user.id), {
+                loading: "Speichere...",
+                success: "Erfolgreich aktualisiert",
+                error: "Fehler beim Aktualisieren",
+            });
         });
     }
 
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Informationen</CardTitle>
-                <CardDescription>Hier kannst du die Informationen von Nutzer {user.id} einsehen und ändern.</CardDescription>
+                <CardTitle>{cardTitle}</CardTitle>
+                <CardDescription>
+                    Hier können Sie die Informationen von Nutzer {user.id} einsehen und ändern.
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 <UserBaseInformationForm
                     changeIsPending={changeIsPending}
                     email={user.email}
-                    mailDisabled={false}
                     onSubmit={onSubmit}
                     username={user.username}
                 />
             </CardContent>
         </Card>
-    )
+    );
+}
+
+export function UserInformationCardError({ resetErrorBoundary }: FallbackProps) {
+    return <ErrorCard resetErrorBoundary={resetErrorBoundary} title={cardTitle} />;
 }

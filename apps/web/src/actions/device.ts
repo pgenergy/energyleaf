@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { DeviceCategory } from "@/lib/schema/device";
 import type { deviceSchema } from "@/lib/schema/device";
 import type { z } from "zod";
 
@@ -16,38 +15,32 @@ import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/
 import "server-only";
 
 import { cookies } from "next/headers";
-import { getSession } from "@/lib/auth/auth";
+import { getActionSession } from "@/lib/auth/auth.action";
 import { addDeviceCookieStore, isDemoUser, removeDeviceCookieStore, updateDeviceCookieStore } from "@/lib/demo/demo";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
-    const session = await getSession();
+    const { user, session } = await getActionSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
     if (await isDemoUser()) {
         addDeviceCookieStore(cookies(), data.deviceName, data.category);
+        revalidatePath("/devices");
         return;
     }
 
-    const id = session.user.id;
-    const user = await getUserById(Number(id));
-    if (!user) {
+    const id = user.id;
+    const dbuser = await getUserById(id);
+    if (!dbuser) {
         throw new UserNotFoundError();
-    }
-
-    const categoryKey = Object.keys(DeviceCategory).find(
-        (key) => DeviceCategory[key as keyof typeof DeviceCategory] === data.category,
-    );
-    if (!categoryKey) {
-        throw new Error(`Ungültige Kategorie: ${data.category}`);
     }
 
     try {
         await createDeviceDb({
             name: data.deviceName,
             userId: user.id,
-            category: categoryKey,
+            category: data.category,
         });
         revalidatePath("/devices");
     } catch (error: unknown) {
@@ -58,35 +51,28 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
 }
 
 export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId: number) {
-    const session = await getSession();
+    const { user, session } = await getActionSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
     if (await isDemoUser()) {
-        updateDeviceCookieStore(cookies(), deviceId, data.deviceName);
+        updateDeviceCookieStore(cookies(), deviceId, data.deviceName, data.category);
+        revalidatePath("/devices");
         return;
     }
 
-    const userId = session.user.id;
-
-    const user = await getUserById(Number(userId));
-    if (!user) {
+    const userId = user.id;
+    const dbuser = await getUserById(userId);
+    if (!dbuser) {
         throw new UserNotFoundError();
-    }
-
-    const categoryKey = Object.keys(DeviceCategory).find(
-        (key) => DeviceCategory[key as keyof typeof DeviceCategory] === data.category,
-    );
-    if (!categoryKey) {
-        throw new Error(`Ungültige Kategorie: ${data.category}`);
     }
 
     try {
         await updateDeviceDb(deviceId, {
             name: data.deviceName,
             userId: user.id,
-            category: categoryKey,
+            category: data.category,
         });
         revalidatePath("/devices");
     } catch (error: unknown) {
@@ -97,19 +83,20 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
 }
 
 export async function deleteDevice(deviceId: number) {
-    const session = await getSession();
+    const { user, session } = await getActionSession();
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
     if (await isDemoUser()) {
         removeDeviceCookieStore(cookies(), deviceId);
+        revalidatePath("/devices");
         return;
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     try {
-        await deleteDeviceDb(deviceId, Number(userId));
+        await deleteDeviceDb(deviceId, userId);
         revalidatePath("/devices");
     } catch (error: unknown) {
         if (error instanceof Error) {

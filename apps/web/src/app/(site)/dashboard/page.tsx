@@ -1,10 +1,15 @@
 import { Suspense } from "react";
 import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
+import AbsolutEnergyConsumptionError from "@/components/dashboard/absolut-energy-consumption-card-error";
 import EnergyConsumptionCard from "@/components/dashboard/energy-consumption-card";
-import EnergyStatisticsCard from "@/components/dashboard/energy-consumption-statistics";
+import EnergyConsumptionError from "@/components/dashboard/energy-consumption-card-error";
+import EnergyConsumptionStatisticCard from "@/components/dashboard/energy-consumption-statistics";
+import EnergyConsumptionStatisticsError from "@/components/dashboard/energy-consumption-statistics-error";
 import EnergyCostCard from "@/components/dashboard/energy-cost-card";
+import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
 
 import { Skeleton } from "@energyleaf/ui";
+import { ErrorBoundary } from "@energyleaf/ui/error";
 
 export default function DashboardPage({
     searchParams,
@@ -18,29 +23,37 @@ export default function DashboardPage({
     const endDate = endDateString ? new Date(endDateString) : new Date();
 
     if (!startDateString) {
-        startDate.setUTCHours(0, 0, 0, 0);
+        startDate.setHours(0, 0, 0, 0);
     }
 
     if (!endDateString) {
-        endDate.setUTCHours(23, 59, 59, 999);
+        endDate.setHours(23, 59, 59, 999);
     }
 
     return (
         <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <AbsolutEnergyConsumptionCard endDate={endDate} startDate={startDate} />
-                </Suspense>
-                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <EnergyStatisticsCard endDate={endDate} startDate={startDate} />
-                </Suspense>
-                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <EnergyCostCard endDate={endDate} startDate={startDate} />
-                </Suspense>
+                <ErrorBoundary fallback={AbsolutEnergyConsumptionError}>
+                    <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                        <AbsolutEnergyConsumptionCard endDate={endDate} startDate={startDate} />
+                    </Suspense>
+                </ErrorBoundary>
+                <ErrorBoundary fallback={EnergyConsumptionStatisticsError}>
+                    <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                        <EnergyConsumptionStatisticCard endDate={endDate} startDate={startDate} />
+                    </Suspense>
+                </ErrorBoundary>
+                <ErrorBoundary fallback={EnergyCostError}>
+                    <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                        <EnergyCostCard endDate={endDate} startDate={startDate} />
+                    </Suspense>
+                </ErrorBoundary>
             </div>
-            <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
-                <EnergyConsumptionCard aggregationType={aggregationType} endDate={endDate} startDate={startDate} />
-            </Suspense>
+            <ErrorBoundary fallback={EnergyConsumptionError}>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <EnergyConsumptionCard aggregationType={aggregationType} endDate={endDate} startDate={startDate} />
+                </Suspense>
+            </ErrorBoundary>
         </div>
     );
 }

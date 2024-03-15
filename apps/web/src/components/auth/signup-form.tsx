@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { createAccount, signInAction } from "@/actions/auth";
+import { createAccount } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { signupSchema } from "@/lib/schema/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,13 +32,12 @@ export default function SignUpForm() {
             toast.promise(
                 async () => {
                     await createAccount(data);
-                    await signInAction(data.mail, data.password);
                 },
                 {
                     loading: "Erstelle Konto...",
                     success: "Konto erfolgreich erstellt",
-                    error: (err) => {
-                        setError((err as unknown as Error).message);
+                    error: () => {
+                        setError("Konto konnte nicht erstellt werden");
                         return "Konto konnte nicht erstellt werden";
                     },
                 },
@@ -104,7 +103,7 @@ export default function SignUpForm() {
                         {error !== "" ? <p className="text-sm text-destructive">{error}</p> : null}
                         <SubmitButton pending={isPending} text="Konto erstellen" />
                         <p className="text-sm text-muted-foreground">
-                            Du hast bereits ein Konto?{" "}
+                            Sie haben bereits ein Konto?{" "}
                             <Link className="underline hover:no-underline" href="/">
                                 Anmelden
                             </Link>

@@ -1,5 +1,13 @@
 "use client";
 
+import { useTransition } from "react";
+import { updateUserState } from "@/actions/user";
+import { userStateSchema } from "@/lib/schema/user";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+
 import {
     Button,
     Form,
@@ -8,21 +16,15 @@ import {
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
     Spinner,
     Switch
 } from "@energyleaf/ui";
-import {useForm} from "react-hook-form";
-import type {z} from "zod";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {userStateSchema} from "@/lib/schema/user";
-import {useTransition} from "react";
-import {toast} from "sonner";
-import {updateUserState} from "@/actions/user";
 
 interface Props {
     isAdmin: boolean;
     active: boolean;
-    id: number;
+    id: string;
 }
 
 export default function UserStateForm({ isAdmin, active, id }: Props) {
@@ -62,6 +64,7 @@ export default function UserStateForm({ isAdmin, active, id }: Props) {
                             <FormControl>
                                 <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
                             </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />
@@ -72,13 +75,12 @@ export default function UserStateForm({ isAdmin, active, id }: Props) {
                         <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
                             <div className="flex flex-col gap-2">
                                 <FormLabel>Admin</FormLabel>
-                                <FormDescription>
-                                    Gibt an, ob der Benutzer ein Administrator ist.
-                                </FormDescription>
+                                <FormDescription>Gibt an, ob der Benutzer ein Administrator ist.</FormDescription>
                             </div>
                             <FormControl>
                                 <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
                             </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />

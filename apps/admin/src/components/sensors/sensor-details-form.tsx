@@ -1,50 +1,79 @@
 "use client";
 
+import { createSensor, isSensorRegistered, updateSensor } from "@/actions/sensors";
+import { addSensorSchema } from "@/lib/schema/sensor";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import type { SensorSelectType } from "@energyleaf/db/types";
+import { SensorType, SensorTypeMap } from "@energyleaf/db/types";
 import {
     Button,
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
-    Input, Select, SelectContent,
-    SelectItem, SelectTrigger, SelectValue
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Textarea,
 } from "@energyleaf/ui";
-import {addSensorSchema} from "@/lib/schema/sensor";
-import {SensorType} from "@energyleaf/db/schema";
-import {createSensor, isSensorRegistered} from "@/actions/sensors";
 
 interface Props {
-    device?: { id: number; name: string };
+    sensor?: SensorSelectType;
     onCallback: () => void;
 }
 
-export default function SensorDetailsForm({ onCallback }: Props) {
+export default function SensorDetailsForm({ onCallback, sensor }: Props) {
     const form = useForm<z.infer<typeof addSensorSchema>>({
-        resolver: zodResolver(addSensorSchema)
+        resolver: zodResolver(addSensorSchema),
+        defaultValues: {
+            macAddress: sensor?.clientId ?? "",
+            sensorType: sensor?.sensorType ?? SensorType.Electricity,
+            script: sensor?.script ?? "",
+        },
     });
 
     function onSubmit(data: z.infer<typeof addSensorSchema>) {
+        if (sensor) {
+            const updateData = {
+                clientId: data.macAddress,
+                sensorType: data.sensorType,
+                script: data.script,
+            };
+            toast.promise(updateSensor(sensor.id, updateData), {
+                loading: "Laden...",
+                success: (_) => {
+                    onCallback();
+                    return `Erfolgreich aktualisiert`;
+                },
+                error: `Fehler beim Aktualisieren`,
+            });
+
+            return;
+        }
         toast.promise(
             async () => {
                 if (await isSensorRegistered(data.macAddress)) {
                     form.setError("macAddress", {
                         message: "MAC-Adresse existiert bereits",
-                    })
+                    });
                     throw new Error("MAC-Adresse existiert bereits");
                 }
 
-                await createSensor(data.macAddress, data.sensorType)
+                await createSensor(data.macAddress, data.sensorType);
             },
             {
                 loading: "Laden...",
-                success: _ => {
+                success: (_) => {
                     onCallback();
                     return `Erfolgreich hinzugefügt`;
                 },
@@ -52,12 +81,6 @@ export default function SensorDetailsForm({ onCallback }: Props) {
             },
         );
     }
-
-    const sensorTypeDescriptions: { [key in SensorType]: string } = {
-        [SensorType.Electricity]: "Strom",
-        [SensorType.Gas]: "Gas",
-    };
-
 
     return (
         <Form {...form}>
@@ -88,11 +111,25 @@ export default function SensorDetailsForm({ onCallback }: Props) {
                                 <SelectContent>
                                     {Object.values(SensorType).map((type) => (
                                         <SelectItem key={type} value={type}>
-                                            {sensorTypeDescriptions[type]}
+                                            {SensorTypeMap[type]}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="script"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Skript</FormLabel>
+                            <FormDescription>Dieses Skript ist optional</FormDescription>
+                            <FormControl>
+                                <Textarea {...field} />
+                            </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}

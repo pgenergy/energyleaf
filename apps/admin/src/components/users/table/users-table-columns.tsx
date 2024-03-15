@@ -1,27 +1,16 @@
 "use client";
 
-import {Button} from "@energyleaf/ui";
-import type {ColumnDef} from "@tanstack/react-table";
-import {
-    BanIcon,
-    CheckCircle2Icon,
-    ChevronDownIcon,
-    ChevronUpIcon
-} from "lucide-react";
 import UserActionCell from "@/components/users/table/user-action-cell";
+import type { ColumnDef } from "@tanstack/react-table";
+import { BanIcon, CheckCircle2Icon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
-export interface UserTableType {
-    id: number;
-    username: string;
-    mail: string;
-    isActive: boolean;
-    isAdmin: boolean;
-}
+import type { UserSelectType } from "@energyleaf/db/types";
+import { Button } from "@energyleaf/ui";
 
-export const usersTableColumns: ColumnDef<UserTableType>[] = [
+export const usersTableColumns: ColumnDef<UserSelectType>[] = [
     {
-        accessorKey: 'id',
-        header: ({column}) => {
+        accessorKey: "id",
+        header: ({ column }) => {
             return (
                 <Button
                     onClick={() => {
@@ -31,20 +20,20 @@ export const usersTableColumns: ColumnDef<UserTableType>[] = [
                 >
                     ID
                     {column.getIsSorted() === "asc" ? (
-                        <ChevronUpIcon className="ml-2 h-4 w-4"/>
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
                     ) : (
-                        <ChevronDownIcon className="ml-2 h-4 w-4"/>
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );
         },
-        cell: ({row}) => {
+        cell: ({ row }) => {
             return <span>{row.getValue("id")}</span>;
         },
     },
     {
-        accessorKey: 'username',
-        header: ({column}) => {
+        accessorKey: "username",
+        header: ({ column }) => {
             return (
                 <Button
                     onClick={() => {
@@ -54,20 +43,20 @@ export const usersTableColumns: ColumnDef<UserTableType>[] = [
                 >
                     Name
                     {column.getIsSorted() === "asc" ? (
-                        <ChevronUpIcon className="ml-2 h-4 w-4"/>
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
                     ) : (
-                        <ChevronDownIcon className="ml-2 h-4 w-4"/>
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );
         },
-        cell: ({row}) => {
+        cell: ({ row }) => {
             return <span>{row.getValue("username")}</span>;
         },
     },
     {
-        accessorKey: 'mail',
-        header: ({column}) => {
+        accessorKey: "mail",
+        header: ({ column }) => {
             return (
                 <Button
                     onClick={() => {
@@ -77,20 +66,20 @@ export const usersTableColumns: ColumnDef<UserTableType>[] = [
                 >
                     Mail
                     {column.getIsSorted() === "asc" ? (
-                        <ChevronUpIcon className="ml-2 h-4 w-4"/>
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
                     ) : (
-                        <ChevronDownIcon className="ml-2 h-4 w-4"/>
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );
         },
-        cell: ({row}) => {
+        cell: ({ row }) => {
             return <span>{row.getValue("mail")}</span>;
         },
     },
     {
-        accessorKey: 'isActive',
-        header: ({column}) => {
+        accessorKey: "isActive",
+        header: ({ column }) => {
             return (
                 <Button
                     onClick={() => {
@@ -100,25 +89,22 @@ export const usersTableColumns: ColumnDef<UserTableType>[] = [
                 >
                     Aktiv?
                     {column.getIsSorted() === "asc" ? (
-                        <ChevronUpIcon className="ml-2 h-4 w-4"/>
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
                     ) : (
-                        <ChevronDownIcon className="ml-2 h-4 w-4"/>
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );
         },
-        cell: ({row}) => {
+        cell: ({ row }) => {
             const active = row.getValue<boolean>("isActive");
-            return (
-                active ? <CheckCircle2Icon className="text-green-500"/>
-                    : <BanIcon className="text-red-500"/>
-            );
+            return active ? <CheckCircle2Icon className="text-green-500" /> : <BanIcon className="text-red-500" />;
         },
     },
     {
-        id: 'actions',
-        cell: ({row}) => {
-            return <UserActionCell user={row.original}/>
-        }
-    }
-]
+        id: "actions",
+        cell: ({ row }) => {
+            return <UserActionCell user={row.original} />;
+        },
+    },
+];

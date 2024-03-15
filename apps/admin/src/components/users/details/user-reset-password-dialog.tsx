@@ -1,5 +1,10 @@
 "use client";
 
+import { useTransition } from "react";
+import { resetUserPassword } from "@/actions/auth";
+import { useUserDetailsContext } from "@/hooks/user-detail-hook";
+import { toast } from "sonner";
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -10,10 +15,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@energyleaf/ui";
-import {useTransition} from "react";
-import {toast} from "sonner";
-import {useUserDetailsContext} from "@/hooks/user-detail-hook";
-import {resetUserPassword} from "@/actions/auth";
 
 export function UserResetPasswordDialog() {
     const [pending, startTransition] = useTransition();
@@ -32,13 +33,11 @@ export function UserResetPasswordDialog() {
 
     function resetPasswordAction() {
         startTransition(() => {
-            toast.promise(
-                resetUserPassword(user.id),
-                {
-                    loading: "E-Mail wird gesendet...",
-                    success: "E-Mail wurde erfolgreich gesendet.",
-                    error: "E-Mail konnte aufgrund eines Fehlers nicht gesendet werden.",
-                })
+            toast.promise(resetUserPassword(user.id), {
+                loading: "E-Mail wird gesendet...",
+                success: "E-Mail wurde erfolgreich gesendet.",
+                error: "E-Mail konnte aufgrund eines Fehlers nicht gesendet werden.",
+            });
         });
     }
 
@@ -54,8 +53,8 @@ export function UserResetPasswordDialog() {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Passwort zurücksetzen</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Bist du sicher, dass du dem Nutzer {`"${user.username}"`} (ID: {user.id}) eine E-Mail zum
-                        Zurücksetzen des Passworts senden möchtest?
+                        Sind Sie sicher, dass Sie dem Nutzer {`"${user.username}"`} (ID: {user.id}) eine E-Mail zum
+                        Zurücksetzen des Passworts senden möchten?
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

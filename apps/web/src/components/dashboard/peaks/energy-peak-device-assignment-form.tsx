@@ -8,12 +8,15 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import type { DeviceSelectType } from "@energyleaf/db/types";
 import {
     Button,
     Form,
+    FormControl,
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
     Select,
     SelectContent,
     SelectItem,
@@ -22,7 +25,7 @@ import {
 } from "@energyleaf/ui";
 
 interface Props {
-    devices: { id: number; userId: number; name: string; created: Date | null }[];
+    devices: DeviceSelectType[];
     initialValues: z.infer<typeof peakSchema>;
     sensorId: string;
     timestamp: string;
@@ -39,16 +42,11 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
 
     function onSubmit(data: z.infer<typeof peakSchema>) {
         track("assignEnergyPeakToDevice()");
-        toast.promise(
-            async () => {
-                await addOrUpdatePeak(data, sensorId, timestamp);
-            },
-            {
-                loading: "Peak zuweisen...",
-                success: `Erfolgreich zugewiesen`,
-                error: `Das Gerät konnte dem Peak nicht zugewiesen werden.`,
-            },
-        );
+        toast.promise(addOrUpdatePeak(data, sensorId, timestamp), {
+            loading: "Peak zuweisen...",
+            success: `Erfolgreich zugewiesen`,
+            error: `Das Gerät konnte dem Peak nicht zugewiesen werden.`,
+        });
 
         onInteract();
     }
@@ -66,18 +64,21 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Gerät</FormLabel>
-                            <Select defaultValue={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Gerät wählen" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {devices.map((device) => (
-                                        <SelectItem key={device.id} value={device.id.toString()}>
-                                            {device.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <FormControl>
+                                <Select defaultValue={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Gerät wählen" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {devices.map((device) => (
+                                            <SelectItem key={device.id} value={device.id.toString()}>
+                                                {device.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />

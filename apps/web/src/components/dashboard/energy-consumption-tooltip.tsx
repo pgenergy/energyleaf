@@ -6,7 +6,7 @@ import { de } from "date-fns/locale";
 import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
-import { AggregationType } from "@energyleaf/db/util";
+import { AggregationType } from "@energyleaf/db/types";
 import { Card, CardContent, CardDescription, CardHeader } from "@energyleaf/ui";
 import {computeTimestampLabel} from "@/components/dashboard/utils";
 

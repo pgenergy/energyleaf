@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -12,13 +12,13 @@ interface Props {
 }
 
 export default async function AbsolutEnergyConsumptionCard({ startDate, endDate }: Props) {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         redirect("/");
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
@@ -26,7 +26,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Absoluter Energieverbrauch</CardTitle>
-                    <CardDescription>Dein Sensor konnte nicht gefunden werden</CardDescription>
+                    <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>

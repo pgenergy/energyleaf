@@ -1,35 +1,49 @@
 "use server";
 
-import type {
-    SensorWithUser
-} from '@energyleaf/db/query';
 import {
-    sensorExists
-} from '@energyleaf/db/query';
-import {
-    getSensorsWithUser as getSensorsWithUserDb,
+    assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
     deleteSensor as deleteSensorDb,
-    assignSensorToUser as assignSensorToUserDb
-} from '@energyleaf/db/query';
+    getSensorsWithUser as getSensorsWithUserDb,
+    sensorExists,
+    updateSensor as updateSensorDb,
+} from "@energyleaf/db/query";
 
-import 'server-only';
-import {getSession} from "@/lib/auth/auth";
-import type {SensorType} from "@energyleaf/db/schema";
-import {revalidatePath} from "next/cache";
-import {UserNotLoggedInError} from "@energyleaf/lib";
-import type {z} from "zod";
-import type {assignUserToSensorSchema} from "@/lib/schema/sensor";
+import "server-only";
+
+import { revalidatePath } from "next/cache";
+import { checkIfAdmin } from "@/lib/auth/auth.action";
+import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
+import type { z } from "zod";
+
+import type { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "@energyleaf/db/types";
 
 /**
  * Creates a new sensor.
  */
-export async function createSensor(macAddress: string, sensorType: SensorType): Promise<void> {
+export async function createSensor(macAddress: string, sensorType: SensorType, script?: string): Promise<void> {
     await checkIfAdmin();
     await createSensorDb({
         macAddress,
-        sensorType
+        sensorType,
+        script: script !== "" ? script : undefined,
     });
+    revalidatePath("/sensors");
+}
+
+/**
+ * Update an existing sensor.
+ */
+export async function updateSensor(sensorId: string, data: Partial<SensorInsertType>) {
+    await checkIfAdmin();
+    if (data.script === "") {
+        data.script = null;
+    }
+    try {
+        await updateSensorDb(sensorId, data);
+    } catch (e) {
+        throw new Error("Error while updating sensor");
+    }
     revalidatePath("/sensors");
 }
 
@@ -38,38 +52,23 @@ export async function isSensorRegistered(macAddress: string): Promise<boolean> {
     return sensorExists(macAddress);
 }
 
-export async function getSensors() : Promise<SensorWithUser[]>  {
-    await checkIfAdmin()
-    return getSensorsWithUserDb()
+export async function getSensors(): Promise<SensorSelectTypeWithUser[]> {
+    await checkIfAdmin();
+    return getSensorsWithUserDb();
 }
 
 export async function deleteSensor(sensorId: string) {
     await checkIfAdmin();
-    try {
-        await deleteSensorDb(sensorId);
-        revalidatePath("/sensors");
-    } catch (e) {
-        throw new Error("Error while deleting sensor");
-    }
+    await deleteSensorDb(sensorId);
+    revalidatePath("/sensors");
 }
 
 export async function assignUserToSensor(data: z.infer<typeof assignUserToSensorSchema>, clientId: string) {
     await checkIfAdmin();
     try {
-        await assignSensorToUserDb(clientId, data.userId)
+        await assignSensorToUserDb(clientId, data.userId);
         revalidatePath("/sensors");
     } catch (e) {
         throw new Error("Error while assigning user to sensor");
-    }
-}
-
-async function checkIfAdmin() {
-    const session = await getSession();
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    if (!session.user.admin) {
-        throw new Error("User is not admin");
     }
 }

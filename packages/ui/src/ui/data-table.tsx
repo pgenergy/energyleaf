@@ -1,17 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import {
     flexRender,
     getCoreRowModel,
+    getFilteredRowModel,
+    getSortedRowModel,
     useReactTable,
     type ColumnDef,
+    type ColumnFiltersState,
     type SortingState,
-    getSortedRowModel, type ColumnFiltersState, getFilteredRowModel
 } from "@tanstack/react-table";
 
+import { Input } from "./input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
-import {useState} from "react";
-import {Input} from "./input";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -40,9 +42,11 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         <div className="flex flex-col gap-4">
             <div className="max-w-sm">
                 <Input
-                    onChange={(event) => { table.setGlobalFilter(event.target.value); }}
+                    onChange={(event) => {
+                        table.setGlobalFilter(event.target.value);
+                    }}
                     placeholder="Suchen"
-                    value={table.getState().globalFilter as string || ""}
+                    value={(table.getState().globalFilter as string) || ""}
                 />
             </div>
             <div className="rounded-md border">
