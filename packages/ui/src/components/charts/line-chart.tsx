@@ -30,7 +30,6 @@ interface Props {
 }
 
 export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoints }: Props) {
-    // Dynamischer Tick-Formatter, basierend auf dem Zeitbereich der Daten
     const dynamicTickFormatter = useMemo(() => {
         const dates = data.map(d => new Date(d[xAxes?.dataKey as string] as string));
         if (dates.length === 0) {
@@ -39,24 +38,27 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
         const minDate = min(dates);
         const maxDate = max(dates);
         const diffDays = differenceInCalendarDays(maxDate, minDate);
-
+        let lastSeenDate = "";
+    
         return (value: string) => {
             if (!isValid(parseISO(value))) {
                 return value;
             }
             const date = parseISO(value);
-            if (diffDays < 1) {
-                // Weniger als 1 Tag
-                return format(date, "HH:mm");
-            } else if (diffDays <= 7) {
-                // Weniger als eine Woche
-                return format(date, "dd.MM HH:mm");
+            const dateStr = format(date, "dd.MM");
+            const hourStr = format(date, "HH") + ":00";
+    
+            if (diffDays <= 1) {
+                return hourStr;
             } else {
-                // Mehr als eine Woche
-                return format(date, "dd.MM");
+                if (lastSeenDate !== dateStr) {
+                    lastSeenDate = dateStr;
+                    return dateStr;
+                }
+                return '';
             }
         };
-    }, [data, xAxes]);
+    }, [data, xAxes]);           
 
     return (
         <ResponsiveContainer height="100%" width="100%">
@@ -78,7 +80,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 <XAxis
                     dataKey={xAxes?.dataKey}
                     stroke="hsl(var(--muted-foreground))"
-                    tickFormatter={dynamicTickFormatter} // Verwenden des dynamischen Formatters
+                    tickFormatter={dynamicTickFormatter}
                 >
                     {xAxes?.name && (
                         <Label

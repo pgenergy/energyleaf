@@ -32,17 +32,13 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
     const onClick = devices && devices.length > 0 ? clickCallback : undefined;
 
     const convertDateFormat = useCallback((dateStr) => {
-        // Entfernen Sie den Teil mit der benannten Zeitzone, um Kompatibilitätsprobleme zu vermeiden
         const cleanedDateStr = dateStr.replace(/\(.+\)$/, "").trim();
-        // Erstellen Sie ein Date-Objekt aus dem bereinigten String
         const parsedDate = new Date(cleanedDateStr);
-        // Überprüfen Sie, ob das Date-Objekt gültig ist, indem Sie isNaN auf dessen Zeit überprüfen
         if (!isNaN(parsedDate.getTime())) {
-            // Verwenden Sie formatISO, um das Date-Objekt in einen ISO-String zu konvertieren
             return formatISO(parsedDate);
         } else {
             console.error("Ungültiges Datum: ", dateStr);
-            return dateStr; // Rückgabe des Original-Strings bei Fehlern
+            return dateStr;
         }
     }, []); 
 
