@@ -1,11 +1,5 @@
 import {AggregationType} from "@energyleaf/db/util";
 
-/**
- * Erzeugt Zusatztext bezüglich der ausgewählten Einheit
- *
- * @param aggregationParam  Ausgewählter Aggregationswert
- * @param withWh            Mit "Wh" Label dazu
- */
 export const computeTimestampLabel = (aggregationParam, withWh) => {
     switch (aggregationParam) {
         case AggregationType.YEAR: return withWh ? 'Wh / Jahr' : '(in Jahren)';

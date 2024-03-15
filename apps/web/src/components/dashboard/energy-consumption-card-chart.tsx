@@ -7,7 +7,6 @@ import { LineChart } from "@energyleaf/ui/components/charts";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
-import {AggregationType} from "@energyleaf/db/util";
 import {computeTimestampLabel} from "@/components/dashboard/utils";
 
 interface Props {
