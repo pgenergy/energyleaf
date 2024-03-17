@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { clsx } from "clsx";
 import { format, parseISO, differenceInCalendarDays, isValid, min, max } from "date-fns";
 import { Area, AreaChart, Label, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -38,9 +38,15 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
         const minDate = min(dates);
         const maxDate = max(dates);
         const diffDays = differenceInCalendarDays(maxDate, minDate);
-        
+    
         let lastSeenHour = "";
-        let lastSeenDate = ""; // Verschiebung nach außen, um den Zustand zwischen den Aufrufen zu behalten
+        let lastSeenDate = "";
+        const dateInterval = Math.max(1, Math.ceil(diffDays / 20)); // Dynamisches Intervall für die Anzeige von Datenpunkten
+
+        // Bestimmen des letzten Zeitpunkts als String
+        const lastTimeStr = format(maxDate, "HH:mm");
+        // Überprüfen, ob der letzte Zeitpunkt 00:00 ist (könnte je nach Anwendungsfall angepasst werden)
+        const isLastTimeMidnight = lastTimeStr === "00:00";
     
         return (value: string) => {
             if (!isValid(parseISO(value))) {
@@ -49,24 +55,28 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
             const date = parseISO(value);
             const dateStr = format(date, "dd.MM");
             const hourStr = format(date, "HH") + ":00";
+            const currentDateDiff = differenceInCalendarDays(date, minDate);
+
+            // Nichts zurückgeben, wenn der Wert der letzte Zeitpunkt ist und dieser 00:00 entspricht
+            if (isLastTimeMidnight && format(date, "HH:mm") === lastTimeStr) {
+                return '';
+            }
     
             if (diffDays <= 1) {
-                // Jede volle Stunde nur einmal anzeigen
                 if (lastSeenHour !== hourStr) {
                     lastSeenHour = hourStr;
                     return hourStr;
                 }
                 return '';
             } else {
-                // Datum nur einmal anzeigen
-                if (lastSeenDate !== dateStr) {
+                if (currentDateDiff % dateInterval === 0 && lastSeenDate !== dateStr) { // Nur ausgewählte Daten anzeigen
                     lastSeenDate = dateStr;
                     return dateStr;
                 }
                 return '';
             }
         };
-    }, [data, xAxes]);                  
+    }, [data, xAxes]);                         
 
     return (
         <ResponsiveContainer height="100%" width="100%">
