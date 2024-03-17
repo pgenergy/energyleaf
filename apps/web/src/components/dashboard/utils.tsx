@@ -1,4 +1,4 @@
-import {AggregationType} from "@energyleaf/db/util";
+import { AggregationType } from "@energyleaf/db/types";
 
 export const computeTimestampLabel = (aggregationParam, withWh) => {
     switch (aggregationParam) {
