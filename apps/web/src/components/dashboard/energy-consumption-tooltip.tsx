@@ -8,6 +8,7 @@ import type { NameType, ValueType } from "recharts/types/component/DefaultToolti
 
 import { AggregationType } from "@energyleaf/db/types";
 import { Card, CardContent, CardDescription, CardHeader } from "@energyleaf/ui";
+import {computeTimestampLabel} from "@/components/dashboard/utils";
 
 export default function EnergyConsumptionTooltip({ payload }: TooltipProps<ValueType, NameType>) {
     const searchParams = useSearchParams();
@@ -61,7 +62,7 @@ export default function EnergyConsumptionTooltip({ payload }: TooltipProps<Value
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <p className="text-sm">
-                    <span className="font-bold">Verbrauch:</span> {energy.toFixed(2)} Wh
+                    <span className="font-bold">Verbrauch:</span> {energy.toFixed(2)} {computeTimestampLabel(aggregation, false)}
                 </p>
             </CardContent>
         </Card>

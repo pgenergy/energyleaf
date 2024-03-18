@@ -8,14 +8,16 @@ import { LineChart } from "@energyleaf/ui/components/charts";
 
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
+import {computeTimestampLabel} from "@/components/dashboard/utils";
 
 interface Props {
     data: { sensorId: string | number; energy: number; timestamp: string }[];
     devices: DeviceSelectType[] | null;
     peaks?: PeakAssignment[];
+    aggregation?: string
 }
 
-export default function EnergyConsumptionCardChart({ data, peaks, devices }: Props) {
+export default function EnergyConsumptionCardChart({ data, peaks, devices, aggregation }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<Peak | null>(null);
 
@@ -68,7 +70,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
                 tooltip={{
                     content: EnergyConsumptionTooltip,
                 }}
-                xAxes={{ dataKey: "timestamp" }}
+                xAxes={{ dataKey: "timestamp", name: "Vergangene Zeit " + computeTimestampLabel(aggregation, true)}}
                 yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
             />
         </>

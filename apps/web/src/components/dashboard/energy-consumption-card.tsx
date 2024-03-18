@@ -83,6 +83,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             data={data}
                             devices={devices}
                             peaks={hasAggregation ? undefined : peakAssignments}
+                            aggregation={aggregation}
                         />
                     )}
                 </div>
