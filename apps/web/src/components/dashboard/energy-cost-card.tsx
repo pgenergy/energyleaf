@@ -1,14 +1,18 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
+import {
+    calculateCosts,
+    getCalculatedPayment,
+    getPredictedCost
+} from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import { getUserData } from "@/query/user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import {getUserDataHistory} from "@/query/user";
 
 interface Props {
     startDate: Date;
@@ -40,14 +44,14 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     }
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const userData = await getUserData(userId);
-    const price = userData?.user_data.basePrice;
-    const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
-    const cost: number | null = price ? parseFloat((absolut * price).toFixed(2)) : null;
+    const userData = await getUserDataHistory(userId);
 
-    const monthlyPayment = userData?.user_data.monthlyPayment;
-    const calculatedPayment = getCalculatedPayment(monthlyPayment, startDate, endDate);
-    const predictedCost = (cost ?? 0) + getPredictedCost(price, energyData);
+    const rawCosts = calculateCosts(userData, energyData);
+    const costString = rawCosts === 0 ? null : rawCosts.toFixed(2);
+    const cost = costString ? parseFloat(costString) : null;
+
+    const calculatedPayment = getCalculatedPayment(userData, startDate, endDate);
+    const predictedCost = (cost ?? 0) + getPredictedCost(userData, energyData);
 
     return (
         <Card className="w-full">

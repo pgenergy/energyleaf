@@ -11,13 +11,15 @@ interface Props {
 
 export default function UserConsumptionCardContent({ userId }: Props) {
     const data = useConsumptionData(userId);
+    const context = useUserDetailsContext();
+
     return <div className="h-96 w-full">
         {data.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center">
                 <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
             </div>
         )
-        : <EnergyConsumptionChart data={data}/>}
+        : <EnergyConsumptionChart aggregation={context.aggregationType} data={data}/>}
     </div>;
 }
 

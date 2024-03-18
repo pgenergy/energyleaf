@@ -2,7 +2,8 @@
 
 import React, { createContext, useContext, useState } from "react";
 
-import {AggregationType, type UserSelectType} from "@energyleaf/db/types";
+import type {UserSelectType} from "@energyleaf/db/types";
+import {AggregationType} from "@energyleaf/lib";
 
 export type UserDetailsContextType = {
     deleteDialogOpen: boolean;

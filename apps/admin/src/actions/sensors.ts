@@ -14,7 +14,8 @@ import { revalidatePath } from "next/cache";
 import { checkIfAdmin } from "@/lib/auth/auth.action";
 import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import type { z } from "zod";
-import type {AggregationType, SensorInsertType, SensorType} from "@energyleaf/db/types";
+import type {SensorInsertType, SensorType} from "@energyleaf/db/types";
+import type {AggregationType} from "@energyleaf/lib";
 
 /**
  * Creates a new sensor.

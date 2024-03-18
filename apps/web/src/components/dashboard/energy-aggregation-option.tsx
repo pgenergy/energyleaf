@@ -4,8 +4,8 @@ import React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
 
-import type { AggregationType } from "@energyleaf/db/types";
 import {AggregationOption} from "@energyleaf/ui/components/utils";
+import type {AggregationType} from "@energyleaf/lib";
 
 interface Props {
     selected?: AggregationType;

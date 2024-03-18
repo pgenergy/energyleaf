@@ -6,14 +6,16 @@ import type { Peak, PeakAssignment } from "@/types/consumption/peak";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
 import {EnergyConsumptionChart, type EnergyData} from "@energyleaf/ui/components/charts";
 import type {DeviceSelectType} from "@energyleaf/db/types";
+import type {AggregationType} from "@energyleaf/lib";
 
 interface Props {
     data: EnergyData[];
     devices: DeviceSelectType[] | null;
     peaks?: PeakAssignment[];
+    aggregation?: AggregationType;
 }
 
-export default function EnergyConsumptionCardChart({ data, peaks, devices }: Props) {
+export default function EnergyConsumptionCardChart({ data, peaks, devices, aggregation }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<Peak | null>(null);
 
@@ -51,6 +53,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
                 <EnergyPeakDeviceAssignmentDialog devices={devices} open={open} setOpen={setOpen} value={value} />
             ) : null}
             <EnergyConsumptionChart
+                aggregation={aggregation}
                 data={data}
                 referencePoints={
                     peaks
