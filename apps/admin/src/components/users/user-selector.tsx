@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useTransition } from "react";
-import { getAllUsers } from "@/actions/user";
 import { CheckIcon } from "lucide-react";
 
 import { cn } from "@energyleaf/tailwindcss/utils";
@@ -15,6 +14,7 @@ import {
     PopoverTrigger,
     Spinner,
 } from "@energyleaf/ui";
+import {getAllUsers} from "@/actions/user";
 
 interface User {
     id: string;

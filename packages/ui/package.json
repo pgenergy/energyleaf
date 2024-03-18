@@ -12,6 +12,7 @@
         "./hooks": "./src/hooks/index.tsx",
         "./components/nav": "./src/components/nav/index.tsx",
         "./components/charts": "./src/components/charts/index.tsx",
+        "./components/charts/energy-consumption": "./src/components/charts/energy-consumption/index.tsx",
         "./components/utils": "./src/components/utils/index.tsx",
         "./tools": "./src/tools/index.tsx",
         "./components/forms": "./src/components/forms/index.tsx",
@@ -32,6 +33,7 @@
     "dependencies": {
         "@energyleaf/lib": "workspace:^",
         "@energyleaf/tailwindcss": "workspace:^",
+        "@energyleaf/db": "workspace:^",
         "@hookform/resolvers": "^3.3.4",
         "@radix-ui/react-accordion": "^1.1.2",
         "@radix-ui/react-alert-dialog": "^1.0.5",

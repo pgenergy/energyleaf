@@ -1,6 +1,6 @@
-import { AggregationType } from "@energyleaf/db/types";
+import {AggregationType} from "../types/types";
 
-export const computeTimestampLabel = (aggregationParam, withWh) => {
+export const computeTimestampLabel = (aggregationParam: AggregationType | undefined, withWh: boolean) => {
     switch (aggregationParam) {
         case AggregationType.YEAR: return withWh ? 'Wh / Jahr' : '(in Jahren)';
         case AggregationType.MONTH: return withWh ? 'Wh / Monat' : '(in Monaten)';

@@ -5,15 +5,6 @@ export enum SortOrder {
     DESC = "DESC",
 }
 
-export enum AggregationType {
-    RAW = "RAW",
-    HOUR = "HOUR",
-    DAY = "DAY",
-    WEEK = "WEEK",
-    MONTH = "MONTH",
-    YEAR = "YEAR",
-}
-
 export type UserSelectType = typeof user.$inferSelect;
 
 export type UserDataSelectType = typeof userData.$inferSelect;
