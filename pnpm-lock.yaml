@@ -327,9 +327,6 @@ importers:
 
   packages/lib:
     dependencies:
-      '@energyleaf/lib':
-        specifier: workspace:^
-        version: 'link:'
       jose:
         specifier: ^5.2.3
         version: 5.2.3
