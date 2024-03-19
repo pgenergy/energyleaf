@@ -1,18 +1,11 @@
 import type {SensorDataSelectType, UserDataSelectType} from "@energyleaf/db/types";
 
-interface EnergyEntry {
-    id: string;
-    sensorId: string | null;
-    value: number;
-    timestamp: Date;
-}
-
 interface EnergyEntryWithUserData {
-    energyData: EnergyEntry;
+    energyData: SensorDataSelectType;
     userData: UserDataSelectType | undefined;
 }
 
-export function energyDataJoinUserData(energyData: EnergyEntry[], userData: UserDataSelectType[]): EnergyEntryWithUserData[] {
+export function energyDataJoinUserData(energyData: SensorDataSelectType[], userData: UserDataSelectType[]): EnergyEntryWithUserData[] {
     // Map over userDataHistory and find corresponding sensorData
     return energyData.map(sensorData => {
         const userDataEntry = userData.findLast(x => x.timestamp.getTime() <= sensorData.timestamp.getTime());
