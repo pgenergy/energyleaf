@@ -40,10 +40,9 @@ export const getUserData = cache(async (id: string) => {
             return getUserDataCookieStore();
         }
 
-        return JSON.parse(
-            data,
-            (key, value) => key === "timestamp" ? new Date(value) : value
-        ) as UserDataType;
+        const userData = JSON.parse(data) as UserDataType;
+        userData.user_data.timestamp = new Date(userData.user_data.timestamp);
+        return userData;
     }
     return getDbUserDataById(id);
 });
