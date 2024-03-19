@@ -41,12 +41,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
     
         let lastSeenHour = "";
         let lastSeenDate = "";
-        const dateInterval = Math.max(1, Math.ceil(diffDays / 20)); // Dynamisches Intervall für die Anzeige von Datenpunkten
-
-        // Bestimmen des letzten Zeitpunkts als String
-        const lastTimeStr = format(maxDate, "HH:mm");
-        // Überprüfen, ob der letzte Zeitpunkt 00:00 ist (könnte je nach Anwendungsfall angepasst werden)
-        const isLastTimeMidnight = lastTimeStr === "00:00";
+        const dateInterval = Math.max(1, Math.ceil(diffDays / 20));
     
         return (value: string) => {
             if (!isValid(parseISO(value))) {
@@ -56,11 +51,6 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
             const dateStr = format(date, "dd.MM");
             const hourStr = format(date, "HH") + ":00";
             const currentDateDiff = differenceInCalendarDays(date, minDate);
-
-            // Nichts zurückgeben, wenn der Wert der letzte Zeitpunkt ist und dieser 00:00 entspricht
-            if (isLastTimeMidnight && format(date, "HH:mm") === lastTimeStr) {
-                return '';
-            }
     
             if (diffDays <= 1) {
                 if (lastSeenHour !== hourStr) {
@@ -69,7 +59,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 }
                 return '';
             } else {
-                if (currentDateDiff % dateInterval === 0 && lastSeenDate !== dateStr) { // Nur ausgewählte Daten anzeigen
+                if (currentDateDiff % dateInterval === 0 && lastSeenDate !== dateStr) {
                     lastSeenDate = dateStr;
                     return dateStr;
                 }
