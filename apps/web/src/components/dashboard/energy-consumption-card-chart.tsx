@@ -20,9 +20,9 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
     const [value, setValue] = useState<Peak | null>(null);
 
     const clickCallback = useCallback(
-        (callbackData: { id: string; energy: number; timestamp: string | number | undefined; device?: number }) => {
+        (callbackData: { sensorId: string; energy: number; timestamp: string | number | undefined; device?: number }) => {
             setValue({
-                sensorId: callbackData.id,
+                sensorId: callbackData.sensorId,
                 energy: Number(callbackData.energy),
                 timestamp: callbackData.timestamp?.toString() || "",
                 device: callbackData.device ? Number(callbackData.device) : undefined,
