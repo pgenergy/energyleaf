@@ -5,8 +5,8 @@ import { de } from "date-fns/locale";
 import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
+import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader } from "@energyleaf/ui";
-import {AggregationType, computeTimestampLabel} from "@energyleaf/lib";
 
 interface Props {
     aggregationType: AggregationType;
@@ -59,7 +59,8 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <p className="text-sm">
-                    <span className="font-bold">Verbrauch:</span> {energy.toFixed(2)} {computeTimestampLabel(aggregationType, true)}
+                    <span className="font-bold">Verbrauch:</span> {energy.toFixed(2)}{" "}
+                    {computeTimestampLabel(aggregationType, true)}
                 </p>
             </CardContent>
         </Card>

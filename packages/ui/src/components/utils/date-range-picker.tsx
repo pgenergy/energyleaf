@@ -24,7 +24,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
     const [range, setRange] = useState<DateRange | undefined>(initRange);
 
     const calFooter = useMemo(() => {
-       return range?.from && range.to ? null : <p>Bitte geben Sie einen Zeitraum an.</p>;
+        return range?.from && range.to ? null : <p>Bitte geben Sie einen Zeitraum an.</p>;
     }, [range]);
 
     const dateString = () => {
@@ -77,11 +77,13 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
 
     return (
         <div className="flex flex-row justify-end gap-4">
-            <Popover onOpenChange={ (isOpen) => {
-                if (!isOpen) {
-                    setRange(initRange);
-                }
-            }}>
+            <Popover
+                onOpenChange={(isOpen) => {
+                    if (!isOpen) {
+                        setRange(initRange);
+                    }
+                }}
+            >
                 <PopoverTrigger asChild>
                     <Button className="justify-start text-left font-normal" variant="outline">
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -92,7 +94,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
                     <div className="flex flex-row flex-wrap gap-2">
                         <Button
                             onClick={() => {
-                                onChangeInternal(getToday)
+                                onChangeInternal(getToday);
                             }}
                             variant="outline"
                         >

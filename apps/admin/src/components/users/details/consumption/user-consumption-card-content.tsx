@@ -1,9 +1,11 @@
 "use client";
 
-import {EnergyConsumptionChart, type EnergyData} from "@energyleaf/ui/components/charts";
-import {useUserDetailsContext} from "@/hooks/user-detail-hook";
-import {useEffect, useState} from "react";
-import {getConsumptionBySensor, getElectricitySensorByUser} from "@/actions/sensors";
+import { useEffect, useState } from "react";
+import { getConsumptionBySensor, getElectricitySensorByUser } from "@/actions/sensors";
+import { useUserContext } from "@/hooks/user-hook";
+
+import { AggregationType } from "@energyleaf/lib";
+import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/components/charts";
 
 interface Props {
     userId: string;
@@ -11,20 +13,23 @@ interface Props {
 
 export default function UserConsumptionCardContent({ userId }: Props) {
     const data = useConsumptionData(userId);
-    const context = useUserDetailsContext();
+    const context = useUserContext();
 
-    return <div className="h-96 w-full">
-        {data.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center">
-                <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
-            </div>
-        )
-        : <EnergyConsumptionChart aggregation={context.aggregationType} data={data}/>}
-    </div>;
+    return (
+        <div className="h-96 w-full">
+            {data.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center">
+                    <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
+                </div>
+            ) : (
+                <EnergyConsumptionChart aggregation={context.aggregationType} data={data} />
+            )}
+        </div>
+    );
 }
 
 function useConsumptionData(userId: string) {
-    const context = useUserDetailsContext();
+    const context = useUserContext();
     const [data, setData] = useState<EnergyData[]>([]);
 
     useEffect(() => {
@@ -38,7 +43,7 @@ function useConsumptionData(userId: string) {
                 sensorId,
                 context.startDate,
                 context.endDate,
-                context.aggregationType
+                context.aggregationType || AggregationType.RAW,
             );
             return energyData.map((entry) => ({
                 sensorId: entry.sensorId || 0,
@@ -50,8 +55,12 @@ function useConsumptionData(userId: string) {
         fetchData()
             .catch(() => [])
             .then(
-                (x) => { setData(x || [] ) },
-                () => { setData([]) }
+                (x) => {
+                    setData(x || []);
+                },
+                () => {
+                    setData([]);
+                },
             );
     }, [userId, context.startDate, context.endDate, context.aggregationType]);
 

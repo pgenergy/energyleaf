@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { getSession } from "@/lib/auth/auth.server";
 import calculatePeaks from "@/lib/consumption/peak-calculation";
 import { getDevicesByUser } from "@/query/device";
@@ -6,12 +7,11 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import type ConsumptionData from "@/types/consumption/consumption-data";
 import type { PeakAssignment } from "@/types/consumption/peak";
 
+import { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
-import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
-import {AggregationType} from "@energyleaf/lib";
 
 interface Props {
     startDate: Date;

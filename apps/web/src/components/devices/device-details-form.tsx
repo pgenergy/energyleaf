@@ -92,11 +92,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                         </FormItem>
                     )}
                 />
-                <Button
-                    className="mt-4"
-                    disabled={device !== undefined && !form.formState.isDirty}
-                    type="submit"
-                >
+                <Button className="mt-4" disabled={device !== undefined && !form.formState.isDirty} type="submit">
                     Speichern
                 </Button>
             </form>

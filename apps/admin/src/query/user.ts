@@ -1,13 +1,13 @@
-import {cache} from "react";
-import {
-    getAllUsers as getAllUsersDb,
-    getUserById
-} from "@energyleaf/db/query";
+import { cache } from "react";
+
+import "server-only";
+
+import { getAllUsers as getAllUsersDb, getUserById as getUserByIdDb } from "@energyleaf/db/query";
 
 export const getAllUsers = cache(async () => {
     return getAllUsersDb();
 });
 
-export const getUser = cache(async (id: string) => {
-    return getUserById(id);
+export const getUserById = cache(async (id: string) => {
+    return getUserByIdDb(id);
 });

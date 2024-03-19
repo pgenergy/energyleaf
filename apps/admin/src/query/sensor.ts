@@ -1,8 +1,10 @@
-import {cache} from "react";
+import { cache } from "react";
+
 import {
-    getSensorsByUser as getSensorsByUserDb, getSensorsWithUser as getSensorsWithUserDb
+    getSensorsByUser as getSensorsByUserDb,
+    getSensorsWithUser as getSensorsWithUserDb,
 } from "@energyleaf/db/query";
-import type {SensorSelectTypeWithUser} from "@energyleaf/db/types";
+import type { SensorSelectTypeWithUser } from "@energyleaf/db/types";
 
 export const getSensorsByUser = cache(async (id: string) => {
     return getSensorsByUserDb(id);

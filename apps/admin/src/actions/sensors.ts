@@ -3,7 +3,9 @@
 import {
     assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
-    deleteSensor as deleteSensorDb, getElectricitySensorIdForUser, getEnergyForSensorInRange,
+    deleteSensor as deleteSensorDb,
+    getElectricitySensorIdForUser,
+    getEnergyForSensorInRange,
     sensorExists,
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
@@ -14,8 +16,9 @@ import { revalidatePath } from "next/cache";
 import { checkIfAdmin } from "@/lib/auth/auth.action";
 import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import type { z } from "zod";
-import type {SensorInsertType, SensorType} from "@energyleaf/db/types";
-import type {AggregationType} from "@energyleaf/lib";
+
+import type { SensorInsertType, SensorType } from "@energyleaf/db/types";
+import type { AggregationType } from "@energyleaf/lib";
 
 /**
  * Creates a new sensor.
@@ -56,7 +59,12 @@ export async function getElectricitySensorByUser(id: string) {
     return getElectricitySensorIdForUser(id);
 }
 
-export async function getConsumptionBySensor(sensorId: string, startDate: Date, endDate: Date, aggregationType: AggregationType) {
+export async function getConsumptionBySensor(
+    sensorId: string,
+    startDate: Date,
+    endDate: Date,
+    aggregationType: AggregationType,
+) {
     await checkIfAdmin();
     return getEnergyForSensorInRange(startDate, endDate, sensorId, aggregationType);
 }
