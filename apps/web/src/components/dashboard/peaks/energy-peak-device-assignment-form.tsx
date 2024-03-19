@@ -12,9 +12,11 @@ import type { DeviceSelectType } from "@energyleaf/db/types";
 import {
     Button,
     Form,
+    FormControl,
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
     Select,
     SelectContent,
     SelectItem,
@@ -62,18 +64,21 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Gerät</FormLabel>
-                            <Select defaultValue={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Gerät wählen" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {devices.map((device) => (
-                                        <SelectItem key={device.id} value={device.id.toString()}>
-                                            {device.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <FormControl>
+                                <Select defaultValue={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Gerät wählen" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {devices.map((device) => (
+                                            <SelectItem key={device.id} value={device.id.toString()}>
+                                                {device.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </FormControl>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />

@@ -1,5 +1,5 @@
-import { getAllUsers } from "@/actions/user";
 import { usersTableColumns } from "@/components/users/table/users-table-columns";
+import { getAllUsers } from "@/query/user";
 
 import { DataTable } from "@energyleaf/ui";
 

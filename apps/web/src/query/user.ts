@@ -5,11 +5,15 @@ import "server-only";
 import { cookies } from "next/headers";
 import { getUserDataCookieStore } from "@/lib/demo/demo";
 
-import { getUserById as getDbUserById, getUserData as getDbUserDataById } from "@energyleaf/db/query";
-import type { UserDataType } from "@energyleaf/db/types";
+import {
+    getUserById as getDbUserById,
+    getUserData as getDbUserDataById,
+    getUserDataHistory as getDbUserDataHistoryById,
+} from "@energyleaf/db/query";
+import type { UserDataSelectType, UserDataType } from "@energyleaf/db/types";
 
 /**
- * Cached query to retrive user data
+ * Cached query to retrieve user data
  */
 export const getUserById = cache(async (id: string) => {
     if (id === "demo") {
@@ -27,7 +31,7 @@ export const getUserById = cache(async (id: string) => {
 });
 
 /**
- * Cached query to retrive user data
+ * Cached query to retrieve user data
  */
 export const getUserData = cache(async (id: string) => {
     if (id === "demo") {
@@ -39,4 +43,15 @@ export const getUserData = cache(async (id: string) => {
         return JSON.parse(data) as UserDataType;
     }
     return getDbUserDataById(id);
+});
+
+/**
+ * Cached query to retrieve the history of the given user's data
+ */
+export const getUserDataHistory = cache(async (id: string): Promise<UserDataSelectType[]> => {
+    if (id === "demo") {
+        const userData = await getUserData(id);
+        return userData ? [userData.user_data] : [];
+    }
+    return await getDbUserDataHistoryById(id);
 });

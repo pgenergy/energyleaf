@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { getSession } from "@/lib/auth/auth.server";
 import calculatePeaks from "@/lib/consumption/peak-calculation";
 import { getDevicesByUser } from "@/query/device";
@@ -6,10 +7,9 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import type ConsumptionData from "@/types/consumption/consumption-data";
 import type { PeakAssignment } from "@/types/consumption/peak";
 
-import { AggregationType } from "@energyleaf/db/types";
+import { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
-import DashboardDateRange from "./date-range";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
@@ -83,6 +83,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             data={data}
                             devices={devices}
                             peaks={hasAggregation ? undefined : peakAssignments}
+                            aggregation={aggregation}
                         />
                     )}
                 </div>

@@ -80,7 +80,7 @@ export async function createUser(data: CreateUserType) {
 }
 
 /**
- * Get the user data from the database
+ * Get the current user data from the database
  */
 export async function getUserData(id: string) {
     const data = await db
@@ -94,6 +94,20 @@ export async function getUserData(id: string) {
     }
 
     return data[0];
+}
+
+/**
+ * Gets the history of user data from the database
+ */
+export async function getUserDataHistory(id: string) {
+    return await db.transaction(async (trx) => {
+        return trx
+            .select()
+            .from(historyUserData)
+            .where(eq(historyUserData.userId, id))
+            .union(trx.select().from(userData).where(eq(userData.userId, id)))
+            .orderBy(historyUserData.timestamp);
+    });
 }
 
 /**

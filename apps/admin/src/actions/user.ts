@@ -11,7 +11,6 @@ import type { z } from "zod";
 import {
     deleteUser as deleteUserDb,
     getAllUsers as getAllUsersDb,
-    getSensorsByUser as getSensorsByUserDb,
     getUserById,
     setUserActive as setUserActiveDb,
     setUserAdmin as setUserAdminDb,
@@ -20,9 +19,14 @@ import {
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { sendAccountActivatedEmail } from "@energyleaf/mail";
 
-export async function getAllUsers() {
+export async function getAllUsersAction() {
     await checkIfAdmin();
-    return getAllUsersDb();
+
+    // strip password from response before it is sent to the client
+    return (await getAllUsersDb()).map((user) => ({
+        ...user,
+        password: "",
+    }));
 }
 
 export async function setUserActive(id: string, active: boolean) {
@@ -68,16 +72,6 @@ export async function deleteUser(id: string) {
     }
 }
 
-export async function getUser(id: string) {
-    await checkIfAdmin();
-
-    try {
-        return await getUserById(id);
-    } catch (e) {
-        throw new Error("Failed to get user");
-    }
-}
-
 export async function updateUser(data: z.infer<typeof baseInformationSchema>, id: string) {
     await checkIfAdmin();
 
@@ -107,12 +101,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
     }
 }
 
-export async function getSensorsByUser(id: string) {
+export async function getAllUsers() {
     await checkIfAdmin();
-
-    try {
-        return await getSensorsByUserDb(id);
-    } catch (e) {
-        throw new Error(`Failed to get sensors of user ${id}`);
-    }
+    return getAllUsersDb();
 }

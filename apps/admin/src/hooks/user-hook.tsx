@@ -3,12 +3,21 @@
 import React, { createContext, useContext, useState } from "react";
 
 import type { UserSelectType } from "@energyleaf/db/types";
+import { type AggregationType } from "@energyleaf/lib";
 
 export type UserContextType = {
     deleteDialogOpen: boolean;
     setDeleteDialogOpen: (open: boolean) => void;
+    passwordResetDialogOpen: boolean;
+    setPasswordResetDialogOpen: (open: boolean) => void;
     user: UserSelectType | undefined;
     setUser: (sensor: UserSelectType | undefined) => void;
+    aggregationType: AggregationType | undefined;
+    setAggregationType: (aggregationType: AggregationType) => void;
+    startDate: Date;
+    setStartDate: (date: Date) => void;
+    endDate: Date;
+    setEndDate: (date: Date) => void;
 } | null;
 
 const userContext = createContext<UserContextType>(null);
@@ -19,15 +28,27 @@ interface Props {
 
 export function UserContextProvider({ children }: Props) {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [passwordResetDialogOpen, setPasswordResetDialogOpen] = useState(false);
     const [user, setUser] = useState<UserSelectType | undefined>(undefined);
+    const [aggregationType, setAggregationType] = useState<AggregationType | undefined>(undefined);
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
 
     return (
         <userContext.Provider
             value={{
                 deleteDialogOpen,
                 setDeleteDialogOpen,
+                passwordResetDialogOpen,
+                setPasswordResetDialogOpen,
                 user,
                 setUser,
+                aggregationType,
+                setAggregationType,
+                startDate,
+                setStartDate,
+                endDate,
+                setEndDate,
             }}
         >
             {children}

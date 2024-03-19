@@ -1,14 +1,15 @@
 import { and, between, desc, eq, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
+import { AggregationType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 
 import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
-import { AggregationType, SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
+import { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 /**
- * Get the energy consumption for a sensor in a given time range
+ * Get the energy utils for a sensor in a given time range
  */
 export async function getEnergyForSensorInRange(
     start: Date,
@@ -110,7 +111,7 @@ export async function getEnergyForSensorInRange(
 }
 
 /**
- * Get the average energy consumption for a sensor
+ * Get the average energy utils for a sensor
  */
 export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
     const query = await db
@@ -129,7 +130,7 @@ export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
 }
 
 /**
- * get the average energy consumption for a user in comparison to other users with similar data
+ * get the average energy utils for a user in comparison to other users with similar data
  */
 export async function getAvgEnergyConsumptionForUserInComparison(userId: string) {
     const query = await db.transaction(async (trx) => {
@@ -539,7 +540,7 @@ export async function assignSensorToUser(clientId: string, userId: string | null
 }
 
 /**
- * Get the average energy consumption per device
+ * Get the average energy utils per device
  */
 export async function getAverageConsumptionPerDevice(userId: string) {
     const result = await db

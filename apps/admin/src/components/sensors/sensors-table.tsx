@@ -1,6 +1,6 @@
 import React from "react";
-import { getSensors } from "@/actions/sensors";
 import { sensorsOverviewColumns } from "@/components/sensors/table/sensors-columns";
+import { getSensors } from "@/query/sensor";
 
 import type { SensorSelectTypeWithUser } from "@energyleaf/db/types";
 import { DataTable } from "@energyleaf/ui";
