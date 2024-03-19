@@ -2,22 +2,21 @@
 
 import "server-only";
 
-import { revalidatePath } from "next/cache";
+import {revalidatePath} from "next/cache";
+import type {userStateSchema} from "@/lib/schema/user";
+import type {z} from "zod";
 import { env } from "@/env.mjs";
 import { checkIfAdmin } from "@/lib/auth/auth.action";
-import type { userStateSchema } from "@/lib/schema/user";
-import type { z } from "zod";
 
 import {
     deleteUser as deleteUserDb,
     getAllUsers as getAllUsersDb,
-    getSensorsByUser as getSensorsByUserDb,
     getUserById,
     setUserActive as setUserActiveDb,
     setUserAdmin as setUserAdminDb,
     updateUser as updateUserDb,
 } from "@energyleaf/db/query";
-import type { baseInformationSchema } from "@energyleaf/lib";
+import type {baseInformationSchema} from "@energyleaf/lib";
 import { sendAccountActivatedEmail } from "@energyleaf/mail";
 
 export async function getAllUsersAction() {
@@ -102,12 +101,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
     }
 }
 
-export async function getSensorsByUser(id: string) {
+export async function getAllUsers() {
     await checkIfAdmin();
-
-    try {
-        return await getSensorsByUserDb(id);
-    } catch (e) {
-        throw new Error(`Failed to get sensors of user ${id}`);
-    }
+    return getAllUsersDb();
 }

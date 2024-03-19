@@ -1,15 +1,19 @@
 import { Suspense } from "react";
 import UserActionsCard, { UserActionsCardError } from "@/components/users/details/user-actions-card";
 import UserDetailsDeleteDialog from "@/components/users/details/user-details-delete-dialog";
-import UserInformationCard, { UserInformationCardError } from "@/components/users/details/user-information-card";
-import { UserResetPasswordDialog } from "@/components/users/details/user-reset-password-dialog";
+import UserInformationCard, {UserInformationCardError} from "@/components/users/details/user-information-card";
+import {UserResetPasswordDialog} from "@/components/users/details/user-reset-password-dialog";
 import UserSensorsCard from "@/components/users/details/user-sensors-card";
+import {UserDetailsContextProvider} from "@/hooks/user-detail-hook";
+
+import {Skeleton} from "@energyleaf/ui";
+import UserConsumptionCard, {
+    UserConsumptionCardError
+} from "@/components/users/details/consumption/user-consumption-card";
+import {ErrorBoundary} from "@energyleaf/ui/error";
 import UserSensorsCardError from "@/components/users/details/user-sensors-card-error";
 import { UserContextProvider } from "@/hooks/user-hook";
 import { getUserById } from "@/query/user";
-
-import { Skeleton } from "@energyleaf/ui";
-import { ErrorBoundary } from "@energyleaf/ui/error";
 
 interface Props {
     params: {
@@ -37,13 +41,18 @@ export default async function UserDetailsPage({ params }: Props) {
                     </Suspense>
                 </ErrorBoundary>
                 <ErrorBoundary fallback={UserActionsCardError}>
-                    <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
-                        <UserActionsCard user={user} />
+                    <Suspense fallback={<Skeleton className="h-[57rem] w-full"/>}>
+                        <UserActionsCard user={user}/>
                     </Suspense>
                 </ErrorBoundary>
                 <ErrorBoundary fallback={UserSensorsCardError}>
-                    <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
-                        <UserSensorsCard userId={user.id} />
+                    <Suspense fallback={<Skeleton className="h-[57rem] w-full"/>}>
+                        <UserSensorsCard userId={user.id}/>
+                    </Suspense>
+                </ErrorBoundary>
+                <ErrorBoundary fallback={UserConsumptionCardError}>
+                    <Suspense fallback={<Skeleton className="h-[57rem] w-full"/>}>
+                        <UserConsumptionCard userId={user.id}/>
                     </Suspense>
                 </ErrorBoundary>
             </div>
