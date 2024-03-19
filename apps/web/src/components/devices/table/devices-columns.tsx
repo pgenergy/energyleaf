@@ -8,6 +8,15 @@ import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui";
 
 import DeviceActionCell from "./device-action-cell";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem, DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from "@energyleaf/ui";
+
+let feedbackValue = undefined;
 
 export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
     {
@@ -86,6 +95,32 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
             const categoryKey = row.getValue("category");
             const categoryValue = DeviceCategory[categoryKey as keyof typeof DeviceCategory];
             return categoryValue;
+        },
+    },
+    {
+        accessorKey: "feedback",
+        header: "Feedback",
+        cell: ({ row }) => {
+            const negativeFeedback = () => { feedbackValue = 'Nein'; console.log('#', feedbackValue)};
+            const positiveFeedback = () => { feedbackValue = 'Ja'; console.log('#', feedbackValue)};
+            return <>{feedbackValue}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost">
+                            Option
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem className="flex cursor-pointer flex-row gap-2" onClick={() => negativeFeedback()}>
+                            <Button size="icon" variant="ghost">Nein</Button>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="flex cursor-pointer flex-row gap-2" onClick={() => positiveFeedback()}>
+                            <Button size="icon" variant="ghost">Ja</Button>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </>;
         },
     },
     {
