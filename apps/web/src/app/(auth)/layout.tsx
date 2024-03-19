@@ -1,11 +1,11 @@
 import Image from "next/image";
+import Link from "next/link";
 import { DemoBanner } from "@/components/footer/demo-banner";
 
-import { Card, CardHeader, buttonVariants } from "@energyleaf/ui";
+import { buttonVariants, Card, CardHeader } from "@energyleaf/ui";
 
 import bg from "../../../public/image/bg/login.png";
 import logo from "../../../public/image/logo/logo.png";
-import Link from "next/link";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     return (

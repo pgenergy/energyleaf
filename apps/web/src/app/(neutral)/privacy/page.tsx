@@ -179,8 +179,8 @@ export default function PrivacyPage() {
                 <br />
                 <span className="font-medium">4.3.4 Dauer der Speicherung</span>
                 <br />
-                Die personenbezogenen Daten der werden unverzüglich nach Durchführung des Projektes gelöscht. Die
-                Ergebnisse der Fragebögen bleiben nach Abschluss der Studie erhalten, jedoch werden sie wie die
+                Die personenbezogenen Daten der Teilnehmer werden unverzüglich nach Durchführung des Projektes gelöscht.
+                Die Ergebnisse der Fragebögen bleiben nach Abschluss der Studie erhalten, jedoch werden sie wie die
                 Stromverbrauchs- und Klickdaten von jeglicher Verbindung zur spezifischen Person entkoppelt. Diese Daten
                 sollen im Rahmen von Folgeprojekten in den nächsten Jahren weiter genutzt werden können und deshalb zu
                 diesem Zweck noch mehrere Jahre intern innerhalb des Lehrstuhls von Prof. Staudt gespeichert werden.
