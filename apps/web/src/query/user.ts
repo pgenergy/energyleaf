@@ -8,9 +8,9 @@ import { getUserDataCookieStore } from "@/lib/demo/demo";
 import {
     getUserById as getDbUserById,
     getUserData as getDbUserDataById,
-    getUserDataHistory as getDbUserDataHistoryById
+    getUserDataHistory as getDbUserDataHistoryById,
 } from "@energyleaf/db/query";
-import type {UserDataSelectType, UserDataType} from "@energyleaf/db/types";
+import type { UserDataSelectType, UserDataType } from "@energyleaf/db/types";
 
 /**
  * Cached query to retrieve user data

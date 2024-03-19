@@ -1,12 +1,13 @@
 "use client";
 
-import {DateRangePicker} from "@energyleaf/ui/components/utils";
 import React from "react";
-import {useUserDetailsContext} from "@/hooks/user-detail-hook";
+import { useUserContext } from "@/hooks/user-hook";
 import type { DateRange } from "react-day-picker";
 
+import { DateRangePicker } from "@energyleaf/ui/components/utils";
+
 export default function UserConsumptionDateRange() {
-    const context = useUserDetailsContext();
+    const context = useUserContext();
 
     function setDates(dr: DateRange) {
         if (dr.from && dr.to) {
@@ -15,5 +16,5 @@ export default function UserConsumptionDateRange() {
         }
     }
 
-    return <DateRangePicker endDate={context.endDate} onChange={setDates} startDate={context.startDate} />
+    return <DateRangePicker endDate={context.endDate} onChange={setDates} startDate={context.startDate} />;
 }

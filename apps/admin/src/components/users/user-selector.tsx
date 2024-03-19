@@ -16,7 +16,6 @@ import {
     PopoverTrigger,
     Spinner,
 } from "@energyleaf/ui";
-import {getAllUsers} from "@/actions/user";
 
 interface User {
     id: string;

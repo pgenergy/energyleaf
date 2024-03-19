@@ -3,10 +3,11 @@
 import React, { useCallback, useState } from "react";
 import type { Peak, PeakAssignment } from "@/types/consumption/peak";
 
+import type { DeviceSelectType } from "@energyleaf/db/types";
+import type { AggregationType } from "@energyleaf/lib";
+import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/components/charts";
+
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
-import {EnergyConsumptionChart, type EnergyData} from "@energyleaf/ui/components/charts";
-import type {DeviceSelectType} from "@energyleaf/db/types";
-import type {AggregationType} from "@energyleaf/lib";
 
 interface Props {
     data: EnergyData[];

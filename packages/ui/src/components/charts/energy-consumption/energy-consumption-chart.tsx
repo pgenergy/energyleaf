@@ -1,11 +1,13 @@
 "use client";
 
-import {LineChart} from "../line-chart";
 import React from "react";
+import type { TooltipProps } from "recharts";
+import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
+
+import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
+
+import { LineChart } from "../line-chart";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
-import {AggregationType, computeTimestampLabel} from "@energyleaf/lib";
-import type {TooltipProps} from "recharts";
-import type {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 
 interface Props {
     data: EnergyData[];
@@ -25,16 +27,23 @@ export type EnergyData = {
 };
 
 export function EnergyConsumptionChart({ data, referencePoints, aggregation }: Props) {
-    return <LineChart
-        data={data}
-        keyName="energy"
-        referencePoints={referencePoints}
-        tooltip={{
-            content: (props: TooltipProps<ValueType, NameType>) => {
-                return <EnergyConsumptionTooltip aggregationType={aggregation ?? AggregationType.RAW} tooltipProps={props}/>
-            },
-        }}
-        xAxes={{ dataKey: "timestamp", name: "Vergangene Zeit " + computeTimestampLabel(aggregation, false)}}
-        yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
-    />
+    return (
+        <LineChart
+            data={data}
+            keyName="energy"
+            referencePoints={referencePoints}
+            tooltip={{
+                content: (props: TooltipProps<ValueType, NameType>) => {
+                    return (
+                        <EnergyConsumptionTooltip
+                            aggregationType={aggregation ?? AggregationType.RAW}
+                            tooltipProps={props}
+                        />
+                    );
+                },
+            }}
+            xAxes={{ dataKey: "timestamp", name: "Vergangene Zeit " + computeTimestampLabel(aggregation, false) }}
+            yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
+        />
+    );
 }

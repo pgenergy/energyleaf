@@ -2,11 +2,11 @@
 
 import "server-only";
 
-import {revalidatePath} from "next/cache";
-import type {userStateSchema} from "@/lib/schema/user";
-import type {z} from "zod";
+import { revalidatePath } from "next/cache";
 import { env } from "@/env.mjs";
 import { checkIfAdmin } from "@/lib/auth/auth.action";
+import type { userStateSchema } from "@/lib/schema/user";
+import type { z } from "zod";
 
 import {
     deleteUser as deleteUserDb,
@@ -16,7 +16,7 @@ import {
     setUserAdmin as setUserAdminDb,
     updateUser as updateUserDb,
 } from "@energyleaf/db/query";
-import type {baseInformationSchema} from "@energyleaf/lib";
+import type { baseInformationSchema } from "@energyleaf/lib";
 import { sendAccountActivatedEmail } from "@energyleaf/mail";
 
 export async function getAllUsersAction() {

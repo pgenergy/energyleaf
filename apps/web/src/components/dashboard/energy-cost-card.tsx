@@ -1,18 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-    calculateCosts,
-    getCalculatedPayment,
-    getPredictedCost
-} from "@/components/dashboard/energy-cost";
+import { calculateCosts, getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
+import { getUserDataHistory } from "@/query/user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
-import {getUserDataHistory} from "@/query/user";
 
 interface Props {
     startDate: Date;
