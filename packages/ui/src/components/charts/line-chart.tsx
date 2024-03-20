@@ -42,6 +42,9 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
         let lastSeenHour = "";
         let lastSeenDate = "";
         const dateInterval = Math.max(1, Math.ceil(diffDays / 20));
+
+        const lastDateStr = format(maxDate, "dd.MM");
+        const lastHourStr = format(maxDate, "HH") + ":00";
     
         return (value: string) => {
             if (!isValid(parseISO(value))) {
@@ -53,6 +56,9 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
             const currentDateDiff = differenceInCalendarDays(date, minDate);
     
             if (diffDays <= 1) {
+                if (dateStr === lastDateStr && hourStr === lastHourStr) {
+                    return '';
+                }
                 if (lastSeenHour !== hourStr) {
                     lastSeenHour = hourStr;
                     return hourStr;
@@ -89,6 +95,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     dataKey={xAxes?.dataKey}
                     stroke="hsl(var(--muted-foreground))"
                     tickFormatter={dynamicTickFormatter}
+                    tickLine={false}
                 >
                     {xAxes?.name && (
                         <Label
