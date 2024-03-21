@@ -105,12 +105,7 @@ export async function getUserDataHistory(id: string) {
             .select()
             .from(historyUserData)
             .where(eq(historyUserData.userId, id))
-            .union(
-                trx
-                    .select()
-                    .from(userData)
-                    .where(eq(userData.userId, id)),
-            )
+            .union(trx.select().from(userData).where(eq(userData.userId, id)))
             .orderBy(historyUserData.timestamp);
     });
 }

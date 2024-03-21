@@ -54,8 +54,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
             />
             <Sidebar links={navLinks} />
             <main className="ml-0 mt-14 px-8 py-8 md:ml-[13%]">{children}</main>
-            {isDemo ? <DemoBanner /> : null}
             <Footer />
+            {isDemo ? <DemoBanner /> : null}
         </>
     );
 }

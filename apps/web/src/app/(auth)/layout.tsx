@@ -1,7 +1,8 @@
 import Image from "next/image";
+import Link from "next/link";
 import { DemoBanner } from "@/components/footer/demo-banner";
 
-import { Card, CardHeader } from "@energyleaf/ui";
+import { buttonVariants, Card, CardHeader } from "@energyleaf/ui";
 
 import bg from "../../../public/image/bg/login.png";
 import logo from "../../../public/image/logo/logo.png";
@@ -21,6 +22,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                         </div>
                     </CardHeader>
                     {children}
+                    <div className="flex flex-row items-center justify-center gap-2">
+                        <Link className={buttonVariants({ variant: "link" })} href="/privacy" target="_blank">
+                            Datenschutz
+                        </Link>
+                        <p>|</p>
+                        <Link href="/legal" target="_blank" className={buttonVariants({ variant: "link" })}>
+                            Impressum
+                        </Link>
+                    </div>
                 </Card>
             </main>
             <footer>

@@ -1,12 +1,12 @@
 import { and, between, desc, eq, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
+import { AggregationType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 
 import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
-import {AggregationType} from "@energyleaf/lib";
 
 /**
  * Get the energy utils for a sensor in a given time range

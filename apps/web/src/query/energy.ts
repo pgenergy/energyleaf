@@ -12,7 +12,8 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { getDemoSensorData, getPeaksCookieStore } from "@/lib/demo/demo";
-import {AggregationType} from "@energyleaf/lib";
+
+import { AggregationType } from "@energyleaf/lib";
 
 export const getEnergyDataForSensor = cache(
     async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) => {

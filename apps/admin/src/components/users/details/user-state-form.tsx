@@ -18,7 +18,7 @@ import {
     FormLabel,
     FormMessage,
     Spinner,
-    Switch
+    Switch,
 } from "@energyleaf/ui";
 
 interface Props {

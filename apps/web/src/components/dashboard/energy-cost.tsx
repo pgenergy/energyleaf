@@ -1,30 +1,30 @@
-import type {SensorDataSelectType, UserDataSelectType} from "@energyleaf/db/types";
+import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/db/types";
 
 interface EnergyEntryWithUserData {
     energyData: SensorDataSelectType;
     userData: UserDataSelectType | undefined;
 }
 
-export function energyDataJoinUserData(energyData: SensorDataSelectType[], userData: UserDataSelectType[]): EnergyEntryWithUserData[] {
+export function energyDataJoinUserData(
+    energyData: SensorDataSelectType[],
+    userData: UserDataSelectType[],
+): EnergyEntryWithUserData[] {
     // Map over userDataHistory and find corresponding sensorData
-    return energyData.map(sensorData => {
-        const userDataEntry = userData.findLast(x => x.timestamp.getTime() <= sensorData.timestamp.getTime());
+    return energyData.map((sensorData) => {
+        const userDataEntry = userData.findLast((x) => x.timestamp.getTime() <= sensorData.timestamp.getTime());
         return {
             userData: userDataEntry,
-            energyData: sensorData
+            energyData: sensorData,
         };
     });
 }
 
 export function calculateCosts(userData: UserDataSelectType[], sensorData: SensorDataSelectType[]): number {
     const joinedData = energyDataJoinUserData(sensorData, userData);
-    return joinedData.reduce(
-        (acc, cur) => {
-            const consumptionInKWh = cur.energyData.value / 1000;
-            return acc + consumptionInKWh * (cur.userData?.basePrice ?? 0);
-        },
-        0
-    )
+    return joinedData.reduce((acc, cur) => {
+        const consumptionInKWh = cur.energyData.value / 1000;
+        return acc + consumptionInKWh * (cur.userData?.basePrice ?? 0);
+    }, 0);
 }
 
 export function getCalculatedPayment(
@@ -68,10 +68,13 @@ export function getCalculatedPayment(
  * It will get the monthly payment for the last user data entry that is valid for the given month and year.
  */
 function getMonthlyPaymentForMonth(userDataHistory: UserDataSelectType[], month: number, year: number): number {
-    const entry = [...userDataHistory].reverse().find(x =>
-        x.timestamp.getFullYear() < year ||
-        (x.timestamp.getFullYear() === year && x.timestamp.getMonth() <= month)
-    );
+    const entry = [...userDataHistory]
+        .reverse()
+        .find(
+            (x) =>
+                x.timestamp.getFullYear() < year ||
+                (x.timestamp.getFullYear() === year && x.timestamp.getMonth() <= month),
+        );
     return entry?.monthlyPayment ?? 0;
 }
 

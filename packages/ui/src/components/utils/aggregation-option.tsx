@@ -1,18 +1,20 @@
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "../../ui";
 import React from "react";
-import {AggregationType} from "@energyleaf/lib";
+
+import { AggregationType } from "@energyleaf/lib";
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui";
 
 interface Props {
     selected?: AggregationType;
     onSelectedChange: (selected: AggregationType) => void;
 }
 
-export function AggregationOption({selected, onSelectedChange: onChange}: Props) {
+export function AggregationOption({ selected, onSelectedChange: onChange }: Props) {
     return (
         <div className="flex flex-row justify-end gap-4">
             <Select defaultValue={AggregationType.RAW} onValueChange={onChange} value={selected}>
                 <SelectTrigger>
-                    <SelectValue placeholder="Granularität"/>
+                    <SelectValue placeholder="Granularität" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value={AggregationType.RAW}>Nicht aggregiert</SelectItem>

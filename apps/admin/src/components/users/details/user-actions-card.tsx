@@ -2,7 +2,7 @@
 
 import ErrorCard from "@/components/error/error-card";
 import UserStateForm from "@/components/users/details/user-state-form";
-import { useUserDetailsContext } from "@/hooks/user-detail-hook";
+import { useUserContext } from "@/hooks/user-hook";
 import type { FallbackProps } from "react-error-boundary";
 
 import type { UserSelectType } from "@energyleaf/db/types";
@@ -15,10 +15,10 @@ interface Props {
 const cardTitle = "Status";
 
 export default function UserActionsCard({ user }: Props) {
-    const userDetailsContext = useUserDetailsContext();
+    const userDetailsContext = useUserContext();
 
     function resetPassword() {
-        userDetailsContext.setResetPasswordDialogOpen(true);
+        userDetailsContext.setPasswordResetDialogOpen(true);
         userDetailsContext.setUser(user);
     }
 
@@ -41,7 +41,7 @@ export default function UserActionsCard({ user }: Props) {
                 <CardDescription>Hier können Sie einige Aktionen zu dem Benutzer ausführen.</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="inline-flex flex-col">
+                <div className="flex flex-row items-center justify-evenly">
                     <Button className="mb-2" onClick={resetPassword} variant="destructive">
                         Passwort zurücksetzen
                     </Button>
