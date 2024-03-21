@@ -1,9 +1,9 @@
-import { cache } from "react";
+import {cache} from "react";
 
 import "server-only";
 
-import { cookies } from "next/headers";
-import { getUserDataCookieStore } from "@/lib/demo/demo";
+import {cookies} from "next/headers";
+import {getUserDataCookieStore} from "@/lib/demo/demo";
 
 import {
     getUserById as getDbUserById,
@@ -40,7 +40,9 @@ export const getUserData = cache(async (id: string) => {
             return getUserDataCookieStore();
         }
 
-        return JSON.parse(data) as UserDataType;
+        const userData = JSON.parse(data) as UserDataType;
+        userData.user_data.timestamp = new Date(userData.user_data.timestamp);
+        return userData;
     }
     return getDbUserDataById(id);
 });

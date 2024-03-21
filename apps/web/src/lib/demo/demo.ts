@@ -164,7 +164,7 @@ export function getUserDataCookieStore() {
             monthlyPayment: 2,
             workingPrice: 0.4,
             limitEnergy: 800,
-            timestamp: new Date(),
+            timestamp: new Date(2021, 1, 1),
         },
     };
 
