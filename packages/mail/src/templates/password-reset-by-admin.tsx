@@ -13,6 +13,8 @@ import {
 } from "@react-email/components";
 
 import config from "@energyleaf/tailwindcss/mail-config";
+import Footer from "../components/footer";
+import Header from "../components/header";
 
 interface Props {
     name: string;
@@ -31,10 +33,7 @@ export default function PasswordResetByAdminTemplate({ name, link }: Props) {
             >
                 <Body className="bg-background font-sans text-foreground">
                     <Container className="mx-auto flex max-w-lg flex-col gap-4 px-8 py-4">
-                        <Container>
-                            <Heading>Passwort zurücksetzen</Heading>
-                            <Hr className="border border-border" />
-                        </Container>
+                        <Header heading="Passwort zurücksetzen" />
                         <Container className="mb-8 px-4">
                             <Text>
                                 Hallo {name}, <br />
@@ -60,10 +59,7 @@ export default function PasswordResetByAdminTemplate({ name, link }: Props) {
                                 </Link>
                             </Container>
                         </Container>
-                        <Hr className="border border-border" />
-                        <Container className="flex flex-row justify-center gap-4">
-                            <Text className="font-bold">Energyleaf</Text>
-                        </Container>
+                        <Footer/>
                     </Container>
                 </Body>
             </Tailwind>

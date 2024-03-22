@@ -1,6 +1,8 @@
 import { Body, Container, Head, Heading, Hr, Html, Preview, Tailwind, Text } from "@react-email/components";
 
 import config from "@energyleaf/tailwindcss/mail-config";
+import Footer from "../components/footer";
+import Header from "../components/header";
 
 interface Props {
     name: string;
@@ -18,10 +20,7 @@ export default function PasswordChangedTemplate({ name }: Props) {
             >
                 <Body className="bg-background font-sans text-foreground">
                     <Container className="mx-auto flex max-w-lg flex-col gap-4 px-8 py-4">
-                        <Container>
-                            <Heading>Passwort geändert</Heading>
-                            <Hr className="border border-border" />
-                        </Container>
+                        <Header heading="Passwort geändert"/>
                         <Container className="px-4">
                             <Text>
                                 Hallo {name}, <br />
@@ -35,10 +34,7 @@ export default function PasswordChangedTemplate({ name }: Props) {
                                 unverzüglich an uns.
                             </Text>
                         </Container>
-                        <Hr className="border border-border" />
-                        <Container className="flex flex-row justify-center gap-4">
-                            <Text className="font-bold">Energyleaf</Text>
-                        </Container>
+                        <Footer/>
                     </Container>
                 </Body>
             </Tailwind>
