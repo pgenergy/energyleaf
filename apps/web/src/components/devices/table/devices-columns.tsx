@@ -1,23 +1,15 @@
 "use client";
 
-import { DeviceCategory } from "@/lib/schema/device";
 import type { ColumnDef } from "@tanstack/react-table";
 import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
+import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui";
 
 import DeviceActionCell from "./device-action-cell";
 
-export interface DeviceTableType {
-    id: number;
-    name: string;
-    created: Date | null;
-    averageConsumption: number;
-    category: string;
-}
-
-export const devicesColumns: ColumnDef<DeviceTableType>[] = [
+export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
     {
         accessorKey: "name",
         header: ({ column }) => {

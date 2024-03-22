@@ -1,5 +1,5 @@
-import { getAllUsers } from "@/actions/user";
 import { usersTableColumns } from "@/components/users/table/users-table-columns";
+import { getAllUsers } from "@/query/user";
 
 import { DataTable } from "@energyleaf/ui";
 
@@ -7,11 +7,8 @@ export default async function UsersTable() {
     const users = await getAllUsers();
     const data = users.map((user) => {
         return {
-            id: user.id,
-            username: user.username,
-            mail: user.email,
-            isActive: user.isActive,
-            isAdmin: user.isAdmin,
+            ...user,
+            password: "",
         };
     });
 

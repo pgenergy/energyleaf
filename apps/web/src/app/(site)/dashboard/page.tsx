@@ -7,9 +7,9 @@ import EnergyConsumptionStatisticCard from "@/components/dashboard/energy-consum
 import EnergyConsumptionStatisticsError from "@/components/dashboard/energy-consumption-statistics-error";
 import EnergyCostCard from "@/components/dashboard/energy-cost-card";
 import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
-import { ErrorBoundary } from "@energyleaf/ui/error";
 
 import { Skeleton } from "@energyleaf/ui";
+import { ErrorBoundary } from "@energyleaf/ui/error";
 
 export default function DashboardPage({
     searchParams,
@@ -23,11 +23,11 @@ export default function DashboardPage({
     const endDate = endDateString ? new Date(endDateString) : new Date();
 
     if (!startDateString) {
-        startDate.setUTCHours(0, 0, 0, 0);
+        startDate.setHours(0, 0, 0, 0);
     }
 
     if (!endDateString) {
-        endDate.setUTCHours(23, 59, 59, 999);
+        endDate.setHours(23, 59, 59, 999);
     }
 
     return (

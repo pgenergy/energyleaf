@@ -1,5 +1,6 @@
 import type { Peak } from "@/types/consumption/peak";
 
+import type { DeviceSelectType } from "@energyleaf/db/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui";
 
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
@@ -8,7 +9,7 @@ interface Props {
     open: boolean;
     setOpen: (open: boolean) => void;
     value: Peak;
-    devices: { id: number; userId: number; name: string; created: Date | null }[];
+    devices: DeviceSelectType[];
 }
 
 export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, devices }: Props) {
@@ -21,7 +22,9 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, devices
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Geräteauswahl</DialogTitle>
-                    <DialogDescription>Wählen Sie ein Gerät aus, was diesen Verbrauch verursacht hat.</DialogDescription>
+                    <DialogDescription>
+                        Wählen Sie ein Gerät aus, das diesen Verbrauch verursacht hat.
+                    </DialogDescription>
                 </DialogHeader>
                 <p>Verbrauch: {value.energy}</p>
                 <EnergyPeakDeviceAssignmentForm
