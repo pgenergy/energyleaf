@@ -13,6 +13,7 @@ const circularProgressVariants = cva(
                 default: "stroke-primary",
                 destructive: "stroke-destructive",
                 secondary: "stroke-secondary",
+                warning: "stroke-yellow-600"
             }
         },
         defaultVariants: {
@@ -67,4 +68,4 @@ const CircularProgress = ({progress, variant, children, size = 100, strokeWidth 
     );
 }
 
-export {CircularProgress};
+export {CircularProgress, circularProgressVariants};
