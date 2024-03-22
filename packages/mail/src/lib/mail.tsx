@@ -7,6 +7,8 @@ import AccountCreatedTemplate from "../templates/account-created";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
+import ReportTemplate from "../templates/report";
+import {ReportProps} from "../types/reportProps";
 
 interface MailOptions {
     apiKey: string;
@@ -40,7 +42,7 @@ interface PasswordResetMailOptions extends MailOptions {
  * @throws An error if the email could not be sent
  */
 export async function sendPasswordResetEmail({ from, to, name, link, apiKey }: PasswordResetMailOptions) {
-    return sendPasswordResetMailByTemplate({ from, to, apiKey }, PasswordResetTemplate({ name, link }));
+    return sendMailByTemplate({from, to, apiKey}, "Passwort zurücksetzen", PasswordResetTemplate({name, link}));
 }
 
 /**
@@ -56,16 +58,16 @@ export async function sendPasswordResetEmail({ from, to, name, link, apiKey }: P
  * @throws An error if the email could not be sent
  */
 export async function sendPasswordResetMailForUser({ from, to, name, link, apiKey }: PasswordResetMailOptions) {
-    return sendPasswordResetMailByTemplate({ from, to, apiKey }, PasswordResetByAdminTemplate({ name, link }));
+    return sendMailByTemplate({from, to, apiKey}, "Passwort zurücksetzen", PasswordResetByAdminTemplate({name, link}));
 }
 
-async function sendPasswordResetMailByTemplate({ from, to, apiKey }: MailOptions, template: React.JSX.Element) {
+async function sendMailByTemplate({from, to, apiKey}: MailOptions, subject: string, template: React.JSX.Element) {
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
         to,
         from,
-        subject: "Passwort zurücksetzen",
+        subject: `[Energyleaf] ${subject}`,
         react: template,
     });
 
@@ -76,7 +78,7 @@ async function sendPasswordResetMailByTemplate({ from, to, apiKey }: MailOptions
     return resp.data?.id;
 }
 
-type PasswordChangedMailOptions = MailOptions & { to: string; name: string };
+type PasswordChangedMailOptions = MailOptions & { name: string };
 
 /**
  * Send a password changed email
@@ -90,20 +92,13 @@ type PasswordChangedMailOptions = MailOptions & { to: string; name: string };
  * @throws An error if the email could not be sent
  */
 export async function sendPasswordChangedEmail({ from, to, name, apiKey }: PasswordChangedMailOptions) {
-    const resend = createResend(apiKey);
+    return sendMailByTemplate({ from, to, apiKey }, "Passwort geändert", PasswordChangedTemplate({ name }));
+}
 
-    const resp = await resend.emails.send({
-        to,
-        from,
-        subject: "Passwort geändert",
-        react: PasswordChangedTemplate({ name }),
-    });
+type ReportMailOptions = MailOptions & ReportProps;
 
-    if (resp.error) {
-        throw new Error(resp.error.message);
-    }
-
-    return resp.data?.id;
+export async function sendReport(props : ReportMailOptions) {
+    return sendMailByTemplate(props, "Ihr Energieverbrauch-Bericht", ReportTemplate(props))
 }
 
 type AccountCreatedMailOptions = PasswordChangedMailOptions;
