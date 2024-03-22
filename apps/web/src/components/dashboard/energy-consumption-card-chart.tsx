@@ -31,18 +31,17 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
         },
         [setValue, setOpen],
     );
+
     const onClick = devices && devices.length > 0 ? clickCallback : undefined;
 
-    const convertDateFormat = useCallback((dateStr) => {
+    const convertDateFormat = useCallback((dateStr: string) => {
         const cleanedDateStr = dateStr.replace(/\(.+\)$/, "").trim();
         const parsedDate = new Date(cleanedDateStr);
         if (!isNaN(parsedDate.getTime())) {
             return formatISO(parsedDate);
-        } else {
-            console.error("Ungültiges Datum: ", dateStr);
-            return dateStr;
         }
-    }, []); 
+        return dateStr;
+    }, []);     
 
     const convertToAxesValue = useCallback(
         (peak: Peak): Record<string, string | number | undefined> => {
@@ -50,7 +49,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
 
             return {
                 sensorId: sensorData?.sensorId ?? "",
-                timestamp: sensorData?.timestamp ? convertDateFormat(sensorData.timestamp) : undefined,
+                timestamp: sensorData?.timestamp ? convertDateFormat(sensorData.timestamp) : "",
                 energy: sensorData?.energy ?? 0,
                 device: peak.device,
             };
@@ -65,7 +64,10 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
             ) : null}
             <EnergyConsumptionChart
                 aggregation={aggregation}
-                data={data.map(d => ({ ...d, timestamp: d.timestamp ? convertDateFormat(d.timestamp) : undefined }))}
+                data={data.map(d => ({
+                    ...d,
+                    timestamp: d.timestamp ? convertDateFormat(d.timestamp) : ''
+                }))}
                 referencePoints={
                     peaks
                         ? {
