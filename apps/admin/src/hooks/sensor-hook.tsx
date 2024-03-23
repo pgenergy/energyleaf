@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState } from "react";
 
-import type { SensorSelectType } from "@energyleaf/db/util";
+import type { SensorSelectType } from "@energyleaf/db/types";
 
 export type SensorContextType = {
     addDialogOpen: boolean;

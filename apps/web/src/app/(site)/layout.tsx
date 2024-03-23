@@ -3,7 +3,7 @@ import { DemoBanner } from "@/components/footer/demo-banner";
 import Footer from "@/components/footer/footer";
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
-import { getSession } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
 
@@ -31,7 +31,7 @@ const navLinks = [
 ];
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         redirect("/");
@@ -45,7 +45,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                 actions={
                     <>
                         <ThemeSwitcher />
-                        <NavbarAvatar user={session.user} />
+                        <NavbarAvatar user={user} />
                     </>
                 }
                 links={navLinks}
@@ -54,8 +54,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
             />
             <Sidebar links={navLinks} />
             <main className="ml-0 mt-14 px-8 py-8 md:ml-[13%]">{children}</main>
-            {isDemo ? <DemoBanner /> : null}
             <Footer />
+            {isDemo ? <DemoBanner /> : null}
         </>
     );
 }

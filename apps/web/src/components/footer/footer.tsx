@@ -1,18 +1,29 @@
-export default function Footer() {
+import Link from "next/link";
+import { getSession } from "@/lib/auth/auth.server";
+
+import { cn } from "@energyleaf/tailwindcss/utils";
+import { buttonVariants } from "@energyleaf/ui";
+
+export default async function Footer() {
+    const { user } = await getSession();
+
     return (
-        <footer className="flex flex-row items-center justify-center gap-2 py-8 text-muted-foreground">
-            <a
-                className="hover:underline"
-                href="https://www.iism.kit.edu/datenschutz.php"
-                rel="noopener"
-                target="_blank"
-            >
+        <footer
+            className={cn(
+                {
+                    "pb-24": !user || user.id === "demo",
+                    "pb-8": user && user.id !== "demo",
+                },
+                "flex flex-row items-center justify-center gap-2 pt-8 text-muted-foreground",
+            )}
+        >
+            <Link className={buttonVariants({ variant: "link" })} href="/privacy" target="_blank">
                 Datenschutz
-            </a>
+            </Link>
             <p>|</p>
-            <a className="hover:underline" href="https://www.iism.kit.edu/impressum.php" rel="noopener" target="_blank">
+            <Link href="/legal" target="_blank" className={buttonVariants({ variant: "link" })}>
                 Impressum
-            </a>
+            </Link>
         </footer>
     );
 }

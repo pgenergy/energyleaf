@@ -9,7 +9,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { userData, userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/schema";
+import { userData } from "@energyleaf/db/schema";
+import { userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/types";
 import {
     Button,
     Card,
@@ -22,6 +23,7 @@ import {
     FormField,
     FormItem,
     FormLabel,
+    FormMessage,
     Input,
     Select,
     SelectContent,
@@ -72,24 +74,25 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Hausart</FormLabel>
-                                    <Select
-                                        defaultValue={field.value}
-                                        disabled={disabled}
-                                        onValueChange={field.onChange}
-                                    >
-                                        <FormControl>
+                                    <FormControl>
+                                        <Select
+                                            defaultValue={field.value}
+                                            disabled={disabled}
+                                            onValueChange={field.onChange}
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Hausart wählen" />
                                             </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {userData.property.enumValues.map((value) => (
-                                                <SelectItem key={value} value={value}>
-                                                    {userDataPropertyEnums[value]}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                            <SelectContent>
+                                                {userData.property.enumValues.map((value) => (
+                                                    <SelectItem key={value} value={value}>
+                                                        {userDataPropertyEnums[value]}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -99,24 +102,25 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Warmwasser</FormLabel>
-                                    <Select
-                                        defaultValue={field.value}
-                                        disabled={disabled}
-                                        onValueChange={field.onChange}
-                                    >
-                                        <FormControl>
+                                    <FormControl>
+                                        <Select
+                                            defaultValue={field.value}
+                                            disabled={disabled}
+                                            onValueChange={field.onChange}
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Warmwasser wählen" />
                                             </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {userData.hotWater.enumValues.map((value) => (
-                                                <SelectItem key={value} value={value}>
-                                                    {userDataHotWaterEnums[value]}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                            <SelectContent>
+                                                {userData.hotWater.enumValues.map((value) => (
+                                                    <SelectItem key={value} value={value}>
+                                                        {userDataHotWaterEnums[value]}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -126,24 +130,25 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Tarif</FormLabel>
-                                    <Select
-                                        defaultValue={field.value}
-                                        disabled={disabled}
-                                        onValueChange={field.onChange}
-                                    >
-                                        <FormControl>
+                                    <FormControl>
+                                        <Select
+                                            defaultValue={field.value}
+                                            disabled={disabled}
+                                            onValueChange={field.onChange}
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Tarif wählen" />
                                             </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {userData.tariff.enumValues.map((value) => (
-                                                <SelectItem key={value} value={value}>
-                                                    {userDataTariffEnums[value]}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                            <SelectContent>
+                                                {userData.tariff.enumValues.map((value) => (
+                                                    <SelectItem key={value} value={value}>
+                                                        {userDataTariffEnums[value]}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -156,18 +161,25 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                                     <FormControl>
                                         <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             control={form.control}
                             name="basePrice"
-                            render={({ field }) => (
+                            render={({ field, fieldState }) => (
                                 <FormItem>
-                                    <FormLabel>Strompreis (in €)</FormLabel>
+                                    <FormLabel>Strompreis (in €/kWh)</FormLabel>
                                     <FormControl>
-                                        <Input type="number" {...field} disabled={disabled} />
+                                        <>
+                                            <Input type="number" {...field} disabled={disabled} />
+                                            {fieldState.error ? (
+                                                <FormMessage>{fieldState.error.message}</FormMessage>
+                                            ) : null}
+                                        </>
                                     </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -180,6 +192,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                                     <FormControl>
                                         <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -192,6 +205,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                                     <FormControl>
                                         <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -204,6 +218,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                                     <FormControl>
                                         <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />

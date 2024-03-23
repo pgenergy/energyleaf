@@ -2,10 +2,10 @@ import { eq, ExtractTablesWithRelations } from "drizzle-orm";
 import { MySqlTransaction } from "drizzle-orm/mysql-core";
 import { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
 
-import db from "..";
+import db from "../";
 import { device, deviceHistory } from "../schema";
 
-export async function getDevicesByUser(userId: number) {
+export async function getDevicesByUser(userId: string) {
     const query = db.select().from(device).where(eq(device.userId, userId));
 
     return await query;
@@ -13,7 +13,7 @@ export async function getDevicesByUser(userId: number) {
 
 export type CreateDeviceType = {
     name: string;
-    userId: number;
+    userId: string;
     category: string;
 };
 
@@ -39,7 +39,7 @@ export async function updateDevice(id: number, data: Partial<CreateDeviceType>) 
     });
 }
 
-export async function deleteDevice(id: number, userId: number) {
+export async function deleteDevice(id: number, userId: string) {
     return db.transaction(async (trx) => {
         const deviceToDelete = await getDeviceById(trx, id);
         if (deviceToDelete.userId !== userId) {
@@ -75,7 +75,7 @@ async function copyToHistoryTable(
         Record<string, never>,
         ExtractTablesWithRelations<Record<string, never>>
     >,
-    device: { id: number; userId: number; name: string; created: Date | null; timestamp: Date },
+    device: { id: number; userId: string; name: string; created: Date | null; timestamp: Date },
 ) {
     await trx.insert(deviceHistory).values({
         deviceId: device.id,

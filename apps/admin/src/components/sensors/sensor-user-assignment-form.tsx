@@ -11,7 +11,7 @@ import { Form, FormField, Spinner } from "@energyleaf/ui";
 
 interface Props {
     clientId: string;
-    selectedUserId: number | undefined;
+    selectedUserId: string | undefined;
     selectedUserName: string | undefined;
 }
 
@@ -45,7 +45,7 @@ export default function SensorUserAssignmentForm({ clientId, selectedUserId, sel
         );
     }
 
-    function onFieldChange(field: ControllerRenderProps<{ userId: number | null }, "userId">, id: number | null) {
+    function onFieldChange(field: ControllerRenderProps<{ userId: string | null }, "userId">, id: string | null) {
         field.onChange(id);
         onSubmit(form.getValues());
     }

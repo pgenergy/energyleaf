@@ -17,3 +17,10 @@ export class UserNotActiveError extends Error {
         super("User is not active");
     }
 }
+
+export class PasswordsDoNotMatchError extends Error {
+    constructor() {
+        super();
+        Object.setPrototypeOf(this, PasswordsDoNotMatchError.prototype);
+    }
+}

@@ -1,11 +1,11 @@
 import React from "react";
-import { getSensorsByUser } from "@/actions/user";
 import { sensorsColumns } from "@/components/sensors/table/sensors-columns";
+import { getSensorsByUser } from "@/query/sensor";
 
 import { DataTable } from "@energyleaf/ui";
 
 interface Props {
-    userId: number;
+    userId: string;
 }
 
 export default async function UserSensorsTable({ userId }: Props) {

@@ -1,14 +1,15 @@
 import { and, between, desc, eq, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
+import { AggregationType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 
-import db, { genId } from "../";
-import { peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
-import { AggregationType, SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
+import db from "../";
+import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
+import { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 /**
- * Get the energy consumption for a sensor in a given time range
+ * Get the energy utils for a sensor in a given time range
  */
 export async function getEnergyForSensorInRange(
     start: Date,
@@ -110,7 +111,7 @@ export async function getEnergyForSensorInRange(
 }
 
 /**
- * Get the average energy consumption for a sensor
+ * Get the average energy utils for a sensor
  */
 export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
     const query = await db
@@ -129,9 +130,9 @@ export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
 }
 
 /**
- * get the average energy consumption for a user in comparison to other users with similar data
+ * get the average energy utils for a user in comparison to other users with similar data
  */
-export async function getAvgEnergyConsumptionForUserInComparison(userId: number) {
+export async function getAvgEnergyConsumptionForUserInComparison(userId: string) {
     const query = await db.transaction(async (trx) => {
         const data = await trx.select().from(userData).where(eq(userData.userId, userId));
 
@@ -223,7 +224,7 @@ function sensorDataTimeFilter(start: Date, end: Date) {
 /**
  * Get the sensorId for a user where sensor_type is 'electricity'
  */
-export async function getElectricitySensorIdForUser(userId: number) {
+export async function getElectricitySensorIdForUser(userId: string) {
     return await db.transaction(async (trx) => {
         const query = await trx
             .select()
@@ -298,7 +299,7 @@ export async function getSensorsWithUser(): Promise<SensorSelectTypeWithUser[]> 
     return db.select().from(sensor).leftJoin(user, eq(user.id, sensor.userId));
 }
 
-export async function getSensorsByUser(userId: number) {
+export async function getSensorsByUser(userId: string) {
     return db.select().from(sensor).where(eq(sensor.userId, userId));
 }
 
@@ -493,7 +494,7 @@ export async function getSensorIdFromSensorToken(code: string) {
     return sensorId;
 }
 
-export async function assignSensorToUser(clientId: string, userId: number | null) {
+export async function assignSensorToUser(clientId: string, userId: string | null) {
     await db.transaction(async (trx) => {
         const query = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
         if (query.length === 0) {
@@ -539,19 +540,18 @@ export async function assignSensorToUser(clientId: string, userId: number | null
 }
 
 /**
- * Get the average energy consumption per device
+ * Get the average energy utils per device
  */
-export async function getAverageConsumptionPerDevice() {
+export async function getAverageConsumptionPerDevice(userId: string) {
     const result = await db
         .select({
             deviceId: peaks.deviceId,
             averageConsumption: sql<number>`AVG(${sensorData.value})`,
         })
-        .from(peaks)
-        .innerJoin(
-            sensorData,
-            sql`${peaks.sensorId} = ${sensorData.sensorId} AND ${peaks.timestamp} = ${sensorData.timestamp}`,
-        )
+        .from(device)
+        .innerJoin(peaks, and(eq(device.id, peaks.deviceId)))
+        .innerJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
+        .where(eq(device.userId, userId))
         .groupBy(peaks.deviceId)
         .execute();
 

@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { resetUserPassword } from "@/actions/auth";
-import { useUserDetailsContext } from "@/hooks/user-detail-hook";
+import { useUserContext } from "@/hooks/user-hook";
 import { toast } from "sonner";
 
 import {
@@ -18,7 +18,7 @@ import {
 
 export function UserResetPasswordDialog() {
     const [pending, startTransition] = useTransition();
-    const context = useUserDetailsContext();
+    const context = useUserContext();
 
     if (!context.user) {
         return null;
@@ -27,7 +27,7 @@ export function UserResetPasswordDialog() {
     const user = context.user;
 
     function cancel() {
-        context.setResetPasswordDialogOpen(false);
+        context.setPasswordResetDialogOpen(false);
         context.setUser(undefined);
     }
 
@@ -44,10 +44,10 @@ export function UserResetPasswordDialog() {
     return (
         <AlertDialog
             onOpenChange={(value) => {
-                context.setResetPasswordDialogOpen(value);
+                context.setPasswordResetDialogOpen(value);
                 context.setUser(undefined);
             }}
-            open={context.resetPasswordDialogOpen}
+            open={context.passwordResetDialogOpen}
         >
             <AlertDialogContent>
                 <AlertDialogHeader>

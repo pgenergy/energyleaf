@@ -35,5 +35,7 @@ module.exports = {
         "@typescript-eslint/no-misused-promises": "off",
         "@typescript-eslint/naming-convention": "off",
         "import/no-duplicates": "off",
+        "@typescript-eslint/prefer-nullish-coalescing": "off",
+        "react/no-unescaped-entities": "off",
     },
 };

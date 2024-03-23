@@ -1,10 +1,40 @@
-import type { SensorDataSelectType } from "@energyleaf/db/util";
+import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/db/types";
+
+interface EnergyEntryWithUserData {
+    energyData: SensorDataSelectType;
+    userData: UserDataSelectType | undefined;
+}
+
+export function energyDataJoinUserData(
+    energyData: SensorDataSelectType[],
+    userData: UserDataSelectType[],
+): EnergyEntryWithUserData[] {
+    return energyData.map((sensorData) => {
+        const userDataEntry = userData.findLast((x) => x.timestamp.getTime() <= sensorData.timestamp.getTime());
+        return {
+            userData: userDataEntry,
+            energyData: sensorData,
+        };
+    });
+}
+
+export function calculateCosts(userData: UserDataSelectType[], sensorData: SensorDataSelectType[]): number {
+    const joinedData = energyDataJoinUserData(sensorData, userData);
+    return joinedData.reduce((acc, cur) => {
+        const consumptionInKWh = cur.energyData.value / 1000;
+        return acc + consumptionInKWh * (cur.userData?.basePrice ?? 0);
+    }, 0);
+}
 
 export function getCalculatedPayment(
-    monthlyPayment: number,
+    userDataHistory: UserDataSelectType[],
     startDate: Date,
     endDate: Date,
-): string {
+): string | null {
+    if (userDataHistory.length === 0) {
+        return null;
+    }
+
     const startYear = startDate.getFullYear();
     const endYear = endDate.getFullYear();
     const startMonth = startDate.getMonth();
@@ -18,8 +48,11 @@ export function getCalculatedPayment(
 
         for (let month = monthStart; month <= monthEnd; month++) {
             const firstDayOfMonth = year === startYear && month === startMonth ? startDate.getDate() : 1;
-            const lastDayOfMonth = year === endYear && month === endMonth ? endDate.getDate() : new Date(year, month + 1, 0).getDate();
+            const lastDayOfMonth =
+                year === endYear && month === endMonth ? endDate.getDate() : new Date(year, month + 1, 0).getDate();
             const daysOfMonth = new Date(year, month + 1, 0).getDate();
+
+            const monthlyPayment = getMonthlyPaymentForMonth(userDataHistory, month, year);
             const paymentPerDay = monthlyPayment / daysOfMonth;
             const pastDaysInMonth = lastDayOfMonth - firstDayOfMonth + 1;
             const paymentPerMonth = paymentPerDay * pastDaysInMonth;
@@ -29,21 +62,38 @@ export function getCalculatedPayment(
     return totalAmount.toFixed(2);
 }
 
+/**
+ * Gets the monthly payment for a given month and year.
+ * It will get the monthly payment for the last user data entry that is valid for the given month and year.
+ */
+function getMonthlyPaymentForMonth(userDataHistory: UserDataSelectType[], month: number, year: number): number {
+    const entry = [...userDataHistory]
+        .reverse()
+        .find(
+            (x) =>
+                x.timestamp.getFullYear() < year ||
+                (x.timestamp.getFullYear() === year && x.timestamp.getMonth() <= month),
+        );
+    return entry?.monthlyPayment ?? 0;
+}
+
 export function getCalculatedTotalConsumptionCurrentMonth(data: SensorDataSelectType[]): number {
     const currentDate = new Date();
     const currentMonthConsumptions = data.filter((entry) => {
         const entryDate = new Date(entry.timestamp);
         return entryDate.getMonth() === currentDate.getMonth() && entryDate.getFullYear() === currentDate.getFullYear();
     });
-    const totalConsumption = currentMonthConsumptions.reduce((total, entry) => total + entry.value, 0);
-
-    return totalConsumption;
+    return currentMonthConsumptions.reduce((total, entry) => total + entry.value, 0);
 }
 
-export function getPredictedCost(
-    price: number,
-    energyData: SensorDataSelectType[],
-): number {
+export function getPredictedCost(userData: UserDataSelectType[], energyData: SensorDataSelectType[]): number {
+    if (userData.length === 0 || energyData.length === 0) {
+        return 0;
+    }
+
+    // Hier wird sichergestellt, dass 'price' einen Wert hat oder auf 0 gesetzt wird, falls es 'null' oder 'undefined' ist.
+    const price = getLatestUserData(userData).basePrice ?? 0;
+
     const today: Date = new Date();
     const firstDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth(), 1);
     const lastDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -54,4 +104,8 @@ export function getPredictedCost(
 
     const predictedConsumption: number = monthlyUsage - totalConsumptionCurrentMonth;
     return parseFloat((predictedConsumption * (price / 1000)).toFixed(2));
+}
+
+function getLatestUserData(userData: UserDataSelectType[]): UserDataSelectType {
+    return userData[userData.length - 1];
 }
