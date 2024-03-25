@@ -141,6 +141,7 @@ export function getDemoUserData() {
             interval: 3,
             time: 8,
             timestampLast: new Date(),
+            createdTimestamp: new Date(),
         },
         user_data: {
             id: 1,
