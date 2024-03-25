@@ -1,7 +1,7 @@
-import {and, between, eq, gt, gte, lte, or, sql} from "drizzle-orm";
+import {and, eq, gt, lte, or, sql} from "drizzle-orm";
 
 import db from "../";
-import {historyUserData, reports, user, userData} from "../schema";
+import {historyUserData, user, historyReports, reports, userData} from "../schema";
 
 /**
  * Get a user by id from the database
@@ -112,21 +112,50 @@ export async function updatePassword(data: Partial<CreateUserType>, id: number) 
 }
 
 /**
- * Update the user mail settings data in the database
+ * Update the user report settings data in the database
  */
-export async function updateMailSettings(data: {
+export async function updateReportSettings(data: {
     receiveMails: boolean;
     interval: number;
     time: number;
 }, id: number) {
-    return db
-        .update(reports)
-        .set({
-            receiveMails: data.receiveMails,
-            interval: data.interval,
-            time: data.time
-        })
-        .where(eq(reports.userId, id));
+
+    return db.transaction(async (trx) => {
+        const oldReportData = await getReportDataByUserId(id);
+        if (!oldReportData) {
+            throw new Error("Old user data not found");
+        }
+        await trx.insert(historyReports).values({
+            id: oldReportData.id,
+            userId: oldReportData.userId,
+            receiveMails: oldReportData.receiveMails,
+            interval: oldReportData.interval,
+            time: oldReportData.time,
+            timestampLast: oldReportData.timestampLast,
+            createdTimestamp: oldReportData.createdTimestamp,
+        });
+
+        const newHistoryReports = await trx
+            .select({
+                id: historyReports.id,
+            })
+            .from(historyReports)
+            .where(eq(historyReports.createdTimestamp, oldReportData.createdTimestamp));
+
+        if (newHistoryReports.length === 0) {
+            throw new Error("History data not found");
+        }
+
+        await db
+            .update(reports)
+            .set({
+                receiveMails: data.receiveMails,
+                interval: data.interval,
+                time: data.time,
+                createdTimestamp: new Date(),
+            })
+            .where(eq(reports.userId, id));
+    });
 }
 
 type UpdateUserData = {
@@ -224,6 +253,16 @@ export async function getUsersWitDueReport() {
                 ),
             )
         );
+}
+
+export async function getReportDataByUserId(id: number) {
+    const data = await db.select().from(reports).where(eq(reports.userId, id));
+
+    if (data.length === 0) {
+        return null;
+    }
+
+    return data[0];
 }
 
 export async function updateLastReportTimestamp(userId: number) {

@@ -8,7 +8,7 @@ import * as bcrypt from "bcryptjs";
 import {
     deleteUser,
     getUserById,
-    updateMailSettings,
+    updateReportSettings,
     updatePassword,
     updateUser,
     updateUserData,
@@ -92,7 +92,7 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
     }
 
     try {
-        await updateMailSettings(
+        await updateReportSettings(
             {
                 receiveMails: data.receiveMails,
                 interval: data.interval,

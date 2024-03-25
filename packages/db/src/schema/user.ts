@@ -69,4 +69,19 @@ export const reports = mysqlTable("reports", {
     interval: int("interval").default(3).notNull(),
     time: int("time").default(6).notNull(),
     timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
+    createdTimestamp: timestamp("created_timestamp")
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+});
+
+export const historyReports = mysqlTable("history_reports", {
+    id: int("id").autoincrement().primaryKey().notNull(),
+    userId: int("user_id").notNull(),
+    receiveMails: boolean("receive_mails").default(true).notNull(),
+    interval: int("interval").default(3).notNull(),
+    time: int("time").default(6).notNull(),
+    timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
+    createdTimestamp: timestamp("created_timestamp")
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
 });
