@@ -9,8 +9,15 @@ export const passwordSchema = z.object({
 });
 
 export const mailSettingsSchema = z.object({
-    daily: z.boolean().default(false),
-    weekly: z.boolean().default(false),
+    receiveMails: z.boolean().default(true),
+    interval: z.coerce.number().int()
+        .positive({message: "Bitte geben Sie einen positiven Wert für das Intervall an."})
+        .max(7, {message: "Bitte geben Sie einen Wert <= 7 für das Intervall an."})
+        .default(3),
+    time: z.coerce.number().int()
+        .positive({message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an."})
+        .max(23, {message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an."})
+        .default(6)
 });
 
 export const userDataSchema = z.object({
