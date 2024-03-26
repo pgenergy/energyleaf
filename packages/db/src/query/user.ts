@@ -149,13 +149,6 @@ export async function updateReportSettings(data: {
             createdTimestamp: oldReportData.createdTimestamp,
         });
 
-        const newHistoryReports = await trx
-            .select({
-                id: historyReports.id,
-            })
-            .from(historyReports)
-            .where(eq(historyReports.createdTimestamp, oldReportData.createdTimestamp));
-
         await trx
             .update(reports)
             .set({
