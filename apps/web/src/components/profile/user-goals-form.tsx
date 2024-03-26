@@ -23,7 +23,7 @@ import {updateUserGoals} from "@/actions/profile";
 import {UserDataSelectType} from "@energyleaf/db/types";
 
 interface Props {
-    userData: UserDataSelectType;
+    userData: UserDataSelectType | undefined;
 }
 
 export default function UserGoalsForm({userData}: Props) {
@@ -31,7 +31,7 @@ export default function UserGoalsForm({userData}: Props) {
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
-            goalValue: userData.goalValue || presetConsumptionGoal(userData),
+            goalValue: userData?.consumptionGoal || presetConsumptionGoal(userData),
         },
         mode: "onChange"
     });
@@ -89,21 +89,21 @@ export default function UserGoalsForm({userData}: Props) {
                     Mit dem Zielverbrauch haben Sie gemäß Ihres Strompreises folgende Kosten pro Tag.
                 </p>
                 <h1 className="text-center text-2xl font-bold text-primary">
-                    {form.getValues().goalValue * 0.5} €
+                    {(form.getValues().goalValue * (userData?.workingPrice || 0)).toFixed(2)} €
                 </h1>
             </CardContent>
         </Card>
     );
 }
 
-function presetConsumptionGoal(userData: UserDataSelectType) {
-    console.log(userData.monthlyPayment, userData.basePrice, userData.workingPrice)
-    if (!userData.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
+function presetConsumptionGoal(userData: UserDataSelectType | undefined) {
+    if (!userData || !userData.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
         return 0;
     }
 
     const yearlyPayment = userData.monthlyPayment * 12;
     const variableCosts = yearlyPayment - userData.basePrice;
     const monthlyVariableCosts = variableCosts / 12;
-    return monthlyVariableCosts / userData.workingPrice;
+    const consumptionGoal = monthlyVariableCosts / userData.workingPrice;
+    return Math.round(consumptionGoal);
 }
