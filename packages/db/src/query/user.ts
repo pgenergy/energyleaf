@@ -156,11 +156,7 @@ export async function updateReportSettings(data: {
             .from(historyReports)
             .where(eq(historyReports.createdTimestamp, oldReportData.createdTimestamp));
 
-        if (newHistoryReports.length === 0) {
-            throw new Error("History data not found");
-        }
-
-        await db
+        await trx
             .update(reports)
             .set({
                 receiveMails: data.receiveMails,
@@ -216,7 +212,7 @@ export async function updateUserData(data: UpdateUserData, id: string) {
             throw new Error("History data not found");
         }
 
-        await db.update(userData).set(data).where(eq(userData.userId, id));
+        await trx.update(userData).set(data).where(eq(userData.userId, id));
     });
 }
 
