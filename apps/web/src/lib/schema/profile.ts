@@ -18,7 +18,6 @@ export const userDataSchema = z.object({
     livingSpace: z.coerce.number().int().positive({ message: "Bitte geben Sie eine gültige Wohnfläche an." }),
     people: z.coerce.number().int().positive({ message: "Bitte geben Sie eine gültige Anzahl an Personen an." }),
     hotWater: z.enum([...userData.hotWater.enumValues]).default(userData.hotWater.enumValues[0]),
-    budget: z.coerce.number().int().positive({ message: "Bitte geben Sie ein gültiges Budget an." }),
     tariff: z.enum([...userData.tariff.enumValues]).default(userData.tariff.enumValues[0]),
     basePrice: z.coerce
         .number()

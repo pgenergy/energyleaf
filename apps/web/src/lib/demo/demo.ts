@@ -158,12 +158,10 @@ export function getUserDataCookieStore() {
             livingSpace: 100,
             household: 2,
             hotWater: "electric",
-            budget: 120,
             tariff: "basic",
             basePrice: 0.4,
             monthlyPayment: 2,
             workingPrice: 0.4,
-            limitEnergy: 800,
             timestamp: new Date(2021, 1, 1),
         },
     };

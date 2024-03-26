@@ -154,19 +154,6 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="budget"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Budget (in €)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" {...field} disabled={disabled} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
                             name="basePrice"
                             render={({ field, fieldState }) => (
                                 <FormItem>

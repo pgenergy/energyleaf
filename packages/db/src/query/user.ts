@@ -138,7 +138,6 @@ export async function updateMailSettings(data: { daily: boolean; weekly: boolean
 }
 
 type UpdateUserData = {
-    budget: number;
     tariff: (typeof userData.tariff.enumValues)[number];
     property: (typeof userData.property.enumValues)[number];
     livingSpace: number;

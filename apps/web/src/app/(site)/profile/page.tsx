@@ -24,7 +24,6 @@ export default async function ProfilePage() {
         livingSpace: userData?.user_data.livingSpace || 0,
         people: userData?.user_data.household || 0,
         hotWater: userData?.user_data.hotWater || "electric",
-        budget: userData?.user_data.budget || 0,
         tariff: userData?.user_data.tariff || "basic",
         basePrice: userData?.user_data.basePrice || 0,
         monthlyPayment: userData?.user_data.monthlyPayment || 0,

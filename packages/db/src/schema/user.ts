@@ -21,11 +21,9 @@ export const userData = mysqlTable("user_data", {
     timestamp: timestamp("timestamp")
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),
-    budget: int("budget").default(2500),
     basePrice: float("base_price"),
     workingPrice: float("working_price"),
     tariff: mysqlEnum("tariff", ["basic", "eco"]).default("basic"),
-    limitEnergy: int("limit_energy").default(800),
     household: int("household"),
     property: mysqlEnum("property", ["house", "apartment"]),
     livingSpace: int("living_space"),
@@ -46,11 +44,9 @@ export const historyUserData = mysqlTable("history_user_data", {
     timestamp: timestamp("timestamp")
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),
-    budget: int("budget").default(2500),
     basePrice: float("base_price"),
     workingPrice: float("working_price"),
     tariff: mysqlEnum("tariff", ["basic", "eco"]).default("basic"),
-    limitEnergy: int("limit_energy").default(800),
     household: int("household"),
     property: mysqlEnum("property", ["house", "apartment"]),
     livingSpace: int("living_space"),

@@ -129,7 +129,6 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
                 tariff: data.tariff,
                 basePrice: data.basePrice,
                 monthlyPayment: data.monthlyPayment,
-                budget: data.budget,
                 livingSpace: data.livingSpace,
                 household: data.people,
                 property: data.houseType,
@@ -149,7 +148,6 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
         await updateUserData(
             {
                 timestamp: new Date(),
-                budget: data.budget,
                 livingSpace: data.livingSpace,
                 household: data.people,
                 property: data.houseType,
