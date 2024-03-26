@@ -33,7 +33,6 @@ function getString(value: number) {
         return "Täglich";
     } else if (value === 7) {
         return "Wöchentlich";
-    } else {
-        return `Alle ${value} Tage`;
     }
+    return `Alle ${value.toString()} Tage`;
 }

@@ -147,7 +147,7 @@ export function getUserDataCookieStore() {
     const data: UserDataType = {
         reports: {
             id: 1,
-            userId: -1,
+            userId: "demo",
             receiveMails: false,
             interval: 3,
             time: 8,

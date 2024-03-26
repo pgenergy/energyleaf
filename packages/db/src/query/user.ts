@@ -132,7 +132,7 @@ export async function updateReportSettings(data: {
     receiveMails: boolean;
     interval: number;
     time: number;
-}, id: number) {
+}, id: string) {
 
     return db.transaction(async (trx) => {
         const oldReportData = await getReportDataByUserId(id);
@@ -231,19 +231,20 @@ export async function getUserDataByUserId(id: string) {
 }
 
 export async function deleteUser(id: string) {
-    return await db.delete(user).where(eq(user.id, id));
+    return  db.delete(user).where(eq(user.id, id));
 }
 
 export async function getAllUsers() {
-    return await db.select().from(user);
+    return  db.select().from(user);
 }
 
 export async function setUserActive(id: string, isActive: boolean) {
-    return await db.update(user).set({ isActive }).where(eq(user.id, id));
+    return  db.update(user).set({ isActive }).where(eq(user.id, id));
 }
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {
-    return await db.update(user).set({ isAdmin }).where(eq(user.id, id));
+    return db.update(user).set({isAdmin}).where(eq(user.id, id));
+}
     
 /**
  * Get users with due report to create and send reports </br>
@@ -268,7 +269,7 @@ export async function getUsersWitDueReport() {
         );
 }
 
-export async function getReportDataByUserId(id: number) {
+export async function getReportDataByUserId(id: string) {
     const data = await db.select().from(reports).where(eq(reports.userId, id));
 
     if (data.length === 0) {
@@ -278,6 +279,6 @@ export async function getReportDataByUserId(id: number) {
     return data[0];
 }
 
-export async function updateLastReportTimestamp(userId: number) {
+export async function updateLastReportTimestamp(userId: string) {
     return db.update(reports).set({timestampLast: new Date()}).where(eq(reports.userId, userId));
 }
