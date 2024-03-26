@@ -144,6 +144,7 @@ type UpdateUserData = {
     hotWater: (typeof userData.hotWater.enumValues)[number];
     household: number;
     basePrice: number;
+    workingPrice: number;
     timestamp: Date;
     monthlyPayment: number;
     consumptionGoal: number;

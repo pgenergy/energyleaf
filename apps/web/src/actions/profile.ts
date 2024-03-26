@@ -154,6 +154,7 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
                 hotWater: data.hotWater,
                 tariff: data.tariff,
                 basePrice: data.basePrice,
+                workingPrice: data.workingPrice,
                 monthlyPayment: data.monthlyPayment,
             },
             user.id,

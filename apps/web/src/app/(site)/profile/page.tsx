@@ -26,6 +26,7 @@ export default async function ProfilePage() {
         hotWater: userData?.user_data.hotWater || "electric",
         tariff: userData?.user_data.tariff || "basic",
         basePrice: userData?.user_data.basePrice || 0,
+        workingPrice: userData?.user_data.workingPrice || 0,
         monthlyPayment: userData?.user_data.monthlyPayment || 0,
     };
 
@@ -39,7 +40,7 @@ export default async function ProfilePage() {
                 weekly={userData?.mail.mailWeekly || false}
             />
             <UserDataForm initialData={data} />
-            <UserGoalsForm userData={userData.user_data} />
+            <UserGoalsForm userData={userData?.user_data} />
             <AccountDeletionForm disabled={isDemo} />
         </div>
     );
