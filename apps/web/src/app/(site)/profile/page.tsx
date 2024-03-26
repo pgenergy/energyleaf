@@ -40,7 +40,7 @@ export default async function ProfilePage() {
                 weekly={userData?.mail.mailWeekly || false}
             />
             <UserDataForm initialData={data} />
-            <UserGoalsForm disabled={isDemo} />
+            <UserGoalsForm userData={userData.user_data} />
             <AccountDeletionForm disabled={isDemo} />
         </div>
     );

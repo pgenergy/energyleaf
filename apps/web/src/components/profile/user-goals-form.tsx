@@ -20,23 +20,23 @@ import React, {useTransition} from "react";
 import {track} from "@vercel/analytics";
 import {toast} from "sonner";
 import {updateUserGoals} from "@/actions/profile";
+import {UserDataSelectType} from "@energyleaf/db/types";
 
 interface Props {
-    disabled?: boolean;
+    userData: UserDataSelectType;
 }
 
-export default function UserGoalsForm({disabled}: Props) {
+export default function UserGoalsForm({userData}: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
-            goalValue: 0
+            goalValue: userData.goalValue || presetConsumptionGoal(userData),
         },
         mode: "onChange"
     });
 
     function onSubmit(data: z.infer<typeof userGoalSchema>) {
-        if (disabled) return;
         startTransition(() => {
             track("updateUserGoals()");
             toast.promise(updateUserGoals(data), {
@@ -94,4 +94,16 @@ export default function UserGoalsForm({disabled}: Props) {
             </CardContent>
         </Card>
     );
+}
+
+function presetConsumptionGoal(userData: UserDataSelectType) {
+    console.log(userData.monthlyPayment, userData.basePrice, userData.workingPrice)
+    if (!userData.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
+        return 0;
+    }
+
+    const yearlyPayment = userData.monthlyPayment * 12;
+    const variableCosts = yearlyPayment - userData.basePrice;
+    const monthlyVariableCosts = variableCosts / 12;
+    return monthlyVariableCosts / userData.workingPrice;
 }
