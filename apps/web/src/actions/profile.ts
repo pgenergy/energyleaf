@@ -1,7 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { deleteAccountSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
+import {
+    deleteAccountSchema,
+    mailSettingsSchema,
+    passwordSchema,
+    userDataSchema,
+    userGoalSchema
+} from "@/lib/schema/profile";
 import { Argon2id } from "oslo/password";
 
 import {
@@ -151,6 +157,41 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
                 tariff: data.tariff,
                 basePrice: data.basePrice,
                 monthlyPayment: data.monthlyPayment,
+            },
+            user.id,
+        );
+        revalidatePath("/profile");
+        revalidatePath("/dashboard");
+    } catch (e) {
+        console.log(e)
+        throw new Error("Error while updating user");
+    }
+}
+
+export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
+    const { user, session } = await getActionSession();
+
+    if (!session) {
+        throw new UserNotLoggedInError();
+    }
+
+    if (await isDemoUser()) {
+        // TODO
+        revalidatePath("/profile");
+        revalidatePath("/dashboard");
+        return;
+    }
+
+    const dbuser = await getUserById(user.id);
+    if (!dbuser) {
+        throw new UserNotFoundError();
+    }
+
+    try {
+        await updateUserData(
+            {
+                timestamp: new Date(),
+                consumptionGoal: data.goalValue
             },
             user.id,
         );

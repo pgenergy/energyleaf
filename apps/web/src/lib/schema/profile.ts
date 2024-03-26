@@ -33,3 +33,8 @@ export const userDataSchema = z.object({
 export const deleteAccountSchema = z.object({
     password: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
 });
+
+export const userGoalSchema = z.object({
+    goalValue: z.coerce.number().int({ message: "Bitte geben Sie eine ganze Zahl ein." })
+        .positive({ message: "Bitte geben Sie einen gültigen Wert an." })
+});

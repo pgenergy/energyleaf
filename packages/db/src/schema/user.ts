@@ -31,6 +31,7 @@ export const userData = mysqlTable("user_data", {
     livingSpace: int("living_space"),
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
     monthlyPayment: int("advance_payment_electricity"),
+    consumptionGoal: int("consumption_goal")
 });
 
 export const session = mysqlTable("session", {
@@ -55,6 +56,7 @@ export const historyUserData = mysqlTable("history_user_data", {
     livingSpace: int("living_space"),
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
     monthlyPayment: int("advance_payment_electricity"),
+    consumptionGoal: int("consumption_goal")
 });
 
 export const mail = mysqlTable("mail", {
