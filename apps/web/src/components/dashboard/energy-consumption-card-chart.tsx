@@ -1,27 +1,29 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
-import type { Peak, PeakAssignment } from "@/types/peaks/peak";
+import type { Peak, PeakAssignment } from "@/types/consumption/peak";
 
-import { LineChart } from "@energyleaf/ui/components/charts";
+import type { DeviceSelectType } from "@energyleaf/db/types";
+import type { AggregationType } from "@energyleaf/lib";
+import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/components/charts";
 
-import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
 
 interface Props {
-    data: { sensorId: string | number; energy: number; timestamp: string }[];
-    devices: { id: number; userId: number; name: string; created: Date | null }[] | null;
+    data: EnergyData[];
+    devices: DeviceSelectType[] | null;
     peaks?: PeakAssignment[];
+    aggregation?: AggregationType;
 }
 
-export default function EnergyConsumptionCardChart({ data, peaks, devices }: Props) {
+export default function EnergyConsumptionCardChart({ data, peaks, devices, aggregation }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<Peak | null>(null);
 
     const clickCallback = useCallback(
-        (callbackData: { id: string; energy: number; timestamp: string | number | undefined; device?: number }) => {
+        (callbackData: { sensorId: string; energy: number; timestamp: string | number | undefined; device?: number }) => {
             setValue({
-                sensorId: callbackData.id,
+                sensorId: callbackData.sensorId,
                 energy: Number(callbackData.energy),
                 timestamp: callbackData.timestamp?.toString() || "",
                 device: callbackData.device ? Number(callbackData.device) : undefined,
@@ -37,9 +39,9 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
             const sensorData = data.find((x) => x.sensorId === peak.sensorId && x.timestamp === peak.timestamp);
 
             return {
-                id: sensorData?.sensorId,
-                timestamp: sensorData?.timestamp,
-                energy: sensorData?.energy,
+                sensorId: sensorData?.sensorId ?? "",
+                timestamp: sensorData?.timestamp || "",
+                energy: sensorData?.energy ?? 0,
                 device: peak.device,
             };
         },
@@ -51,9 +53,9 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
             {value && devices ? (
                 <EnergyPeakDeviceAssignmentDialog devices={devices} open={open} setOpen={setOpen} value={value} />
             ) : null}
-            <LineChart
+            <EnergyConsumptionChart
+                aggregation={aggregation}
                 data={data}
-                keyName="energy"
                 referencePoints={
                     peaks
                         ? {
@@ -64,11 +66,6 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices }: Pro
                           }
                         : undefined
                 }
-                tooltip={{
-                    content: EnergyConsumptionTooltip,
-                }}
-                xAxes={{ dataKey: "timestamp" }}
-                yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
             />
         </>
     );

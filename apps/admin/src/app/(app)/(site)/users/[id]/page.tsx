@@ -1,15 +1,18 @@
 import { Suspense } from "react";
-import { getUser } from "@/actions/user";
-import UserActionsCard, {UserActionsCardError} from "@/components/users/details/user-actions-card";
+import UserConsumptionCard, {
+    UserConsumptionCardError,
+} from "@/components/users/details/consumption/user-consumption-card";
+import UserActionsCard, { UserActionsCardError } from "@/components/users/details/user-actions-card";
 import UserDetailsDeleteDialog from "@/components/users/details/user-details-delete-dialog";
-import UserInformationCard, {UserInformationCardError} from "@/components/users/details/user-information-card";
+import UserInformationCard, { UserInformationCardError } from "@/components/users/details/user-information-card";
 import { UserResetPasswordDialog } from "@/components/users/details/user-reset-password-dialog";
 import UserSensorsCard from "@/components/users/details/user-sensors-card";
-import { UserDetailsContextProvider } from "@/hooks/user-detail-hook";
+import UserSensorsCardError from "@/components/users/details/user-sensors-card-error";
+import { UserContextProvider } from "@/hooks/user-hook";
+import { getUserById } from "@/query/user";
 
 import { Skeleton } from "@energyleaf/ui";
-import {ErrorBoundary} from "@energyleaf/ui/error";
-import UserSensorsCardError from "@/components/users/details/user-sensors-card-error";
+import { ErrorBoundary } from "@energyleaf/ui/error";
 
 interface Props {
     params: {
@@ -18,17 +21,20 @@ interface Props {
 }
 
 export default async function UserDetailsPage({ params }: Props) {
-    const user = await getUser(Number(params.id));
+    const user = await getUserById(params.id);
     if (!user) {
         return <p>Nutzer nicht gefunden</p>;
     }
 
+    // Clear password before rendering
+    user.password = "";
+
     return (
-        <UserDetailsContextProvider>
+        <UserContextProvider>
             <UserDetailsDeleteDialog />
             <UserResetPasswordDialog />
             <div className="flex flex-col gap-4">
-                <ErrorBoundary fallback={UserInformationCardError} >
+                <ErrorBoundary fallback={UserInformationCardError}>
                     <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
                         <UserInformationCard user={user} />
                     </Suspense>
@@ -43,7 +49,12 @@ export default async function UserDetailsPage({ params }: Props) {
                         <UserSensorsCard userId={user.id} />
                     </Suspense>
                 </ErrorBoundary>
+                <ErrorBoundary fallback={UserConsumptionCardError}>
+                    <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
+                        <UserConsumptionCard userId={user.id} />
+                    </Suspense>
+                </ErrorBoundary>
             </div>
-        </UserDetailsContextProvider>
+        </UserContextProvider>
     );
 }

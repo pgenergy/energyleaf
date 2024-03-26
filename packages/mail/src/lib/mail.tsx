@@ -2,6 +2,8 @@
 import * as React from "react";
 import { Resend } from "resend";
 
+import AccountActivatedTemplate from "../templates/account-activated";
+import AccountCreatedTemplate from "../templates/account-created";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
@@ -95,6 +97,66 @@ export async function sendPasswordChangedEmail({ from, to, name, apiKey }: Passw
         from,
         subject: "Passwort geändert",
         react: PasswordChangedTemplate({ name }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type AccountCreatedMailOptions = PasswordChangedMailOptions;
+
+/**
+ * Send an account created email
+ *
+ * @param from - The email to send the reset link from
+ * @param to - The email to send the reset link to
+ * @param name - The name of the user
+ * @param apiKey - The API key to use for sending the email
+ *
+ * @returns The ID of the sent email
+ * @throws An error if the email could not be sent
+ */
+export async function sendAccountCreatedEmail({ from, to, name, apiKey }: AccountCreatedMailOptions) {
+    const resend = createResend(apiKey);
+
+    const resp = await resend.emails.send({
+        to,
+        from,
+        subject: "Konto erstellt",
+        react: AccountCreatedTemplate({ name }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type AccountActivatedMailOptions = PasswordChangedMailOptions;
+
+/**
+ * Send an account activated email
+ *
+ * @param from - The email to send the reset link from
+ * @param to - The email to send the reset link to
+ * @param name - The name of the user
+ * @param apiKey - The API key to use for sending the email
+ *
+ * @returns The ID of the sent email
+ * @throws An error if the email could not be sent
+ */
+export async function sendAccountActivatedEmail({ from, to, name, apiKey }: AccountActivatedMailOptions) {
+    const resend = createResend(apiKey);
+
+    const resp = await resend.emails.send({
+        to,
+        from,
+        subject: "Konto aktiviert",
+        react: AccountActivatedTemplate({ name }),
     });
 
     if (resp.error) {

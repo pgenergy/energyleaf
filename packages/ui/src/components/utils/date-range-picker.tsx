@@ -1,49 +1,51 @@
 "use client";
 
-import { useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { track } from "@vercel/analytics";
+import { useMemo, useState } from "react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
-import { Button, Calendar, Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui";
+import { Button, Calendar, Popover, PopoverContent, PopoverTrigger } from "../../ui";
 
 interface Props {
     startDate: Date;
     endDate: Date;
+    onChange: (value: DateRange) => void;
 }
 
-export default function DashboardDateRange({ startDate, endDate }: Props) {
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate, onChange }: Props) {
+    const initRange = useMemo(() => {
+        return {
+            from: initStartDate,
+            to: initEndDate,
+        };
+    }, [initStartDate, initEndDate]);
+    const [range, setRange] = useState<DateRange | undefined>(initRange);
+
+    const calFooter = useMemo(() => {
+        return range?.from && range.to ? null : <p>Bitte geben Sie einen Zeitraum an.</p>;
+    }, [range]);
 
     const dateString = () => {
-        if (startDate.toDateString() === endDate.toDateString()) {
-            return format(startDate, "PPP", {
+        if (initStartDate.toDateString() === initEndDate.toDateString()) {
+            return format(initStartDate, "PPP", {
                 locale: de,
             });
         }
 
-        return `${format(startDate, "PPP", {
+        return `${format(initStartDate, "PPP", {
             locale: de,
-        })} - ${format(endDate, "PPP", {
+        })} - ${format(initEndDate, "PPP", {
             locale: de,
         })}`;
     };
 
-    function onChange(value?: DateRange) {
-        track("changeDashboardDateRange()");
+    function onChangeInternal(value?: DateRange) {
+        setRange(value);
+
         if (value?.from && value.to) {
-            const search = new URLSearchParams();
-            searchParams.forEach((v, key) => {
-                search.set(key, v);
-            });
-            search.set("start", value.from.toISOString());
-            search.set("end", value.to.toISOString());
-            router.push(`${pathname}?${search.toString()}`);
+            onChange(value);
         }
     }
 
@@ -66,9 +68,22 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
         return { from: monthStart, to: monthEnd };
     }, []);
 
+    const getToday = useMemo(() => {
+        const date = new Date();
+        const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+        const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+        return { from: startDate, to: endDate };
+    }, []);
+
     return (
         <div className="flex flex-row justify-end gap-4">
-            <Popover>
+            <Popover
+                onOpenChange={(isOpen) => {
+                    if (!isOpen) {
+                        setRange(initRange);
+                    }
+                }}
+            >
                 <PopoverTrigger asChild>
                     <Button className="justify-start text-left font-normal" variant="outline">
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -79,7 +94,7 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
                     <div className="flex flex-row flex-wrap gap-2">
                         <Button
                             onClick={() => {
-                                router.push(pathname);
+                                onChangeInternal(getToday);
                             }}
                             variant="outline"
                         >
@@ -87,7 +102,7 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
                         </Button>
                         <Button
                             onClick={() => {
-                                onChange(getWeek);
+                                onChangeInternal(getWeek);
                             }}
                             variant="outline"
                         >
@@ -95,7 +110,7 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
                         </Button>
                         <Button
                             onClick={() => {
-                                onChange(getMonth);
+                                onChangeInternal(getMonth);
                             }}
                             variant="outline"
                         >
@@ -105,11 +120,9 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
                     <Calendar
                         initialFocus
                         mode="range"
-                        onSelect={onChange}
-                        selected={{
-                            from: startDate,
-                            to: endDate,
-                        }}
+                        onSelect={onChangeInternal}
+                        selected={range}
+                        footer={calFooter}
                     />
                 </PopoverContent>
             </Popover>

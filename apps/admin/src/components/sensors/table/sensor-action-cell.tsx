@@ -3,7 +3,7 @@
 import { useSensorContext } from "@/hooks/sensor-hook";
 import { Edit2Icon, MoreVerticalIcon, TrashIcon } from "lucide-react";
 
-import type { SensorSelectType } from "@energyleaf/db/util";
+import type { SensorSelectType } from "@energyleaf/db/types";
 import {
     Button,
     DropdownMenu,
