@@ -38,19 +38,14 @@ function splitIntoWindows(data: ConsumptionData[]): ConsumptionData[][] {
                 return acc;
             }
             const currentGroup = acc[acc.length - 1];
-
-            if (
-                differenceInMinutes(new Date(curr.timestamp), new Date(currentGroup[0].timestamp)) >=
-                peakWindowWidthInMinutes
-            ) {
+            if (differenceInMinutes(new Date(curr.timestamp), new Date(currentGroup[0].timestamp)) >= peakWindowWidthInMinutes) {
                 acc.push([curr]);
             } else {
                 currentGroup.push(curr);
             }
-
             return acc;
         }, [])
-        .filter((x) => differenceInMinutes(now, new Date(x[0].timestamp)) >= peakWindowWidthInMinutes); // ignore groups that are less than 60 minutes old as they are not complete
+        .filter((x) => x.length > 0 && differenceInMinutes(now, new Date(x[0].timestamp)) >= peakWindowWidthInMinutes); // Consolidated filtering logic to ensure groups are older than 60 minutes and not empty
 }
 
 function calculatePeakThreshold(data: ConsumptionData[]): number {
@@ -80,7 +75,6 @@ async function getPeaksWithDevicesAssigned(startDate: Date, endDate: Date, senso
                     timestamp: x.peaks.timestamp,
                 };
             }
-
             return null;
         })
         .filter(Boolean);
