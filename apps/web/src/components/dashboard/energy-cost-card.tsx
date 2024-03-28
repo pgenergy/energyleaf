@@ -46,7 +46,12 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
 
     const calculatedPayment = getCalculatedPayment(userData, startDate, endDate);
     const predictedCost = getPredictedCost(userData, energyData);
-    const formattedCost = parseFloat(cost).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    const parsedCost = parseFloat(cost);
+    const parsedCalculatedPayment = parseFloat(calculatedPayment || '0');
+
+    const formattedCost = parsedCost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formattedCalculatedPayment = parsedCalculatedPayment.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const formattedPredictedCost = predictedCost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const forecastMonth = format(new Date(), "MMMM yyyy", {locale: de});
     
@@ -65,11 +70,11 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                {parseFloat(cost) > 0 ? (
+                {parsedCost > 0 ? (
                     <>
                         <h1 className="text-center text-2xl font-bold text-primary">{formattedCost} €</h1>
-                        <p className={`text-center ${parseFloat(cost) > parseFloat(calculatedPayment || '0') ? "text-red-500" : "text-primary"}`}>
-                            Abschlag: {parseFloat(calculatedPayment || '0').toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                        <p className={`text-center ${parsedCost > parsedCalculatedPayment ? "text-red-500" : "text-primary"}`}>
+                            Abschlag: {formattedCalculatedPayment} €
                         </p>
                         <p className="text-center">
                             Hochrechnung {forecastMonth}: {formattedPredictedCost} €

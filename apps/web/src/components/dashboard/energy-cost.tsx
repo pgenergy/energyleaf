@@ -91,7 +91,6 @@ export function getPredictedCost(userData: UserDataSelectType[], energyData: Sen
         return 0;
     }
 
-    // Hier wird sichergestellt, dass 'price' einen Wert hat oder auf 0 gesetzt wird, falls es 'null' oder 'undefined' ist.
     const price = getLatestUserData(userData).basePrice ?? 0;
 
     const today: Date = new Date();
