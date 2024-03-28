@@ -43,7 +43,7 @@ export function EnergyConsumptionChart({ data, referencePoints, aggregation }: P
                 },
             }}
             xAxes={{ dataKey: "timestamp" }}
-            yAxes={{ dataKey: "energy", name: "Energieverbauch in Wh" }}
+            yAxes={{ dataKey: "energy", name: "Energieverbauch in kWh" }}
         />
     );
 }
