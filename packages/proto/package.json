@@ -14,13 +14,13 @@
     },
     "license": "ISC",
     "dependencies": {
-        "@protobuf-ts/runtime": "^2.9.3"
+        "@protobuf-ts/runtime": "^2.9.4"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",
         "@energyleaf/tsconfig": "workspace:^",
-        "@protobuf-ts/plugin": "^2.9.3",
-        "@protobuf-ts/protoc": "^2.9.3",
-        "typescript": "5.4.2"
+        "@protobuf-ts/plugin": "^2.9.4",
+        "@protobuf-ts/protoc": "^2.9.4",
+        "typescript": "5.4.3"
     }
 }
