@@ -12,15 +12,17 @@
         "./types": "./src/types/types.ts"
     },
     "scripts": {
-        "push": "drizzle-kit push:mysql",
-        "studio": "drizzle-kit studio",
+        "push": "drizzle-kit push:mysql --config ./drizzle-local.config.ts",
+        "push:prod": "drizzle-kit push:mysql",
+        "studio": "drizzle-kit studio --config ./drizzle-local.config.ts",
+        "studio:prod": "drizzle-kit studio",
         "clean": "git clean -xdf node_modules"
     },
     "dependencies": {
         "@energyleaf/lib": "workspace:^",
-        "@lucia-auth/adapter-drizzle": "^1.0.3",
+        "@lucia-auth/adapter-drizzle": "^1.0.7",
         "@planetscale/database": "^1.16.0",
-        "drizzle-orm": "^0.30.1",
+        "drizzle-orm": "^0.30.6",
         "nanoid": "^5.0.6"
     },
     "devDependencies": {
@@ -28,7 +30,7 @@
         "@energyleaf/tsconfig": "workspace:^",
         "drizzle-kit": "^0.20.14",
         "eslint": "^8.57.0",
-        "mysql2": "^3.9.2",
-        "typescript": "^5.4.2"
+        "mysql2": "^3.9.3",
+        "typescript": "^5.4.3"
     }
 }
