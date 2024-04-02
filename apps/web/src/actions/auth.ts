@@ -13,9 +13,17 @@ import * as jose from "jose";
 import { Argon2id, Bcrypt } from "oslo/password";
 import type { z } from "zod";
 
-import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
+import {
+    createUser,
+    getUserById,
+    getUserByMail,
+    updatePassword,
+    type CreateUserType,
+    getUserDataByUserId
+} from "@energyleaf/db/query";
 import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
 import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
+import {Session} from "lucia";
 
 /**
  * Server action for creating a new account
@@ -140,7 +148,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
 export async function signInAction(email: string, password: string) {
     const { session } = await getActionSession();
     if (session) {
-        redirect("/dashboard");
+        await handleSignIn(session);
     }
 
     const user = await getUserByMail(email);
@@ -173,6 +181,18 @@ export async function signInAction(email: string, password: string) {
     const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
+    await handleSignIn(newSession);
+}
+
+async function handleSignIn(session: Session) {
+    const userData = await getUserDataByUserId(session.userId);
+    const hasUserData = Boolean(userData);
+    cookies().set("onboarding_complete", hasUserData.toString());
+
+    if (!hasUserData) {
+        redirect("/onboarding");
+    }
+
     redirect("/dashboard");
 }
 
