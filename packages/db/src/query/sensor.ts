@@ -1,4 +1,4 @@
-import { and, between, desc, eq, or, sql } from "drizzle-orm";
+import {and, between, desc, eq, lt, lte, or, sql} from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { AggregationType } from "@energyleaf/lib";
@@ -113,20 +113,35 @@ export async function getEnergyForSensorInRange(
 export async function getEnergySumForSensorInRange(start: Date,
                                                    end: Date,
                                                    sensorId: string) {
-    const query = await db
-        .select({sum: sql<number>`sum(${sensorData.value})` })
-        .from(sensorData)
-        .where(
-            and(
-                eq(sensorData.sensorId, sensorId),
-                or(
-                    between(sensorData.timestamp, start, end),
-                    eq(sensorData.timestamp, start),
-                    eq(sensorData.timestamp, end),
+    return await db.transaction(async (trx) => {
+        const latestEntryBeforeStart = await trx
+            .select({ value: sensorData.value })
+            .from(sensorData)
+            .where(
+                and(
+                    eq(sensorData.sensorId, sensorId),
+                    lt(sensorData.timestamp, start),
                 ),
-            ),
-        );
-    return query.length > 0 ? query[0].sum : 0;
+            )
+            .orderBy(desc(sensorData.timestamp))
+            .limit(1);
+        const valueBeforeStart = latestEntryBeforeStart.length > 0 ? latestEntryBeforeStart[0].value : 0;
+
+        const latestEntryBeforeEnd = await trx
+            .select({ value: sensorData.value })
+            .from(sensorData)
+            .where(
+                and(
+                    eq(sensorData.sensorId, sensorId),
+                    lte(sensorData.timestamp, end),
+                ),
+            )
+            .orderBy(desc(sensorData.timestamp))
+            .limit(1);
+        const valueBeforeEnd = latestEntryBeforeEnd.length > 0 ? latestEntryBeforeEnd[0].value : 0;
+
+        return valueBeforeEnd - valueBeforeStart;
+    });
 }
 
 /**
