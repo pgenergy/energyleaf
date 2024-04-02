@@ -5,22 +5,16 @@ import {
     CircleAlertIcon,
     XCircleIcon
 } from "lucide-react";
+import { GoalState } from "@/types/goals";
 
 interface Props {
     goalValue: number;
     currentValue: number;
-    unit: string;
     state: GoalState;
     goalName: string;
 }
 
-export enum GoalState {
-    GOOD,
-    IN_DANGER,
-    EXCEEDED
-}
-
-export default function GoalProgress({ goalValue, currentValue, unit, state, goalName }: Props) {
+export default function GoalProgress({ goalValue, currentValue, state, goalName }: Props) {
     if (currentValue < 0) {
         throw new Error("Current value must be greater than 0");
     }
@@ -84,13 +78,13 @@ export default function GoalProgress({ goalValue, currentValue, unit, state, goa
     }
 
     return (
-        <div className="w-full flex flex-col gap-4 items-center" title={tooltip}>
+        <div className="w-full flex flex-col gap-4 items-center">
             <h2 className={cn("text-center text-xl font-semibold", captionStyle)}>{goalName}</h2>
-            <div className="flex flex-row items-center gap-2">
-                <CircularProgress progress={progress} variant={progressVariant} strokeWidth={8}>
-                    {currentValue + " " + unit}
-                    <hr className="w-14 border border-t-1 border-accent-foreground" />
-                    {goalValue + " " + unit}
+            <div className="flex flex-row items-center gap-2" title={tooltip}>
+                <CircularProgress progress={progress} variant={progressVariant} strokeWidth={8} size={120}>
+                    {currentValue + " kWh"}
+                    <hr className="w-20 border border-t-0 border-accent-foreground" />
+                    {goalValue + " kWh"}
                 </CircularProgress>
                 {getIcon()}
             </div>

@@ -110,6 +110,25 @@ export async function getEnergyForSensorInRange(
     });
 }
 
+export async function getEnergySumForSensorInRange(start: Date,
+                                                   end: Date,
+                                                   sensorId: string) {
+    const query = await db
+        .select({sum: sql<number>`sum(${sensorData.value})` })
+        .from(sensorData)
+        .where(
+            and(
+                eq(sensorData.sensorId, sensorId),
+                or(
+                    between(sensorData.timestamp, start, end),
+                    eq(sensorData.timestamp, start),
+                    eq(sensorData.timestamp, end),
+                ),
+            ),
+        );
+    return query.length > 0 ? query[0].sum : 0;
+}
+
 /**
  * Get the average energy utils for a sensor
  */

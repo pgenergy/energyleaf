@@ -44,7 +44,7 @@ const CircularProgress = ({progress, variant, children, size = 100, strokeWidth 
     const arcOffset = useMemo(() => arcLength * ((100 - progress) / 100), [arcLength, progress]);
 
     return (
-        <div className={`relative`} style={{ width: `${size}px`, height: `${size}px` }}>
+        <div className={cn(`relative`, `w-[${size}px]`)} style={{ width: `${size}px`, height: `${size}px` }}>
             <svg className="w-full h-full -rotate-90 absolute top-0 left-0">
                 <circle className="w-full h-full stroke-accent fill-transparent"
                         strokeWidth={strokeWidth}

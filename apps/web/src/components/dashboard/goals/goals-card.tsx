@@ -1,18 +1,67 @@
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
 import React from "react";
-import GoalProgress, {GoalState} from "@/components/dashboard/goals/goal-progress";
+import GoalProgress from "@/components/dashboard/goals/goal-progress";
+import { getSession } from "@/lib/auth/auth.server";
+import {redirect} from "next/navigation";
+import { getUserData } from "@/query/user";
+import {ArrowRightIcon} from "lucide-react";
+import Link from "next/link";
+import {getElectricitySensorIdForUser} from "@/query/energy";
+import {Goal, GoalState} from "@/types/goals";
+import { getGoals } from "@/query/goals";
 
-export default function GoalsCard() {
+export default async function GoalsCard() {
+    const {session, user} = await getSession();
+    if (!session) {
+        redirect("/");
+    }
+
+    const userId = user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
+    if (!sensorId) {
+        return (
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Ziele</CardTitle>
+                    <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    const goals = await getGoals(userId, sensorId);
+
     return (
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Ziele</CardTitle>
-                <CardDescription>Hier sehen Sie Ihre Ziele für den aktuellen Monat.</CardDescription>
+                <CardDescription>Hier sehen Sie Ihr aktuelles Verbrauchsziel.</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-row">
-                <GoalProgress goalName="Energieverbrauch" goalValue={100} currentValue={42} unit={"Wh"} state={GoalState.GOOD} />
-                <GoalProgress goalName="Budget" goalValue={400} currentValue={320} unit={"€"} state={GoalState.IN_DANGER} />
-                <GoalProgress goalName="Test" goalValue={320} currentValue={400} unit={"°"} state={GoalState.EXCEEDED} />
+            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {
+                    goals.length > 0 ? (
+                        goals.map((goal: Goal) => (
+                                <GoalProgress key={goal.goalName}
+                                              goalName={goal.goalName}
+                                              goalValue={goal.goalValue}
+                                              currentValue={goal.currentValue}
+                                              state={goal.state}
+                                />
+                            )
+                        )
+                    ) : (
+                        <Link
+                            className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
+                            href="/profile"
+                        >
+                            Ziel im Profil festlegen
+                            <ArrowRightIcon className="h-4 w-4" />
+                        </Link>
+                    )
+                }
             </CardContent>
         </Card>
     );
