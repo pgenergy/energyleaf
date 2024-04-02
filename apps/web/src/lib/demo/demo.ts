@@ -246,6 +246,8 @@ export function getDemoGoals(dailyGoal: number): Goal[] {
     const fromDate = new Date(new Date().setHours(0, 0, 0, 0));
     const toDate = new Date(new Date().setHours(23, 59, 59, 999));
 
+    const dayValue = getDemoSensorData(fromDate, toDate).reduce((acc, cur) => acc + cur.value, 0);
+
     const weeklyGoal = dailyGoal * 7;
     const monthlyGoal = dailyGoal * new Date(fromDate.getFullYear(), fromDate.getMonth() + 1, 0).getDate();
 
@@ -253,8 +255,8 @@ export function getDemoGoals(dailyGoal: number): Goal[] {
         {
             goalName: "Tag",
             goalValue: dailyGoal,
-            currentValue: getDemoSensorData(fromDate, toDate).reduce((acc, cur) => acc + cur.value, 0),
-            state: GoalState.GOOD
+            currentValue: dayValue,
+            state: dayValue >= dailyGoal ? GoalState.EXCEEDED : GoalState.GOOD
         },
         {
             goalName: "Woche",
