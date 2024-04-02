@@ -176,7 +176,12 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
     }
 
     if (await isDemoUser()) {
-        // TODO
+        updateUserDataCookieStore(cookies(), {
+            user_data: {
+                timestamp: new Date(),
+                consumptionGoal: data.goalValue
+            },
+        } as Partial<UserDataType>);
         revalidatePath("/profile");
         revalidatePath("/dashboard");
         return;

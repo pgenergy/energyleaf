@@ -77,14 +77,18 @@ export default function GoalProgress({ goalValue, currentValue, state, goalName 
         }
     }
 
+    function formatValue(value: number) {
+        return value.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
     return (
         <div className="w-full flex flex-col gap-4 items-center">
             <h2 className={cn("text-center text-xl font-semibold", captionStyle)}>{goalName}</h2>
             <div className="flex flex-row items-center gap-2" title={tooltip}>
                 <CircularProgress progress={progress} variant={progressVariant} strokeWidth={8} size={120}>
-                    {currentValue + " kWh"}
+                    {formatValue(currentValue) + " kWh"}
                     <hr className="w-20 border border-t-0 border-accent-foreground" />
-                    {goalValue + " kWh"}
+                    {formatValue(goalValue) + " kWh"}
                 </CircularProgress>
                 {getIcon()}
             </div>

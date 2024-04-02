@@ -1,8 +1,9 @@
-import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import type {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
-import type { DeviceSelectType, PeakSelectType, SensorDataSelectType, UserDataType } from "@energyleaf/db/types";
+import type {DeviceSelectType, PeakSelectType, SensorDataSelectType, UserDataType} from "@energyleaf/db/types";
 
-import { getActionSession } from "../auth/auth.action";
+import {getActionSession} from "../auth/auth.action";
+import {Goal, GoalState} from "@/types/goals";
 
 export async function isDemoUser() {
     const { session, user } = await getActionSession();
@@ -162,11 +163,11 @@ export function getUserDataCookieStore() {
             household: 2,
             hotWater: "electric",
             tariff: "basic",
-            basePrice: 0.4,
+            basePrice: 20,
             monthlyPayment: 2,
-            workingPrice: 0.4,
+            workingPrice: 0.2,
             timestamp: new Date(2021, 1, 1),
-            consumptionGoal: 1000
+            consumptionGoal: 20
         },
     };
 
@@ -179,9 +180,16 @@ export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data:
         return;
     }
 
+    const parsedData = JSON.parse(userData.value) as UserDataType;
     const newData = {
-        ...(JSON.parse(userData.value) as UserDataType),
-        ...data,
+        reports: {
+            ...parsedData.reports,
+            ...data.reports,
+        },
+        user_data: {
+            ...parsedData.user_data,
+            ...data.user_data,
+        }
     };
 
     cookies.set("demo_data", JSON.stringify(newData));
@@ -232,4 +240,33 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
             return null;
         })
         .filter((item) => item !== null) as SensorDataSelectType[];
+}
+
+export function getDemoGoals(dailyGoal: number): Goal[] {
+    const fromDate = new Date(new Date().setHours(0, 0, 0, 0));
+    const toDate = new Date(new Date().setHours(23, 59, 59, 999));
+
+    const weeklyGoal = dailyGoal * 7;
+    const monthlyGoal = dailyGoal * new Date(fromDate.getFullYear(), fromDate.getMonth() + 1, 0).getDate();
+
+    return [
+        {
+            goalName: "Tag",
+            goalValue: dailyGoal,
+            currentValue: getDemoSensorData(fromDate, toDate).reduce((acc, cur) => acc + cur.value, 0),
+            state: GoalState.GOOD
+        },
+        {
+            goalName: "Woche",
+            goalValue: weeklyGoal,
+            currentValue: 0.9 * weeklyGoal,
+            state: GoalState.IN_DANGER
+        },
+        {
+            goalName: "Monat",
+            goalValue: monthlyGoal,
+            currentValue: 1.1 * monthlyGoal,
+            state: GoalState.EXCEEDED
+        }
+    ]
 }

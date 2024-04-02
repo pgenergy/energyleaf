@@ -1,10 +1,12 @@
 import {cache} from "react";
 import {Goal, GoalState} from "@/types/goals";
 import {getEnergySumForSensorInRange, getUserDataByUserId} from "@energyleaf/db/query";
+import {getDemoGoals} from "@/lib/demo/demo";
+import {getUserData} from "@/query/user";
 
 export const getGoals = cache(async(userId: string, sensorId: string) => {
     const dateNow = new Date();
-    const userData = await getUserDataByUserId(userId);
+    const userData = (await getUserData(userId)).user_data;
     if (!userData) {
         throw new Error("User data not found");
     }
@@ -12,6 +14,10 @@ export const getGoals = cache(async(userId: string, sensorId: string) => {
     const userDailyLimit = userData.consumptionGoal;
     if (!userDailyLimit) {
         return [];
+    }
+
+    if (userId === "demo") {
+        return getDemoGoals(userDailyLimit);
     }
 
     return await Promise.all([
