@@ -4,15 +4,11 @@ import type {DeviceSelectType, PeakSelectType, SensorDataSelectType, UserDataTyp
 
 import {getActionSession} from "../auth/auth.action";
 import {Goal, GoalState} from "@/types/goals";
+import {endOfDay, startOfDay} from "date-fns";
 
 export async function isDemoUser() {
     const { session, user } = await getActionSession();
-
-    if (!session || user.id !== "demo" || user.email !== "demo@energyleaf.de") {
-        return false;
-    }
-
-    return true;
+    return session && user.id === "demo" && user.email === "demo@energyleaf.de";
 }
 
 export function addDeviceCookieStore(cookies: ReadonlyRequestCookies, name: string, category?: string) {
@@ -243,8 +239,8 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
 }
 
 export function getDemoGoals(dailyGoal: number): Goal[] {
-    const fromDate = new Date(new Date().setHours(0, 0, 0, 0));
-    const toDate = new Date(new Date().setHours(23, 59, 59, 999));
+    const fromDate = startOfDay(new Date());
+    const toDate = endOfDay(new Date());
 
     const dayValue = getDemoSensorData(fromDate, toDate).reduce((acc, cur) => acc + cur.value, 0);
 

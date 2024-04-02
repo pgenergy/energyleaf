@@ -27,6 +27,10 @@ export default function GoalProgress({ goalValue, currentValue, state, goalName 
         throw new Error("Current value must be greater than or equal to the goal value when the state is EXCEEDED");
     }
 
+    if (state !== GoalState.EXCEEDED && currentValue >= goalValue) {
+        throw new Error("Current value must be less than the goal value when the state is not EXCEEDED");
+    }
+
     const progress = currentValue >= goalValue ? 100 : (currentValue / goalValue) * 100;
 
     function getCaptionStyle() {
