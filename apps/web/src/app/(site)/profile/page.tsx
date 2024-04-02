@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import {redirect} from "next/navigation";
 import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import ChangePasswordForm from "@/components/profile/change-password-form";
@@ -35,9 +35,10 @@ export default async function ProfilePage() {
             <BaseInformationForm disabled={isDemo} email={user.email} username={user.username} />
             <ChangePasswordForm disabled={isDemo} />
             <MailSettingsForm
-                daily={userData?.mail.mailDaily || false}
                 disabled={isDemo}
-                weekly={userData?.mail.mailWeekly || false}
+                interval={userData?.reports.interval || 3}
+                receiveMails={userData?.reports.receiveMails || false}
+                time={userData?.reports.time || 6}
             />
             <UserDataForm initialData={data} />
             <UserGoalsForm userData={userData?.user_data} />

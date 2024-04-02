@@ -7,7 +7,6 @@ import { getUserDataHistory } from "@/query/user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 interface Props {
@@ -43,60 +42,50 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const userData = await getUserDataHistory(userId);
 
     const rawCosts = calculateCosts(userData, energyData);
-    const costString = rawCosts === 0 ? null : rawCosts.toFixed(2);
-    const cost = costString ? parseFloat(costString) : null;
+    const cost = rawCosts.toFixed(2);
 
     const calculatedPayment = getCalculatedPayment(userData, startDate, endDate);
-    const predictedCost = (cost ?? 0) + getPredictedCost(userData, energyData);
+    const predictedCost = getPredictedCost(userData, energyData);
 
+    const parsedCost = parseFloat(cost);
+    const parsedCalculatedPayment = parseFloat(calculatedPayment || '0');
+
+    const formattedCost = parsedCost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formattedCalculatedPayment = parsedCalculatedPayment.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formattedPredictedCost = predictedCost.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const forecastMonth = format(new Date(), "MMMM yyyy", {locale: de});
+    
     return (
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Energiekosten</CardTitle>
                 <CardDescription>
                     {startDate.toDateString() === endDate.toDateString() ? (
-                        <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}
-                        </>
+                        <>{format(startDate, "PPP", {locale: de})}</>
                     ) : (
                         <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}{" "}
-                            -{" "}
-                            {format(endDate, "PPP", {
-                                locale: de,
-                            })}
+                            {format(startDate, "PPP", {locale: de})} - {format(endDate, "PPP", {locale: de})}
                         </>
                     )}
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                {cost !== null ? (
+                {parsedCost > 0 ? (
                     <>
-                        <h1 className="text-center text-2xl font-bold text-primary">{cost} €</h1>
-                        <p
-                            className={`text-center ${Number(cost) > Number(calculatedPayment) ? "text-red-500" : "white"}`}
-                        >
-                            Abschlag: {calculatedPayment} €
+                        <h1 className="text-center text-2xl font-bold text-primary">{formattedCost} €</h1>
+                        <p className={`text-center ${parsedCost > parsedCalculatedPayment ? "text-red-500" : "text-primary"}`}>
+                            Abschlag: {formattedCalculatedPayment} €
                         </p>
                         <p className="text-center">
-                            Hochrechnung {new Date().getMonth() + 1}.{new Date().getFullYear()}:{" "}
-                            {predictedCost.toFixed(2)} €
+                            Hochrechnung {forecastMonth}: {formattedPredictedCost} €
                         </p>
                     </>
                 ) : (
-                    <Link
-                        className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
-                        href="/profile"
-                    >
-                        Preis im Profil festlegen
-                        <ArrowRightIcon className="h-4 w-4" />
+                    <Link href="/profile" className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground">
+                        Preis im Profil festlegen <ArrowRightIcon className="h-4 w-4" />
                     </Link>
                 )}
             </CardContent>
         </Card>
-    );
+    );            
 }
