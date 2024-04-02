@@ -5,7 +5,7 @@ import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
-import { HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
+import { HomeIcon, LightbulbIcon, MicrowaveIcon, AreaChartIcon } from "lucide-react";
 
 import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
 
@@ -21,6 +21,12 @@ const navLinks = [
         title: "Empfehlungen",
         path: "/recommendations",
         icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
+    },
+    {
+        slug: "report",
+        title: "Berichte",
+        path: "/report",
+        icon: <AreaChartIcon className="mr-2 h-4 w-4" />,
     },
     {
         slug: "devices",

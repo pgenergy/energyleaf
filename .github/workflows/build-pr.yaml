@@ -17,6 +17,7 @@ jobs:
       DATABASE_NAME: database
       RESEND_API_KEY: <resend-api-key>
       RESEND_API_MAIL: <resend-api-mail>
+      REPORTS_API_KEY: <reports-api-key>
 
     steps:
       - name: Checkout repository

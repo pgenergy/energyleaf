@@ -7,7 +7,7 @@ import { Argon2id } from "oslo/password";
 import {
     deleteUser,
     getUserById,
-    updateMailSettings,
+    updateReportSettings,
     updatePassword,
     updateUser,
     updateUserData,
@@ -94,10 +94,11 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
     }
 
     try {
-        await updateMailSettings(
+        await updateReportSettings(
             {
-                daily: data.daily,
-                weekly: data.weekly,
+                receiveMails: data.receiveMails,
+                interval: data.interval,
+                time: data.time
             },
             user.id,
         );
