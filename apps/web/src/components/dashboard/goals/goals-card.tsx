@@ -39,18 +39,22 @@ export default async function GoalsCard() {
                 <CardTitle>Ziele</CardTitle>
                 <CardDescription>Hier sehen Sie Ihr aktuelles Verbrauchsziel.</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <CardContent>
                 {
                     goals.length > 0 ? (
-                        goals.map((goal: Goal) => (
-                                <GoalProgress key={goal.goalName}
-                                              goalName={goal.goalName}
-                                              goalValue={goal.goalValue}
-                                              currentValue={goal.currentValue}
-                                              state={goal.state}
-                                />
-                            )
-                        )
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            {
+                                goals.map((goal: Goal) => (
+                                        <GoalProgress key={goal.goalName}
+                                                      goalName={goal.goalName}
+                                                      goalValue={goal.goalValue}
+                                                      currentValue={goal.currentValue}
+                                                      state={goal.state}
+                                        />
+                                    )
+                                )
+                            }
+                        </div>
                     ) : (
                         <Link
                             className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
