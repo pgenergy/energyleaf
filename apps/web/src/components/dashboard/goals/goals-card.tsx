@@ -6,7 +6,7 @@ import {redirect} from "next/navigation";
 import {ArrowRightIcon} from "lucide-react";
 import Link from "next/link";
 import {getElectricitySensorIdForUser} from "@/query/energy";
-import {Goal, GoalState} from "@/types/goals";
+import type {Goal} from "@/types/goals";
 import {getGoals} from "@/query/goals";
 
 export default async function GoalsCard() {
