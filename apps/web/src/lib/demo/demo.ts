@@ -3,12 +3,17 @@ import type {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/a
 import type {DeviceSelectType, PeakSelectType, SensorDataSelectType, UserDataType} from "@energyleaf/db/types";
 
 import {getActionSession} from "../auth/auth.action";
-import {Goal, GoalState} from "@/types/goals";
+import {type Goal, GoalState} from "@/types/goals";
 import {endOfDay, startOfDay} from "date-fns";
 
 export async function isDemoUser() {
     const { session, user } = await getActionSession();
-    return session && user.id === "demo" && user.email === "demo@energyleaf.de";
+
+    if (!session || user.id !== "demo" || user.email !== "demo@energyleaf.de") {
+        return false;
+    }
+
+    return true;
 }
 
 export function addDeviceCookieStore(cookies: ReadonlyRequestCookies, name: string, category?: string) {

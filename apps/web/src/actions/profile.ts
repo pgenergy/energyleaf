@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import {
+import type {
     deleteAccountSchema,
     mailSettingsSchema,
     passwordSchema,
@@ -163,7 +163,6 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
         revalidatePath("/profile");
         revalidatePath("/dashboard");
     } catch (e) {
-        console.log(e)
         throw new Error("Error while updating user");
     }
 }

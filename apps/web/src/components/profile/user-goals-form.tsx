@@ -20,7 +20,7 @@ import React, {useTransition} from "react";
 import {track} from "@vercel/analytics";
 import {toast} from "sonner";
 import {updateUserGoals} from "@/actions/profile";
-import {UserDataSelectType} from "@energyleaf/db/types";
+import type {UserDataSelectType} from "@energyleaf/db/types";
 
 interface Props {
     userData: UserDataSelectType | undefined;
@@ -62,18 +62,16 @@ export default function UserGoalsForm({userData}: Props) {
                             control={form.control}
                             name="goalValue"
                             render={({field}) => (
-                                <>
-                                    <FormItem>
-                                        <FormLabel>Zielverbrauch (in kWh)</FormLabel>
-                                        <FormDescription>
-                                            Hier können Sie Ihren Zielverbrauch für einen Tag festlegen.
-                                        </FormDescription>
-                                        <FormControl>
-                                            <Input type="number" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                </>
+                                <FormItem>
+                                    <FormLabel>Zielverbrauch (in kWh)</FormLabel>
+                                    <FormDescription>
+                                        Hier können Sie Ihren Zielverbrauch für einen Tag festlegen.
+                                    </FormDescription>
+                                    <FormControl>
+                                        <Input type="number" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                         <div className="flex flex-row justify-end">
@@ -97,7 +95,7 @@ export default function UserGoalsForm({userData}: Props) {
 }
 
 function presetConsumptionGoal(userData: UserDataSelectType | undefined) {
-    if (!userData || !userData.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
+    if (!userData?.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
         return 0;
     }
 

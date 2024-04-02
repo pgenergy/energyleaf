@@ -1,6 +1,6 @@
 import {cache} from "react";
-import {Goal, GoalState} from "@/types/goals";
-import {getEnergySumForSensorInRange, getUserDataByUserId} from "@energyleaf/db/query";
+import {type Goal, GoalState} from "@/types/goals";
+import {getEnergySumForSensorInRange} from "@energyleaf/db/query";
 import {getDemoGoals} from "@/lib/demo/demo";
 import {getUserData} from "@/query/user";
 import {endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek} from "date-fns";
@@ -32,7 +32,7 @@ async function dailyGoal(sensorId: string, dailyLimit: number, dateNow: Date): P
     const start = startOfDay(dateNow);
     const end = endOfDay(dateNow);
 
-    const sumOfDay = await getEnergySumForSensorInRange(start, end, sensorId) ?? 0;
+    const sumOfDay = await getEnergySumForSensorInRange(start, end, sensorId);
     return {
         goalName: "Tag",
         goalValue: dailyLimit,
@@ -45,7 +45,7 @@ async function weeklyGoal(sensorId: string, dailyLimit: number, dateNow: Date): 
     const start = startOfWeek(dateNow, { weekStartsOn: 1 });
     const end = endOfWeek(dateNow, { weekStartsOn: 1 });
 
-    const sumOfWeek = await getEnergySumForSensorInRange(start, end, sensorId) ?? 0;
+    const sumOfWeek = await getEnergySumForSensorInRange(start, end, sensorId);
     const weeklyLimit = dailyLimit * 7;
     return {
         goalName: "Woche",
@@ -59,7 +59,7 @@ async function monthlyGoal(sensorId: string, dailyLimit: number, dateNow: Date):
     const start = startOfMonth(dateNow);
     const end = endOfMonth(dateNow);
 
-    const sumOfMonth = await getEnergySumForSensorInRange(start, end, sensorId) ?? 0;
+    const sumOfMonth = await getEnergySumForSensorInRange(start, end, sensorId);
     const monthlyLimit = dailyLimit * new Date(dateNow.getFullYear(), dateNow.getMonth() + 1, 0).getDate();
     return {
         goalName: "Monat",

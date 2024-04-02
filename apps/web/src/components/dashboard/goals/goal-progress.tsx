@@ -90,9 +90,9 @@ export default function GoalProgress({ goalValue, currentValue, state, goalName 
             <h2 className={cn("text-center text-xl font-semibold", captionStyle)}>{goalName}</h2>
             <div className="flex flex-row items-center gap-2" title={tooltip}>
                 <CircularProgress progress={progress} variant={progressVariant} strokeWidth={8} size={130}>
-                    {formatValue(currentValue) + " kWh"}
+                    {`${formatValue(currentValue)} kWh`}
                     <hr className="w-24 border border-t-0 border-accent-foreground" />
-                    {formatValue(goalValue) + " kWh"}
+                    {`${formatValue(goalValue)} kWh`}
                 </CircularProgress>
                 {getIcon()}
             </div>

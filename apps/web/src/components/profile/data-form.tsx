@@ -155,7 +155,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                         <FormField
                             control={form.control}
                             name="basePrice"
-                            render={({ field, fieldState }) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Strom-Grundpreis (in €)</FormLabel>
                                     <FormControl>
@@ -168,7 +168,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                         <FormField
                             control={form.control}
                             name="workingPrice"
-                            render={({ field, fieldState }) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Strompreis (in €/kWh)</FormLabel>
                                     <FormControl>
