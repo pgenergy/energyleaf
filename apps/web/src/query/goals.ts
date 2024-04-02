@@ -1,5 +1,5 @@
 import {cache} from "react";
-import {type Goal, GoalState} from "@/types/goals";
+import {Goal, GoalState} from "@/types/goals";
 import {getEnergySumForSensorInRange} from "@energyleaf/db/query";
 import {getDemoGoals} from "@/lib/demo/demo";
 import {getUserData} from "@/query/user";
@@ -33,12 +33,12 @@ async function dailyGoal(sensorId: string, dailyLimit: number, dateNow: Date): P
     const end = endOfDay(dateNow);
 
     const sumOfDay = await getEnergySumForSensorInRange(start, end, sensorId);
-    return {
-        goalName: "Tag",
-        goalValue: dailyLimit,
-        currentValue: sumOfDay,
-        state: calculateState(sumOfDay, dailyLimit, dateNow.getHours(), 24)
-    }
+    return new Goal(
+        dailyLimit,
+        sumOfDay,
+        calculateState(sumOfDay, dailyLimit, dateNow.getHours(), 24),
+        "Tag"
+    );
 }
 
 async function weeklyGoal(sensorId: string, dailyLimit: number, dateNow: Date): Promise<Goal> {
@@ -47,12 +47,12 @@ async function weeklyGoal(sensorId: string, dailyLimit: number, dateNow: Date): 
 
     const sumOfWeek = await getEnergySumForSensorInRange(start, end, sensorId);
     const weeklyLimit = dailyLimit * 7;
-    return {
-        goalName: "Woche",
-        goalValue: weeklyLimit,
-        currentValue: sumOfWeek,
-        state: calculateState(sumOfWeek, weeklyLimit, dateNow.getDay(), 7)
-    }
+    return new Goal(
+        weeklyLimit,
+        sumOfWeek,
+        calculateState(sumOfWeek, weeklyLimit, dateNow.getDay(), 7),
+        "Woche"
+    );
 }
 
 async function monthlyGoal(sensorId: string, dailyLimit: number, dateNow: Date): Promise<Goal> {
@@ -61,17 +61,17 @@ async function monthlyGoal(sensorId: string, dailyLimit: number, dateNow: Date):
 
     const sumOfMonth = await getEnergySumForSensorInRange(start, end, sensorId);
     const monthlyLimit = dailyLimit * new Date(dateNow.getFullYear(), dateNow.getMonth() + 1, 0).getDate();
-    return {
-        goalName: "Monat",
-        goalValue: monthlyLimit,
-        currentValue: sumOfMonth,
-        state: calculateState(
+    return new Goal(
+        monthlyLimit,
+        sumOfMonth,
+        calculateState(
             sumOfMonth,
             monthlyLimit,
             dateNow.getDate(),
             new Date(dateNow.getFullYear(), dateNow.getMonth() + 1, 0).getDate()
-        )
-    }
+        ),
+        "Monat"
+    );
 }
 
 function calculateState(consumed: number, limit: number, passedTimeUnits: number, timeUnitsInPeriod: number): GoalState {

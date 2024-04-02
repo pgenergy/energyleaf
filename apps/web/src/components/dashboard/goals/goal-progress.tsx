@@ -5,36 +5,15 @@ import {
     CircleAlertIcon,
     XCircleIcon
 } from "lucide-react";
-import { GoalState } from "@/types/goals";
+import {type Goal, GoalState} from "@/types/goals";
 
 interface Props {
-    goalValue: number;
-    currentValue: number;
-    state: GoalState;
-    goalName: string;
+    goal: Goal;
 }
 
-export default function GoalProgress({ goalValue, currentValue, state, goalName }: Props) {
-    if (currentValue < 0) {
-        throw new Error("Current value must be greater than 0");
-    }
-
-    if (goalValue < 0) {
-        throw new Error("Goal value must be greater than 0");
-    }
-
-    if (state === GoalState.EXCEEDED && currentValue < goalValue) {
-        throw new Error("Current value must be greater than or equal to the goal value when the state is EXCEEDED");
-    }
-
-    if (state !== GoalState.EXCEEDED && currentValue >= goalValue) {
-        throw new Error("Current value must be less than the goal value when the state is not EXCEEDED");
-    }
-
-    const progress = currentValue >= goalValue ? 100 : (currentValue / goalValue) * 100;
-
+export default function GoalProgress({ goal }: Props) {
     function getCaptionStyle() {
-        switch (state) {
+        switch (goal.state) {
             case GoalState.GOOD:
                 return "text-primary";
             case GoalState.IN_DANGER:
@@ -46,7 +25,7 @@ export default function GoalProgress({ goalValue, currentValue, state, goalName 
     const captionStyle = getCaptionStyle();
 
     function getProgressVariant() {
-        switch (state) {
+        switch (goal.state) {
             case GoalState.GOOD:
                 return "default";
             case GoalState.IN_DANGER:
@@ -58,7 +37,7 @@ export default function GoalProgress({ goalValue, currentValue, state, goalName 
     const progressVariant = getProgressVariant();
 
     function getTooltip() {
-        switch (state) {
+        switch (goal.state) {
             case GoalState.GOOD:
                 return "Ziel wird nach Prognose erreicht";
             case GoalState.IN_DANGER:
@@ -71,7 +50,7 @@ export default function GoalProgress({ goalValue, currentValue, state, goalName 
 
     function getIcon() {
         const className = cn("w-10 h-10", captionStyle);
-        switch (state) {
+        switch (goal.state) {
             case GoalState.GOOD:
                 return <CheckCircleIcon className={className} />;
             case GoalState.IN_DANGER:
@@ -87,12 +66,12 @@ export default function GoalProgress({ goalValue, currentValue, state, goalName 
 
     return (
         <div className="w-full flex flex-col gap-4 items-center">
-            <h2 className={cn("text-center text-xl font-semibold", captionStyle)}>{goalName}</h2>
+            <h2 className={cn("text-center text-xl font-semibold", captionStyle)}>{goal.goalName}</h2>
             <div className="flex flex-row items-center gap-2" title={tooltip}>
-                <CircularProgress progress={progress} variant={progressVariant} strokeWidth={8} size={130}>
-                    {`${formatValue(currentValue)} kWh`}
+                <CircularProgress progress={goal.progress} variant={progressVariant} strokeWidth={8} size={130}>
+                    {`${formatValue(goal.currentValue)} kWh`}
                     <hr className="w-24 border border-t-0 border-accent-foreground" />
-                    {`${formatValue(goalValue)} kWh`}
+                    {`${formatValue(goal.goalValue)} kWh`}
                 </CircularProgress>
                 {getIcon()}
             </div>

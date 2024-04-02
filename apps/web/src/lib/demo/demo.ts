@@ -3,7 +3,7 @@ import type {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/a
 import type {DeviceSelectType, PeakSelectType, SensorDataSelectType, UserDataType} from "@energyleaf/db/types";
 
 import {getActionSession} from "../auth/auth.action";
-import {type Goal, GoalState} from "@/types/goals";
+import {Goal, GoalState} from "@/types/goals";
 import {endOfDay, startOfDay} from "date-fns";
 
 export async function isDemoUser() {
@@ -253,23 +253,8 @@ export function getDemoGoals(dailyGoal: number): Goal[] {
     const monthlyGoal = dailyGoal * new Date(fromDate.getFullYear(), fromDate.getMonth() + 1, 0).getDate();
 
     return [
-        {
-            goalName: "Tag",
-            goalValue: dailyGoal,
-            currentValue: dayValue,
-            state: dayValue >= dailyGoal ? GoalState.EXCEEDED : GoalState.GOOD
-        },
-        {
-            goalName: "Woche",
-            goalValue: weeklyGoal,
-            currentValue: 0.9 * weeklyGoal,
-            state: GoalState.IN_DANGER
-        },
-        {
-            goalName: "Monat",
-            goalValue: monthlyGoal,
-            currentValue: 1.1 * monthlyGoal,
-            state: GoalState.EXCEEDED
-        }
+        new Goal(dailyGoal, dayValue, dayValue >= dailyGoal ? GoalState.EXCEEDED : GoalState.GOOD, "Tag"),
+        new Goal(weeklyGoal, 0.9 * weeklyGoal, GoalState.IN_DANGER, "Woche"),
+        new Goal(monthlyGoal, 1.1 * monthlyGoal, GoalState.EXCEEDED, "Monat")
     ]
 }
