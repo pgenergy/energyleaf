@@ -12,12 +12,25 @@ interface UserReportData {
 
 }
 
-export async function createReportsAndSendMails() {
+export interface CreateReportsResult {
+    totalReports: number;
+    savedReports: number;
+    updatedLastReportTimestamps: number;
+    successfulReports: number;
+}
+
+export async function createReportsAndSendMails() : Promise<CreateReportsResult> {
     const userReportData: Array<UserReportData> = await getUsersWitDueReport();
+
+const totalReports = userReportData.length;
+    let savedReports, updatedLastReportTimestamps, successfulReports = totalReports
+
+    //todo implement counters and return them
 
     for (const userReport of userReportData) {
         if (userReport.userId === null) {
             console.error(`No user ID for User ${userReport.userName} to create and send report for`);
+            successfulReports--;
             continue;
         }
 
@@ -26,12 +39,13 @@ export async function createReportsAndSendMails() {
             reportProps = createReportData(userReport)
         } catch (e) {
             console.error(`Error creating report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
+            successfulReports--;
             continue;
         }
 
         if (userReport.receiveMails) {
             try {
-                sendReportMail(userReport, reportProps);
+                await sendReportMail(userReport, reportProps);
             } catch (e) {
                 console.error(`Error sending report for User ${userReport.userName} (User-ID ${userReport.userId}) to ${userReport.email}: ${e}`);
                 continue;
@@ -49,10 +63,13 @@ export async function createReportsAndSendMails() {
         } catch (e) {
             console.error(`Error updating last report timestamp for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
         }
+
+        successfulReports++;
     }
+    return {totalReports, successfulReports};
 }
 
-export async function createReportData(user: UserReportData): ReportProps {
+export async function createReportData(user: UserReportData): Promise<ReportProps> {
 
     return {
         //todo

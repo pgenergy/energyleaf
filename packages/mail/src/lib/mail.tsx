@@ -102,7 +102,7 @@ interface ReportMailOptions extends MailOptions {
 }
 
 export async function sendReport(options : ReportMailOptions) {
-    return sendMailByTemplate(options, "Ihr Energieverbrauch-Bericht", ReportTemplate(options.reportProps))
+    return sendMailByTemplate(options, `Energieverbrauch-Bericht von ${options.reportProps.period}`, ReportTemplate(options.reportProps))
 }
 
 type AccountCreatedMailOptions = PasswordChangedMailOptions;
