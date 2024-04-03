@@ -10,7 +10,7 @@ import Header from "../components/header";
 import Tile from "../components/tile";
 import { ReportProps } from "../types/reportProps";
 
-export default function PasswordResetTemplate(props: ReportProps) {
+export default function ReportTemplate(props: ReportProps) {
     return (
         <Html lang="de">
             <Preview>Energyleaf Bericht für {props.period}</Preview>
