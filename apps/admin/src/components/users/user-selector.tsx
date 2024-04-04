@@ -86,7 +86,7 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
                                               onUserSelected(currentValue);
                                               setIsOpen(false);
                                           }}
-                                          value={user.name}
+                                          value={user.id}
                                       >
                                           <CheckIcon
                                               className={cn(
