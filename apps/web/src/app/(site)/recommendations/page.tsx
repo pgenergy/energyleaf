@@ -7,6 +7,10 @@ import AvgEnergyConsumptionComparisonError from "@/components/recommendations/av
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 
+export const metadata = {
+    title: "Empfehlungen | Energyleaf",
+};
+
 export default function RecommendationsPage() {
     return (
         <div className="flex flex-col gap-4">

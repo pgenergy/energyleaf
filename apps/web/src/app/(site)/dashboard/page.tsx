@@ -11,6 +11,10 @@ import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 
+export const metadata = {
+    title: "Dashboard | Energyleaf",
+};
+
 export default function DashboardPage({
     searchParams,
 }: {

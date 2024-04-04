@@ -59,7 +59,8 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <p className="text-sm">
-                    <span className="font-bold">Verbrauch:</span> {energy.toFixed(2)} kWh {computeTimestampLabel(aggregationType, true)}
+                    <span className="font-bold">Verbrauch:</span> {energy.toFixed(2)} kWh{" "}
+                    {computeTimestampLabel(aggregationType, true)}
                 </p>
             </CardContent>
         </Card>

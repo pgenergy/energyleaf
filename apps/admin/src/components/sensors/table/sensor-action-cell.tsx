@@ -1,7 +1,9 @@
 "use client";
 
+import { removeUserFromSensor } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
 import { Edit2Icon, MinusIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import type { SensorSelectType } from "@energyleaf/db/types";
 import {
@@ -13,8 +15,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
-import { toast } from "sonner";
-import { removeUserFromSensor } from "@/actions/sensors";
 
 interface Props {
     sensor: SensorSelectType;
@@ -38,7 +38,7 @@ export default function SensorActionCell({ sensor }: Props) {
             loading: "Nutzer wird entfernt...",
             success: "Nutzer wurde entfernt",
             error: "Fehler beim Entfernen des Nutzers",
-        });        
+        });
     }
 
     return (

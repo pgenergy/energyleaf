@@ -4,6 +4,7 @@ import "@energyleaf/tailwindcss/global.css";
 
 export const metadata: Metadata = {
     title: "Energyleaf Admin",
+    robots: "noindex, nofollow",
 };
 export const revalidate = 0;
 

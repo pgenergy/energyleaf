@@ -9,6 +9,18 @@ import { Toaster } from "@energyleaf/ui/components/utils";
 
 export const metadata: Metadata = {
     title: "Energyleaf",
+    description:
+        "Mit diesem Tool können Sie Ihren Stromverbrauch übersichtlich darstellen und besser verstehen. Analysieren Sie Ihren Verbrauch, finden Sie Einsparpotenziale und senken Sie Ihre Kosten.",
+    keywords:
+        "Stromverbrauch, Energieverbrauch, Universität Oldenburg, Nachhaltigkeit, Energiesparen, Visualisierung, Analyse, Einsparpotenzial, Kosten senken",
+    openGraph: {
+        title: "Energyleaf",
+        description:
+            "Mit diesem Tool können Sie Ihren Stromverbrauch übersichtlich darstellen und besser verstehen. Analysieren Sie Ihren Verbrauch, finden Sie Einsparpotenziale und senken Sie Ihre Kosten.",
+        type: "website",
+        locale: "de_DE",
+        url: "https://energyleaf.de",
+    },
 };
 export const revalidate = 0;
 

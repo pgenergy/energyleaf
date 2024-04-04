@@ -7,8 +7,8 @@ import { Argon2id } from "oslo/password";
 import {
     deleteUser,
     getUserById,
-    updateReportSettings,
     updatePassword,
+    updateReportSettings,
     updateUser,
     updateUserData,
 } from "@energyleaf/db/query";
@@ -98,7 +98,7 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
             {
                 receiveMails: data.receiveMails,
                 interval: data.interval,
-                time: data.time
+                time: data.time,
             },
             user.id,
         );

@@ -1,4 +1,4 @@
-import {redirect} from "next/navigation";
+import { redirect } from "next/navigation";
 import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import ChangePasswordForm from "@/components/profile/change-password-form";
@@ -7,6 +7,10 @@ import MailSettingsForm from "@/components/profile/mail-settings-form";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { getUserData } from "@/query/user";
+
+export const metadata = {
+    title: "Profil | Energyleaf",
+};
 
 export default async function ProfilePage() {
     const { session, user } = await getSession();
