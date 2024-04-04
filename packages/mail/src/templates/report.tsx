@@ -31,7 +31,7 @@ export default function ReportTemplate(props: ReportProps) {
                         </Container>
 
                         <div className="flex flex-row justify-evenly">
-                            {props.dayStatistics?.map((x) => <DayTile stats={x} />)}
+                            {props.dayEnergyStatistics?.map((x) => <DayTile stats={x} />)}
                         </div>
 
                         <div className="mb-4 flex flex-row flex-wrap items-stretch justify-evenly gap-4">

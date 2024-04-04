@@ -1,5 +1,3 @@
-import {GoalState, GoalStatus} from "@energyleaf/lib";
-
 export interface DayStatistics {
     day: Date,
     dailyConsumption: number,

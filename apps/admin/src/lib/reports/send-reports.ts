@@ -19,40 +19,28 @@ interface UserReportData {
 
 }
 
-export interface CreateReportsResult {
-    totalReports: number;
-    savedReports: number;
-    updatedLastReportTimestamps: number;
-    successfulReports: number;
-}
-
-export async function createReportsAndSendMails(): Promise<CreateReportsResult> {
+export async function createReportsAndSendMails() {
     const userReportData: Array<UserReportData> = await getUsersWitDueReport();
 
     const totalReports = userReportData.length;
-    let savedReports, updatedLastReportTimestamps, successfulReports = totalReports
-
-    //todo implement counters and return them
+    let successfulReports= 0;
+    let sentReports = 0;
+    let savedReports= 0;
+    let updatedLastReportTimestamps= 0;
 
     for (const userReport of userReportData) {
-        if (userReport.userId === null) {
-            console.error(`No user ID for User ${userReport.userName} to create and send report for`);
-            successfulReports--;
-            continue;
-        }
-
         let reportProps: ReportProps;
         try {
-            reportProps = await createReportData(userReport)
+            reportProps = await createReportData(userReport);
         } catch (e) {
             console.error(`Error creating report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
-            successfulReports--;
             continue;
         }
 
         if (userReport.receiveMails) {
             try {
                 await sendReportMail(userReport, reportProps);
+                sentReports++;
             } catch (e) {
                 console.error(`Error sending report for User ${userReport.userName} (User-ID ${userReport.userId}) to ${userReport.email}: ${e}`);
                 continue;
@@ -61,19 +49,28 @@ export async function createReportsAndSendMails(): Promise<CreateReportsResult> 
 
         try {
             // await saveReport(props);
+            savedReports++;
         } catch (e) {
             console.error(`Error saving report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
         }
 
         try {
             await updateLastReportTimestamp(userReport.userId);
+            updatedLastReportTimestamps++;
         } catch (e) {
             console.error(`Error updating last report timestamp for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
         }
 
         successfulReports++;
     }
-    return {totalReports, successfulReports};
+
+    // TODO: maybe improve logging
+    console.info(`--Send Report Results-- `,
+        ` Total reports: ${totalReports} `,
+        ` Successful reports: ${successfulReports}`,
+        ` Sent reports: ${sentReports} `,
+        ` Saved reports: ${savedReports} `,
+        ` Updated last report timestamp: ${updatedLastReportTimestamps}`);
 }
 
 export async function createReportData(user: UserReportData): Promise<ReportProps> {
