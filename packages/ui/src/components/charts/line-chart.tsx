@@ -41,7 +41,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
     
         let lastSeenHour = "";
         let lastSeenDate = "";
-        const dateInterval = Math.max(1, Math.ceil(diffDays / 20));
+        const dateInterval = Math.max(1, Math.ceil(diffDays / 20)); // Ensures the interval between displayed dates in the chart is at least 1 and adapts dynamically to span 20 intervals across the date range
 
         const lastDateStr = format(maxDate, "dd.MM");
         const lastHourStr = format(maxDate, "HH") + ":00";
