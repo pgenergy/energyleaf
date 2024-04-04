@@ -13,7 +13,7 @@ import { ReportProps } from "../types/reportProps";
 export default function ReportTemplate(props: ReportProps) {
     return (
         <Html lang="de">
-            <Preview>Energyleaf Bericht für {props.period}</Preview>
+            <Preview>Energyleaf Bericht für {props.dateFrom}</Preview>
             <Head />
             <Tailwind
                 config={{
@@ -22,11 +22,12 @@ export default function ReportTemplate(props: ReportProps) {
             >
                 <Body className="bg-background font-sans text-foreground">
                     <Container className="mx-auto flex max-w-xl flex-row justify-center px-8 py-4">
-                        <Header heading={`Bericht von ${props.period}`} />
+                        <Header heading={`Bericht von ${props.dateFrom}`} />
 
                         <Container className="mb-8 px-4">
                             <Text>Hallo {props.name},</Text>
-                            <Text>Hier ist Ihr Bericht von {props.period}:</Text>
+                            <Text>Hier ist Ihre Energieverbrauch-Übersicht für den Zeitraum vom {props.dateFrom.toLocaleDateString()} bis
+                                zum  {props.dateTo.toLocaleDateString()}:</Text>
                         </Container>
 
                         <div className="flex flex-row justify-evenly">
@@ -37,7 +38,7 @@ export default function ReportTemplate(props: ReportProps) {
                             <Tile visible={true} large={true} icon={<Zap />} heading="Energieverbrauch">
                                 <div>
                                     <div className="flex flex-row items-center justify-center">
-                                        {props.totalEnergyConsumption}{" "}
+                                        {props.totalEnergyConsumption}{" kwh"}
                                         <span className="pl-1 font-normal">insgesamt</span>
                                     </div>
                                     <div className="flex flex-row items-center justify-center">

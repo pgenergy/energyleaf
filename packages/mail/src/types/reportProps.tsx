@@ -1,21 +1,22 @@
+import {GoalState, GoalStatus} from "@energyleaf/lib";
+
 export interface DayStatistics {
-    /**
-     * base64 string
-     */
-    image: string;
-    dayName: string;
-    value: number;
-    annotation: string;
+    day: Date,
+    dailyConsumption: number,
+    dailyGoal?: number,
+    exceeded?: boolean,
+    progress?: number
 }
 
 export interface ReportProps {
     name: string;
-    period: string;
-    dayStatistics: DayStatistics[];
-    totalEnergyConsumption: string;
-    avgEnergyConsumptionPerDay: string;
-    totalEnergyCost: string;
-    avgEnergyCost: string;
+    dateFrom: Date;
+    dateTo: Date;
+    dayEnergyStatistics: DayStatistics[];
+    totalEnergyConsumption: number;
+    avgEnergyConsumptionPerDay: number;
+    totalEnergyCost: number;
+    avgEnergyCost: number;
     highestPeak: {
         dateTime: Date;
         deviceName: string;
@@ -25,13 +26,13 @@ export interface ReportProps {
     /**
      * base64 image
      */
-    consumptionGraph1: string;
+    consumptionGraph?: string;
     /**
      * base64 image
      */
-    consumptionGraph2: string;
+    consumptionGraph2?: string;
     /**
      * base64 image
      */
-    consumptionGraph3: string;
+    consumptionGraph3?: string;
 }

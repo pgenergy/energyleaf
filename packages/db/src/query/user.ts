@@ -221,7 +221,8 @@ export async function setUserAdmin(id: string, isAdmin: boolean) {
  */
 export async function getUsersWitDueReport() {
     return db
-        .select({userId: user.id, userName: user.username, email: user.email, receiveMails: reports.receiveMails})
+        .select({userId: user.id, userName: user.username, email: user.email, receiveMails: reports.receiveMails,
+            interval: reports.interval})
         .from(reports)
         .innerJoin(user, eq(user.id, reports.userId))
         .where(
