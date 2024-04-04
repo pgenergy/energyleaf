@@ -55,7 +55,7 @@ export const historyUserData = mysqlTable("history_user_data", {
     consumptionGoal: int("consumption_goal")
 });
 
-export const reports = mysqlTable("reports", {
+export const reportConfig = mysqlTable("report_config", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: varchar("user_id", {length: 30}).notNull(),
     receiveMails: boolean("receive_mails").default(true).notNull(),
@@ -67,7 +67,7 @@ export const reports = mysqlTable("reports", {
         .notNull(),
 });
 
-export const historyReports = mysqlTable("history_reports", {
+export const historyReportConfig = mysqlTable("history_report_config", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: varchar("user_id", {length: 30}).notNull(),
     receiveMails: boolean("receive_mails").default(true).notNull(),

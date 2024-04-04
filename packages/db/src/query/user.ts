@@ -1,7 +1,7 @@
 import {and, eq, gt, lte, or, sql} from "drizzle-orm";
 
 import db from "../";
-import {historyUserData, user, historyReports, reports, userData} from "../schema";
+import {historyUserData, user, historyReportConfig, reportConfig, userData} from "../schema";
 
 /**
  * Get a user by id from the database
@@ -73,7 +73,7 @@ export async function createUser(data: CreateUserType) {
             userId: id,
         });
 
-        await trx.insert(reports).values({
+        await trx.insert(reportConfig).values({
             userId: id,
             timestampLast: new Date(),
         });
@@ -87,7 +87,7 @@ export async function getUserData(id: string) {
     const data = await db
         .select()
         .from(userData)
-        .innerJoin(reports, eq(userData.userId, reports.userId))
+        .innerJoin(reportConfig, eq(userData.userId, reportConfig.userId))
         .where(eq(userData.userId, id));
 
     if (data.length === 0) {
@@ -139,7 +139,7 @@ export async function updateReportSettings(data: {
         if (!oldReportData) {
             throw new Error("Old user data not found");
         }
-        await trx.insert(historyReports).values({
+        await trx.insert(historyReportConfig).values({
             id: oldReportData.id,
             userId: oldReportData.userId,
             receiveMails: oldReportData.receiveMails,
@@ -150,14 +150,14 @@ export async function updateReportSettings(data: {
         });
 
         await trx
-            .update(reports)
+            .update(reportConfig)
             .set({
                 receiveMails: data.receiveMails,
                 interval: data.interval,
                 time: data.time,
                 createdTimestamp: new Date(),
             })
-            .where(eq(reports.userId, id));
+            .where(eq(reportConfig.userId, id));
     });
 }
 
@@ -221,23 +221,23 @@ export async function setUserAdmin(id: string, isAdmin: boolean) {
  */
 export async function getUsersWitDueReport() {
     return db
-        .select({userId: user.id, userName: user.username, email: user.email, receiveMails: reports.receiveMails,
-            interval: reports.interval})
-        .from(reports)
-        .innerJoin(user, eq(user.id, reports.userId))
+        .select({userId: user.id, userName: user.username, email: user.email, receiveMails: reportConfig.receiveMails,
+            interval: reportConfig.interval})
+        .from(reportConfig)
+        .innerJoin(user, eq(user.id, reportConfig.userId))
         .where(
             or(
-                gt(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reports.interval),
+                gt(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reportConfig.interval),
                 and(
-                    eq(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reports.interval),
-                    lte(reports.time, new Date().getHours())
+                    eq(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reportConfig.interval),
+                    lte(reportConfig.time, new Date().getHours())
                 ),
             )
         );
 }
 
 export async function getReportDataByUserId(id: string) {
-    const data = await db.select().from(reports).where(eq(reports.userId, id));
+    const data = await db.select().from(reportConfig).where(eq(reportConfig.userId, id));
 
     if (data.length === 0) {
         return null;
@@ -247,5 +247,5 @@ export async function getReportDataByUserId(id: string) {
 }
 
 export async function updateLastReportTimestamp(userId: string) {
-    return db.update(reports).set({timestampLast: new Date()}).where(eq(reports.userId, userId));
+    return db.update(reportConfig).set({timestampLast: new Date()}).where(eq(reportConfig.userId, userId));
 }

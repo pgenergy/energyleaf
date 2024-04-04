@@ -1,4 +1,4 @@
-import { device, reports, peaks, sensor, sensorData, user, userData } from "../schema";
+import { device, reportConfig, peaks, sensor, sensorData, user, userData } from "../schema";
 
 export enum SortOrder {
     ASC = "ASC",
@@ -13,7 +13,7 @@ export type DeviceSelectType = typeof device.$inferSelect;
 
 export type PeakSelectType = typeof peaks.$inferSelect;
 
-export type ReportSelectType = typeof reports.$inferSelect;
+export type ReportSelectType = typeof reportConfig.$inferSelect;
 
 export type UserDataType = {
     reports: ReportSelectType;
