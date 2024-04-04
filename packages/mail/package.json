@@ -5,7 +5,7 @@
     "type": "module",
     "description": "",
     "exports": {
-        ".": "./src/lib/mail.tsx"
+        ".": "./src/index.tsx"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",

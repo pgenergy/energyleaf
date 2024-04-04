@@ -42,7 +42,7 @@ export default function ReportTemplate(props: ReportProps) {
                                     </div>
                                     <div className="flex flex-row items-center justify-center">
                                         <CircleSlash2 size={16} />
-                                        <Text className="m-0 ml-1">pro Tag {props.avgEnergyConsumption}</Text>
+                                        <Text className="m-0 ml-1">pro Tag {props.avgEnergyConsumptionPerDay}</Text>
                                     </div>
                                 </div>
                             </Tile>

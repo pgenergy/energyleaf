@@ -13,7 +13,7 @@ export interface ReportProps {
     period: string;
     dayStatistics: DayStatistics[];
     totalEnergyConsumption: string;
-    avgEnergyConsumption: string;
+    avgEnergyConsumptionPerDay: string;
     totalEnergyCost: string;
     avgEnergyCost: string;
     highestPeak: {

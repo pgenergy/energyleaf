@@ -1,7 +1,6 @@
 import {getUsersWitDueReport, updateLastReportTimestamp} from "@energyleaf/db/query";
-import {sendReport} from "@energyleaf/mail";
+import {DayStatistics, ReportProps, sendReport} from "@energyleaf/mail";
 import {env} from "@/env.mjs";
-import {ReportProps} from "@energyleaf/mail/src/types/reportProps";
 
 
 interface UserReportData {
@@ -36,7 +35,7 @@ const totalReports = userReportData.length;
 
         let reportProps: ReportProps;
         try {
-            reportProps = createReportData(userReport)
+            reportProps =await  createReportData(userReport)
         } catch (e) {
             console.error(`Error creating report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
             successfulReports--;
@@ -71,8 +70,20 @@ const totalReports = userReportData.length;
 
 export async function createReportData(user: UserReportData): Promise<ReportProps> {
 
+    
     return {
-        //todo
+        name: string;
+        period: string;
+        dayStatistics: DayStatistics[];
+        totalEnergyConsumption: string;
+        avgEnergyConsumption: string;
+        totalEnergyCost: string;
+        avgEnergyCost: string;
+        highestPeak: {
+            dateTime: Date;
+            deviceName: string;
+            consumption: string;
+        }
     };
 }
 
