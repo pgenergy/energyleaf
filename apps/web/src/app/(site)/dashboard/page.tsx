@@ -10,6 +10,8 @@ import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
 
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import GoalsCard from "@/components/dashboard/goals/goals-card";
+import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
 
 export default function DashboardPage({
     searchParams,
@@ -32,6 +34,11 @@ export default function DashboardPage({
 
     return (
         <div className="flex flex-col gap-4">
+            <ErrorBoundary fallback={GoalsCardError}>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <GoalsCard />
+                </Suspense>
+            </ErrorBoundary>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <ErrorBoundary fallback={AbsolutEnergyConsumptionError}>
                     <Suspense fallback={<Skeleton className="h-72 w-full" />}>

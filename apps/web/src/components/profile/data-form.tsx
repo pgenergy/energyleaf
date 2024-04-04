@@ -154,10 +154,23 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="budget"
+                            name="basePrice"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Budget (in €)</FormLabel>
+                                    <FormLabel>Strom-Grundpreis (in €)</FormLabel>
+                                    <FormControl>
+                                            <Input type="number" {...field} disabled={disabled} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="workingPrice"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Strompreis (in €/kWh)</FormLabel>
                                     <FormControl>
                                         <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
@@ -167,17 +180,12 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                         />
                         <FormField
                             control={form.control}
-                            name="basePrice"
-                            render={({ field, fieldState }) => (
+                            name="monthlyPayment"
+                            render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Strompreis (in €/kWh)</FormLabel>
+                                    <FormLabel>Monatlicher Abschlag (in €)</FormLabel>
                                     <FormControl>
-                                        <>
-                                            <Input type="number" {...field} disabled={disabled} />
-                                            {fieldState.error ? (
-                                                <FormMessage>{fieldState.error.message}</FormMessage>
-                                            ) : null}
-                                        </>
+                                        <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -202,19 +210,6 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Personen im Haushalt</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" {...field} disabled={disabled} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="monthlyPayment"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Monatlicher Abschlag (in €)</FormLabel>
                                     <FormControl>
                                         <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
