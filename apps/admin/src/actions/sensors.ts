@@ -91,6 +91,7 @@ export async function removeUserFromSensor(clientId: string) {
 
     try {
         await deleteUserFromSensor(clientId);
+        revalidatePath("/sensors");
     } catch (err) {
         throw new Error("Error while removing user from sensor");
     }
