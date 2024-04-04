@@ -540,6 +540,13 @@ export async function assignSensorToUser(clientId: string, userId: string | null
 }
 
 /**
+ * Delete the current user from the sensor without inserting it in sensorHistory
+ */
+export async function deleteUserFromSensor(clientId: string) {
+    await db.update(sensor).set({ userId: null }).where(eq(sensor.clientId, clientId));
+}
+
+/**
  * Get the average energy utils per device
  */
 export async function getAverageConsumptionPerDevice(userId: string) {
