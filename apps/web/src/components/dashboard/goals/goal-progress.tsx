@@ -5,10 +5,10 @@ import {
     CircleAlertIcon,
     XCircleIcon
 } from "lucide-react";
-import {type Goal, GoalState} from "@/types/goals";
+import {type GoalStatus, GoalState} from "@/types/goals";
 
 interface Props {
-    goal: Goal;
+    goal: GoalStatus;
 }
 
 export default function GoalProgress({ goal }: Props) {

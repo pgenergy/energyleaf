@@ -6,8 +6,8 @@ import {redirect} from "next/navigation";
 import {ArrowRightIcon} from "lucide-react";
 import Link from "next/link";
 import {getElectricitySensorIdForUser} from "@/query/energy";
-import type {Goal} from "@/types/goals";
-import {getGoals} from "@/query/goals";
+import type {GoalStatus} from "@/types/goals";
+import {getGoalStatus} from "@/query/goals";
 
 export default async function GoalsCard() {
     const {session, user} = await getSession();
@@ -31,7 +31,7 @@ export default async function GoalsCard() {
         );
     }
 
-    const goals = await getGoals(userId, sensorId);
+    const goals = await getGoalStatus(userId, sensorId);
 
     return (
         <Card className="w-full">
@@ -44,7 +44,7 @@ export default async function GoalsCard() {
                     goals.length > 0 ? (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             {
-                                goals.map((goal: Goal) => <GoalProgress goal={goal} key={goal.goalName}/>)
+                                goals.map((goal: GoalStatus) => <GoalProgress goal={goal} key={goal.goalName}/>)
                             }
                         </div>
                     ) : (

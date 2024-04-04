@@ -4,7 +4,7 @@ export enum GoalState {
     EXCEEDED
 }
 
-export class Goal {
+export class GoalStatus {
     readonly goalValue: number;
     readonly currentValue: number;
     readonly state: GoalState;
