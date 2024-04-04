@@ -27,6 +27,8 @@ export const POST = async (req: NextRequest) => {
 
             return new NextResponse(ScriptAcceptedResponse.toBinary({ status: 200 }), { status: 200 });
         } catch (err) {
+            // eslint-disable-next-line no-console -- we need to log the error in the production logs
+            console.error(err);
             if ((err as unknown as Error).message === "token/expired") {
                 return new NextResponse(
                     ScriptAcceptedResponse.toBinary({ statusMessage: "Token expired", status: 401 }),
@@ -83,6 +85,8 @@ export const POST = async (req: NextRequest) => {
             });
         }
     } catch (err) {
+        // eslint-disable-next-line no-console -- we need to log the error in the production logs
+        console.error(err);
         return new NextResponse(ScriptAcceptedResponse.toBinary({ status: 400, statusMessage: "Invalid data" }), {
             status: 400,
             headers: {

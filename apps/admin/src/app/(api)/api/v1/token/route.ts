@@ -56,6 +56,8 @@ export const POST = async (req: NextRequest) => {
                 },
             });
         } catch (err) {
+            // eslint-disable-next-line no-console -- we need to log the error in the production logs
+            console.error(err);
             if ((err as unknown as Error).message === "sensor/not-found") {
                 return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
                     status: 404,
@@ -73,6 +75,8 @@ export const POST = async (req: NextRequest) => {
             });
         }
     } catch (e) {
+        // eslint-disable-next-line no-console -- we need to log the error in the production logs
+        console.error(e);
         return new NextResponse(TokenResponse.toBinary({ statusMessage: "Invalid data", status: 400 }), {
             status: 400,
             headers: {
