@@ -1,4 +1,4 @@
-import { and, between, desc, eq, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, lt, lte, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { AggregationType } from "@energyleaf/lib";
@@ -107,6 +107,28 @@ export async function getEnergyForSensorInRange(
             id: index.toString(),
             value: Number(row.value) - Number(query[index - 1].value),
         };
+    });
+}
+
+export async function getEnergySumForSensorInRange(start: Date, end: Date, sensorId: string) {
+    return await db.transaction(async (trx) => {
+        const latestEntryBeforeStart = await trx
+            .select({ value: sensorData.value })
+            .from(sensorData)
+            .where(and(eq(sensorData.sensorId, sensorId), lt(sensorData.timestamp, start)))
+            .orderBy(desc(sensorData.timestamp))
+            .limit(1);
+        const valueBeforeStart = latestEntryBeforeStart.length > 0 ? latestEntryBeforeStart[0].value : 0;
+
+        const latestEntryBeforeEnd = await trx
+            .select({ value: sensorData.value })
+            .from(sensorData)
+            .where(and(eq(sensorData.sensorId, sensorId), lte(sensorData.timestamp, end)))
+            .orderBy(desc(sensorData.timestamp))
+            .limit(1);
+        const valueBeforeEnd = latestEntryBeforeEnd.length > 0 ? latestEntryBeforeEnd[0].value : 0;
+
+        return valueBeforeEnd - valueBeforeStart;
     });
 }
 

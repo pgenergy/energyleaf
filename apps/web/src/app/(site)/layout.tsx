@@ -5,7 +5,7 @@ import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
-import { HomeIcon, LightbulbIcon, MicrowaveIcon, AreaChartIcon } from "lucide-react";
+import { AreaChartIcon, HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
 
 import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
 

@@ -1,14 +1,20 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { deleteAccountSchema, mailSettingsSchema, passwordSchema, userDataSchema } from "@/lib/schema/profile";
+import type {
+    deleteAccountSchema,
+    mailSettingsSchema,
+    passwordSchema,
+    userDataSchema,
+    userGoalSchema,
+} from "@/lib/schema/profile";
 import { Argon2id } from "oslo/password";
 
 import {
     deleteUser,
     getUserById,
-    updateReportSettings,
     updatePassword,
+    updateReportSettings,
     updateUser,
     updateUserData,
 } from "@energyleaf/db/query";
@@ -98,7 +104,7 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
             {
                 receiveMails: data.receiveMails,
                 interval: data.interval,
-                time: data.time
+                time: data.time,
             },
             user.id,
         );
@@ -124,7 +130,6 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
                 tariff: data.tariff,
                 basePrice: data.basePrice,
                 monthlyPayment: data.monthlyPayment,
-                budget: data.budget,
                 livingSpace: data.livingSpace,
                 household: data.people,
                 property: data.houseType,
@@ -144,14 +149,53 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
         await updateUserData(
             {
                 timestamp: new Date(),
-                budget: data.budget,
                 livingSpace: data.livingSpace,
                 household: data.people,
                 property: data.houseType,
                 hotWater: data.hotWater,
                 tariff: data.tariff,
                 basePrice: data.basePrice,
+                workingPrice: data.workingPrice,
                 monthlyPayment: data.monthlyPayment,
+            },
+            user.id,
+        );
+        revalidatePath("/profile");
+        revalidatePath("/dashboard");
+    } catch (e) {
+        throw new Error("Error while updating user");
+    }
+}
+
+export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
+    const { user, session } = await getActionSession();
+
+    if (!session) {
+        throw new UserNotLoggedInError();
+    }
+
+    if (await isDemoUser()) {
+        updateUserDataCookieStore(cookies(), {
+            user_data: {
+                timestamp: new Date(),
+                consumptionGoal: data.goalValue,
+            },
+        } as Partial<UserDataType>);
+        revalidatePath("/profile");
+        revalidatePath("/dashboard");
+        return;
+    }
+
+    const dbuser = await getUserById(user.id);
+    if (!dbuser) {
+        throw new UserNotFoundError();
+    }
+
+    try {
+        await updateUserData(
+            {
+                timestamp: new Date(),
+                consumptionGoal: data.goalValue,
             },
             user.id,
         );

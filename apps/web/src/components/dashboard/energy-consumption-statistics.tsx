@@ -15,7 +15,8 @@ interface EnergyDataItem {
     value: number;
 }
 
-const formatNumber = (number: number) => number.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const formatNumber = (number: number) =>
+    number.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default async function EnergyConsumptionStatisticCard({ startDate, endDate }: Props) {
     const { session, user } = await getSession();
@@ -60,10 +61,9 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
             <CardHeader>
                 <CardTitle>Verbrauchsstatistiken</CardTitle>
                 <CardDescription>
-                    {startDate.toDateString() === endDate.toDateString() ?
-                        format(startDate, "PPP", {locale: de}) :
-                        `${format(startDate, "PPP", {locale: de})} - ${format(endDate, "PPP", {locale: de})}`
-                    }
+                    {startDate.toDateString() === endDate.toDateString()
+                        ? format(startDate, "PPP", { locale: de })
+                        : `${format(startDate, "PPP", { locale: de })} - ${format(endDate, "PPP", { locale: de })}`}
                 </CardDescription>
             </CardHeader>
             <CardContent>

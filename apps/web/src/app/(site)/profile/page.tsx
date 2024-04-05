@@ -1,9 +1,10 @@
-import {redirect} from "next/navigation";
+import { redirect } from "next/navigation";
 import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import ChangePasswordForm from "@/components/profile/change-password-form";
 import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
+import UserGoalsForm from "@/components/profile/user-goals-form";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { getUserData } from "@/query/user";
@@ -23,9 +24,9 @@ export default async function ProfilePage() {
         livingSpace: userData?.user_data.livingSpace || 0,
         people: userData?.user_data.household || 0,
         hotWater: userData?.user_data.hotWater || "electric",
-        budget: userData?.user_data.budget || 0,
         tariff: userData?.user_data.tariff || "basic",
         basePrice: userData?.user_data.basePrice || 0,
+        workingPrice: userData?.user_data.workingPrice || 0,
         monthlyPayment: userData?.user_data.monthlyPayment || 0,
     };
 
@@ -40,6 +41,7 @@ export default async function ProfilePage() {
                 time={userData?.reports.time || 6}
             />
             <UserDataForm initialData={data} />
+            <UserGoalsForm userData={userData?.user_data} />
             <AccountDeletionForm disabled={isDemo} />
         </div>
     );

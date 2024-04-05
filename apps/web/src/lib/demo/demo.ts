@@ -1,4 +1,6 @@
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { GoalState, GoalStatus } from "@/types/goals";
+import { endOfDay, startOfDay } from "date-fns";
 
 import type { DeviceSelectType, PeakSelectType, SensorDataSelectType, UserDataType } from "@energyleaf/db/types";
 
@@ -161,13 +163,12 @@ export function getUserDataCookieStore() {
             livingSpace: 100,
             household: 2,
             hotWater: "electric",
-            budget: 120,
             tariff: "basic",
-            basePrice: 0.4,
+            basePrice: 20,
             monthlyPayment: 2,
-            workingPrice: 0.4,
-            limitEnergy: 800,
+            workingPrice: 0.2,
             timestamp: new Date(2021, 1, 1),
+            consumptionGoal: 20,
         },
     };
 
@@ -180,9 +181,16 @@ export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data:
         return;
     }
 
+    const parsedData = JSON.parse(userData.value) as UserDataType;
     const newData = {
-        ...(JSON.parse(userData.value) as UserDataType),
-        ...data,
+        reports: {
+            ...parsedData.reports,
+            ...data.reports,
+        },
+        user_data: {
+            ...parsedData.user_data,
+            ...data.user_data,
+        },
     };
 
     cookies.set("demo_data", JSON.stringify(newData));
@@ -233,4 +241,20 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
             return null;
         })
         .filter((item) => item !== null) as SensorDataSelectType[];
+}
+
+export function getDemoGoalStatus(dailyGoal: number): GoalStatus[] {
+    const fromDate = startOfDay(new Date());
+    const toDate = endOfDay(new Date());
+
+    const dayValue = getDemoSensorData(fromDate, toDate).reduce((acc, cur) => acc + cur.value, 0);
+
+    const weeklyGoal = dailyGoal * 7;
+    const monthlyGoal = dailyGoal * new Date(fromDate.getFullYear(), fromDate.getMonth() + 1, 0).getDate();
+
+    return [
+        new GoalStatus(dailyGoal, dayValue, dayValue >= dailyGoal ? GoalState.EXCEEDED : GoalState.GOOD, "Tag"),
+        new GoalStatus(weeklyGoal, 0.9 * weeklyGoal, GoalState.IN_DANGER, "Woche"),
+        new GoalStatus(monthlyGoal, 1.1 * monthlyGoal, GoalState.EXCEEDED, "Monat"),
+    ];
 }
