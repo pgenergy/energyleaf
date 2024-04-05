@@ -1,7 +1,8 @@
 import {and, eq, gt, lte, or, sql} from "drizzle-orm";
 
 import db from "../";
-import {historyUserData, user, historyReportConfig, reportConfig, userData} from "../schema";
+import {historyUserData, user, userData} from "../schema";
+import {reportConfig} from "../schema/reports";
 
 /**
  * Get a user by id from the database
@@ -125,42 +126,6 @@ export async function updatePassword(data: Partial<CreateUserType>, id: string) 
     return await db.update(user).set(data).where(eq(user.id, id));
 }
 
-/**
- * Update the user report settings data in the database
- */
-export async function updateReportSettings(data: {
-    receiveMails: boolean;
-    interval: number;
-    time: number;
-}, id: string) {
-
-    return db.transaction(async (trx) => {
-        const oldReportData = await getReportDataByUserId(id);
-        if (!oldReportData) {
-            throw new Error("Old user data not found");
-        }
-        await trx.insert(historyReportConfig).values({
-            id: oldReportData.id,
-            userId: oldReportData.userId,
-            receiveMails: oldReportData.receiveMails,
-            interval: oldReportData.interval,
-            time: oldReportData.time,
-            timestampLast: oldReportData.timestampLast,
-            createdTimestamp: oldReportData.createdTimestamp,
-        });
-
-        await trx
-            .update(reportConfig)
-            .set({
-                receiveMails: data.receiveMails,
-                interval: data.interval,
-                time: data.time,
-                createdTimestamp: new Date(),
-            })
-            .where(eq(reportConfig.userId, id));
-    });
-}
-
 type UpdateUserData = {
     tariff: (typeof userData.tariff.enumValues)[number];
     property: (typeof userData.property.enumValues)[number];
@@ -210,42 +175,4 @@ export async function setUserActive(id: string, isActive: boolean) {
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {
     return db.update(user).set({isAdmin}).where(eq(user.id, id));
-}
-    
-/**
- * Get users with due report to create and send reports </br>
- * the report is due if the current date is greater than the last report date + interval or </br>
- * if the current date is equal to the last report date + interval and the current time is greater than the report time </br>
- *
- * @returns The users with due report
- */
-export async function getUsersWitDueReport() {
-    return db
-        .select({userId: user.id, userName: user.username, email: user.email, receiveMails: reportConfig.receiveMails,
-            interval: reportConfig.interval})
-        .from(reportConfig)
-        .innerJoin(user, eq(user.id, reportConfig.userId))
-        .where(
-            or(
-                gt(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reportConfig.interval),
-                and(
-                    eq(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reportConfig.interval),
-                    lte(reportConfig.time, new Date().getHours())
-                ),
-            )
-        );
-}
-
-export async function getReportDataByUserId(id: string) {
-    const data = await db.select().from(reportConfig).where(eq(reportConfig.userId, id));
-
-    if (data.length === 0) {
-        return null;
-    }
-
-    return data[0];
-}
-
-export async function updateLastReportTimestamp(userId: string) {
-    return db.update(reportConfig).set({timestampLast: new Date()}).where(eq(reportConfig.userId, userId));
 }

@@ -1,7 +1,6 @@
 import {
-    getAvgEnergyConsumptionForSensor,
     getEnergySumForSensorInRange, getUserDataByUserId,
-    getUsersWitDueReport,
+    getUsersWitDueReport, saveReport,
     updateLastReportTimestamp
 } from "@energyleaf/db/query";
 import {DayStatistics, ReportProps, sendReport} from "@energyleaf/mail";
@@ -16,7 +15,6 @@ interface UserReportData {
     email: string;
     receiveMails: boolean;
     interval: number;
-
 }
 
 export async function createReportsAndSendMails() {
@@ -48,7 +46,7 @@ export async function createReportsAndSendMails() {
         }
 
         try {
-            // await saveReport(props);
+            await saveReport(reportProps, );
             savedReports++;
         } catch (e) {
             console.error(`Error saving report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);

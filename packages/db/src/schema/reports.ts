@@ -45,8 +45,9 @@ export const reports = mysqlTable("reports", {
         .notNull(),
     avgEnergyCost: float("avg_energy_cost")
         .notNull(),
-    highestPeakSensorDataId:  varchar("highest_peak_sensor_data_id", { length: 35 })
-        .notNull(),
+    highestPeakDateTime: timestamp("highest_peak_date_time"),
+    highestPeakDeviceName: varchar("highest_peak_device_name", { length: 255 }),
+    highestPeakConsumption: varchar("highest_peak_consumption", { length: 255 }),
 });
 
 export const reportsDayStatistics = mysqlTable("reports_day_statistics", {
@@ -61,5 +62,7 @@ export const reportsDayStatistics = mysqlTable("reports_day_statistics", {
         .notNull(),
     dailyGoal: float("daily_goal"),
     exceeded: boolean("exceededf"),
-    progress: float("progress")
+    progress: float("progress"),
+    reportId: varchar("report_id", { length: 35 })
+        .notNull(),
 });
