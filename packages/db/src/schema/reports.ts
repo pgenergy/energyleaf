@@ -31,6 +31,8 @@ export const reports = mysqlTable("reports", {
         .primaryKey()
         .notNull()
         .$defaultFn(() => nanoid(35)),
+    userId: varchar("user_id", { length: 30 })
+        .notNull(),
     dateFrom: timestamp("date_from")
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),

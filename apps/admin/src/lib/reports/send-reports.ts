@@ -46,7 +46,7 @@ export async function createReportsAndSendMails() {
         }
 
         try {
-            await saveReport(reportProps, );
+            await saveReport(reportProps, userReport.userId);
             savedReports++;
         } catch (e) {
             console.error(`Error saving report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);

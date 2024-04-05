@@ -81,20 +81,26 @@ export async function getUsersWitDueReport() {
         );
 }
 
-export async function saveReport(reportProps: ReportProps) {
+export async function saveReport(reportProps: ReportProps, userId: string) {
     return db.transaction(async (trx) => {
         await trx.insert(reports).values({
-            id: reportProps.id,
             dateFrom: reportProps.dateFrom,
             dateTo: reportProps.dateTo,
+            userId: userId,
             totalEnergyConsumption: reportProps.totalEnergyConsumption,
             avgEnergyConsumptionPerDay: reportProps.avgEnergyConsumptionPerDay,
             totalEnergyCost: reportProps.totalEnergyCost,
             avgEnergyCost: reportProps.avgEnergyCost,
-            highestPeakDateTime: reportProps.highestPeakDateTime,
-            highestPeakDeviceName: reportProps.highestPeakDeviceName,
-            highestPeakConsumption: reportProps.highestPeakConsumption,
+            highestPeakDateTime: reportProps.highestPeak.dateTime,
+            highestPeakDeviceName: reportProps.highestPeak.deviceName,
+            highestPeakConsumption: reportProps.highestPeak.consumption,
         });
+        const newReport = await trx
+            .select({id: reports.id,}).from(reports)
+            .where(and(eq(reports.userId, userId), eq(reports.dateFrom, reportProps.dateFrom)));
+
+        const reportID = newReport[0].id;
+
         const tasks = reportProps.dayEnergyStatistics.map(async (dayStat: DayStatistics) => {
             await trx.insert(reportsDayStatistics).values({
                 date: dayStat.day,
@@ -102,7 +108,7 @@ export async function saveReport(reportProps: ReportProps) {
                 progress: dayStat.progress,
                 exceeded: dayStat.exceeded,
                 dailyGoal: dayStat.dailyGoal,
-                reportId: reportProps.id,
+                reportId: reportID,
             });
         })
         await Promise.all(tasks);
