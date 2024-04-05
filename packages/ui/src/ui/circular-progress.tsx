@@ -13,7 +13,7 @@ const circularProgressVariants = cva(
                 default: "stroke-primary",
                 destructive: "stroke-destructive",
                 secondary: "stroke-secondary",
-                warning: "stroke-yellow-600"
+                warning: "stroke-warning"
             }
         },
         defaultVariants: {

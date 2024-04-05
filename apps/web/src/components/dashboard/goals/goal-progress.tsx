@@ -17,7 +17,7 @@ export default function GoalProgress({ goal }: Props) {
             case GoalState.GOOD:
                 return "text-primary";
             case GoalState.IN_DANGER:
-                return "text-yellow-600";
+                return "text-warning";
             case GoalState.EXCEEDED:
                 return "text-destructive";
         }
