@@ -39,7 +39,7 @@ const config = {
                     foreground: "hsl(var(--destructive-foreground))",
                 },
                 warning: {
-                    DEFAULT: "hsl(var(--warning))"
+                    DEFAULT: "hsl(var(--warning))",
                 },
                 muted: {
                     DEFAULT: "hsl(var(--muted))",

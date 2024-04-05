@@ -1,7 +1,7 @@
-import {and, eq, gt, lte, or, sql} from "drizzle-orm";
+import { and, eq, gt, lte, or, sql } from "drizzle-orm";
 
 import db from "../";
-import {historyUserData, user, historyReports, reports, userData} from "../schema";
+import { historyReports, historyUserData, reports, user, userData } from "../schema";
 
 /**
  * Get a user by id from the database
@@ -128,12 +128,14 @@ export async function updatePassword(data: Partial<CreateUserType>, id: string) 
 /**
  * Update the user report settings data in the database
  */
-export async function updateReportSettings(data: {
-    receiveMails: boolean;
-    interval: number;
-    time: number;
-}, id: string) {
-
+export async function updateReportSettings(
+    data: {
+        receiveMails: boolean;
+        interval: number;
+        time: number;
+    },
+    id: string,
+) {
     return db.transaction(async (trx) => {
         const oldReportData = await getReportDataByUserId(id);
         if (!oldReportData) {
@@ -181,7 +183,7 @@ export async function updateUserData(data: Partial<UpdateUserData>, id: string) 
             throw new Error("Old user data not found");
         }
 
-        await trx.insert(historyUserData).values({...oldUserData, id: undefined});
+        await trx.insert(historyUserData).values({ ...oldUserData, id: undefined });
         await trx.update(userData).set(data).where(eq(userData.userId, id));
     });
 }
@@ -197,21 +199,21 @@ export async function getUserDataByUserId(id: string) {
 }
 
 export async function deleteUser(id: string) {
-    return  db.delete(user).where(eq(user.id, id));
+    return db.delete(user).where(eq(user.id, id));
 }
 
 export async function getAllUsers() {
-    return  db.select().from(user);
+    return db.select().from(user);
 }
 
 export async function setUserActive(id: string, isActive: boolean) {
-    return  db.update(user).set({ isActive }).where(eq(user.id, id));
+    return db.update(user).set({ isActive }).where(eq(user.id, id));
 }
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {
-    return db.update(user).set({isAdmin}).where(eq(user.id, id));
+    return db.update(user).set({ isAdmin }).where(eq(user.id, id));
 }
-    
+
 /**
  * Get users with due report to create and send reports </br>
  * the report is due if the current date is greater than the last report date + interval or </br>
@@ -221,7 +223,7 @@ export async function setUserAdmin(id: string, isAdmin: boolean) {
  */
 export async function getUsersWitDueReport() {
     return db
-        .select({userId: user.id, userName: user.username, email: user.email, receiveMails: reports.receiveMails})
+        .select({ userId: user.id, userName: user.username, email: user.email, receiveMails: reports.receiveMails })
         .from(reports)
         .innerJoin(user, eq(user.id, reports.userId))
         .where(
@@ -229,9 +231,9 @@ export async function getUsersWitDueReport() {
                 gt(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reports.interval),
                 and(
                     eq(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reports.interval),
-                    lte(reports.time, new Date().getHours())
+                    lte(reports.time, new Date().getHours()),
                 ),
-            )
+            ),
         );
 }
 
@@ -246,5 +248,5 @@ export async function getReportDataByUserId(id: string) {
 }
 
 export async function updateLastReportTimestamp(userId: string) {
-    return db.update(reports).set({timestampLast: new Date()}).where(eq(reports.userId, userId));
+    return db.update(reports).set({ timestampLast: new Date() }).where(eq(reports.userId, userId));
 }

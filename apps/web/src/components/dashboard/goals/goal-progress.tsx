@@ -1,11 +1,8 @@
-import {CircularProgress} from "@energyleaf/ui";
+import { GoalState, type GoalStatus } from "@/types/goals";
+import { CheckCircleIcon, CircleAlertIcon, XCircleIcon } from "lucide-react";
+
 import { cn } from "@energyleaf/tailwindcss/utils";
-import {
-    CheckCircleIcon,
-    CircleAlertIcon,
-    XCircleIcon
-} from "lucide-react";
-import {type GoalStatus, GoalState} from "@/types/goals";
+import { CircularProgress } from "@energyleaf/ui";
 
 interface Props {
     goal: GoalStatus;
@@ -56,16 +53,16 @@ export default function GoalProgress({ goal }: Props) {
             case GoalState.IN_DANGER:
                 return <CircleAlertIcon className={className} />;
             case GoalState.EXCEEDED:
-                return <XCircleIcon className={className}/>;
+                return <XCircleIcon className={className} />;
         }
     }
 
     function formatValue(value: number) {
-        return value.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        return value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     return (
-        <div className="w-full flex flex-col gap-4 items-center">
+        <div className="flex w-full flex-col items-center gap-4">
             <h2 className={cn("text-center text-xl font-semibold", captionStyle)}>{goal.goalName}</h2>
             <div className="flex flex-row items-center gap-2" title={tooltip}>
                 <CircularProgress progress={goal.progress} variant={progressVariant} strokeWidth={8} size={130}>

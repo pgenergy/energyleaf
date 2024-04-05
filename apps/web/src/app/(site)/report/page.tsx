@@ -1,6 +1,6 @@
-import {Card, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
 import React from "react";
 
+import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 export default function ReportPage() {
     return (
