@@ -18,6 +18,15 @@ export const POST = async (req: NextRequest) => {
         const binaryData = await parseReadableStream(body);
         const data = SensorDataRequest.fromBinary(binaryData);
 
+        if (data.value < 0) {
+            return new NextResponse(SensorDataResponse.toBinary({ status: 200 }), {
+                status: 200,
+                headers: {
+                    "Content-Type": "application/x-protobuf",
+                },
+            });
+        }
+
         try {
             const sensorId = await getSensorIdFromSensorToken(data.accessToken);
             const needsSum = data.type === SensorType.ANALOG_ELECTRICITY;
