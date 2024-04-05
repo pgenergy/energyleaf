@@ -27,12 +27,11 @@ export const historyReportConfig = mysqlTable("history_report_config", {
 });
 
 export const reports = mysqlTable("reports", {
-    id: varchar("id", { length: 35 })
+    id: varchar("id", {length: 35})
         .primaryKey()
         .notNull()
         .$defaultFn(() => nanoid(35)),
-    userId: varchar("user_id", { length: 30 })
-        .notNull(),
+    userId: varchar("user_id", {length: 30}).notNull(),
     dateFrom: timestamp("date_from")
         .default(sql`CURRENT_TIMESTAMP`)
         .notNull(),
@@ -48,12 +47,12 @@ export const reports = mysqlTable("reports", {
     avgEnergyCost: float("avg_energy_cost")
         .notNull(),
     highestPeakDateTime: timestamp("highest_peak_date_time"),
-    highestPeakDeviceName: varchar("highest_peak_device_name", { length: 255 }),
-    highestPeakConsumption: varchar("highest_peak_consumption", { length: 255 }),
+    highestPeakDeviceName: varchar("highest_peak_device_name", {length: 255}),
+    highestPeakConsumption: varchar("highest_peak_consumption", {length: 255}),
 });
 
 export const reportsDayStatistics = mysqlTable("reports_day_statistics", {
-    id: varchar("id", { length: 35 })
+    id: varchar("id", {length: 35})
         .primaryKey()
         .notNull()
         .$defaultFn(() => nanoid(35)),
@@ -63,8 +62,8 @@ export const reportsDayStatistics = mysqlTable("reports_day_statistics", {
     dailyConsumption: float("daily_consumption")
         .notNull(),
     dailyGoal: float("daily_goal"),
-    exceeded: boolean("exceededf"),
+    exceeded: boolean("exceeded"),
     progress: float("progress"),
-    reportId: varchar("report_id", { length: 35 })
+    reportId: varchar("report_id", {length: 35})
         .notNull(),
 });
