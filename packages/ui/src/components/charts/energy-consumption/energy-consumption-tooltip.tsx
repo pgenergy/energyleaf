@@ -29,26 +29,29 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
     }
 
     const formattedTimestamp = () => {
-        if (aggregationType === AggregationType.RAW) {
-            return format(new Date(timestamp), "dd.MM.yyyy HH:mm");
-        }
-
-        if (aggregationType === AggregationType.HOUR) {
-            return `${format(new Date(timestamp), "HH")} Uhr`;
-        }
-
-        if (aggregationType === AggregationType.DAY) {
-            return `Tag: ${format(new Date(timestamp), "dd")}`;
-        }
-
-        if (aggregationType === AggregationType.MONTH) {
-            return `Monat: ${format(new Date(timestamp), "MMMM", {
-                locale: de,
-            })}`;
-        }
-
-        if (aggregationType === AggregationType.YEAR) {
-            return `Jahr: ${format(new Date(timestamp), "yyyy")}`;
+        try {
+            const date = new Date(timestamp);
+            if (isNaN(date.getTime())) {
+                throw new Error(`Invalid date: ${timestamp}`);
+            }
+    
+            switch (aggregationType) {
+                case AggregationType.RAW:
+                    return format(date, "dd.MM.yyyy HH:mm");
+                case AggregationType.HOUR:
+                    return `${format(date, "HH")} Uhr`;
+                case AggregationType.DAY:
+                    return `Tag: ${format(date, "dd")}`;
+                case AggregationType.MONTH:
+                    return `Monat: ${format(date, "MMMM", { locale: de })}`;
+                case AggregationType.YEAR:
+                    return `Jahr: ${format(date, "yyyy")}`;
+                default:
+                    return "Unbekanntes Format";
+            }
+        } catch (error) {
+            console.error("Fehler beim Formatieren des Zeitstempels:", error);
+            return "Ungültiges Datum";
         }
     };
 
