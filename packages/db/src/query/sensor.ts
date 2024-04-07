@@ -282,35 +282,44 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
                 throw new Error("Sensor not found");
             }
 
-            if (data.sum) {
-                const lastEntry = await trx
-                    .select()
-                    .from(sensorData)
-                    .where(eq(sensorData.sensorId, userData[0].id))
-                    .orderBy(desc(sensorData.timestamp))
-                    .limit(1);
+            const lastEntry = await trx
+                .select()
+                .from(sensorData)
+                .where(eq(sensorData.sensorId, userData[0].id))
+                .orderBy(desc(sensorData.timestamp))
+                .limit(10);
 
-                if (lastEntry.length === 0) {
-                    await trx.insert(sensorData).values({
-                        sensorId: userData[0].id,
-                        value: data.value,
-                        timestamp: sql<Date>`NOW()`,
-                    });
-                    return;
-                }
-
-                await trx.insert(sensorData).values({
-                    sensorId: userData[0].id,
-                    value: data.value + lastEntry[0].value,
-                    timestamp: sql<Date>`NOW()`,
-                });
-            } else {
+            if (lastEntry.length === 0) {
                 await trx.insert(sensorData).values({
                     sensorId: userData[0].id,
                     value: data.value,
                     timestamp: sql<Date>`NOW()`,
                 });
+                return;
             }
+
+            const newValue = data.sum ? data.value + lastEntry[0].value : data.value;
+            if (newValue < 0) {
+                return;
+            }
+
+            const averageLastValues = lastEntry.reduce((acc, val) => acc + val.value, 0) / lastEntry.length;
+            const lastEntryValue = lastEntry[0].value;
+            if (lastEntryValue > averageLastValues * 10 && newValue < lastEntryValue) {
+                await trx.delete(sensorData).where(eq(sensorData.id, lastEntry[0].id));
+                await trx.insert(sensorData).values({
+                    sensorId: userData[0].id,
+                    value: newValue,
+                    timestamp: sql<Date>`NOW()`,
+                });
+            } else if (newValue >= lastEntryValue) {
+                await trx.insert(sensorData).values({
+                    sensorId: userData[0].id,
+                    value: newValue,
+                    timestamp: sql<Date>`NOW()`,
+                });
+            }
+
         });
     } catch (err) {
         throw err;
