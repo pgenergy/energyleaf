@@ -164,49 +164,26 @@ export async function updateReportSettings(
 }
 
 type UpdateUserData = {
-    budget: number;
     tariff: (typeof userData.tariff.enumValues)[number];
     property: (typeof userData.property.enumValues)[number];
     livingSpace: number;
     hotWater: (typeof userData.hotWater.enumValues)[number];
     household: number;
     basePrice: number;
+    workingPrice: number;
     timestamp: Date;
     monthlyPayment: number;
+    consumptionGoal: number;
 };
 
-export async function updateUserData(data: UpdateUserData, id: string) {
+export async function updateUserData(data: Partial<UpdateUserData>, id: string) {
     return db.transaction(async (trx) => {
         const oldUserData = await getUserDataByUserId(id);
         if (!oldUserData) {
             throw new Error("Old user data not found");
         }
-        await trx.insert(historyUserData).values({
-            userId: oldUserData.userId,
-            timestamp: oldUserData.timestamp,
-            budget: oldUserData.budget,
-            basePrice: oldUserData.basePrice,
-            workingPrice: oldUserData.workingPrice,
-            tariff: oldUserData.tariff,
-            limitEnergy: oldUserData.limitEnergy,
-            household: oldUserData.household,
-            property: oldUserData.property,
-            livingSpace: oldUserData.livingSpace,
-            hotWater: oldUserData.hotWater,
-            monthlyPayment: oldUserData.monthlyPayment,
-        });
 
-        const newHistoryUserData = await trx
-            .select({
-                id: historyUserData.id,
-            })
-            .from(historyUserData)
-            .where(eq(historyUserData.timestamp, oldUserData.timestamp));
-
-        if (newHistoryUserData.length === 0) {
-            throw new Error("History data not found");
-        }
-
+        await trx.insert(historyUserData).values({ ...oldUserData, id: undefined });
         await trx.update(userData).set(data).where(eq(userData.userId, id));
     });
 }
