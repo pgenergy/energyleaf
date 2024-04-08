@@ -53,7 +53,7 @@ export const POST = async (req: NextRequest) => {
                 );
             }
 
-            if ((err as unknown as Error).message === "token/notfound") {
+            if ((err as unknown as Error).message === "token/not-found") {
                 return new NextResponse(
                     ScriptAcceptedResponse.toBinary({ statusMessage: "Token not found", status: 404 }),
                     {
