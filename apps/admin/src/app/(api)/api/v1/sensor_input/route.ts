@@ -17,8 +17,6 @@ export const POST = async (req: NextRequest) => {
     try {
         const binaryData = await parseReadableStream(body);
         const data = SensorDataRequest.fromBinary(binaryData);
-        // eslint-disable-next-line no-console -- for debug
-        console.log(data);
 
         if (data.value < 0) {
             return new NextResponse(SensorDataResponse.toBinary({ status: 200 }), {
