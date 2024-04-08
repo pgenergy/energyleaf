@@ -60,7 +60,7 @@ export const POST = async (req: NextRequest) => {
                 });
             }
 
-            if ((e as unknown as Error).message === "token/notfound") {
+            if ((e as unknown as Error).message === "token/not-found") {
                 return new NextResponse(
                     SensorDataResponse.toBinary({ statusMessage: "Token not found", status: 404 }),
                     {
@@ -72,7 +72,7 @@ export const POST = async (req: NextRequest) => {
                 );
             }
 
-            if ((e as unknown as Error).message === "sensor/notfound") {
+            if ((e as unknown as Error).message === "sensor/not-found") {
                 return new NextResponse(
                     SensorDataResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }),
                     {
