@@ -9,6 +9,10 @@ import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { getUserData } from "@/query/user";
 
+export const metadata = {
+    title: "Profil | Energyleaf",
+};
+
 export default async function ProfilePage() {
     const { session, user } = await getSession();
 

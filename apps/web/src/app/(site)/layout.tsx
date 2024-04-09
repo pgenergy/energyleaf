@@ -9,6 +9,10 @@ import { AreaChartIcon, HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-re
 
 import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
 
+export const metadata = {
+    robots: "noindex, nofollow",
+};
+
 const navLinks = [
     {
         slug: "dashboard",

@@ -2,6 +2,11 @@ import Link from "next/link";
 
 import { CardContent, Separator } from "@energyleaf/ui";
 
+export const metadata = {
+    title: "Konto erstellt | Energyleaf",
+    robots: "noindex, nofollow",
+};
+
 export default function AccountCreatedPage() {
     return (
         <CardContent>
