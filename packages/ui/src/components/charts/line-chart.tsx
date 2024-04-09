@@ -182,7 +182,9 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                         x1={leftValue.activeLabel}
                         x2={rightValue.activeLabel}
                         strokeOpacity={0.3}
-                        color="hsl(var(--primary))"
+                        stroke="hsl(var(--primary))"
+                        fill="hsl(var(--primary))"
+                        fillOpacity={0.2}
                     />
                 ) : null}
             </AreaChart>
