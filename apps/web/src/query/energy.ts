@@ -18,9 +18,7 @@ import { AggregationType } from "@energyleaf/lib";
 export const getEnergyDataForSensor = cache(
     async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) => {
         if (sensorId === "demo_sensor") {
-            const demoStart = new Date(new Date().setHours(0, 0, 0, 0));
-            const demoEnd = new Date(new Date().setHours(23, 59, 59, 999));
-            return getDemoSensorData(demoStart, demoEnd);
+            return getDemoSensorData(start, end);
         }
         return getDbEnergyForSensorInRange(start, end, sensorId, aggregation);
     },

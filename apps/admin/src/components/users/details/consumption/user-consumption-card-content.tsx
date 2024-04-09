@@ -15,6 +15,12 @@ export default function UserConsumptionCardContent({ userId }: Props) {
     const data = useConsumptionData(userId);
     const context = useUserContext();
 
+    function handleZoom(start: Date, end: Date) {
+        context.setStartDate(start);
+        context.setEndDate(end);
+        context.setZoomed(true);
+    }
+
     return (
         <div className="h-96 w-full">
             {data.length === 0 ? (
@@ -22,7 +28,7 @@ export default function UserConsumptionCardContent({ userId }: Props) {
                     <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                 </div>
             ) : (
-                <EnergyConsumptionChart aggregation={context.aggregationType} data={data} />
+                <EnergyConsumptionChart aggregation={context.aggregationType} data={data} zoomCallback={handleZoom} />
             )}
         </div>
     );
