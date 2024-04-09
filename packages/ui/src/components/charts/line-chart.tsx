@@ -1,9 +1,20 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { clsx } from "clsx";
 import { format, isValid } from "date-fns";
-import { Area, AreaChart, Label, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+    Area,
+    AreaChart,
+    Label,
+    ReferenceArea,
+    ReferenceDot,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from "recharts";
+import type { CategoricalChartState } from "recharts/types/chart/types";
 
 type AxesValue = string | number | undefined;
 
@@ -27,9 +38,12 @@ interface Props {
         yKeyName: string;
         callback?: (value: Record<string, AxesValue>) => void;
     };
+    zoomCallback?: (left: Date, right: Date) => void;
 }
 
-export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoints }: Props) {
+export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoints, zoomCallback }: Props) {
+    const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
+    const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
     const formatter = useCallback(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tickFormatter is any
         (value: any, _index: number) => {
@@ -49,6 +63,26 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
         [data, xAxes],
     );
 
+    const handleZoom = () => {
+        if (!leftValue || !rightValue || !zoomCallback) return;
+
+        const leftX = leftValue.activeLabel;
+        const rightX = rightValue.activeLabel;
+
+        if (!leftX || !rightX) return;
+
+        let leftDate = new Date(leftX);
+        let rightDate = new Date(rightX);
+
+        if (leftDate.getTime() > rightDate.getTime()) {
+            [leftDate, rightDate] = [rightDate, leftDate];
+        }
+
+        zoomCallback(leftDate, rightDate);
+        setLeftValue(null);
+        setRightValue(null);
+    };
+
     return (
         <ResponsiveContainer height="100%" width="100%">
             <AreaChart
@@ -59,6 +93,17 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     left: 0,
                     bottom: 0,
                 }}
+                onMouseDown={(e) => {
+                    if (!zoomCallback) return;
+
+                    setLeftValue(e);
+                }}
+                onMouseMove={(e) => {
+                    if (!leftValue || !zoomCallback) return;
+
+                    setRightValue(e);
+                }}
+                onMouseUp={handleZoom}
             >
                 <defs>
                     <linearGradient id="color" x1="0" x2="0" y1="0" y2="1">
@@ -116,9 +161,9 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                                   className={clsx(referencePoints.callback ? "cursor-pointer" : "cursor-default")}
                                   fill="hsl(var(--destructive))"
                                   isFront
-                                  key={`${value[referencePoints.xKeyName]?.toString()}-${value[
-                                      referencePoints.yKeyName
-                                  ]?.toString()}`}
+                                  key={`${value[referencePoints.xKeyName]?.toString() || ""}-${
+                                      value[referencePoints.yKeyName]?.toString() || ""
+                                  }`}
                                   onClick={() => {
                                       if (referencePoints.callback) {
                                           referencePoints.callback(value);
@@ -132,6 +177,14 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                           );
                       })
                     : null}
+                {leftValue && rightValue && zoomCallback ? (
+                    <ReferenceArea
+                        x1={leftValue.activeLabel}
+                        x2={rightValue.activeLabel}
+                        strokeOpacity={0.3}
+                        color="hsl(var(--primary))"
+                    />
+                ) : null}
             </AreaChart>
         </ResponsiveContainer>
     );
