@@ -21,6 +21,7 @@ import {track} from "@vercel/analytics";
 import {toast} from "sonner";
 import {updateUserGoals} from "@/actions/profile";
 import type {UserDataSelectType} from "@energyleaf/db/types";
+import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 
 interface Props {
     userData: UserDataSelectType | undefined;
@@ -58,22 +59,7 @@ export default function UserGoalsForm({userData}: Props) {
             <CardContent>
                 <Form {...form}>
                     <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-                        <FormField
-                            control={form.control}
-                            name="goalValue"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Zielverbrauch (in kWh)</FormLabel>
-                                    <FormDescription>
-                                        Hier können Sie Ihren Zielverbrauch für einen Tag festlegen.
-                                    </FormDescription>
-                                    <FormControl>
-                                        <Input type="number" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <UserGoalsFormFields form={form} />
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending} type="submit">
                                 {isPending ? <Spinner className="mr-2 h-4 w-4"/> : null}
