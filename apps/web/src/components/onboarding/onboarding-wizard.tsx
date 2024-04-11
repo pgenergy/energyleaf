@@ -3,7 +3,7 @@
 import {cookies} from "next/headers";
 import {Button, Form, Skeleton, useWizard, Wizard, WizardPage} from "@energyleaf/ui";
 import {completeOnboarding} from "@/actions/onboarding";
-import React, {useMemo, useTransition} from "react";
+import React, {useMemo, useState, useTransition} from "react";
 import {ArrowRight, ArrowRightIcon} from "lucide-react";
 import Link from "next/link";
 import UserGoalsForm from "@/components/profile/user-goals-form";
@@ -12,19 +12,25 @@ import type {z} from "zod";
 import {userGoalSchema} from "@/lib/schema/profile";
 import {zodResolver} from "@hookform/resolvers/zod";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
+import {UserDataSelectType} from "@energyleaf/db/types";
+import {updateUserGoals} from "@/actions/profile";
+import {toast} from "sonner";
 
-export default function OnboardingWizard() {
-    const [pending, startTransition] = useTransition();
-
-    function onClick() {
-        startTransition(completeOnboarding);
+export default function OnboardingWizard({userData}: StepProps) {
+    function finishHandler() {
+        toast.promise(completeOnboarding(), {
+            loading: "Schließe Onboarding ab...",
+            success: "Onboarding abgeschlossen",
+            error: "Fehler beim Abschließen des Onboardings"
+        });
     }
 
     return (
-        <Wizard>
+        <Wizard finishHandler={finishHandler}>
             <InformationStep />
-            <UserDataStep />
-            <GoalStep />
+            <GoalStep userData={userData} />
+            <UserDataStep userData={userData} />
+            <ThankYouStep />
         </Wizard>
     )
 }
@@ -51,7 +57,11 @@ function InformationStep() {
     )
 }
 
-function UserDataStep() {
+interface StepProps {
+    userData: UserDataSelectType;
+}
+
+function UserDataStep({userData}: StepProps) {
     const { handleStep } = useWizard();
     handleStep(async () => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -64,7 +74,7 @@ function UserDataStep() {
     )
 }
 
-function GoalStep() {
+function GoalStep({userData}: StepProps) {
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
@@ -72,12 +82,17 @@ function GoalStep() {
         }
     });
 
-    const { handleNextClick } = useWizard();
+    const { handleNextClick, handleStep } = useWizard();
 
     handleNextClick(async (onSuccess) => {
-        await form.handleSubmit(async (data: z.infer<typeof userGoalSchema>) => {
+        await form.handleSubmit(async () => {
             await onSuccess();
         })();
+    });
+
+    handleStep(async () => {
+        const data: z.infer<typeof userGoalSchema> = form.getValues();
+        await updateUserGoals(data);
     });
 
     return (
@@ -89,4 +104,13 @@ function GoalStep() {
             </Form>
         </WizardPage>
     )
+}
+
+function ThankYouStep() {
+    return (
+        <WizardPage title="Vielen Dank!">
+            Danke, dass Sie uns die nötigen Daten zur Verfügung gestellt haben! Sie können die App nun in vollem Umfang
+            nutzen.
+        </WizardPage>
+    );
 }

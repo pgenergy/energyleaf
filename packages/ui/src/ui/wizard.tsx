@@ -1,9 +1,10 @@
 "use client";
 
-import React, {PropsWithChildren, useContext, useMemo, useRef} from "react";
+import React, {PropsWithChildren, useContext, useMemo, useRef, useTransition} from "react";
 import {Button} from "./button";
 import {ArrowLeft, ArrowRight} from "lucide-react";
 import {Handler, useWizard as useWiz, Wizard as Wiz} from "react-use-wizard";
+import {toast} from "sonner";
 
 type NextClickHandler = (onSuccess: () => Promise<void>) => Promise<void>;
 
@@ -24,7 +25,11 @@ const useWizard = () => {
     return context;
 };
 
-const Wizard: React.FC<PropsWithChildren> = ({children}) => {
+interface WizardProps extends PropsWithChildren {
+    finishHandler: () => void;
+}
+
+const Wizard: React.FC<WizardProps> = ({ children, finishHandler }) => {
     const nextClickHandler = useRef<NextClickHandler | null>(null);
 
     const handleNextClick = (handler: NextClickHandler) => {
@@ -37,7 +42,7 @@ const Wizard: React.FC<PropsWithChildren> = ({children}) => {
 
     return (
         <WizardContext.Provider value={{handleNextClick, handleStep}}>
-            <Wiz footer={<WizardStepper nextClick={nextClickHandler} />} wrapper={<div className="pb-3" />}>
+            <Wiz footer={<WizardStepper nextClick={nextClickHandler} finishHandler={finishHandler} />} wrapper={<div className="pb-3" />}>
                 {children}
             </Wiz>
         </WizardContext.Provider>
@@ -59,9 +64,10 @@ const WizardPage: React.FC<WizardPageProps> = ({children, title}) => {
 
 interface WizardStepperProps {
     nextClick: React.MutableRefObject<NextClickHandler | null>;
+    finishHandler: () => void;
 }
 
-function WizardStepper({nextClick}: WizardStepperProps) {
+function WizardStepper({nextClick, finishHandler}: WizardStepperProps) {
     const {
         nextStep,
         previousStep,
@@ -74,7 +80,16 @@ function WizardStepper({nextClick}: WizardStepperProps) {
 
     const continueButtonVariant = useMemo(() => isLastStep ? "default" : "ghost", [isLastStep]);
 
+    const [isFinishing, startTransition] = useTransition();
+    const loading = useMemo(() => isLoading || isFinishing, [isLoading, isFinishing]);
+
     async function onNextClick() {
+        if (isLastStep) {
+            // nextStep will not trigger anything when the last step is reached. Instead, call custom finish handler
+            startTransition(finishHandler);
+            return;
+        }
+
         const currentNextClick = nextClick.current;
         if (!currentNextClick) {
             await nextStep();
@@ -101,7 +116,7 @@ function WizardStepper({nextClick}: WizardStepperProps) {
             <p className="flex justify-center">
                 Schritt {activeStep + 1} von {stepCount}
             </p>
-            <Button variant={continueButtonVariant} onClick={onNextClick} disabled={isLoading}>
+            <Button variant={continueButtonVariant} onClick={onNextClick} disabled={loading}>
                 {isLastStep ? "Fertig" : "Weiter"}
                 <ArrowRight />
             </Button>
