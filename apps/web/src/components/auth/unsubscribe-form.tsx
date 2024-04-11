@@ -10,6 +10,7 @@ import {reportSettingsSchema} from "@/lib/schema/profile";
 import ReportConfigForm from "@/components/profile/report-config-form";
 import {updateReportConfigSettings} from "@/actions/auth";
 import {Card} from "@energyleaf/ui";
+import {useRouter} from "next/navigation";
 
 interface Props {
     reportConfig: z.infer<typeof reportSettingsSchema>;
@@ -22,7 +23,7 @@ export default function UnsubscribeForm({reportConfig, userId}: Props) {
         resolver: zodResolver(reportSettingsSchema),
         defaultValues: reportConfig,
     });
-
+    const router = useRouter();
     function onSubmit(data: z.infer<typeof reportSettingsSchema>) {
         setError("");
         toast.promise(updateReportConfigSettings(data, userId), {
@@ -33,6 +34,7 @@ export default function UnsubscribeForm({reportConfig, userId}: Props) {
                 return "Fehler beim Anmelden";
             },
         });
+        router.push("/unsubscribed")
     }
 
     return <ReportConfigForm onSubmit={onSubmit} reportConfig={reportConfig}/>;
