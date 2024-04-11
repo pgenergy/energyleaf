@@ -32,7 +32,7 @@ export default function UserGoalsForm({userData}: Props) {
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
-            goalValue: userData?.consumptionGoal || presetConsumptionGoal(userData),
+            goalValue: userData?.consumptionGoal || 0,
         },
         mode: "onChange"
     });
@@ -78,16 +78,4 @@ export default function UserGoalsForm({userData}: Props) {
             </CardContent>
         </Card>
     );
-}
-
-function presetConsumptionGoal(userData: UserDataSelectType | undefined) {
-    if (!userData?.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
-        return 0;
-    }
-
-    const yearlyPayment = userData.monthlyPayment * 12;
-    const variableCosts = yearlyPayment - userData.basePrice;
-    const monthlyVariableCosts = variableCosts / 12;
-    const consumptionGoal = monthlyVariableCosts / userData.workingPrice;
-    return Math.round(consumptionGoal);
 }

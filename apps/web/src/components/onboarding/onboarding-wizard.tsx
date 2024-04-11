@@ -4,7 +4,7 @@ import {cookies} from "next/headers";
 import {Button, Form, Skeleton, useWizard, Wizard, WizardPage} from "@energyleaf/ui";
 import {completeOnboarding} from "@/actions/onboarding";
 import React, {useMemo, useState, useTransition} from "react";
-import {ArrowRight, ArrowRightIcon} from "lucide-react";
+import {ArrowRight, ArrowRightIcon, InfoIcon} from "lucide-react";
 import Link from "next/link";
 import UserGoalsForm from "@/components/profile/user-goals-form";
 import {useForm} from "react-hook-form";
@@ -28,8 +28,8 @@ export default function OnboardingWizard({userData}: StepProps) {
     return (
         <Wizard finishHandler={finishHandler}>
             <InformationStep />
-            <GoalStep userData={userData} />
             <UserDataStep userData={userData} />
+            <GoalStep userData={userData} />
             <ThankYouStep />
         </Wizard>
     )
@@ -75,10 +75,28 @@ function UserDataStep({userData}: StepProps) {
 }
 
 function GoalStep({userData}: StepProps) {
+    const goalCalculated = useMemo(() => {
+        return !Boolean(userData?.consumptionGoal);
+    }, [userData]);
+
+    function calculateGoal(userData: UserDataSelectType) {
+        if (!userData?.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
+            return 0;
+        }
+
+        const yearlyPayment = userData.monthlyPayment * 12;
+        const variableCosts = yearlyPayment - userData.basePrice;
+        const monthlyVariableCosts = variableCosts / 12;
+        const consumptionGoal = monthlyVariableCosts / userData.workingPrice;
+        return Math.round(consumptionGoal);
+    }
+
+    console.log(userData)
+
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
-            goalValue: 0, // TODO: Preset
+            goalValue: goalCalculated ? calculateGoal(userData) : userData?.consumptionGoal ?? 0
         }
     });
 
@@ -99,7 +117,7 @@ function GoalStep({userData}: StepProps) {
         <WizardPage title="Test">
             <Form {...form}>
                 <form className="flex flex-col gap-4">
-                    <UserGoalsFormFields form={form} />
+                    <UserGoalsFormFields form={form} goalIsCalculated={goalCalculated} />
                 </form>
             </Form>
         </WizardPage>

@@ -3,12 +3,18 @@ import type {z} from "zod";
 import {userGoalSchema} from "@/lib/schema/profile";
 import {FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Input} from "@energyleaf/ui";
 import React from "react";
+import {CircleHelp, FileQuestionIcon} from "lucide-react";
 
 interface Props {
     form: UseFormReturn<z.infer<typeof userGoalSchema>>;
+    goalIsCalculated: boolean;
 }
 
-export default function UserGoalsFormFields({form} : Props) {
+UserGoalsFormFields.defaultProps = {
+    goalIsCalculated: false
+}
+
+export default function UserGoalsFormFields({form, goalIsCalculated} : Props) {
     return (
         <FormField
             control={form.control}
@@ -20,11 +26,28 @@ export default function UserGoalsFormFields({form} : Props) {
                         Hier können Sie Ihren Zielverbrauch für einen Tag festlegen.
                     </FormDescription>
                     <FormControl>
-                        <Input type="number" {...field} />
+                        <div className="flex flex-row items-center">
+                            <Input type="number" {...field} />
+                            {
+                                goalIsCalculated && !form.formState.isDirty
+                                    ? <HelpCircle />
+                                    : null
+                            }
+                        </div>
                     </FormControl>
                     <FormMessage />
                 </FormItem>
             )}
         />
+    );
+}
+
+function HelpCircle() {
+    const tooltip = "Dieser Zielverbrauch wurde auf Basis Ihres Strompreises und Ihres Abschlages automatisch berechnet.";
+
+    return (
+        <div title={tooltip}>
+            <CircleHelp className="h-6 w-6 text-muted-foreground ms-1" />
+        </div>
     );
 }

@@ -201,6 +201,7 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
         );
         revalidatePath("/profile");
         revalidatePath("/dashboard");
+        revalidatePath("/onboarding");
     } catch (e) {
         throw new Error("Error while updating user");
     }
