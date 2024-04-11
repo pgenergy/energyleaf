@@ -9,12 +9,13 @@ import Link from "next/link";
 import UserGoalsForm from "@/components/profile/user-goals-form";
 import {useForm} from "react-hook-form";
 import type {z} from "zod";
-import {userGoalSchema} from "@/lib/schema/profile";
+import {userDataSchema, userGoalSchema} from "@/lib/schema/profile";
 import {zodResolver} from "@hookform/resolvers/zod";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 import {UserDataSelectType} from "@energyleaf/db/types";
-import {updateUserGoals} from "@/actions/profile";
+import {updateUserDataInformation, updateUserGoals} from "@/actions/profile";
 import {toast} from "sonner";
+import DataFormFields from "@/components/profile/data-form-fields";
 
 export default function OnboardingWizard({userData}: StepProps) {
     function finishHandler() {
@@ -62,14 +63,41 @@ interface StepProps {
 }
 
 function UserDataStep({userData}: StepProps) {
-    const { handleStep } = useWizard();
+    const form = useForm<z.infer<typeof userDataSchema>>({
+        resolver: zodResolver(userDataSchema),
+        defaultValues: {
+            // TODO: In eigene Methode auslagern? Wird im Profil auch verwendet...
+            houseType: userData.property || "house",
+            livingSpace: userData?.livingSpace || 0,
+            people: userData?.household || 0,
+            hotWater: userData?.hotWater || "electric",
+            tariff: userData?.tariff || "basic",
+            basePrice: userData?.basePrice || 0,
+            workingPrice: userData?.workingPrice || 0,
+            monthlyPayment: userData?.monthlyPayment || 0,
+        }
+    });
+
+    const { handleNextClick, handleStep } = useWizard();
+
+    handleNextClick(async (onSuccess) => {
+        await form.handleSubmit(async () => {
+            await onSuccess();
+        })();
+    });
+
     handleStep(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-    })
+        const data: z.infer<typeof userDataSchema> = form.getValues();
+        await updateUserDataInformation(data);
+    });
 
     return (
         <WizardPage title="Tarif- und Verbrauchsdaten">
-            Test
+            <Form {...form}>
+                <form className="flex flex-col gap-4">
+                    <DataFormFields form={form} />
+                </form>
+            </Form>
         </WizardPage>
     )
 }
@@ -114,7 +142,7 @@ function GoalStep({userData}: StepProps) {
     });
 
     return (
-        <WizardPage title="Test">
+        <WizardPage title="Ziel">
             <Form {...form}>
                 <form className="flex flex-col gap-4">
                     <UserGoalsFormFields form={form} goalIsCalculated={goalCalculated} />

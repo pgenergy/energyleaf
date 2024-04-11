@@ -137,6 +137,7 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
         } as Partial<UserDataType>);
         revalidatePath("/profile");
         revalidatePath("/dashboard");
+        revalidatePath("/onboarding");
         return;
     }
 
