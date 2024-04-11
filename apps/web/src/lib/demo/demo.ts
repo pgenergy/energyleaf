@@ -1,10 +1,10 @@
-import type {ReadonlyRequestCookies} from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { GoalState, GoalStatus } from "@/types/goals";
+import { endOfDay, startOfDay } from "date-fns";
 
-import type {DeviceSelectType, PeakSelectType, SensorDataSelectType, UserDataType} from "@energyleaf/db/types";
+import type { DeviceSelectType, PeakSelectType, SensorDataSelectType, UserDataType } from "@energyleaf/db/types";
 
-import {getActionSession} from "../auth/auth.action";
-import {GoalStatus, GoalState} from "@/types/goals";
-import {endOfDay, startOfDay} from "date-fns";
+import { getActionSession } from "../auth/auth.action";
 
 export async function isDemoUser() {
     const { session, user } = await getActionSession();
@@ -168,7 +168,7 @@ export function getUserDataCookieStore() {
             monthlyPayment: 2,
             workingPrice: 0.2,
             timestamp: new Date(2021, 1, 1),
-            consumptionGoal: 20
+            consumptionGoal: 20,
         },
     };
 
@@ -190,7 +190,7 @@ export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data:
         user_data: {
             ...parsedData.user_data,
             ...data.user_data,
-        }
+        },
     };
 
     cookies.set("demo_data", JSON.stringify(newData));
@@ -255,6 +255,6 @@ export function getDemoGoalStatus(dailyGoal: number): GoalStatus[] {
     return [
         new GoalStatus(dailyGoal, dayValue, dayValue >= dailyGoal ? GoalState.EXCEEDED : GoalState.GOOD, "Tag"),
         new GoalStatus(weeklyGoal, 0.9 * weeklyGoal, GoalState.IN_DANGER, "Woche"),
-        new GoalStatus(monthlyGoal, 1.1 * monthlyGoal, GoalState.EXCEEDED, "Monat")
-    ]
+        new GoalStatus(monthlyGoal, 1.1 * monthlyGoal, GoalState.EXCEEDED, "Monat"),
+    ];
 }

@@ -14,6 +14,10 @@ import { getUserById } from "@/query/user";
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 
+export const metadata = {
+    title: "Nutzerdetails | Energyleaf Admin",
+};
+
 interface Props {
     params: {
         id: string;

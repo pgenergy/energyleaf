@@ -18,6 +18,15 @@ export const POST = async (req: NextRequest) => {
         const binaryData = await parseReadableStream(body);
         const data = SensorDataRequest.fromBinary(binaryData);
 
+        if (data.value < 0) {
+            return new NextResponse(SensorDataResponse.toBinary({ status: 200 }), {
+                status: 200,
+                headers: {
+                    "Content-Type": "application/x-protobuf",
+                },
+            });
+        }
+
         try {
             const sensorId = await getSensorIdFromSensorToken(data.accessToken);
             const needsSum = data.type === SensorType.ANALOG_ELECTRICITY;
@@ -31,6 +40,8 @@ export const POST = async (req: NextRequest) => {
                 },
             });
         } catch (e) {
+            // eslint-disable-next-line no-console -- we need to log the error in the production logs
+            console.error(e);
             if ((e as unknown as Error).message === "token/expired") {
                 return new NextResponse(SensorDataResponse.toBinary({ statusMessage: "Token expired", status: 401 }), {
                     status: 401,
@@ -49,7 +60,7 @@ export const POST = async (req: NextRequest) => {
                 });
             }
 
-            if ((e as unknown as Error).message === "token/notfound") {
+            if ((e as unknown as Error).message === "token/not-found") {
                 return new NextResponse(
                     SensorDataResponse.toBinary({ statusMessage: "Token not found", status: 404 }),
                     {
@@ -61,7 +72,7 @@ export const POST = async (req: NextRequest) => {
                 );
             }
 
-            if ((e as unknown as Error).message === "sensor/notfound") {
+            if ((e as unknown as Error).message === "sensor/not-found") {
                 return new NextResponse(
                     SensorDataResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }),
                     {
@@ -81,6 +92,8 @@ export const POST = async (req: NextRequest) => {
             });
         }
     } catch (err) {
+        // eslint-disable-next-line no-console -- we need to log the error in the production logs
+        console.error(err);
         return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "Invalid data" }), {
             status: 400,
             headers: {

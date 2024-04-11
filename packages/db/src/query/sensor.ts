@@ -1,4 +1,4 @@
-import {and, between, desc, eq, lt, lte, or, sql} from "drizzle-orm";
+import { and, between, desc, eq, lt, lte, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { AggregationType } from "@energyleaf/lib";
@@ -110,19 +110,12 @@ export async function getEnergyForSensorInRange(
     });
 }
 
-export async function getEnergySumForSensorInRange(start: Date,
-                                                   end: Date,
-                                                   sensorId: string) {
+export async function getEnergySumForSensorInRange(start: Date, end: Date, sensorId: string) {
     return await db.transaction(async (trx) => {
         const latestEntryBeforeStart = await trx
             .select({ value: sensorData.value })
             .from(sensorData)
-            .where(
-                and(
-                    eq(sensorData.sensorId, sensorId),
-                    lt(sensorData.timestamp, start),
-                ),
-            )
+            .where(and(eq(sensorData.sensorId, sensorId), lt(sensorData.timestamp, start)))
             .orderBy(desc(sensorData.timestamp))
             .limit(1);
         const valueBeforeStart = latestEntryBeforeStart.length > 0 ? latestEntryBeforeStart[0].value : 0;
@@ -130,12 +123,7 @@ export async function getEnergySumForSensorInRange(start: Date,
         const latestEntryBeforeEnd = await trx
             .select({ value: sensorData.value })
             .from(sensorData)
-            .where(
-                and(
-                    eq(sensorData.sensorId, sensorId),
-                    lte(sensorData.timestamp, end),
-                ),
-            )
+            .where(and(eq(sensorData.sensorId, sensorId), lte(sensorData.timestamp, end)))
             .orderBy(desc(sensorData.timestamp))
             .limit(1);
         const valueBeforeEnd = latestEntryBeforeEnd.length > 0 ? latestEntryBeforeEnd[0].value : 0;
@@ -294,32 +282,40 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
                 throw new Error("Sensor not found");
             }
 
-            if (data.sum) {
-                const lastEntry = await trx
-                    .select()
-                    .from(sensorData)
-                    .where(eq(sensorData.sensorId, userData[0].id))
-                    .orderBy(desc(sensorData.timestamp))
-                    .limit(1);
+            const lastEntries = await trx
+                .select()
+                .from(sensorData)
+                .where(eq(sensorData.sensorId, userData[0].id))
+                .orderBy(desc(sensorData.timestamp))
+                .limit(10);
 
-                if (lastEntry.length === 0) {
-                    await trx.insert(sensorData).values({
-                        sensorId: userData[0].id,
-                        value: data.value,
-                        timestamp: sql<Date>`NOW()`,
-                    });
-                    return;
-                }
-
-                await trx.insert(sensorData).values({
-                    sensorId: userData[0].id,
-                    value: data.value + lastEntry[0].value,
-                    timestamp: sql<Date>`NOW()`,
-                });
-            } else {
+            if (lastEntries.length === 0) {
                 await trx.insert(sensorData).values({
                     sensorId: userData[0].id,
                     value: data.value,
+                    timestamp: sql<Date>`NOW()`,
+                });
+                return;
+            }
+            const lastEntry = lastEntries[0];
+
+            const newValue = data.sum ? data.value + lastEntry.value : data.value;
+            if (newValue < 0 || (!data.sum && newValue == 0)) {
+                return;
+            }
+
+            const averageLastValues = lastEntries.reduce((acc, val) => acc + val.value, 0) / lastEntries.length;
+            if (lastEntry.value > averageLastValues * 2 && newValue < lastEntry.value) {
+                await trx.delete(sensorData).where(eq(sensorData.id, lastEntry.id));
+                await trx.insert(sensorData).values({
+                    sensorId: userData[0].id,
+                    value: newValue,
+                    timestamp: sql<Date>`NOW()`,
+                });
+            } else if (newValue >= lastEntry.value) {
+                await trx.insert(sensorData).values({
+                    sensorId: userData[0].id,
+                    value: newValue,
                     timestamp: sql<Date>`NOW()`,
                 });
             }
@@ -571,6 +567,13 @@ export async function assignSensorToUser(clientId: string, userId: string | null
 
         await trx.update(sensor).set({ userId: userId, id: newId }).where(eq(sensor.clientId, clientId));
     });
+}
+
+/**
+ * Delete the current user from the sensor without inserting it in sensorHistory
+ */
+export async function deleteUserFromSensor(clientId: string) {
+    await db.update(sensor).set({ userId: null }).where(eq(sensor.clientId, clientId));
 }
 
 /**
