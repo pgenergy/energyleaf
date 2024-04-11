@@ -1,5 +1,5 @@
 import {
-    getEnergySumForSensorInRange, getUserDataByUserId,
+    getEnergySumForSensorInRange, getLastReportForUser, getUserDataByUserId,
     getUsersWitDueReport, saveReport,
     updateLastReportTimestamp
 } from "@energyleaf/db/query";
@@ -21,10 +21,10 @@ export async function createReportsAndSendMails() {
     const userReportData: Array<UserReportData> = await getUsersWitDueReport();
 
     const totalReports = userReportData.length;
-    let successfulReports= 0;
+    let successfulReports = 0;
     let sentReports = 0;
-    let savedReports= 0;
-    let updatedLastReportTimestamps= 0;
+    let savedReports = 0;
+    let updatedLastReportTimestamps = 0;
 
     for (const userReport of userReportData) {
         let reportProps: ReportProps;
@@ -90,6 +90,8 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     }
 
     const totalEnergyConsumption = await getEnergySumForSensorInRange(dateFrom, dateTo, sensor);
+    const lastReport = await getLastReportForUser(user.userId);
+
     const avgEnergyConsumption = totalEnergyConsumption / user.interval;
     const workingPrice = userData.workingPrice ?? 0;
     const totalEnergyCost = totalEnergyConsumption * workingPrice;
@@ -110,7 +112,8 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
             dateTime: dateTo,
             deviceName: "my device",
             consumption: "1000 kWh"
-        }
+        },
+        lastReport: lastReport
     };
 }
 

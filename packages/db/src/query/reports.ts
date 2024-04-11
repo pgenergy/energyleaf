@@ -1,4 +1,4 @@
-import {and, eq, gt, lte, or, sql} from "drizzle-orm";
+import {and, desc, eq, gt, lte, or, sql} from "drizzle-orm";
 
 import db from "../";
 import {user} from "../schema/user";
@@ -81,9 +81,56 @@ export async function getUsersWitDueReport() {
         );
 }
 
+export async function getLastReportForUser(userId: string): ReportProps {
+    const userReports = await getReportForUserDescending(userId);
+
+    if (!userReports || userReports.length === 0) {
+        console.log("No report found for user");
+        return null;
+    }
+
+    const lastReport = userReports[0];
+
+    return {
+        id: lastReport.id,
+        dateFrom: new Date(lastReport.dateFrom),
+        dateTo: new Date(lastReport.dateTo),
+        totalEnergyConsumption: lastReport.totalEnergyConsumption,
+        avgEnergyConsumptionPerDay: lastReport.avgEnergyConsumptionPerDay,
+        totalEnergyCost: lastReport.totalEnergyCost,
+        avgEnergyCost: lastReport.avgEnergyCost,
+        highestPeak: {
+            dateTime: new Date(lastReport.highestPeakDateTime ?? new Date(0)),
+            deviceName: lastReport.highestPeakDeviceName,
+            consumption: lastReport.highestPeakConsumption
+        },
+        dayEnergyStatistics: []
+    };
+}
+
+export async function getReportForUserDescending(userId: string) {
+    return db
+        .select({
+            id: reports.id,
+            dateFrom: reports.dateFrom,
+            dateTo: reports.dateTo,
+            totalEnergyConsumption: reports.totalEnergyConsumption,
+            avgEnergyConsumptionPerDay: reports.avgEnergyConsumptionPerDay,
+            totalEnergyCost: reports.totalEnergyCost,
+            avgEnergyCost: reports.avgEnergyCost,
+            highestPeakDateTime: reports.highestPeakDateTime,
+            highestPeakDeviceName: reports.highestPeakDeviceName,
+            highestPeakConsumption: reports.highestPeakConsumption
+        })
+        .from(reports)
+        .where(eq(reports.userId, userId))
+        .orderBy(desc(reports.timestamp));
+}
+
 export async function saveReport(reportProps: ReportProps, userId: string) {
     return db.transaction(async (trx) => {
         await trx.insert(reports).values({
+            timestamp: new Date(),
             dateFrom: reportProps.dateFrom,
             dateTo: reportProps.dateTo,
             userId: userId,

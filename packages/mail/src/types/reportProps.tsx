@@ -33,4 +33,9 @@ export interface ReportProps {
      * base64 image
      */
     consumptionGraph3?: string;
+
+    /**
+     * The values of the last report to compare with the new report
+     */
+    lastReport: ReportProps;
 }

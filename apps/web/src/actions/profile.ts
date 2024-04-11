@@ -15,7 +15,6 @@ import {
     getUserById,
     updateReportConfig,
     updatePassword,
-    updateReportSettings,
     updateUser,
     updateUserData,
 } from "@energyleaf/db/query";
