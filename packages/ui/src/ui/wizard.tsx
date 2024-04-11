@@ -5,6 +5,7 @@ import {Button} from "./button";
 import {ArrowLeft, ArrowRight} from "lucide-react";
 import {Handler, useWizard as useWiz, Wizard as Wiz} from "react-use-wizard";
 import {toast} from "sonner";
+import {Spinner} from "./spinner";
 
 type NextClickHandler = (onSuccess: () => Promise<void>) => Promise<void>;
 
@@ -42,7 +43,10 @@ const Wizard: React.FC<WizardProps> = ({ children, finishHandler }) => {
 
     return (
         <WizardContext.Provider value={{handleNextClick, handleStep}}>
-            <Wiz footer={<WizardStepper nextClick={nextClickHandler} finishHandler={finishHandler} />} wrapper={<div className="pb-3" />}>
+            <Wiz
+                footer={<WizardStepper nextClick={nextClickHandler} finishHandler={finishHandler} />}
+                wrapper={<div className="pb-3" />}
+            >
                 {children}
             </Wiz>
         </WizardContext.Provider>
@@ -54,11 +58,22 @@ interface WizardPageProps extends PropsWithChildren {
 }
 
 const WizardPage: React.FC<WizardPageProps> = ({children, title}) => {
+    const {isLoading} = useWiz();
+
     return (
-        <div>
+        <>
             <h1 className="text-center text-2xl pb-3">{title}</h1>
-            {children}
-        </div>
+            <div className="relative h-full w-full flex justify-center items-center">
+                <div className="w-full">
+                    {children}
+                </div>
+                {isLoading && (
+                    <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-sm">
+                        <Spinner className="w-12 h-12" />
+                    </div>
+                )}
+            </div>
+        </>
     );
 }
 
