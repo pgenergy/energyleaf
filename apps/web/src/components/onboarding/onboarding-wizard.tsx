@@ -3,7 +3,7 @@
 import {cookies} from "next/headers";
 import {Button, Form, Skeleton, useWizard, Wizard, WizardPage} from "@energyleaf/ui";
 import {completeOnboarding} from "@/actions/onboarding";
-import React, {useMemo, useState, useTransition} from "react";
+import React, {useEffect, useMemo, useState, useTransition} from "react";
 import {ArrowRight, ArrowRightIcon, InfoIcon} from "lucide-react";
 import Link from "next/link";
 import UserGoalsForm from "@/components/profile/user-goals-form";
@@ -37,6 +37,14 @@ export default function OnboardingWizard({userData}: StepProps) {
 }
 
 function InformationStep() {
+    function onSkip() {
+        toast.promise(completeOnboarding(), {
+            loading: "Überspringe Onboarding...",
+            success: "Onboarding übersprungen",
+            error: "Fehler beim Überspringen des Onboardings"
+        });
+    }
+
     return (
         <WizardPage title="Onboarding">
             <p>
@@ -49,6 +57,7 @@ function InformationStep() {
                 <Button
                     className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
                     variant="ghost"
+                    onClick={onSkip}
                 >
                     Überspringen
                     <ArrowRightIcon className="h-4 w-4" />
