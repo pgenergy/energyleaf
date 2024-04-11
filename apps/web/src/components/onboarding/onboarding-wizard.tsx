@@ -3,7 +3,7 @@
 import {cookies} from "next/headers";
 import {Button, Form, Skeleton, useWizard, Wizard, WizardPage} from "@energyleaf/ui";
 import {completeOnboarding} from "@/actions/onboarding";
-import React, {useEffect, useMemo, useState, useTransition} from "react";
+import React, {useCallback, useEffect, useMemo, useState, useTransition} from "react";
 import {ArrowRight, ArrowRightIcon, InfoIcon} from "lucide-react";
 import Link from "next/link";
 import UserGoalsForm from "@/components/profile/user-goals-form";
@@ -116,26 +116,31 @@ function GoalStep({userData}: StepProps) {
         return !Boolean(userData?.consumptionGoal);
     }, [userData]);
 
-    function calculateGoal(userData: UserDataSelectType) {
+    const calculateGoal = useCallback(() => {
         if (!userData?.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
             return 0;
-        }
+        };
 
         const yearlyPayment = userData.monthlyPayment * 12;
         const variableCosts = yearlyPayment - userData.basePrice;
         const monthlyVariableCosts = variableCosts / 12;
         const consumptionGoal = monthlyVariableCosts / userData.workingPrice;
         return Math.round(consumptionGoal);
-    }
 
-    console.log(userData)
+    }, [userData]);
 
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
-            goalValue: goalCalculated ? calculateGoal(userData) : userData?.consumptionGoal ?? 0
+            goalValue: goalCalculated ? calculateGoal() : userData?.consumptionGoal ?? 0
         }
     });
+
+    // Sometimes, the goal value is calculated with outdated data and not updated. To fix this issue, update the goal
+    // value manually.
+    if (!form.formState.isDirty) {
+        form.setValue("goalValue", calculateGoal());
+    }
 
     const { handleNextClick, handleStep } = useWizard();
 
