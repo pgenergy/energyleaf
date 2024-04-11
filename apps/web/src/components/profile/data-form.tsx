@@ -159,7 +159,7 @@ export default function UserDataForm({ initialData, disabled }: Props) {
                                 <FormItem>
                                     <FormLabel>Strom-Grundpreis (in €)</FormLabel>
                                     <FormControl>
-                                            <Input type="number" {...field} disabled={disabled} />
+                                        <Input type="number" {...field} disabled={disabled} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

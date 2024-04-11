@@ -1,6 +1,10 @@
-import {Card, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
 import React from "react";
 
+import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+
+export const metadata = {
+    title: "Berichte | Energyleaf",
+};
 
 export default function ReportPage() {
     return (

@@ -6,7 +6,6 @@ import { cn } from "@energyleaf/tailwindcss/utils";
 import {
     Button,
     Command,
-    CommandEmpty,
     CommandGroup,
     CommandInput,
     CommandItem,
@@ -68,36 +67,44 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
                 <Command>
                     <CommandInput placeholder="Nutzer Suchen" />
                     <CommandList>
-                        <CommandEmpty>
-                            {isLoading ? (
+                        <CommandGroup heading="Aktionen">
+                            <CommandItem
+                                onSelect={() => {
+                                    onUserSelected(null);
+                                    setIsOpen(false);
+                                }}
+                            >
+                                <CheckIcon
+                                    className={cn("mr-2 h-4 w-4", !selectedUserId ? "opacity-100" : "opacity-0")}
+                                />
+                                Nicht zugeordnet
+                            </CommandItem>
+                        </CommandGroup>
+                        <CommandGroup heading="Nutzer">
+                            {!isLoading ? (
+                                users.map((user) => (
+                                    <CommandItem
+                                        key={user.id}
+                                        onSelect={() => {
+                                            onUserSelected(user.id);
+                                            setIsOpen(false);
+                                        }}
+                                        value={user.name}
+                                    >
+                                        <CheckIcon
+                                            className={cn(
+                                                "mr-2 h-4 w-4",
+                                                selectedUserId === user.id ? "opacity-100" : "opacity-0",
+                                            )}
+                                        />
+                                        {user.name}
+                                    </CommandItem>
+                                ))
+                            ) : (
                                 <div className="flex justify-center">
                                     <Spinner />
                                 </div>
-                            ) : (
-                                "Kein Nutzer gefunden"
                             )}
-                        </CommandEmpty>
-                        <CommandGroup>
-                            {!isLoading
-                                ? users.map((user) => (
-                                      <CommandItem
-                                          key={user.id}
-                                          onSelect={(currentValue) => {
-                                              onUserSelected(currentValue);
-                                              setIsOpen(false);
-                                          }}
-                                          value={user.id}
-                                      >
-                                          <CheckIcon
-                                              className={cn(
-                                                  "mr-2 h-4 w-4",
-                                                  selectedUserId === user.id ? "opacity-100" : "opacity-0",
-                                              )}
-                                          />
-                                          {user.name}
-                                      </CommandItem>
-                                  ))
-                                : null}
                         </CommandGroup>
                     </CommandList>
                 </Command>

@@ -1,16 +1,17 @@
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
 import React from "react";
-import GoalProgress from "@/components/dashboard/goals/goal-progress";
-import {getSession} from "@/lib/auth/auth.server";
-import {redirect} from "next/navigation";
-import {ArrowRightIcon} from "lucide-react";
 import Link from "next/link";
-import {getElectricitySensorIdForUser} from "@/query/energy";
-import type {GoalStatus} from "@/types/goals";
-import {getGoalStatus} from "@/query/goals";
+import { redirect } from "next/navigation";
+import GoalProgress from "@/components/dashboard/goals/goal-progress";
+import { getSession } from "@/lib/auth/auth.server";
+import { getElectricitySensorIdForUser } from "@/query/energy";
+import { getGoalStatus } from "@/query/goals";
+import type { GoalStatus } from "@/types/goals";
+import { ArrowRightIcon } from "lucide-react";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 export default async function GoalsCard() {
-    const {session, user} = await getSession();
+    const { session, user } = await getSession();
     if (!session) {
         redirect("/");
     }
@@ -40,23 +41,21 @@ export default async function GoalsCard() {
                 <CardDescription>Hier sehen Sie Ihr aktuelles Verbrauchsziel.</CardDescription>
             </CardHeader>
             <CardContent>
-                {
-                    goals.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                            {
-                                goals.map((goal: GoalStatus) => <GoalProgress goal={goal} key={goal.goalName}/>)
-                            }
-                        </div>
-                    ) : (
-                        <Link
-                            className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
-                            href="/profile"
-                        >
-                            Ziel im Profil festlegen
-                            <ArrowRightIcon className="h-4 w-4" />
-                        </Link>
-                    )
-                }
+                {goals.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        {goals.map((goal: GoalStatus) => (
+                            <GoalProgress goal={goal} key={goal.goalName} />
+                        ))}
+                    </div>
+                ) : (
+                    <Link
+                        className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
+                        href="/profile"
+                    >
+                        Ziel im Profil festlegen
+                        <ArrowRightIcon className="h-4 w-4" />
+                    </Link>
+                )}
             </CardContent>
         </Card>
     );

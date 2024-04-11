@@ -10,6 +10,10 @@ import {
     CardTitle,
 } from "@energyleaf/ui";
 
+export const metadata = {
+    title: "FAQ | Energyleaf",
+};
+
 export default function FaqPage() {
     return (
         <Card className="w-full">

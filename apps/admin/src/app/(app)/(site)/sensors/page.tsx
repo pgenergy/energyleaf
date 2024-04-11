@@ -3,6 +3,10 @@ import SensorsOverviewCard from "@/components/sensors/sensors-overview-card";
 
 import { Skeleton } from "@energyleaf/ui";
 
+export const metadata = {
+    title: "Sensoren | Energyleaf Admin",
+};
+
 export default function SensorsPage() {
     return (
         <div className="flex flex-col gap-4">

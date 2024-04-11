@@ -13,6 +13,6 @@ export const computeTimestampLabel = (aggregationParam: AggregationType | undefi
         case AggregationType.HOUR:
             return withWh ? "kWh / Stunde" : "(in Stunden)";
         default:
-            return withWh ? "kWh (Einheit nicht spezifiziert)" : "(Einheit nicht spezifiziert)";
+            return withWh ? "kWh" : "";
     }
 };

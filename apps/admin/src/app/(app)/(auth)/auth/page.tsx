@@ -5,6 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 
 import logo from "../../../../../public/image/logo/logo.png";
 
+export const metadata = {
+    title: "Login | Energyleaf Admin",
+};
+
 export default function AuthPage() {
     return (
         <Card className="w-full max-w-lg">

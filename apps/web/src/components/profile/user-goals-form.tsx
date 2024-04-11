@@ -1,5 +1,15 @@
 "use client";
 
+import React, { useTransition } from "react";
+import { updateUserGoals } from "@/actions/profile";
+import { userGoalSchema } from "@/lib/schema/profile";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+
+import type { UserDataSelectType } from "@energyleaf/db/types";
 import {
     Button,
     Card,
@@ -7,33 +17,30 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-    Form, FormControl, FormDescription,
+    Form,
+    FormControl,
+    FormDescription,
     FormField,
     FormItem,
-    FormLabel, FormMessage, Input, Label, Spinner
+    FormLabel,
+    FormMessage,
+    Input,
+    Label,
+    Spinner,
 } from "@energyleaf/ui";
-import {useForm} from "react-hook-form";
-import type {z} from "zod";
-import {userGoalSchema} from "@/lib/schema/profile";
-import {zodResolver} from "@hookform/resolvers/zod";
-import React, {useTransition} from "react";
-import {track} from "@vercel/analytics";
-import {toast} from "sonner";
-import {updateUserGoals} from "@/actions/profile";
-import type {UserDataSelectType} from "@energyleaf/db/types";
 
 interface Props {
     userData: UserDataSelectType | undefined;
 }
 
-export default function UserGoalsForm({userData}: Props) {
+export default function UserGoalsForm({ userData }: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
             goalValue: userData?.consumptionGoal || presetConsumptionGoal(userData),
         },
-        mode: "onChange"
+        mode: "onChange",
     });
 
     function onSubmit(data: z.infer<typeof userGoalSchema>) {
@@ -51,9 +58,7 @@ export default function UserGoalsForm({userData}: Props) {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Ziele</CardTitle>
-                <CardDescription>
-                    Hier können Sie Ihre Benutzerziele anpassen.
-                </CardDescription>
+                <CardDescription>Hier können Sie Ihre Benutzerziele anpassen.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
@@ -61,7 +66,7 @@ export default function UserGoalsForm({userData}: Props) {
                         <FormField
                             control={form.control}
                             name="goalValue"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Zielverbrauch (in kWh)</FormLabel>
                                     <FormDescription>
@@ -76,7 +81,7 @@ export default function UserGoalsForm({userData}: Props) {
                         />
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending} type="submit">
-                                {isPending ? <Spinner className="mr-2 h-4 w-4"/> : null}
+                                {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
                                 Speichern
                             </Button>
                         </div>

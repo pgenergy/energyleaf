@@ -1,4 +1,4 @@
-import {and, eq, gt, lte, or, sql} from "drizzle-orm";
+import { and, eq, gt, lte, or, sql } from "drizzle-orm";
 
 import db from "../";
 import {historyUserData, user, userData} from "../schema";
@@ -146,7 +146,7 @@ export async function updateUserData(data: Partial<UpdateUserData>, id: string) 
             throw new Error("Old user data not found");
         }
 
-        await trx.insert(historyUserData).values({...oldUserData, id: undefined});
+        await trx.insert(historyUserData).values({ ...oldUserData, id: undefined });
         await trx.update(userData).set(data).where(eq(userData.userId, id));
     });
 }
@@ -162,17 +162,17 @@ export async function getUserDataByUserId(id: string) {
 }
 
 export async function deleteUser(id: string) {
-    return  db.delete(user).where(eq(user.id, id));
+    return db.delete(user).where(eq(user.id, id));
 }
 
 export async function getAllUsers() {
-    return  db.select().from(user);
+    return db.select().from(user);
 }
 
 export async function setUserActive(id: string, isActive: boolean) {
-    return  db.update(user).set({ isActive }).where(eq(user.id, id));
+    return db.update(user).set({ isActive }).where(eq(user.id, id));
 }
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {
-    return db.update(user).set({isAdmin}).where(eq(user.id, id));
+    return db.update(user).set({ isAdmin }).where(eq(user.id, id));
 }
