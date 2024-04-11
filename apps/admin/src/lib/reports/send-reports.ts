@@ -84,7 +84,6 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     const dateTo = new Date();
     dateTo.setDate(dateTo.getDate() - 1);
     dateTo.setHours(23, 59, 59, 999);
-
     const sensor = await getElectricitySensorByUser(user.userId);
     if (!sensor) {
         throw new Error(`No electricity sensor found for User`);
@@ -96,7 +95,6 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     }
 
     const totalEnergyConsumption = await getEnergySumForSensorInRange(dateFrom, dateTo, sensor);
-    const lastReport = await getLastReportForUser(user.userId);
 
     const avgEnergyConsumption = totalEnergyConsumption / user.interval;
     const workingPrice = userData.workingPrice ?? 0;
@@ -104,6 +102,8 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     const avgEnergyCost = avgEnergyConsumption * workingPrice;
 
     const dayStatistics: DayStatistics[] = await getDayStatistics(userData, sensor, dateFrom, user.interval);
+
+    const lastReport = await getLastReportForUser(user.userId);
 
     return {
         name: user.userName,

@@ -20,7 +20,6 @@ export async function updateReportConfig(data: {
             throw new Error("Old user data not found");
         }
         await trx.insert(historyReportConfig).values({
-            id: oldReportData.id,
             userId: oldReportData.userId,
             receiveMails: oldReportData.receiveMails,
             interval: oldReportData.interval,
