@@ -9,6 +9,7 @@ import {z} from "zod";
 import {reportSettingsSchema} from "@/lib/schema/profile";
 import ReportConfigForm from "@/components/profile/report-config-form";
 import {updateReportConfigSettings} from "@/actions/auth";
+import {Card} from "@energyleaf/ui";
 
 interface Props {
     reportConfig: z.infer<typeof reportSettingsSchema>;
@@ -34,10 +35,5 @@ export default function UnsubscribeForm({reportConfig, userId}: Props) {
         });
     }
 
-    return (
-        <div className="flex flex-col gap-2">
-            <p className="text-xl font-bold">Bericht-Einstellungen aktualisieren</p>
-            <ReportConfigForm onSubmit={onSubmit} reportConfig={reportConfig}/>
-        </div>
-    );
+    return <ReportConfigForm onSubmit={onSubmit} reportConfig={reportConfig}/>;
 }

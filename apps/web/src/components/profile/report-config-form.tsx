@@ -47,7 +47,7 @@ export default function ReportConfigForm({reportConfig, disabled, onSubmit}: Pro
                     control={form.control}
                     name="receiveMails"
                     render={({field}) => (
-                        <FormItem className="flex flex-row items-center justify-between">
+                        <FormItem className="flex flex-row gap-2 items-center justify-between">
                             <div className="flex flex-col gap-2">
                                 <FormLabel>Senden der Berichte als E-Mails</FormLabel>
                                 <FormDescription>

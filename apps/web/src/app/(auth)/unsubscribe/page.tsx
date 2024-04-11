@@ -1,4 +1,4 @@
-import {CardContent} from "@energyleaf/ui";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui";
 import UnsubscribeForm from "@/components/auth/unsubscribe-form";
 import {getUserData, getUserIdByToken} from "@/query/user";
 import {useSearchParams} from "next/navigation";
@@ -36,8 +36,16 @@ export default async function Page({searchParams}: UnsubscribeFormProps) {
     }
 
     return (
-        <CardContent>
-            <UnsubscribeForm reportConfig={reportConfig} userId={userId}/>
-        </CardContent>
+        <Card>
+            <CardHeader>
+                <CardTitle>Report Einstellungen aktualisieren</CardTitle>
+                <CardDescription> Hier können Sie einstellen, ob und in welchem Intervall die für Sie erstellen Berichte
+                    über Ihren Verbrauch erstellt werden sollen. Sollten Sie die Berichte deaktivieren wollen,
+                deaktivieren Sie einfach die Einstellung "Senden der Berichte als E-Mails".</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <UnsubscribeForm reportConfig={reportConfig} userId={userId}/>
+            </CardContent>
+        </Card>
     );
 }
