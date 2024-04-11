@@ -69,23 +69,13 @@ export async function createUser(data: CreateUserType) {
 
         const id = newUser[0].id;
 
+        await trx.insert(userData).values({
+            userId: id,
+        });
+
         await trx.insert(reports).values({
             userId: id,
             timestampLast: new Date(),
-        });
-    });
-}
-
-export async function createUserData(userId: string) {
-    return db.transaction(async (trx) => {
-        const userQuery = await trx.select().from(user).where(eq(user.id, userId));
-        if (userQuery.length === 0) {
-            throw new Error("User not found");
-        }
-
-        await trx.insert(userData).values({
-            userId: userId,
-            timestamp: userQuery[0].created ?? new Date()
         });
     });
 }

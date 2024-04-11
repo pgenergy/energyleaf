@@ -8,7 +8,7 @@ const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created"];
 const onboardingRoute = "/onboarding";
 
 export default async function middleware(req: NextRequest) {
-    const { user, session } = await getActionSession();
+    const { user } = await getActionSession();
     const loggedIn = Boolean(user);
     const path = req.nextUrl.pathname;
     const url = `${req.nextUrl.protocol}//${req.nextUrl.host}`;

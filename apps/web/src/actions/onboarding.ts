@@ -14,7 +14,7 @@ export async function completeOnboarding() {
         throw new UserNotLoggedInError();
     }
 
-    await createUserData(session.userId);
+    // await createUserData(session.userId);
     cookies().set("onboarding_complete", "true");
     redirect("/dashboard");
 }

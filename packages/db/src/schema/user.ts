@@ -13,6 +13,7 @@ export const user = mysqlTable("user", {
     password: varchar("password", {length: 256}).notNull(),
     isAdmin: boolean("is_admin").default(false).notNull(),
     isActive: boolean("is_active").default(false).notNull(),
+    onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
 });
 
 export const userData = mysqlTable("user_data", {

@@ -185,11 +185,11 @@ export async function signInAction(email: string, password: string) {
 }
 
 async function handleSignIn(session: Session) {
-    const userData = await getUserDataByUserId(session.userId);
-    const hasUserData = Boolean(userData);
-    cookies().set("onboarding_complete", hasUserData.toString());
+    const userData = await getUserById(session.userId);
+    const onboardingCompleted = userData?.onboardingCompleted ?? false;
+    cookies().set("onboarding_complete", onboardingCompleted.toString());
 
-    if (!hasUserData) {
+    if (!onboardingCompleted) {
         redirect("/onboarding");
     }
 
