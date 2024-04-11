@@ -8,7 +8,7 @@ export const passwordSchema = z.object({
     newPasswordRepeat: z.string().nonempty({ message: "Bitte geben Sie ein Passwort an." }),
 });
 
-export const mailSettingsSchema = z.object({
+export const reportSettingsSchema = z.object({
     receiveMails: z.boolean().default(true),
     interval: z.coerce
         .number()

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import type {
     deleteAccountSchema,
-    mailSettingsSchema,
+    reportSettingsSchema,
     passwordSchema,
     userDataSchema,
     userGoalSchema,
@@ -87,15 +87,15 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
     }
 }
 
-export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>) {
+export async function updateReportConfigSettings(data: z.infer<typeof reportSettingsSchema>) {
     const { user, session } = await getActionSession();
 
     if (!session) {
         throw new UserNotLoggedInError();
     }
 
-    const dbuser = await getUserById(user.id);
-    if (!dbuser) {
+    const dbUser = await getUserById(user.id);
+    if (!dbUser) {
         throw new UserNotFoundError();
     }
 

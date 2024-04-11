@@ -54,3 +54,13 @@ export const historyUserData = mysqlTable("history_user_data", {
     monthlyPayment: int("advance_payment_electricity"),
     consumptionGoal: int("consumption_goal")
 });
+
+export const token = mysqlTable("token", {
+    token: varchar("id", { length: 30 }).primaryKey()
+        .$defaultFn(() => nanoid(30)),
+    userId: varchar("user_id", { length: 30 }).notNull(),
+    type: mysqlEnum("type", ["report"]).notNull(),
+    created: datetime("created")
+        .default(sql`CURRENT_TIMESTAMP`)
+        .notNull(),
+});

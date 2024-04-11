@@ -1,4 +1,5 @@
 import {
+    createToken,
     getEnergySumForSensorInRange, getLastReportForUser, getUserDataByUserId,
     getUsersWitDueReport, saveReport,
     updateLastReportTimestamp
@@ -7,6 +8,7 @@ import {DayStatistics, ReportProps, sendReport} from "@energyleaf/mail";
 import {env} from "@/env.mjs";
 import {getElectricitySensorByUser} from "@/actions/sensors";
 import {UserDataSelectType} from "@energyleaf/db/types";
+import {buildUnsubscribeReportsUrl} from "@energyleaf/lib";
 
 
 interface UserReportData {
@@ -28,8 +30,11 @@ export async function createReportsAndSendMails() {
 
     for (const userReport of userReportData) {
         let reportProps: ReportProps;
+        let unsubscribeLink = "";
         try {
             reportProps = await createReportData(userReport);
+            const unsubscribeToken = await createToken(userReport.userId, "report");
+            unsubscribeLink = buildUnsubscribeReportsUrl({env, token: unsubscribeToken});
         } catch (e) {
             console.error(`Error creating report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
             continue;
@@ -37,7 +42,7 @@ export async function createReportsAndSendMails() {
 
         if (userReport.receiveMails) {
             try {
-                await sendReportMail(userReport, reportProps);
+                await sendReportMail(userReport, reportProps, unsubscribeLink);
                 sentReports++;
             } catch (e) {
                 console.error(`Error sending report for User ${userReport.userName} (User-ID ${userReport.userId}) to ${userReport.email}: ${e}`);
@@ -142,15 +147,14 @@ async function getDayStatistics(userData: UserDataSelectType, sensor: string, da
     return await Promise.all(tasks);
 }
 
-
-export async function sendReportMail(userReport: UserReportData, reportProps: ReportProps) {
+export async function sendReportMail(userReport: UserReportData, reportProps: ReportProps, unsubscribeLink: string) {
     if (userReport.email === null) {
         throw new Error(`No email address for User ${userReport.userName} (User-ID ${userReport.userId}) to send report to`);
     }
     await sendReport({
         from: env.RESEND_API_MAIL,
         to: userReport.email,
-        unsubscribeLink: "todo",
+        unsubscribeLink: unsubscribeLink,
         apiKey: env.RESEND_API_KEY,
         reportProps: reportProps,
     });

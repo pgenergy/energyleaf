@@ -1,7 +1,7 @@
-import { and, eq, gt, lte, or, sql } from "drizzle-orm";
+import {and, desc, eq, gt, lte, or, sql} from "drizzle-orm";
 
 import db from "../";
-import {historyUserData, user, userData} from "../schema";
+import {historyUserData, token, user, userData} from "../schema";
 import {reportConfig} from "../schema/reports";
 
 /**
@@ -146,7 +146,7 @@ export async function updateUserData(data: Partial<UpdateUserData>, id: string) 
             throw new Error("Old user data not found");
         }
 
-        await trx.insert(historyUserData).values({ ...oldUserData, id: undefined });
+        await trx.insert(historyUserData).values({...oldUserData, id: undefined});
         await trx.update(userData).set(data).where(eq(userData.userId, id));
     });
 }
@@ -170,9 +170,31 @@ export async function getAllUsers() {
 }
 
 export async function setUserActive(id: string, isActive: boolean) {
-    return db.update(user).set({ isActive }).where(eq(user.id, id));
+    return db.update(user).set({isActive}).where(eq(user.id, id));
 }
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {
-    return db.update(user).set({ isAdmin }).where(eq(user.id, id));
+    return db.update(user).set({isAdmin}).where(eq(user.id, id));
+}
+
+export async function createToken(userId: string, type: "report") {
+    await db.insert(token).values({userId, type});
+
+    const createdToken = await db.select().from(token)
+        .where(
+            and(
+                eq(token.userId, userId),
+                eq(token.type, type))
+        )
+        .orderBy(desc(token.created))
+        .limit(1);
+    return createdToken[0].token;
+}
+
+export async function getUserIdByToken(givenToken: string) {
+    const data = await db.select().from(token).where(eq(token.token, givenToken));
+    if (data.length === 0) {
+        return null;
+    }
+    return data[0].userId;
 }

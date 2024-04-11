@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { updateMailInformation } from "@/actions/profile";
+import { updateReportConfigSettings } from "@/actions/profile";
 import IntervalSelector from "@/components/profile/interval-selector";
 import TimeSelector from "@/components/profile/time-selector";
-import { mailSettingsSchema } from "@/lib/schema/profile";
+import { reportSettingsSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
@@ -37,8 +37,8 @@ interface Props {
 
 export default function MailSettingsForm({ receiveMails, interval, time, disabled }: Props) {
     const [isPending, startTransition] = useTransition();
-    const form = useForm<z.infer<typeof mailSettingsSchema>>({
-        resolver: zodResolver(mailSettingsSchema),
+    const form = useForm<z.infer<typeof reportSettingsSchema>>({
+        resolver: zodResolver(reportSettingsSchema),
         defaultValues: {
             receiveMails,
             interval,
@@ -46,11 +46,11 @@ export default function MailSettingsForm({ receiveMails, interval, time, disable
         },
     });
 
-    function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
+    function onSubmit(data: z.infer<typeof reportSettingsSchema>) {
         if (disabled) return;
         startTransition(() => {
             track("updateMailSettings()");
-            toast.promise(updateMailInformation(data), {
+            toast.promise(updateReportConfigSettings(data), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
                 error: "Ihre Einstellungen konnten nicht aktualisiert werden",
