@@ -7,7 +7,7 @@ import {
 import {sendReport} from "@energyleaf/mail";
 import {env} from "@/env.mjs";
 import {getElectricitySensorByUser} from "@/actions/sensors";
-import {UserDataSelectType} from "@energyleaf/db/types";
+import {TokenType, UserDataSelectType} from "@energyleaf/db/types";
 import {buildUnsubscribeReportsUrl} from "@energyleaf/lib";
 import {DayStatistics, ReportProps} from "@energyleaf/mail/types";
 
@@ -34,7 +34,7 @@ export async function createReportsAndSendMails() {
         let unsubscribeLink = "";
         try {
             reportProps = await createReportData(userReport);
-            const unsubscribeToken = await createToken(userReport.userId, "report");
+            const unsubscribeToken = await createToken(userReport.userId, TokenType.Report);
             unsubscribeLink = buildUnsubscribeReportsUrl({env, token: unsubscribeToken});
         } catch (e) {
             console.error(`Error creating report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);

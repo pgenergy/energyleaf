@@ -1,8 +1,9 @@
-import {and, desc, eq, gt, lte, or, sql} from "drizzle-orm";
+import {and, desc, eq} from "drizzle-orm";
 
 import db from "../";
 import {historyUserData, token, user, userData} from "../schema";
 import {reportConfig} from "../schema/reports";
+import {TokenType} from "../types/types";
 
 /**
  * Get a user by id from the database
@@ -177,18 +178,20 @@ export async function setUserAdmin(id: string, isAdmin: boolean) {
     return db.update(user).set({isAdmin}).where(eq(user.id, id));
 }
 
-export async function createToken(userId: string, type: "report") {
-    await db.insert(token).values({userId, type});
+export async function createToken(userId: string, type: TokenType = TokenType.Report) {
+    return db.transaction(async (trx) => {
+        await trx.insert(token).values({userId, type});
 
-    const createdToken = await db.select().from(token)
-        .where(
-            and(
-                eq(token.userId, userId),
-                eq(token.type, type))
-        )
-        .orderBy(desc(token.created))
-        .limit(1);
-    return createdToken[0].token;
+        const createdToken = await trx.select().from(token)
+            .where(
+                and(
+                    eq(token.userId, userId),
+                    eq(token.type, type))
+            )
+            .orderBy(desc(token.created))
+            .limit(1);
+        return createdToken[0].token;
+    });
 }
 
 export async function getUserIdByToken(givenToken: string) {
