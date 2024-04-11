@@ -22,6 +22,7 @@ import {
     Spinner,
 } from "@energyleaf/ui";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
+
 interface Props {
     userData: UserDataSelectType | undefined;
 }

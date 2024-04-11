@@ -18,12 +18,11 @@ import {
     getUserById,
     getUserByMail,
     updatePassword,
-    type CreateUserType,
-    getUserDataByUserId
+    type CreateUserType
 } from "@energyleaf/db/query";
 import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
 import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
-import {Session} from "lucia";
+import type {Session} from "lucia";
 
 /**
  * Server action for creating a new account

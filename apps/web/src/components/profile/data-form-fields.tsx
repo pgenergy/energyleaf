@@ -13,9 +13,9 @@ import {
 import {userData} from "@energyleaf/db/schema";
 import {userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums} from "@energyleaf/db/types";
 import React from "react";
-import {UseFormReturn} from "react-hook-form";
-import {z} from "zod";
-import {userDataSchema} from "@/lib/schema/profile";
+import type {UseFormReturn} from "react-hook-form";
+import type {z} from "zod";
+import type {userDataSchema} from "@/lib/schema/profile";
 
 interface Props {
     form: UseFormReturn<z.infer<typeof userDataSchema>>;

@@ -4,13 +4,12 @@ import React, {PropsWithChildren, useContext, useMemo, useRef, useTransition} fr
 import {Button} from "./button";
 import {ArrowLeft, ArrowRight} from "lucide-react";
 import {Handler, useWizard as useWiz, Wizard as Wiz} from "react-use-wizard";
-import {toast} from "sonner";
 import {Spinner} from "./spinner";
 
 type NextClickHandler = (onSuccess: () => Promise<void>) => Promise<void>;
 
 type WizardContextType = {
-    handleNextClick(handler: NextClickHandler): void;
+    handleNextClick: (handler: NextClickHandler) => void;
     handleStep: (handler: Handler) => void;
 } | null;
 
@@ -33,16 +32,21 @@ interface WizardProps extends PropsWithChildren {
 const Wizard: React.FC<WizardProps> = ({ children, finishHandler }) => {
     const nextClickHandler = useRef<NextClickHandler | null>(null);
 
-    const handleNextClick = (handler: NextClickHandler) => {
+    const handleNextClick = useRef((handler: NextClickHandler) => {
         nextClickHandler.current = handler;
-    };
-    const handleStep = (handler: Handler) => {
-        const { handleStep } = useWiz();
-        handleStep(handler);
-    }
+    });
+    const handleStep = useRef((handler: Handler) => {
+        const { handleStep: hs } = useWiz();
+        hs(handler);
+    });
+
+    const contextValue = useMemo(() => ({
+        handleNextClick: handleNextClick.current,
+        handleStep: handleStep.current
+    }), [handleNextClick, handleStep]);
 
     return (
-        <WizardContext.Provider value={{handleNextClick, handleStep}}>
+        <WizardContext.Provider value={contextValue}>
             <Wiz
                 footer={<WizardStepper nextClick={nextClickHandler} finishHandler={finishHandler} />}
                 wrapper={<div className="pb-3" />}

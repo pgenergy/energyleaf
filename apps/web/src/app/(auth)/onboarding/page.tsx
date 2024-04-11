@@ -1,6 +1,4 @@
-import Link from "next/link";
-
-import {Button, CardContent, Separator} from "@energyleaf/ui";
+import {CardContent} from "@energyleaf/ui";
 import OnboardingWizard from "@/components/onboarding/onboarding-wizard";
 import { getUserData } from "@/query/user";
 import { getActionSession } from "@/lib/auth/auth.action";

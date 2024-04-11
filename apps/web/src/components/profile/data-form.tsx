@@ -9,8 +9,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { userData } from "@energyleaf/db/schema";
-import { userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/types";
 import {
     Button,
     Card,
@@ -19,17 +17,6 @@ import {
     CardHeader,
     CardTitle,
     Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-    Input,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
     Spinner,
 } from "@energyleaf/ui";
 import DataFormFields from "@/components/profile/data-form-fields";

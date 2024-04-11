@@ -1,18 +1,15 @@
 "use client";
 
-import {cookies} from "next/headers";
-import {Button, Form, Skeleton, useWizard, Wizard, WizardPage} from "@energyleaf/ui";
+import {Button, Form, useWizard, Wizard, WizardPage} from "@energyleaf/ui";
 import {completeOnboarding} from "@/actions/onboarding";
-import React, {useCallback, useEffect, useMemo, useState, useTransition} from "react";
-import {ArrowRight, ArrowRightIcon, InfoIcon} from "lucide-react";
-import Link from "next/link";
-import UserGoalsForm from "@/components/profile/user-goals-form";
+import React, {useCallback, useMemo} from "react";
+import {ArrowRightIcon} from "lucide-react";
 import {useForm} from "react-hook-form";
 import type {z} from "zod";
 import {userDataSchema, userGoalSchema} from "@/lib/schema/profile";
 import {zodResolver} from "@hookform/resolvers/zod";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
-import {UserDataSelectType} from "@energyleaf/db/types";
+import type {UserDataSelectType} from "@energyleaf/db/types";
 import {updateUserDataInformation, updateUserGoals} from "@/actions/profile";
 import {toast} from "sonner";
 import DataFormFields from "@/components/profile/data-form-fields";
@@ -76,14 +73,14 @@ function UserDataStep({userData}: StepProps) {
         resolver: zodResolver(userDataSchema),
         defaultValues: {
             // TODO: In eigene Methode auslagern? Wird im Profil auch verwendet...
-            houseType: userData.property || "house",
-            livingSpace: userData?.livingSpace || 0,
-            people: userData?.household || 0,
-            hotWater: userData?.hotWater || "electric",
-            tariff: userData?.tariff || "basic",
-            basePrice: userData?.basePrice || 0,
-            workingPrice: userData?.workingPrice || 0,
-            monthlyPayment: userData?.monthlyPayment || 0,
+            houseType: userData.property ?? "house",
+            livingSpace: userData.livingSpace ?? 0,
+            people: userData.household ?? 0,
+            hotWater: userData.hotWater ?? "electric",
+            tariff: userData.tariff ?? "basic",
+            basePrice: userData.basePrice ?? 0,
+            workingPrice: userData.workingPrice ?? 0,
+            monthlyPayment: userData.monthlyPayment ?? 0,
         }
     });
 
@@ -113,13 +110,13 @@ function UserDataStep({userData}: StepProps) {
 
 function GoalStep({userData}: StepProps) {
     const goalCalculated = useMemo(() => {
-        return !Boolean(userData?.consumptionGoal);
+        return !userData.consumptionGoal;
     }, [userData]);
 
     const calculateGoal = useCallback(() => {
-        if (!userData?.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
+        if (!userData.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
             return 0;
-        };
+        }
 
         const yearlyPayment = userData.monthlyPayment * 12;
         const variableCosts = yearlyPayment - userData.basePrice;
@@ -132,7 +129,7 @@ function GoalStep({userData}: StepProps) {
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
-            goalValue: goalCalculated ? calculateGoal() : userData?.consumptionGoal ?? 0
+            goalValue: goalCalculated ? calculateGoal() : userData.consumptionGoal ?? 0
         }
     });
 
