@@ -1,4 +1,4 @@
-export interface DayStatistics {
+interface DayStatistics {
     day: Date,
     dailyConsumption: number,
     dailyGoal?: number,
@@ -6,8 +6,8 @@ export interface DayStatistics {
     progress?: number
 }
 
-export interface ReportProps {
-    name: string;
+interface ReportProps {
+    name?: string;
     dateFrom: Date;
     dateTo: Date;
     dayEnergyStatistics: DayStatistics[];
@@ -37,5 +37,7 @@ export interface ReportProps {
     /**
      * The values of the last report to compare with the new report
      */
-    lastReport: ReportProps;
+    lastReport?: ReportProps;
 }
+
+export type { ReportProps, DayStatistics };

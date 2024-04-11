@@ -1,11 +1,12 @@
 {
     "name": "@energyleaf/mail",
-    "version": "1.0.0",
-    "private": true,
+    "version": "0.0.0",
     "type": "module",
-    "description": "",
+    "private": true,
+    "license": "MIT",
     "exports": {
-        ".": "./src/index.tsx"
+        ".": "./src/index.tsx",
+        "./types": "./src/types/index.ts"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",

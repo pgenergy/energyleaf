@@ -3,7 +3,7 @@ import {and, desc, eq, gt, lte, or, sql} from "drizzle-orm";
 import db from "../";
 import {user} from "../schema/user";
 import {historyReportConfig, reportConfig, reports, reportsDayStatistics} from "../schema/reports";
-import {DayStatistics, ReportProps} from "@energyleaf/mail";
+import {DayStatistics, ReportProps} from "@energyleaf/mail/types";
 
 /**
  * Update the user report settings data in the database
@@ -81,7 +81,7 @@ export async function getUsersWitDueReport() {
         );
 }
 
-export async function getLastReportForUser(userId: string): ReportProps {
+export async function getLastReportForUser(userId: string): Promise<ReportProps | null>  {
     const userReports = await getReportForUserDescending(userId);
 
     if (!userReports || userReports.length === 0) {
@@ -92,7 +92,6 @@ export async function getLastReportForUser(userId: string): ReportProps {
     const lastReport = userReports[0];
 
     return {
-        id: lastReport.id,
         dateFrom: new Date(lastReport.dateFrom),
         dateTo: new Date(lastReport.dateTo),
         totalEnergyConsumption: lastReport.totalEnergyConsumption,
@@ -101,8 +100,8 @@ export async function getLastReportForUser(userId: string): ReportProps {
         avgEnergyCost: lastReport.avgEnergyCost,
         highestPeak: {
             dateTime: new Date(lastReport.highestPeakDateTime ?? new Date(0)),
-            deviceName: lastReport.highestPeakDeviceName,
-            consumption: lastReport.highestPeakConsumption
+            deviceName: lastReport.highestPeakDeviceName ?? "",
+            consumption: lastReport.highestPeakConsumption ?? ""
         },
         dayEnergyStatistics: []
     };

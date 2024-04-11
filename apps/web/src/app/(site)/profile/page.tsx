@@ -1,20 +1,20 @@
-import { redirect } from "next/navigation";
+import {redirect} from "next/navigation";
 import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import ChangePasswordForm from "@/components/profile/change-password-form";
 import UserDataForm from "@/components/profile/data-form";
 import MailSettingsForm from "@/components/profile/mail-settings-form";
 import UserGoalsForm from "@/components/profile/user-goals-form";
-import { getSession } from "@/lib/auth/auth.server";
-import { isDemoUser } from "@/lib/demo/demo";
-import { getUserData } from "@/query/user";
+import {getSession} from "@/lib/auth/auth.server";
+import {isDemoUser} from "@/lib/demo/demo";
+import {getUserData} from "@/query/user";
 
 export const metadata = {
     title: "Profil | Energyleaf",
 };
 
 export default async function ProfilePage() {
-    const { session, user } = await getSession();
+    const {session, user} = await getSession();
 
     if (!session) {
         redirect("/");
@@ -23,7 +23,7 @@ export default async function ProfilePage() {
     const isDemo = await isDemoUser();
 
     const userData = await getUserData(user.id);
-    const data = {
+    const dataUserDataForm = {
         houseType: userData?.user_data.property || "house",
         livingSpace: userData?.user_data.livingSpace || 0,
         people: userData?.user_data.household || 0,
@@ -36,17 +36,17 @@ export default async function ProfilePage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationForm disabled={isDemo} email={user.email} username={user.username} />
-            <ChangePasswordForm disabled={isDemo} />
+            <BaseInformationForm disabled={isDemo} email={user.email} username={user.username}/>
+            <ChangePasswordForm disabled={isDemo}/>
             <MailSettingsForm
                 disabled={isDemo}
-                interval={userData?.reports.interval || 3}
-                receiveMails={userData?.reports.receiveMails || false}
-                time={userData?.reports.time || 6}
+                interval={userData?.report_config.interval || 3}
+                receiveMails={userData?.report_config.receiveMails || false}
+                time={userData?.report_config.time || 6}
             />
-            <UserDataForm initialData={data} />
-            <UserGoalsForm userData={userData?.user_data} />
-            <AccountDeletionForm disabled={isDemo} />
+            <UserDataForm initialData={dataUserDataForm}/>
+            <UserGoalsForm userData={userData?.user_data}/>
+            <AccountDeletionForm disabled={isDemo}/>
         </div>
     );
 }

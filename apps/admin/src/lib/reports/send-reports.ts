@@ -4,11 +4,12 @@ import {
     getUsersWitDueReport, saveReport,
     updateLastReportTimestamp
 } from "@energyleaf/db/query";
-import {DayStatistics, ReportProps, sendReport} from "@energyleaf/mail";
+import {sendReport} from "@energyleaf/mail";
 import {env} from "@/env.mjs";
 import {getElectricitySensorByUser} from "@/actions/sensors";
 import {UserDataSelectType} from "@energyleaf/db/types";
 import {buildUnsubscribeReportsUrl} from "@energyleaf/lib";
+import {DayStatistics, ReportProps} from "@energyleaf/mail/types";
 
 
 interface UserReportData {
@@ -118,7 +119,7 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
             deviceName: "my device",
             consumption: "1000 kWh"
         },
-        lastReport: lastReport
+        lastReport: lastReport ?? undefined
     };
 }
 

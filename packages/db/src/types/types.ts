@@ -13,10 +13,10 @@ export type DeviceSelectType = typeof device.$inferSelect;
 
 export type PeakSelectType = typeof peaks.$inferSelect;
 
-export type ReportSelectType = typeof reportConfig.$inferSelect;
+export type ReportConfigSelectType = typeof reportConfig.$inferSelect;
 
 export type UserDataType = {
-    reports: ReportSelectType;
+    report_config: ReportConfigSelectType;
     user_data: UserDataSelectType;
 };
 
