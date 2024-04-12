@@ -59,7 +59,7 @@ export const historyUserData = mysqlTable("history_user_data", {
 export const reports = mysqlTable("reports", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: varchar("user_id", { length: 30 }).notNull(),
-    receiveMails: boolean("receive_mails").default(true).notNull(),
+    receiveMails: boolean("receive_mails").default(false).notNull(),
     interval: int("interval").default(3).notNull(),
     time: int("time").default(6).notNull(),
     timestampLast: timestamp("timestamp_last")

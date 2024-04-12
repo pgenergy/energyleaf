@@ -30,21 +30,15 @@ import {
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 
 interface Props {
-    receiveMails: boolean;
-    interval: number;
-    time: number;
     disabled?: boolean;
+    initialValues: z.infer<typeof mailSettingsSchema>
 }
 
-export default function MailSettingsForm({ receiveMails, interval, time, disabled }: Props) {
+export default function MailSettingsForm({ initialValues, disabled }: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),
-        defaultValues: {
-            receiveMails,
-            interval,
-            time,
-        },
+        defaultValues: initialValues,
     });
 
     function onSubmit(data: z.infer<typeof mailSettingsSchema>) {

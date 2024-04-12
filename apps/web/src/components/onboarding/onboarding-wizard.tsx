@@ -15,6 +15,11 @@ import {toast} from "sonner";
 import DataFormFields from "@/components/profile/data-form-fields";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import {reports} from "@energyleaf/db/schema";
+import {
+    createMailSettingsSchemaFromReportSelectType,
+    createUserDataSchemaFromUserDataSelectType,
+    createUserDataSchemaFromUserDataType
+} from "@/lib/schema/conversion/profile";
 
 interface Props {
     userData: UserDataType;
@@ -78,17 +83,7 @@ interface UserDataStepProps {
 function UserDataStep({userData}: UserDataStepProps) {
     const form = useForm<z.infer<typeof userDataSchema>>({
         resolver: zodResolver(userDataSchema),
-        defaultValues: {
-            // TODO: In eigene Methode auslagern? Wird im Profil auch verwendet...
-            houseType: userData.property ?? "house",
-            livingSpace: userData.livingSpace ?? 0,
-            people: userData.household ?? 0,
-            hotWater: userData.hotWater ?? "electric",
-            tariff: userData.tariff ?? "basic",
-            basePrice: userData.basePrice ?? 0,
-            workingPrice: userData.workingPrice ?? 0,
-            monthlyPayment: userData.monthlyPayment ?? 0,
-        }
+        defaultValues: createUserDataSchemaFromUserDataSelectType(userData)
     });
 
     const { handleNextClick, handleStep } = useWizard();
@@ -177,11 +172,7 @@ interface MailSettingsStepProps {
 function MailSettingsStep({reports}: MailSettingsStepProps) {
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),
-        defaultValues: {
-            interval:reports.interval || 3,
-            receiveMails: reports.receiveMails || false,
-            time:reports.time || 6
-        },
+        defaultValues: createMailSettingsSchemaFromReportSelectType(reports)
     });
 
     const { handleNextClick, handleStep } = useWizard();
