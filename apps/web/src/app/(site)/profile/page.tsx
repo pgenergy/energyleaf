@@ -8,6 +8,7 @@ import UserGoalsForm from "@/components/profile/user-goals-form";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { getUserData } from "@/query/user";
+import {fulfills, Versions} from "@energyleaf/lib";
 
 export const metadata = {
     title: "Profil | Energyleaf",
@@ -16,7 +17,7 @@ export const metadata = {
 export default async function ProfilePage() {
     const { session, user } = await getSession();
 
-    if (!session) {
+    if (!session || !user) {
         redirect("/");
     }
 
@@ -45,7 +46,7 @@ export default async function ProfilePage() {
                 time={userData?.reports.time || 6}
             />
             <UserDataForm initialData={data} />
-            <UserGoalsForm userData={userData?.user_data} />
+            {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData?.user_data} /> }
             <AccountDeletionForm disabled={isDemo} />
         </div>
     );

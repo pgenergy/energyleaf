@@ -12,16 +12,23 @@ import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
 
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import {getActionSession} from "@/lib/auth/auth.action";
+import {fulfills, Versions} from "@energyleaf/lib";
 
 export const metadata = {
     title: "Dashboard | Energyleaf",
 };
 
-export default function DashboardPage({
+export default async function DashboardPage({
     searchParams,
 }: {
     searchParams: { start?: string; end?: string; aggregation?: string };
 }) {
+    const {user} = await getActionSession();
+    if (!user) {
+        return null;
+    }
+
     const startDateString = searchParams.start;
     const endDateString = searchParams.end;
     const aggregationType = searchParams.aggregation;
@@ -38,11 +45,13 @@ export default function DashboardPage({
 
     return (
         <div className="flex flex-col gap-4">
-            <ErrorBoundary fallback={GoalsCardError}>
-                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <GoalsCard />
-                </Suspense>
-            </ErrorBoundary>
+            {fulfills(user.appVersion, Versions.self_reflection) &&
+                <ErrorBoundary fallback={GoalsCardError}>
+                    <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                        <GoalsCard />
+                    </Suspense>
+                </ErrorBoundary>
+            }
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <ErrorBoundary fallback={AbsolutEnergyConsumptionError}>
                     <Suspense fallback={<Skeleton className="h-72 w-full" />}>
