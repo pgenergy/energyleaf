@@ -1,9 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getActionSession } from "./lib/auth/auth.action";
+import {fulfills, Versions} from "@energyleaf/lib";
 
 const publicRoutes = ["/legal", "/privacy"];
 const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created"];
+const appVersionSpecificRoutes = {
+    "/devices": Versions.self_reflection,
+};
 
 export default async function middleware(req: NextRequest) {
     const { user } = await getActionSession();
@@ -16,6 +20,10 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (![...publicRoutes, ...unprotectedRoutes].includes(path) && !loggedIn) {
+        return NextResponse.redirect(`${url}/`);
+    }
+
+    if (appVersionSpecificRoutes[path] && !fulfills(user!.appVersion, appVersionSpecificRoutes[path])) {
         return NextResponse.redirect(`${url}/`);
     }
 
