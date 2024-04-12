@@ -10,6 +10,7 @@ import type { PeakAssignment } from "@/types/consumption/peak";
 import { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
+import DashboardZoomReset from "./dashboard-zoom-reset";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
@@ -62,12 +63,13 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     return (
         <Card className="w-full">
-            <CardHeader className="flex flex-col justify-start md:flex-row md:justify-between">
+            <CardHeader className="flex flex-col justify-start">
                 <div className="flex flex-col gap-2">
                     <CardTitle>Verbrauch</CardTitle>
                     <CardDescription>Übersicht Ihres Verbrauchs im Zeitraum.</CardDescription>
                 </div>
                 <div className="flex flex-row gap-4">
+                    <DashboardZoomReset />
                     <DashboardDateRange endDate={endDate} startDate={startDate} />
                     <DashboardEnergyAggregation selected={aggregation} />
                 </div>

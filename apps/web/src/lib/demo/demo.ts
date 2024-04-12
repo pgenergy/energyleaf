@@ -230,7 +230,7 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
             const [hours, minutes, seconds] = item.timestamp.split(":").map(Number);
             date.setHours(hours, minutes, seconds, 0);
 
-            if (date >= start && date <= end) {
+            if (date.getTime() >= start.getTime() && date.getTime() <= end.getTime()) {
                 return {
                     id: index.toString(),
                     sensorId: "demo_sensor",
@@ -240,7 +240,7 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
             }
             return null;
         })
-        .filter((item) => item !== null) as SensorDataSelectType[];
+        .filter((item) => item) as SensorDataSelectType[];
 }
 
 export function getDemoGoalStatus(dailyGoal: number): GoalStatus[] {
