@@ -11,7 +11,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import { UserNotActiveError } from "@energyleaf/lib";
 import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 
 export default function LoginForm() {
@@ -45,11 +44,6 @@ export default function LoginForm() {
                 loading: "Anmelden...",
                 success: "Erfolgreich angemeldet",
                 error: (err) => {
-                    if (err instanceof UserNotActiveError) {
-                        setError("Ihr Account ist noch nicht aktiviert");
-                        return "Ihr Account ist noch nicht aktiviert";
-                    }
-
                     setError("E-Mail oder Passwort ist falsch");
                     return "Fehler beim Anmelden";
                 },

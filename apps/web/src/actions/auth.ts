@@ -20,7 +20,7 @@ import {
     updatePassword,
     type CreateUserType
 } from "@energyleaf/db/query";
-import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
+import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 import type {Session} from "lucia";
 
@@ -156,7 +156,7 @@ export async function signInAction(email: string, password: string) {
     }
 
     if (!user.isActive) {
-        throw new UserNotActiveError();
+        redirect("/created");
     }
 
     let match = false;
