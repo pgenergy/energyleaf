@@ -1,12 +1,12 @@
 "use client";
 
-import { useTransition } from "react";
-import { updateUserState } from "@/actions/user";
-import { userStateSchema } from "@/lib/schema/user";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
+import {useTransition} from "react";
+import {updateUserState} from "@/actions/user";
+import {userStateSchema} from "@/lib/schema/user";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useForm} from "react-hook-form";
+import {toast} from "sonner";
+import type {z} from "zod";
 
 import {
     Button,
@@ -17,24 +17,26 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
     Spinner,
     Switch,
 } from "@energyleaf/ui";
+import {stringify, Versions} from "@energyleaf/lib";
 
 interface Props {
-    isAdmin: boolean;
-    active: boolean;
+    initialValues: z.infer<typeof userStateSchema>;
     id: string;
 }
 
-export default function UserStateForm({ isAdmin, active, id }: Props) {
+export default function UserStateForm({ initialValues, id }: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof userStateSchema>>({
         resolver: zodResolver(userStateSchema),
-        defaultValues: {
-            isAdmin,
-            active,
-        },
+        defaultValues: initialValues,
     });
 
     function onSubmit(data: z.infer<typeof userStateSchema>) {
@@ -79,6 +81,35 @@ export default function UserStateForm({ isAdmin, active, id }: Props) {
                             </div>
                             <FormControl>
                                 <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="appVersion"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>App-Version</FormLabel>
+                            <FormControl>
+                                <Select
+                                    onValueChange={(value) => field.onChange(Number(value))}
+                                    value={field.value?.toString()}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="App-Version wählen..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {Object.keys(Versions)
+                                            .filter((key) => isNaN(Number(key)))
+                                            .map((key) => (
+                                                <SelectItem key={key} value={Versions[key].toString()}>
+                                                    {stringify(Versions[key])}
+                                                </SelectItem>
+                                            ))}
+                                    </SelectContent>
+                                </Select>
                             </FormControl>
                             <FormMessage />
                         </FormItem>

@@ -1,6 +1,17 @@
 import { sql } from "drizzle-orm";
-import { boolean, datetime, float, int, mysqlEnum, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {
+    boolean,
+    datetime,
+    float,
+    int,
+    mysqlEnum,
+    mysqlTable,
+    smallint,
+    timestamp,
+    varchar
+} from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
+import {Versions} from "@energyleaf/lib";
 
 export const user = mysqlTable("user", {
     id: varchar("id", { length: 30 })
@@ -13,6 +24,7 @@ export const user = mysqlTable("user", {
     password: varchar("password", { length: 256 }).notNull(),
     isAdmin: boolean("is_admin").default(false).notNull(),
     isActive: boolean("is_active").default(false).notNull(),
+    appVersion: smallint("app_version").default(Versions.transparency).notNull(),
 });
 
 export const userData = mysqlTable("user_data", {

@@ -7,6 +7,8 @@ import type { FallbackProps } from "react-error-boundary";
 
 import type { UserSelectType } from "@energyleaf/db/types";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import {userStateSchema} from "@/lib/schema/user";
+import {z} from "zod";
 
 interface Props {
     user: UserSelectType;
@@ -27,6 +29,12 @@ export default function UserActionsCard({ user }: Props) {
         userDetailsContext.setUser(user);
     }
 
+    const userState: z.infer<typeof userStateSchema> = {
+        isAdmin: user.isAdmin,
+        active: user.isActive,
+        appVersion: user.appVersion
+    }
+
     return (
         <Card className="w-full">
             <CardHeader>
@@ -34,7 +42,7 @@ export default function UserActionsCard({ user }: Props) {
                 <CardDescription>Hier können Sie den Status des Benutzers einsehen und ändern.</CardDescription>
             </CardHeader>
             <CardContent>
-                <UserStateForm active={user.isActive} id={user.id} isAdmin={user.isAdmin} />
+                <UserStateForm id={user.id} initialValues={userState} />
             </CardContent>
             <CardHeader>
                 <CardTitle>Aktionen</CardTitle>

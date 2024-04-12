@@ -11,6 +11,7 @@ import {
     getUserDataHistory as getDbUserDataHistoryById,
 } from "@energyleaf/db/query";
 import type { UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import {Versions} from "@energyleaf/lib";
 
 /**
  * Cached query to retrieve user data
@@ -24,6 +25,8 @@ export const getUserById = cache(async (id: string) => {
             password: "demo",
             isAdmin: false,
             created: new Date(),
+            isActive: true,
+            appVersion: Versions.support,
         };
     }
 
