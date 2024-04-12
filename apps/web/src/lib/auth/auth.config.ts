@@ -20,6 +20,7 @@ export const lucia = new Lucia(adapter, {
             created: attributes.created,
             isAdmin: attributes.isAdmin,
             isActive: attributes.isActive,
+            appVersion: attributes.appVersion
         };
     },
 });
