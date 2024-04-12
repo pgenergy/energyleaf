@@ -115,7 +115,6 @@ export type UpdateUserType = CreateUserType & {
     onboardingCompleted: boolean;
 };
 
-
 /**
  * Update the user data in the database
  */

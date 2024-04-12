@@ -1,10 +1,11 @@
 "use client";
 
-import React, {PropsWithChildren, useContext, useMemo, useRef, useTransition} from "react";
-import {Button} from "./button";
-import {ArrowLeft, ArrowRight} from "lucide-react";
-import {Handler, useWizard as useWiz, Wizard as Wiz} from "react-use-wizard";
-import {Spinner} from "./spinner";
+import React, { PropsWithChildren, useContext, useMemo, useRef, useTransition } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Handler, useWizard as useWiz, Wizard as Wiz } from "react-use-wizard";
+
+import { Button } from "./button";
+import { Spinner } from "./spinner";
 
 type NextClickHandler = (onSuccess: () => Promise<void>) => Promise<void>;
 
@@ -40,10 +41,13 @@ const Wizard: React.FC<WizardProps> = ({ children, finishHandler }) => {
         hs(handler);
     });
 
-    const contextValue = useMemo(() => ({
-        handleNextClick: handleNextClick.current,
-        handleStep: handleStep.current
-    }), [handleNextClick, handleStep]);
+    const contextValue = useMemo(
+        () => ({
+            handleNextClick: handleNextClick.current,
+            handleStep: handleStep.current,
+        }),
+        [handleNextClick, handleStep],
+    );
 
     return (
         <WizardContext.Provider value={contextValue}>
@@ -62,44 +66,34 @@ interface WizardPageProps extends PropsWithChildren {
     description?: string;
 }
 
-const WizardPage: React.FC<WizardPageProps> = ({children, title, description}) => {
-    const {isLoading} = useWiz();
+const WizardPage: React.FC<WizardPageProps> = ({ children, title, description }) => {
+    const { isLoading } = useWiz();
 
     return (
         <div className="flex flex-col gap-4">
-            <h1 className="text-center text-2xl pb-3">{title}</h1>
+            <h1 className="pb-3 text-center text-2xl">{title}</h1>
             {description && <p>{description}</p>}
-            <div className="relative h-full w-full flex justify-center items-center">
-                <div className="w-full">
-                    {children}
-                </div>
+            <div className="relative flex h-full w-full items-center justify-center">
+                <div className="w-full">{children}</div>
                 {isLoading && (
-                    <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center backdrop-blur-sm">
-                        <Spinner className="w-12 h-12" />
+                    <div className="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center backdrop-blur-sm">
+                        <Spinner className="h-12 w-12" />
                     </div>
                 )}
             </div>
         </div>
     );
-}
+};
 
 interface WizardStepperProps {
     nextClick: React.MutableRefObject<NextClickHandler | null>;
     finishHandler: () => void;
 }
 
-function WizardStepper({nextClick, finishHandler}: WizardStepperProps) {
-    const {
-        nextStep,
-        previousStep,
-        isLoading,
-        isFirstStep,
-        isLastStep,
-        activeStep,
-        stepCount
-    } = useWiz();
+function WizardStepper({ nextClick, finishHandler }: WizardStepperProps) {
+    const { nextStep, previousStep, isLoading, isFirstStep, isLastStep, activeStep, stepCount } = useWiz();
 
-    const continueButtonVariant = useMemo(() => isLastStep ? "default" : "ghost", [isLastStep]);
+    const continueButtonVariant = useMemo(() => (isLastStep ? "default" : "ghost"), [isLastStep]);
 
     const [isFinishing, startTransition] = useTransition();
     const loading = useMemo(() => isLoading || isFinishing, [isLoading, isFinishing]);
@@ -118,7 +112,7 @@ function WizardStepper({nextClick, finishHandler}: WizardStepperProps) {
         }
 
         await currentNextClick(async () => {
-            await nextStep()
+            await nextStep();
             nextClick.current = null;
         });
     }

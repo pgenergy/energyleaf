@@ -7,11 +7,11 @@ import MailSettingsForm from "@/components/profile/mail-settings-form";
 import UserGoalsForm from "@/components/profile/user-goals-form";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
-import { getUserData } from "@/query/user";
 import {
     createMailSettingsSchemaFromUserDataType,
-    createUserDataSchemaFromUserDataType
+    createUserDataSchemaFromUserDataType,
 } from "@/lib/schema/conversion/profile";
+import { getUserData } from "@/query/user";
 
 export const metadata = {
     title: "Profil | Energyleaf",
@@ -35,10 +35,7 @@ export default async function ProfilePage() {
         <div className="flex flex-col gap-4">
             <BaseInformationForm disabled={isDemo} email={user.email} username={user.username} />
             <ChangePasswordForm disabled={isDemo} />
-            <MailSettingsForm
-                disabled={isDemo}
-                initialValues={reportConfig}
-            />
+            <MailSettingsForm disabled={isDemo} initialValues={reportConfig} />
             <UserDataForm initialData={data} />
             <UserGoalsForm userData={userData?.user_data} />
             <AccountDeletionForm disabled={isDemo} />

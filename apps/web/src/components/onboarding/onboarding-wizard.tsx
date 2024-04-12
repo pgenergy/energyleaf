@@ -1,36 +1,35 @@
 "use client";
 
-import {Button, Form, useWizard, Wizard, WizardPage} from "@energyleaf/ui";
-import {completeOnboarding} from "@/actions/onboarding";
-import React, {useCallback, useMemo} from "react";
-import {ArrowRightIcon} from "lucide-react";
-import {useForm} from "react-hook-form";
-import type {z} from "zod";
-import {mailSettingsSchema, userDataSchema, userGoalSchema} from "@/lib/schema/profile";
-import {zodResolver} from "@hookform/resolvers/zod";
-import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
-import type {ReportSelectType, UserDataSelectType, UserDataType} from "@energyleaf/db/types";
-import {updateMailInformation, updateUserDataInformation, updateUserGoals} from "@/actions/profile";
-import {toast} from "sonner";
+import React, { useCallback, useMemo } from "react";
+import { completeOnboarding } from "@/actions/onboarding";
+import { updateMailInformation, updateUserDataInformation, updateUserGoals } from "@/actions/profile";
 import DataFormFields from "@/components/profile/data-form-fields";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
-import {reports} from "@energyleaf/db/schema";
+import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 import {
     createMailSettingsSchemaFromReportSelectType,
     createUserDataSchemaFromUserDataSelectType,
-    createUserDataSchemaFromUserDataType
 } from "@/lib/schema/conversion/profile";
+import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ArrowRightIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
+
+import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import { Button, Form, useWizard, Wizard, WizardPage } from "@energyleaf/ui";
 
 interface Props {
     userData: UserDataType;
 }
 
-export default function OnboardingWizard({userData}: Props) {
+export default function OnboardingWizard({ userData }: Props) {
     function finishHandler() {
         toast.promise(completeOnboarding(), {
             loading: "Schließe Onboarding ab...",
             success: "Onboarding abgeschlossen",
-            error: "Fehler beim Abschließen des Onboardings"
+            error: "Fehler beim Abschließen des Onboardings",
         });
     }
 
@@ -42,7 +41,7 @@ export default function OnboardingWizard({userData}: Props) {
             <MailSettingsStep reports={userData.reports} />
             <ThankYouStep />
         </Wizard>
-    )
+    );
 }
 
 function InformationStep() {
@@ -50,7 +49,7 @@ function InformationStep() {
         toast.promise(completeOnboarding(), {
             loading: "Überspringe Onboarding...",
             success: "Onboarding übersprungen",
-            error: "Fehler beim Überspringen des Onboardings"
+            error: "Fehler beim Überspringen des Onboardings",
         });
     }
 
@@ -58,11 +57,10 @@ function InformationStep() {
         <WizardPage title="Onboarding">
             <p>
                 Um die App in vollem Umfang nutzen zu können, sollten Sie die in den folgenden Schritten geforderten
-                Daten angeben.
-                Möchten Sie Ihre Daten nicht angeben, so können Sie diesen Schritt auch überspringen und die Daten
-                später in Ihren Profil angeben.
+                Daten angeben. Möchten Sie Ihre Daten nicht angeben, so können Sie diesen Schritt auch überspringen und
+                die Daten später in Ihren Profil angeben.
             </p>
-            <div className="flex justify-center w-full pt-3">
+            <div className="flex w-full justify-center pt-3">
                 <Button
                     className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
                     variant="ghost"
@@ -73,17 +71,17 @@ function InformationStep() {
                 </Button>
             </div>
         </WizardPage>
-    )
+    );
 }
 
 interface UserDataStepProps {
     userData: UserDataSelectType;
 }
 
-function UserDataStep({userData}: UserDataStepProps) {
+function UserDataStep({ userData }: UserDataStepProps) {
     const form = useForm<z.infer<typeof userDataSchema>>({
         resolver: zodResolver(userDataSchema),
-        defaultValues: createUserDataSchemaFromUserDataSelectType(userData)
+        defaultValues: createUserDataSchemaFromUserDataSelectType(userData),
     });
 
     const { handleNextClick, handleStep } = useWizard();
@@ -107,10 +105,10 @@ function UserDataStep({userData}: UserDataStepProps) {
                 </form>
             </Form>
         </WizardPage>
-    )
+    );
 }
 
-function GoalStep({userData}: UserDataStepProps) {
+function GoalStep({ userData }: UserDataStepProps) {
     const goalCalculated = useMemo(() => {
         return !userData.consumptionGoal;
     }, [userData]);
@@ -125,14 +123,13 @@ function GoalStep({userData}: UserDataStepProps) {
         const monthlyVariableCosts = variableCosts / 12;
         const consumptionGoal = monthlyVariableCosts / userData.workingPrice;
         return Math.round(consumptionGoal);
-
     }, [userData]);
 
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
-            goalValue: goalCalculated ? calculateGoal() : userData.consumptionGoal ?? 0
-        }
+            goalValue: goalCalculated ? calculateGoal() : userData.consumptionGoal ?? 0,
+        },
     });
 
     // Sometimes, the goal value is calculated with outdated data and not updated. To fix this issue, update the goal
@@ -162,17 +159,17 @@ function GoalStep({userData}: UserDataStepProps) {
                 </form>
             </Form>
         </WizardPage>
-    )
+    );
 }
 
 interface MailSettingsStepProps {
     reports: ReportSelectType;
 }
 
-function MailSettingsStep({reports}: MailSettingsStepProps) {
+function MailSettingsStep({ reports }: MailSettingsStepProps) {
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),
-        defaultValues: createMailSettingsSchemaFromReportSelectType(reports)
+        defaultValues: createMailSettingsSchemaFromReportSelectType(reports),
     });
 
     const { handleNextClick, handleStep } = useWizard();
@@ -202,7 +199,6 @@ function MailSettingsStep({reports}: MailSettingsStepProps) {
             </Form>
         </WizardPage>
     );
-
 }
 
 function ThankYouStep() {

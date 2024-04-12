@@ -2,6 +2,7 @@
 
 import React, { useTransition } from "react";
 import { updateUserGoals } from "@/actions/profile";
+import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 import { userGoalSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
@@ -21,7 +22,6 @@ import {
     Label,
     Spinner,
 } from "@energyleaf/ui";
-import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 
 interface Props {
     userData: UserDataSelectType | undefined;

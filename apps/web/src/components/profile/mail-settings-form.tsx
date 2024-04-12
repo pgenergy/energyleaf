@@ -2,8 +2,7 @@
 
 import React, { useTransition } from "react";
 import { updateMailInformation } from "@/actions/profile";
-import IntervalSelector from "@/components/profile/interval-selector";
-import TimeSelector from "@/components/profile/time-selector";
+import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import { mailSettingsSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
@@ -11,27 +10,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import {
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    Spinner,
-    Switch,
-} from "@energyleaf/ui";
-import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
 
 interface Props {
     disabled?: boolean;
-    initialValues: z.infer<typeof mailSettingsSchema>
+    initialValues: z.infer<typeof mailSettingsSchema>;
 }
 
 export default function MailSettingsForm({ initialValues, disabled }: Props) {

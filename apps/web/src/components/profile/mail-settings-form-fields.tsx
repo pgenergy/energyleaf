@@ -1,16 +1,17 @@
-import {FormControl, FormDescription, FormField, FormItem, FormLabel, Switch} from "@energyleaf/ui";
+import React from "react";
 import IntervalSelector from "@/components/profile/interval-selector";
 import TimeSelector from "@/components/profile/time-selector";
-import React from "react";
-import {mailSettingsSchema} from "@/lib/schema/profile";
-import {z} from "zod";
-import {UseFormReturn} from "react-hook-form";
+import type { mailSettingsSchema } from "@/lib/schema/profile";
+import type { UseFormReturn } from "react-hook-form";
+import type { z } from "zod";
+
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, Switch } from "@energyleaf/ui";
 
 interface Props {
     form: UseFormReturn<z.infer<typeof mailSettingsSchema>>;
 }
 
-export default function MailSettingsFormFields({form}: Props) {
+export default function MailSettingsFormFields({ form }: Props) {
     return (
         <>
             <FormField
@@ -21,8 +22,8 @@ export default function MailSettingsFormFields({form}: Props) {
                         <div className="flex flex-col gap-2">
                             <FormLabel>Senden der Berichte als E-Mails</FormLabel>
                             <FormDescription>
-                                Erhalten Sie Ihre Berichte mit einer Zusammenfassung Ihres vergangenen
-                                Verbrauchs im eingestellten Intervall per Mail.
+                                Erhalten Sie Ihre Berichte mit einer Zusammenfassung Ihres vergangenen Verbrauchs im
+                                eingestellten Intervall per Mail.
                             </FormDescription>
                         </div>
                         <FormControl>

@@ -43,7 +43,7 @@ export default function LoginForm() {
             toast.promise(signInAction(data.mail, data.password), {
                 loading: "Anmelden...",
                 success: "Erfolgreich angemeldet",
-                error: (err) => {
+                error: () => {
                     setError("E-Mail oder Passwort ist falsch");
                     return "Fehler beim Anmelden";
                 },

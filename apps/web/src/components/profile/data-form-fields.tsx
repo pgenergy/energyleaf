@@ -1,21 +1,25 @@
 "use client";
 
+import React from "react";
+import type { userDataSchema } from "@/lib/schema/profile";
+import type { UseFormReturn } from "react-hook-form";
+import type { z } from "zod";
+
+import { userData } from "@energyleaf/db/schema";
+import { userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/types";
 import {
     FormControl,
     FormField,
     FormItem,
-    FormLabel, FormMessage, Input,
+    FormLabel,
+    FormMessage,
+    Input,
     Select,
-    SelectContent, SelectItem,
+    SelectContent,
+    SelectItem,
     SelectTrigger,
-    SelectValue
+    SelectValue,
 } from "@energyleaf/ui";
-import {userData} from "@energyleaf/db/schema";
-import {userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums} from "@energyleaf/db/types";
-import React from "react";
-import type {UseFormReturn} from "react-hook-form";
-import type {z} from "zod";
-import type {userDataSchema} from "@/lib/schema/profile";
 
 interface Props {
     form: UseFormReturn<z.infer<typeof userDataSchema>>;
@@ -23,10 +27,10 @@ interface Props {
 }
 
 DataFormFields.defaultProps = {
-    disabled: false
-}
+    disabled: false,
+};
 
-export default function DataFormFields({form, disabled}: Props) {
+export default function DataFormFields({ form, disabled }: Props) {
     return (
         <>
             <FormField
@@ -36,11 +40,7 @@ export default function DataFormFields({form, disabled}: Props) {
                     <FormItem>
                         <FormLabel>Hausart</FormLabel>
                         <FormControl>
-                            <Select
-                                defaultValue={field.value}
-                                disabled={disabled}
-                                onValueChange={field.onChange}
-                            >
+                            <Select defaultValue={field.value} disabled={disabled} onValueChange={field.onChange}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Hausart wählen" />
                                 </SelectTrigger>
@@ -64,11 +64,7 @@ export default function DataFormFields({form, disabled}: Props) {
                     <FormItem>
                         <FormLabel>Warmwasser</FormLabel>
                         <FormControl>
-                            <Select
-                                defaultValue={field.value}
-                                disabled={disabled}
-                                onValueChange={field.onChange}
-                            >
+                            <Select defaultValue={field.value} disabled={disabled} onValueChange={field.onChange}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Warmwasser wählen" />
                                 </SelectTrigger>
@@ -92,11 +88,7 @@ export default function DataFormFields({form, disabled}: Props) {
                     <FormItem>
                         <FormLabel>Tarif</FormLabel>
                         <FormControl>
-                            <Select
-                                defaultValue={field.value}
-                                disabled={disabled}
-                                onValueChange={field.onChange}
-                            >
+                            <Select defaultValue={field.value} disabled={disabled} onValueChange={field.onChange}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Tarif wählen" />
                                 </SelectTrigger>

@@ -1,10 +1,11 @@
-import {CardContent} from "@energyleaf/ui";
 import OnboardingWizard from "@/components/onboarding/onboarding-wizard";
-import { getUserData } from "@/query/user";
 import { getActionSession } from "@/lib/auth/auth.action";
+import { getUserData } from "@/query/user";
+
+import { CardContent } from "@energyleaf/ui";
 
 export default async function OnboardingInformationPage() {
-    const {user} = await getActionSession();
+    const { user } = await getActionSession();
     if (!user) {
         return null;
     }

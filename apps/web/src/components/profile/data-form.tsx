@@ -2,6 +2,7 @@
 
 import React, { useTransition } from "react";
 import { updateUserDataInformation } from "@/actions/profile";
+import DataFormFields from "@/components/profile/data-form-fields";
 import { userDataSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
@@ -9,17 +10,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import {
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Form,
-    Spinner,
-} from "@energyleaf/ui";
-import DataFormFields from "@/components/profile/data-form-fields";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
 
 interface Props {
     initialData: z.infer<typeof userDataSchema>;
