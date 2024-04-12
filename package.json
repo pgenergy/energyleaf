@@ -32,7 +32,7 @@
         "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
         "@vercel/analytics": "^1.2.2",
         "dotenv-cli": "^7.4.1",
-        "mysql2": "^3.9.3",
+        "mysql2": "^3.9.4",
         "prettier-plugin-tailwindcss": "^0.5.13",
         "react-error-boundary": "^4.0.13",
         "typescript": "^5.4.3",
