@@ -59,14 +59,16 @@ const Wizard: React.FC<WizardProps> = ({ children, finishHandler }) => {
 
 interface WizardPageProps extends PropsWithChildren {
     title: string;
+    description?: string;
 }
 
-const WizardPage: React.FC<WizardPageProps> = ({children, title}) => {
+const WizardPage: React.FC<WizardPageProps> = ({children, title, description}) => {
     const {isLoading} = useWiz();
 
     return (
-        <>
+        <div className="flex flex-col gap-4">
             <h1 className="text-center text-2xl pb-3">{title}</h1>
+            {description && <p>{description}</p>}
             <div className="relative h-full w-full flex justify-center items-center">
                 <div className="w-full">
                     {children}
@@ -77,7 +79,7 @@ const WizardPage: React.FC<WizardPageProps> = ({children, title}) => {
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
 }
 

@@ -6,15 +6,21 @@ import React, {useCallback, useMemo} from "react";
 import {ArrowRightIcon} from "lucide-react";
 import {useForm} from "react-hook-form";
 import type {z} from "zod";
-import {userDataSchema, userGoalSchema} from "@/lib/schema/profile";
+import {mailSettingsSchema, userDataSchema, userGoalSchema} from "@/lib/schema/profile";
 import {zodResolver} from "@hookform/resolvers/zod";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
-import type {UserDataSelectType} from "@energyleaf/db/types";
-import {updateUserDataInformation, updateUserGoals} from "@/actions/profile";
+import type {ReportSelectType, UserDataSelectType, UserDataType} from "@energyleaf/db/types";
+import {updateMailInformation, updateUserDataInformation, updateUserGoals} from "@/actions/profile";
 import {toast} from "sonner";
 import DataFormFields from "@/components/profile/data-form-fields";
+import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
+import {reports} from "@energyleaf/db/schema";
 
-export default function OnboardingWizard({userData}: StepProps) {
+interface Props {
+    userData: UserDataType;
+}
+
+export default function OnboardingWizard({userData}: Props) {
     function finishHandler() {
         toast.promise(completeOnboarding(), {
             loading: "Schließe Onboarding ab...",
@@ -26,8 +32,9 @@ export default function OnboardingWizard({userData}: StepProps) {
     return (
         <Wizard finishHandler={finishHandler}>
             <InformationStep />
-            <UserDataStep userData={userData} />
-            <GoalStep userData={userData} />
+            <UserDataStep userData={userData.user_data} />
+            <GoalStep userData={userData.user_data} />
+            <MailSettingsStep reports={userData.reports} />
             <ThankYouStep />
         </Wizard>
     )
@@ -64,11 +71,11 @@ function InformationStep() {
     )
 }
 
-interface StepProps {
+interface UserDataStepProps {
     userData: UserDataSelectType;
 }
 
-function UserDataStep({userData}: StepProps) {
+function UserDataStep({userData}: UserDataStepProps) {
     const form = useForm<z.infer<typeof userDataSchema>>({
         resolver: zodResolver(userDataSchema),
         defaultValues: {
@@ -108,7 +115,7 @@ function UserDataStep({userData}: StepProps) {
     )
 }
 
-function GoalStep({userData}: StepProps) {
+function GoalStep({userData}: UserDataStepProps) {
     const goalCalculated = useMemo(() => {
         return !userData.consumptionGoal;
     }, [userData]);
@@ -161,6 +168,50 @@ function GoalStep({userData}: StepProps) {
             </Form>
         </WizardPage>
     )
+}
+
+interface MailSettingsStepProps {
+    reports: ReportSelectType;
+}
+
+function MailSettingsStep({reports}: MailSettingsStepProps) {
+    const form = useForm<z.infer<typeof mailSettingsSchema>>({
+        resolver: zodResolver(mailSettingsSchema),
+        defaultValues: {
+            interval:reports.interval || 3,
+            receiveMails: reports.receiveMails || false,
+            time:reports.time || 6
+        },
+    });
+
+    const { handleNextClick, handleStep } = useWizard();
+
+    handleNextClick(async (onSuccess) => {
+        await form.handleSubmit(async () => {
+            await onSuccess();
+        })();
+    });
+
+    handleStep(async () => {
+        const data: z.infer<typeof mailSettingsSchema> = form.getValues();
+        await updateMailInformation(data);
+    });
+
+    return (
+        <WizardPage
+            title="E-Mail & Berichte"
+            description="Um Sie über Ihren Verbrauch informieren zu können, möchten wir Ihnen gerne Berichte in Form von
+            E-Mails senden. Hier können Sie einstellen, ob und wann Sie diese Berichte erhalten möchten. Sie können Ihre
+            Zustimmung jederzeit im Profil oder über die E-Mails widerrufen."
+        >
+            <Form {...form}>
+                <form className="flex flex-col gap-4 pt-3">
+                    <MailSettingsFormFields form={form} />
+                </form>
+            </Form>
+        </WizardPage>
+    );
+
 }
 
 function ThankYouStep() {

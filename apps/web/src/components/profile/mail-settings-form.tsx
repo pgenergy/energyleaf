@@ -27,6 +27,7 @@ import {
     Spinner,
     Switch,
 } from "@energyleaf/ui";
+import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 
 interface Props {
     receiveMails: boolean;
@@ -70,50 +71,7 @@ export default function MailSettingsForm({ receiveMails, interval, time, disable
             <CardContent>
                 <Form {...form}>
                     <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-                        <FormField
-                            control={form.control}
-                            name="receiveMails"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between">
-                                    <div className="flex flex-col gap-2">
-                                        <FormLabel>Senden der Berichte als E-Mails</FormLabel>
-                                        <FormDescription>
-                                            Erhalten Sie Ihre Berichte mit einer Zusammenfassung Ihres vergangenen
-                                            Verbrauchs im eingestellten Intervall per Mail.
-                                        </FormDescription>
-                                    </div>
-                                    <FormControl>
-                                        <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="interval"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Intervall der Berichte</FormLabel>
-                                        <FormControl>
-                                            <IntervalSelector onChange={field.onChange} value={field.value} />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="time"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Uhrzeit der Berichte</FormLabel>
-                                        <FormControl>
-                                            <TimeSelector onChange={field.onChange} value={field.value} />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                        <MailSettingsFormFields form={form} />
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending || disabled} type="submit">
                                 {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}

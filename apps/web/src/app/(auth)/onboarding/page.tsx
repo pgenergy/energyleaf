@@ -16,7 +16,7 @@ export default async function OnboardingInformationPage() {
 
     return (
         <CardContent>
-            <OnboardingWizard userData={userData.user_data} />
+            <OnboardingWizard userData={userData} />
         </CardContent>
     );
 }
