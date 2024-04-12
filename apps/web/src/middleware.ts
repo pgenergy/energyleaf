@@ -7,6 +7,7 @@ const publicRoutes = ["/legal", "/privacy"];
 const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created"];
 const appVersionSpecificRoutes = {
     "/devices": Versions.self_reflection,
+    "/recommendations": Versions.support
 };
 
 export default async function middleware(req: NextRequest) {

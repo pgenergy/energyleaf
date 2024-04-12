@@ -26,7 +26,8 @@ const navLinks = [
         slug: "recommendations",
         title: "Empfehlungen",
         path: "/recommendations",
-        icon: <LightbulbIcon className="mr-2 h-4 w-4" />
+        icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
+        appVersion: Versions.support
     },
     {
         slug: "report",
