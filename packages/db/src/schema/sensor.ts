@@ -25,6 +25,7 @@ export const sensor = mysqlTable("sensor", {
     userId: varchar("user_id", { length: 30 }),
     needsScript: boolean("needs_script").default(false).notNull(),
     script: text("script"),
+    currentValue: float("current_value"),
 });
 
 export const sensorHistory = mysqlTable(
