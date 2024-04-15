@@ -124,6 +124,19 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                 />
                 <FormField
                     control={form.control}
+                    name="currentValue"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Aktueller Wert</FormLabel>
+                            <FormControl>
+                                <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
                     name="script"
                     render={({ field }) => (
                         <FormItem>
