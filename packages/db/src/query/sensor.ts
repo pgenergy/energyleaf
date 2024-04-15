@@ -276,49 +276,56 @@ export async function getElectricitySensorIdForUser(userId: string) {
 export async function insertSensorData(data: { sensorId: string; value: number; sum: boolean }) {
     try {
         await db.transaction(async (trx) => {
-            const userData = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
+            const dbSensor = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
 
-            if (userData.length === 0) {
+            if (dbSensor.length === 0) {
                 throw new Error("Sensor not found");
             }
 
             const lastEntries = await trx
                 .select()
                 .from(sensorData)
-                .where(eq(sensorData.sensorId, userData[0].id))
+                .where(eq(sensorData.sensorId, dbSensor[0].id))
                 .orderBy(desc(sensorData.timestamp))
-                .limit(10);
+                .limit(1);
 
             if (lastEntries.length === 0) {
+                const newValue = data.sum ? data.value + (dbSensor[0].currentValue || 0) : data.value;
                 await trx.insert(sensorData).values({
-                    sensorId: userData[0].id,
-                    value: data.value,
+                    sensorId: dbSensor[0].id,
+                    value: newValue,
                     timestamp: sql<Date>`NOW()`,
                 });
+                await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor[0].id));
                 return;
             }
             const lastEntry = lastEntries[0];
 
             const newValue = data.sum ? data.value + lastEntry.value : data.value;
-            if (newValue < 0 || (!data.sum && newValue == 0)) {
+            const currentValue = dbSensor[0].currentValue || 0;
+            if (newValue < 0 || (!data.sum && newValue == 0) || newValue < currentValue || newValue < lastEntry.value) {
                 return;
             }
 
-            const averageLastValues = lastEntries.reduce((acc, val) => acc + val.value, 0) / lastEntries.length;
-            if (lastEntry.value > averageLastValues * 2 && newValue < lastEntry.value) {
-                await trx.delete(sensorData).where(eq(sensorData.id, lastEntry.id));
+            if (currentValue === 0) {
                 await trx.insert(sensorData).values({
-                    sensorId: userData[0].id,
+                    sensorId: dbSensor[0].id,
                     value: newValue,
                     timestamp: sql<Date>`NOW()`,
                 });
-            } else if (newValue >= lastEntry.value) {
-                await trx.insert(sensorData).values({
-                    sensorId: userData[0].id,
-                    value: newValue,
-                    timestamp: sql<Date>`NOW()`,
-                });
+                await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor[0].id));
             }
+
+            if (newValue - currentValue > 1000) {
+                throw new Error("value/too-high");
+            }
+
+            await trx.insert(sensorData).values({
+                sensorId: dbSensor[0].id,
+                value: newValue,
+                timestamp: sql<Date>`NOW()`,
+            });
+            await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor[0].id));
         });
     } catch (err) {
         throw err;
@@ -337,6 +344,7 @@ type CreateSensorType = {
     macAddress: string;
     sensorType: SensorType;
     script?: string;
+    currentValue?: number;
 };
 
 export async function createSensor(createSensorType: CreateSensorType): Promise<void> {
@@ -444,16 +452,29 @@ export async function createSensorToken(clientId: string) {
 /**
  * Get the script and needsScript for a sensor
  */
-export async function getSensorScript(clientId: string) {
+export async function getSensorDataByClientId(clientId: string) {
     const query = await db
         .select({
             script: sensor.script,
             needsScript: sensor.needsScript,
+            currentValue: sensorData.value,
         })
         .from(sensor)
         .where(eq(sensor.clientId, clientId))
         .limit(1);
 
+    if (query.length === 0) {
+        return null;
+    }
+
+    return query[0];
+}
+
+/**
+ * Get the sensor data from a client id
+ */
+export async function getSensorByClientId(clientId: string) {
+    const query = await db.select().from(sensor).where(eq(sensor.clientId, clientId));
     if (query.length === 0) {
         return null;
     }

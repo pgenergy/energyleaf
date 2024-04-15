@@ -39,6 +39,7 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
             macAddress: sensor?.clientId ?? "",
             sensorType: sensor?.sensorType ?? SensorType.Electricity,
             script: sensor?.script ?? "",
+            currentValue: sensor?.currentValue ?? 0,
         },
     });
 
@@ -48,6 +49,7 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                 clientId: data.macAddress,
                 sensorType: data.sensorType,
                 script: data.script,
+                currentValue: data.currentValue,
             };
             toast.promise(updateSensor(sensor.id, updateData), {
                 loading: "Laden...",
@@ -69,7 +71,7 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                     throw new Error("MAC-Adresse existiert bereits");
                 }
 
-                await createSensor(data.macAddress, data.sensorType);
+                await createSensor(data.macAddress, data.sensorType, data.script, data.currentValue);
             },
             {
                 loading: "Laden...",

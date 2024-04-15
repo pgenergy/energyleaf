@@ -31,7 +31,21 @@ export const POST = async (req: NextRequest) => {
             const sensorId = await getSensorIdFromSensorToken(data.accessToken);
             const needsSum = data.type === SensorType.ANALOG_ELECTRICITY;
 
-            await insertSensorData({ sensorId, value: data.value, sum: needsSum });
+            try {
+                await insertSensorData({ sensorId, value: data.value, sum: needsSum });
+            } catch (e) {
+                if ((e as unknown as Error).message === "value/too-high") {
+                    return new NextResponse(
+                        SensorDataResponse.toBinary({ statusMessage: "Value too high", status: 400 }),
+                        {
+                            status: 400,
+                            headers: {
+                                "Content-Type": "application/x-protobuf",
+                            },
+                        },
+                    );
+                }
+            }
 
             return new NextResponse(SensorDataResponse.toBinary({ status: 200 }), {
                 status: 200,

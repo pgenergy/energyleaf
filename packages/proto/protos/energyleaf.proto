@@ -20,6 +20,7 @@ message TokenResponse {
 	optional string status_message = 4;
 	optional string script = 5;
 	optional uint32 analog_rotation_per_kwh = 6;
+    optional float current_value = 7;
 }
 
 message SensorDataRequest {
