@@ -276,56 +276,64 @@ export async function getElectricitySensorIdForUser(userId: string) {
 export async function insertSensorData(data: { sensorId: string; value: number; sum: boolean }) {
     try {
         await db.transaction(async (trx) => {
-            const dbSensor = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
+            const dbSensors = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
 
-            if (dbSensor.length === 0) {
+            if (dbSensors.length === 0) {
                 throw new Error("Sensor not found");
             }
+            const dbSensor = dbSensors[0];
+            const currentValue = dbSensor.currentValue || 0;
 
             const lastEntries = await trx
                 .select()
                 .from(sensorData)
-                .where(eq(sensorData.sensorId, dbSensor[0].id))
+                .where(eq(sensorData.sensorId, dbSensor.id))
                 .orderBy(desc(sensorData.timestamp))
                 .limit(1);
 
             if (lastEntries.length === 0) {
-                const newValue = data.sum ? data.value + (dbSensor[0].currentValue || 0) : data.value;
+                const newValue = data.sum ? data.value + currentValue : data.value;
+                if (newValue <= 0 || newValue < currentValue) {
+                    return;
+                }
+                if (currentValue !== 0 && newValue - currentValue > 200) {
+                    throw new Error("value/too-high");
+                }
                 await trx.insert(sensorData).values({
-                    sensorId: dbSensor[0].id,
+                    sensorId: dbSensor.id,
                     value: newValue,
                     timestamp: sql<Date>`NOW()`,
                 });
-                await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor[0].id));
+                await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor.id));
                 return;
             }
             const lastEntry = lastEntries[0];
 
             const newValue = data.sum ? data.value + lastEntry.value : data.value;
-            const currentValue = dbSensor[0].currentValue || 0;
             if (newValue < 0 || (!data.sum && newValue == 0) || newValue < currentValue || newValue < lastEntry.value) {
                 return;
             }
 
             if (currentValue === 0) {
                 await trx.insert(sensorData).values({
-                    sensorId: dbSensor[0].id,
+                    sensorId: dbSensor.id,
                     value: newValue,
                     timestamp: sql<Date>`NOW()`,
                 });
-                await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor[0].id));
+                await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor.id));
             }
 
-            if (newValue - currentValue > 1000) {
+            const timeDiff = new Date().getTime() - lastEntry.timestamp.getTime() / 1000;
+            if (newValue - currentValue > timeDiff * 5) {
                 throw new Error("value/too-high");
             }
 
             await trx.insert(sensorData).values({
-                sensorId: dbSensor[0].id,
+                sensorId: dbSensor.id,
                 value: newValue,
                 timestamp: sql<Date>`NOW()`,
             });
-            await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor[0].id));
+            await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor.id));
         });
     } catch (err) {
         throw err;
