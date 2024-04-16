@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { createSensorToken, getSensorDataByClientId } from "@energyleaf/db/query";
+import { createSensorToken, getEnergyLastEntry, getSensorDataByClientId } from "@energyleaf/db/query";
 import { TokenRequest, TokenResponse } from "@energyleaf/proto";
 import { parseReadableStream } from "@energyleaf/proto/util";
 
@@ -32,6 +32,8 @@ export const POST = async (req: NextRequest) => {
                 });
             }
 
+            const lastEntry = await getEnergyLastEntry(sensorData.id);
+
             if ((sensorData.needsScript && sensorData.script) || (data.needScript && sensorData.script)) {
                 return new NextResponse(
                     TokenResponse.toBinary({
@@ -39,7 +41,7 @@ export const POST = async (req: NextRequest) => {
                         accessToken: code,
                         expiresIn: 3600,
                         script: sensorData.script,
-                        currentValue: sensorData.currentValue,
+                        currentValue: lastEntry?.value,
                     }),
                     {
                         status: 200,

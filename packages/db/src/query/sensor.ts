@@ -110,6 +110,23 @@ export async function getEnergyForSensorInRange(
     });
 }
 
+export async function getEnergyLastEntry(sensorId: string) {
+    const query = await db
+        .select({
+            value: sensorData.value,
+        })
+        .from(sensorData)
+        .where(eq(sensorData.sensorId, sensorId))
+        .orderBy(desc(sensorData.timestamp))
+        .limit(1);
+
+    if (query.length === 0) {
+        return null;
+    }
+
+    return query[0];
+}
+
 export async function getEnergySumForSensorInRange(start: Date, end: Date, sensorId: string) {
     return await db.transaction(async (trx) => {
         const latestEntryBeforeStart = await trx
@@ -282,7 +299,6 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
                 throw new Error("Sensor not found");
             }
             const dbSensor = dbSensors[0];
-            const currentValue = dbSensor.currentValue || 0;
 
             const lastEntries = await trx
                 .select()
@@ -292,39 +308,26 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
                 .limit(1);
 
             if (lastEntries.length === 0) {
-                const newValue = data.sum ? data.value + currentValue : data.value;
-                if (newValue <= 0 || newValue < currentValue) {
+                const newValue = data.value;
+                if (newValue <= 0) {
                     return;
-                }
-                if (currentValue !== 0 && newValue - currentValue > 200) {
-                    throw new Error("value/too-high");
                 }
                 await trx.insert(sensorData).values({
                     sensorId: dbSensor.id,
                     value: newValue,
                     timestamp: sql<Date>`NOW()`,
                 });
-                await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor.id));
                 return;
             }
             const lastEntry = lastEntries[0];
 
             const newValue = data.sum ? data.value + lastEntry.value : data.value;
-            if (newValue < 0 || (!data.sum && newValue == 0) || newValue < currentValue || newValue < lastEntry.value) {
+            if (newValue <= 0 || newValue < lastEntry.value) {
                 return;
             }
 
-            if (currentValue === 0) {
-                await trx.insert(sensorData).values({
-                    sensorId: dbSensor.id,
-                    value: newValue,
-                    timestamp: sql<Date>`NOW()`,
-                });
-                await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor.id));
-            }
-
             const timeDiff = new Date().getTime() - lastEntry.timestamp.getTime() / 1000;
-            if (newValue - currentValue > timeDiff * 5) {
+            if (newValue - lastEntry.value > timeDiff * 5) {
                 throw new Error("value/too-high");
             }
 
@@ -333,11 +336,21 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
                 value: newValue,
                 timestamp: sql<Date>`NOW()`,
             });
-            await trx.update(sensor).set({ currentValue: newValue }).where(eq(sensor.id, dbSensor.id));
         });
     } catch (err) {
         throw err;
     }
+}
+
+/**
+ * Insert raw sensor value
+ */
+export async function insertRawSensorValue(sensorId: string, value: number) {
+    return db.insert(sensorData).values({
+        sensorId: sensorId,
+        value: value,
+        timestamp: sql<Date>`NOW()`,
+    });
 }
 
 export async function getSensorsWithUser(): Promise<SensorSelectTypeWithUser[]> {
@@ -463,6 +476,7 @@ export async function createSensorToken(clientId: string) {
 export async function getSensorDataByClientId(clientId: string) {
     const query = await db
         .select({
+            id: sensor.id,
             script: sensor.script,
             needsScript: sensor.needsScript,
             currentValue: sensorData.value,

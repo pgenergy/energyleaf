@@ -7,6 +7,7 @@ import {
     deleteUserFromSensor,
     getElectricitySensorIdForUser,
     getEnergyForSensorInRange,
+    insertRawSensorValue,
     sensorExists,
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
@@ -24,18 +25,12 @@ import type { AggregationType } from "@energyleaf/lib";
 /**
  * Creates a new sensor.
  */
-export async function createSensor(
-    macAddress: string,
-    sensorType: SensorType,
-    script?: string,
-    currentValue?: number,
-): Promise<void> {
+export async function createSensor(macAddress: string, sensorType: SensorType, script?: string): Promise<void> {
     await checkIfAdmin();
     await createSensorDb({
         macAddress,
         sensorType,
         script: script !== "" ? script : undefined,
-        currentValue,
     });
     revalidatePath("/sensors");
 }
@@ -100,5 +95,15 @@ export async function removeUserFromSensor(clientId: string) {
         revalidatePath("/sensors");
     } catch (err) {
         throw new Error("Error while removing user from sensor");
+    }
+}
+
+export async function insertSensorValue(sensorId: string, value: number) {
+    await checkIfAdmin();
+
+    try {
+        await insertRawSensorValue(sensorId, value);
+    } catch (err) {
+        throw new Error("Error while inserting sensor value");
     }
 }

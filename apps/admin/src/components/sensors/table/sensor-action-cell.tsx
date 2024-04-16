@@ -2,7 +2,7 @@
 
 import { removeUserFromSensor } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
-import { Edit2Icon, MinusIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
+import { Edit2Icon, MinusIcon, MoreVerticalIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import type { SensorSelectType } from "@energyleaf/db/types";
@@ -33,6 +33,11 @@ export default function SensorActionCell({ sensor }: Props) {
         sensorContext.setEditDialogOpen(true);
     }
 
+    function openAddValueDialog() {
+        sensorContext.setSensor(sensor);
+        sensorContext.setAddValueDialogOpen(true);
+    }
+
     function removeUser() {
         toast.promise(removeUserFromSensor(sensor.clientId), {
             loading: "Nutzer wird entfernt...",
@@ -55,11 +60,16 @@ export default function SensorActionCell({ sensor }: Props) {
                     <Edit2Icon className="h-4 w-4" />
                     Bearbeiten
                 </DropdownMenuItem>
+                <DropdownMenuItem className="flex cursor-pointer flex-row gap-2" onClick={openAddValueDialog}>
+                    <PlusCircleIcon className="h-4 w-4" />
+                    Wert hinzufügen
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="flex cursor-pointer flex-row gap-2" onClick={removeUser}>
                     <MinusIcon className="h-4 w-4" />
                     Nutzer entfernen
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                     className="flex cursor-pointer flex-row gap-2 text-destructive"
                     onClick={openDeleteDialog}

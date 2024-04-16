@@ -39,7 +39,6 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
             macAddress: sensor?.clientId ?? "",
             sensorType: sensor?.sensorType ?? SensorType.Electricity,
             script: sensor?.script ?? "",
-            currentValue: sensor?.currentValue ?? 0,
         },
     });
 
@@ -71,7 +70,7 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                     throw new Error("MAC-Adresse existiert bereits");
                 }
 
-                await createSensor(data.macAddress, data.sensorType, data.script, data.currentValue);
+                await createSensor(data.macAddress, data.sensorType, data.script);
             },
             {
                 loading: "Laden...",
@@ -118,19 +117,6 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="currentValue"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Aktueller Wert</FormLabel>
-                            <FormControl>
-                                <Input type="number" {...field} />
-                            </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
