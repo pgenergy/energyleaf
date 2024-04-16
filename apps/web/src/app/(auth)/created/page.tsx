@@ -21,9 +21,8 @@ export default function AccountCreatedPage() {
                 <Separator />
                 <div className="flex flex-col items-center gap-4 pt-4">
                     <p className="text-sm text-muted-foreground">
-                        Noch kein Konto?{" "}
                         <Link className="underline hover:no-underline" href="/">
-                            Zurück zum Login
+                            Zurück zum Start
                         </Link>
                     </p>
                 </div>
