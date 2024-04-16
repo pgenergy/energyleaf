@@ -19,7 +19,7 @@ export const POST = async (req: NextRequest) => {
         const data = SensorDataRequest.fromBinary(binaryData);
 
         if (data.value <= 0) {
-            return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "Value is zero" }), {
+            return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "Value is equal to or less than zero" }), {
                 status: 400,
                 headers: {
                     "Content-Type": "application/x-protobuf",
