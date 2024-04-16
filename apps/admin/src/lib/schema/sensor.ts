@@ -14,3 +14,7 @@ export const addSensorSchema = z.object({
 export const assignUserToSensorSchema = z.object({
     userId: z.string().nullable(),
 });
+
+export const addSensorValueSchema = z.object({
+    value: z.coerce.number().nonnegative(),
+});
