@@ -24,7 +24,12 @@ import type { AggregationType } from "@energyleaf/lib";
 /**
  * Creates a new sensor.
  */
-export async function createSensor(macAddress: string, sensorType: SensorType, script?: string, currentValue?: number): Promise<void> {
+export async function createSensor(
+    macAddress: string,
+    sensorType: SensorType,
+    script?: string,
+    currentValue?: number,
+): Promise<void> {
     await checkIfAdmin();
     await createSensorDb({
         macAddress,
