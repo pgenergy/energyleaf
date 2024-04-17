@@ -22,8 +22,8 @@
         "@energyleaf/lib": "workspace:^",
         "@lucia-auth/adapter-drizzle": "^1.0.7",
         "@planetscale/database": "^1.16.0",
-        "drizzle-orm": "^0.30.6",
-        "nanoid": "^5.0.6"
+        "drizzle-orm": "^0.30.8",
+        "nanoid": "^5.0.7"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",

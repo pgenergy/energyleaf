@@ -14,11 +14,11 @@
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",
         "@energyleaf/tsconfig": "workspace:^",
-        "@types/node": "^20.12.2",
+        "@types/node": "^20.12.7",
         "eslint": "^8.57.0",
-        "typescript": "^5.4.3"
+        "typescript": "^5.4.5"
     },
     "dependencies": {
-        "jose": "^5.2.3"
+        "jose": "^5.2.4"
     }
 }

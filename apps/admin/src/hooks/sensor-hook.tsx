@@ -11,6 +11,8 @@ export type SensorContextType = {
     setDeleteDialogOpen: (open: boolean) => void;
     editDialogOpen: boolean;
     setEditDialogOpen: (open: boolean) => void;
+    addValueDialogOpen: boolean;
+    setAddValueDialogOpen: (open: boolean) => void;
     sensor: SensorSelectType | undefined;
     setSensor: (sensor: SensorSelectType | undefined) => void;
 } | null;
@@ -25,6 +27,7 @@ export function SensorContextProvider({ children }: Props) {
     const [addDialogOpen, setAddDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [addValueDialogOpen, setAddValueDialogOpen] = useState(false);
     const [sensor, setSensor] = useState<SensorSelectType | undefined>(undefined);
 
     return (
@@ -36,6 +39,8 @@ export function SensorContextProvider({ children }: Props) {
                 setDeleteDialogOpen,
                 editDialogOpen,
                 setEditDialogOpen,
+                addValueDialogOpen,
+                setAddValueDialogOpen,
                 sensor,
                 setSensor,
             }}
