@@ -8,7 +8,6 @@ export const addSensorSchema = z.object({
         .regex(/^(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$/, "Bitte geben Sie eine gültige MAC-Adresse ein."),
     sensorType: z.nativeEnum(SensorType),
     script: z.string().optional(),
-    currentValue: z.coerce.number().nonnegative(),
 });
 
 export const assignUserToSensorSchema = z.object({

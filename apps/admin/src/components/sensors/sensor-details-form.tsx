@@ -48,7 +48,6 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                 clientId: data.macAddress,
                 sensorType: data.sensorType,
                 script: data.script,
-                currentValue: data.currentValue,
             };
             toast.promise(updateSensor(sensor.id, updateData), {
                 loading: "Laden...",
