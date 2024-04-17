@@ -34,7 +34,7 @@ export const POST = async (req: NextRequest) => {
 
             const lastEntry = await getEnergyLastEntry(sensorData.id);
 
-            if ((sensorData.needsScript && sensorData.script) || (data.needScript && sensorData.script)) {
+            if ((sensorData.needsScript || data.needScript) && sensorData.script) {
                 return new NextResponse(
                     TokenResponse.toBinary({
                         status: 200,
