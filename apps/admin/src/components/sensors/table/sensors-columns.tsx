@@ -87,10 +87,10 @@ export const sensorsOverviewColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
             );
         },
         cell: ({ row }) => {
+            const sensor = row.original.sensor;
             const userId: string | undefined = row.original.user?.id || undefined;
             const userName: string | undefined = row.original.user?.username || undefined;
-            const clientId: string = row.original.sensor.clientId;
-            return <SensorUserAssignmentForm clientId={clientId} selectedUserId={userId} selectedUserName={userName} />;
+            return <SensorUserAssignmentForm sensor={sensor} selectedUserId={userId} selectedUserName={userName} />;
         },
     },
     {

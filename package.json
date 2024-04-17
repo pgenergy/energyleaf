@@ -22,7 +22,7 @@
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:*",
         "@total-typescript/ts-reset": "^0.5.1",
-        "eslint": "^9.0.0",
+        "eslint": "^8.57.0",
         "prettier": "^3.2.5",
         "turbo": "^1.13.2"
     },

@@ -6,7 +6,7 @@ import { addSensorValueSchema } from "@/lib/schema/sensor";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import type { z } from "zod";
 
 import {
     Button,
@@ -58,6 +58,10 @@ export default function SensorAddValueDialog() {
         <Dialog
             onOpenChange={(value) => {
                 sensorContext.setAddValueDialogOpen(value);
+                if (!value) {
+                    form.reset();
+                    sensorContext.setSensor(undefined);
+                }
             }}
             open={sensorContext.addValueDialogOpen}
         >
