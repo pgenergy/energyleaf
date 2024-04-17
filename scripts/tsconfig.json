@@ -1,0 +1,4 @@
+{
+    "extends": "@energyleaf/tsconfig/base.json",
+    "include": ["src/**/*.ts", "./index.cjs"]
+}

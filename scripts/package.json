@@ -1,0 +1,25 @@
+{
+    "name": "@energyleaf/scripts",
+    "version": "0.0.1",
+    "type": "module",
+    "exports": {
+        ".": "./index.cjs"
+    },
+    "private": true,
+    "description": "",
+    "scripts": {
+        "action": "node index.cjs",
+        "clean": "git clean -xdf node_modules"
+    },
+    "dependencies": {
+        "@energyleaf/db": "workspace:^",
+        "@energyleaf/lib": "workspace:^",
+        "jiti": "^1.21.0"
+    },
+    "devDependencies": {
+        "@energyleaf/eslint-config": "workspace:^",
+        "@energyleaf/tsconfig": "workspace:^",
+        "eslint": "^8.57.0",
+        "typescript": "^5.4.5"
+    }
+}

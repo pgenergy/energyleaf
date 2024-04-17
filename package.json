@@ -17,6 +17,7 @@
         "db:studio": "dotenv -- pnpm --filter db run studio",
         "db:studio:prod": "dotenv -- pnpm --filter db run studio:prod",
         "proto:compile": "dotenv -- pnpm --filter proto run compile",
+        "action": "dotenv -- pnpm --filter scripts action",
         "clean": "turbo run clean && git clean -xdf .turbo node_modules"
     },
     "devDependencies": {
