@@ -42,19 +42,19 @@ export async function getEnergyForSensorInRange(
         let dateFormat: string;
         switch (aggregation) {
             case AggregationType.HOUR:
-                dateFormat = "'%Y-%m-%d %H:00:00'";
+                dateFormat = "%H:00";
                 break;
             case AggregationType.DAY:
-                dateFormat = "'%Y-%m-%d'";
+                dateFormat = "%d.%m";
                 break;
             case AggregationType.WEEK:
-                dateFormat = "'%X-%V'";
+                dateFormat = "%X-%V";
                 break;
             case AggregationType.MONTH:
-                dateFormat = "'%Y-%m'";
+                dateFormat = "%m.%y";
                 break;
             case AggregationType.YEAR:
-                dateFormat = "'%Y'";
+                dateFormat = "%Y";
                 break;
             default:
                 throw new Error(`Unsupported aggregation type: ${aggregation}`);
@@ -78,11 +78,13 @@ export async function getEnergyForSensorInRange(
             .groupBy(formattedTimestamp)
             .orderBy(formattedTimestamp);
 
-        return query.map((row, index) => ({
-            ...row,
-            id: index === 0 ? '0' : nanoid(),
-            value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-        }));
+            const results = query.map((row, index) => ({
+                ...row,
+                id: index === 0 ? '0' : nanoid(),
+                value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
+            }));
+    
+            return results.slice(1);
     }
 }
 
