@@ -13,7 +13,7 @@ import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import {getActionSession} from "@/lib/auth/auth.action";
-import {fulfills, Versions} from "@energyleaf/lib";
+import {fulfills, Versions} from "@energyleaf/lib/versioning";
 
 export const metadata = {
     title: "Dashboard | Energyleaf",

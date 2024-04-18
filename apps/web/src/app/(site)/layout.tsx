@@ -8,8 +8,8 @@ import { isDemoUser } from "@/lib/demo/demo";
 import { AreaChartIcon, HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
 
 import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
-import {fulfills, Versions} from "@energyleaf/lib";
 import React from "react";
+import {fulfills, Versions} from "@energyleaf/lib/versioning";
 
 export const metadata = {
     robots: "noindex, nofollow",

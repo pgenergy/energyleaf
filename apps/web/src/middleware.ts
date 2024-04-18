@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { getActionSession } from "./lib/auth/auth.action";
 import {onboardingCompleteCookieName} from "@/lib/constants";
-import {fulfills, Versions} from "@energyleaf/lib";
+import {fulfills, Versions} from "@energyleaf/lib/versioning";
 
 const publicRoutes = ["/legal", "/privacy"];
 const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created"];

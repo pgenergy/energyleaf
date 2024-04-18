@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import "server-only";
 
 import { lucia } from "./auth.config";
-import {Versions} from "@energyleaf/lib";
+import {Versions} from "@energyleaf/lib/versioning";
 
 export const getActionSession = async () => {
     const demoMode = cookies().get("demo_mode")?.value === "true";

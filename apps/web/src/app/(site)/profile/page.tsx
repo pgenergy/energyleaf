@@ -12,7 +12,7 @@ import {
     createUserDataSchemaFromUserDataType,
 } from "@/lib/schema/conversion/profile";
 import { getUserData } from "@/query/user";
-import {fulfills, Versions} from "@energyleaf/lib";
+import {fulfills, Versions} from "@energyleaf/lib/versioning";
 
 export const metadata = {
     title: "Profil | Energyleaf",
