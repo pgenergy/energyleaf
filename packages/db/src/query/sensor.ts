@@ -479,7 +479,6 @@ export async function getSensorDataByClientId(clientId: string) {
             id: sensor.id,
             script: sensor.script,
             needsScript: sensor.needsScript,
-            currentValue: sensorData.value,
         })
         .from(sensor)
         .where(eq(sensor.clientId, clientId))
