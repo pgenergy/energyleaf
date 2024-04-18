@@ -25,7 +25,7 @@ import {
     Spinner,
     Switch,
 } from "@energyleaf/ui";
-import {stringify, Versions} from "@energyleaf/lib";
+import {stringify, Versions} from "@energyleaf/lib/versioning";
 
 interface Props {
     initialValues: z.infer<typeof userStateSchema>;

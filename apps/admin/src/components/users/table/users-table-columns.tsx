@@ -6,7 +6,7 @@ import { BanIcon, CheckCircle2Icon, ChevronDownIcon, ChevronUpIcon } from "lucid
 
 import type { UserSelectType } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui";
-import {stringify} from "@energyleaf/lib";
+import {stringify} from "@energyleaf/lib/versioning";
 
 export const usersTableColumns: ColumnDef<UserSelectType>[] = [
     {
