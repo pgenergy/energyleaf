@@ -57,8 +57,7 @@ function InformationStep() {
         <WizardPage title="Onboarding">
             <p>
                 Um die App in vollem Umfang nutzen zu können, sollten Sie die in den folgenden Schritten geforderten
-                Daten angeben. Möchten Sie Ihre Daten nicht angeben, so können Sie diesen Schritt auch überspringen und
-                die Daten später in Ihren Profil angeben.
+                Daten angeben. Sie können diese Angaben und Einstellungen später in Ihrem Profil aktualisieren.
             </p>
             <div className="flex w-full justify-center pt-3">
                 <Button
@@ -100,7 +99,7 @@ function UserDataStep({ userData }: UserDataStepProps) {
     return (
         <WizardPage title="Tarif- und Verbrauchsdaten">
             <Form {...form}>
-                <form className="flex flex-col gap-4">
+                <form className="flex flex-col gap-4 md:grid md:grid-cols-2">
                     <DataFormFields form={form} />
                 </form>
             </Form>
@@ -188,12 +187,11 @@ function MailSettingsStep({ reports }: MailSettingsStepProps) {
     return (
         <WizardPage
             title="E-Mail & Berichte"
-            description="Um Sie über Ihren Verbrauch informieren zu können, möchten wir Ihnen gerne Berichte in Form von
-            E-Mails senden. Hier können Sie einstellen, ob und wann Sie diese Berichte erhalten möchten. Sie können Ihre
-            Zustimmung jederzeit im Profil oder über die E-Mails widerrufen."
+            description="Wir beabsichtigen, Sie über Ihren Verbrauch zu informieren, indem wir regelmäßige Berichte in
+            Form von E-Mails zusenden. Hier können Sie einstellen, ob und wann Sie diese Berichte erhalten möchten."
         >
             <Form {...form}>
-                <form className="flex flex-col gap-4 pt-3">
+                <form className="flex flex-col gap-4 pt-4">
                     <MailSettingsFormFields form={form} />
                 </form>
             </Form>

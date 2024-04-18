@@ -8,6 +8,7 @@ import { getActionSession } from "@/lib/auth/auth.action";
 
 import { updateUser } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib";
+import {onboardingCompleteCookieName} from "@/lib/constants";
 
 export async function completeOnboarding() {
     const { session } = await getActionSession();
@@ -16,6 +17,6 @@ export async function completeOnboarding() {
     }
 
     await updateUser({ onboardingCompleted: true }, session.userId);
-    cookies().set("onboarding_complete", "true");
+    cookies().set(onboardingCompleteCookieName, "true");
     redirect("/dashboard");
 }

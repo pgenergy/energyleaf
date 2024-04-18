@@ -17,6 +17,7 @@ import type { z } from "zod";
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
+import {onboardingCompleteCookieName} from "@/lib/constants";
 
 /**
  * Server action for creating a new account
@@ -180,7 +181,7 @@ export async function signInAction(email: string, password: string) {
 async function handleSignIn(session: Session) {
     const userData = await getUserById(session.userId);
     const onboardingCompleted = userData?.onboardingCompleted ?? false;
-    cookies().set("onboarding_complete", onboardingCompleted.toString());
+    cookies().set(onboardingCompleteCookieName, onboardingCompleted.toString());
 
     if (!onboardingCompleted) {
         redirect("/onboarding");
