@@ -7,6 +7,7 @@ import {
     deleteUserFromSensor,
     getElectricitySensorIdForUser,
     getEnergyForSensorInRange,
+    insertRawSensorValue,
     sensorExists,
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
@@ -79,8 +80,9 @@ export async function deleteSensor(sensorId: string) {
 export async function assignUserToSensor(data: z.infer<typeof assignUserToSensorSchema>, clientId: string) {
     await checkIfAdmin();
     try {
-        await assignSensorToUserDb(clientId, data.userId);
+        const newId = await assignSensorToUserDb(clientId, data.userId);
         revalidatePath("/sensors");
+        return newId;
     } catch (e) {
         throw new Error("Error while assigning user to sensor");
     }
@@ -94,5 +96,15 @@ export async function removeUserFromSensor(clientId: string) {
         revalidatePath("/sensors");
     } catch (err) {
         throw new Error("Error while removing user from sensor");
+    }
+}
+
+export async function insertSensorValue(sensorId: string, value: number) {
+    await checkIfAdmin();
+
+    try {
+        await insertRawSensorValue(sensorId, value);
+    } catch (err) {
+        throw new Error("Error while inserting sensor value");
     }
 }

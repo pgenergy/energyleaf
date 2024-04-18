@@ -69,7 +69,7 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                     throw new Error("MAC-Adresse existiert bereits");
                 }
 
-                await createSensor(data.macAddress, data.sensorType);
+                await createSensor(data.macAddress, data.sensorType, data.script);
             },
             {
                 loading: "Laden...",
