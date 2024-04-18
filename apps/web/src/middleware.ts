@@ -36,7 +36,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (appVersionSpecificRoutes[path] && !fulfills(user!.appVersion, appVersionSpecificRoutes[path])) {
-        return NextResponse.redirect(`${url}/`);
+        return NextResponse.redirect(new URL("/", req.url));
     }
 
     return NextResponse.next();
