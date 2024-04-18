@@ -7,8 +7,8 @@ import type { FallbackProps } from "react-error-boundary";
 
 import type { UserSelectType } from "@energyleaf/db/types";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
-import {userStateSchema} from "@/lib/schema/user";
-import {z} from "zod";
+import type {userStateSchema} from "@/lib/schema/user";
+import type {z} from "zod";
 
 interface Props {
     user: UserSelectType;

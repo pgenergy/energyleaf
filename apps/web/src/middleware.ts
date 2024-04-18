@@ -8,7 +8,9 @@ import {fulfills, Versions} from "@energyleaf/lib/versioning";
 const publicRoutes = ["/legal", "/privacy"];
 const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created"];
 const onboardingRoute = "/onboarding";
-const appVersionSpecificRoutes = {
+
+type AppVersionSpecificRoute = Record<string, Versions>;
+const appVersionSpecificRoutes: AppVersionSpecificRoute = {
     "/devices": Versions.self_reflection,
     "/recommendations": Versions.support
 };
@@ -35,7 +37,7 @@ export default async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL("/", req.url));
     }
 
-    if (appVersionSpecificRoutes[path] && !fulfills(user!.appVersion, appVersionSpecificRoutes[path])) {
+    if (appVersionSpecificRoutes[path] && user && !fulfills(user.appVersion as Versions, appVersionSpecificRoutes[path])) {
         return NextResponse.redirect(new URL("/", req.url));
     }
 

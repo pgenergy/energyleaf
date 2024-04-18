@@ -22,9 +22,9 @@ interface Props {
 }
 
 export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
-    const { session, user } = await getSession();
+    const { user } = await getSession();
 
-    if (!session || !user) {
+    if (!user) {
         redirect("/");
     }
 

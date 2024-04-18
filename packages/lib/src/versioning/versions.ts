@@ -4,7 +4,7 @@ enum Versions {
     support
 }
 
-function fulfills(version: Versions, required: Versions) {
+function fulfills(version: number | Versions, required: Versions | number) {
     return version >= required;
 }
 

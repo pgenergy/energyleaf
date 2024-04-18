@@ -94,8 +94,8 @@ export default function UserStateForm({ initialValues, id }: Props) {
                             <FormLabel>App-Version</FormLabel>
                             <FormControl>
                                 <Select
-                                    onValueChange={(value) => field.onChange(Number(value))}
-                                    value={field.value?.toString()}
+                                    onValueChange={(value) => { field.onChange(Number(value)) }}
+                                    value={field.value.toString()}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="App-Version wählen..." />
@@ -103,11 +103,14 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                     <SelectContent>
                                         {Object.keys(Versions)
                                             .filter((key) => isNaN(Number(key)))
-                                            .map((key) => (
-                                                <SelectItem key={key} value={Versions[key].toString()}>
-                                                    {stringify(Versions[key])}
-                                                </SelectItem>
-                                            ))}
+                                            .map((key) => {
+                                                const appVersion = Versions[key] as Versions;
+                                                return (
+                                                    <SelectItem key={key} value={appVersion.toString()}>
+                                                        {stringify(appVersion)}
+                                                    </SelectItem>
+                                                )
+                                            })}
                                     </SelectContent>
                                 </Select>
                             </FormControl>
