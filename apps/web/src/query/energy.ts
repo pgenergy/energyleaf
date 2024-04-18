@@ -10,8 +10,7 @@ import {
 
 import "server-only";
 
-import { cookies } from "next/headers";
-import { getDemoSensorData, getPeaksCookieStore } from "@/lib/demo/demo";
+import { getDemoSensorData } from "@/lib/demo/demo";
 
 import { AggregationType } from "@energyleaf/lib";
 
@@ -54,17 +53,5 @@ export const getElectricitySensorIdForUser = cache(async (userId: string) => {
 });
 
 export const getPeaksBySensor = cache(async (start: Date, end: Date, sensorId: string) => {
-    if (sensorId === "demo_sensor") {
-        const peaks = getPeaksCookieStore(cookies());
-        const sensorData = getDemoSensorData(start, end);
-
-        return peaks.map((p) => {
-            return {
-                peaks: p,
-                sensor_data: sensorData.find((s) => s.timestamp.getTime() === p.timestamp.getTime()) || null,
-            };
-        });
-    }
-
     return getDbPeaksBySensor(start, end, sensorId);
 });

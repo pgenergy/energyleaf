@@ -16,7 +16,7 @@ export const getActionSession = async () => {
                 created: new Date().toISOString(),
                 isAdmin: false,
                 isActive: true,
-                appVersion: Versions.support
+                appVersion: Versions.transparency
             },
             session: {
                 id: "demo",
