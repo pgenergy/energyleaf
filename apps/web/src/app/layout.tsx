@@ -3,12 +3,13 @@ import { ThemeProvider } from "@/hooks/theme-provider";
 import "@energyleaf/tailwindcss/global.css";
 
 import type { Metadata } from "next";
+import { env } from "@/env.mjs";
 import { Analytics } from "@vercel/analytics/react";
 
 import { Toaster } from "@energyleaf/ui/components/utils";
-import { env } from "@/env.mjs";
 
-const description = "Mit diesem Tool können Sie Ihren Stromverbrauch übersichtlich darstellen und besser verstehen. Analysieren Sie Ihren Verbrauch, finden Sie Einsparpotenziale und senken Sie Ihre Kosten.";
+const description =
+    "Mit diesem Tool können Sie Ihren Stromverbrauch übersichtlich darstellen und besser verstehen. Analysieren Sie Ihren Verbrauch, finden Sie Einsparpotenziale und senken Sie Ihre Kosten.";
 
 export const metadata: Metadata = {
     title: "Energyleaf",
