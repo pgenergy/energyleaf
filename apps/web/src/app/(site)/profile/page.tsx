@@ -12,7 +12,8 @@ import {
     createUserDataSchemaFromUserDataType,
 } from "@/lib/schema/conversion/profile";
 import { getUserData } from "@/query/user";
-import {fulfills, Versions} from "@energyleaf/lib/versioning";
+
+import { fulfills, Versions } from "@energyleaf/lib/versioning";
 
 export const metadata = {
     title: "Profil | Energyleaf",
@@ -38,7 +39,7 @@ export default async function ProfilePage() {
             <ChangePasswordForm disabled={isDemo} />
             <MailSettingsForm disabled={isDemo} initialValues={reportConfig} />
             <UserDataForm initialData={data} />
-            {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData?.user_data} /> }
+            {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData?.user_data} />}
             <AccountDeletionForm disabled={isDemo} />
         </div>
     );

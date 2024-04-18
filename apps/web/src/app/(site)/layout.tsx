@@ -1,3 +1,4 @@
+import React from "react";
 import { redirect } from "next/navigation";
 import { DemoBanner } from "@/components/footer/demo-banner";
 import Footer from "@/components/footer/footer";
@@ -7,9 +8,8 @@ import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { AreaChartIcon, HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
 
+import { fulfills, Versions } from "@energyleaf/lib/versioning";
 import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
-import React from "react";
-import {fulfills, Versions} from "@energyleaf/lib/versioning";
 
 export const metadata = {
     robots: "noindex, nofollow",
@@ -27,7 +27,7 @@ const navLinks = [
         title: "Empfehlungen",
         path: "/recommendations",
         icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
-        appVersion: Versions.support
+        appVersion: Versions.support,
     },
     {
         slug: "report",
@@ -40,7 +40,7 @@ const navLinks = [
         title: "Geräte",
         path: "/devices",
         icon: <MicrowaveIcon className="mr-2 h-4 w-4" />,
-        appVersion: Versions.self_reflection
+        appVersion: Versions.self_reflection,
     },
 ];
 

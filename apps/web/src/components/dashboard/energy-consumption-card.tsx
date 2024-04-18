@@ -7,13 +7,13 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import type ConsumptionData from "@/types/consumption/consumption-data";
 import type { PeakAssignment } from "@/types/consumption/peak";
 
-import {AggregationType} from "@energyleaf/lib";
+import { AggregationType } from "@energyleaf/lib";
+import { fulfills, Versions } from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 import DashboardZoomReset from "./dashboard-zoom-reset";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
-import {fulfills, Versions} from "@energyleaf/lib/versioning";
 
 interface Props {
     startDate: Date;
@@ -58,9 +58,10 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }));
 
     const devices = !hasAggregation ? await getDevicesByUser(userId) : [];
-    const peakAssignments: PeakAssignment[] = !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
-        ? await calculatePeaks(data, startDate, endDate, sensorId)
-        : [];
+    const peakAssignments: PeakAssignment[] =
+        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
+            ? await calculatePeaks(data, startDate, endDate, sensorId)
+            : [];
 
     return (
         <Card className="w-full">

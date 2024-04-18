@@ -93,11 +93,14 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
     await checkIfAdmin();
 
     try {
-        await updateUserDb({
-            isAdmin: data.isAdmin,
-            isActive: data.active,
-            appVersion: data.appVersion
-        }, id);
+        await updateUserDb(
+            {
+                isAdmin: data.isAdmin,
+                isActive: data.active,
+                appVersion: data.appVersion,
+            },
+            id,
+        );
         revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to update user");

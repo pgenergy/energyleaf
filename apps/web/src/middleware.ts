@@ -1,9 +1,10 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
+import { onboardingCompleteCookieName } from "@/lib/constants";
+
+import { fulfills, Versions } from "@energyleaf/lib/versioning";
 
 import { getActionSession } from "./lib/auth/auth.action";
-import {onboardingCompleteCookieName} from "@/lib/constants";
-import {fulfills, Versions} from "@energyleaf/lib/versioning";
 
 const publicRoutes = ["/legal", "/privacy"];
 const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created"];
@@ -12,7 +13,7 @@ const onboardingRoute = "/onboarding";
 type AppVersionSpecificRoute = Record<string, Versions>;
 const appVersionSpecificRoutes: AppVersionSpecificRoute = {
     "/devices": Versions.self_reflection,
-    "/recommendations": Versions.support
+    "/recommendations": Versions.support,
 };
 
 export default async function middleware(req: NextRequest) {
@@ -37,7 +38,11 @@ export default async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL("/", req.url));
     }
 
-    if (appVersionSpecificRoutes[path] && user && !fulfills(user.appVersion as Versions, appVersionSpecificRoutes[path])) {
+    if (
+        appVersionSpecificRoutes[path] &&
+        user &&
+        !fulfills(user.appVersion as Versions, appVersionSpecificRoutes[path])
+    ) {
         return NextResponse.redirect(new URL("/", req.url));
     }
 

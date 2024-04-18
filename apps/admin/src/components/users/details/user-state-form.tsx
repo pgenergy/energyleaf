@@ -1,13 +1,14 @@
 "use client";
 
-import {useTransition} from "react";
-import {updateUserState} from "@/actions/user";
-import {userStateSchema} from "@/lib/schema/user";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useForm} from "react-hook-form";
-import {toast} from "sonner";
-import type {z} from "zod";
+import { useTransition } from "react";
+import { updateUserState } from "@/actions/user";
+import { userStateSchema } from "@/lib/schema/user";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
+import { stringify, Versions } from "@energyleaf/lib/versioning";
 import {
     Button,
     Form,
@@ -25,7 +26,6 @@ import {
     Spinner,
     Switch,
 } from "@energyleaf/ui";
-import {stringify, Versions} from "@energyleaf/lib/versioning";
 
 interface Props {
     initialValues: z.infer<typeof userStateSchema>;
@@ -94,7 +94,9 @@ export default function UserStateForm({ initialValues, id }: Props) {
                             <FormLabel>App-Version</FormLabel>
                             <FormControl>
                                 <Select
-                                    onValueChange={(value) => { field.onChange(Number(value)) }}
+                                    onValueChange={(value) => {
+                                        field.onChange(Number(value));
+                                    }}
                                     value={field.value.toString()}
                                 >
                                     <SelectTrigger>
@@ -109,7 +111,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                                     <SelectItem key={key} value={appVersion.toString()}>
                                                         {stringify(appVersion)}
                                                     </SelectItem>
-                                                )
+                                                );
                                             })}
                                     </SelectContent>
                                 </Select>

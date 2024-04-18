@@ -8,10 +8,11 @@ import {
     mysqlTable,
     smallint,
     timestamp,
-    varchar
+    varchar,
 } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
-import {Versions} from "@energyleaf/lib/versioning";
+
+import { Versions } from "@energyleaf/lib/versioning";
 
 export const user = mysqlTable("user", {
     id: varchar("id", { length: 30 })
