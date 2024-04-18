@@ -26,7 +26,7 @@ export const getUserById = cache(async (id: string) => {
             isAdmin: false,
             created: new Date(),
             isActive: true,
-            appVersion: Versions.support,
+            appVersion: Versions.transparency,
         };
     }
 
