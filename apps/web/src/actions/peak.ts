@@ -5,9 +5,7 @@ import type { z } from "zod";
 
 import "server-only";
 
-import { cookies } from "next/headers";
 import { getActionSession } from "@/lib/auth/auth.action";
-import { addOrUpdatePeakCookieStore, isDemoUser } from "@/lib/demo/demo";
 import type { peakSchema } from "@/lib/schema/peak";
 
 import { addOrUpdatePeak as addOrUpdatePeakDb } from "@energyleaf/db/query";
@@ -18,12 +16,6 @@ export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId
 
     if (!session) {
         throw new UserNotLoggedInError();
-    }
-
-    if (await isDemoUser()) {
-        addOrUpdatePeakCookieStore(cookies(), timestamp, data.deviceId);
-        revalidatePath("/dashboard");
-        return;
     }
 
     try {

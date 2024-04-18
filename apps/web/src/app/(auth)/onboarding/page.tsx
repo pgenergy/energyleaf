@@ -1,8 +1,9 @@
 import OnboardingWizard from "@/components/onboarding/onboarding-wizard";
-import { getActionSession } from "@/lib/auth/auth.action";
-import { getUserData } from "@/query/user";
+import {getActionSession} from "@/lib/auth/auth.action";
+import {getUserData} from "@/query/user";
 
-import { CardContent } from "@energyleaf/ui";
+import {CardContent} from "@energyleaf/ui";
+import {fulfills, Versions} from "@energyleaf/lib/versioning";
 
 export default async function OnboardingInformationPage() {
     const { user } = await getActionSession();
@@ -17,7 +18,7 @@ export default async function OnboardingInformationPage() {
 
     return (
         <CardContent>
-            <OnboardingWizard userData={userData} />
+            <OnboardingWizard showGoals={fulfills(user.appVersion, Versions.self_reflection)} userData={userData} />
         </CardContent>
     );
 }

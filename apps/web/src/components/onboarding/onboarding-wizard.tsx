@@ -22,9 +22,10 @@ import { Button, Form, useWizard, Wizard, WizardPage } from "@energyleaf/ui";
 
 interface Props {
     userData: UserDataType;
+    showGoals: boolean;
 }
 
-export default function OnboardingWizard({ userData }: Props) {
+export default function OnboardingWizard({ userData, showGoals }: Props) {
     function finishHandler() {
         toast.promise(completeOnboarding(), {
             loading: "Schließe Onboarding ab...",
@@ -37,7 +38,7 @@ export default function OnboardingWizard({ userData }: Props) {
         <Wizard finishHandler={finishHandler}>
             <InformationStep />
             <UserDataStep userData={userData.user_data} />
-            <GoalStep userData={userData.user_data} />
+            { Boolean(showGoals) && <GoalStep userData={userData.user_data} /> }
             <MailSettingsStep reports={userData.reports} />
             <ThankYouStep />
         </Wizard>

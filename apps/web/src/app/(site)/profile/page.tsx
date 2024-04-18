@@ -13,14 +13,16 @@ import {
 } from "@/lib/schema/conversion/profile";
 import { getUserData } from "@/query/user";
 
+import { fulfills, Versions } from "@energyleaf/lib/versioning";
+
 export const metadata = {
     title: "Profil | Energyleaf",
 };
 
 export default async function ProfilePage() {
-    const { session, user } = await getSession();
+    const { user } = await getSession();
 
-    if (!session) {
+    if (!user) {
         redirect("/");
     }
 
@@ -37,7 +39,7 @@ export default async function ProfilePage() {
             <ChangePasswordForm disabled={isDemo} />
             <MailSettingsForm disabled={isDemo} initialValues={reportConfig} />
             <UserDataForm initialData={data} />
-            <UserGoalsForm userData={userData?.user_data} />
+            {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData?.user_data} />}
             <AccountDeletionForm disabled={isDemo} />
         </div>
     );

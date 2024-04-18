@@ -14,20 +14,12 @@ import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/
 
 import "server-only";
 
-import { cookies } from "next/headers";
 import { getActionSession } from "@/lib/auth/auth.action";
-import { addDeviceCookieStore, isDemoUser, removeDeviceCookieStore, updateDeviceCookieStore } from "@/lib/demo/demo";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
     const { user, session } = await getActionSession();
     if (!session) {
         throw new UserNotLoggedInError();
-    }
-
-    if (await isDemoUser()) {
-        addDeviceCookieStore(cookies(), data.deviceName, data.category);
-        revalidatePath("/devices");
-        return;
     }
 
     const id = user.id;
@@ -56,12 +48,6 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         throw new UserNotLoggedInError();
     }
 
-    if (await isDemoUser()) {
-        updateDeviceCookieStore(cookies(), deviceId, data.deviceName, data.category);
-        revalidatePath("/devices");
-        return;
-    }
-
     const userId = user.id;
     const dbuser = await getUserById(userId);
     if (!dbuser) {
@@ -86,12 +72,6 @@ export async function deleteDevice(deviceId: number) {
     const { user, session } = await getActionSession();
     if (!session) {
         throw new UserNotLoggedInError();
-    }
-
-    if (await isDemoUser()) {
-        removeDeviceCookieStore(cookies(), deviceId);
-        revalidatePath("/devices");
-        return;
     }
 
     const userId = user.id;
