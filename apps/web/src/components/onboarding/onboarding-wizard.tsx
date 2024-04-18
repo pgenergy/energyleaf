@@ -19,7 +19,6 @@ import type { z } from "zod";
 
 import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
 import { Button, Form, useWizard, Wizard, WizardPage } from "@energyleaf/ui";
-import {getActionSession} from "@/lib/auth/auth.action";
 
 interface Props {
     userData: UserDataType;
@@ -39,7 +38,7 @@ export default function OnboardingWizard({ userData, showGoals }: Props) {
         <Wizard finishHandler={finishHandler}>
             <InformationStep />
             <UserDataStep userData={userData.user_data} />
-            { showGoals && <GoalStep userData={userData.user_data} /> }
+            { Boolean(showGoals) && <GoalStep userData={userData.user_data} /> }
             <MailSettingsStep reports={userData.reports} />
             <ThankYouStep />
         </Wizard>
