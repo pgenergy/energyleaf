@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
+import { onboardingCompleteCookieName } from "@/lib/constants";
 
 import { getActionSession } from "./lib/auth/auth.action";
-import {onboardingCompleteCookieName} from "@/lib/constants";
 
 const publicRoutes = ["/legal", "/privacy"];
 const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created"];

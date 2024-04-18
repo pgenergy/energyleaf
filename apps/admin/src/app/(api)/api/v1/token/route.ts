@@ -52,12 +52,20 @@ export const POST = async (req: NextRequest) => {
                 );
             }
 
-            return new NextResponse(TokenResponse.toBinary({ accessToken: code, expiresIn: 3600, status: 200 }), {
-                status: 200,
-                headers: {
-                    "Content-Type": "application/x-protobuf",
+            return new NextResponse(
+                TokenResponse.toBinary({
+                    accessToken: code,
+                    expiresIn: 3600,
+                    status: 200,
+                    currentValue: lastEntry?.value,
+                }),
+                {
+                    status: 200,
+                    headers: {
+                        "Content-Type": "application/x-protobuf",
+                    },
                 },
-            });
+            );
         } catch (err) {
             // eslint-disable-next-line no-console -- we need to log the error in the production logs
             console.error(err);
