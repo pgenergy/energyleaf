@@ -39,3 +39,4 @@ export * from "./data-table";
 export * from "./spinner";
 export * from "./command";
 export * from "./circular-progress";
+export * from "./wizard";

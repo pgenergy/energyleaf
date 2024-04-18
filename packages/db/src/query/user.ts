@@ -111,10 +111,14 @@ export async function getUserDataHistory(id: string) {
     });
 }
 
+export type UpdateUserType = CreateUserType & {
+    onboardingCompleted: boolean;
+};
+
 /**
  * Update the user data in the database
  */
-export async function updateUser(data: Partial<CreateUserType>, id: string) {
+export async function updateUser(data: Partial<UpdateUserType>, id: string) {
     return await db.update(user).set(data).where(eq(user.id, id));
 }
 
@@ -142,7 +146,6 @@ export async function updateReportSettings(
             throw new Error("Old user data not found");
         }
         await trx.insert(historyReports).values({
-            id: oldReportData.id,
             userId: oldReportData.userId,
             receiveMails: oldReportData.receiveMails,
             interval: oldReportData.interval,
