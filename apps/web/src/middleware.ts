@@ -1,10 +1,13 @@
+import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getActionSession } from "./lib/auth/auth.action";
+import {onboardingCompleteCookieName} from "@/lib/constants";
 import {fulfills, Versions} from "@energyleaf/lib";
 
 const publicRoutes = ["/legal", "/privacy"];
 const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created"];
+const onboardingRoute = "/onboarding";
 const appVersionSpecificRoutes = {
     "/devices": Versions.self_reflection,
     "/recommendations": Versions.support
@@ -14,14 +17,22 @@ export default async function middleware(req: NextRequest) {
     const { user } = await getActionSession();
     const loggedIn = Boolean(user);
     const path = req.nextUrl.pathname;
-    const url = `${req.nextUrl.protocol}//${req.nextUrl.host}`;
+    const onboardingComplete = cookies().get(onboardingCompleteCookieName)?.value === "true";
+
+    if (loggedIn && path !== onboardingRoute && !onboardingComplete) {
+        return NextResponse.redirect(new URL("/onboarding", req.url));
+    }
+
+    if (loggedIn && path === onboardingRoute && onboardingComplete) {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
 
     if (unprotectedRoutes.includes(path) && loggedIn) {
-        return NextResponse.redirect(`${url}/dashboard`);
+        return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
     if (![...publicRoutes, ...unprotectedRoutes].includes(path) && !loggedIn) {
-        return NextResponse.redirect(`${url}/`);
+        return NextResponse.redirect(new URL("/", req.url));
     }
 
     if (appVersionSpecificRoutes[path] && !fulfills(user!.appVersion, appVersionSpecificRoutes[path])) {
