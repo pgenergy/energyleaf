@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { createSensorToken, getSensorScript } from "@energyleaf/db/query";
+import { createSensorToken, getEnergyLastEntry, getSensorDataByClientId } from "@energyleaf/db/query";
 import { TokenRequest, TokenResponse } from "@energyleaf/proto";
 import { parseReadableStream } from "@energyleaf/proto/util";
 
@@ -22,8 +22,8 @@ export const POST = async (req: NextRequest) => {
 
         try {
             const code = await createSensorToken(data.clientId);
-            const scriptData = await getSensorScript(data.clientId);
-            if (!scriptData) {
+            const sensorData = await getSensorDataByClientId(data.clientId);
+            if (!sensorData) {
                 return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
                     status: 404,
                     headers: {
@@ -32,13 +32,16 @@ export const POST = async (req: NextRequest) => {
                 });
             }
 
-            if ((scriptData.needsScript && scriptData.script) || (data.needScript && scriptData.script)) {
+            const lastEntry = await getEnergyLastEntry(sensorData.id);
+
+            if ((sensorData.needsScript || data.needScript) && sensorData.script) {
                 return new NextResponse(
                     TokenResponse.toBinary({
                         status: 200,
                         accessToken: code,
                         expiresIn: 3600,
-                        script: scriptData.script,
+                        script: sensorData.script,
+                        currentValue: lastEntry?.value,
                     }),
                     {
                         status: 200,
@@ -49,13 +52,23 @@ export const POST = async (req: NextRequest) => {
                 );
             }
 
-            return new NextResponse(TokenResponse.toBinary({ accessToken: code, expiresIn: 3600, status: 200 }), {
-                status: 200,
-                headers: {
-                    "Content-Type": "application/x-protobuf",
+            return new NextResponse(
+                TokenResponse.toBinary({
+                    accessToken: code,
+                    expiresIn: 3600,
+                    status: 200,
+                    currentValue: lastEntry?.value,
+                }),
+                {
+                    status: 200,
+                    headers: {
+                        "Content-Type": "application/x-protobuf",
+                    },
                 },
-            });
+            );
         } catch (err) {
+            // eslint-disable-next-line no-console -- we need to log the error in the production logs
+            console.error(err);
             if ((err as unknown as Error).message === "sensor/not-found") {
                 return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
                     status: 404,
@@ -73,6 +86,8 @@ export const POST = async (req: NextRequest) => {
             });
         }
     } catch (e) {
+        // eslint-disable-next-line no-console -- we need to log the error in the production logs
+        console.error(e);
         return new NextResponse(TokenResponse.toBinary({ statusMessage: "Invalid data", status: 400 }), {
             status: 400,
             headers: {

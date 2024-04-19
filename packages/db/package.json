@@ -22,15 +22,15 @@
         "@energyleaf/lib": "workspace:^",
         "@lucia-auth/adapter-drizzle": "^1.0.7",
         "@planetscale/database": "^1.16.0",
-        "drizzle-orm": "^0.30.6",
-        "nanoid": "^5.0.6"
+        "drizzle-orm": "^0.30.8",
+        "nanoid": "^5.0.7"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",
         "@energyleaf/tsconfig": "workspace:^",
         "drizzle-kit": "^0.20.14",
         "eslint": "^8.57.0",
-        "mysql2": "^3.9.3",
-        "typescript": "^5.4.3"
+        "mysql2": "^3.9.4",
+        "typescript": "^5.4.5"
     }
 }

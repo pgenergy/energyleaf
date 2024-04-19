@@ -14,7 +14,7 @@ const getConnection = () => {
     if (host.startsWith("http")) {
         const localHost = host.replace("http://", "");
         return new Client({
-            url: `http://${username}:${password}@${localHost}`
+            url: `http://${username}:${password}@${localHost}`,
         });
     }
 

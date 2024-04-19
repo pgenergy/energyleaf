@@ -7,14 +7,16 @@ import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
+import { onboardingCompleteCookieName } from "@/lib/constants";
 import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import * as jose from "jose";
+import type { Session } from "lucia";
 import { Argon2id, Bcrypt } from "oslo/password";
 import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
-import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
+import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 
 /**
@@ -140,7 +142,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
 export async function signInAction(email: string, password: string) {
     const { session } = await getActionSession();
     if (session) {
-        redirect("/dashboard");
+        await handleSignIn(session);
     }
 
     const user = await getUserByMail(email);
@@ -149,7 +151,7 @@ export async function signInAction(email: string, password: string) {
     }
 
     if (!user.isActive) {
-        throw new UserNotActiveError();
+        redirect("/created");
     }
 
     let match = false;
@@ -173,6 +175,18 @@ export async function signInAction(email: string, password: string) {
     const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
+    await handleSignIn(newSession);
+}
+
+async function handleSignIn(session: Session) {
+    const userData = await getUserById(session.userId);
+    const onboardingCompleted = userData?.onboardingCompleted ?? false;
+    cookies().set(onboardingCompleteCookieName, onboardingCompleted.toString());
+
+    if (!onboardingCompleted) {
+        redirect("/onboarding");
+    }
+
     redirect("/dashboard");
 }
 

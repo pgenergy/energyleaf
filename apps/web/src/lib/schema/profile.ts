@@ -10,14 +10,18 @@ export const passwordSchema = z.object({
 
 export const mailSettingsSchema = z.object({
     receiveMails: z.boolean().default(true),
-    interval: z.coerce.number().int()
-        .positive({message: "Bitte geben Sie einen positiven Wert für das Intervall an."})
-        .max(7, {message: "Bitte geben Sie einen Wert <= 7 für das Intervall an."})
+    interval: z.coerce
+        .number()
+        .int()
+        .positive({ message: "Bitte geben Sie einen positiven Wert für das Intervall an." })
+        .max(7, { message: "Bitte geben Sie einen Wert <= 7 für das Intervall an." })
         .default(3),
-    time: z.coerce.number().int()
-        .positive({message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an."})
-        .max(23, {message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an."})
-        .default(6)
+    time: z.coerce
+        .number()
+        .int()
+        .positive({ message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an." })
+        .max(23, { message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an." })
+        .default(6),
 });
 
 export const userDataSchema = z.object({
@@ -25,9 +29,9 @@ export const userDataSchema = z.object({
     livingSpace: z.coerce.number().int().positive({ message: "Bitte geben Sie eine gültige Wohnfläche an." }),
     people: z.coerce.number().int().positive({ message: "Bitte geben Sie eine gültige Anzahl an Personen an." }),
     hotWater: z.enum([...userData.hotWater.enumValues]).default(userData.hotWater.enumValues[0]),
-    budget: z.coerce.number().int().positive({ message: "Bitte geben Sie ein gültiges Budget an." }),
     tariff: z.enum([...userData.tariff.enumValues]).default(userData.tariff.enumValues[0]),
-    basePrice: z.coerce
+    basePrice: z.coerce.number().positive({ message: "Bitte geben Sie einen positiven Betrag an." }),
+    workingPrice: z.coerce
         .number()
         .positive({ message: "Bitte geben Sie einen positiven Betrag an." })
         .max(1, { message: "Bitte geben Sie einen Preis unter 1€ an." }),
@@ -39,4 +43,11 @@ export const userDataSchema = z.object({
 
 export const deleteAccountSchema = z.object({
     password: z.string().nonempty({ message: "Bitte gib ein Passwort an." }),
+});
+
+export const userGoalSchema = z.object({
+    goalValue: z.coerce
+        .number()
+        .int({ message: "Bitte geben Sie eine Zahl ohne Kommawerte ein." })
+        .positive({ message: "Bitte geben Sie einen gültigen Wert an." }),
 });

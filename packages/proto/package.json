@@ -21,6 +21,6 @@
         "@energyleaf/tsconfig": "workspace:^",
         "@protobuf-ts/plugin": "^2.9.4",
         "@protobuf-ts/protoc": "^2.9.4",
-        "typescript": "5.4.3"
+        "typescript": "5.4.5"
     }
 }

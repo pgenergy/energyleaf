@@ -26,7 +26,7 @@ Run the project in development mode:
 
 ```bash
     pnpm dev
-    
+
     # start docker if using local db
     docker-compose up -d
 ```
