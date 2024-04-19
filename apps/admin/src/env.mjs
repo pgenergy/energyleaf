@@ -17,7 +17,7 @@ export const env = createEnv({
         RESEND_API_KEY: z.string(),
         RESEND_API_MAIL: z.string(),
 
-        REPORTS_API_KEY: z.string(),
+        CRON_SECRET: z.string(),
     },
     client: {},
     experimental__runtimeEnv: {},
