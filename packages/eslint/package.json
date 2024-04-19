@@ -11,8 +11,9 @@
         "clean": "git clean -xdf node_modules"
     },
     "devDependencies": {
-        "@vercel/style-guide": "^5.2.0",
-        "eslint-config-turbo": "^1.12.4",
-        "typescript": "^5.3.3"
+        "@vercel/style-guide": "^6.0.0",
+        "eslint": "8.57.0",
+        "eslint-config-turbo": "^1.13.2",
+        "typescript": "^5.4.5"
     }
 }

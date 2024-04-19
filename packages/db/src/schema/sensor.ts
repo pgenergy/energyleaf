@@ -22,7 +22,7 @@ export const sensor = mysqlTable("sensor", {
     clientId: varchar("client_id", { length: 255 }).primaryKey().notNull(),
     version: int("version").default(1).notNull(),
     sensorType: mysqlEnum("sensor_type", sensorTypes).notNull(),
-    userId: int("user_id"),
+    userId: varchar("user_id", { length: 30 }),
     needsScript: boolean("needs_script").default(false).notNull(),
     script: text("script"),
 });
@@ -31,7 +31,7 @@ export const sensorHistory = mysqlTable(
     "sensor_history",
     {
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-        userId: int("user_id").notNull(),
+        userId: varchar("user_id", { length: 30 }).notNull(),
         sensorType: mysqlEnum("sensor_type", sensorTypes).notNull(),
         clientId: varchar("client_id", { length: 255 }).notNull(),
     },
@@ -54,7 +54,10 @@ export const sensorToken = mysqlTable("sensor_token", {
 export const sensorData = mysqlTable(
     "sensor_data",
     {
-        id: int("id").autoincrement().primaryKey().notNull(),
+        id: varchar("id", { length: 35 })
+            .primaryKey()
+            .notNull()
+            .$defaultFn(() => nanoid(35)),
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
         value: float("value").notNull(),
         timestamp: timestamp("timestamp")

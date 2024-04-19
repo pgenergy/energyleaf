@@ -1,7 +1,7 @@
 import * as jose from "jose";
 
 interface ResetPasswordTokenOptions {
-    userId: number;
+    userId: string;
     secret: string;
 }
 

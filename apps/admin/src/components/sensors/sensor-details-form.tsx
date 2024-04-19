@@ -7,8 +7,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import type { SensorSelectType } from "@energyleaf/db/util";
-import { SensorType, SensorTypeMap } from "@energyleaf/db/util";
+import type { SensorSelectType } from "@energyleaf/db/types";
+import { SensorType, SensorTypeMap } from "@energyleaf/db/types";
 import {
     Button,
     Form,
@@ -69,7 +69,7 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                     throw new Error("MAC-Adresse existiert bereits");
                 }
 
-                await createSensor(data.macAddress, data.sensorType);
+                await createSensor(data.macAddress, data.sensorType, data.script);
             },
             {
                 loading: "Laden...",

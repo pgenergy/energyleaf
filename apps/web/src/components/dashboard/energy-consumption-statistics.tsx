@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -15,14 +15,17 @@ interface EnergyDataItem {
     value: number;
 }
 
+const formatNumber = (number: number) =>
+    number.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 export default async function EnergyConsumptionStatisticCard({ startDate, endDate }: Props) {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         redirect("/");
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
@@ -30,7 +33,7 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Verbrauchsstatistiken</CardTitle>
-                    <CardDescription>Dein Sensor konnte nicht gefunden werden</CardDescription>
+                    <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
@@ -58,38 +61,24 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
             <CardHeader>
                 <CardTitle>Verbrauchsstatistiken</CardTitle>
                 <CardDescription>
-                    {startDate.toDateString() === endDate.toDateString() ? (
-                        <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}
-                        </>
-                    ) : (
-                        <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}{" "}
-                            -{" "}
-                            {format(endDate, "PPP", {
-                                locale: de,
-                            })}
-                        </>
-                    )}
+                    {startDate.toDateString() === endDate.toDateString()
+                        ? format(startDate, "PPP", { locale: de })
+                        : `${format(startDate, "PPP", { locale: de })} - ${format(endDate, "PPP", { locale: de })}`}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-3 gap-4">
                     <div>
                         <h2 className="text-center text-xl font-semibold text-primary">Max.</h2>
-                        <p className="text-center">{maxConsumption} kWh</p>
+                        <p className="text-center">{formatNumber(maxConsumption)} kWh</p>
                     </div>
                     <div>
                         <h2 className="text-center text-xl font-semibold text-primary">⌀</h2>
-                        <p className="text-center">{averageConsumption.toFixed(2)} kWh</p>
+                        <p className="text-center">{formatNumber(averageConsumption)} kWh</p>
                     </div>
                     <div>
                         <h2 className="text-center text-xl font-semibold text-primary">Letzter</h2>
-                        <p className="text-center">{lastValue?.toFixed(2) ?? 0} kWh</p>
+                        <p className="text-center">{formatNumber(lastValue ?? 0)} kWh</p>
                     </div>
                 </div>
             </CardContent>

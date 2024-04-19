@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
-import { getSession } from "@/lib/auth/auth";
+import { calculateCosts, getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
+import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import { getUserData } from "@/query/user";
+import { getUserDataHistory } from "@/query/user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
@@ -16,13 +16,13 @@ interface Props {
 }
 
 export default async function EnergyCostCard({ startDate, endDate }: Props) {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         redirect("/");
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
@@ -30,7 +30,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Energiekosten</CardTitle>
-                    <CardDescription>Dein Sensor konnte nicht gefunden werden</CardDescription>
+                    <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
@@ -40,14 +40,27 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     }
 
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const userData = await getUserData(session.user.id);
-    const price = userData?.user_data.basePrice;
-    const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0) / 1000;
-    const cost: number | null = price ? parseFloat((absolut * price).toFixed(2)) : null;
+    const userData = await getUserDataHistory(userId);
 
-    const monthlyPayment = userData?.user_data.monthlyPayment;
-    const calculatedPayment = getCalculatedPayment(monthlyPayment, startDate, endDate);
-    const predictedCost = (cost ?? 0) + getPredictedCost(price, energyData);
+    const rawCosts = calculateCosts(userData, energyData);
+    const cost = rawCosts.toFixed(2);
+
+    const calculatedPayment = getCalculatedPayment(userData, startDate, endDate);
+    const predictedCost = getPredictedCost(userData, energyData);
+
+    const parsedCost = parseFloat(cost);
+    const parsedCalculatedPayment = parseFloat(calculatedPayment || "0");
+
+    const formattedCost = parsedCost.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const formattedCalculatedPayment = parsedCalculatedPayment.toLocaleString("de-DE", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+    const formattedPredictedCost = predictedCost.toLocaleString("de-DE", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+    const forecastMonth = format(new Date(), "MMMM yyyy", { locale: de });
 
     return (
         <Card className="w-full">
@@ -55,45 +68,33 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                 <CardTitle>Energiekosten</CardTitle>
                 <CardDescription>
                     {startDate.toDateString() === endDate.toDateString() ? (
-                        <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}
-                        </>
+                        <>{format(startDate, "PPP", { locale: de })}</>
                     ) : (
                         <>
-                            {format(startDate, "PPP", {
-                                locale: de,
-                            })}{" "}
-                            -{" "}
-                            {format(endDate, "PPP", {
-                                locale: de,
-                            })}
+                            {format(startDate, "PPP", { locale: de })} - {format(endDate, "PPP", { locale: de })}
                         </>
                     )}
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                {cost !== null ? (
+                {parsedCost > 0 ? (
                     <>
-                        <h1 className="text-center text-2xl font-bold text-primary">{cost} €</h1>
+                        <h1 className="text-center text-2xl font-bold text-primary">{formattedCost} €</h1>
                         <p
-                            className={`text-center ${Number(cost) > Number(calculatedPayment) ? "text-red-500" : "white"}`}
+                            className={`text-center ${parsedCost > parsedCalculatedPayment ? "text-red-500" : "text-primary"}`}
                         >
-                            Abschlag: {calculatedPayment} €
+                            Abschlag: {formattedCalculatedPayment} €
                         </p>
                         <p className="text-center">
-                            Hochrechnung {new Date().getMonth() + 1}.{new Date().getFullYear()}:{" "}
-                            {predictedCost.toFixed(2)} €
+                            Hochrechnung {forecastMonth}: {formattedPredictedCost} €
                         </p>
                     </>
                 ) : (
                     <Link
-                        className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
                         href="/profile"
+                        className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
                     >
-                        Preis im Profil festlegen
-                        <ArrowRightIcon className="h-4 w-4" />
+                        Preis im Profil festlegen <ArrowRightIcon className="h-4 w-4" />
                     </Link>
                 )}
             </CardContent>

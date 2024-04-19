@@ -8,25 +8,29 @@
         ".": "./src/index.ts",
         "./schema": "./src/schema.ts",
         "./query": "./src/query/index.ts",
-        "./util": "./src/util.ts"
+        "./adapter": "./src/adapter.ts",
+        "./types": "./src/types/types.ts"
     },
     "scripts": {
-        "push": "drizzle-kit push:mysql",
-        "studio": "drizzle-kit studio",
+        "push": "drizzle-kit push:mysql --config ./drizzle-local.config.ts",
+        "push:prod": "drizzle-kit push:mysql",
+        "studio": "drizzle-kit studio --config ./drizzle-local.config.ts",
+        "studio:prod": "drizzle-kit studio",
         "clean": "git clean -xdf node_modules"
     },
     "dependencies": {
         "@energyleaf/lib": "workspace:^",
+        "@lucia-auth/adapter-drizzle": "^1.0.7",
         "@planetscale/database": "^1.16.0",
-        "drizzle-orm": "^0.29.3",
-        "nanoid": "^5.0.5"
+        "drizzle-orm": "^0.30.8",
+        "nanoid": "^5.0.7"
     },
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",
         "@energyleaf/tsconfig": "workspace:^",
         "drizzle-kit": "^0.20.14",
-        "eslint": "^8.56.0",
-        "mysql2": "^3.9.1",
-        "typescript": "^5.3.3"
+        "eslint": "^8.57.0",
+        "mysql2": "^3.9.4",
+        "typescript": "^5.4.3"
     }
 }

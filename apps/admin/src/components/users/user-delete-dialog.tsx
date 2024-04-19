@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { deleteUser } from "@/actions/user";
+import { useUserContext } from "@/hooks/user-hook";
 import { toast } from "sonner";
 
 import {
@@ -16,21 +17,11 @@ import {
 } from "@energyleaf/ui";
 
 interface Props {
-    context: {
-        user:
-            | {
-                  id: number;
-                  username: string;
-              }
-            | undefined;
-        setUser: (user: { id: number; username: string } | undefined) => void;
-        deleteDialogOpen: boolean;
-        setDeleteDialogOpen: (open: boolean) => void;
-    };
     onSuccess?: () => void;
 }
 
-export function UserDeleteDialog({ context, onSuccess }: Props) {
+export function UserDeleteDialog({ onSuccess }: Props) {
+    const context = useUserContext();
     const [pending, startTransition] = useTransition();
 
     if (!context.user) {
@@ -69,7 +60,7 @@ export function UserDeleteDialog({ context, onSuccess }: Props) {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Nutzer löschen</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Bist du sicher, dass du den Nutzer {`"${user.username}"`} (ID: {user.id}) löschen möchtest?
+                        Sind Sie sicher, dass Sie den Nutzer {`"${user.username}"`} (ID: {user.id}) löschen möchten?
                         Dadurch werden alle personenbezogenen Daten des Nutzers gelöscht.
                     </AlertDialogDescription>
                 </AlertDialogHeader>

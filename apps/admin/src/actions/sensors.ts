@@ -4,7 +4,10 @@ import {
     assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
     deleteSensor as deleteSensorDb,
-    getSensorsWithUser as getSensorsWithUserDb,
+    deleteUserFromSensor,
+    getElectricitySensorIdForUser,
+    getEnergyForSensorInRange,
+    insertRawSensorValue,
     sensorExists,
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
@@ -12,12 +15,12 @@ import {
 import "server-only";
 
 import { revalidatePath } from "next/cache";
-import { getSession } from "@/lib/auth/auth";
+import { checkIfAdmin } from "@/lib/auth/auth.action";
 import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import type { z } from "zod";
 
-import type { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "@energyleaf/db/util";
-import { UserNotLoggedInError } from "@energyleaf/lib";
+import type { SensorInsertType, SensorType } from "@energyleaf/db/types";
+import type { AggregationType } from "@energyleaf/lib";
 
 /**
  * Creates a new sensor.
@@ -53,9 +56,19 @@ export async function isSensorRegistered(macAddress: string): Promise<boolean> {
     return sensorExists(macAddress);
 }
 
-export async function getSensors(): Promise<SensorSelectTypeWithUser[]> {
+export async function getElectricitySensorByUser(id: string) {
     await checkIfAdmin();
-    return getSensorsWithUserDb();
+    return getElectricitySensorIdForUser(id);
+}
+
+export async function getConsumptionBySensor(
+    sensorId: string,
+    startDate: Date,
+    endDate: Date,
+    aggregationType: AggregationType,
+) {
+    await checkIfAdmin();
+    return getEnergyForSensorInRange(startDate, endDate, sensorId, aggregationType);
 }
 
 export async function deleteSensor(sensorId: string) {
@@ -67,20 +80,31 @@ export async function deleteSensor(sensorId: string) {
 export async function assignUserToSensor(data: z.infer<typeof assignUserToSensorSchema>, clientId: string) {
     await checkIfAdmin();
     try {
-        await assignSensorToUserDb(clientId, data.userId);
+        const newId = await assignSensorToUserDb(clientId, data.userId);
         revalidatePath("/sensors");
+        return newId;
     } catch (e) {
         throw new Error("Error while assigning user to sensor");
     }
 }
 
-async function checkIfAdmin() {
-    const session = await getSession();
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
+export async function removeUserFromSensor(clientId: string) {
+    await checkIfAdmin();
 
-    if (!session.user.admin) {
-        throw new Error("User is not admin");
+    try {
+        await deleteUserFromSensor(clientId);
+        revalidatePath("/sensors");
+    } catch (err) {
+        throw new Error("Error while removing user from sensor");
+    }
+}
+
+export async function insertSensorValue(sensorId: string, value: number) {
+    await checkIfAdmin();
+
+    try {
+        await insertRawSensorValue(sensorId, value);
+    } catch (err) {
+        throw new Error("Error while inserting sensor value");
     }
 }

@@ -7,6 +7,7 @@ export const env = createEnv({
         NEXTAUTH_SECRET: z.string(),
 
         VERCEL_URL: z.string().optional(),
+        VERCEL_ENV: z.string().optional(),
 
         DATABASE_HOST: z.string(),
         DATABASE_USERNAME: z.string(),
@@ -15,7 +16,6 @@ export const env = createEnv({
 
         RESEND_API_KEY: z.string(),
         RESEND_API_MAIL: z.string(),
-
     },
     client: {},
     experimental__runtimeEnv: {},

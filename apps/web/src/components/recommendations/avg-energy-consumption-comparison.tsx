@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth/auth";
+import { getSession } from "@/lib/auth/auth.server";
 import {
     getAvgEnergyConsumptionForSensor,
     getAvgEnergyConsumptionForUserInComparison,
@@ -9,13 +9,13 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 export default async function AvgEnergyConsumptionComparisonCard() {
-    const session = await getSession();
+    const { session, user } = await getSession();
 
     if (!session) {
         redirect("/");
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
@@ -23,7 +23,7 @@ export default async function AvgEnergyConsumptionComparisonCard() {
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Absoluter Energieverbrauch</CardTitle>
-                    <CardDescription>Dein Sensor konnte nicht gefunden werden</CardDescription>
+                    <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
@@ -32,7 +32,7 @@ export default async function AvgEnergyConsumptionComparisonCard() {
         );
     }
 
-    const avg = await getAvgEnergyConsumptionForUserInComparison(session.user.id);
+    const avg = await getAvgEnergyConsumptionForUserInComparison(userId);
     const avgUser = await getAvgEnergyConsumptionForSensor(sensorId);
 
     return (
@@ -45,7 +45,7 @@ export default async function AvgEnergyConsumptionComparisonCard() {
                 {avg && avgUser ? (
                     <p className="text-center text-2xl text-primary">
                         <span className="font-bold">Durchschnitt: </span>
-                        {avg.avg.toFixed(2)} Wh
+                        {avg.avg.toFixed(2)} kWh
                     </p>
                 ) : (
                     <p className="text-center text-muted-foreground">Keine Daten vorhanden</p>

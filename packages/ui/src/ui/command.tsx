@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Dialog, DialogContent } from "./dialog";
-import { cn } from "@energyleaf/tailwindcss/utils";
 import { type DialogProps } from "@radix-ui/react-dialog";
 import { Command as CommandPrimitive } from "cmdk";
 import { SearchIcon } from "lucide-react";
+
+import { cn } from "@energyleaf/tailwindcss/utils";
+
+import { Dialog, DialogContent } from "./dialog";
 
 const Command = React.forwardRef<
     React.ElementRef<typeof CommandPrimitive>,
@@ -22,7 +24,7 @@ const Command = React.forwardRef<
 ));
 Command.displayName = CommandPrimitive.displayName;
 
-type CommandDialogProps = DialogProps
+type CommandDialogProps = DialogProps;
 
 function CommandDialog({ children, ...props }: CommandDialogProps) {
     return (
@@ -106,7 +108,7 @@ const CommandItem = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <CommandPrimitive.Item
         className={cn(
-            "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+            "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled='true']:pointer-events-none data-[disabled='true']:opacity-50",
             className,
         )}
         ref={ref}

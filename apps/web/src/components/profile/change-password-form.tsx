@@ -3,15 +3,16 @@
 import React, { useTransition } from "react";
 import { updateBaseInformationPassword } from "@/actions/profile";
 import { passwordSchema } from "@/lib/schema/profile";
-import { PasswordsDoNotMatchError } from "@/types/errors/passwords-do-not-match-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
 import {
     Button,
+    Card,
     CardContent,
     CardDescription,
     CardHeader,
@@ -46,7 +47,7 @@ export default function ChangePasswordForm({ disabled }: Props) {
             return;
         }
         if (data.newPassword !== data.newPasswordRepeat) {
-            toast.error("Dein Passwort konnte nicht geändert werden", {
+            toast.error("Ihr Passwort konnte nicht geändert werden", {
                 description: "Das neue Passwort stimmt nicht mit der Wiederholung überein",
             });
             return;
@@ -69,10 +70,10 @@ export default function ChangePasswordForm({ disabled }: Props) {
     }
 
     return (
-        <div>
+        <Card>
             <CardHeader>
                 <CardTitle>Passwort</CardTitle>
-                <CardDescription>Ändere dein Passwort</CardDescription>
+                <CardDescription>Ändern Sie Ihr Passwort</CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
@@ -140,6 +141,6 @@ export default function ChangePasswordForm({ disabled }: Props) {
                     </form>
                 </Form>
             </CardContent>
-        </div>
+        </Card>
     );
 }

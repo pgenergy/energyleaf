@@ -5,18 +5,17 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
-import { signIn, signOut } from "@/lib/auth/auth";
-import { isDemoUser } from "@/lib/demo/demo";
+import { getActionSession } from "@/lib/auth/auth.action";
+import { lucia } from "@/lib/auth/auth.config";
+import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
-import { CallbackRouteError } from "@auth/core/errors";
-import * as bcrypt from "bcryptjs";
 import * as jose from "jose";
-import { AuthError } from "next-auth";
+import { Argon2id, Bcrypt } from "oslo/password";
 import type { z } from "zod";
 
 import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
 import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
-import { sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
+import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 
 /**
  * Server action for creating a new account
@@ -47,7 +46,7 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
         throw new Error("E-Mail wird bereits verwendet.");
     }
 
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await new Argon2id().hash(password);
 
     try {
         await createUser({
@@ -55,9 +54,16 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
             password: hash,
             username,
         } satisfies CreateUserType);
+        await sendAccountCreatedEmail({
+            to: mail,
+            name: username,
+            apiKey: env.RESEND_API_KEY,
+            from: env.RESEND_API_MAIL,
+        });
     } catch (_err) {
         throw new Error("Fehler beim Erstellen des Accounts.");
     }
+    redirect("/created");
 }
 
 export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
@@ -96,7 +102,11 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     const { sub } = jose.decodeJwt(resetToken);
-    const user = await getUserById(Number(sub));
+    if (!sub) {
+        throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
+    }
+
+    const user = await getUserById(sub);
 
     if (!user) {
         throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
@@ -109,7 +119,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     });
     // no exception was thrown, so everything is fine
 
-    const hash = await bcrypt.hash(newPassword, 10);
+    const hash = await new Argon2id().hash(newPassword);
     await updatePassword({ password: hash }, user.id);
 
     try {
@@ -128,28 +138,57 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
  * Server action to sign a user in
  */
 export async function signInAction(email: string, password: string) {
-    try {
-        await signIn("credentials", {
-            email,
-            password,
-        });
-    } catch (err) {
-        if (err instanceof AuthError) {
-            switch (err.type) {
-                case "CredentialsSignin":
-                    throw new Error("E-Mail oder Passwort falsch");
-                default:
-                    throw new Error("Fehler beim Anmelden");
-            }
-        }
-
-        if (err instanceof CallbackRouteError && err.cause?.err instanceof UserNotActiveError) {
-            throw new Error("Benutzer ist nicht aktiv. Bitte wenden Sie sich an einen Administrator.");
-        }
-
-        throw err;
+    const { session } = await getActionSession();
+    if (session) {
+        redirect("/dashboard");
     }
 
+    const user = await getUserByMail(email);
+    if (!user) {
+        throw new Error("E-Mail oder Passwort falsch.");
+    }
+
+    if (!user.isActive) {
+        throw new UserNotActiveError();
+    }
+
+    let match = false;
+
+    try {
+        match = await new Argon2id().verify(user.password, password);
+    } catch (err) {
+        match = await new Bcrypt().verify(user.password, password);
+        if (!match) {
+            throw new Error("E-Mail oder Passwort falsch.");
+        }
+
+        const hash = await new Argon2id().hash(password);
+        await updatePassword({ password: hash }, user.id);
+    }
+
+    if (!match) {
+        throw new Error("E-Mail oder Passwort falsch.");
+    }
+
+    const newSession = await lucia.createSession(user.id, {});
+    const cookie = lucia.createSessionCookie(newSession.id);
+    cookies().set(cookie.name, cookie.value, cookie.attributes);
+    redirect("/dashboard");
+}
+
+/**
+ * Server action to sign a user in as demo
+ */
+export async function signInDemoAction() {
+    const { session } = await getActionSession();
+    if (session) {
+        redirect("/dashboard");
+    }
+
+    const cookieStore = cookies();
+
+    cookieStore.set("demo_mode", "true");
+    cookieStore.set("demo_data", JSON.stringify(getUserDataCookieStore()));
     redirect("/dashboard");
 }
 
@@ -157,11 +196,24 @@ export async function signInAction(email: string, password: string) {
  * Server action to sign a user out
  */
 export async function signOutAction() {
-    if (await isDemoUser()) {
-        const cookieStore = cookies();
-        cookieStore.delete("demo_devices");
-        cookieStore.delete("demo_peaks");
+    const { session } = await getActionSession();
+    if (!session) {
+        return;
     }
 
-    await signOut();
+    await lucia.invalidateSession(session.id);
+    cookies().delete("auth_session");
+    redirect("/");
+}
+
+export async function signOutDemoAction() {
+    if (!(await isDemoUser())) {
+        throw new Error("Not a demo user");
+    }
+    const cookieStore = cookies();
+    cookieStore.delete("demo_data");
+    cookieStore.delete("demo_devices");
+    cookieStore.delete("demo_peaks");
+    cookieStore.delete("demo_mode");
+    redirect("/");
 }

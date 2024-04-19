@@ -1,11 +1,15 @@
 import { Suspense } from "react";
-import ErrorBoundary from "@/components/error/error-boundary";
 import AvgEnergyConsumptionCard from "@/components/recommendations/avg-energy-consumption-card";
 import AvgEnergyConsumptionError from "@/components/recommendations/avg-energy-consumption-card-error";
 import AvgEnergyConsumptionComparisonCard from "@/components/recommendations/avg-energy-consumption-comparison";
 import AvgEnergyConsumptionComparisonError from "@/components/recommendations/avg-energy-consumption-comparison-error";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
+import { ErrorBoundary } from "@energyleaf/ui/error";
+
+export const metadata = {
+    title: "Empfehlungen | Energyleaf",
+};
 
 export default function RecommendationsPage() {
     return (
@@ -28,8 +32,8 @@ export default function RecommendationsPage() {
             </div>
             <Card className="w-full">
                 <CardHeader>
-                    <CardTitle>Deine Geräte</CardTitle>
-                    <CardDescription>Hier siehst du den Verbauch deiner Geräte</CardDescription>
+                    <CardTitle>Ihre Geräte</CardTitle>
+                    <CardDescription>Hier sehen Sie den Verbauch Ihrer Geräte</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-row justify-center">

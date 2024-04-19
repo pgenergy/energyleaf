@@ -1,27 +1,17 @@
-import type { AdapterUser } from "@auth/core/adapters";
-import type { JWT } from "@auth/core/jwt";
-import type { DefaultSession } from "next-auth";
+import type { lucia } from "@/lib/auth/auth.config";
 
-interface CustomJWT extends JWT {
+declare module "lucia" {
+    interface Register {
+        Lucia: typeof lucia;
+        DatabaseUserAttributes: DatabaseUserAttributes;
+    }
+}
+
+interface DatabaseUserAttributes {
     id: string;
-    name: string;
+    username: string;
     email: string;
     created: string | null;
-    admin: boolean;
-}
-
-interface CustomUser extends AdapterUser {
-    id: string;
-    created: string | null;
-    admin: boolean;
-}
-
-interface CustomSession extends DefaultSession {
-    user: {
-        id: string;
-        name: string;
-        email: string;
-        created: string | null;
-        admin: boolean;
-    };
+    isAdmin: boolean;
+    isActive: boolean;
 }

@@ -10,8 +10,6 @@ import type { baseInformationSchema } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
 
-import ChangePasswordForm from "./change-password-form";
-
 interface Props {
     username: string;
     email: string;
@@ -43,17 +41,17 @@ export default function BaseInformationForm({ username, email, disabled }: Props
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Meine Daten</CardTitle>
-                <CardDescription>Deine persönlichen Daten</CardDescription>
+                <CardDescription>Ihre persönlichen Daten</CardDescription>
             </CardHeader>
             <CardContent>
                 <UserBaseInformationForm
                     changeIsPending={changeIsPending}
+                    disabled={disabled}
                     email={email}
                     onSubmit={onSubmit}
                     username={username}
                 />
             </CardContent>
-            <ChangePasswordForm />
         </Card>
     );
 }

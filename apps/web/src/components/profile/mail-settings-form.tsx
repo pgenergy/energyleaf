@@ -2,6 +2,8 @@
 
 import React, { useTransition } from "react";
 import { updateMailInformation } from "@/actions/profile";
+import IntervalSelector from "@/components/profile/interval-selector";
+import TimeSelector from "@/components/profile/time-selector";
 import { mailSettingsSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
@@ -27,18 +29,20 @@ import {
 } from "@energyleaf/ui";
 
 interface Props {
-    daily: boolean;
-    weekly: boolean;
+    receiveMails: boolean;
+    interval: number;
+    time: number;
     disabled?: boolean;
 }
 
-export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
+export default function MailSettingsForm({ receiveMails, interval, time, disabled }: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),
         defaultValues: {
-            daily,
-            weekly,
+            receiveMails,
+            interval,
+            time,
         },
     });
 
@@ -49,7 +53,7 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
             toast.promise(updateMailInformation(data), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
-                error: "Deine Einstellungen konnten nicht aktualisiert werden",
+                error: "Ihre Einstellungen konnten nicht aktualisiert werden",
             });
         });
     }
@@ -57,10 +61,10 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>E-Mail Einstellungen</CardTitle>
+                <CardTitle>E-Mail & Berichte</CardTitle>
                 <CardDescription>
-                    Hier kannst du einstellen, ob du täglich oder wöchentlich eine Mail mit deinen aktuellen Verbräuchen
-                    erhalten möchtest.
+                    Hier können Sie einstellen, ob Sie die erstellen Berichte über Ihren Verbrauch per E-Mail erhalten
+                    möchten, und das Intervall der Übersichten und die Erstellungszeit Ihrer Berichte festlegen.
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -68,48 +72,48 @@ export default function MailSettingsForm({ daily, weekly, disabled }: Props) {
                     <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                         <FormField
                             control={form.control}
-                            name="daily"
+                            name="receiveMails"
                             render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
+                                <FormItem className="flex flex-row items-center justify-between">
                                     <div className="flex flex-col gap-2">
-                                        <FormLabel>Tägliche E-Mails</FormLabel>
+                                        <FormLabel>Senden der Berichte als E-Mails</FormLabel>
                                         <FormDescription>
-                                            Erhalte täglich eine E-Mail mit deinen aktuellen Verbräuchen.
+                                            Erhalten Sie Ihre Berichte mit einer Zusammenfassung Ihres vergangenen
+                                            Verbrauchs im eingestellten Intervall per Mail.
                                         </FormDescription>
                                     </div>
                                     <FormControl>
-                                        <Switch
-                                            aria-readonly
-                                            checked={field.value}
-                                            disabled={disabled}
-                                            onCheckedChange={field.onChange}
-                                        />
+                                        <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
-                        <FormField
-                            control={form.control}
-                            name="weekly"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
-                                    <div className="flex flex-col gap-2">
-                                        <FormLabel>Wöchentliche E-Mails</FormLabel>
-                                        <FormDescription>
-                                            Erhalte wöchentlich eine E-Mail mit deinen aktuellen Verbräuchen.
-                                        </FormDescription>
-                                    </div>
-                                    <FormControl>
-                                        <Switch
-                                            aria-readonly
-                                            checked={field.value}
-                                            disabled={disabled}
-                                            onCheckedChange={field.onChange}
-                                        />
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="interval"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Intervall der Berichte</FormLabel>
+                                        <FormControl>
+                                            <IntervalSelector onChange={field.onChange} value={field.value} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="time"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Uhrzeit der Berichte</FormLabel>
+                                        <FormControl>
+                                            <TimeSelector onChange={field.onChange} value={field.value} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending || disabled} type="submit">
                                 {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
