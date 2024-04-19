@@ -14,4 +14,5 @@ interface DatabaseUserAttributes {
     created: string | null;
     isAdmin: boolean;
     isActive: boolean;
+    appVersion: number;
 }

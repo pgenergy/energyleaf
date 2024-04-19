@@ -31,6 +31,6 @@
         "drizzle-kit": "^0.20.14",
         "eslint": "^8.57.0",
         "mysql2": "^3.9.4",
-        "typescript": "^5.4.3"
+        "typescript": "^5.4.5"
     }
 }

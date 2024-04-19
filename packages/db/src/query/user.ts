@@ -2,6 +2,7 @@ import { and, eq, gt, lte, or, sql } from "drizzle-orm";
 
 import db from "../";
 import { historyReports, historyUserData, reports, user, userData } from "../schema";
+import { UserSelectType } from "../types/types";
 
 /**
  * Get a user by id from the database
@@ -114,8 +115,8 @@ export async function getUserDataHistory(id: string) {
 /**
  * Update the user data in the database
  */
-export async function updateUser(data: Partial<CreateUserType>, id: string) {
-    return await db.update(user).set(data).where(eq(user.id, id));
+export async function updateUser(data: Partial<UserSelectType>, id: string) {
+    return db.update(user).set(data).where(eq(user.id, id));
 }
 
 /**
@@ -142,7 +143,6 @@ export async function updateReportSettings(
             throw new Error("Old user data not found");
         }
         await trx.insert(historyReports).values({
-            id: oldReportData.id,
             userId: oldReportData.userId,
             receiveMails: oldReportData.receiveMails,
             interval: oldReportData.interval,

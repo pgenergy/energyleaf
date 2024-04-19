@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Peak, PeakAssignment } from "@/types/consumption/peak";
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
@@ -18,6 +19,9 @@ interface Props {
 export default function EnergyConsumptionCardChart({ data, peaks, devices, aggregation }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<Peak | null>(null);
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     const clickCallback = useCallback(
         (callbackData: {
@@ -62,6 +66,19 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
         [data, convertDateFormat],
     );
 
+    function handleZoom(left: Date, right: Date) {
+        const search = new URLSearchParams();
+        searchParams.forEach((v, key) => {
+            search.set(key, v);
+        });
+        search.set("start", left.toISOString());
+        search.set("end", right.toISOString());
+        search.set("zoomed", "true");
+        router.push(`${pathname}?${search.toString()}`, {
+            scroll: false,
+        });
+    }
+
     return (
         <>
             {value && devices ? (
@@ -83,6 +100,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
                           }
                         : undefined
                 }
+                zoomCallback={handleZoom}
             />
         </>
     );

@@ -8,8 +8,10 @@ import type ConsumptionData from "@/types/consumption/consumption-data";
 import type { PeakAssignment } from "@/types/consumption/peak";
 
 import { AggregationType } from "@energyleaf/lib";
+import { fulfills, Versions } from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
+import DashboardZoomReset from "./dashboard-zoom-reset";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
@@ -22,9 +24,9 @@ interface Props {
 }
 
 export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
-    const { session, user } = await getSession();
+    const { user } = await getSession();
 
-    if (!session) {
+    if (!user) {
         redirect("/");
     }
 
@@ -60,18 +62,20 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }));
 
     const devices = !hasAggregation ? await getDevicesByUser(userId) : [];
-    const peakAssignments: PeakAssignment[] = !hasAggregation
-        ? await calculatePeaks(data, startDate, endDate, sensorId)
-        : [];
+    const peakAssignments: PeakAssignment[] =
+        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
+            ? await calculatePeaks(data, startDate, endDate, sensorId)
+            : [];
 
     return (
         <Card className="w-full">
-            <CardHeader className="flex flex-col justify-start md:flex-row md:justify-between">
+            <CardHeader className="flex flex-col justify-start">
                 <div className="flex flex-col gap-2">
                     <CardTitle>Verbrauch</CardTitle>
                     <CardDescription>Übersicht Ihres Verbrauchs im Zeitraum.</CardDescription>
                 </div>
                 <div className="flex flex-row gap-4">
+                    <DashboardZoomReset />
                     <DashboardDateRange endDate={endDate} startDate={startDate} />
                     <DashboardEnergyAggregation selected={aggregation} />
                 </div>
