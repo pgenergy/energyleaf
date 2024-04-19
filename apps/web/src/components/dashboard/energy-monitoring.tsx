@@ -1,9 +1,4 @@
-interface EnergyEntry {
-    id: number;
-    sensorId: string | null;
-    energy: number;
-    timestamp: Date | null;
-}
+import ConsumptionData from "@/types/consumption/consumption-data";
 
 function calculateMean(values: number[]): number {
     if (values.length === 0) {
@@ -26,9 +21,8 @@ function calculateStandardDeviation(values: number[]): number {
     return Math.sqrt(variance);
 }
 
-function findNoticeableEntry(data, avg, threshold) {
-    for (let i = 0; i < data.length; i++) {
-      const entry = data[i];
+function findNoticeableEntry(data: ConsumptionData[], avg: number, threshold: number) {
+    for (let entry of data) {
       const difference = Math.abs(entry.energy - avg);
 
       if (difference > threshold) {
@@ -38,17 +32,12 @@ function findNoticeableEntry(data, avg, threshold) {
     return null
 }
 
-export function isNoticeableEnergyConsumption(data: EnergyEntry[]): boolean {
-    console.log(data)
-    console.log(data.length)
-    
+export function isNoticeableEnergyConsumption(data: ConsumptionData[]): boolean {
     if (data.length < 2) {
         return false;
     }
 
     const values = data.map(entry => entry.energy);
-
-    console.log("Gemappte Werte:", values);
 
     const avg = calculateMean(values);
     const stdDev = calculateStandardDeviation(values);

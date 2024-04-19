@@ -33,8 +33,6 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
 
-    console.log("Test")
-
     if (!sensorId) {
         return (
             <Card className="w-full">
@@ -60,6 +58,8 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
     }));
+
+    console.log(isNoticeableEnergyConsumption(data))
 
     const devices = !hasAggregation ? await getDevicesByUser(userId) : [];
     const peakAssignments: PeakAssignment[] =
