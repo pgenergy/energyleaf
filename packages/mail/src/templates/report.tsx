@@ -8,7 +8,7 @@ import DayTile from "../components/dayTile";
 import Footer from "../components/footer";
 import Header from "../components/header";
 import Tile from "../components/tile";
-import { ReportProps } from "../types/reportProps";
+import { ReportProps } from "../types";
 
 export default function ReportTemplate(props: ReportProps) {
     return (
@@ -26,8 +26,8 @@ export default function ReportTemplate(props: ReportProps) {
 
                         <Container className="mb-8 px-4">
                             <Text>Hallo {props.name},</Text>
-                            <Text>Hier ist Ihre Energieverbrauch-Übersicht für den Zeitraum vom {props.dateFrom.toLocaleDateString()} bis
-                                zum  {props.dateTo.toLocaleDateString()}:</Text>
+                            <Text>Hier ist Ihre Energieverbrauch-Übersicht für den Zeitraum vom {props.dateFrom} bis
+                                zum  {props.dateTo}:</Text>
                         </Container>
 
                         <div className="flex flex-row justify-evenly">
@@ -49,7 +49,7 @@ export default function ReportTemplate(props: ReportProps) {
                             </Tile>
 
                             <Tile visible={true} large={false} icon={<BadgeEuroIcon />} heading="Gesamte Energiekosten">
-                                {props.totalEnergyCost}
+                               <>{props.totalEnergyCost}</>
                             </Tile>
 
                             <Tile
@@ -58,24 +58,26 @@ export default function ReportTemplate(props: ReportProps) {
                                 icon={<ReceiptEuroIcon />}
                                 heading="Durchschnittliche Energiekosten pro Tag"
                             >
-                                {props.avgEnergyCost}
+                                <>{props.avgEnergyCost}</>
                             </Tile>
 
-                            <Tile visible={true} large={false} icon={<BarChart3 />} heading="Höchster Peak"></Tile>
+                            <Tile visible={true} large={false} icon={<BarChart3 />} heading="Höchster Peak">
+                                <></>
+                            </Tile>
 
                             <Tile visible={true} large={false} icon={<RadioReceiver />} heading="Größter Verbraucher">
-                                props
+                                <>props</>
                             </Tile>
 
-                            <Tile visible={true} large={true} heading="Verbrauch" icon={""}>
+                            <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
                                 <Img className="pb-4" src={props.consumptionGraph1} alt="Verbrauch" />
                             </Tile>
 
-                            <Tile visible={true} large={true} heading="Verbrauch" icon={""}>
+                            <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
                                 <Img className="pb-4" src={props.consumptionGraph2} alt="Verbrauch" />
                             </Tile>
 
-                            <Tile visible={true} large={true} heading="Verbrauch" icon={""}>
+                            <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
                                 <Img className="pb-4" src={props.consumptionGraph3} alt="Verbrauch" />
                             </Tile>
                         </div>

@@ -3,7 +3,7 @@ import React, {ReactElement} from "react";
 
 interface Props {
     visible: boolean;
-    icon: ReactElement;
+    icon: ReactElement | null;
     heading: string;
     children: ReactElement;
     large: boolean;

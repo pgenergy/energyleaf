@@ -8,8 +8,10 @@ interface DayStatistics {
 
 interface ReportProps {
     name?: string;
-    dateFrom: Date;
-    dateTo: Date;
+    // formatted Date string
+    dateFrom: string;
+    // formatted Date string
+    dateTo: string;
     dayEnergyStatistics: DayStatistics[];
     totalEnergyConsumption: number;
     avgEnergyConsumptionPerDay: number;
@@ -24,7 +26,7 @@ interface ReportProps {
     /**
      * base64 image
      */
-    consumptionGraph?: string;
+    consumptionGraph1?: string;
     /**
      * base64 image
      */

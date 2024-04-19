@@ -107,8 +107,8 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
 
     return {
         name: user.userName,
-        dateFrom: dateFrom,
-        dateTo: dateTo,
+        dateFrom: dateFrom.toLocaleDateString(),
+        dateTo: dateTo.toLocaleDateString(),
         dayEnergyStatistics: dayStatistics,
         totalEnergyConsumption: totalEnergyConsumption,
         avgEnergyConsumptionPerDay: avgEnergyConsumption,

@@ -6,7 +6,7 @@ interface Props {
     heading: string;
 }
 
-const baseUrl = "https://energyleaf-web.vercel.app";
+const baseUrl = "https://energyleaf.de";
 
 export default function Header({heading}: Props) {
     return (
