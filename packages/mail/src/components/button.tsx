@@ -1,4 +1,4 @@
-import {Button, Container, Link} from "@react-email/components";
+import { Button, Container, Link } from "@react-email/components";
 
 interface CustomButtonProps {
     href: string;
@@ -9,7 +9,7 @@ interface ButtonAltProps {
     href: string;
 }
 
-export function CustomButton({href, children}: CustomButtonProps) {
+export function CustomButton({ href, children }: CustomButtonProps) {
     return (
         <Container className="my-8 flex justify-center">
             <Button className="m-0 rounded bg-primary px-4 py-2 text-primary-foreground" href={href}>
