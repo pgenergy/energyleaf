@@ -11,7 +11,7 @@ const baseUrl = "https://energyleaf.de";
 export function Header({ children }: Props) {
     return (
         <Container>
-            <Container className="flex flex-row-reverse">
+            <Container className="flex justify-center">
                 <Link href={baseUrl} className="">
                     <Img
                         src={`${baseUrl}/_next/image?url=%2Fimage%2Flogo%2Flogo_text.png&w=1080&q=75`}
