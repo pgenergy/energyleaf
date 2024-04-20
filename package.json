@@ -10,7 +10,7 @@
         "dev:mail": "dotenv -- pnpm --filter mail run dev:mail",
         "start": "dotenv -- turbo run start",
         "lint": "dotenv -- turbo run lint",
-        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "format": "prettier --write \"apps/**/*.{ts,tsx,md}\" \"packages/**/*.{ts,tsx,md}\"",
         "fix": "pnpm run format && pnpm run lint -- --fix",
         "db:push": "dotenv -- pnpm --filter db run push",
         "db:push:prod": "dotenv -- pnpm --filter db run push:prod",
