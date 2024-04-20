@@ -2,6 +2,7 @@
 
 import React, { useTransition } from "react";
 import { updateUserGoals } from "@/actions/profile";
+import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 import { userGoalSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
@@ -18,13 +19,6 @@ import {
     CardHeader,
     CardTitle,
     Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-    Input,
     Label,
     Spinner,
 } from "@energyleaf/ui";
@@ -38,7 +32,7 @@ export default function UserGoalsForm({ userData }: Props) {
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
-            goalValue: userData?.consumptionGoal || presetConsumptionGoal(userData),
+            goalValue: userData?.consumptionGoal || 0,
         },
         mode: "onChange",
     });
@@ -63,22 +57,7 @@ export default function UserGoalsForm({ userData }: Props) {
             <CardContent>
                 <Form {...form}>
                     <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-                        <FormField
-                            control={form.control}
-                            name="goalValue"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Zielverbrauch (in kWh)</FormLabel>
-                                    <FormDescription>
-                                        Hier können Sie Ihren Zielverbrauch für einen Tag festlegen.
-                                    </FormDescription>
-                                    <FormControl>
-                                        <Input type="number" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        <UserGoalsFormFields form={form} />
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending} type="submit">
                                 {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
@@ -97,16 +76,4 @@ export default function UserGoalsForm({ userData }: Props) {
             </CardContent>
         </Card>
     );
-}
-
-function presetConsumptionGoal(userData: UserDataSelectType | undefined) {
-    if (!userData?.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
-        return 0;
-    }
-
-    const yearlyPayment = userData.monthlyPayment * 12;
-    const variableCosts = yearlyPayment - userData.basePrice;
-    const monthlyVariableCosts = variableCosts / 12;
-    const consumptionGoal = monthlyVariableCosts / userData.workingPrice;
-    return Math.round(consumptionGoal);
 }

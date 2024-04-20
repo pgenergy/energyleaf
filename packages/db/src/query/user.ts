@@ -1,9 +1,9 @@
-import {and, desc, eq} from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 import db from "../";
-import {historyUserData, token, user, userData} from "../schema";
-import {reportConfig} from "../schema/reports";
-import {TokenType} from "../types/types";
+import { historyUserData, token, user, userData } from "../schema";
+import { reportConfig } from "../schema/reports";
+import { TokenType } from "../types/types";
 
 /**
  * Get a user by id from the database
@@ -116,8 +116,8 @@ export async function getUserDataHistory(id: string) {
 /**
  * Update the user data in the database
  */
-export async function updateUser(data: Partial<CreateUserType>, id: string) {
-    return await db.update(user).set(data).where(eq(user.id, id));
+export async function updateUser(data: Partial<UserSelectType>, id: string) {
+    return db.update(user).set(data).where(eq(user.id, id));
 }
 
 /**
@@ -147,7 +147,7 @@ export async function updateUserData(data: Partial<UpdateUserData>, id: string) 
             throw new Error("Old user data not found");
         }
 
-        await trx.insert(historyUserData).values({...oldUserData, id: undefined});
+        await trx.insert(historyUserData).values({ ...oldUserData, id: undefined });
         await trx.update(userData).set(data).where(eq(userData.userId, id));
     });
 }
@@ -171,23 +171,21 @@ export async function getAllUsers() {
 }
 
 export async function setUserActive(id: string, isActive: boolean) {
-    return db.update(user).set({isActive}).where(eq(user.id, id));
+    return db.update(user).set({ isActive }).where(eq(user.id, id));
 }
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {
-    return db.update(user).set({isAdmin}).where(eq(user.id, id));
+    return db.update(user).set({ isAdmin }).where(eq(user.id, id));
 }
 
 export async function createToken(userId: string, type: TokenType = TokenType.Report) {
     return db.transaction(async (trx) => {
-        await trx.insert(token).values({userId, type});
+        await trx.insert(token).values({ userId, type });
 
-        const createdToken = await trx.select().from(token)
-            .where(
-                and(
-                    eq(token.userId, userId),
-                    eq(token.type, type))
-            )
+        const createdToken = await trx
+            .select()
+            .from(token)
+            .where(and(eq(token.userId, userId), eq(token.type, type)))
             .orderBy(desc(token.created))
             .limit(1);
         return createdToken[0].token;

@@ -11,10 +11,10 @@
     "devDependencies": {
         "@energyleaf/eslint-config": "workspace:^",
         "@energyleaf/tsconfig": "workspace:^",
-        "@types/node": "^20.12.2",
-        "@types/react": "^18.2.73",
-        "@types/react-dom": "^18.2.23",
-        "typescript": "^5.4.3"
+        "@types/node": "^20.12.7",
+        "@types/react": "^18.2.78",
+        "@types/react-dom": "^18.2.25",
+        "typescript": "^5.4.5"
     },
     "scripts": {
         "dev:mail": "email dev --port 3002 --dir src/templates",

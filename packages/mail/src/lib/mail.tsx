@@ -61,7 +61,10 @@ export async function sendPasswordResetMailForUser({ from, to, name, link, apiKe
     return sendMailByTemplate({from, to, apiKey}, "Passwort zurücksetzen", PasswordResetByAdminTemplate({name, link}));
 }
 
-async function sendMailByTemplate({from, to, apiKey}: MailOptions, subject: string, template: React.JSX.Element) {
+async function sendPasswordResetMailByTemplate({ from, to, apiKey }: MailOptions, template: React.JSX.Element) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
@@ -92,8 +95,10 @@ type PasswordChangedMailOptions = MailOptions & { name: string };
  * @throws An error if the email could not be sent
  */
 export async function sendPasswordChangedEmail({ from, to, name, apiKey }: PasswordChangedMailOptions) {
-    return sendMailByTemplate({ from, to, apiKey }, "Passwort geändert", PasswordChangedTemplate({ name }));
-}
+    if (!apiKey || apiKey === "") {
+        return;
+    }
+    const resend = createResend(apiKey);
 
 
 interface ReportMailOptions extends MailOptions {
@@ -119,6 +124,9 @@ type AccountCreatedMailOptions = PasswordChangedMailOptions;
  * @throws An error if the email could not be sent
  */
 export async function sendAccountCreatedEmail({ from, to, name, apiKey }: AccountCreatedMailOptions) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
@@ -149,6 +157,9 @@ type AccountActivatedMailOptions = PasswordChangedMailOptions;
  * @throws An error if the email could not be sent
  */
 export async function sendAccountActivatedEmail({ from, to, name, apiKey }: AccountActivatedMailOptions) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({

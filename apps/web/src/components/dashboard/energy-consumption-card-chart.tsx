@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Peak, PeakAssignment } from "@/types/consumption/peak";
-
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
 import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/components/charts";
-
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
+import { formatISO } from "date-fns";
 
 interface Props {
     data: EnergyData[];
@@ -19,6 +19,9 @@ interface Props {
 export default function EnergyConsumptionCardChart({ data, peaks, devices, aggregation }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<Peak | null>(null);
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     const clickCallback = useCallback(
         (callbackData: {
@@ -37,7 +40,17 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
         },
         [setValue, setOpen],
     );
+
     const onClick = devices && devices.length > 0 ? clickCallback : undefined;
+
+    const convertDateFormat = useCallback((dateStr: string) => {
+        const cleanedDateStr = dateStr.replace(/\(.+\)$/, "").trim();
+        const parsedDate = new Date(cleanedDateStr);
+        if (!isNaN(parsedDate.getTime())) {
+            return formatISO(parsedDate);
+        }
+        return dateStr;
+    }, []);     
 
     const convertToAxesValue = useCallback(
         (peak: Peak): Record<string, string | number | undefined> => {
@@ -45,13 +58,26 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
 
             return {
                 sensorId: sensorData?.sensorId ?? "",
-                timestamp: sensorData?.timestamp || "",
+                timestamp: sensorData?.timestamp ? convertDateFormat(sensorData.timestamp) : "",
                 energy: sensorData?.energy ?? 0,
                 device: peak.device,
             };
         },
-        [data],
+        [data, convertDateFormat],
     );
+
+    function handleZoom(left: Date, right: Date) {
+        const search = new URLSearchParams();
+        searchParams.forEach((v, key) => {
+            search.set(key, v);
+        });
+        search.set("start", left.toISOString());
+        search.set("end", right.toISOString());
+        search.set("zoomed", "true");
+        router.push(`${pathname}?${search.toString()}`, {
+            scroll: false,
+        });
+    }
 
     return (
         <>
@@ -60,7 +86,10 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
             ) : null}
             <EnergyConsumptionChart
                 aggregation={aggregation}
-                data={data}
+                data={data.map(d => ({
+                    ...d,
+                    timestamp: d.timestamp ? convertDateFormat(d.timestamp) : ''
+                }))}
                 referencePoints={
                     peaks
                         ? {
@@ -71,6 +100,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
                           }
                         : undefined
                 }
+                zoomCallback={handleZoom}
             />
         </>
     );

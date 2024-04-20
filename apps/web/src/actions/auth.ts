@@ -2,41 +2,28 @@
 
 import "server-only";
 
-import {cookies} from "next/headers";
-import {redirect, useRouter} from "next/navigation";
-import {env} from "@/env.mjs";
-import {getActionSession} from "@/lib/auth/auth.action";
-import {lucia} from "@/lib/auth/auth.config";
-import {getUserDataCookieStore, isDemoUser} from "@/lib/demo/demo";
-import type {forgotSchema, resetSchema, signupSchema} from "@/lib/schema/auth";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { env } from "@/env.mjs";
+import { getActionSession } from "@/lib/auth/auth.action";
+import { lucia } from "@/lib/auth/auth.config";
+import { onboardingCompleteCookieName } from "@/lib/constants";
+import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
+import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import * as jose from "jose";
-import {Argon2id, Bcrypt} from "oslo/password";
-import type {z} from "zod";
+import type { Session } from "lucia";
+import { Argon2id, Bcrypt } from "oslo/password";
+import type { z } from "zod";
 
-import {
-    createUser,
-    getUserById,
-    getUserByMail,
-    updatePassword,
-    type CreateUserType,
-    updateReportConfig
-} from "@energyleaf/db/query";
-import {
-    buildResetPasswordUrl,
-    getResetPasswordToken,
-    UserNotActiveError,
-    UserNotFoundError,
-    UserNotLoggedInError
-} from "@energyleaf/lib";
-import {sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail} from "@energyleaf/mail";
-import type {reportSettingsSchema} from "@/lib/schema/profile";
-import {revalidatePath} from "next/cache";
+import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
+import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
+import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 
 /**
  * Server action for creating a new account
  */
 export async function createAccount(data: z.infer<typeof signupSchema>) {
-    const {mail, password, passwordRepeat, username} = data;
+    const { mail, password, passwordRepeat, username } = data;
 
     if (mail === "demo@energyleaf.de") {
         throw new Error("Demo-Account kann nicht erstellt werden.");
@@ -82,7 +69,7 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
 }
 
 export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
-    const {mail} = data;
+    const { mail } = data;
 
     if (mail === "demo@energyleaf.de") {
         throw new Error("Demo-Account kann nicht zurückgesetzt werden.");
@@ -93,8 +80,8 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         throw new Error("E-Mail wird nicht verwendet.");
     }
 
-    const token = await getResetPasswordToken({userId: user.id, secret: env.NEXTAUTH_SECRET});
-    const resetUrl = buildResetPasswordUrl({env, token});
+    const token = await getResetPasswordToken({ userId: user.id, secret: env.NEXTAUTH_SECRET });
+    const resetUrl = buildResetPasswordUrl({ env, token });
 
     try {
         await sendPasswordResetEmail({
@@ -110,13 +97,13 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
 }
 
 export async function resetPassword(data: z.infer<typeof resetSchema>, resetToken: string) {
-    const {password: newPassword, passwordRepeat} = data;
+    const { password: newPassword, passwordRepeat } = data;
 
     if (newPassword !== passwordRepeat) {
         throw new Error("Passwörter stimmen nicht überein.");
     }
 
-    const {sub} = jose.decodeJwt(resetToken);
+    const { sub } = jose.decodeJwt(resetToken);
     if (!sub) {
         throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
     }
@@ -135,7 +122,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     // no exception was thrown, so everything is fine
 
     const hash = await new Argon2id().hash(newPassword);
-    await updatePassword({password: hash}, user.id);
+    await updatePassword({ password: hash }, user.id);
 
     try {
         await sendPasswordChangedEmail({
@@ -153,9 +140,9 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
  * Server action to sign a user in
  */
 export async function signInAction(email: string, password: string) {
-    const {session} = await getActionSession();
+    const { session } = await getActionSession();
     if (session) {
-        redirect("/dashboard");
+        await handleSignIn(session);
     }
 
     const user = await getUserByMail(email);
@@ -164,7 +151,7 @@ export async function signInAction(email: string, password: string) {
     }
 
     if (!user.isActive) {
-        throw new UserNotActiveError();
+        redirect("/created");
     }
 
     let match = false;
@@ -178,7 +165,7 @@ export async function signInAction(email: string, password: string) {
         }
 
         const hash = await new Argon2id().hash(password);
-        await updatePassword({password: hash}, user.id);
+        await updatePassword({ password: hash }, user.id);
     }
 
     if (!match) {
@@ -188,6 +175,18 @@ export async function signInAction(email: string, password: string) {
     const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
+    await handleSignIn(newSession);
+}
+
+async function handleSignIn(session: Session) {
+    const userData = await getUserById(session.userId);
+    const onboardingCompleted = userData?.onboardingCompleted ?? false;
+    cookies().set(onboardingCompleteCookieName, onboardingCompleted.toString());
+
+    if (!onboardingCompleted) {
+        redirect("/onboarding");
+    }
+
     redirect("/dashboard");
 }
 
@@ -195,7 +194,7 @@ export async function signInAction(email: string, password: string) {
  * Server action to sign a user in as demo
  */
 export async function signInDemoAction() {
-    const {session} = await getActionSession();
+    const { session } = await getActionSession();
     if (session) {
         redirect("/dashboard");
     }
@@ -211,7 +210,7 @@ export async function signInDemoAction() {
  * Server action to sign a user out
  */
 export async function signOutAction() {
-    const {session} = await getActionSession();
+    const { session } = await getActionSession();
     if (!session) {
         return;
     }

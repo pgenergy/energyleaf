@@ -9,6 +9,7 @@ import { SensorContextProvider } from "@/hooks/sensor-hook";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 
+import SensorAddValueDialog from "./sensor-add-value-dialog";
 import SensorEditDialog from "./sensor-edit-dialog";
 
 export default function SensorsOverviewCard() {
@@ -17,6 +18,7 @@ export default function SensorsOverviewCard() {
             <SensorAddDialog />
             <SensorDeleteDialog />
             <SensorEditDialog />
+            <SensorAddValueDialog />
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Sensoren</CardTitle>

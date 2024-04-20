@@ -1,5 +1,4 @@
 import { cache } from "react";
-import { getDemoGoalStatus } from "@/lib/demo/demo";
 import { getUserData } from "@/query/user";
 import { GoalState, GoalStatus } from "@/types/goals";
 import { endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek } from "date-fns";
@@ -16,10 +15,6 @@ export const getGoalStatus = cache(async (userId: string, sensorId: string) => {
     const userDailyLimit = userData.consumptionGoal;
     if (!userDailyLimit) {
         return [];
-    }
-
-    if (userId === "demo") {
-        return getDemoGoalStatus(userDailyLimit);
     }
 
     return await Promise.all([

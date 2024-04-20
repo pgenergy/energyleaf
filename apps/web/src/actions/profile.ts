@@ -135,8 +135,7 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
                 property: data.houseType,
             },
         } as Partial<UserDataType>);
-        revalidatePath("/profile");
-        revalidatePath("/dashboard");
+        revalidateUserDataPaths();
         return;
     }
 
@@ -160,8 +159,7 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
             },
             user.id,
         );
-        revalidatePath("/profile");
-        revalidatePath("/dashboard");
+        revalidateUserDataPaths();
     } catch (e) {
         throw new Error("Error while updating user");
     }
@@ -181,8 +179,7 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
                 consumptionGoal: data.goalValue,
             },
         } as Partial<UserDataType>);
-        revalidatePath("/profile");
-        revalidatePath("/dashboard");
+        revalidateUserDataPaths();
         return;
     }
 
@@ -199,8 +196,7 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
             },
             user.id,
         );
-        revalidatePath("/profile");
-        revalidatePath("/dashboard");
+        revalidateUserDataPaths();
     } catch (e) {
         throw new Error("Error while updating user");
     }
@@ -230,4 +226,10 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
     } catch (e) {
         throw new Error("Error while deleting account");
     }
+}
+
+function revalidateUserDataPaths() {
+    revalidatePath("/profile");
+    revalidatePath("/dashboard");
+    revalidatePath("/onboarding");
 }
