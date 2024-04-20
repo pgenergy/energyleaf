@@ -3,7 +3,7 @@ import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import ChangePasswordForm from "@/components/profile/change-password-form";
 import UserDataForm from "@/components/profile/data-form";
-import ReportConfigCard from "@/components/profile/report-config-card";
+import ReportConfigForm from "@/components/profile/report-config-form";
 import UserGoalsForm from "@/components/profile/user-goals-form";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
@@ -37,7 +37,7 @@ export default async function ProfilePage() {
         <div className="flex flex-col gap-4">
             <BaseInformationForm disabled={isDemo} email={user.email} username={user.username} />
             <ChangePasswordForm disabled={isDemo} />
-            <MailSettingsForm disabled={isDemo} initialValues={reportConfig} />
+            <ReportConfigForm disabled={isDemo} reportConfig={reportConfig} onSubmit={() => {}} />
             <UserDataForm initialData={data} />
             {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData?.user_data} />}
             <AccountDeletionForm disabled={isDemo} />

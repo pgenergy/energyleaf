@@ -1,4 +1,4 @@
-import { device, reportConfig, peaks, sensor, sensorData, user, userData } from "../schema";
+import { device, peaks, reportConfig, sensor, sensorData, user, userData } from "../schema";
 
 export enum SortOrder {
     ASC = "ASC",
@@ -68,5 +68,5 @@ export enum DeviceCategory {
 }
 
 export enum TokenType {
-    Report = "report"
+    Report = "report",
 }

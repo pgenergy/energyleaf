@@ -1,4 +1,4 @@
-import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import type { ReportConfigSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
 
 export function createUserDataSchemaFromUserDataType(userData: UserDataType | null) {
     return createUserDataSchemaFromUserDataSelectType(userData?.user_data ?? null);
@@ -18,10 +18,10 @@ export function createUserDataSchemaFromUserDataSelectType(userData: UserDataSel
 }
 
 export function createMailSettingsSchemaFromUserDataType(userData: UserDataType | null) {
-    return createMailSettingsSchemaFromReportSelectType(userData?.reports ?? null);
+    return createMailSettingsSchemaFromReportSelectType(userData?.report_config ?? null);
 }
 
-export function createMailSettingsSchemaFromReportSelectType(reports: ReportSelectType | null) {
+export function createMailSettingsSchemaFromReportSelectType(reports: ReportConfigSelectType | null) {
     return {
         interval: reports?.interval || 3,
         receiveMails: reports?.receiveMails || false,

@@ -1,15 +1,18 @@
 interface DayStatistics {
-    day: Date,
-    dailyConsumption: number,
-    dailyGoal?: number,
-    exceeded?: boolean,
-    progress?: number
+    // formatted date string
+    day: string;
+    dailyConsumption: number;
+    dailyGoal?: number;
+    exceeded?: boolean;
+    progress?: number;
 }
 
 interface ReportProps {
     name?: string;
-    dateFrom: Date;
-    dateTo: Date;
+    // formatted date string
+    dateFrom: string;
+    // formatted date string
+    dateTo: string;
     dayEnergyStatistics: DayStatistics[];
     totalEnergyConsumption: number;
     avgEnergyConsumptionPerDay: number;
@@ -19,12 +22,12 @@ interface ReportProps {
         dateTime: Date;
         deviceName: string;
         consumption: string;
-    }
+    };
 
     /**
      * base64 image
      */
-    consumptionGraph?: string;
+    consumptionGraph1?: string;
     /**
      * base64 image
      */

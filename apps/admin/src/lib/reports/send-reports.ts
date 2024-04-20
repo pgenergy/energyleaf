@@ -1,16 +1,19 @@
+import { getElectricitySensorByUser } from "@/actions/sensors";
+import { env } from "@/env.mjs";
+
 import {
     createToken,
-    getEnergySumForSensorInRange, getLastReportForUser, getUserDataByUserId,
-    getUsersWitDueReport, saveReport,
-    updateLastReportTimestamp
+    getEnergySumForSensorInRange,
+    getLastReportForUser,
+    getUserDataByUserId,
+    getUsersWitDueReport,
+    saveReport,
+    updateLastReportTimestamp,
 } from "@energyleaf/db/query";
-import {sendReport} from "@energyleaf/mail";
-import {env} from "@/env.mjs";
-import {getElectricitySensorByUser} from "@/actions/sensors";
-import {TokenType, UserDataSelectType} from "@energyleaf/db/types";
-import {buildUnsubscribeReportsUrl} from "@energyleaf/lib";
-import {DayStatistics, ReportProps} from "@energyleaf/mail/types";
-
+import { TokenType, UserDataSelectType } from "@energyleaf/db/types";
+import { buildUnsubscribeReportsUrl } from "@energyleaf/lib";
+import { sendReport } from "@energyleaf/mail";
+import { DayStatistics, ReportProps } from "@energyleaf/mail/types";
 
 interface UserReportData {
     userId: string;
@@ -35,7 +38,7 @@ export async function createReportsAndSendMails() {
         try {
             reportProps = await createReportData(userReport);
             const unsubscribeToken = await createToken(userReport.userId, TokenType.Report);
-            unsubscribeLink = buildUnsubscribeReportsUrl({env, token: unsubscribeToken});
+            unsubscribeLink = buildUnsubscribeReportsUrl({ env, token: unsubscribeToken });
         } catch (e) {
             console.error(`Error creating report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
             continue;
@@ -46,7 +49,9 @@ export async function createReportsAndSendMails() {
                 await sendReportMail(userReport, reportProps, unsubscribeLink);
                 sentReports++;
             } catch (e) {
-                console.error(`Error sending report for User ${userReport.userName} (User-ID ${userReport.userId}) to ${userReport.email}: ${e}`);
+                console.error(
+                    `Error sending report for User ${userReport.userName} (User-ID ${userReport.userId}) to ${userReport.email}: ${e}`,
+                );
                 continue;
             }
         }
@@ -62,19 +67,23 @@ export async function createReportsAndSendMails() {
             await updateLastReportTimestamp(userReport.userId);
             updatedLastReportTimestamps++;
         } catch (e) {
-            console.error(`Error updating last report timestamp for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
+            console.error(
+                `Error updating last report timestamp for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`,
+            );
         }
 
         successfulReports++;
     }
 
     // TODO: maybe improve logging
-    console.info(`--Send Report Results-- `,
+    console.info(
+        `--Send Report Results-- `,
         ` Total reports: ${totalReports} `,
         ` Successful reports: ${successfulReports}`,
         ` Sent reports: ${sentReports} `,
         ` Saved reports: ${savedReports} `,
-        ` Updated last report timestamp: ${updatedLastReportTimestamps}`);
+        ` Updated last report timestamp: ${updatedLastReportTimestamps}`,
+    );
 }
 
 export async function createReportData(user: UserReportData): Promise<ReportProps> {
@@ -107,8 +116,8 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
 
     return {
         name: user.userName,
-        dateFrom: dateFrom,
-        dateTo: dateTo,
+        dateFrom: dateFrom.toLocaleDateString(),
+        dateTo: dateTo.toLocaleDateString(),
         dayEnergyStatistics: dayStatistics,
         totalEnergyConsumption: totalEnergyConsumption,
         avgEnergyConsumptionPerDay: avgEnergyConsumption,
@@ -117,14 +126,18 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
         highestPeak: {
             dateTime: dateTo,
             deviceName: "my device",
-            consumption: "1000 kWh"
+            consumption: "1000 kWh",
         },
-        lastReport: lastReport ?? undefined
+        lastReport: lastReport ?? undefined,
     };
 }
 
-
-async function getDayStatistics(userData: UserDataSelectType, sensor: string, dateFrom: Date, interval: number): Promise<DayStatistics[]> {
+async function getDayStatistics(
+    userData: UserDataSelectType,
+    sensor: string,
+    dateFrom: Date,
+    interval: number,
+): Promise<DayStatistics[]> {
     const dates = new Array(interval).fill(null).map((_, index) => {
         const date = new Date(dateFrom);
         date.setDate(date.getDate() + index);
@@ -138,11 +151,11 @@ async function getDayStatistics(userData: UserDataSelectType, sensor: string, da
         const sumOfDay = await getEnergySumForSensorInRange(date, endDate, sensor);
 
         return {
-            day: date,
+            day: date.toLocaleDateString(),
             dailyConsumption: sumOfDay,
             dailyGoal: userData.consumptionGoal ?? undefined,
             exceeded: userData.consumptionGoal ? sumOfDay > userData.consumptionGoal : undefined,
-            progress: userData.consumptionGoal ? sumOfDay / userData.consumptionGoal : undefined
+            progress: userData.consumptionGoal ? sumOfDay / userData.consumptionGoal : undefined,
         };
     });
     return await Promise.all(tasks);
@@ -150,7 +163,9 @@ async function getDayStatistics(userData: UserDataSelectType, sensor: string, da
 
 export async function sendReportMail(userReport: UserReportData, reportProps: ReportProps, unsubscribeLink: string) {
     if (userReport.email === null) {
-        throw new Error(`No email address for User ${userReport.userName} (User-ID ${userReport.userId}) to send report to`);
+        throw new Error(
+            `No email address for User ${userReport.userName} (User-ID ${userReport.userId}) to send report to`,
+        );
     }
     await sendReport({
         from: env.RESEND_API_MAIL,

@@ -3,7 +3,7 @@ import React, { ReactElement } from "react";
 import { Container, Heading, Hr, Img, Link } from "@react-email/components";
 
 interface Props {
-    children: string;
+    children: string | string[];
 }
 
 const baseUrl = "https://energyleaf.de";

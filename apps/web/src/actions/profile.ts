@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import type {
     deleteAccountSchema,
-    reportSettingsSchema,
     passwordSchema,
+    reportSettingsSchema,
     userDataSchema,
     userGoalSchema,
 } from "@/lib/schema/profile";
@@ -13,8 +13,8 @@ import { Argon2id } from "oslo/password";
 import {
     deleteUser,
     getUserById,
-    updateReportConfig,
     updatePassword,
+    updateReportConfig,
     updateUser,
     updateUserData,
 } from "@energyleaf/db/query";

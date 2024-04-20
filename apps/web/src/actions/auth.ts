@@ -10,13 +10,21 @@ import { lucia } from "@/lib/auth/auth.config";
 import { onboardingCompleteCookieName } from "@/lib/constants";
 import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
+import { type reportSettingsSchema } from "@/lib/schema/profile";
 import * as jose from "jose";
 import type { Session } from "lucia";
 import { Argon2id, Bcrypt } from "oslo/password";
 import type { z } from "zod";
 
-import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
-import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
+import {
+    createUser,
+    getUserById,
+    getUserByMail,
+    updatePassword,
+    updateReportConfig,
+    type CreateUserType,
+} from "@energyleaf/db/query";
+import { buildResetPasswordUrl, getResetPasswordToken, UserNotFoundError } from "@energyleaf/lib";
 import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 
 /**
@@ -248,7 +256,6 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
             userId,
         );
     } catch (e) {
-        console.log(e);
-        throw new Error("Error while updating user: " + e);
+        throw new Error(`Error while updating user: ${  e.toString()}`);
     }
 }
