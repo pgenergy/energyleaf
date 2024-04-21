@@ -15,7 +15,7 @@ export default function ReportTemplate(props: ReportProps) {
             <Preview>Energyleaf Bericht für {props.dateFrom}</Preview>
             <Head />
             <Main>
-                <Header>Bericht von ${props.dateFrom}</Header>
+                <Header>Bericht von {props.dateFrom}</Header>
 
                 <Container className="mb-8 px-4">
                     <Text>Hallo {props.name},</Text>

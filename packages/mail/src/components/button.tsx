@@ -1,4 +1,4 @@
-import { Button, Container, Link } from "@react-email/components";
+import {Button, Container, Link, Text} from "@react-email/components";
 
 interface CustomButtonProps {
     href: string;
@@ -21,13 +21,13 @@ export function CustomButton({ href, children }: CustomButtonProps) {
 
 export function ButtonAlt({ href }: ButtonAltProps) {
     return (
-        <Container className="mb-8 flex flex-col gap-2 px-4 text-sm text-muted-foreground">
-            <Container>Sollte der Button nicht funktionieren, nutzen Sie folgenden Link:</Container>
-            <Container>
+        <Container className="mb-8 flex flex-col gap-2 px-4 text-muted-foreground">
+            <Text>Sollte der Button nicht funktionieren, nutzen Sie folgenden Link:</Text>
+            <Text>
                 <Link className="text-primary" href={href}>
                     {href}
                 </Link>
-            </Container>
+            </Text>
         </Container>
     );
 }
