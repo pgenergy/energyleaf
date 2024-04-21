@@ -1,7 +1,8 @@
 "use client";
 
-import {useMemo, useState} from "react";
+import { useMemo, useState } from "react";
 import { clsx } from "clsx";
+import { differenceInCalendarDays, format, isValid, max, min, parseISO } from "date-fns";
 import {
     Area,
     AreaChart,
@@ -14,7 +15,7 @@ import {
     YAxis,
 } from "recharts";
 import type { CategoricalChartState } from "recharts/types/chart/types";
-import { format, parseISO, differenceInCalendarDays, isValid, min, max } from "date-fns";
+
 type AxesValue = string | number | undefined;
 
 interface Props {
@@ -44,21 +45,21 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
     const dynamicTickFormatter = useMemo(() => {
-        const dates = data.map(d => new Date(d[xAxes?.dataKey as string] as string));
+        const dates = data.map((d) => new Date(d[xAxes?.dataKey as string] as string));
         if (dates.length === 0) {
             return (value: string) => value;
         }
         const minDate = min(dates);
         const maxDate = max(dates);
         const diffDays = differenceInCalendarDays(maxDate, minDate);
-    
+
         let lastSeenHour = "";
         let lastSeenDate = "";
         const dateInterval = Math.max(1, Math.ceil(diffDays / 20)); // Ensures the interval between displayed dates in the chart is at least 1 and adapts dynamically to span 20 intervals across the date range
 
         const lastDateStr = format(maxDate, "dd.MM");
         const lastHourStr = format(maxDate, "HH") + ":00";
-    
+
         return (value: string) => {
             if (!isValid(parseISO(value))) {
                 return value;
@@ -67,25 +68,25 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
             const dateStr = format(date, "dd.MM");
             const hourStr = format(date, "HH") + ":00";
             const currentDateDiff = differenceInCalendarDays(date, minDate);
-    
+
             if (diffDays <= 1) {
                 if (dateStr === lastDateStr && hourStr === lastHourStr) {
-                    return '';
+                    return "";
                 }
                 if (lastSeenHour !== hourStr) {
                     lastSeenHour = hourStr;
                     return hourStr;
                 }
-                return '';
+                return "";
             } else {
                 if (currentDateDiff % dateInterval === 0 && lastSeenDate !== dateStr) {
                     lastSeenDate = dateStr;
                     return dateStr;
                 }
-                return '';
+                return "";
             }
         };
-    }, [data, xAxes]);                         
+    }, [data, xAxes]);
 
     const handleZoom = () => {
         if (!leftValue || !rightValue || !zoomCallback) return;
@@ -176,18 +177,18 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 />
                 {referencePoints
                     ? referencePoints?.data.map((value) => (
-                        <ReferenceDot
-                            className={clsx(referencePoints?.callback ? "cursor-pointer" : "cursor-default")}
-                            fill="hsl(var(--destructive))"
-                            isFront
-                            key={`${value[referencePoints.xKeyName]?.toString()}-${value[referencePoints.yKeyName]?.toString()}`}
-                            onClick={() => referencePoints?.callback && referencePoints.callback(value)}
-                            r={10}
-                            stroke="hsl(var(--destructive))"
-                            x={value[referencePoints.xKeyName]}
-                            y={value[referencePoints.yKeyName]}
-                        />
-                    ))
+                          <ReferenceDot
+                              className={clsx(referencePoints?.callback ? "cursor-pointer" : "cursor-default")}
+                              fill="hsl(var(--destructive))"
+                              isFront
+                              key={`${value[referencePoints.xKeyName]?.toString()}-${value[referencePoints.yKeyName]?.toString()}`}
+                              onClick={() => referencePoints?.callback && referencePoints.callback(value)}
+                              r={10}
+                              stroke="hsl(var(--destructive))"
+                              x={value[referencePoints.xKeyName]}
+                              y={value[referencePoints.yKeyName]}
+                          />
+                      ))
                     : null}
                 {leftValue && rightValue && zoomCallback ? (
                     <ReferenceArea
