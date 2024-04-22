@@ -60,11 +60,9 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
         let lastSeenDate = "";
         // Ensures the interval between displayed dates in the chart is at least 1 and adapts dynamically to span 20 intervals across the date range
         const dateInterval = Math.max(1, Math.ceil(diffDays / 20));
-        const lastDateStr = format(maxDate, "dd.MM");
-        const lastHourStr = `${format(maxDate, "HH")}:00`;
 
         const lastDateStr = format(maxDate, "dd.MM");
-        const lastHourStr = format(maxDate, "HH") + ":00";
+        const lastHourStr = `${format(maxDate, "HH")}:00`;
 
         return (value: string) => {
             if (!isValid(parseISO(value))) {
@@ -82,12 +80,6 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 if (lastSeenHour !== hourStr) {
                     lastSeenHour = hourStr;
                     return hourStr;
-                }
-                return "";
-            } else {
-                if (currentDateDiff % dateInterval === 0 && lastSeenDate !== dateStr) {
-                    lastSeenDate = dateStr;
-                    return dateStr;
                 }
                 return "";
             }
@@ -188,13 +180,13 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     type="monotone"
                 />
                 {referencePoints
-                    ? referencePoints?.data.map((value) => (
+                    ? referencePoints.data.map((value) => (
                           <ReferenceDot
-                              className={clsx(referencePoints?.callback ? "cursor-pointer" : "cursor-default")}
+                              className={clsx(referencePoints.callback ? "cursor-pointer" : "cursor-default")}
                               fill="hsl(var(--destructive))"
                               isFront
-                              key={`${value[referencePoints.xKeyName]?.toString()}-${value[referencePoints.yKeyName]?.toString()}`}
-                              onClick={() => referencePoints?.callback && referencePoints.callback(value)}
+                              key={`${value[referencePoints.xKeyName]?.toString() || ""}-${value[referencePoints.yKeyName]?.toString() || ""}`}
+                              onClick={() => referencePoints.callback?.(value)}
                               r={10}
                               stroke="hsl(var(--destructive))"
                               x={value[referencePoints.xKeyName]}
