@@ -38,7 +38,7 @@ export default function OnboardingWizard({ userData, showGoals }: Props) {
         <Wizard finishHandler={finishHandler}>
             <InformationStep />
             <UserDataStep userData={userData.user_data} />
-            { Boolean(showGoals) && <GoalStep userData={userData.user_data} /> }
+            {Boolean(showGoals) && <GoalStep userData={userData.user_data} />}
             <MailSettingsStep reports={userData.reports} />
             <ThankYouStep />
         </Wizard>
