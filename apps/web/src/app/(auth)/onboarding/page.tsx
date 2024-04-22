@@ -1,7 +1,8 @@
 import OnboardingWizard from "@/components/onboarding/onboarding-wizard";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { getUserData } from "@/query/user";
-import { Versions, fulfills } from "@energyleaf/lib/versioning";
+
+import { fulfills, Versions } from "@energyleaf/lib/versioning";
 import { CardContent } from "@energyleaf/ui";
 
 export default async function OnboardingInformationPage() {

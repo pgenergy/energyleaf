@@ -1,11 +1,11 @@
 import { sql } from "drizzle-orm";
 import {
     boolean,
-    float,
     int,
     mysqlEnum,
     mysqlTable,
     primaryKey,
+    real,
     text,
     timestamp,
     uniqueIndex,
@@ -58,8 +58,10 @@ export const sensorData = mysqlTable(
             .notNull()
             .$defaultFn(() => nanoid(35)),
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-        value: float("value").notNull(),
-        timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
+        value: real("value", { precision: 12, scale: 4 }).notNull(),
+        timestamp: timestamp("timestamp")
+            .notNull()
+            .default(sql`CURRENT_TIMESTAMP`),
     },
     (table) => {
         return {

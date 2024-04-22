@@ -1,12 +1,12 @@
 "use client";
 
 import type { Peak, PeakAssignment } from "@/types/consumption/peak";
+import { formatISO } from "date-fns";
+
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
 import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/components/charts";
-import { formatISO } from "date-fns";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { useCallback, useState } from "react";
+
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
 
 interface Props {
