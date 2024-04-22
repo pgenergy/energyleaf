@@ -1,6 +1,5 @@
-import { Body, Container, Head, Heading, Hr, Html, Preview, Tailwind, Text } from "@react-email/components";
-
 import config from "@energyleaf/tailwindcss/mail-config";
+import { Body, Container, Head, Heading, Hr, Html, Preview, Tailwind, Text } from "@react-email/components";
 
 interface Props {
     name: string;

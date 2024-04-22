@@ -1,7 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- This is a React file
-import * as React from "react";
+import type * as React from "react";
 import { Resend } from "resend";
-
 import AccountActivatedTemplate from "../templates/account-activated";
 import AccountCreatedTemplate from "../templates/account-created";
 import PasswordChangedTemplate from "../templates/password-changed";

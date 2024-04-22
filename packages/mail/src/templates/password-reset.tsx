@@ -1,3 +1,4 @@
+import config from "@energyleaf/tailwindcss/mail-config";
 import {
     Body,
     Button,
@@ -11,8 +12,6 @@ import {
     Tailwind,
     Text,
 } from "@react-email/components";
-
-import config from "@energyleaf/tailwindcss/mail-config";
 
 interface Props {
     name: string;
@@ -55,7 +54,7 @@ export default function PasswordResetTemplate({ name, link }: Props) {
                                 werden.
                             </Text>
                         </Container>
-                        <Container className="mb-8 flex flex-col gap-2 px-4 text-sm text-muted-foreground">
+                        <Container className="mb-8 flex flex-col gap-2 px-4 text-muted-foreground text-sm">
                             <Container>Sollte der Button nicht funktionieren, nutzen Sie folgenden Link:</Container>
                             <Container>
                                 <Link className="text-primary" href={link}>

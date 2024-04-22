@@ -1,5 +1,7 @@
 "use server";
 
+import { checkIfAdmin } from "@/lib/auth/auth.action";
+import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import {
     assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
@@ -11,16 +13,11 @@ import {
     sensorExists,
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
-
-import "server-only";
-
-import { revalidatePath } from "next/cache";
-import { checkIfAdmin } from "@/lib/auth/auth.action";
-import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
-import type { z } from "zod";
-
 import type { SensorInsertType, SensorType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
+import { revalidatePath } from "next/cache";
+import "server-only";
+import type { z } from "zod";
 
 /**
  * Creates a new sensor.

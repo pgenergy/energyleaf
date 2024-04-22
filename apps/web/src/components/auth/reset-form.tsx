@@ -1,16 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { redirect, useSearchParams } from "next/navigation";
 import { resetPassword } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { resetSchema } from "@/lib/schema/auth";
+import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { redirect, useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-
-import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 
 export default function ResetForm() {
     const [error, setError] = useState<string | null>(null);
@@ -47,14 +46,14 @@ export default function ResetForm() {
     if (!token) {
         return (
             <div className="flex flex-col gap-2">
-                <p className="text-xl font-bold">Ungültiges oder abgelaufenes Passwort-Reset-Token</p>
+                <p className="font-bold text-xl">Ungültiges oder abgelaufenes Passwort-Reset-Token</p>
             </div>
         );
     }
 
     return (
         <div className="flex flex-col gap-2">
-            <p className="text-xl font-bold">Passwort zurücksetzen</p>
+            <p className="font-bold text-xl">Passwort zurücksetzen</p>
 
             <Form {...form}>
                 <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -82,7 +81,7 @@ export default function ResetForm() {
                             </FormItem>
                         )}
                     />
-                    {error ? <p className="text-sm text-destructive">{error}</p> : null}
+                    {error ? <p className="text-destructive text-sm">{error}</p> : null}
                     <SubmitButton pending={pending} text="Passwort zurücksetzen" />
                 </form>
             </Form>

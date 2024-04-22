@@ -1,16 +1,15 @@
 "use client";
 
-import { useTransition } from "react";
 import { updateUser } from "@/actions/user";
 import ErrorCard from "@/components/error/error-card";
-import type { FallbackProps } from "react-error-boundary";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import type { UserSelectType } from "@energyleaf/db/types";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
+import { useTransition } from "react";
+import type { FallbackProps } from "react-error-boundary";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     user: UserSelectType;

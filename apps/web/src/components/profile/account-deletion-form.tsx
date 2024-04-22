@@ -1,14 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
 import { signOutAction } from "@/actions/auth";
 import { deleteAccount } from "@/actions/profile";
 import { deleteAccountSchema } from "@/lib/schema/profile";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
 import {
     Button,
@@ -30,6 +24,11 @@ import {
     Input,
     Spinner,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     disabled?: boolean;

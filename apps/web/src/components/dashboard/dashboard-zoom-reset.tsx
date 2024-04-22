@@ -1,9 +1,8 @@
 "use client";
 
-import { type MouseEvent } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import { Button } from "@energyleaf/ui";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { MouseEvent } from "react";
 
 export default function DashboardZoomReset() {
     const searchParams = useSearchParams();

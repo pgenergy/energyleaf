@@ -1,9 +1,8 @@
-import { Suspense } from "react";
 import UsersOverviewCard from "@/components/users/users-overview-card";
 import { UsersOverviewCardError } from "@/components/users/users-overview-card-error";
-
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import { Suspense } from "react";
 
 export const metadata = {
     title: "Nutzer | Energyleaf Admin",

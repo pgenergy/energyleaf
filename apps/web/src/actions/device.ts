@@ -1,9 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { getActionSession } from "@/lib/auth/auth.action";
 import type { deviceSchema } from "@/lib/schema/device";
-import type { z } from "zod";
-
 import {
     createDevice as createDeviceDb,
     deleteDevice as deleteDeviceDb,
@@ -11,10 +9,9 @@ import {
     updateDevice as updateDeviceDb,
 } from "@energyleaf/db/query";
 import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
-
+import { revalidatePath } from "next/cache";
 import "server-only";
-
-import { getActionSession } from "@/lib/auth/auth.action";
+import type { z } from "zod";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
     const { user, session } = await getActionSession();
@@ -37,7 +34,7 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         revalidatePath("/devices");
     } catch (error: unknown) {
         if (error instanceof Error) {
-            throw new Error(`Fehler beim Erstellen des Geräts`);
+            throw new Error("Fehler beim Erstellen des Geräts");
         }
     }
 }

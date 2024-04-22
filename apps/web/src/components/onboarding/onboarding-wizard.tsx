@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useCallback, useMemo } from "react";
 import { completeOnboarding } from "@/actions/onboarding";
 import { updateMailInformation, updateUserDataInformation, updateUserGoals } from "@/actions/profile";
 import DataFormFields from "@/components/profile/data-form-fields";
@@ -11,14 +10,14 @@ import {
     createUserDataSchemaFromUserDataSelectType,
 } from "@/lib/schema/conversion/profile";
 import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
+import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import { Button, Form, Wizard, WizardPage, useWizard } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRightIcon } from "lucide-react";
+import React, { useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-
-import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
-import { Button, Form, useWizard, Wizard, WizardPage } from "@energyleaf/ui";
 
 interface Props {
     userData: UserDataType;
@@ -38,7 +37,7 @@ export default function OnboardingWizard({ userData, showGoals }: Props) {
         <Wizard finishHandler={finishHandler}>
             <InformationStep />
             <UserDataStep userData={userData.user_data} />
-            { Boolean(showGoals) && <GoalStep userData={userData.user_data} /> }
+            {Boolean(showGoals) && <GoalStep userData={userData.user_data} />}
             <MailSettingsStep reports={userData.reports} />
             <ThankYouStep />
         </Wizard>
@@ -62,7 +61,7 @@ function InformationStep() {
             </p>
             <div className="flex w-full justify-center pt-3">
                 <Button
-                    className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
+                    className="flex flex-row items-center justify-center gap-2 text-muted-foreground text-sm"
                     variant="ghost"
                     onClick={onSkip}
                 >

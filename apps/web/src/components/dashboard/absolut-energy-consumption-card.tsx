@@ -1,10 +1,9 @@
-import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { redirect } from "next/navigation";
 
 interface Props {
     startDate: Date;
@@ -29,7 +28,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
                 </CardContent>
             </Card>
         );
@@ -53,7 +52,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <h1 className="text-center text-2xl font-bold text-primary">
+                <h1 className="text-center font-bold text-2xl text-primary">
                     {absolut.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kWh
                 </h1>
             </CardContent>
