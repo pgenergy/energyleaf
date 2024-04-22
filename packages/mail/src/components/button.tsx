@@ -19,7 +19,7 @@ export function CustomButton({ href, children }: CustomButtonProps) {
     );
 }
 
-export function ButtonAlt({ href }: ButtonAltProps) {
+export function ButtonAltText({ href }: ButtonAltProps) {
     return (
         <Container className="mb-8 flex flex-col gap-2 px-4 text-sm text-muted-foreground">
             <Text>Sollte der Button nicht funktionieren, nutzen Sie folgenden Link:</Text>
@@ -32,14 +32,14 @@ export function ButtonAlt({ href }: ButtonAltProps) {
     );
 }
 
-export function Unsubscribe({ href }: ButtonAltProps) {
+export function UnsubscribeText({ href }: ButtonAltProps) {
     return (
-        <Container className="mb-8 flex flex-col gap-2 px-4 text-muted-foreground">
-            <Text>
-                Falls Sie keine weitere Benachrichtigungen erhalten wollen, können Sie
+        <Container className="flex flex-col gap-2 px-4 text-muted-foreground">
+            <Text className="text-xs">
+                Falls Sie keine weitere Benachrichtigungen erhalten wollen, können Sie sich{" "}
                 <Link className="text-primary" href={href}>
                     hier
-                </Link>
+                </Link>{" "}
                 abmelden.
             </Text>
         </Container>

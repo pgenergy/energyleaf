@@ -1,6 +1,6 @@
 import { Container, Head, Html, Preview, Text } from "@react-email/components";
 
-import { ButtonAlt, CustomButton, Footer, Header, Main } from "../components";
+import { ButtonAltText, CustomButton, Footer, Header, Main } from "../components";
 
 interface Props {
     name: string;
@@ -28,7 +28,7 @@ export default function PasswordResetTemplate({ name, link }: Props) {
                         Sollten Sie nicht um ein neues Passwort gebeten haben, kann diese E-Mail ignoriert werden.
                     </Text>
                 </Container>
-                <ButtonAlt href={link} />
+                <ButtonAltText href={link} />
                 <Footer />
             </Main>
         </Html>

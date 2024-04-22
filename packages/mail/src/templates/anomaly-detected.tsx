@@ -1,15 +1,15 @@
 import { Container, Head, Html, Preview, Text } from "@react-email/components";
 
-import { ButtonAlt, CustomButton, Footer, Header, Main } from "../components";
+import { ButtonAltText, CustomButton, Footer, Header, Main, UnsubscribeText } from "../components";
 import AnomalyProps from "../types/AnomalyProps";
 
 export default function AnomalyDetectedTemplate({ name, link, unsubscribeLink }: AnomalyProps) {
     return (
         <Html lang="de">
-            <Preview>Energyleaf hat </Preview>
+            <Preview>Energyleaf hat festgestellt, dass Sie aktuell viel Strom verbrauchen.</Preview>
             <Head />
             <Main>
-                <Header>Passwort geändert</Header>
+                <Header>Stromverbrauch anschauen?</Header>
                 <Container className="px-4">
                     <Text>
                         Hallo {name}, <br />
@@ -18,7 +18,8 @@ export default function AnomalyDetectedTemplate({ name, link, unsubscribeLink }:
                         Stromverbrauch anschauen?
                     </Text>
                     <CustomButton href={link}>Zur Übersicht</CustomButton>
-                    <ButtonAlt href={link} />
+                    <ButtonAltText href={link} />
+                    <UnsubscribeText href={unsubscribeLink} />
                 </Container>
                 <Footer />
             </Main>
