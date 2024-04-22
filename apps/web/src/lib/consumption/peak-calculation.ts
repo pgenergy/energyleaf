@@ -38,7 +38,10 @@ function splitIntoWindows(data: ConsumptionData[]): ConsumptionData[][] {
                 return acc;
             }
             const currentGroup = acc[acc.length - 1];
-            if (differenceInMinutes(new Date(curr.timestamp), new Date(currentGroup[0].timestamp)) >= peakWindowWidthInMinutes) {
+            if (
+                differenceInMinutes(new Date(curr.timestamp), new Date(currentGroup[0].timestamp)) >=
+                peakWindowWidthInMinutes
+            ) {
                 acc.push([curr]);
             } else {
                 currentGroup.push(curr);
