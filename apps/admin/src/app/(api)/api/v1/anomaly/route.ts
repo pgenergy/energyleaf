@@ -4,9 +4,10 @@ import { env } from "@/env.mjs";
 import { getSensorsByUser } from "@/query/sensor";
 import { getAllUsers } from "@/query/user";
 
-import type { ConsumptionData, AggregationType } from "@energyleaf/lib";
+import { getEnergyForSensorInRange } from "@energyleaf/db/query";
+import type { ConsumptionData } from "@energyleaf/lib";
+import { AggregationType } from "@energyleaf/lib";
 import { sendAnomalyEmail } from "@energyleaf/mail";
-import { getEnergyDataForSensor } from "@energyleaf/web/";
 
 export const POST = async (req: NextRequest) => {
     const reportApiKey = env.REPORTS_API_KEY;
@@ -21,19 +22,18 @@ export const POST = async (req: NextRequest) => {
         const users = await getAllUsers();
         for (const user of users) {
             const sensors = await getSensorsByUser(user.id);
-            let energyData: any[] = [];
+            let data: ConsumptionData[] = [];
 
             for (const sensor of sensors) {
-                energyData = energyData.concat(
-                    await getEnergyDataForSensor(start, end, sensor.id, AggregationType.RAW),
+                const energyData = await getEnergyForSensorInRange(start, end, sensor.id, AggregationType.RAW);
+                data = data.concat(
+                    energyData.map((entry) => ({
+                        sensorId: entry.sensorId || 0,
+                        energy: entry.value,
+                        timestamp: entry.timestamp.toString(),
+                    })),
                 );
             }
-
-            const data = energyData.map((entry) => ({
-                sensorId: entry.sensorId || 0,
-                energy: entry.value,
-                timestamp: entry.timestamp.toString(),
-            })) as ConsumptionData[];
 
             if (!isNoticeableEnergyConsumption(data)) {
                 continue;

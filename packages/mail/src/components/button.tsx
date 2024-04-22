@@ -37,7 +37,9 @@ export function Unsubscribe({ href }: ButtonAltProps) {
         <Container className="mb-8 flex flex-col gap-2 px-4 text-muted-foreground">
             <Text>
                 Falls Sie keine weitere Benachrichtigungen erhalten wollen, können Sie
-                <Link className="text-primary" href={href}>hier</Link>
+                <Link className="text-primary" href={href}>
+                    hier
+                </Link>
                 abmelden.
             </Text>
         </Container>
