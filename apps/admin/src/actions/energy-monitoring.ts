@@ -1,5 +1,6 @@
 import _ from "lodash";
-import ConsumptionData from "../../../web/src/types/consumption/consumption-data";
+
+import type { ConsumptionData } from "@energyleaf/lib";
 
 function calculateStandardDeviation(values: number[]): number {
     if (values.length <= 1) {
@@ -7,22 +8,22 @@ function calculateStandardDeviation(values: number[]): number {
     }
 
     const meanValue = _.mean(values);
-    const squaredDifferences = values.map(val => Math.pow(val - meanValue, 2));
+    const squaredDifferences = values.map((val) => Math.pow(val - meanValue, 2));
     const sumSquaredDiff = _.sum(squaredDifferences);
     const variance = sumSquaredDiff / (values.length - 1);
 
     return Math.sqrt(variance);
 }
 
-function findNoticeableEntry(data: ConsumptionData[], avg: number, threshold: number) {
-    for (let entry of data) {
-      const difference = Math.abs(entry.energy - avg);
+function findNoticeableEntry(data: ConsumptionData[], avg: number, threshold: number): ConsumptionData | null {
+    for (const entry of data) {
+        const difference = Math.abs(entry.energy - avg);
 
-      if (difference > threshold) {
-        return entry;
-      }
+        if (difference > threshold) {
+            return entry;
+        }
     }
-    return null
+    return null;
 }
 
 export function isNoticeableEnergyConsumption(data: ConsumptionData[]): boolean {
@@ -30,23 +31,14 @@ export function isNoticeableEnergyConsumption(data: ConsumptionData[]): boolean 
         return false;
     }
 
-    const values = data.map(entry => entry.energy);
+    const values = data.map((entry: ConsumptionData) => entry.energy);
 
     const avg = _.mean(values);
     const stdDev = calculateStandardDeviation(values);
-
-    console.log(avg)
-    console.log(stdDev)
 
     const threshold = 2 * stdDev;
 
     const noticeableEntry = findNoticeableEntry(data, avg, threshold);
 
-    if (noticeableEntry) {
-      console.log('Auffälliger Eintrag gefunden:', noticeableEntry);
-      return true
-    } else {
-        console.log('Kein auffälliger Eintrag gefunden.');
-        return false
-    }
+    return Boolean(noticeableEntry);
 }

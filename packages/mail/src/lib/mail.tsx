@@ -4,10 +4,11 @@ import { Resend } from "resend";
 
 import AccountActivatedTemplate from "../templates/account-activated";
 import AccountCreatedTemplate from "../templates/account-created";
+import AnomalyDetectedTemplate from "../templates/anomaly-detected";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
-import AnomalyDetectedTemplate from "../templates/anomaly-detected";
+import AnomalyProps from "../types/AnomalyProps";
 
 interface MailOptions {
     apiKey: string;
@@ -179,9 +180,9 @@ export async function sendAccountActivatedEmail({ from, to, name, apiKey }: Acco
     return resp.data?.id;
 }
 
-type AnomalyMailOptions = MailOptions & { name: string };
+type AnomalyMailOptions = MailOptions & AnomalyProps;
 
-export async function sendAnomalyEmail({ from, to, apiKey, name } : AnomalyMailOptions) {
+export async function sendAnomalyEmail({ from, to, apiKey, name, link, unsubscribeLink }: AnomalyMailOptions) {
     if (!apiKey || apiKey === "") {
         return;
     }
@@ -191,7 +192,7 @@ export async function sendAnomalyEmail({ from, to, apiKey, name } : AnomalyMailO
         to,
         from,
         subject: "Konto aktiviert",
-        react: AnomalyDetectedTemplate({ name }),
+        react: AnomalyDetectedTemplate({ name, link, unsubscribeLink }),
     });
 
     if (resp.error) {

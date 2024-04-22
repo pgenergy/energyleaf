@@ -1,11 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { isNoticeableEnergyConsumption } from "@/actions/energy-monitoring";
 import { env } from "@/env.mjs";
-import {AggregationType} from "@energyleaf/lib";
-import {getEnergyDataForSensor} from "../../../../../../../web/src/query/energy";
-import ConsumptionData from "../../../../../../../web/src/types/consumption/consumption-data";
-import {getAllUsers} from "@/query/user";
-import {getSensorsByUser} from "@/query/sensor";
-import {isNoticeableEnergyConsumption} from "@/actions/energy-monitoring";
+import { getSensorsByUser } from "@/query/sensor";
+import { getAllUsers } from "@/query/user";
+
+import type { ConsumptionData, AggregationType } from "@energyleaf/lib";
+import { sendAnomalyEmail } from "@energyleaf/mail";
+import { getEnergyDataForSensor } from "@energyleaf/web/";
 
 export const POST = async (req: NextRequest) => {
     const reportApiKey = env.REPORTS_API_KEY;
@@ -20,21 +21,32 @@ export const POST = async (req: NextRequest) => {
         const users = await getAllUsers();
         for (const user of users) {
             const sensors = await getSensorsByUser(user.id);
-            let energyData : any[] = [];
+            let energyData: any[] = [];
 
             for (const sensor of sensors) {
-                energyData = energyData.concat(await getEnergyDataForSensor(start, end, sensor.id, AggregationType.RAW));
+                energyData = energyData.concat(
+                    await getEnergyDataForSensor(start, end, sensor.id, AggregationType.RAW),
+                );
             }
 
-            const data: ConsumptionData[] = energyData.map((entry) => ({
+            const data = energyData.map((entry) => ({
                 sensorId: entry.sensorId || 0,
                 energy: entry.value,
                 timestamp: entry.timestamp.toString(),
-            }));
+            })) as ConsumptionData[];
 
-            if (isNoticeableEnergyConsumption(data)) {
-                await sendAnomalyMail();
+            if (!isNoticeableEnergyConsumption(data)) {
+                continue;
             }
+
+            await sendAnomalyEmail({
+                to: user.email,
+                name: user.username,
+                from: env.RESEND_API_MAIL,
+                apiKey: env.RESEND_API_KEY,
+                unsubscribeLink: "",
+                link: "",
+            });
         }
 
         return NextResponse.json({ status: 200, statusMessage: "Anomaly mails created and sent" });
