@@ -1,21 +1,14 @@
-import ConsumptionData from "@/types/consumption/consumption-data";
-
-function calculateMean(values: number[]): number {
-    if (values.length === 0) {
-        return NaN; 
-    }
-    const sum = values.reduce((acc, val) => acc + val, 0);
-    return sum / values.length;
-}
+import _ from "lodash";
+import ConsumptionData from "../../../web/src/types/consumption/consumption-data";
 
 function calculateStandardDeviation(values: number[]): number {
     if (values.length <= 1) {
         return 0;
     }
 
-    const meanValue = calculateMean(values);
+    const meanValue = _.mean(values);
     const squaredDifferences = values.map(val => Math.pow(val - meanValue, 2));
-    const sumSquaredDiff = squaredDifferences.reduce((acc, val) => acc + val, 0);
+    const sumSquaredDiff = _.sum(squaredDifferences);
     const variance = sumSquaredDiff / (values.length - 1);
 
     return Math.sqrt(variance);
@@ -39,7 +32,7 @@ export function isNoticeableEnergyConsumption(data: ConsumptionData[]): boolean 
 
     const values = data.map(entry => entry.energy);
 
-    const avg = calculateMean(values);
+    const avg = _.mean(values);
     const stdDev = calculateStandardDeviation(values);
 
     console.log(avg)

@@ -15,8 +15,6 @@ import DashboardZoomReset from "./dashboard-zoom-reset";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
-import { isNoticeableEnergyConsumption } from "./energy-monitoring"
-
 interface Props {
     startDate: Date;
     endDate: Date;
@@ -58,8 +56,6 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
     }));
-
-    console.log(isNoticeableEnergyConsumption(data))
 
     const devices = !hasAggregation ? await getDevicesByUser(userId) : [];
     const peakAssignments: PeakAssignment[] =
