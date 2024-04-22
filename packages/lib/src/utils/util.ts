@@ -3,16 +3,16 @@ import { AggregationType } from "../types/types";
 export const computeTimestampLabel = (aggregationParam: AggregationType | undefined, withWh: boolean) => {
     switch (aggregationParam) {
         case AggregationType.YEAR:
-            return withWh ? "Wh / Jahr" : "(in Jahren)";
+            return withWh ? "kWh / Jahr" : "(in Jahren)";
         case AggregationType.MONTH:
-            return withWh ? "Wh / Monat" : "(in Monaten)";
+            return withWh ? "kWh / Monat" : "(in Monaten)";
         case AggregationType.WEEK:
-            return withWh ? "Wh / Wochen" : "(in Wochen)";
+            return withWh ? "kWh / Wochen" : "(in Wochen)";
         case AggregationType.DAY:
-            return withWh ? "Wh / Tag" : "(in Tagen)";
+            return withWh ? "kWh / Tag" : "(in Tagen)";
         case AggregationType.HOUR:
-            return withWh ? "Wh / Stunde" : "(in Stunden)";
+            return withWh ? "kWh / Stunde" : "(in Stunden)";
         default:
-            return withWh ? "Wh (Einheit nicht spezifiziert)" : "(Einheit nicht spezifiziert)";
+            return withWh ? "kWh" : "";
     }
 };

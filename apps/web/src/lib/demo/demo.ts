@@ -1,6 +1,6 @@
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
-import type { DeviceSelectType, PeakSelectType, SensorDataSelectType, UserDataType } from "@energyleaf/db/types";
+import type { SensorDataSelectType, UserDataType } from "@energyleaf/db/types";
 
 import { getActionSession } from "../auth/auth.action";
 
@@ -12,135 +12,6 @@ export async function isDemoUser() {
     }
 
     return true;
-}
-
-export function addDeviceCookieStore(cookies: ReadonlyRequestCookies, name: string, category?: string) {
-    const devices = cookies.get("demo_devices");
-    if (!devices) {
-        cookies.set(
-            "demo_devices",
-            JSON.stringify([
-                {
-                    id: 1,
-                    name,
-                    created: new Date(),
-                    timestamp: new Date(),
-                    userId: "demo",
-                    category: category || null,
-                } as DeviceSelectType,
-            ]),
-        );
-        return;
-    }
-
-    const parsedDevices = JSON.parse(devices.value) as DeviceSelectType[];
-    parsedDevices.push({
-        id: parsedDevices.length + 1,
-        name,
-        created: new Date(),
-        timestamp: new Date(),
-        userId: "demo",
-        category: category || "demo",
-    });
-    cookies.set("demo_devices", JSON.stringify(parsedDevices));
-}
-
-export function removeDeviceCookieStore(cookies: ReadonlyRequestCookies, id: string | number) {
-    const devices = cookies.get("demo_devices");
-    if (!devices) {
-        return;
-    }
-
-    const parsedDevices = JSON.parse(devices.value) as DeviceSelectType[];
-    const newDevices = parsedDevices.filter((device) => device.id !== id);
-    cookies.set("demo_devices", JSON.stringify(newDevices));
-}
-
-export function getDevicesCookieStore(cookies: ReadonlyRequestCookies) {
-    const devices = cookies.get("demo_devices");
-    if (!devices) {
-        return [];
-    }
-
-    const data = JSON.parse(devices.value) as DeviceSelectType[];
-
-    return data.map((d) => ({
-        ...d,
-        timestamp: new Date(d.timestamp),
-        created: d.created ? new Date(d.created) : null,
-    }));
-}
-
-export function updateDeviceCookieStore(
-    cookies: ReadonlyRequestCookies,
-    id: string | number,
-    name: string,
-    category?: string,
-) {
-    const devices = cookies.get("demo_devices");
-    if (!devices) {
-        return;
-    }
-
-    const parsedDevices = JSON.parse(devices.value) as DeviceSelectType[];
-    const device = parsedDevices.find((d) => d.id === id);
-    if (!device) {
-        return;
-    }
-
-    device.name = name;
-    device.timestamp = new Date();
-    device.category = category || "";
-    cookies.set("demo_devices", JSON.stringify(parsedDevices));
-}
-
-export function addOrUpdatePeakCookieStore(
-    cookies: ReadonlyRequestCookies,
-    timestamp: string,
-    deviceId: string | number,
-) {
-    const peaks = cookies.get("demo_peaks");
-    const date = new Date(timestamp);
-    if (!peaks) {
-        cookies.set(
-            "demo_peaks",
-            JSON.stringify([
-                {
-                    id: 1,
-                    sensorId: "demo_sensor",
-                    deviceId,
-                    timestamp: date,
-                } as PeakSelectType,
-            ]),
-        );
-        return;
-    }
-
-    const parsedPeaks = JSON.parse(peaks.value) as PeakSelectType[];
-    parsedPeaks.push({
-        id: parsedPeaks.length + 1,
-        sensorId: "demo_sensor",
-        deviceId: Number(deviceId),
-        timestamp: date,
-    });
-    cookies.set("demo_peaks", JSON.stringify(parsedPeaks));
-}
-
-export function getPeaksCookieStore(cookies: ReadonlyRequestCookies) {
-    const peaks = cookies.get("demo_peaks");
-    if (!peaks) {
-        return [];
-    }
-
-    const data = JSON.parse(peaks.value) as PeakSelectType[];
-
-    return data.map((d) => {
-        const date = d.timestamp ? new Date(d.timestamp) : new Date();
-        return {
-            ...d,
-            timestamp: date,
-        };
-    });
 }
 
 export function getUserDataCookieStore() {
@@ -161,13 +32,12 @@ export function getUserDataCookieStore() {
             livingSpace: 100,
             household: 2,
             hotWater: "electric",
-            budget: 120,
             tariff: "basic",
-            basePrice: 0.4,
+            basePrice: 20,
             monthlyPayment: 2,
-            workingPrice: 0.4,
-            limitEnergy: 800,
+            workingPrice: 0.2,
             timestamp: new Date(2021, 1, 1),
+            consumptionGoal: 20,
         },
     };
 
@@ -180,9 +50,16 @@ export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data:
         return;
     }
 
+    const parsedData = JSON.parse(userData.value) as UserDataType;
     const newData = {
-        ...(JSON.parse(userData.value) as UserDataType),
-        ...data,
+        reports: {
+            ...parsedData.reports,
+            ...data.reports,
+        },
+        user_data: {
+            ...parsedData.user_data,
+            ...data.user_data,
+        },
     };
 
     cookies.set("demo_data", JSON.stringify(newData));
@@ -222,7 +99,7 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
             const [hours, minutes, seconds] = item.timestamp.split(":").map(Number);
             date.setHours(hours, minutes, seconds, 0);
 
-            if (date >= start && date <= end) {
+            if (date.getTime() >= start.getTime() && date.getTime() <= end.getTime()) {
                 return {
                     id: index.toString(),
                     sensorId: "demo_sensor",
@@ -232,5 +109,5 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
             }
             return null;
         })
-        .filter((item) => item !== null) as SensorDataSelectType[];
+        .filter((item) => item) as SensorDataSelectType[];
 }

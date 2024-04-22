@@ -44,18 +44,18 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
                 <CardTitle>Absoluter Energieverbrauch</CardTitle>
                 <CardDescription>
                     {startDate.toDateString() === endDate.toDateString() ? (
-                        <>
-                            {format(startDate, "PPP", {locale: de})}
-                        </>
+                        <>{format(startDate, "PPP", { locale: de })}</>
                     ) : (
                         <>
-                            {format(startDate, "PPP", {locale: de})} - {format(endDate, "PPP", {locale: de})}
+                            {format(startDate, "PPP", { locale: de })} - {format(endDate, "PPP", { locale: de })}
                         </>
                     )}
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <h1 className="text-center text-2xl font-bold text-primary">{absolut.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} kWh</h1>
+                <h1 className="text-center text-2xl font-bold text-primary">
+                    {absolut.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kWh
+                </h1>
             </CardContent>
         </Card>
     );

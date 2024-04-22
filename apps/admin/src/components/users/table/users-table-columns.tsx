@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { BanIcon, CheckCircle2Icon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 import type { UserSelectType } from "@energyleaf/db/types";
+import { stringify } from "@energyleaf/lib/versioning";
 import { Button } from "@energyleaf/ui";
 
 export const usersTableColumns: ColumnDef<UserSelectType>[] = [
@@ -55,7 +56,7 @@ export const usersTableColumns: ColumnDef<UserSelectType>[] = [
         },
     },
     {
-        accessorKey: "mail",
+        accessorKey: "email",
         header: ({ column }) => {
             return (
                 <Button
@@ -74,7 +75,30 @@ export const usersTableColumns: ColumnDef<UserSelectType>[] = [
             );
         },
         cell: ({ row }) => {
-            return <span>{row.getValue("mail")}</span>;
+            return <span>{row.getValue("email")}</span>;
+        },
+    },
+    {
+        accessorKey: "appVersion",
+        header: ({ column }) => {
+            return (
+                <Button
+                    onClick={() => {
+                        column.toggleSorting(column.getIsSorted() === "asc");
+                    }}
+                    variant="ghost"
+                >
+                    App-Version
+                    {column.getIsSorted() === "asc" ? (
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                    )}
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            return <span>{stringify(row.original.appVersion)}</span>;
         },
     },
     {
