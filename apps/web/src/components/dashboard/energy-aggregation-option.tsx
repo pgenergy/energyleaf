@@ -1,29 +1,17 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { track } from "@vercel/analytics";
-import { differenceInCalendarDays, differenceInMonths, differenceInWeeks, differenceInYears } from "date-fns";
-
+import { useUserContext } from "@/hooks/user-hook";
 import { AggregationOption } from "@energyleaf/ui/components/utils";
 import { AggregationType } from "@energyleaf/lib";
+import { differenceInCalendarDays, differenceInMonths, differenceInWeeks, differenceInYears } from "date-fns";
 
-interface Props {
-    selected?: AggregationType;
-}
-
-export default function EnergyAggregation({ selected }: Props) {
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
+export default function UserConsumptionAggregationOption() {
+    const context = useUserContext();
 
     const availableOptions = useMemo(() => {
-        const startDateStr = searchParams.get('start');
-        const endDateStr = searchParams.get('end');
-        if (!startDateStr || !endDateStr) return [AggregationType.RAW];
-
-        const startDate = new Date(startDateStr);
-        const endDate = new Date(endDateStr);
+        const startDate = new Date(context.startDate);
+        const endDate = new Date(context.endDate);
 
         const dayDiff = differenceInCalendarDays(endDate, startDate);
         const monthDiff = differenceInMonths(endDate, startDate);
@@ -32,32 +20,20 @@ export default function EnergyAggregation({ selected }: Props) {
 
         let options = [AggregationType.RAW];
 
-        if (dayDiff <= 1) options.push(AggregationType.HOUR);
-        if (dayDiff >= 1 && monthDiff <= 1) options.push(AggregationType.DAY);
-        if (weekDiff >= 1 && monthDiff <= 3) options.push(AggregationType.WEEK);
-        if (monthDiff >= 1 && yearDiff <= 1) options.push(AggregationType.MONTH);
-        if (yearDiff >= 1) options.push(AggregationType.YEAR);
+        if (dayDiff <= 7) options.push(AggregationType.HOUR);
+        if (dayDiff >= 2 && monthDiff <= 1) options.push(AggregationType.DAY);
+        if (weekDiff >= 2 && monthDiff <= 3) options.push(AggregationType.WEEK);
+        if (monthDiff >= 2 && yearDiff <= 1) options.push(AggregationType.MONTH);
+        if (yearDiff >= 2) options.push(AggregationType.YEAR);
 
         return options;
-    }, [searchParams]);
-
-    const onChange = (selectedOption: string) => {
-        track("changeAggregationOption()");
-        const search = new URLSearchParams();
-        searchParams.forEach((value, key) => {
-            search.set(key, value);
-        });
-        search.set("aggregation", selectedOption.toLowerCase());
-
-        router.push(`${pathname}?${search.toString()}`);
-        router.refresh();
-    };
+    }, [context.startDate, context.endDate]);
 
     return (
         <AggregationOption
             availableOptions={availableOptions}
-            onSelectedChange={onChange}
-            selected={selected}
+            onSelectedChange={context.setAggregationType}
+            selected={context.aggregationType}
         />
     );
 }

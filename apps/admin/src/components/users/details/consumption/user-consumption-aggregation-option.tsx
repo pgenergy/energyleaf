@@ -20,11 +20,11 @@ export default function UserConsumptionAggregationOption() {
 
         let options = [AggregationType.RAW];
 
-        if (dayDiff <= 1) options.push(AggregationType.HOUR);
+        if (dayDiff <= 7) options.push(AggregationType.HOUR);
         if (dayDiff >= 2 && monthDiff <= 1) options.push(AggregationType.DAY);
-        if (weekDiff >= 1 && monthDiff <= 3) options.push(AggregationType.WEEK);
-        if (monthDiff >= 1 && yearDiff <= 1) options.push(AggregationType.MONTH);
-        if (yearDiff >= 1) options.push(AggregationType.YEAR);
+        if (weekDiff >= 2 && monthDiff <= 3) options.push(AggregationType.WEEK);
+        if (monthDiff >= 2 && yearDiff <= 1) options.push(AggregationType.MONTH);
+        if (yearDiff >= 2) options.push(AggregationType.YEAR);
 
         return options;
     }, [context.startDate, context.endDate]);

@@ -37,24 +37,25 @@ export async function getEnergyForSensorInRange(
             ...row,
             id: index === 0 ? '0' : nanoid(),
             value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
+            timestamp: row.timestamp.toISOString(), // Ensure timestamp is in ISO format for RAW
         }));
     } else {
         let dateFormat: string;
         switch (aggregation) {
             case AggregationType.HOUR:
-                dateFormat = "%H:00";
+                dateFormat = "%Y-%m-%dT%H:00:00Z"; // ISO format with hours
                 break;
             case AggregationType.DAY:
-                dateFormat = "%d.%m";
+                dateFormat = "%Y-%m-%dT00:00:00Z"; // ISO format for daily
                 break;
             case AggregationType.WEEK:
-                dateFormat = "%X-%V";
+                dateFormat = "%X-W%V"; // ISO week format
                 break;
             case AggregationType.MONTH:
-                dateFormat = "%m.%y";
+                dateFormat = "%Y-%m-01T00:00:00Z"; // ISO format for month start
                 break;
             case AggregationType.YEAR:
-                dateFormat = "%Y";
+                dateFormat = "%Y-01-01T00:00:00Z"; // ISO format for year start
                 break;
             default:
                 throw new Error(`Unsupported aggregation type: ${aggregation}`);
@@ -84,7 +85,7 @@ export async function getEnergyForSensorInRange(
                 value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
             }));
     
-            return results.slice(1);
+            return results.slice(1); // Removing the first element as it's used for the delta calculation
     }
 }
 
