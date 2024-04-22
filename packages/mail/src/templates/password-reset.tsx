@@ -1,5 +1,4 @@
 import { Container, Head, Html, Preview, Text } from "@react-email/components";
-
 import { ButtonAlt, CustomButton, Footer, Header, Main } from "../components";
 
 interface Props {
