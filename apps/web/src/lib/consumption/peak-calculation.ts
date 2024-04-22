@@ -1,7 +1,8 @@
 import { getPeaksBySensor } from "@/query/energy";
-import type ConsumptionData from "@/types/consumption/consumption-data";
 import type { PeakAssignment } from "@/types/consumption/peak";
 import { differenceInMinutes } from "date-fns";
+
+import type { ConsumptionData } from "@energyleaf/lib";
 
 const peakWindowWidthInMinutes = 60;
 
