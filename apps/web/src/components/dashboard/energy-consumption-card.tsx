@@ -54,7 +54,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     const data: ConsumptionData[] = energyData.map((entry) => ({
         sensorId: entry.sensorId || 0,
         energy: entry.value,
-        timestamp: entry.timestamp.toString(),
+        timestamp: (entry.timestamp as Date).toString(),
     }));
 
     const devices = !hasAggregation ? await getDevicesByUser(userId) : [];

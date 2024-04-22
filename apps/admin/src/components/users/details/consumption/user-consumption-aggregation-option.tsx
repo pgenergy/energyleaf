@@ -18,7 +18,7 @@ export default function UserConsumptionAggregationOption() {
         const weekDiff = differenceInWeeks(endDate, startDate);
         const yearDiff = differenceInYears(endDate, startDate);
 
-        let options = [AggregationType.RAW];
+        const options = [AggregationType.RAW];
 
         if (dayDiff <= 7) options.push(AggregationType.HOUR);
         if (dayDiff >= 2 && monthDiff <= 1) options.push(AggregationType.DAY);
