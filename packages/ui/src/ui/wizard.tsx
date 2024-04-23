@@ -1,9 +1,8 @@
 "use client";
 
-import React, { PropsWithChildren, useContext, useMemo, useRef, useTransition } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Handler, useWizard as useWiz, Wizard as Wiz } from "react-use-wizard";
-
+import React, { type PropsWithChildren, useContext, useMemo, useRef, useTransition } from "react";
+import { type Handler, Wizard as Wiz, useWizard as useWiz } from "react-use-wizard";
 import { Button } from "./button";
 import { Spinner } from "./spinner";
 
@@ -46,7 +45,7 @@ const Wizard: React.FC<WizardProps> = ({ children, finishHandler }) => {
             handleNextClick: handleNextClick.current,
             handleStep: handleStep.current,
         }),
-        [handleNextClick, handleStep],
+        [],
     );
 
     return (
@@ -76,7 +75,7 @@ const WizardPage: React.FC<WizardPageProps> = ({ children, title, description })
             <div className="relative flex h-full w-full items-center justify-center">
                 <div className="w-full">{children}</div>
                 {isLoading && (
-                    <div className="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center backdrop-blur-sm">
+                    <div className="absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center backdrop-blur-sm">
                         <Spinner className="h-12 w-12" />
                     </div>
                 )}

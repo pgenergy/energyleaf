@@ -1,12 +1,10 @@
 "use client";
 
+import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
+import { Button } from "@energyleaf/ui";
 import type { ColumnDef } from "@tanstack/react-table";
 import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-
-import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
-import { Button } from "@energyleaf/ui";
-
 import DeviceActionCell from "./device-action-cell";
 
 export const devicesColumns: ColumnDef<DeviceSelectType>[] = [

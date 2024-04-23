@@ -1,14 +1,13 @@
 "use client";
 
-import { useTransition } from "react";
 import { updateBaseInformationUsername } from "@/actions/profile";
-import { track } from "@vercel/analytics";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
+import { track } from "@vercel/analytics";
+import { useTransition } from "react";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     username: string;

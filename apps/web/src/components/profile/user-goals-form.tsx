@@ -1,15 +1,8 @@
 "use client";
 
-import React, { useTransition } from "react";
 import { updateUserGoals } from "@/actions/profile";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 import { userGoalSchema } from "@/lib/schema/profile";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import type { UserDataSelectType } from "@energyleaf/db/types";
 import {
     Button,
@@ -22,6 +15,12 @@ import {
     Label,
     Spinner,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
+import React, { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     userData: UserDataSelectType | undefined;
@@ -70,7 +69,7 @@ export default function UserGoalsForm({ userData }: Props) {
                 <p className="text-[0.8rem] text-muted-foreground">
                     Mit dem Zielverbrauch haben Sie gemäß Ihres Strompreises folgende Kosten pro Tag.
                 </p>
-                <h1 className="text-center text-2xl font-bold text-primary">
+                <h1 className="text-center font-bold text-2xl text-primary">
                     {(form.getValues().goalValue * (userData?.workingPrice || 0)).toFixed(2)} €
                 </h1>
             </CardContent>

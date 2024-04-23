@@ -3,9 +3,9 @@ import { drizzle } from "drizzle-orm/planetscale-serverless";
 import { nanoid } from "nanoid";
 
 const getConnection = () => {
-    const host = process.env["DATABASE_HOST"] as string;
-    const username = process.env["DATABASE_USERNAME"] as string;
-    const password = process.env["DATABASE_PASSWORD"] as string;
+    const host = process.env.DATABASE_HOST as string;
+    const username = process.env.DATABASE_USERNAME as string;
+    const password = process.env.DATABASE_PASSWORD as string;
 
     if (!host || !username || !password) {
         throw new Error("Database connection not found");

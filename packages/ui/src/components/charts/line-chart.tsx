@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { clsx } from "clsx";
 import { differenceInCalendarDays, format, isValid, max, min, parseISO } from "date-fns";
+import { useMemo, useState } from "react";
 import {
     Area,
     AreaChart,
@@ -185,8 +185,10 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                               className={clsx(referencePoints.callback ? "cursor-pointer" : "cursor-default")}
                               fill="hsl(var(--destructive))"
                               isFront
-                              key={`${value[referencePoints.xKeyName]?.toString() || ""}-${value[referencePoints.yKeyName]?.toString() || ""}`}
-                              onClick={() => referencePoints.callback?.(value)}
+                              key={`${value[referencePoints.xKeyName]?.toString()}-${value[
+                                  referencePoints.yKeyName
+                              ]?.toString()}`}
+                              onClick={() => referencePoints?.callback?.(value)}
                               r={10}
                               stroke="hsl(var(--destructive))"
                               x={value[referencePoints.xKeyName]}

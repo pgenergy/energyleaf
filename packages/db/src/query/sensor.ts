@@ -1,12 +1,10 @@
-import { and, between, desc, eq, lt, lte, or, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
-
 import { AggregationType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-
+import { and, between, desc, eq, lt, lte, or, sql } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
-import { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
+import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 /**
  * Get the energy utils for a sensor in a given time range
@@ -291,55 +289,51 @@ export async function getElectricitySensorIdForUser(userId: string) {
  * Insert sensor data
  */
 export async function insertSensorData(data: { sensorId: string; value: number; sum: boolean }) {
-    try {
-        await db.transaction(async (trx) => {
-            const dbSensors = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
+    await db.transaction(async (trx) => {
+        const dbSensors = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
 
-            if (dbSensors.length === 0) {
-                throw new Error("Sensor not found");
-            }
-            const dbSensor = dbSensors[0];
+        if (dbSensors.length === 0) {
+            throw new Error("Sensor not found");
+        }
+        const dbSensor = dbSensors[0];
 
-            const lastEntries = await trx
-                .select()
-                .from(sensorData)
-                .where(eq(sensorData.sensorId, dbSensor.id))
-                .orderBy(desc(sensorData.timestamp))
-                .limit(1);
+        const lastEntries = await trx
+            .select()
+            .from(sensorData)
+            .where(eq(sensorData.sensorId, dbSensor.id))
+            .orderBy(desc(sensorData.timestamp))
+            .limit(1);
 
-            if (lastEntries.length === 0) {
-                const newValue = data.value;
-                if (newValue <= 0) {
-                    return;
-                }
-                await trx.insert(sensorData).values({
-                    sensorId: dbSensor.id,
-                    value: newValue,
-                    timestamp: sql<Date>`NOW()`,
-                });
+        if (lastEntries.length === 0) {
+            const newValue = data.value;
+            if (newValue <= 0) {
                 return;
             }
-            const lastEntry = lastEntries[0];
-
-            const newValue = data.sum ? data.value + lastEntry.value : data.value;
-            if (newValue <= 0 || newValue < lastEntry.value) {
-                return;
-            }
-
-            const timeDiff = new Date().getTime() - lastEntry.timestamp.getTime() / 1000;
-            if (newValue - lastEntry.value > timeDiff * 5) {
-                throw new Error("value/too-high");
-            }
-
             await trx.insert(sensorData).values({
                 sensorId: dbSensor.id,
                 value: newValue,
                 timestamp: sql<Date>`NOW()`,
             });
+            return;
+        }
+        const lastEntry = lastEntries[0];
+
+        const newValue = data.sum ? data.value + lastEntry.value : data.value;
+        if (newValue <= 0 || newValue < lastEntry.value) {
+            return;
+        }
+
+        const timeDiff = new Date().getTime() - lastEntry.timestamp.getTime() / 1000;
+        if (newValue - lastEntry.value > timeDiff * 5) {
+            throw new Error("value/too-high");
+        }
+
+        await trx.insert(sensorData).values({
+            sensorId: dbSensor.id,
+            value: newValue,
+            timestamp: sql<Date>`NOW()`,
         });
-    } catch (err) {
-        throw err;
-    }
+    });
 }
 
 /**
@@ -384,7 +378,7 @@ export async function createSensor(createSensorType: CreateSensorType): Promise<
             id: nanoid(30),
             version: 1,
             script: createSensorType.script,
-            needsScript: createSensorType.script ? true : false,
+            needsScript: !!createSensorType.script,
         });
     });
 }

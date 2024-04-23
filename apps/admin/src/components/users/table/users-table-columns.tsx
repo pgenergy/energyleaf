@@ -1,12 +1,11 @@
 "use client";
 
 import UserActionCell from "@/components/users/table/user-action-cell";
-import type { ColumnDef } from "@tanstack/react-table";
-import { BanIcon, CheckCircle2Icon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-
 import type { UserSelectType } from "@energyleaf/db/types";
 import { stringify } from "@energyleaf/lib/versioning";
 import { Button } from "@energyleaf/ui";
+import type { ColumnDef } from "@tanstack/react-table";
+import { BanIcon, CheckCircle2Icon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 export const usersTableColumns: ColumnDef<UserSelectType>[] = [
     {

@@ -2,12 +2,6 @@
 
 import { createDevice, updateDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import { DeviceCategory } from "@energyleaf/db/types";
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import {
@@ -25,6 +19,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     device?: DeviceSelectType;

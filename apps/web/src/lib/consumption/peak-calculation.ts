@@ -53,9 +53,7 @@ function splitIntoWindows(data: ConsumptionData[]): ConsumptionData[][] {
 
 function calculatePeakThreshold(data: ConsumptionData[]): number {
     const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
-    const std = Math.sqrt(
-        data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
-    );
+    const std = Math.sqrt(data.map((x) => (x.energy - mean) ** 2).reduce((acc, cur) => acc + cur, 0) / data.length);
     return mean + 2 * std;
 }
 

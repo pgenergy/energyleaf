@@ -1,6 +1,5 @@
-import { z } from "zod";
-
 import { SensorType } from "@energyleaf/db/types";
+import { z } from "zod";
 
 export const addSensorSchema = z.object({
     macAddress: z

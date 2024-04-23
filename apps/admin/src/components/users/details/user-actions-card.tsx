@@ -4,11 +4,10 @@ import ErrorCard from "@/components/error/error-card";
 import UserStateForm from "@/components/users/details/user-state-form";
 import { useUserContext } from "@/hooks/user-hook";
 import type { userStateSchema } from "@/lib/schema/user";
-import type { FallbackProps } from "react-error-boundary";
-import type { z } from "zod";
-
 import type { UserSelectType } from "@energyleaf/db/types";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import type { FallbackProps } from "react-error-boundary";
+import type { z } from "zod";
 
 interface Props {
     user: UserSelectType;

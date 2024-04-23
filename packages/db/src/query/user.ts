@@ -1,8 +1,7 @@
 import { and, eq, gt, lte, or, sql } from "drizzle-orm";
-
 import db from "../";
 import { historyReports, historyUserData, reports, user, userData } from "../schema";
-import { UserSelectType } from "../types/types";
+import type { UserSelectType } from "../types/types";
 
 /**
  * Get a user by id from the database

@@ -1,15 +1,14 @@
-import { useState } from "react";
 import { assignUserToSensor } from "@/actions/sensors";
 import UserSelector from "@/components/users/user-selector";
 import { useSensorContext } from "@/hooks/sensor-hook";
 import { assignUserToSensorSchema } from "@/lib/schema/sensor";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, type ControllerRenderProps } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import type { SensorSelectType } from "@energyleaf/db/types";
 import { Form, FormField, Spinner } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { type ControllerRenderProps, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     sensor: SensorSelectType;
@@ -47,11 +46,11 @@ export default function SensorUserAssignmentForm({ sensor, selectedUserId, selec
                         });
                         sensorContext.setAddValueDialogOpen(true);
                     }
-                    return `Der Sensor wurde erfolgreich zum Benutzer zugeordnet.`;
+                    return "Der Sensor wurde erfolgreich zum Benutzer zugeordnet.";
                 },
                 error: (_) => {
                     setIsSaving(false);
-                    return `Fehler beim Zuweisen`;
+                    return "Fehler beim Zuweisen";
                 },
             },
         );

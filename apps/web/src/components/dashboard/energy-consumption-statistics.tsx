@@ -1,10 +1,9 @@
-import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { redirect } from "next/navigation";
 
 interface Props {
     startDate: Date;
@@ -36,7 +35,7 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
                 </CardContent>
             </Card>
         );
@@ -69,15 +68,15 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
             <CardContent>
                 <div className="grid grid-cols-3 gap-4">
                     <div>
-                        <h2 className="text-center text-xl font-semibold text-primary">Max.</h2>
+                        <h2 className="text-center font-semibold text-primary text-xl">Max.</h2>
                         <p className="text-center">{formatNumber(maxConsumption)} kWh</p>
                     </div>
                     <div>
-                        <h2 className="text-center text-xl font-semibold text-primary">⌀</h2>
+                        <h2 className="text-center font-semibold text-primary text-xl">⌀</h2>
                         <p className="text-center">{formatNumber(averageConsumption)} kWh</p>
                     </div>
                     <div>
-                        <h2 className="text-center text-xl font-semibold text-primary">Letzter</h2>
+                        <h2 className="text-center font-semibold text-primary text-xl">Letzter</h2>
                         <p className="text-center">{formatNumber(lastValue ?? 0)} kWh</p>
                     </div>
                 </div>

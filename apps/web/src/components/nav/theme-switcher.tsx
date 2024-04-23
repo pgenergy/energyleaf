@@ -1,8 +1,5 @@
 "use client";
 
-import { ComputerIcon, MoonIcon, SunIcon, SunMoonIcon } from "lucide-react";
-import { useTheme } from "next-themes";
-
 import {
     Button,
     DropdownMenu,
@@ -12,6 +9,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
+import { ComputerIcon, MoonIcon, SunIcon, SunMoonIcon } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export default function ThemeSwitcher() {
     const theme = useTheme();

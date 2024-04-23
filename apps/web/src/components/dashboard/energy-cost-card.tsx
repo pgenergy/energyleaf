@@ -1,14 +1,13 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import { calculateCosts, getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 interface Props {
     startDate: Date;
@@ -33,7 +32,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
                 </CardContent>
             </Card>
         );
@@ -48,8 +47,8 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const calculatedPayment = getCalculatedPayment(userData, startDate, endDate);
     const predictedCost = getPredictedCost(userData, energyData);
 
-    const parsedCost = parseFloat(cost);
-    const parsedCalculatedPayment = parseFloat(calculatedPayment || "0");
+    const parsedCost = Number.parseFloat(cost);
+    const parsedCalculatedPayment = Number.parseFloat(calculatedPayment || "0");
 
     const formattedCost = parsedCost.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const formattedCalculatedPayment = parsedCalculatedPayment.toLocaleString("de-DE", {
@@ -79,9 +78,11 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
             <CardContent>
                 {parsedCost > 0 ? (
                     <>
-                        <h1 className="text-center text-2xl font-bold text-primary">{formattedCost} €</h1>
+                        <h1 className="text-center font-bold text-2xl text-primary">{formattedCost} €</h1>
                         <p
-                            className={`text-center ${parsedCost > parsedCalculatedPayment ? "text-red-500" : "text-primary"}`}
+                            className={`text-center${
+                                parsedCost > parsedCalculatedPayment ? "text-red-500" : "text-primary"
+                            }`}
                         >
                             Abschlag: {formattedCalculatedPayment} €
                         </p>
@@ -92,7 +93,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                 ) : (
                     <Link
                         href="/profile"
-                        className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
+                        className="flex flex-row items-center justify-center gap-2 text-muted-foreground text-sm"
                     >
                         Preis im Profil festlegen <ArrowRightIcon className="h-4 w-4" />
                     </Link>

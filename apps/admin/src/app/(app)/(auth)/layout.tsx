@@ -1,5 +1,4 @@
 import Image from "next/image";
-
 import bg from "../../../../public/image/bg/login.png";
 
 interface Props {

@@ -1,5 +1,4 @@
-import { cache } from "react";
-
+import { getDemoSensorData } from "@/lib/demo/demo";
 import {
     getAvgEnergyConsumptionForSensor as getDbAvgEnergyConsumptionForSensor,
     getAvgEnergyConsumptionForUserInComparison as getDbAvgEnergyConsumptionForUserInComparison,
@@ -7,12 +6,9 @@ import {
     getEnergyForSensorInRange as getDbEnergyForSensorInRange,
     getPeaksBySensor as getDbPeaksBySensor,
 } from "@energyleaf/db/query";
-
-import "server-only";
-
-import { getDemoSensorData } from "@/lib/demo/demo";
-
 import { AggregationType } from "@energyleaf/lib";
+import { cache } from "react";
+import "server-only";
 
 export const getEnergyDataForSensor = cache(
     async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) => {

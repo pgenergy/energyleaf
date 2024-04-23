@@ -27,8 +27,7 @@ export default function PrivacyPage() {
                 <span className="font-bold">2. Datenschutzbeauftragter</span>
                 <br />
                 Carl von Ossietzky Universität Oldenburg
-                <br />
-                - Der Datenschutzbeauftragte -
+                <br />- Der Datenschutzbeauftragte -
                 <br />
                 Ammerländer Heerstraße 114-118
                 <br />
