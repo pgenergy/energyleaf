@@ -256,6 +256,6 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
             userId,
         );
     } catch (e) {
-        throw new Error(`Error while updating user: ${  e.toString()}`);
+        throw new Error(`Error while updating user: ${e.toString()}`);
     }
 }

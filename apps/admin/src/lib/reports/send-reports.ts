@@ -6,14 +6,14 @@ import {
     getEnergySumForSensorInRange,
     getLastReportForUser,
     getUserDataByUserId,
-    getUsersWitDueReport,
+    getUsersWithDueReport,
     saveReport,
     updateLastReportTimestamp,
 } from "@energyleaf/db/query";
-import { TokenType, UserDataSelectType } from "@energyleaf/db/types";
+import { TokenType, type UserDataSelectType } from "@energyleaf/db/types";
 import { buildUnsubscribeReportsUrl } from "@energyleaf/lib";
 import { sendReport } from "@energyleaf/mail";
-import { DayStatistics, ReportProps } from "@energyleaf/mail/types";
+import { type DayStatistics, type ReportProps } from "@energyleaf/mail/types";
 
 interface UserReportData {
     userId: string;
@@ -24,7 +24,7 @@ interface UserReportData {
 }
 
 export async function createReportsAndSendMails() {
-    const userReportData: Array<UserReportData> = await getUsersWitDueReport();
+    const userReportData: UserReportData[] = await getUsersWithDueReport();
 
     const totalReports = userReportData.length;
     let successfulReports = 0;
@@ -119,10 +119,10 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
         dateFrom: dateFrom.toLocaleDateString(),
         dateTo: dateTo.toLocaleDateString(),
         dayEnergyStatistics: dayStatistics,
-        totalEnergyConsumption: totalEnergyConsumption,
+        totalEnergyConsumption,
         avgEnergyConsumptionPerDay: avgEnergyConsumption,
-        totalEnergyCost: totalEnergyCost,
-        avgEnergyCost: avgEnergyCost,
+        totalEnergyCost,
+        avgEnergyCost,
         highestPeak: {
             dateTime: dateTo,
             deviceName: "my device",
@@ -162,7 +162,7 @@ async function getDayStatistics(
 }
 
 export async function sendReportMail(userReport: UserReportData, reportProps: ReportProps, unsubscribeLink: string) {
-    if (userReport.email === null) {
+    if (!userReport.email) {
         throw new Error(
             `No email address for User ${userReport.userName} (User-ID ${userReport.userId}) to send report to`,
         );
@@ -170,8 +170,8 @@ export async function sendReportMail(userReport: UserReportData, reportProps: Re
     await sendReport({
         from: env.RESEND_API_MAIL,
         to: userReport.email,
-        unsubscribeLink: unsubscribeLink,
+        unsubscribeLink,
         apiKey: env.RESEND_API_KEY,
-        reportProps: reportProps,
+        reportProps,
     });
 }

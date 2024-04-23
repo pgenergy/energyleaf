@@ -64,7 +64,7 @@ export async function updateLastReportTimestamp(userId: string) {
  *
  * @returns The users with due report
  */
-export async function getUsersWitDueReport() {
+export async function getUsersWithDueReport() {
     return db
         .select({
             userId: user.id,

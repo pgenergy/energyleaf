@@ -5,13 +5,20 @@ import { createReportsAndSendMails } from "@/lib/reports/send-reports";
 export const POST = async (req: NextRequest) => {
     const reportApiKey = env.REPORTS_API_KEY;
     if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== reportApiKey) {
-        return NextResponse.json({ status: 403, statusMessage: "Forbidden" });
+        return NextResponse.json({ status: 403, statusMessage: "Forbidden" }, {
+            status: 403
+        });
     }
 
     try {
         await createReportsAndSendMails();
-        return NextResponse.json({ status: 200, statusMessage: "Reports created and sent" });
+        return NextResponse.json({ status: 200, statusMessage: "Reports created and sent" }, {
+            status: 200
+        });
     } catch (e) {
-        return NextResponse.json({ status: 500, statusMessage: "Internal Server Error" });
+        console.error(e)
+        return NextResponse.json({ status: 500, statusMessage: "Internal Server Error" }, {
+            status: 500
+        });
     }
 };
