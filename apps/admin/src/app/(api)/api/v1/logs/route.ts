@@ -18,9 +18,12 @@ export const POST = async (req: NextRequest) => {
     // }
 
     try {
-         // await insertLog(data);
+        // await insertLog(data);
         await createReportsAndSendMails();
-        return NextResponse.json({status: 200, statusMessage: "Inserted log."});
+        return NextResponse.json({
+            status: 200,
+            statusMessage: "Inserted log."
+        }).headers.set("x-vercel-verify", "526ff1ab0644ec896309f768842924441d43aacd");
     } catch (e) {
         return NextResponse.json({status: 500, statusMessage: "Internal Server Error"});
     }
