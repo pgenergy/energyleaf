@@ -1,4 +1,4 @@
-import { and, between, desc, eq, lt, lte, or, sql } from "drizzle-orm";
+import {and, between, desc, eq, gt, lt, lte, or, sql} from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { AggregationType } from "@energyleaf/lib";
@@ -649,4 +649,16 @@ export async function updateNeedsScript(sensorId: string, needsScript: boolean) 
             needsScript,
         })
         .where(eq(sensor.id, sensorId));
+}
+
+export async function calculateAnomaly(id, start, end) {
+    return db
+        .select({
+            avg: sql<number>`AVG(${sensorData.value})`,
+            std: sql<number>`STD(${sensorData.value})`,
+            sensorId: sensorData.sensorId
+        })
+        .from(sensorData)
+        .groupBy(sensorData.sensorId)
+        .having(gt(sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value})})`, sql<number>`2 * STD(${sensorData.value})`))
 }

@@ -1,10 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isNoticeableEnergyConsumption } from "@/actions/energy-monitoring";
 import { env } from "@/env.mjs";
-import { getSensorsByUser } from "@/query/sensor";
+import { getSensorsByUser, getAnomaliesByUser } from "@/query/sensor";
 import { getAllUsers } from "@/query/user";
 
-import { getEnergyForSensorInRange } from "@energyleaf/db/query";
 import type { ConsumptionData } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { sendAnomalyEmail } from "@energyleaf/mail";
@@ -21,21 +20,10 @@ export const POST = async (req: NextRequest) => {
     try {
         const users = await getAllUsers();
         for (const user of users) {
-            const sensors = await getSensorsByUser(user.id);
-            let data: ConsumptionData[] = [];
 
-            for (const sensor of sensors) {
-                const energyData = await getEnergyForSensorInRange(start, end, sensor.id, AggregationType.RAW);
-                data = data.concat(
-                    energyData.map((entry) => ({
-                        sensorId: entry.sensorId || 0,
-                        energy: entry.value,
-                        timestamp: entry.timestamp.toString(),
-                    })),
-                );
-            }
+            const qqq = await getAnomaliesByUser(user.id, start, end);
 
-            if (!isNoticeableEnergyConsumption(data)) {
+            if (qqq.length == 0) {
                 continue;
             }
 
