@@ -1,8 +1,9 @@
 import db from "../index";
 import {logs} from "../schema/logs";
+import {userData} from "../schema/user";
 
 export type LogType = {
-    logType: string;
+    logType:  (typeof logs.logType.enumValues)[number];
     branch: string;
     deploymentDomain: string;
     deploymentId: string;
@@ -12,7 +13,7 @@ export type LogType = {
     lambdaDurationInMs: number;
     lambdaMaxMemoryUsed: number;
     lambdaMemorySize: number;
-    lambdaRegion: vtring;
+    lambdaRegion: string;
     level: string;
     message: string;
     projectId: string;
@@ -25,7 +26,7 @@ export type LogType = {
     timeUTC: string;
     type: string;
     vercelCache: string;
-    wafAction: vstring;
+    wafAction: string;
 };
 
 export async function insertLog(data: LogType) {
