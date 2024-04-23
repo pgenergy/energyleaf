@@ -12,7 +12,7 @@ import { sendAnomalyEmail } from "@energyleaf/mail";
 export const POST = async (req: NextRequest) => {
     const reportApiKey = env.REPORTS_API_KEY;
     if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== reportApiKey) {
-        return NextResponse.json({ status: 403, statusMessage: "Forbidden" });
+        return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 
     const start = new Date(new Date().setHours(0, 0, 0, 0));
