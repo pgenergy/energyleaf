@@ -323,8 +323,13 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
             return;
         }
 
-        const timeDiff = new Date().getTime() - lastEntry.timestamp.getTime() / 1000;
-        if (newValue - lastEntry.value > timeDiff * 5) {
+        // in this check we allow 0.4 kwh per minute
+        // so for 15 seconds which is currently the sensor rate we allow 0.1 kwh
+        // in an hour this would be 24 kwh
+        // this is a very high value and should never be reached
+        // but is hopefully a good protection against faulty sensors
+        const timeDiff = new Date(new Date().toUTCString()).getTime() - lastEntry.timestamp.getTime() / 1000 / 60;
+        if (newValue - lastEntry.value > timeDiff * 0.4) {
             throw new Error("value/too-high");
         }
 
