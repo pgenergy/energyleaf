@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useTransition } from "react";
-import { updateReportConfigSettings } from "@/actions/profile";
+import { updateMailInformation } from "@/actions/profile";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import { reportSettingsSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
+import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";

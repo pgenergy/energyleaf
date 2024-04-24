@@ -1,9 +1,7 @@
-import { Suspense } from "react";
 import { DeviceContextProvider } from "@/hooks/device-hook";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
-
+import { Suspense } from "react";
 import DeviceAddButton from "./device-add-button";
 import { DeviceDeleteDialog } from "./device-delete-dialog";
 import DeviceEditDialog from "./device-edit-dialog";

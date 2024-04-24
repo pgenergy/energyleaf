@@ -1,9 +1,8 @@
-import { cache } from "react";
 import { getUserData } from "@/query/user";
 import { GoalState, GoalStatus } from "@/types/goals";
-import { endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek } from "date-fns";
-
 import { getEnergySumForSensorInRange } from "@energyleaf/db/query";
+import { endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek } from "date-fns";
+import { cache } from "react";
 
 export const getGoalStatus = cache(async (userId: string, sensorId: string) => {
     const dateNow = new Date();

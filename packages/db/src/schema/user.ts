@@ -1,3 +1,4 @@
+import { Versions } from "@energyleaf/lib/versioning";
 import { sql } from "drizzle-orm";
 import {
     boolean,
@@ -11,8 +12,6 @@ import {
     varchar,
 } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
-
-import { Versions } from "@energyleaf/lib/versioning";
 
 export const user = mysqlTable("user", {
     id: varchar("id", { length: 30 })
@@ -32,9 +31,7 @@ export const user = mysqlTable("user", {
 export const userData = mysqlTable("user_data", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: varchar("user_id", { length: 30 }).notNull(),
-    timestamp: timestamp("timestamp")
-        .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
+    timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
     basePrice: float("base_price"),
     workingPrice: float("working_price"),
     tariff: mysqlEnum("tariff", ["basic", "eco"]).default("basic"),
@@ -55,9 +52,7 @@ export const session = mysqlTable("session", {
 export const historyUserData = mysqlTable("history_user_data", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: varchar("user_id", { length: 30 }).notNull(),
-    timestamp: timestamp("timestamp")
-        .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
+    timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
     basePrice: float("base_price"),
     workingPrice: float("working_price"),
     tariff: mysqlEnum("tariff", ["basic", "eco"]).default("basic"),

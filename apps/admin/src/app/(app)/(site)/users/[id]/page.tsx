@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import UserConsumptionCard, {
     UserConsumptionCardError,
 } from "@/components/users/details/consumption/user-consumption-card";
@@ -10,9 +9,9 @@ import UserSensorsCard from "@/components/users/details/user-sensors-card";
 import UserSensorsCardError from "@/components/users/details/user-sensors-card-error";
 import { UserContextProvider } from "@/hooks/user-hook";
 import { getUserById } from "@/query/user";
-
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import { Suspense } from "react";
 
 export const metadata = {
     title: "Nutzerdetails | Energyleaf Admin",

@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import ChangePasswordForm from "@/components/profile/change-password-form";
@@ -12,8 +11,8 @@ import {
     createUserDataSchemaFromUserDataType,
 } from "@/lib/schema/conversion/profile";
 import { getUserData } from "@/query/user";
-
-import { fulfills, Versions } from "@energyleaf/lib/versioning";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import { redirect } from "next/navigation";
 
 export const metadata = {
     title: "Profil | Energyleaf",

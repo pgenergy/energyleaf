@@ -1,6 +1,5 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getAverageConsumptionPerDevice, getDevicesByUser } from "@/query/device";
-
 import { devicesColumns } from "./table/devices-columns";
 import { DevicesDataTable } from "./table/devices-data-table";
 
@@ -21,7 +20,7 @@ export default async function DevicesTable() {
         return {
             ...device,
             averageConsumption:
-                typeof deviceConsumption === "string" ? parseFloat(deviceConsumption) : deviceConsumption ?? 0,
+                typeof deviceConsumption === "string" ? Number.parseFloat(deviceConsumption) : deviceConsumption ?? 0,
         };
     });
 

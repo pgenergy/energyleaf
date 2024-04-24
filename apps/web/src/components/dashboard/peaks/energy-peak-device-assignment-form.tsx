@@ -2,12 +2,6 @@
 
 import { addOrUpdatePeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import {
     Button,
@@ -23,6 +17,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     devices: DeviceSelectType[];
@@ -44,8 +43,8 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
         track("assignEnergyPeakToDevice()");
         toast.promise(addOrUpdatePeak(data, sensorId, timestamp), {
             loading: "Peak zuweisen...",
-            success: `Erfolgreich zugewiesen`,
-            error: `Das Gerät konnte dem Peak nicht zugewiesen werden.`,
+            success: "Erfolgreich zugewiesen",
+            error: "Das Gerät konnte dem Peak nicht zugewiesen werden.",
         });
 
         onInteract();

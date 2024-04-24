@@ -1,6 +1,7 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { getActionSession } from "@/lib/auth/auth.action";
+import { isDemoUser, updateUserDataCookieStore } from "@/lib/demo/demo";
 import type {
     deleteAccountSchema,
     passwordSchema,
@@ -8,8 +9,6 @@ import type {
     userDataSchema,
     userGoalSchema,
 } from "@/lib/schema/profile";
-import { Argon2id } from "oslo/password";
-
 import {
     deleteUser,
     getUserById,
@@ -18,17 +17,14 @@ import {
     updateUser,
     updateUserData,
 } from "@energyleaf/db/query";
-
-import "server-only";
-
-import { cookies } from "next/headers";
-import { getActionSession } from "@/lib/auth/auth.action";
-import { isDemoUser, updateUserDataCookieStore } from "@/lib/demo/demo";
-import type { z } from "zod";
-
 import type { UserDataType } from "@energyleaf/db/types";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { Argon2id } from "oslo/password";
+import "server-only";
+import type { z } from "zod";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
     const { user, session } = await getActionSession();

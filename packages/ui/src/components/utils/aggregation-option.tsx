@@ -1,7 +1,5 @@
-import React from "react";
-
 import { AggregationType } from "@energyleaf/lib";
-
+import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui";
 
 interface Props {

@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
 import AbsolutEnergyConsumptionError from "@/components/dashboard/absolut-energy-consumption-card-error";
 import EnergyConsumptionCard from "@/components/dashboard/energy-consumption-card";
@@ -10,10 +9,10 @@ import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
 import GoalsCard from "@/components/dashboard/goals/goals-card";
 import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
 import { getActionSession } from "@/lib/auth/auth.action";
-
-import { fulfills, Versions } from "@energyleaf/lib/versioning";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import { Suspense } from "react";
 
 export const metadata = {
     title: "Dashboard | Energyleaf",

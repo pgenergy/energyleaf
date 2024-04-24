@@ -1,11 +1,10 @@
 "use client";
 
-import React from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { track } from "@vercel/analytics";
-
 import type { AggregationType } from "@energyleaf/lib";
 import { AggregationOption } from "@energyleaf/ui/components/utils";
+import { track } from "@vercel/analytics";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React from "react";
 
 interface Props {
     selected?: AggregationType;

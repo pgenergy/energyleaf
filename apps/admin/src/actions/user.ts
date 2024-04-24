@@ -1,13 +1,8 @@
 "use server";
 
-import "server-only";
-
-import { revalidatePath } from "next/cache";
 import { env } from "@/env.mjs";
 import { checkIfAdmin } from "@/lib/auth/auth.action";
 import type { userStateSchema } from "@/lib/schema/user";
-import type { z } from "zod";
-
 import {
     deleteUser as deleteUserDb,
     getAllUsers as getAllUsersDb,
@@ -18,6 +13,9 @@ import {
 } from "@energyleaf/db/query";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { sendAccountActivatedEmail } from "@energyleaf/mail";
+import { revalidatePath } from "next/cache";
+import "server-only";
+import type { z } from "zod";
 
 export async function getAllUsersAction() {
     await checkIfAdmin();

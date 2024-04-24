@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { getSession } from "@/lib/auth/auth.server";
 import calculatePeaks from "@/lib/consumption/peak-calculation";
@@ -6,11 +5,10 @@ import { getDevicesByUser } from "@/query/device";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import type ConsumptionData from "@/types/consumption/consumption-data";
 import type { PeakAssignment } from "@/types/consumption/peak";
-
 import { AggregationType } from "@energyleaf/lib";
-import { fulfills, Versions } from "@energyleaf/lib/versioning";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
-
+import { redirect } from "next/navigation";
 import DashboardZoomReset from "./dashboard-zoom-reset";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
@@ -39,7 +37,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
                 </CardContent>
             </Card>
         );
@@ -72,8 +70,12 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 </div>
                 <div className="flex flex-row gap-4">
                     <DashboardZoomReset />
-                    <DashboardDateRange endDate={endDate} startDate={startDate} />
-                    <DashboardEnergyAggregation selected={aggregation} />
+                    {user.id !== "demo" ? (
+                        <>
+                            <DashboardDateRange endDate={endDate} startDate={startDate} />
+                            <DashboardEnergyAggregation selected={aggregation} />
+                        </>
+                    ) : null}
                 </div>
             </CardHeader>
             <CardContent>

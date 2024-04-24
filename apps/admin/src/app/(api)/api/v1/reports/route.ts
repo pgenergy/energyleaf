@@ -1,6 +1,6 @@
-import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/env.mjs";
 import { createReportsAndSendMails } from "@/lib/reports/send-reports";
+import { type NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
     const reportApiKey = env.REPORTS_API_KEY;

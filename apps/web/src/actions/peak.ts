@@ -1,15 +1,12 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import type { z } from "zod";
-
-import "server-only";
-
 import { getActionSession } from "@/lib/auth/auth.action";
 import type { peakSchema } from "@/lib/schema/peak";
-
 import { addOrUpdatePeak as addOrUpdatePeakDb } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
+import { revalidatePath } from "next/cache";
+import "server-only";
+import type { z } from "zod";
 
 export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
     const { session } = await getActionSession();

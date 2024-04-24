@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { clsx } from "clsx";
 import { differenceInCalendarDays, format, isValid, max, min, parseISO } from "date-fns";
+import { useMemo, useState } from "react";
 import {
     Area,
     AreaChart,
@@ -45,7 +45,10 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
     const dynamicTickFormatter = useMemo(() => {
-        const dates = data.map((d) => new Date(d[xAxes?.dataKey as string] as string));
+        if (!xAxes?.dataKey) {
+            return;
+        }
+        const dates = data.map((d) => new Date(d[xAxes.dataKey] as string));
         if (dates.length === 0) {
             return (value: string) => value;
         }
@@ -55,10 +58,11 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
 
         let lastSeenHour = "";
         let lastSeenDate = "";
-        const dateInterval = Math.max(1, Math.ceil(diffDays / 20)); // Ensures the interval between displayed dates in the chart is at least 1 and adapts dynamically to span 20 intervals across the date range
+        // Ensures the interval between displayed dates in the chart is at least 1 and adapts dynamically to span 20 intervals across the date range
+        const dateInterval = Math.max(1, Math.ceil(diffDays / 20));
 
         const lastDateStr = format(maxDate, "dd.MM");
-        const lastHourStr = format(maxDate, "HH") + ":00";
+        const lastHourStr = `${format(maxDate, "HH")}:00`;
 
         return (value: string) => {
             if (!isValid(parseISO(value))) {
@@ -66,7 +70,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
             }
             const date = parseISO(value);
             const dateStr = format(date, "dd.MM");
-            const hourStr = format(date, "HH") + ":00";
+            const hourStr = `${format(date, "HH")}:00`;
             const currentDateDiff = differenceInCalendarDays(date, minDate);
 
             if (diffDays <= 1) {
@@ -78,13 +82,13 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     return hourStr;
                 }
                 return "";
-            } else {
-                if (currentDateDiff % dateInterval === 0 && lastSeenDate !== dateStr) {
-                    lastSeenDate = dateStr;
-                    return dateStr;
-                }
-                return "";
             }
+
+            if (currentDateDiff % dateInterval === 0 && lastSeenDate !== dateStr) {
+                lastSeenDate = dateStr;
+                return dateStr;
+            }
+            return "";
         };
     }, [data, xAxes]);
 
@@ -142,7 +146,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     tickFormatter={dynamicTickFormatter}
                     tickLine={false}
                 >
-                    {xAxes?.name && (
+                    {xAxes?.name ? (
                         <Label
                             offset={0}
                             position="insideBottom"
@@ -151,10 +155,10 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                             }}
                             value={xAxes.name}
                         />
-                    )}
+                    ) : null}
                 </XAxis>
                 <YAxis dataKey={yAxes?.dataKey} stroke="hsl(var(--muted-foreground))">
-                    {yAxes?.name && (
+                    {yAxes?.name ? (
                         <Label
                             angle={270}
                             offset={10}
@@ -165,9 +169,9 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                             }}
                             value={yAxes.name}
                         />
-                    )}
+                    ) : null}
                 </YAxis>
-                {tooltip && <Tooltip content={tooltip.content} />}
+                {tooltip ? <Tooltip content={tooltip.content} /> : null}
                 <Area
                     dataKey={keyName}
                     fill="url(#color)"
@@ -176,13 +180,15 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     type="monotone"
                 />
                 {referencePoints
-                    ? referencePoints?.data.map((value) => (
+                    ? referencePoints.data.map((value) => (
                           <ReferenceDot
-                              className={clsx(referencePoints?.callback ? "cursor-pointer" : "cursor-default")}
+                              className={clsx(referencePoints.callback ? "cursor-pointer" : "cursor-default")}
                               fill="hsl(var(--destructive))"
                               isFront
-                              key={`${value[referencePoints.xKeyName]?.toString()}-${value[referencePoints.yKeyName]?.toString()}`}
-                              onClick={() => referencePoints?.callback && referencePoints.callback(value)}
+                              key={`${value[referencePoints.xKeyName]?.toString()}-${value[
+                                  referencePoints.yKeyName
+                              ]?.toString()}`}
+                              onClick={() => referencePoints?.callback?.(value)}
                               r={10}
                               stroke="hsl(var(--destructive))"
                               x={value[referencePoints.xKeyName]}

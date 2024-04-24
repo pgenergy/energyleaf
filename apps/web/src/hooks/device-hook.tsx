@@ -1,8 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
-
 import type { DeviceSelectType } from "@energyleaf/db/types";
+import { createContext, useContext, useState } from "react";
 
 export type DeviceContextType = {
     device?: DeviceSelectType;

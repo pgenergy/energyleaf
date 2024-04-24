@@ -1,6 +1,5 @@
-import * as process from "process";
-import React, { ReactElement } from "react";
-import { Container, Heading, Hr, Img, Link } from "@react-email/components";
+import { Container, Hr, Img, Link } from "@react-email/components";
+import React from "react";
 
 interface Props {
     children: string | string[];

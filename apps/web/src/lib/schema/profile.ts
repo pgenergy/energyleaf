@@ -1,6 +1,5 @@
-import { z } from "zod";
-
 import { userData } from "@energyleaf/db/schema";
+import { z } from "zod";
 
 export const passwordSchema = z.object({
     oldPassword: z.string().nonempty({ message: "Bitte geben Sie ein Passwort an." }),

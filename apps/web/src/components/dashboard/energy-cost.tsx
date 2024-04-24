@@ -102,7 +102,7 @@ export function getPredictedCost(userData: UserDataSelectType[], energyData: Sen
     const monthlyUsage: number = (totalConsumptionCurrentMonth / daysPassed) * lastDayOfMonth.getDate();
 
     const predictedConsumption: number = monthlyUsage - totalConsumptionCurrentMonth;
-    return parseFloat((predictedConsumption * (price / 1000)).toFixed(2));
+    return Number.parseFloat((predictedConsumption * (price / 1000)).toFixed(2));
 }
 
 function getLatestUserData(userData: UserDataSelectType[]): UserDataSelectType {

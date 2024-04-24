@@ -1,9 +1,7 @@
-import { cookies } from "next/headers";
-import { NextResponse, type NextRequest } from "next/server";
 import { onboardingCompleteCookieName } from "@/lib/constants";
-
-import { fulfills, Versions } from "@energyleaf/lib/versioning";
-
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import { cookies } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 import { getActionSession } from "./lib/auth/auth.action";
 
 const publicRoutes = ["/legal", "/privacy"];
