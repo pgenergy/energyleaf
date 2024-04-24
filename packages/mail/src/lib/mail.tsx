@@ -6,7 +6,7 @@ import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
 import ReportTemplate from "../templates/report";
-import { ReportProps } from "../types/reportProps";
+import type { ReportProps } from "../types/reportProps";
 
 interface MailOptions {
     apiKey: string;

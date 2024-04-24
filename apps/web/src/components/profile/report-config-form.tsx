@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useTransition } from "react";
 import IntervalSelector from "@/components/profile/interval-selector";
 import TimeSelector from "@/components/profile/time-selector";
 import { reportSettingsSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { type z } from "zod";
+import type { z } from "zod";
 
 import {
     Button,

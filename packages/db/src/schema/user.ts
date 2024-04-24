@@ -70,7 +70,5 @@ export const token = mysqlTable("token", {
         .$defaultFn(() => nanoid(30)),
     userId: varchar("user_id", { length: 30 }).notNull(),
     type: mysqlEnum("type", ["report"]).notNull(),
-    created: datetime("created")
-        .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
+    created: datetime("created").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });

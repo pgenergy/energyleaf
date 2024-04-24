@@ -1,7 +1,7 @@
-import { useSearchParams } from "next/navigation";
 import UnsubscribeForm from "@/components/auth/unsubscribe-form";
 import { reportSettingsSchema } from "@/lib/schema/profile";
 import { getUserData, getUserIdByToken } from "@/query/user";
+import { useSearchParams } from "next/navigation";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
@@ -22,7 +22,7 @@ export default async function Page({ searchParams }: UnsubscribeFormProps) {
         return (
             <CardContent>
                 <div className="flex flex-col gap-2">
-                    <p className="text-xl font-bold">Ungültiges oder abgelaufenes Passwort-Reset-Token</p>
+                    <p className="font-bold text-xl">Ungültiges oder abgelaufenes Passwort-Reset-Token</p>
                 </div>
             </CardContent>
         );

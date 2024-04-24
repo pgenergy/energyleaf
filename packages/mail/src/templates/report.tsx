@@ -1,13 +1,11 @@
-import React from "react";
-import { Body, Container, Head, Html, Img, Preview, Tailwind, Text } from "@react-email/components";
+import { Container, Head, Html, Img, Preview, Text } from "@react-email/components";
 import { BadgeEuroIcon, BarChart3, CircleSlash2, RadioReceiver, ReceiptEuroIcon, Zap } from "lucide-react";
-
-import config from "@energyleaf/tailwindcss/mail-config";
+import React from "react";
 
 import { Footer, Header, Main } from "../components";
 import DayTile from "../components/dayTile";
 import Tile from "../components/tile";
-import { ReportProps } from "../types/reportProps";
+import type { ReportProps } from "../types/reportProps";
 
 export default function ReportTemplate(props: ReportProps) {
     return (
@@ -26,7 +24,9 @@ export default function ReportTemplate(props: ReportProps) {
                 </Container>
 
                 <div className="flex flex-row justify-evenly">
-                    {props.dayEnergyStatistics?.map((x) => <DayTile stats={x} />)}
+                    {props.dayEnergyStatistics?.map((x) => (
+                        <DayTile key={x.day} stats={x} />
+                    ))}
                 </div>
 
                 <div className="mb-4 flex flex-row flex-wrap items-stretch justify-evenly gap-4">
@@ -62,7 +62,7 @@ export default function ReportTemplate(props: ReportProps) {
                     </Tile>
 
                     <Tile visible={true} large={false} icon={<RadioReceiver />} heading="Größter Verbraucher">
-                        <>props</>
+                        props
                     </Tile>
 
                     <Tile visible={true} large={true} heading="Verbrauch" icon={null}>

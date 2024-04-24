@@ -13,7 +13,7 @@ import {
 import { TokenType, type UserDataSelectType } from "@energyleaf/db/types";
 import { buildUnsubscribeReportsUrl } from "@energyleaf/lib";
 import { sendReport } from "@energyleaf/mail";
-import { type DayStatistics, type ReportProps } from "@energyleaf/mail/types";
+import type { DayStatistics, ReportProps } from "@energyleaf/mail/types";
 
 interface UserReportData {
     userId: string;
@@ -77,7 +77,7 @@ export async function createReportsAndSendMails() {
 
     // TODO: maybe improve logging
     console.info(
-        `--Send Report Results-- `,
+        "--Send Report Results-- ",
         ` Total reports: ${totalReports} `,
         ` Successful reports: ${successfulReports}`,
         ` Sent reports: ${sentReports} `,
@@ -95,12 +95,12 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     dateTo.setHours(23, 59, 59, 999);
     const sensor = await getElectricitySensorByUser(user.userId);
     if (!sensor) {
-        throw new Error(`No electricity sensor found for User`);
+        throw new Error("No electricity sensor found for User");
     }
 
     const userData = await getUserDataByUserId(user.userId);
     if (!userData) {
-        throw new Error(`No user data found for User`);
+        throw new Error("No user data found for User");
     }
 
     const totalEnergyConsumption = await getEnergySumForSensorInRange(dateFrom, dateTo, sensor);

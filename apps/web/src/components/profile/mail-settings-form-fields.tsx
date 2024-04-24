@@ -1,6 +1,6 @@
 import IntervalSelector from "@/components/profile/interval-selector";
 import TimeSelector from "@/components/profile/time-selector";
-import type { mailSettingsSchema } from "@/lib/schema/profile";
+import type { reportSettingsSchema } from "@/lib/schema/profile";
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, Switch } from "@energyleaf/ui";
 import React from "react";
 import type { UseFormReturn } from "react-hook-form";

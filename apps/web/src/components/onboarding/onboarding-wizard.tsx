@@ -9,8 +9,8 @@ import {
     createMailSettingsSchemaFromReportSelectType,
     createUserDataSchemaFromUserDataSelectType,
 } from "@/lib/schema/conversion/profile";
-import {reportSettingsSchema, userDataSchema, userGoalSchema} from "@/lib/schema/profile";
-import type {ReportConfigSelectType, UserDataSelectType, UserDataType} from "@energyleaf/db/types";
+import { reportSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
+import type { ReportConfigSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
 import { Button, Form, Wizard, WizardPage, useWizard } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRightIcon } from "lucide-react";

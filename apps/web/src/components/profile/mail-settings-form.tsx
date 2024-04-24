@@ -1,6 +1,5 @@
 "use client";
 
-import { updateMailInformation } from "@/actions/profile";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import { reportSettingsSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +10,7 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
+import {updateReportConfigSettings} from "@/actions/auth";
 
 interface Props {
     disabled?: boolean;
@@ -28,7 +28,7 @@ export default function MailSettingsForm({ initialValues, disabled }: Props) {
         if (disabled) return;
         startTransition(() => {
             track("updateMailSettings()");
-            toast.promise(updateReportConfigSettings(data), {
+            toast.promise(updateReportConfigSettings(data, userID), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
                 error: "Ihre Einstellungen konnten nicht aktualisiert werden",

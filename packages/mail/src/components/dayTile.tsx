@@ -1,17 +1,15 @@
 import React from "react";
-import { Text } from "@react-email/components";
-import { CircleDashed, Sparkles } from "lucide-react";
 
-import { DayStatistics } from "../types/reportProps";
+import type { DayStatistics } from "../types";
 import { TrendIcon } from "./trendIcon";
 
-function getTargetIcon(value: number, targetValue: number) {
-    if (value <= targetValue) {
-        return <Sparkles className="h-8 w-8 p-1 text-primary" />;
-    }
-
-    return <CircleDashed strokeWidth={2.25} className="h-8 w-8 p-1 text-orange-500" />;
-}
+// function getTargetIcon(value: number, targetValue: number) {
+//     if (value <= targetValue) {
+//         return <Sparkles className="h-8 w-8 p-1 text-primary" />;
+//     }
+//
+//     return <CircleDashed strokeWidth={2.25} className="h-8 w-8 p-1 text-orange-500" />;
+// }
 
 export default function DayTile(props: { stats: DayStatistics }) {
     const stats = props.stats;

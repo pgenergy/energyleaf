@@ -6,8 +6,16 @@ import { lucia } from "@/lib/auth/auth.config";
 import { onboardingCompleteCookieName } from "@/lib/constants";
 import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
-import { type CreateUserType, createUser, getUserById, getUserByMail, updatePassword } from "@energyleaf/db/query";
-import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
+import type { reportSettingsSchema } from "@/lib/schema/profile";
+import {
+    type CreateUserType,
+    createUser,
+    getUserById,
+    getUserByMail,
+    updatePassword,
+    updateReportConfig,
+} from "@energyleaf/db/query";
+import { UserNotFoundError, buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 import * as jose from "jose";
 import type { Session } from "lucia";

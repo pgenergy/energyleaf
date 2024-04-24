@@ -1,7 +1,5 @@
+import type { DayStatistics, ReportProps } from "@energyleaf/mail/types";
 import { and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
-
-import { DayStatistics, ReportProps } from "@energyleaf/mail/types";
-
 import db from "../";
 import { historyReportConfig, reportConfig, reports, reportsDayStatistics } from "../schema/reports";
 import { user } from "../schema/user";

@@ -257,12 +257,12 @@ importers:
 
   packages/db:
     dependencies:
-      ./types:
-        specifier: ./src/types/index.ts
-        version: link:src/types/index.ts
       '@energyleaf/lib':
         specifier: workspace:^
         version: link:../lib
+      '@energyleaf/mail':
+        specifier: workspace:^
+        version: link:../mail
       '@lucia-auth/adapter-drizzle':
         specifier: ^1.0.7
         version: 1.0.7(lucia@3.1.1)
@@ -316,6 +316,9 @@ importers:
       '@react-email/render':
         specifier: 0.0.12
         version: 0.0.12
+      lucide-react:
+        specifier: ^0.372.0
+        version: 0.372.0(react@18.2.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0

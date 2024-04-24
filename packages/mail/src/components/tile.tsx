@@ -1,5 +1,5 @@
-import React, { ReactElement } from "react";
 import { Container, Heading, Hr, Img, Link, Text } from "@react-email/components";
+import React, { type ReactElement } from "react";
 
 interface Props {
     visible: boolean;
@@ -22,7 +22,7 @@ export default function Tile({ visible, large, icon, heading, children }: Props)
             <Heading as="h3" className="m-1 flex flex-row justify-center">
                 {heading}
             </Heading>
-            <div className="m-2 flex flex-row justify-center text-xl font-semibold">{children}</div>
+            <div className="m-2 flex flex-row justify-center font-semibold text-xl">{children}</div>
         </div>
     );
 

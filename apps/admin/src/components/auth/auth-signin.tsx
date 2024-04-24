@@ -1,13 +1,13 @@
 "use client";
 
 import { signInAction } from "@/actions/auth";
+import { signInSchema } from "@/lib/schema/auth";
 import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Spinner } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import {signInSchema} from "@/lib/schema/auth";
 
 export default function AuthForm() {
     const [error, setError] = useState<string | null>(null);

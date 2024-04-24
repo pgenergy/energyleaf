@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { updateReportConfigSettings } from "@/actions/auth";
 import ReportConfigForm from "@/components/profile/report-config-form";
 import { reportSettingsSchema } from "@/lib/schema/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { type z } from "zod";
+import type { z } from "zod";
 
 import { Card } from "@energyleaf/ui";
 
