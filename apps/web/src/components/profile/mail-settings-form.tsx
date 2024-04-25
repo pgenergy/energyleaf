@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
-import {updateReportConfigSettings} from "@/actions/auth";
+import {updateReportConfigSettings} from "@/actions/profile";
 
 interface Props {
     disabled?: boolean;
@@ -22,13 +22,14 @@ export default function MailSettingsForm({ initialValues, disabled }: Props) {
     const form = useForm<z.infer<typeof reportSettingsSchema>>({
         resolver: zodResolver(reportSettingsSchema),
         defaultValues: initialValues,
+        
     });
 
     function onSubmit(data: z.infer<typeof reportSettingsSchema>) {
         if (disabled) return;
         startTransition(() => {
             track("updateMailSettings()");
-            toast.promise(updateReportConfigSettings(data, userID), {
+            toast.promise(updateReportConfigSettings(data), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
                 error: "Ihre Einstellungen konnten nicht aktualisiert werden",
