@@ -81,10 +81,13 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                     <>
                         <h1 className="text-center font-bold text-2xl text-primary">{formattedCost} €</h1>
                         <p
-                            className={cn({
-                                "text-destructive": parsedCost > parsedCalculatedPayment,
-                                "text-primary": parsedCost <= parsedCalculatedPayment,
-                            }, "text-center")}
+                            className={cn(
+                                {
+                                    "text-destructive": parsedCost > parsedCalculatedPayment,
+                                    "text-primary": parsedCost <= parsedCalculatedPayment,
+                                },
+                                "text-center",
+                            )}
                         >
                             Abschlag: {formattedCalculatedPayment} €
                         </p>
