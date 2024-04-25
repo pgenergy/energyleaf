@@ -115,6 +115,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
     return (
         <ResponsiveContainer height="100%" width="100%">
             <AreaChart
+                className="select-none"
                 data={data}
                 margin={{
                     top: 0,
