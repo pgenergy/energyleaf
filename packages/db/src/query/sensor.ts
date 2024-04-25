@@ -439,6 +439,8 @@ export async function createSensorToken(clientId: string) {
             };
         }
 
+        console.log(sensorData);
+
         const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
         if (tokenData.length > 0) {
             trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
