@@ -37,6 +37,8 @@ export const POST = async (req: NextRequest) => {
             try {
                 await insertSensorData({ sensorId, value: data.value, sum: needsSum });
             } catch (e) {
+                // eslint-disable-next-line no-console -- we need to log the error in the production logs
+                console.error(e, data);
                 if ((e as unknown as Error).message === "value/too-high") {
                     return new NextResponse(
                         SensorDataResponse.toBinary({ statusMessage: "Value too high", status: 400 }),
@@ -58,7 +60,7 @@ export const POST = async (req: NextRequest) => {
             });
         } catch (e) {
             // eslint-disable-next-line no-console -- we need to log the error in the production logs
-            console.error(e);
+            console.error(e, data);
             if ((e as unknown as Error).message === "token/expired") {
                 return new NextResponse(SensorDataResponse.toBinary({ statusMessage: "Token expired", status: 401 }), {
                     status: 401,

@@ -68,7 +68,7 @@ export const POST = async (req: NextRequest) => {
             );
         } catch (err) {
             // eslint-disable-next-line no-console -- we need to log the error in the production logs
-            console.error(err);
+            console.error(err, data);
             if ((err as unknown as Error).message === "sensor/not-found") {
                 return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
                     status: 404,
