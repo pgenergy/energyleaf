@@ -18,7 +18,7 @@ export default async function middleware(req: NextRequest) {
     const { user } = await getActionSession();
     const loggedIn = Boolean(user);
     const path = req.nextUrl.pathname;
-    const onboardingComplete = cookies().get(onboardingCompleteCookieName)?.value === "true";
+    const onboardingComplete = cookies().get(onboardingCompleteCookieName)?.value === "true" || user?.id === "demo";
 
     if (loggedIn && path !== onboardingRoute && !onboardingComplete) {
         return NextResponse.redirect(new URL("/onboarding", req.url));

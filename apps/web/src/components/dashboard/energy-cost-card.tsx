@@ -2,6 +2,7 @@ import { calculateCosts, getCalculatedPayment, getPredictedCost } from "@/compon
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
+import { cn } from "@energyleaf/tailwindcss/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -80,9 +81,13 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                     <>
                         <h1 className="text-center font-bold text-2xl text-primary">{formattedCost} €</h1>
                         <p
-                            className={`text-center${
-                                parsedCost > parsedCalculatedPayment ? "text-red-500" : "text-primary"
-                            }`}
+                            className={cn(
+                                {
+                                    "text-destructive": parsedCost > parsedCalculatedPayment,
+                                    "text-primary": parsedCost <= parsedCalculatedPayment,
+                                },
+                                "text-center",
+                            )}
                         >
                             Abschlag: {formattedCalculatedPayment} €
                         </p>
