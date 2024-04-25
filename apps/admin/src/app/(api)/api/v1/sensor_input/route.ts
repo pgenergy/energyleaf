@@ -83,7 +83,7 @@ export const POST = async (req: NextRequest) => {
                 return new NextResponse(
                     SensorDataResponse.toBinary({ statusMessage: "Token not found", status: 404 }),
                     {
-                        status: 404,
+                        status: 401,
                         headers: {
                             "Content-Type": "application/x-protobuf",
                         },
