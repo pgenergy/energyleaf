@@ -439,11 +439,9 @@ export async function createSensorToken(clientId: string) {
             };
         }
 
-        console.log(sensorData);
-
         const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
         if (tokenData.length > 0) {
-            trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
+            await trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
         }
 
         const code = nanoid(30);
@@ -523,7 +521,7 @@ export async function getSensorIdFromSensorToken(code: string) {
         const tokenDate = token.timestamp;
 
         if (!tokenDate) {
-            trx.delete(sensorToken).where(eq(sensorToken.sensorId, token.sensorId));
+            await trx.delete(sensorToken).where(eq(sensorToken.sensorId, token.sensorId));
             return {
                 error: "token/invalid",
                 sensorId: null,
@@ -533,7 +531,7 @@ export async function getSensorIdFromSensorToken(code: string) {
         // check if token is older than 1 hour
         const now = new Date(new Date().toUTCString());
         if (now.getTime() - tokenDate.getTime() > 3600000) {
-            trx.delete(sensorToken).where(eq(sensorToken.sensorId, token.sensorId));
+            await trx.delete(sensorToken).where(eq(sensorToken.sensorId, token.sensorId));
             return {
                 error: "token/invalid",
                 sensorId: null,
