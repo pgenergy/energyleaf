@@ -70,7 +70,7 @@ const WizardPage: React.FC<WizardPageProps> = ({ children, title, description })
 
     return (
         <div className="flex flex-col gap-4">
-            <h1 className="pb-3 text-center font-bold text-2xl">{title}</h1>
+            <h1 className="font-bold text-2xl">{title}</h1>
             {description && <p>{description}</p>}
             <div className="relative flex h-full w-full items-center justify-center">
                 <div className="w-full">{children}</div>
