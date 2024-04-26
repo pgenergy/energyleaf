@@ -1,11 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { isNoticeableEnergyConsumption } from "@/actions/energy-monitoring";
 import { env } from "@/env.mjs";
 import { getSensorsByUser, getAnomaliesByUser } from "@/query/sensor";
 import { getAllUsers } from "@/query/user";
 
-import type { ConsumptionData } from "@energyleaf/lib";
-import { AggregationType } from "@energyleaf/lib";
 import { sendAnomalyEmail } from "@energyleaf/mail";
 
 export const POST = async (req: NextRequest) => {
@@ -23,7 +20,7 @@ export const POST = async (req: NextRequest) => {
 
             const qqq = await getAnomaliesByUser(user.id, start, end);
 
-            if (qqq.length == 0) {
+            if (qqq.length === 0) {
                 continue;
             }
 
