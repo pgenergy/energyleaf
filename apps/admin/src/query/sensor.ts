@@ -14,6 +14,6 @@ export const getSensors: () => Promise<SensorSelectTypeWithUser[]> = cache(async
     return getSensorsWithUserDb();
 });
 
-export const getAnomaliesByUser = cache(async (id, start, end) => {
+export const getAnomaliesByUser = cache(async (id: string, start: Date, end: Date) => {
     return getAnomaliesByUserDb(id, start, end);
 });

@@ -650,7 +650,7 @@ export async function updateNeedsScript(sensorId: string, needsScript: boolean) 
         .where(eq(sensor.id, sensorId));
 }
 
-export async function calculateAnomaly(id, start, end) {
+export async function calculateAnomaly(id: string, start: Date, end: Date) {
     return db
         .select({
             avg: sql<number>`AVG(${sensorData.value})`,
@@ -658,11 +658,17 @@ export async function calculateAnomaly(id, start, end) {
             sensorId: sensorData.sensorId,
         })
         .from(sensorData)
+        .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
         .groupBy(sensorData.sensorId)
         .having(
-            gt(
-                sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value})})`,
-                sql<number>`2 * STD(${sensorData.value})`,
+            and(
+                eq(sensor.userId, id),
+                gt(sensorData.timestamp, start),
+                lt(sensorData.timestamp, end),
+                gt(
+                    sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value}))`,
+                    sql<number>`2 * STD(${sensorData.value})`,
+                ),
             ),
         );
 }
