@@ -33,7 +33,7 @@ export async function getEnergyForSensorInRange(
 
         return query.map((row, index) => ({
             ...row,
-            id: index === 0 ? '0' : nanoid(),
+            id: row.id,
             value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
             timestamp: row.timestamp.toISOString(),
         }));
@@ -79,7 +79,7 @@ export async function getEnergyForSensorInRange(
 
             const results = query.map((row, index) => ({
                 ...row,
-                id: index === 0 ? '0' : nanoid(),
+                id: index.toString(),
                 value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
             }));
     
