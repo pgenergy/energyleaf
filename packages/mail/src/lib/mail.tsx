@@ -100,16 +100,13 @@ export async function sendPasswordChangedEmail({ from, to, name, apiKey }: Passw
     return await sendMailByTemplate({ from, to, apiKey }, "Passwort geändert", PasswordChangedTemplate({ name }));
 }
 
-interface ReportMailOptions extends MailOptions {
-    unsubscribeLink: string;
-    reportProps: ReportProps;
-}
+type ReportMailOptions = MailOptions & ReportProps;
 
 export async function sendReport(options: ReportMailOptions) {
     return await sendMailByTemplate(
         options,
-        `Energieverbrauch-Bericht von ${options.reportProps.dateFrom}`,
-        ReportTemplate(options.reportProps),
+        `Energieverbrauch-Bericht von ${options.dateFrom}`,
+        ReportTemplate(options),
     );
 }
 

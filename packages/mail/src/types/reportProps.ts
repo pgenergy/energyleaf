@@ -41,6 +41,8 @@ interface ReportProps {
      * The values of the last report to compare with the new report
      */
     lastReport?: ReportProps;
+
+    unsubscribeLink: string;
 }
 
 export type { ReportProps, DayStatistics };

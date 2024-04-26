@@ -31,3 +31,21 @@ export function ButtonAlt({ href }: ButtonAltProps) {
         </Container>
     );
 }
+
+export function UnsubscribeText({ href }: ButtonAltProps) {
+    if (!href) {
+        return <></>;
+    }
+
+    return (
+        <Container className="flex flex-col gap-2 px-4 text-muted-foreground">
+            <Text className="text-xs">
+                Falls Sie keine weitere Benachrichtigungen erhalten wollen, können Sie sich{" "}
+                <Link className="text-primary" href={href}>
+                    hier
+                </Link>{" "}
+                abmelden.
+            </Text>
+        </Container>
+    );
+}

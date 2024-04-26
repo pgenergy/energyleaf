@@ -34,11 +34,10 @@ export async function createReportsAndSendMails() {
 
     for (const userReport of userReportData) {
         let reportProps: ReportProps;
-        let unsubscribeLink = "";
         try {
             reportProps = await createReportData(userReport);
             const unsubscribeToken = await createToken(userReport.userId, TokenType.Report);
-            unsubscribeLink = buildUnsubscribeReportsUrl({ env, token: unsubscribeToken });
+            reportProps.unsubscribeLink = buildUnsubscribeReportsUrl({ env, token: unsubscribeToken });
         } catch (e) {
             console.error(`Error creating report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
             continue;
@@ -46,7 +45,7 @@ export async function createReportsAndSendMails() {
 
         if (userReport.receiveMails) {
             try {
-                await sendReportMail(userReport, reportProps, unsubscribeLink);
+                await sendReportMail(userReport, reportProps);
                 sentReports++;
             } catch (e) {
                 console.error(
@@ -129,6 +128,7 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
             consumption: "1000 kWh",
         },
         lastReport: lastReport ?? undefined,
+        unsubscribeLink: ""
     };
 }
 
@@ -161,17 +161,16 @@ async function getDayStatistics(
     return await Promise.all(tasks);
 }
 
-export async function sendReportMail(userReport: UserReportData, reportProps: ReportProps, unsubscribeLink: string) {
+export async function sendReportMail(userReport: UserReportData, reportProps: ReportProps) {
     if (!userReport.email) {
         throw new Error(
             `No email address for User ${userReport.userName} (User-ID ${userReport.userId}) to send report to`,
         );
     }
     await sendReport({
+        ...reportProps,
         from: env.RESEND_API_MAIL,
         to: userReport.email,
-        unsubscribeLink,
         apiKey: env.RESEND_API_KEY,
-        reportProps,
     });
 }

@@ -2,7 +2,7 @@ import { Container, Head, Html, Img, Preview, Text } from "@react-email/componen
 import { BadgeEuroIcon, BarChart3, CircleSlash2, RadioReceiver, ReceiptEuroIcon, Zap } from "lucide-react";
 import React from "react";
 
-import { Footer, Header, Main } from "../components";
+import {Footer, Header, Main, UnsubscribeText} from "../components";
 import DayTile from "../components/dayTile";
 import Tile from "../components/tile";
 import type { ReportProps } from "../types/reportProps";
@@ -58,25 +58,10 @@ export default function ReportTemplate(props: ReportProps) {
                     </Tile>
 
                     <Tile visible={true} large={false} icon={<BarChart3 />} heading="Höchster Peak">
-                        props
-                    </Tile>
-
-                    <Tile visible={true} large={false} icon={<RadioReceiver />} heading="Größter Verbraucher">
-                        props
-                    </Tile>
-
-                    <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
-                        <Img className="pb-4" src={props.consumptionGraph1} alt="Verbrauch" />
-                    </Tile>
-
-                    <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
-                        <Img className="pb-4" src={props.consumptionGraph2} alt="Verbrauch" />
-                    </Tile>
-
-                    <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
-                        <Img className="pb-4" src={props.consumptionGraph3} alt="Verbrauch" />
+                        {props.highestPeak}
                     </Tile>
                 </div>
+                <UnsubscribeText href={props.unsubscribeLink} />
                 <Footer />
             </Main>
         </Html>
