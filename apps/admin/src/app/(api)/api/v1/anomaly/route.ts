@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env, getUrl } from "@/env.mjs";
 import { getAnomaliesByUser, getSensorsByUser } from "@/query/sensor";
 import { getAllUsers } from "@/query/user";
 import { type NextRequest, NextResponse } from "next/server";
@@ -29,7 +29,7 @@ export const POST = async (req: NextRequest) => {
                 from: env.RESEND_API_MAIL,
                 apiKey: env.RESEND_API_KEY,
                 unsubscribeLink: "",
-                link: "",
+                link: getUrl(env),
             });
         }
 

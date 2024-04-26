@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env, getUrl } from "@/env.mjs";
 import { ThemeProvider } from "@/hooks/theme-provider";
 import "@energyleaf/tailwindcss/global.css";
 import { Toaster } from "@energyleaf/ui/components/utils";
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         description,
         type: "website",
         locale: "de_DE",
-        url: env.VERCEL_URL || env.NEXTAUTH_URL || "http://localhost:3000",
+        url: getUrl(env),
     },
 };
 export const revalidate = 0;

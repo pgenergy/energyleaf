@@ -1,6 +1,6 @@
 "use server";
 
-import { env } from "@/env.mjs";
+import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import { onboardingCompleteCookieName } from "@/lib/constants";
@@ -79,7 +79,7 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
     }
 
     const token = await getResetPasswordToken({ userId: user.id, secret: env.NEXTAUTH_SECRET });
-    const resetUrl = buildResetPasswordUrl({ env, token });
+    const resetUrl = buildResetPasswordUrl({ baseUrl: getUrl(env), token });
 
     try {
         await sendPasswordResetEmail({
