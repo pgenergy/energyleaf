@@ -55,7 +55,7 @@ function InformationStep() {
 
     return (
         <WizardPage title="Onboarding">
-            <p>
+            <p className="text-sm">
                 Um die App in vollem Umfang nutzen zu können, sollten Sie die in den folgenden Schritten geforderten
                 Daten angeben. Sie können diese Angaben und Einstellungen später in Ihrem Profil aktualisieren.
             </p>

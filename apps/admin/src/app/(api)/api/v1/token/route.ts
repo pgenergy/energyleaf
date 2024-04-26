@@ -1,7 +1,7 @@
+import { NextResponse, type NextRequest } from "next/server";
 import { createSensorToken, getEnergyLastEntry, getSensorDataByClientId } from "@energyleaf/db/query";
 import { TokenRequest, TokenResponse } from "@energyleaf/proto";
 import { parseReadableStream } from "@energyleaf/proto/util";
-import { type NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;
@@ -66,8 +66,7 @@ export const POST = async (req: NextRequest) => {
                 },
             );
         } catch (err) {
-            // eslint-disable-next-line no-console -- we need to log the error in the production logs
-            console.error(err);
+            console.error(err, data);
             if ((err as unknown as Error).message === "sensor/not-found") {
                 return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
                     status: 404,
