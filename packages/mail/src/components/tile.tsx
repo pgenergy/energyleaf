@@ -5,7 +5,7 @@ interface Props {
     visible: boolean;
     icon: ReactElement | null;
     heading: string;
-    children: any;
+    children: ReactElement | string | number;
     large: boolean;
 }
 

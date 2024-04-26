@@ -2,7 +2,7 @@ import { Container, Head, Html, Img, Preview, Text } from "@react-email/componen
 import { BadgeEuroIcon, BarChart3, CircleSlash2, RadioReceiver, ReceiptEuroIcon, Zap } from "lucide-react";
 import React from "react";
 
-import {Footer, Header, Main, UnsubscribeText} from "../components";
+import { Footer, Header, Main, UnsubscribeText } from "../components";
 import DayTile from "../components/dayTile";
 import Tile from "../components/tile";
 import type { ReportProps } from "../types/reportProps";
@@ -34,7 +34,7 @@ export default function ReportTemplate(props: ReportProps) {
                         <div>
                             <div className="flex flex-row items-center justify-center">
                                 {props.totalEnergyConsumption}
-                                {" kwh"}
+                                {" kWh"}
                                 <span className="pl-1 font-normal">insgesamt</span>
                             </div>
                             <div className="flex flex-row items-center justify-center">
@@ -58,7 +58,11 @@ export default function ReportTemplate(props: ReportProps) {
                     </Tile>
 
                     <Tile visible={true} large={false} icon={<BarChart3 />} heading="Höchster Peak">
-                        {props.highestPeak}
+                        <>
+                            {props.highestPeak.deviceName}
+                            {props.highestPeak.dateTime}
+                            {props.highestPeak.consumption}
+                        </>
                     </Tile>
                 </div>
                 <UnsubscribeText href={props.unsubscribeLink} />

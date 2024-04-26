@@ -9,8 +9,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
+import { updateReportConfigSettings } from "@/actions/profile";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
-import {updateReportConfigSettings} from "@/actions/profile";
 
 interface Props {
     disabled?: boolean;
@@ -22,7 +22,6 @@ export default function MailSettingsForm({ initialValues, disabled }: Props) {
     const form = useForm<z.infer<typeof reportSettingsSchema>>({
         resolver: zodResolver(reportSettingsSchema),
         defaultValues: initialValues,
-        
     });
 
     function onSubmit(data: z.infer<typeof reportSettingsSchema>) {

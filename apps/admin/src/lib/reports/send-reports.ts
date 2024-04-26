@@ -128,7 +128,7 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
             consumption: "1000 kWh",
         },
         lastReport: lastReport ?? undefined,
-        unsubscribeLink: ""
+        unsubscribeLink: "",
     };
 }
 
