@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useCallback, useMemo } from "react";
 import { completeOnboarding } from "@/actions/onboarding";
 import { updateMailInformation, updateUserDataInformation, updateUserGoals } from "@/actions/profile";
 import DataFormFields from "@/components/profile/data-form-fields";
@@ -11,14 +10,14 @@ import {
     createUserDataSchemaFromUserDataSelectType,
 } from "@/lib/schema/conversion/profile";
 import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
+import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import { Button, Form, Wizard, WizardPage, useWizard } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRightIcon } from "lucide-react";
+import React, { useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-
-import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
-import { Button, Form, useWizard, Wizard, WizardPage } from "@energyleaf/ui";
 
 interface Props {
     userData: UserDataType;
@@ -56,13 +55,13 @@ function InformationStep() {
 
     return (
         <WizardPage title="Onboarding">
-            <p>
+            <p className="text-sm">
                 Um die App in vollem Umfang nutzen zu können, sollten Sie die in den folgenden Schritten geforderten
                 Daten angeben. Sie können diese Angaben und Einstellungen später in Ihrem Profil aktualisieren.
             </p>
             <div className="flex w-full justify-center pt-3">
                 <Button
-                    className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
+                    className="flex flex-row items-center justify-center gap-2 text-muted-foreground text-sm"
                     variant="ghost"
                     onClick={onSkip}
                 >

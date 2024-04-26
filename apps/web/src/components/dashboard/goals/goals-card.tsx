@@ -1,14 +1,13 @@
-import React from "react";
-import Link from "next/link";
-import { redirect } from "next/navigation";
 import GoalProgress from "@/components/dashboard/goals/goal-progress";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser } from "@/query/energy";
 import { getGoalStatus } from "@/query/goals";
 import type { GoalStatus } from "@/types/goals";
-import { ArrowRightIcon } from "lucide-react";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { ArrowRightIcon } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import React from "react";
 
 export default async function GoalsCard() {
     const { session, user } = await getSession();
@@ -26,7 +25,7 @@ export default async function GoalsCard() {
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
                 </CardContent>
             </Card>
         );
@@ -49,7 +48,7 @@ export default async function GoalsCard() {
                     </div>
                 ) : (
                     <Link
-                        className="flex flex-row items-center justify-center gap-2 text-sm text-muted-foreground"
+                        className="flex flex-row items-center justify-center gap-2 text-muted-foreground text-sm"
                         href="/profile"
                     >
                         Ziel im Profil festlegen

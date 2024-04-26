@@ -1,6 +1,5 @@
-import type { Metadata } from "next";
-
 import "@energyleaf/tailwindcss/global.css";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Energyleaf Admin",

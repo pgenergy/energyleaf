@@ -1,9 +1,8 @@
 "use client";
 
-import React, { PropsWithChildren, useContext, useMemo, useRef, useTransition } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { Handler, useWizard as useWiz, Wizard as Wiz } from "react-use-wizard";
-
+import React, { type PropsWithChildren, useContext, useMemo, useRef, useTransition } from "react";
+import { type Handler, Wizard as Wiz, useWizard as useWiz } from "react-use-wizard";
 import { Button } from "./button";
 import { Spinner } from "./spinner";
 
@@ -46,7 +45,7 @@ const Wizard: React.FC<WizardProps> = ({ children, finishHandler }) => {
             handleNextClick: handleNextClick.current,
             handleStep: handleStep.current,
         }),
-        [handleNextClick, handleStep],
+        [],
     );
 
     return (
@@ -71,12 +70,12 @@ const WizardPage: React.FC<WizardPageProps> = ({ children, title, description })
 
     return (
         <div className="flex flex-col gap-4">
-            <h1 className="pb-3 text-center text-2xl">{title}</h1>
+            <h1 className="font-bold text-2xl">{title}</h1>
             {description && <p>{description}</p>}
             <div className="relative flex h-full w-full items-center justify-center">
                 <div className="w-full">{children}</div>
                 {isLoading && (
-                    <div className="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center backdrop-blur-sm">
+                    <div className="absolute top-0 right-0 bottom-0 left-0 flex items-center justify-center backdrop-blur-sm">
                         <Spinner className="h-12 w-12" />
                     </div>
                 )}
@@ -93,7 +92,7 @@ interface WizardStepperProps {
 function WizardStepper({ nextClick, finishHandler }: WizardStepperProps) {
     const { nextStep, previousStep, isLoading, isFirstStep, isLastStep, activeStep, stepCount } = useWiz();
 
-    const continueButtonVariant = useMemo(() => (isLastStep ? "default" : "ghost"), [isLastStep]);
+    const continueButtonVariant = useMemo(() => (isLastStep ? "default" : "outline"), [isLastStep]);
 
     const [isFinishing, startTransition] = useTransition();
     const loading = useMemo(() => isLoading || isFinishing, [isLoading, isFinishing]);
@@ -123,20 +122,35 @@ function WizardStepper({ nextClick, finishHandler }: WizardStepperProps) {
     }
 
     return (
-        <div className="grid grid-cols-3 items-center">
-            <Button variant="ghost" onClick={onPreviousClick} disabled={isFirstStep || isLoading}>
-                <ArrowLeft />
+        <div className="grid grid-cols-3 items-center justify-center">
+            <Button variant="outline" onClick={onPreviousClick} disabled={isFirstStep || isLoading}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
                 Zurück
             </Button>
-            <p className="flex justify-center">
-                Schritt {activeStep + 1} von {stepCount}
-            </p>
+            <div className="flex flex-row items-center justify-center gap-2">
+                {[...Array(stepCount)].map((_, index) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    <WizardStepDot key={index} isActive={index === activeStep} />
+                ))}
+            </div>
             <Button variant={continueButtonVariant} onClick={onNextClick} disabled={loading}>
                 {isLastStep ? "Fertig" : "Weiter"}
-                <ArrowRight />
+                <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
         </div>
     );
+}
+
+interface WizardStepDotProps {
+    isActive: boolean;
+}
+
+function WizardStepDot({ isActive }: WizardStepDotProps) {
+    if (isActive) {
+        return <div className="h-2 w-2 rounded-full bg-primary" />;
+    }
+
+    return <div className="h-1 w-1 rounded-full bg-card-foreground" />;
 }
 
 export { Wizard, useWizard, WizardPage };

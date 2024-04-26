@@ -2,9 +2,6 @@
 
 import { removeUserFromSensor } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
-import { Edit2Icon, MinusIcon, MoreVerticalIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
-import { toast } from "sonner";
-
 import type { SensorSelectType } from "@energyleaf/db/types";
 import {
     Button,
@@ -15,6 +12,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
+import { Edit2Icon, MinusIcon, MoreVerticalIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
+import { toast } from "sonner";
 
 interface Props {
     sensor: SensorSelectType;

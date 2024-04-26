@@ -1,12 +1,11 @@
-import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/auth.server";
 import {
     getAvgEnergyConsumptionForSensor,
     getAvgEnergyConsumptionForUserInComparison,
     getElectricitySensorIdForUser,
 } from "@/query/energy";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { redirect } from "next/navigation";
 
 export default async function AvgEnergyConsumptionComparisonCard() {
     const { session, user } = await getSession();
@@ -26,7 +25,7 @@ export default async function AvgEnergyConsumptionComparisonCard() {
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center text-2xl font-bold text-primary">Keine Sensoren gefunden</h1>
+                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
                 </CardContent>
             </Card>
         );

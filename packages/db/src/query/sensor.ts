@@ -1,12 +1,10 @@
-import { and, between, desc, eq, lt, lte, or, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
-
 import { AggregationType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-
+import { and, between, desc, eq, lt, lte, or, sql } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
-import { SensorInsertType, SensorSelectTypeWithUser, SensorType } from "../types/types";
+import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 /**
  * Get the energy utils for a sensor in a given time range
@@ -270,55 +268,56 @@ export async function getElectricitySensorIdForUser(userId: string) {
  * Insert sensor data
  */
 export async function insertSensorData(data: { sensorId: string; value: number; sum: boolean }) {
-    try {
-        await db.transaction(async (trx) => {
-            const dbSensors = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
+    await db.transaction(async (trx) => {
+        const dbSensors = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
 
-            if (dbSensors.length === 0) {
-                throw new Error("Sensor not found");
-            }
-            const dbSensor = dbSensors[0];
+        if (dbSensors.length === 0) {
+            throw new Error("Sensor not found");
+        }
+        const dbSensor = dbSensors[0];
 
-            const lastEntries = await trx
-                .select()
-                .from(sensorData)
-                .where(eq(sensorData.sensorId, dbSensor.id))
-                .orderBy(desc(sensorData.timestamp))
-                .limit(1);
+        const lastEntries = await trx
+            .select()
+            .from(sensorData)
+            .where(eq(sensorData.sensorId, dbSensor.id))
+            .orderBy(desc(sensorData.timestamp))
+            .limit(1);
 
-            if (lastEntries.length === 0) {
-                const newValue = data.value;
-                if (newValue <= 0) {
-                    return;
-                }
-                await trx.insert(sensorData).values({
-                    sensorId: dbSensor.id,
-                    value: newValue,
-                    timestamp: sql<Date>`NOW()`,
-                });
+        if (lastEntries.length === 0) {
+            const newValue = data.value;
+            if (newValue <= 0) {
                 return;
             }
-            const lastEntry = lastEntries[0];
-
-            const newValue = data.sum ? data.value + lastEntry.value : data.value;
-            if (newValue <= 0 || newValue < lastEntry.value) {
-                return;
-            }
-
-            const timeDiff = new Date().getTime() - lastEntry.timestamp.getTime() / 1000;
-            if (newValue - lastEntry.value > timeDiff * 5) {
-                throw new Error("value/too-high");
-            }
-
             await trx.insert(sensorData).values({
                 sensorId: dbSensor.id,
                 value: newValue,
                 timestamp: sql<Date>`NOW()`,
             });
+            return;
+        }
+        const lastEntry = lastEntries[0];
+
+        const newValue = data.sum ? data.value + lastEntry.value : data.value;
+        if (newValue <= 0 || newValue < lastEntry.value) {
+            return;
+        }
+
+        // in this check we allow 0.4 kwh per minute
+        // so for 15 seconds which is currently the sensor rate we allow 0.1 kwh
+        // in an hour this would be 24 kwh
+        // this is a very high value and should never be reached
+        // but is hopefully a good protection against faulty sensors
+        const timeDiff = new Date(new Date().toUTCString()).getTime() - lastEntry.timestamp.getTime() / 1000 / 60;
+        if (newValue - lastEntry.value > timeDiff * 0.4) {
+            throw new Error("value/too-high");
+        }
+
+        await trx.insert(sensorData).values({
+            sensorId: dbSensor.id,
+            value: newValue,
+            timestamp: sql<Date>`NOW()`,
         });
-    } catch (err) {
-        throw err;
-    }
+    });
 }
 
 /**
@@ -363,7 +362,7 @@ export async function createSensor(createSensorType: CreateSensorType): Promise<
             id: nanoid(30),
             version: 1,
             script: createSensorType.script,
-            needsScript: createSensorType.script ? true : false,
+            needsScript: !!createSensorType.script,
         });
     });
 }
@@ -420,8 +419,7 @@ export async function createSensorToken(clientId: string) {
 
         const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
         if (tokenData.length > 0) {
-            const token = tokenData[0];
-            trx.delete(sensorToken).where(eq(sensorToken.code, token.code));
+            await trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
         }
 
         const code = nanoid(30);
@@ -501,7 +499,7 @@ export async function getSensorIdFromSensorToken(code: string) {
         const tokenDate = token.timestamp;
 
         if (!tokenDate) {
-            trx.delete(sensorToken).where(eq(sensorToken.code, code));
+            await trx.delete(sensorToken).where(eq(sensorToken.sensorId, token.sensorId));
             return {
                 error: "token/invalid",
                 sensorId: null,
@@ -509,9 +507,9 @@ export async function getSensorIdFromSensorToken(code: string) {
         }
 
         // check if token is older than 1 hour
-        const now = new Date();
+        const now = new Date(new Date().toUTCString());
         if (now.getTime() - tokenDate.getTime() > 3600000) {
-            trx.delete(sensorToken).where(eq(sensorToken.code, code));
+            await trx.delete(sensorToken).where(eq(sensorToken.sensorId, token.sensorId));
             return {
                 error: "token/invalid",
                 sensorId: null,

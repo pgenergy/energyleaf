@@ -1,12 +1,11 @@
 "use client";
 
-import type { MouseEvent } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { Button } from "@energyleaf/ui";
 import { track } from "@vercel/analytics";
 import { RotateCwIcon } from "lucide-react";
-
-import { Button } from "@energyleaf/ui";
+import Image from "next/image";
+import Link from "next/link";
+import type { MouseEvent } from "react";
 
 interface Props {
     error: Error & { digist?: string };
@@ -23,7 +22,7 @@ export default function ErrorPage({ reset }: Props) {
         <main className="flex h-screen w-screen flex-col items-center justify-center gap-4">
             <Link className="flex flex-row items-center gap-2" href="/">
                 <Image alt="logo" className="h-10 w-10" height={499} src="/image/logo/logo.png" width={499} />
-                <h1 className="text-2xl font-bold">Energyleaf</h1>
+                <h1 className="font-bold text-2xl">Energyleaf</h1>
             </Link>
             <h1 className="text-lg">Ein Fehler ist aufgetreten</h1>
             <Button

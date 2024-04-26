@@ -1,23 +1,21 @@
 "use server";
 
-import "server-only";
-
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { env } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import { onboardingCompleteCookieName } from "@/lib/constants";
 import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
-import * as jose from "jose";
-import type { Session } from "lucia";
-import { Argon2id, Bcrypt } from "oslo/password";
-import type { z } from "zod";
-
-import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
+import { type CreateUserType, createUser, getUserById, getUserByMail, updatePassword } from "@energyleaf/db/query";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
+import * as jose from "jose";
+import type { Session } from "lucia";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { Argon2id, Bcrypt } from "oslo/password";
+import "server-only";
+import type { z } from "zod";
 
 /**
  * Server action for creating a new account

@@ -1,10 +1,9 @@
-import { redirect } from "next/navigation";
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
 import { getSession } from "@/lib/auth/auth.server";
-import { AreaChartIcon, CpuIcon, HomeIcon, Users2Icon } from "lucide-react";
-
 import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
+import { AreaChartIcon, CpuIcon, HomeIcon, Users2Icon } from "lucide-react";
+import { redirect } from "next/navigation";
 
 interface Props {
     children: React.ReactNode;
@@ -56,7 +55,7 @@ export default async function SiteLayout({ children }: Props) {
                 title="Energyleaf Admin"
             />
             <Sidebar links={navLinks} />
-            <main className="ml-0 mt-14 px-8 py-8 md:ml-[13%]">{children}</main>
+            <main className="mt-14 ml-0 px-8 py-8 md:ml-[13%]">{children}</main>
         </>
     );
 }

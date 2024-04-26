@@ -1,10 +1,7 @@
 "use client";
 
-import { useTransition } from "react";
 import { resetUserPassword } from "@/actions/auth";
 import { useUserContext } from "@/hooks/user-hook";
-import { toast } from "sonner";
-
 import {
     AlertDialog,
     AlertDialogAction,
@@ -15,6 +12,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@energyleaf/ui";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
 export function UserResetPasswordDialog() {
     const [pending, startTransition] = useTransition();

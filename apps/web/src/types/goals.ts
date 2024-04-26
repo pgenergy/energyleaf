@@ -1,7 +1,7 @@
 export enum GoalState {
-    GOOD,
-    IN_DANGER,
-    EXCEEDED,
+    GOOD = 0,
+    IN_DANGER = 1,
+    EXCEEDED = 2,
 }
 
 export class GoalStatus {

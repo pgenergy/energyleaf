@@ -1,5 +1,5 @@
+import { Container, Hr, Link, Text } from "@react-email/components";
 import React from "react";
-import { Container, Hr, Img, Link, Text } from "@react-email/components";
 
 const baseUrl = "https://energyleaf.de";
 

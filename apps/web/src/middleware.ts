@@ -1,9 +1,7 @@
-import { cookies } from "next/headers";
-import { NextResponse, type NextRequest } from "next/server";
 import { onboardingCompleteCookieName } from "@/lib/constants";
-
-import { fulfills, Versions } from "@energyleaf/lib/versioning";
-
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import { cookies } from "next/headers";
+import { type NextRequest, NextResponse } from "next/server";
 import { getActionSession } from "./lib/auth/auth.action";
 
 const publicRoutes = ["/legal", "/privacy"];
@@ -20,7 +18,7 @@ export default async function middleware(req: NextRequest) {
     const { user } = await getActionSession();
     const loggedIn = Boolean(user);
     const path = req.nextUrl.pathname;
-    const onboardingComplete = cookies().get(onboardingCompleteCookieName)?.value === "true";
+    const onboardingComplete = cookies().get(onboardingCompleteCookieName)?.value === "true" || user?.id === "demo";
 
     if (loggedIn && path !== onboardingRoute && !onboardingComplete) {
         return NextResponse.redirect(new URL("/onboarding", req.url));

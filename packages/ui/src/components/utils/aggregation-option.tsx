@@ -17,10 +17,10 @@ const aggregationLabels = {
     [AggregationType.YEAR]: "Jahr",
 };
 
-export function AggregationOption({ selected, onSelectedChange: onChange, availableOptions }: Props) {
+export function AggregationOption({ selected, onSelectedChange, availableOptions }: Props) {
     return (
         <div className="flex flex-row justify-end gap-4">
-            <Select defaultValue={AggregationType.RAW} onValueChange={onChange} value={selected}>
+            <Select defaultValue={AggregationType.RAW} onValueChange={onSelectedChange} value={selected}>
                 <SelectTrigger>
                     <SelectValue placeholder="Granularität" />
                 </SelectTrigger>

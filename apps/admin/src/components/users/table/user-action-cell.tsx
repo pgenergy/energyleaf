@@ -1,22 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { resetUserPassword } from "@/actions/auth";
 import { setUserActive, setUserAdmin } from "@/actions/user";
 import { useUserContext } from "@/hooks/user-hook";
-import {
-    BanIcon,
-    CheckCircle2Icon,
-    InfoIcon,
-    KeyIcon,
-    MoreVerticalIcon,
-    TrashIcon,
-    UserMinusIcon,
-    UserPlusIcon,
-} from "lucide-react";
-import { toast } from "sonner";
-
 import type { UserSelectType } from "@energyleaf/db/types";
 import {
     Button,
@@ -27,6 +13,19 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
+import {
+    BanIcon,
+    CheckCircle2Icon,
+    InfoIcon,
+    KeyIcon,
+    MoreVerticalIcon,
+    TrashIcon,
+    UserMinusIcon,
+    UserPlusIcon,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
 interface Props {
     user: UserSelectType;
@@ -61,9 +60,9 @@ export default function UserActionCell({ user }: Props) {
     function toggleIsAdmin() {
         startTransition(() => {
             toast.promise(setUserAdmin(user.id, !user.isAdmin), {
-                loading: `User-Rechte werden aktualisiert...`,
-                success: `User-Rechte wurden erfolgreich aktualisiert.`,
-                error: `User-Rechte konnten aufgrund eines Fehlers nicht aktualisiert werden.`,
+                loading: "User-Rechte werden aktualisiert...",
+                success: "User-Rechte wurden erfolgreich aktualisiert.",
+                error: "User-Rechte konnten aufgrund eines Fehlers nicht aktualisiert werden.",
             });
         });
     }
@@ -71,9 +70,9 @@ export default function UserActionCell({ user }: Props) {
     function sendUserForgetPasswordEmail() {
         startTransition(() => {
             toast.promise(resetUserPassword(user.id), {
-                loading: `Passwort zurücksetzen Email wird gesendet...`,
-                success: `Passwort zurücksetzen Email wurde erfolgreich gesendet.`,
-                error: `Passwort zurücksetzen Email konnte aufgrund eines Fehlers nicht gesendet werden.`,
+                loading: "Passwort zurücksetzen Email wird gesendet...",
+                success: "Passwort zurücksetzen Email wurde erfolgreich gesendet.",
+                error: "Passwort zurücksetzen Email konnte aufgrund eines Fehlers nicht gesendet werden.",
             });
         });
     }

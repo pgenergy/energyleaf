@@ -3,11 +3,6 @@
 import { insertSensorValue } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
 import { addSensorValueSchema } from "@/lib/schema/sensor";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import {
     Button,
     Dialog,
@@ -23,6 +18,10 @@ import {
     FormMessage,
     Input,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 export default function SensorAddValueDialog() {
     const sensorContext = useSensorContext();

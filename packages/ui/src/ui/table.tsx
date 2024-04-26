@@ -1,6 +1,5 @@
-import * as React from "react";
-
 import { cn } from "@energyleaf/tailwindcss/utils";
+import * as React from "react";
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
     ({ className, ...props }, ref) => (
@@ -33,7 +32,7 @@ TableFooter.displayName = "TableFooter";
 const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(
     ({ className, ...props }, ref) => (
         <tr
-            className={cn("border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted", className)}
+            className={cn("border-b transition-colors data-[state=selected]:bg-muted hover:bg-muted/50", className)}
             ref={ref}
             {...props}
         />
@@ -64,7 +63,7 @@ TableCell.displayName = "TableCell";
 
 const TableCaption = React.forwardRef<HTMLTableCaptionElement, React.HTMLAttributes<HTMLTableCaptionElement>>(
     ({ className, ...props }, ref) => (
-        <caption className={cn("mt-4 text-sm text-muted-foreground", className)} ref={ref} {...props} />
+        <caption className={cn("mt-4 text-muted-foreground text-sm", className)} ref={ref} {...props} />
     ),
 );
 TableCaption.displayName = "TableCaption";

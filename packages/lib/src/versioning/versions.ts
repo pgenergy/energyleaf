@@ -1,7 +1,7 @@
 enum Versions {
-    transparency,
-    self_reflection,
-    support,
+    transparency = 0,
+    self_reflection = 1,
+    support = 2,
 }
 
 function fulfills(version: number | Versions, required: Versions | number) {
