@@ -1,5 +1,4 @@
 import { Container, Head, Html, Preview, Text } from "@react-email/components";
-
 import { Footer, Header, Main } from "../components";
 
 interface Props {

@@ -1,12 +1,8 @@
 {
-    "eslint.workingDirectories": [
-        {
-            "mode": "auto"
-        }
-    ],
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit"
+        "quickfix.biome": "explicit",
+        "source.organizeImports.biome": "explicit"
     },
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
 }

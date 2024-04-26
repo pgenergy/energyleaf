@@ -1,8 +1,7 @@
-import { NextResponse, type NextRequest } from "next/server";
-
 import { getSensorIdFromSensorToken, insertSensorData } from "@energyleaf/db/query";
 import { SensorDataRequest, SensorDataResponse, SensorType } from "@energyleaf/proto";
 import { parseReadableStream } from "@energyleaf/proto/util";
+import { type NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;
@@ -37,6 +36,7 @@ export const POST = async (req: NextRequest) => {
             try {
                 await insertSensorData({ sensorId, value: data.value, sum: needsSum });
             } catch (e) {
+                console.error(e, data);
                 if ((e as unknown as Error).message === "value/too-high") {
                     return new NextResponse(
                         SensorDataResponse.toBinary({ statusMessage: "Value too high", status: 400 }),
@@ -57,8 +57,7 @@ export const POST = async (req: NextRequest) => {
                 },
             });
         } catch (e) {
-            // eslint-disable-next-line no-console -- we need to log the error in the production logs
-            console.error(e);
+            console.error(e, data);
             if ((e as unknown as Error).message === "token/expired") {
                 return new NextResponse(SensorDataResponse.toBinary({ statusMessage: "Token expired", status: 401 }), {
                     status: 401,
@@ -79,9 +78,9 @@ export const POST = async (req: NextRequest) => {
 
             if ((e as unknown as Error).message === "token/not-found") {
                 return new NextResponse(
-                    SensorDataResponse.toBinary({ statusMessage: "Token not found", status: 404 }),
+                    SensorDataResponse.toBinary({ statusMessage: "Token not found", status: 401 }),
                     {
-                        status: 404,
+                        status: 401,
                         headers: {
                             "Content-Type": "application/x-protobuf",
                         },
@@ -109,7 +108,6 @@ export const POST = async (req: NextRequest) => {
             });
         }
     } catch (err) {
-        // eslint-disable-next-line no-console -- we need to log the error in the production logs
         console.error(err);
         return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "Invalid data" }), {
             status: 400,

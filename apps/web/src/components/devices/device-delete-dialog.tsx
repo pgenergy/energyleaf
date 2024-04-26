@@ -1,11 +1,7 @@
 "use client";
 
-import { useTransition } from "react";
 import { deleteDevice } from "@/actions/device";
 import { useDeviceContext } from "@/hooks/device-hook";
-import { track } from "@vercel/analytics";
-import { toast } from "sonner";
-
 import {
     AlertDialog,
     AlertDialogAction,
@@ -17,6 +13,9 @@ import {
     AlertDialogTitle,
     buttonVariants,
 } from "@energyleaf/ui";
+import { track } from "@vercel/analytics";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
 export function DeviceDeleteDialog() {
     const deviceContext = useDeviceContext();

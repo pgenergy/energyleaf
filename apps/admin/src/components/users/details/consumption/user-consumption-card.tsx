@@ -1,14 +1,12 @@
 "use client";
 
-import React from "react";
 import ErrorCard from "@/components/error/error-card";
 import UserConsumptionAggregationOption from "@/components/users/details/consumption/user-consumption-aggregation-option";
 import UserConsumptionCardContent from "@/components/users/details/consumption/user-consumption-card-content";
 import UserConsumptionDateRange from "@/components/users/details/consumption/user-consumption-date-range";
-import type { FallbackProps } from "react-error-boundary";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
-
+import React from "react";
+import type { FallbackProps } from "react-error-boundary";
 import ConsumptionChartZoomReset from "./consumption-chart-zoom-reset";
 
 interface Props {

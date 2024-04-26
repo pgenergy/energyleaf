@@ -1,3 +1,4 @@
+import { Versions } from "@energyleaf/lib/versioning";
 import { sql } from "drizzle-orm";
 import {
     boolean,
@@ -11,8 +12,6 @@ import {
     varchar,
 } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
-
-import { Versions } from "@energyleaf/lib/versioning";
 
 export const user = mysqlTable("user", {
     id: varchar("id", { length: 30 })
@@ -32,9 +31,7 @@ export const user = mysqlTable("user", {
 export const userData = mysqlTable("user_data", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: varchar("user_id", { length: 30 }).notNull(),
-    timestamp: timestamp("timestamp")
-        .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
+    timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
     basePrice: float("base_price"),
     workingPrice: float("working_price"),
     tariff: mysqlEnum("tariff", ["basic", "eco"]).default("basic"),
@@ -55,9 +52,7 @@ export const session = mysqlTable("session", {
 export const historyUserData = mysqlTable("history_user_data", {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: varchar("user_id", { length: 30 }).notNull(),
-    timestamp: timestamp("timestamp")
-        .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
+    timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
     basePrice: float("base_price"),
     workingPrice: float("working_price"),
     tariff: mysqlEnum("tariff", ["basic", "eco"]).default("basic"),
@@ -75,12 +70,8 @@ export const reports = mysqlTable("reports", {
     receiveMails: boolean("receive_mails").default(true).notNull(),
     interval: int("interval").default(3).notNull(),
     time: int("time").default(6).notNull(),
-    timestampLast: timestamp("timestamp_last")
-        .default(sql`'2020-01-01 00:00:00'`)
-        .notNull(),
-    createdTimestamp: timestamp("created_timestamp")
-        .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
+    timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
+    createdTimestamp: timestamp("created_timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const historyReports = mysqlTable("history_reports", {
@@ -89,10 +80,6 @@ export const historyReports = mysqlTable("history_reports", {
     receiveMails: boolean("receive_mails").default(true).notNull(),
     interval: int("interval").default(3).notNull(),
     time: int("time").default(6).notNull(),
-    timestampLast: timestamp("timestamp_last")
-        .default(sql`'2020-01-01 00:00:00'`)
-        .notNull(),
-    createdTimestamp: timestamp("created_timestamp")
-        .default(sql`CURRENT_TIMESTAMP`)
-        .notNull(),
+    timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
+    createdTimestamp: timestamp("created_timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });

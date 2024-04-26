@@ -1,7 +1,7 @@
 import { Container, Head, Html, Preview, Text } from "@react-email/components";
 
 import { ButtonAltText, CustomButton, Footer, Header, Main, UnsubscribeText } from "../components";
-import AnomalyProps from "../types/AnomalyProps";
+import type AnomalyProps from "../types/AnomalyProps";
 
 export default function AnomalyDetectedTemplate({ name, link, unsubscribeLink }: AnomalyProps) {
     return (

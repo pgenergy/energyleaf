@@ -1,7 +1,5 @@
 import { cache } from "react";
-
-import { getActionSession } from "./auth.action";
-
 import "server-only";
+import { getActionSession } from "./auth.action";
 
 export const getSession = cache(async () => getActionSession());

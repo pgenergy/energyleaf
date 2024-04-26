@@ -1,7 +1,7 @@
-import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/env.mjs";
-import { getSensorsByUser, getAnomaliesByUser } from "@/query/sensor";
+import { getAnomaliesByUser, getSensorsByUser } from "@/query/sensor";
 import { getAllUsers } from "@/query/user";
+import { type NextRequest, NextResponse } from "next/server";
 
 import { sendAnomalyEmail } from "@energyleaf/mail";
 
@@ -17,7 +17,6 @@ export const POST = async (req: NextRequest) => {
     try {
         const users = await getAllUsers();
         for (const user of users) {
-
             const qqq = await getAnomaliesByUser(user.id, start, end);
 
             if (qqq.length === 0) {

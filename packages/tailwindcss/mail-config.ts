@@ -73,8 +73,8 @@ const config = {
                 },
             },
             borderRadius: {
-                lg: `0.75rem`,
-                md: `calc(0.75rem - 2px)`,
+                lg: "0.75rem",
+                md: "calc(0.75rem - 2px)",
                 sm: "calc(0.75rem - 4px)",
             },
             fontFamily: {

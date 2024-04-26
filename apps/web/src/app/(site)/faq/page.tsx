@@ -41,7 +41,7 @@ export default function FaqPage() {
                                 <a
                                     className="text-primary hover:underline"
                                     href="https://www.stromspar-check.de"
-                                    rel="noopener"
+                                    rel="noopener noreferrer"
                                     target="_blank"
                                 >
                                     https://www.stromspar-check.de
@@ -55,7 +55,7 @@ export default function FaqPage() {
                                 <a
                                     className="text-primary hover:underline"
                                     href="https://www.bundesregierung.de/breg-de/themen/entlastung-fuer-deutschland"
-                                    rel="noopener"
+                                    rel="noopener noreferrer"
                                     target="_blank"
                                 >
                                     https://www.bundesregierung.de/breg-de/themen/entlastung-fuer-deutschland
@@ -72,7 +72,7 @@ export default function FaqPage() {
                                 <a
                                     className="text-primary hover:underline"
                                     href="https://www.awattar.de"
-                                    rel="noopener"
+                                    rel="noreferrer noopener"
                                     target="_blank"
                                 >
                                     https://www.awattar.de
@@ -88,7 +88,7 @@ export default function FaqPage() {
                                 <a
                                     className="text-primary hover:underline"
                                     href="https://www.stromgedacht.de"
-                                    rel="noopener"
+                                    rel="noreferrer noopener"
                                     target="_blank"
                                 >
                                     https://www.stromgedacht.de

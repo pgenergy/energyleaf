@@ -1,14 +1,12 @@
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- This is a React file
-import * as React from "react";
+import type * as React from "react";
 import { Resend } from "resend";
-
 import AccountActivatedTemplate from "../templates/account-activated";
 import AccountCreatedTemplate from "../templates/account-created";
 import AnomalyDetectedTemplate from "../templates/anomaly-detected";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
-import AnomalyProps from "../types/AnomalyProps";
+import type AnomalyProps from "../types/AnomalyProps";
 
 interface MailOptions {
     apiKey: string;

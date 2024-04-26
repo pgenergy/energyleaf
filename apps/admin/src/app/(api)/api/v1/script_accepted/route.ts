@@ -1,9 +1,8 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-
 import { getSensorIdFromSensorToken, updateNeedsScript } from "@energyleaf/db/query";
 import { ScriptAcceptedRequest, ScriptAcceptedResponse } from "@energyleaf/proto";
 import { parseReadableStream } from "@energyleaf/proto/util";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;

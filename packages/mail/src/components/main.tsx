@@ -1,5 +1,5 @@
-import { ReactElement } from "react";
 import { Body, Container, Tailwind } from "@react-email/components";
+import type { ReactElement } from "react";
 
 import config from "@energyleaf/tailwindcss/mail-config";
 

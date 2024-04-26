@@ -1,13 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { signOutAction, signOutDemoAction } from "@/actions/auth";
-import type { User } from "lucia";
-import { LightbulbIcon, LogOutIcon, User2Icon } from "lucide-react";
-import { toast } from "sonner";
-
 import {
     Avatar,
     AvatarFallback,
@@ -18,6 +11,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
+import type { User } from "lucia";
+import { LightbulbIcon, LogOutIcon, User2Icon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
 interface Props {
     user: User;
@@ -63,7 +62,7 @@ export default function NavbarAvatar({ user }: Props) {
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel className="flex flex-col gap-1">
                     <p className="font-medium">Konto</p>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    <p className="text-muted-foreground text-sm">{user.email}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild className="cursor-pointer">

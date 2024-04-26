@@ -1,14 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
 import { updateUserState } from "@/actions/user";
 import { userStateSchema } from "@/lib/schema/user";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
-import { stringify, Versions } from "@energyleaf/lib/versioning";
+import { Versions, stringify } from "@energyleaf/lib/versioning";
 import {
     Button,
     Form,
@@ -26,6 +20,11 @@ import {
     Spinner,
     Switch,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     initialValues: z.infer<typeof userStateSchema>;
@@ -104,7 +103,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {Object.keys(Versions)
-                                            .filter((key) => isNaN(Number(key)))
+                                            .filter((key) => Number.isNaN(Number(key)))
                                             .map((key) => {
                                                 const appVersion = Versions[key] as Versions;
                                                 return (
