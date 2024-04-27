@@ -81,6 +81,15 @@ export const POST = async (req: NextRequest) => {
                 });
             }
 
+            if ((err as unknown as Error).message === "sensor/no-user") {
+                return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor without user", status: 404 }), {
+                    status: 404,
+                    headers: {
+                        "Content-Type": "application/x-protobuf",
+                    },
+                });
+            }
+
             return new NextResponse(TokenResponse.toBinary({ statusMessage: "Database error", status: 500 }), {
                 status: 500,
                 headers: {
