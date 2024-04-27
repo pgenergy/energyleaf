@@ -19,6 +19,8 @@ export const POST = async (req: NextRequest) => {
         const binaryData = await parseReadableStream(body);
         const data = TokenRequest.fromBinary(binaryData);
 
+        console.info(data);
+
         try {
             const code = await createSensorToken(data.clientId);
             const sensorData = await getSensorDataByClientId(data.clientId);
@@ -67,7 +69,11 @@ export const POST = async (req: NextRequest) => {
             );
         } catch (err) {
             console.error(err, data);
-            if ((err as unknown as Error).message === "sensor/not-found") {
+
+            if (
+                (err as unknown as Error).message === "sensor/not-found" ||
+                (err as unknown as Error).message === "sensor/no-user"
+            ) {
                 return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
                     status: 404,
                     headers: {

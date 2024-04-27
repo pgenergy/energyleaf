@@ -438,6 +438,13 @@ export async function createSensorToken(clientId: string) {
             };
         }
 
+        if (!sensorData[0].userId) {
+            return {
+                error: "sensor/no-user",
+                code: null,
+            };
+        }
+
         const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
         if (tokenData.length > 0) {
             await trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
@@ -541,6 +548,13 @@ export async function getSensorIdFromSensorToken(code: string) {
         if (sensorData.length === 0) {
             return {
                 error: "sensor/not-found",
+                sensorId: null,
+            };
+        }
+
+        if (!sensorData[0].userId) {
+            return {
+                error: "sensor/no-user",
                 sensorId: null,
             };
         }
