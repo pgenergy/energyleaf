@@ -20,6 +20,9 @@ export const POST = async (req: NextRequest) => {
         const binaryData = await parseReadableStream(body);
         const data = TokenRequest.fromBinary(binaryData);
 
+        // eslint-disable-next-line no-console -- we need to log the error in the production logs
+        console.info(data);
+
         try {
             const code = await createSensorToken(data.clientId);
             const sensorData = await getSensorDataByClientId(data.clientId);
