@@ -6,10 +6,10 @@ import {
     assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
     deleteSensor as deleteSensorDb,
-    resetSensorUser,
     getElectricitySensorIdForUser,
     getEnergyForSensorInRange,
     insertRawSensorValue,
+    resetSensorUser,
     sensorExists,
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
