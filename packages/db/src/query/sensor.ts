@@ -553,6 +553,13 @@ export async function getSensorIdFromSensorToken(code: string) {
             };
         }
 
+        if (!sensorData[0].userId) {
+            return {
+                error: "sensor/no-user",
+                sensorId: null,
+            };
+        }
+
         return {
             error: null,
             sensorId: sensorData[0].id,
