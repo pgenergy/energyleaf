@@ -108,9 +108,11 @@ export const POST = async (req: NextRequest) => {
 
             if ((e as unknown as Error).message === "sensor/no-user") {
                 return new NextResponse(
-                    SensorDataResponse.toBinary({ statusMessage: "Sensor without user", status: 401 }),
+                    // we purposefully return a 404 with sensor not found, because it imetates the same behavior
+                    // as if the sensor was not found on the sensor
+                    SensorDataResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }),
                     {
-                        status: 401,
+                        status: 404,
                         headers: {
                             "Content-Type": "application/x-protobuf",
                         },
