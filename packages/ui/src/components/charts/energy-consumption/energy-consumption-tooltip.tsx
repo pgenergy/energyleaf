@@ -25,9 +25,9 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
     const formattedTimestamp = useMemo(() => {
         if (!data?.timestamp) return "Datum fehlt";
         const date = new Date(data.timestamp);
-        if (isNaN(date.getTime())) {
+        if (Number.isNaN(date.getTime())) {
             return "Ungültiges Datum";
-        }
+        }        
         const formatOptions = {
             [AggregationType.RAW]: "dd.MM.yyyy HH:mm",
             [AggregationType.HOUR]: "HH 'Uhr'",

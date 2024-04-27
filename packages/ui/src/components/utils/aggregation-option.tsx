@@ -18,6 +18,8 @@ const aggregationLabels = {
 };
 
 export function AggregationOption({ selected, onSelectedChange, availableOptions }: Props) {
+    const filteredOptions = Object.values(AggregationType).filter(type => availableOptions.includes(type));
+
     return (
         <div className="flex flex-row justify-end gap-4">
             <Select defaultValue={AggregationType.RAW} onValueChange={onSelectedChange} value={selected}>
@@ -25,13 +27,11 @@ export function AggregationOption({ selected, onSelectedChange, availableOptions
                     <SelectValue placeholder="Granularität" />
                 </SelectTrigger>
                 <SelectContent>
-                    {Object.values(AggregationType).map((type) =>
-                        availableOptions.includes(type) ? (
-                            <SelectItem key={type} value={type}>
-                                {aggregationLabels[type]}
-                            </SelectItem>
-                        ) : null
-                    )}
+                    {filteredOptions.map((type) => (
+                        <SelectItem key={type} value={type}>
+                            {aggregationLabels[type]}
+                        </SelectItem>
+                    ))}
                 </SelectContent>
             </Select>
         </div>

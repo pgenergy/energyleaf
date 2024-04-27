@@ -37,54 +37,54 @@ export async function getEnergyForSensorInRange(
             value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
             timestamp: row.timestamp.toISOString(),
         }));
-    } else {
-        let dateFormat: string;
-        switch (aggregation) {
-            case AggregationType.HOUR:
-                dateFormat = "%Y-%m-%dT%H:00:00Z";
-                break;
-            case AggregationType.DAY:
-                dateFormat = "%Y-%m-%dT00:00:00Z";
-                break;
-            case AggregationType.WEEK:
-                dateFormat = "%X-W%V";
-                break;
-            case AggregationType.MONTH:
-                dateFormat = "%Y-%m-01T00:00:00Z";
-                break;
-            case AggregationType.YEAR:
-                dateFormat = "%Y-01-01T00:00:00Z";
-                break;
-            default:
-                throw new Error(`Unsupported aggregation type: ${aggregation}`);
-        }
-
-        const formattedTimestamp = sql`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
-
-        const query = await db
-            .select({
-                sensorId: sensorData.sensorId,
-                value: sql`AVG(${sensorData.value})`,
-                timestamp: formattedTimestamp,
-            })
-            .from(sensorData)
-            .where(
-                and(
-                    eq(sensorData.sensorId, sensorId),
-                    between(sensorData.timestamp, start, end),
-                ),
-            )
-            .groupBy(formattedTimestamp)
-            .orderBy(formattedTimestamp);
-
-            const results = query.map((row, index) => ({
-                ...row,
-                id: index.toString(),
-                value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-            }));
-    
-            return results.slice(1);
     }
+
+    let dateFormat: string;
+    switch (aggregation) {
+        case AggregationType.HOUR:
+            dateFormat = "%Y-%m-%dT%H:00:00Z";
+            break;
+        case AggregationType.DAY:
+            dateFormat = "%Y-%m-%dT00:00:00Z";
+            break;
+        case AggregationType.WEEK:
+            dateFormat = "%X-W%V";
+            break;
+        case AggregationType.MONTH:
+            dateFormat = "%Y-%m-01T00:00:00Z";
+            break;
+        case AggregationType.YEAR:
+            dateFormat = "%Y-01-01T00:00:00Z";
+            break;
+        default:
+            throw new Error(`Unsupported aggregation type: ${aggregation}`);
+    }
+
+    const formattedTimestamp = sql`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
+
+    const query = await db
+        .select({
+            sensorId: sensorData.sensorId,
+            value: sql`AVG(${sensorData.value})`,
+            timestamp: formattedTimestamp,
+        })
+        .from(sensorData)
+        .where(
+            and(
+                eq(sensorData.sensorId, sensorId),
+                between(sensorData.timestamp, start, end),
+            ),
+        )
+        .groupBy(formattedTimestamp)
+        .orderBy(formattedTimestamp);
+
+    const results = query.map((row, index) => ({
+        ...row,
+        id: index.toString(),
+        value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
+    }));
+
+    return results.slice(1);
 }
 
 export async function getEnergyLastEntry(sensorId: string) {
