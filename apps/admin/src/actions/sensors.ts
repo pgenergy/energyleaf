@@ -6,7 +6,7 @@ import {
     assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
     deleteSensor as deleteSensorDb,
-    deleteUserFromSensor,
+    resetSensorUser,
     getElectricitySensorIdForUser,
     getEnergyForSensorInRange,
     insertRawSensorValue,
@@ -85,11 +85,11 @@ export async function assignUserToSensor(data: z.infer<typeof assignUserToSensor
     }
 }
 
-export async function removeUserFromSensor(clientId: string) {
+export async function resetUserFromSensor(clientId: string) {
     await checkIfAdmin();
 
     try {
-        await deleteUserFromSensor(clientId);
+        await resetSensorUser(clientId);
         revalidatePath("/sensors");
     } catch (err) {
         throw new Error("Error while removing user from sensor");

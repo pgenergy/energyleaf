@@ -1,6 +1,6 @@
 "use client";
 
-import { removeUserFromSensor } from "@/actions/sensors";
+import { resetUserFromSensor } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
 import type { SensorSelectType } from "@energyleaf/db/types";
 import {
@@ -38,7 +38,7 @@ export default function SensorActionCell({ sensor }: Props) {
     }
 
     function removeUser() {
-        toast.promise(removeUserFromSensor(sensor.clientId), {
+        toast.promise(resetUserFromSensor(sensor.clientId), {
             loading: "Nutzer wird entfernt...",
             success: "Nutzer wurde entfernt",
             error: "Fehler beim Entfernen des Nutzers",
@@ -66,7 +66,7 @@ export default function SensorActionCell({ sensor }: Props) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="flex cursor-pointer flex-row gap-2" onClick={removeUser}>
                     <MinusIcon className="h-4 w-4" />
-                    Nutzer entfernen
+                    Nutzer reset
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

@@ -628,8 +628,17 @@ export async function assignSensorToUser(clientId: string, userId: string | null
 /**
  * Delete the current user from the sensor without inserting it in sensorHistory
  */
-export async function deleteUserFromSensor(clientId: string) {
-    await db.update(sensor).set({ userId: null }).where(eq(sensor.clientId, clientId));
+export async function resetSensorUser(clientId: string) {
+    await db.transaction(async (trx) => {
+        const sensors = await trx.select({ id: sensor.id }).from(sensor).where(eq(sensor.clientId, clientId));
+        if (sensors.length === 0) {
+            return;
+        }
+
+        await trx.update(sensor).set({ userId: null }).where(eq(sensor.clientId, clientId));
+        await trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensors[0].id));
+        await trx.delete(sensorData).where(eq(sensorData.sensorId, sensors[0].id));
+    });
 }
 
 /**
