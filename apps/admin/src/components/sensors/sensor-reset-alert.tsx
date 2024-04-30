@@ -11,7 +11,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@energyleaf/ui";
-import { useTransition, type MouseEvent } from "react";
+import { type MouseEvent, useTransition } from "react";
 import { toast } from "sonner";
 
 export default function SensorResetAlert() {

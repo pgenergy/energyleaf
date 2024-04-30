@@ -5,11 +5,11 @@ import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import {
     assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
+    resetSensorValues as dbResetSensorValues,
     deleteSensor as deleteSensorDb,
     getElectricitySensorIdForUser,
     getEnergyForSensorInRange,
     insertRawSensorValue,
-    resetSensorValues as dbResetSensorValues,
     sensorExists,
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
