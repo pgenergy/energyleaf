@@ -66,7 +66,7 @@ export default function SensorActionCell({ sensor }: Props) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="flex cursor-pointer flex-row gap-2" onClick={removeUser}>
                     <MinusIcon className="h-4 w-4" />
-                    Nutzer reset
+                    Nutzer zurücksetzen
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
