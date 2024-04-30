@@ -9,7 +9,7 @@ import {
     getElectricitySensorIdForUser,
     getEnergyForSensorInRange,
     insertRawSensorValue,
-    resetSensorUser,
+    resetSensorValues as dbResetSensorValues,
     sensorExists,
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
@@ -85,11 +85,11 @@ export async function assignUserToSensor(data: z.infer<typeof assignUserToSensor
     }
 }
 
-export async function resetUserFromSensor(clientId: string) {
+export async function resetSensorValues(clientId: string) {
     await checkIfAdmin();
 
     try {
-        await resetSensorUser(clientId);
+        await dbResetSensorValues(clientId);
         revalidatePath("/sensors");
     } catch (err) {
         throw new Error("Error while removing user from sensor");
