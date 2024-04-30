@@ -134,7 +134,7 @@ export async function getEnergySumForSensorInRange(start: Date, end: Date, senso
             .orderBy(desc(sensorData.timestamp))
             .limit(1);
 
-        let valueBeforeStart;
+        let valueBeforeStart: number;
         if (latestEntryBeforeStart.length > 0) {
             valueBeforeStart = latestEntryBeforeStart[0].value;
         } else {
