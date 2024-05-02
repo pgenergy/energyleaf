@@ -51,7 +51,7 @@ export default function SensorResetAlert() {
             <AlertDialogHeader>
                 <AlertDialogTitle>Sensor zurücksetzen</AlertDialogTitle>
                 <AlertDialogDescription>
-                    Diese Aktion entfernt alle Werte die diesem Sensor zugeordnet sind. Das beinhaltet alle Token,
+                    Diese Aktion entfernt alle Werte, die diesem Sensor zugeordnet sind. Das beinhaltet alle Token,
                     Werte, Skripte sowie der aktuell Nutzer.
                 </AlertDialogDescription>
             </AlertDialogHeader>
