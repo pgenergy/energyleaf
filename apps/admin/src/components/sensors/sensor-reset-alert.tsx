@@ -33,7 +33,7 @@ export default function SensorResetAlert() {
                     sensorContext.setSensor(undefined);
                     return "Sensor wurde zurückgesetzt";
                 },
-                error: "Fehler beim zurücksetzen des Sensors",
+                error: "Fehler beim Zurücksetzen des Sensors",
             });
         });
     }
