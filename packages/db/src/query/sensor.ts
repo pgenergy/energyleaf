@@ -1,6 +1,6 @@
 import { AggregationType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, between, desc, eq, gte, lt, lte, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, gt, gte, lt, lte, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
@@ -673,4 +673,27 @@ export async function updateNeedsScript(sensorId: string, needsScript: boolean) 
             needsScript,
         })
         .where(eq(sensor.id, sensorId));
+}
+
+export async function calculateAnomaly(id: string, start: Date, end: Date) {
+    return db
+        .select({
+            avg: sql<number>`AVG(${sensorData.value})`,
+            std: sql<number>`STD(${sensorData.value})`,
+            sensorId: sensorData.sensorId,
+        })
+        .from(sensorData)
+        .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
+        .groupBy(sensorData.sensorId)
+        .having(
+            and(
+                eq(sensor.userId, id),
+                gt(sensorData.timestamp, start),
+                lt(sensorData.timestamp, end),
+                gt(
+                    sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value}))`,
+                    sql<number>`2 * STD(${sensorData.value})`,
+                ),
+            ),
+        );
 }

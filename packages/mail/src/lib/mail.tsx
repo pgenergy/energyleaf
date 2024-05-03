@@ -2,9 +2,11 @@ import type * as React from "react";
 import { Resend } from "resend";
 import AccountActivatedTemplate from "../templates/account-activated";
 import AccountCreatedTemplate from "../templates/account-created";
+import AnomalyDetectedTemplate from "../templates/anomaly-detected";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
+import type AnomalyProps from "../types/AnomalyProps";
 
 interface MailOptions {
     apiKey: string;
@@ -77,7 +79,7 @@ async function sendPasswordResetMailByTemplate({ from, to, apiKey }: MailOptions
     return resp.data?.id;
 }
 
-type PasswordChangedMailOptions = MailOptions & { to: string; name: string };
+type PasswordChangedMailOptions = MailOptions & { name: string };
 
 /**
  * Send a password changed email
@@ -167,6 +169,28 @@ export async function sendAccountActivatedEmail({ from, to, name, apiKey }: Acco
         from,
         subject: "Konto aktiviert",
         react: AccountActivatedTemplate({ name }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type AnomalyMailOptions = MailOptions & AnomalyProps;
+
+export async function sendAnomalyEmail({ from, to, apiKey, name, link, unsubscribeLink }: AnomalyMailOptions) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
+    const resend = createResend(apiKey);
+
+    const resp = await resend.emails.send({
+        to,
+        from,
+        subject: "Konto aktiviert",
+        react: AnomalyDetectedTemplate({ name, link, unsubscribeLink }),
     });
 
     if (resp.error) {
