@@ -58,7 +58,7 @@ export const sensorData = mysqlTable(
             .notNull()
             .$defaultFn(() => nanoid(35)),
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-        value: decimal("value", { precision: 12, scale: 4 }).notNull(),
+        value: decimal("value", { precision: 12, scale: 4 }).$type<number>().notNull(),
         timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
     },
     (table) => {

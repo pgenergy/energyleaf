@@ -1,9 +1,8 @@
 import { env, getUrl } from "@/env.mjs";
-import { getAnomaliesByUser, getSensorsByUser } from "@/query/sensor";
+import { getAnomaliesByUser } from "@/query/sensor";
 import { getAllUsers } from "@/query/user";
-import { type NextRequest, NextResponse } from "next/server";
-
 import { sendAnomalyEmail } from "@energyleaf/mail";
+import { type NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
     const reportApiKey = env.REPORTS_API_KEY;

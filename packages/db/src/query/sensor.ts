@@ -1,8 +1,7 @@
-import { and, between, desc, eq, gt, lt, lte, or, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
-
 import { AggregationType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
+import { and, between, desc, eq, gt, gte, lt, lte, or, sql } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
