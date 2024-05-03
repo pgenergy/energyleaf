@@ -17,6 +17,8 @@ export const POST = async (req: NextRequest) => {
         const binaryData = await parseReadableStream(body);
         const data = SensorDataRequest.fromBinary(binaryData);
 
+        console.info(data);
+
         if (data.value <= 0) {
             return new NextResponse(
                 SensorDataResponse.toBinary({ status: 400, statusMessage: "Value is equal to or less than zero" }),
@@ -88,7 +90,10 @@ export const POST = async (req: NextRequest) => {
                 );
             }
 
-            if ((e as unknown as Error).message === "sensor/not-found") {
+            if (
+                (e as unknown as Error).message === "sensor/not-found" ||
+                (e as unknown as Error).message === "sensor/no-user"
+            ) {
                 return new NextResponse(
                     SensorDataResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }),
                     {

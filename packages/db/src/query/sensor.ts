@@ -134,7 +134,19 @@ export async function getEnergySumForSensorInRange(start: Date, end: Date, senso
             .where(and(eq(sensorData.sensorId, sensorId), lt(sensorData.timestamp, start)))
             .orderBy(desc(sensorData.timestamp))
             .limit(1);
-        const valueBeforeStart = latestEntryBeforeStart.length > 0 ? latestEntryBeforeStart[0].value : 0;
+
+        let valueBeforeStart: number;
+        if (latestEntryBeforeStart.length > 0) {
+            valueBeforeStart = latestEntryBeforeStart[0].value;
+        } else {
+            const firstSensorEntry = await trx
+                .select({ value: sensorData.value })
+                .from(sensorData)
+                .where(and(eq(sensorData.sensorId, sensorId), gte(sensorData.timestamp, start)))
+                .orderBy(sensorData.timestamp)
+                .limit(1);
+            valueBeforeStart = firstSensorEntry.length > 0 ? firstSensorEntry[0].value : 0;
+        }
 
         const latestEntryBeforeEnd = await trx
             .select({ value: sensorData.value })
@@ -439,6 +451,13 @@ export async function createSensorToken(clientId: string) {
             };
         }
 
+        if (!sensorData[0].userId) {
+            return {
+                error: "sensor/no-user",
+                code: null,
+            };
+        }
+
         const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
         if (tokenData.length > 0) {
             await trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
@@ -542,6 +561,13 @@ export async function getSensorIdFromSensorToken(code: string) {
         if (sensorData.length === 0) {
             return {
                 error: "sensor/not-found",
+                sensorId: null,
+            };
+        }
+
+        if (!sensorData[0].userId) {
+            return {
+                error: "sensor/no-user",
                 sensorId: null,
             };
         }
