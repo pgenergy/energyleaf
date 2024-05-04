@@ -1,7 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
     boolean,
-    decimal,
     int,
     mysqlEnum,
     mysqlTable,
@@ -13,6 +12,7 @@ import {
 } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
 import { SensorType } from "../types/types";
+import { decimalType } from "../types/dbTypes";
 
 const sensorTypes = [SensorType.Electricity, SensorType.Gas] as const;
 
@@ -58,7 +58,7 @@ export const sensorData = mysqlTable(
             .notNull()
             .$defaultFn(() => nanoid(35)),
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-        value: decimal("value", { precision: 12, scale: 4 }).$type<number>().notNull(),
+        value: decimalType("value").notNull(),
         timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
     },
     (table) => {
