@@ -3,6 +3,7 @@
 import { createAccount } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { signupSchema } from "@/lib/schema/auth";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -10,7 +11,6 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import type { DefaultActionReturn } from "@energyleaf/lib";
 
 export default function SignUpForm() {
     const [isPending, startTransition] = useTransition();

@@ -10,6 +10,6 @@ export enum AggregationType {
 export interface IDefaultActionReturn {
     success: boolean;
     message: string;
-};
+}
 
 export type DefaultActionReturn = IDefaultActionReturn | undefined;
