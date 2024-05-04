@@ -3,6 +3,7 @@
 import { signInAction, signInDemoAction } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { loginSchema } from "@/lib/schema/auth";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
@@ -35,16 +36,29 @@ export default function LoginForm() {
         });
     }
 
+    async function signInActionCallback(mail: string, password: string) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await signInAction(mail, password);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (!res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof loginSchema>) {
         setError("");
         startTransition(() => {
             track("signIn()");
-            toast.promise(signInAction(data.mail, data.password), {
+            toast.promise(signInActionCallback(data.mail, data.password), {
                 loading: "Anmelden...",
                 success: "Erfolgreich angemeldet",
-                error: () => {
-                    setError("E-Mail oder Passwort ist falsch");
-                    return "Fehler beim Anmelden";
+                error: (err: Error) => {
+                    setError(err.message);
+                    return err.message;
                 },
             });
         });

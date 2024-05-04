@@ -9,6 +9,7 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 
 export default function ForgotForm() {
     const [error, setError] = useState<string | null>(null);
@@ -20,15 +21,28 @@ export default function ForgotForm() {
         },
     });
 
+    async function forgotPasswordCallback(data: z.infer<typeof forgotSchema>) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await forgotPassword(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (!res?.success) {
+            throw new Error("");
+        }
+    }
+
     function onSubmit(data: z.infer<typeof forgotSchema>) {
         setError("");
         startTransition(() => {
-            toast.promise(forgotPassword(data), {
+            toast.promise(forgotPasswordCallback(data), {
                 loading: "E-Mail wird versendet...",
                 success: "E-Mail erfolgreich versendet",
-                error: (err) => {
-                    setError((err as unknown as Error).message);
-                    return "Fehler beim Anmelden";
+                error: (err: Error) => {
+                    setError(err.message);
+                    return err.message;
                 },
             });
         });

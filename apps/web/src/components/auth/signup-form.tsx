@@ -10,6 +10,7 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 
 export default function SignUpForm() {
     const [isPending, startTransition] = useTransition();
@@ -24,23 +25,31 @@ export default function SignUpForm() {
         },
     });
 
+    async function createAccountCallback(data: z.infer<typeof signupSchema>) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await createAccount(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (!res.success) {
+            throw new Error(res.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof signupSchema>) {
         setError("");
 
         startTransition(() => {
-            toast.promise(
-                async () => {
-                    await createAccount(data);
+            toast.promise(createAccountCallback(data), {
+                loading: "Erstelle Konto...",
+                success: "Konto erfolgreich erstellt",
+                error: (err: Error) => {
+                    setError(err.message);
+                    return err.message;
                 },
-                {
-                    loading: "Erstelle Konto...",
-                    success: "Konto erfolgreich erstellt",
-                    error: () => {
-                        setError("Konto konnte nicht erstellt werden");
-                        return "Konto konnte nicht erstellt werden";
-                    },
-                },
-            );
+            });
         });
     }
 
