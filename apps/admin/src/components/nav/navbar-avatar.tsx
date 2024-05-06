@@ -3,7 +3,6 @@
 import { signOutAction } from "@/actions/auth";
 import {
     Avatar,
-    AvatarFallback,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
@@ -16,6 +15,7 @@ import { LogOutIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
+import { Avatar as BAvatar } from "@boringer-avatars/react";
 
 interface Props {
     user: User;
@@ -42,7 +42,12 @@ export default function NavbarAvatar({ user }: Props) {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                    <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    <BAvatar
+                        size={40}
+                        variant="beam"
+                        name={user.id}
+                        colors={["#FFAD08", "#EDD75A", "#73B06F", "#0C8F8F", "#405059"]}
+                    />
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
