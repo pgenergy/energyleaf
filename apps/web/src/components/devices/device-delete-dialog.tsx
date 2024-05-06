@@ -2,6 +2,7 @@
 
 import { deleteDevice } from "@/actions/device";
 import { useDeviceContext } from "@/hooks/device-hook";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -30,20 +31,34 @@ export function DeviceDeleteDialog() {
         deviceContext.setDevice(undefined);
     }
 
+    async function deleteDeviceCallback(id: number) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await deleteDevice(id);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (!res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function deleteDeviceAction() {
         startTransition(() => {
             track("deleteDevice()");
             if (!deviceContext.device) {
                 return;
             }
-            toast.promise(deleteDevice(deviceContext.device.id), {
+            toast.promise(deleteDeviceCallback(deviceContext.device.id), {
                 loading: "Gerät wird gelöscht...",
                 success: () => {
                     deviceContext.setDeleteDialogOpen(false);
                     deviceContext.setDevice(undefined);
                     return "Gerät wurde erfolgreich gelöscht.";
                 },
-                error: "Beim Löschen des Gerätes ist ein Fehler aufgetreten.",
+                error: (err: Error) => err.message,
             });
         });
     }

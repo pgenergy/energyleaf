@@ -14,70 +14,129 @@ import "server-only";
 import type { z } from "zod";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
-    const { user, session } = await getActionSession();
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    const id = user.id;
-    const dbuser = await getUserById(id);
-    if (!dbuser) {
-        throw new UserNotFoundError();
-    }
-
     try {
-        await createDeviceDb({
-            name: data.deviceName,
-            userId: user.id,
-            category: data.category,
-        });
-        revalidatePath("/devices");
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            throw new Error("Fehler beim Erstellen des Geräts");
+        const { user, session } = await getActionSession();
+        if (!session) {
+            throw new UserNotLoggedInError();
         }
+
+        const id = user.id;
+        const dbuser = await getUserById(id);
+        if (!dbuser) {
+            throw new UserNotFoundError();
+        }
+
+        try {
+            await createDeviceDb({
+                name: data.deviceName,
+                userId: user.id,
+                category: data.category,
+            });
+        } catch (error: unknown) {
+            return {
+                success: false,
+                message: "Fehler beim erstellen des Gerätes.",
+            };
+        }
+    } catch (err) {
+        if (err instanceof UserNotFoundError) {
+            return {
+                success: false,
+                message: "Das Gerät konnte nicht gespeichert werden.",
+            };
+        }
+
+        if (err instanceof UserNotLoggedInError) {
+            return {
+                success: false,
+                message: "Sie müssen angemeldet sein, um ein Gerät zu ändern.",
+            };
+        }
+
+        return {
+            success: false,
+            message: "Ein Fehler ist aufgetreten.",
+        };
     }
+    revalidatePath("/devices");
 }
 
 export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId: number) {
-    const { user, session } = await getActionSession();
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    const userId = user.id;
-    const dbuser = await getUserById(userId);
-    if (!dbuser) {
-        throw new UserNotFoundError();
-    }
-
     try {
-        await updateDeviceDb(deviceId, {
-            name: data.deviceName,
-            userId: user.id,
-            category: data.category,
-        });
-        revalidatePath("/devices");
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            throw new Error("Fehler beim Aktualisieren des Geräts");
+        const { user, session } = await getActionSession();
+        if (!session) {
+            throw new UserNotLoggedInError();
         }
+
+        const userId = user.id;
+        const dbuser = await getUserById(userId);
+        if (!dbuser) {
+            throw new UserNotFoundError();
+        }
+
+        try {
+            await updateDeviceDb(deviceId, {
+                name: data.deviceName,
+                userId: user.id,
+                category: data.category,
+            });
+        } catch (error: unknown) {
+            return {
+                success: false,
+                message: "Fehler beim speichern des Gerätes.",
+            };
+        }
+    } catch (err) {
+        if (err instanceof UserNotFoundError) {
+            return {
+                success: false,
+                message: "Es konnte kein Geräte erstellt werden",
+            };
+        }
+
+        if (err instanceof UserNotLoggedInError) {
+            return {
+                success: false,
+                message: "Sie müssen angemeldet sein, um ein Gerät zu erstellen.",
+            };
+        }
+
+        return {
+            success: false,
+            message: "Ein Fehler ist aufgetreten.",
+        };
     }
+    revalidatePath("/devices");
 }
 
 export async function deleteDevice(deviceId: number) {
-    const { user, session } = await getActionSession();
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    const userId = user.id;
     try {
-        await deleteDeviceDb(deviceId, userId);
-        revalidatePath("/devices");
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            throw new Error("Fehler beim Löschen des Geräts");
+        const { user, session } = await getActionSession();
+        if (!session) {
+            throw new UserNotLoggedInError();
         }
+
+        const userId = user.id;
+        try {
+            await deleteDeviceDb(deviceId, userId);
+        } catch (error) {
+            return {
+                success: false,
+                message: "Fehler beim Löschen des Geräts",
+            };
+        }
+    } catch (err) {
+        if (err instanceof UserNotLoggedInError) {
+            return {
+                success: false,
+                message: "Sie müssen angemeldet sein, um ein Gerät zu löschen.",
+            };
+        }
+
+        return {
+            success: false,
+            message: "Ein Fehler ist aufgetreten.",
+        };
     }
+    revalidatePath("/devices");
 }
