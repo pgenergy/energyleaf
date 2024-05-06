@@ -11,6 +11,7 @@ import {
 } from "@/lib/schema/conversion/profile";
 import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
 import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button, Form, Wizard, WizardPage, useWizard } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRightIcon } from "lucide-react";
@@ -25,11 +26,25 @@ interface Props {
 }
 
 export default function OnboardingWizard({ userData, showGoals }: Props) {
+    async function completeOnboardingCallback() {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await completeOnboarding();
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (!res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function finishHandler() {
-        toast.promise(completeOnboarding(), {
+        toast.promise(completeOnboardingCallback, {
             loading: "Schließe Onboarding ab...",
             success: "Onboarding abgeschlossen",
-            error: "Fehler beim Abschließen des Onboardings",
+            error: (err: Error) => err.message,
         });
     }
 
