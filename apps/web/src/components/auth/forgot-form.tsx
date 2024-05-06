@@ -29,7 +29,7 @@ export default function ForgotForm() {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
 
-        if (!res?.success) {
+        if (res && !res?.success) {
             throw new Error("");
         }
     }

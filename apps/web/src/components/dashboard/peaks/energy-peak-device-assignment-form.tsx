@@ -46,10 +46,10 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
         try {
             res = await addOrUpdatePeak(data, sensorId, timestamp);
         } catch (err) {
-            throw new Error("Ein Fehler ist aufgetreten."); 
+            throw new Error("Ein Fehler ist aufgetreten.");
         }
 
-        if (!res?.success) {
+        if (res && !res?.success) {
             throw new Error(res?.message);
         }
     }

@@ -35,7 +35,7 @@ export default function OnboardingWizard({ userData, showGoals }: Props) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
 
-        if (!res?.success) {
+        if (res && !res?.success) {
             throw new Error(res?.message);
         }
     }

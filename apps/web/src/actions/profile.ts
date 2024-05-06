@@ -27,200 +27,301 @@ import "server-only";
 import type { z } from "zod";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
-    const { user, session } = await getActionSession();
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    const dbuser = await getUserById(user.id);
-    if (!dbuser) {
-        throw new UserNotFoundError();
-    }
-
     try {
-        await updateUser(
-            {
-                username: data.username,
-                email: data.email,
-            },
-            user.id,
-        );
-        revalidatePath("/profile");
-        revalidatePath("/dashboard");
-    } catch (e) {
-        throw new Error("Error while updating user");
+        const { user, session } = await getActionSession();
+        if (!session) {
+            throw new UserNotLoggedInError();
+        }
+
+        const dbuser = await getUserById(user.id);
+        if (!dbuser) {
+            throw new UserNotFoundError();
+        }
+
+        try {
+            await updateUser(
+                {
+                    username: data.username,
+                    email: data.email,
+                },
+                user.id,
+            );
+            revalidatePath("/profile");
+            revalidatePath("/dashboard");
+        } catch (e) {
+            return {
+                success: false,
+                message: "Es gab einen Fehler beim speichern.",
+            };
+        }
+    } catch (err) {
+        if (err instanceof UserNotLoggedInError) {
+            return {
+                success: false,
+                message: "Sie müssen angemeldet sein, um ihr Profil zu bearbeiten.",
+            };
+        }
+
+        return {
+            success: false,
+            message: "Ein Fehler ist aufgetreten.",
+        };
     }
 }
 
 export async function updateBaseInformationPassword(data: z.infer<typeof passwordSchema>) {
-    const { user, session } = await getActionSession();
-
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    const dbuser = await getUserById(user.id);
-    if (!dbuser) {
-        throw new UserNotFoundError();
-    }
-    const match = await new Argon2id().verify(dbuser.password, data.oldPassword);
-    if (!match) {
-        throw new PasswordsDoNotMatchError();
-    }
-
-    const hash = await new Argon2id().hash(data.newPassword);
     try {
-        await updatePassword(
-            {
-                password: hash,
-            },
-            user.id,
-        );
-        revalidatePath("/profile");
-        revalidatePath("/dashboard");
-    } catch (e) {
-        throw new Error("Error while updating password");
+        const { user, session } = await getActionSession();
+
+        if (!session) {
+            throw new UserNotLoggedInError();
+        }
+
+        const dbuser = await getUserById(user.id);
+        if (!dbuser) {
+            throw new UserNotFoundError();
+        }
+        const match = await new Argon2id().verify(dbuser.password, data.oldPassword);
+        if (!match) {
+            throw new PasswordsDoNotMatchError();
+        }
+
+        const hash = await new Argon2id().hash(data.newPassword);
+        try {
+            await updatePassword(
+                {
+                    password: hash,
+                },
+                user.id,
+            );
+            revalidatePath("/profile");
+            revalidatePath("/dashboard");
+        } catch (e) {
+            return {
+                success: false,
+                message: "Fehler beim aktualisieren ihres Passworts.",
+            };
+        }
+    } catch (err) {
+        if (err instanceof UserNotLoggedInError) {
+            return {
+                success: false,
+                message: "Sie müssen angemeldet sein, um ihr Passwort zu ändern.",
+            };
+        }
+
+        return {
+            success: false,
+            message: "Ein Fehler ist aufgetreten.",
+        };
     }
 }
 
 export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>) {
-    const { user, session } = await getActionSession();
-
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    const dbuser = await getUserById(user.id);
-    if (!dbuser) {
-        throw new UserNotFoundError();
-    }
-
     try {
-        await updateReportSettings(
-            {
-                receiveMails: data.receiveMails,
-                interval: data.interval,
-                time: data.time,
-            },
-            user.id,
-        );
-        revalidatePath("/profile");
-        revalidatePath("/dashboard");
-    } catch (e) {
-        throw new Error("Error while updating user");
+        const { user, session } = await getActionSession();
+
+        if (!session) {
+            throw new UserNotLoggedInError();
+        }
+
+        const dbuser = await getUserById(user.id);
+        if (!dbuser) {
+            throw new UserNotFoundError();
+        }
+
+        try {
+            await updateReportSettings(
+                {
+                    receiveMails: data.receiveMails,
+                    interval: data.interval,
+                    time: data.time,
+                },
+                user.id,
+            );
+            revalidatePath("/profile");
+            revalidatePath("/dashboard");
+        } catch (e) {
+            return {
+                success: false,
+                message: "Es ist ein Fehler beim ändern der E-Mail Einstellung aufgetreten.",
+            };
+        }
+    } catch (err) {
+        if (err instanceof UserNotLoggedInError) {
+            return {
+                success: false,
+                message: "Sie müssen angemeldet sein, um ihre E-Mail Einstellungen zu ändern.",
+            };
+        }
+
+        return {
+            success: false,
+            message: "Ein Fehler ist aufgetreten.",
+        };
     }
 }
 
 export async function updateUserDataInformation(data: z.infer<typeof userDataSchema>) {
-    const { user, session } = await getActionSession();
-
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    if (await isDemoUser()) {
-        updateUserDataCookieStore(cookies(), {
-            user_data: {
-                timestamp: new Date(),
-                hotWater: data.hotWater,
-                tariff: data.tariff,
-                basePrice: data.basePrice,
-                monthlyPayment: data.monthlyPayment,
-                livingSpace: data.livingSpace,
-                household: data.people,
-                property: data.houseType,
-            },
-        } as Partial<UserDataType>);
-        revalidateUserDataPaths();
-        return;
-    }
-
-    const dbuser = await getUserById(user.id);
-    if (!dbuser) {
-        throw new UserNotFoundError();
-    }
-
     try {
-        await updateUserData(
-            {
-                timestamp: new Date(),
-                livingSpace: data.livingSpace,
-                household: data.people,
-                property: data.houseType,
-                hotWater: data.hotWater,
-                tariff: data.tariff,
-                basePrice: data.basePrice,
-                workingPrice: data.workingPrice,
-                monthlyPayment: data.monthlyPayment,
-            },
-            user.id,
-        );
-        revalidateUserDataPaths();
-    } catch (e) {
-        throw new Error("Error while updating user");
+        const { user, session } = await getActionSession();
+
+        if (!session) {
+            throw new UserNotLoggedInError();
+        }
+
+        if (await isDemoUser()) {
+            updateUserDataCookieStore(cookies(), {
+                user_data: {
+                    timestamp: new Date(),
+                    hotWater: data.hotWater,
+                    tariff: data.tariff,
+                    basePrice: data.basePrice,
+                    monthlyPayment: data.monthlyPayment,
+                    livingSpace: data.livingSpace,
+                    household: data.people,
+                    property: data.houseType,
+                },
+            } as Partial<UserDataType>);
+            return;
+        }
+
+        const dbuser = await getUserById(user.id);
+        if (!dbuser) {
+            throw new UserNotFoundError();
+        }
+
+        try {
+            await updateUserData(
+                {
+                    timestamp: new Date(),
+                    livingSpace: data.livingSpace,
+                    household: data.people,
+                    property: data.houseType,
+                    hotWater: data.hotWater,
+                    tariff: data.tariff,
+                    basePrice: data.basePrice,
+                    workingPrice: data.workingPrice,
+                    monthlyPayment: data.monthlyPayment,
+                },
+                user.id,
+            );
+            revalidateUserDataPaths();
+        } catch (e) {
+            return {
+                success: false,
+                message: "Ein Fehler beim ändern ihrer Daten ist aufgetreten.",
+            };
+        }
+    } catch (err) {
+        if (err instanceof UserNotLoggedInError) {
+            return {
+                success: false,
+                message: "Sie müssen angemeldet sein, um ihre Daten zu ändern.",
+            };
+        }
+
+        return {
+            success: false,
+            message: "Ein Fehler ist aufgetreten.",
+        };
     }
 }
 
 export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
-    const { user, session } = await getActionSession();
-
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    if (await isDemoUser()) {
-        updateUserDataCookieStore(cookies(), {
-            user_data: {
-                timestamp: new Date(),
-                consumptionGoal: data.goalValue,
-            },
-        } as Partial<UserDataType>);
-        revalidateUserDataPaths();
-        return;
-    }
-
-    const dbuser = await getUserById(user.id);
-    if (!dbuser) {
-        throw new UserNotFoundError();
-    }
-
     try {
-        await updateUserData(
-            {
-                timestamp: new Date(),
-                consumptionGoal: data.goalValue,
-            },
-            user.id,
-        );
-        revalidateUserDataPaths();
-    } catch (e) {
-        throw new Error("Error while updating user");
+        const { user, session } = await getActionSession();
+
+        if (!session) {
+            throw new UserNotLoggedInError();
+        }
+
+        if (await isDemoUser()) {
+            updateUserDataCookieStore(cookies(), {
+                user_data: {
+                    timestamp: new Date(),
+                    consumptionGoal: data.goalValue,
+                },
+            } as Partial<UserDataType>);
+            revalidateUserDataPaths();
+            return;
+        }
+
+        const dbuser = await getUserById(user.id);
+        if (!dbuser) {
+            throw new UserNotFoundError();
+        }
+
+        try {
+            await updateUserData(
+                {
+                    timestamp: new Date(),
+                    consumptionGoal: data.goalValue,
+                },
+                user.id,
+            );
+            revalidateUserDataPaths();
+        } catch (e) {
+            return {
+                success: false,
+                message: "Ein Fehler beim speichern ihrer Ziele ist aufgetreten.",
+            };
+        }
+    } catch (err) {
+        if (err instanceof UserNotLoggedInError) {
+            return {
+                success: false,
+                message: "Sie müssen angemeldet sein, um ihre Ziele zu aktualisieren.",
+            };
+        }
+
+        return {
+            success: false,
+            message: "Ein Fehler ist aufgetreten",
+        };
     }
 }
 
 export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
-    const { user, session } = await getActionSession();
-
-    if (!session) {
-        throw new UserNotLoggedInError();
-    }
-
-    const dbuser = await getUserById(user.id);
-    if (!dbuser) {
-        throw new UserNotFoundError();
-    }
-
-    const match = await new Argon2id().verify(dbuser.password, data.password);
-    if (!match) {
-        throw new PasswordsDoNotMatchError();
-    }
-
     try {
-        await deleteUser(user.id);
-        revalidatePath("/profile");
-        revalidatePath("/dashboard");
-    } catch (e) {
-        throw new Error("Error while deleting account");
+        const { user, session } = await getActionSession();
+
+        if (!session) {
+            throw new UserNotLoggedInError();
+        }
+
+        const dbuser = await getUserById(user.id);
+        if (!dbuser) {
+            throw new UserNotFoundError();
+        }
+
+        const match = await new Argon2id().verify(dbuser.password, data.password);
+        if (!match) {
+            throw new PasswordsDoNotMatchError();
+        }
+
+        try {
+            await deleteUser(user.id);
+            revalidatePath("/profile");
+            revalidatePath("/dashboard");
+        } catch (e) {
+            return {
+                success: false,
+                message: "Ein Fehler beim löschen ihrers Accounts ist aufgetreten.",
+            };
+        }
+    } catch (err) {
+        if (err instanceof UserNotLoggedInError) {
+            return {
+                success: false,
+                message: "Sie müssen angemeldet sein, um ihren Account zu löschen.",
+            };
+        }
+
+        return {
+            success: false,
+            message: "Ein Fehler ist aufgetreten",
+        };
     }
 }
 

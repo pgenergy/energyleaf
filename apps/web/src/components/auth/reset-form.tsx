@@ -34,7 +34,7 @@ export default function ResetForm() {
             throw new Error("Fehler beim zurücksetzen des Passworts.");
         }
 
-        if (!res?.success) {
+        if (res && !res?.success) {
             throw new Error(res?.message);
         }
     }

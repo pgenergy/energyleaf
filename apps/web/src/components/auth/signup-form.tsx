@@ -33,7 +33,7 @@ export default function SignUpForm() {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
 
-        if (!res.success) {
+        if (res && !res?.success) {
             throw new Error(res.message);
         }
     }

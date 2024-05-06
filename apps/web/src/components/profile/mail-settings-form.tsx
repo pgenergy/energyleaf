@@ -3,14 +3,14 @@
 import { updateMailInformation } from "@/actions/profile";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import { mailSettingsSchema } from "@/lib/schema/profile";
+import type { DefaultActionReturn } from "@energyleaf/lib";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
 
 interface Props {
     disabled?: boolean;
@@ -24,14 +24,28 @@ export default function MailSettingsForm({ initialValues, disabled }: Props) {
         defaultValues: initialValues,
     });
 
+    async function updateMailInformationCallback(data: z.infer<typeof mailSettingsSchema>) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await updateMailInformation(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
         if (disabled) return;
         startTransition(() => {
             track("updateMailSettings()");
-            toast.promise(updateMailInformation(data), {
+            toast.promise(updateMailInformationCallback(data), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
-                error: "Ihre Einstellungen konnten nicht aktualisiert werden",
+                error: (err: Error) => err.message,
             });
         });
     }

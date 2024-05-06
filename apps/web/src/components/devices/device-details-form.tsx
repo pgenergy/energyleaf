@@ -48,7 +48,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
             throw new Error("Ein Fehler ist aufgetreten");
         }
 
-        if (!res?.success) {
+        if (res && !res?.success) {
             throw new Error(res?.message);
         }
     }
@@ -61,7 +61,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
             throw new Error("Ein Fehler ist aufgetreten");
         }
 
-        if (!res?.success) {
+        if (res && !res?.success) {
             throw new Error(res?.message);
         }
     }
