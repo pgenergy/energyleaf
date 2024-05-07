@@ -51,14 +51,14 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
         } catch (e) {
             return {
                 success: false,
-                message: "Es gab einen Fehler beim speichern.",
+                message: "Es gab einen Fehler beim Speichern.",
             };
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein, um ihr Profil zu bearbeiten.",
+                message: "Sie müssen angemeldet sein, um Ihr Profil zu bearbeiten.",
             };
         }
 
@@ -106,7 +106,7 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
         if (err instanceof UserNotLoggedInError) {
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein, um ihr Passwort zu ändern.",
+                message: "Sie müssen angemeldet sein, um Ihr Passwort zu ändern.",
             };
         }
 
@@ -144,14 +144,14 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
         } catch (e) {
             return {
                 success: false,
-                message: "Es ist ein Fehler beim ändern der E-Mail Einstellung aufgetreten.",
+                message: "Es ist ein Fehler beim Ändern der E-Mail Einstellung aufgetreten.",
             };
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein, um ihre E-Mail Einstellungen zu ändern.",
+                message: "Sie müssen angemeldet sein, um Ihre E-Mail Einstellungen zu ändern.",
             };
         }
 
@@ -210,14 +210,14 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
         } catch (e) {
             return {
                 success: false,
-                message: "Ein Fehler beim ändern ihrer Daten ist aufgetreten.",
+                message: "Ein Fehler beim Ändern ihrer Daten ist aufgetreten.",
             };
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein, um ihre Daten zu ändern.",
+                message: "Sie müssen angemeldet sein, um Ihre Daten zu ändern.",
             };
         }
 
@@ -264,14 +264,14 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
         } catch (e) {
             return {
                 success: false,
-                message: "Ein Fehler beim speichern ihrer Ziele ist aufgetreten.",
+                message: "Ein Fehler beim Speichern Ihrer Ziele ist aufgetreten.",
             };
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein, um ihre Ziele zu aktualisieren.",
+                message: "Sie müssen angemeldet sein, um Ihre Ziele zu aktualisieren.",
             };
         }
 
@@ -307,14 +307,14 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
         } catch (e) {
             return {
                 success: false,
-                message: "Ein Fehler beim löschen ihrers Accounts ist aufgetreten.",
+                message: "Ein Fehler beim löschen Ihrers Accounts ist aufgetreten.",
             };
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein, um ihren Account zu löschen.",
+                message: "Sie müssen angemeldet sein, um Ihren Account zu löschen.",
             };
         }
 

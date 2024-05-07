@@ -30,7 +30,7 @@ export default function ForgotForm() {
         }
 
         if (res && !res?.success) {
-            throw new Error("");
+            throw new Error(res?.message);
         }
     }
 

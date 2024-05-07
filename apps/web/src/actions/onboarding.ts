@@ -20,7 +20,7 @@ export async function completeOnboarding() {
         if (err instanceof UserNotLoggedInError) {
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein um das Onboarding abzuschließen.",
+                message: "Sie müssen angemeldet sein, um das Onboarding abzuschließen.",
             };
         }
 

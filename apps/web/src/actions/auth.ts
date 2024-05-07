@@ -164,7 +164,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
         console.error(err);
         return {
             success: false,
-            message: "Fehler beim verifizieren des Tokens.",
+            message: "Fehler beim Verifizieren des Tokens.",
         };
     }
 
@@ -175,7 +175,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
         console.error(err);
         return {
             success: false,
-            message: "Fehler beim ändern des Passworts.",
+            message: "Fehler beim Ändern des Passworts.",
         };
     }
 

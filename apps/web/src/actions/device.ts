@@ -35,7 +35,7 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         } catch (error: unknown) {
             return {
                 success: false,
-                message: "Fehler beim erstellen des Gerätes.",
+                message: "Fehler beim Erstellen des Gerätes.",
             };
         }
     } catch (err) {
@@ -83,14 +83,14 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         } catch (error: unknown) {
             return {
                 success: false,
-                message: "Fehler beim speichern des Gerätes.",
+                message: "Fehler beim Speichern des Gerätes.",
             };
         }
     } catch (err) {
         if (err instanceof UserNotFoundError) {
             return {
                 success: false,
-                message: "Es konnte kein Geräte erstellt werden",
+                message: "Es konnte kein Gerät erstellt werden.",
             };
         }
 

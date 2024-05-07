@@ -31,7 +31,7 @@ export default function ResetForm() {
         try {
             res = await resetPassword(data, token);
         } catch (err) {
-            throw new Error("Fehler beim zurücksetzen des Passworts.");
+            throw new Error("Fehler beim Zurücksetzen des Passworts.");
         }
 
         if (res && !res?.success) {
