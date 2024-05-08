@@ -3,6 +3,7 @@
 import { createAccount } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { signupSchema } from "@/lib/schema/auth";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -24,23 +25,31 @@ export default function SignUpForm() {
         },
     });
 
+    async function createAccountCallback(data: z.infer<typeof signupSchema>) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await createAccount(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof signupSchema>) {
         setError("");
 
         startTransition(() => {
-            toast.promise(
-                async () => {
-                    await createAccount(data);
+            toast.promise(createAccountCallback(data), {
+                loading: "Erstelle Konto...",
+                success: "Konto erfolgreich erstellt",
+                error: (err: Error) => {
+                    setError(err.message);
+                    return err.message;
                 },
-                {
-                    loading: "Erstelle Konto...",
-                    success: "Konto erfolgreich erstellt",
-                    error: () => {
-                        setError("Konto konnte nicht erstellt werden");
-                        return "Konto konnte nicht erstellt werden";
-                    },
-                },
-            );
+            });
         });
     }
 

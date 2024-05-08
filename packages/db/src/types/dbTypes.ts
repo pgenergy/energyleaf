@@ -6,11 +6,11 @@ import { customType } from "drizzle-orm/mysql-core";
  * we only have a scale of 4, 4 digets after the point.
  * so we can savely convert them to a number
  */
-export const decimalType = customType<{ data: number, driverData: string }>({
+export const decimalType = customType<{ data: number; driverData: string }>({
     dataType() {
-        return "decimal(12, 4)"
+        return "decimal(12, 4)";
     },
     fromDriver(data: string): number {
-        return Number(data)
+        return Number(data);
     },
 });

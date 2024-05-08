@@ -4,6 +4,7 @@ import { updateUserGoals } from "@/actions/profile";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 import { userGoalSchema } from "@/lib/schema/profile";
 import type { UserDataSelectType } from "@energyleaf/db/types";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     Button,
     Card,
@@ -36,13 +37,27 @@ export default function UserGoalsForm({ userData }: Props) {
         mode: "onChange",
     });
 
+    async function updateUserGoalsCallback(data: z.infer<typeof userGoalSchema>) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await updateUserGoals(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof userGoalSchema>) {
         startTransition(() => {
             track("updateUserGoals()");
-            toast.promise(updateUserGoals(data), {
+            toast.promise(updateUserGoalsCallback(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
-                error: "Fehler beim Aktualisieren",
+                error: (err: Error) => err.message,
             });
         });
     }

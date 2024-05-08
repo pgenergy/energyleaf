@@ -1,7 +1,7 @@
 "use client";
 
 import { updateBaseInformationUsername } from "@/actions/profile";
-import type { baseInformationSchema } from "@energyleaf/lib";
+import type { DefaultActionReturn, baseInformationSchema } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
 import { track } from "@vercel/analytics";
@@ -18,6 +18,20 @@ interface Props {
 export default function BaseInformationForm({ username, email, disabled }: Props) {
     const [changeIsPending, startTransition] = useTransition();
 
+    async function updateBaseInformationUsernameCallback(data: z.infer<typeof baseInformationSchema>) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await updateBaseInformationUsername(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof baseInformationSchema>) {
         if (disabled) {
             return;
@@ -28,10 +42,10 @@ export default function BaseInformationForm({ username, email, disabled }: Props
             if (data.email !== email) {
                 return;
             }
-            toast.promise(updateBaseInformationUsername(data), {
+            toast.promise(updateBaseInformationUsernameCallback(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
-                error: "Fehler beim Aktualisieren",
+                error: (err: Error) => err.message,
             });
         });
     }

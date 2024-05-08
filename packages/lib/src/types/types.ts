@@ -6,3 +6,10 @@ export enum AggregationType {
     MONTH = "MONTH",
     YEAR = "YEAR",
 }
+
+export interface IDefaultActionReturn {
+    success: boolean;
+    message: string;
+}
+
+export type DefaultActionReturn = IDefaultActionReturn | undefined;

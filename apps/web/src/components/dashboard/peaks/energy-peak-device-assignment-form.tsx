@@ -3,6 +3,7 @@
 import { addOrUpdatePeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
 import type { DeviceSelectType } from "@energyleaf/db/types";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     Button,
     Form,
@@ -39,12 +40,26 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
         },
     });
 
+    async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await addOrUpdatePeak(data, sensorId, timestamp);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof peakSchema>) {
         track("assignEnergyPeakToDevice()");
-        toast.promise(addOrUpdatePeak(data, sensorId, timestamp), {
+        toast.promise(addOrUpdatePeakCallback(data, sensorId, timestamp), {
             loading: "Peak zuweisen...",
             success: "Erfolgreich zugewiesen",
-            error: "Das Gerät konnte dem Peak nicht zugewiesen werden.",
+            error: (err: Error) => err.message,
         });
 
         onInteract();
