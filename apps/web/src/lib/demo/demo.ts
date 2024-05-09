@@ -36,6 +36,7 @@ export function getUserDataCookieStore() {
             workingPrice: 0.2,
             timestamp: new Date(2021, 1, 1),
             consumptionGoal: 20,
+            electricityMeterType: "digital",
         },
     };
 
