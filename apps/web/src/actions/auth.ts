@@ -72,6 +72,7 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
             email: mail,
             password: hash,
             username,
+            electricityMeterType: data.electricityMeterType,
         } satisfies CreateUserType);
         await sendAccountCreatedEmail({
             to: mail,

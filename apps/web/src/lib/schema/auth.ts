@@ -1,3 +1,4 @@
+import { userData } from "@energyleaf/db/schema";
 import { z } from "zod";
 
 const mailNonemptyMsg = "Bitte geben Sie eine E-Mail an.";
@@ -6,22 +7,25 @@ const mailEmailMsg = "Bitte geben Sie eine gültige E-Mail an.";
 const passwordNonemptyMsg = "Bitte geben Sie ein Passwort an.";
 
 export const loginSchema = z.object({
-    mail: z.string().nonempty({ message: mailNonemptyMsg }).email({ message: mailEmailMsg }),
-    password: z.string().nonempty({ message: passwordNonemptyMsg }),
+    mail: z.string().min(1, { message: mailNonemptyMsg }).email({ message: mailEmailMsg }),
+    password: z.string().min(1, { message: passwordNonemptyMsg }),
 });
 
 export const signupSchema = z.object({
-    username: z.string().nonempty({ message: "Bitte geben Sie einen Benutzernamen an." }),
-    mail: z.string().nonempty({ message: mailNonemptyMsg }).email({ message: mailEmailMsg }),
-    password: z.string().nonempty({ message: passwordNonemptyMsg }),
-    passwordRepeat: z.string().nonempty({ message: passwordNonemptyMsg }),
+    username: z.string().min(1, { message: "Bitte geben Sie einen Benutzernamen an." }),
+    mail: z.string().min(1, { message: "Bitte geben Sie eine E-Mail an." }).email({ message: mailEmailMsg }),
+    password: z.string().min(1, { message: passwordNonemptyMsg }),
+    passwordRepeat: z.string().min(1, { message: passwordNonemptyMsg }),
+    electricityMeterType: z
+        .enum([...userData.electricityMeterType.enumValues])
+        .default(userData.electricityMeterType.enumValues[0]),
 });
 
 export const forgotSchema = z.object({
-    mail: z.string().nonempty({ message: mailNonemptyMsg }).email({ message: mailEmailMsg }),
+    mail: z.string().min(1, { message: mailNonemptyMsg }).email({ message: mailEmailMsg }),
 });
 
 export const resetSchema = z.object({
-    password: z.string().nonempty({ message: passwordNonemptyMsg }),
-    passwordRepeat: z.string().nonempty({ message: passwordNonemptyMsg }),
+    password: z.string().min(1, { message: passwordNonemptyMsg }),
+    passwordRepeat: z.string().min(1, { message: passwordNonemptyMsg }),
 });

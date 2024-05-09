@@ -3,8 +3,22 @@
 import { createAccount } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { signupSchema } from "@/lib/schema/auth";
+import { userData } from "@energyleaf/db/schema";
+import { userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useState, useTransition } from "react";
@@ -83,6 +97,29 @@ export default function SignUpForm() {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="electricityMeterType"
+                        render={({ field }) => (
+                            <FormItem>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Wähle deinen Stromzähler" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {userData.electricityMeterType.enumValues.map((value) => (
+                                            <SelectItem value={value} key={value}>
+                                                {userDataElectricityMeterTypeEnums[value]}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </FormItem>
+                        )}
+                    />
+                    <div className="pb-4" />
                     <FormField
                         control={form.control}
                         name="password"
