@@ -1,5 +1,4 @@
 "use server";
-
 import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
@@ -7,9 +6,14 @@ import { onboardingCompleteCookieName } from "@/lib/constants";
 import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
 import { type CreateUserType, createUser, getUserById, getUserByMail, updatePassword } from "@energyleaf/db/query";
-import type { UserSelectType } from "@energyleaf/db/types";
+import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
-import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
+import {
+    sendAccountCreatedEmail,
+    sendAdminNewAccountCreatedEmail,
+    sendPasswordChangedEmail,
+    sendPasswordResetEmail,
+} from "@energyleaf/mail";
 import * as jose from "jose";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";
@@ -79,6 +83,14 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
             name: username,
             apiKey: env.RESEND_API_KEY,
             from: env.RESEND_API_MAIL,
+        });
+        await sendAdminNewAccountCreatedEmail({
+            email: mail,
+            name: username,
+            meter: userDataElectricityMeterTypeEnums[data.electricityMeterType],
+            to: "energyleaf@uni-oldenburg.de",
+            from: env.RESEND_API_MAIL,
+            apiKey: env.RESEND_API_KEY,
         });
     } catch (err) {
         console.error(err);
