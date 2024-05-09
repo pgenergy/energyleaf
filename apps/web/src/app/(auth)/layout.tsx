@@ -1,14 +1,10 @@
-import DemoBanner from "@/components/footer/demo-banner";
-import { getSession } from "@/lib/auth/auth.server";
 import { Card, CardHeader, buttonVariants } from "@energyleaf/ui";
 import Image from "next/image";
 import Link from "next/link";
 import bg from "../../../public/image/bg/login.png";
 import logo from "../../../public/image/logo/logo.png";
 
-export default async function AuthLayout({ children }: { children: React.ReactNode }) {
-    const { user } = await getSession();
-
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
             <main className="flex h-screen w-screen flex-col justify-center">
@@ -36,11 +32,6 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
                     </Card>
                 </div>
             </main>
-            {user?.id === "demo_user" ? (
-                <footer>
-                    <DemoBanner />
-                </footer>
-            ) : null}
         </>
     );
 }
