@@ -1,6 +1,6 @@
 import { AggregationType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, between, desc, eq, lt, lte, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, gt, gte, lt, lte, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
@@ -112,7 +112,19 @@ export async function getEnergySumForSensorInRange(start: Date, end: Date, senso
             .where(and(eq(sensorData.sensorId, sensorId), lt(sensorData.timestamp, start)))
             .orderBy(desc(sensorData.timestamp))
             .limit(1);
-        const valueBeforeStart = latestEntryBeforeStart.length > 0 ? latestEntryBeforeStart[0].value : 0;
+
+        let valueBeforeStart: number;
+        if (latestEntryBeforeStart.length > 0) {
+            valueBeforeStart = latestEntryBeforeStart[0].value;
+        } else {
+            const firstSensorEntry = await trx
+                .select({ value: sensorData.value })
+                .from(sensorData)
+                .where(and(eq(sensorData.sensorId, sensorId), gte(sensorData.timestamp, start)))
+                .orderBy(sensorData.timestamp)
+                .limit(1);
+            valueBeforeStart = firstSensorEntry.length > 0 ? firstSensorEntry[0].value : 0;
+        }
 
         const latestEntryBeforeEnd = await trx
             .select({ value: sensorData.value })
@@ -417,6 +429,13 @@ export async function createSensorToken(clientId: string) {
             };
         }
 
+        if (!sensorData[0].userId) {
+            return {
+                error: "sensor/no-user",
+                code: null,
+            };
+        }
+
         const tokenData = await trx.select().from(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
         if (tokenData.length > 0) {
             await trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensorData[0].id));
@@ -524,6 +543,13 @@ export async function getSensorIdFromSensorToken(code: string) {
             };
         }
 
+        if (!sensorData[0].userId) {
+            return {
+                error: "sensor/no-user",
+                sensorId: null,
+            };
+        }
+
         return {
             error: null,
             sensorId: sensorData[0].id,
@@ -626,4 +652,27 @@ export async function updateNeedsScript(sensorId: string, needsScript: boolean) 
             needsScript,
         })
         .where(eq(sensor.id, sensorId));
+}
+
+export async function calculateAnomaly(id: string, start: Date, end: Date) {
+    return db
+        .select({
+            avg: sql<number>`AVG(${sensorData.value})`,
+            std: sql<number>`STD(${sensorData.value})`,
+            sensorId: sensorData.sensorId,
+        })
+        .from(sensorData)
+        .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
+        .groupBy(sensorData.sensorId)
+        .having(
+            and(
+                eq(sensor.userId, id),
+                gt(sensorData.timestamp, start),
+                lt(sensorData.timestamp, end),
+                gt(
+                    sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value}))`,
+                    sql<number>`2 * STD(${sensorData.value})`,
+                ),
+            ),
+        );
 }

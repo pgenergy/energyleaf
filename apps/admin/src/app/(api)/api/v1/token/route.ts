@@ -1,7 +1,7 @@
-import { NextResponse, type NextRequest } from "next/server";
 import { createSensorToken, getEnergyLastEntry, getSensorDataByClientId } from "@energyleaf/db/query";
 import { TokenRequest, TokenResponse } from "@energyleaf/proto";
 import { parseReadableStream } from "@energyleaf/proto/util";
+import { type NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;
@@ -18,6 +18,8 @@ export const POST = async (req: NextRequest) => {
     try {
         const binaryData = await parseReadableStream(body);
         const data = TokenRequest.fromBinary(binaryData);
+
+        console.info(data);
 
         try {
             const code = await createSensorToken(data.clientId);
@@ -67,7 +69,11 @@ export const POST = async (req: NextRequest) => {
             );
         } catch (err) {
             console.error(err, data);
-            if ((err as unknown as Error).message === "sensor/not-found") {
+
+            if (
+                (err as unknown as Error).message === "sensor/not-found" ||
+                (err as unknown as Error).message === "sensor/no-user"
+            ) {
                 return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
                     status: 404,
                     headers: {
