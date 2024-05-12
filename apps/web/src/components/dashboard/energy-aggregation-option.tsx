@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { track } from '@vercel/analytics';
