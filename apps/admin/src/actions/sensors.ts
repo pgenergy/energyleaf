@@ -79,9 +79,23 @@ export async function assignUserToSensor(data: z.infer<typeof assignUserToSensor
     try {
         const newId = await assignSensorToUserDb(clientId, data.userId);
         revalidatePath("/sensors");
-        return newId;
-    } catch (e) {
-        throw new Error("Error while assigning user to sensor");
+
+        return {
+            success: true,
+            message: "Der Sensor wurde erfolgreich zum Benutzer zugeordnet.",
+            payload: newId,
+        };
+    } catch (err) {
+        if ((err as unknown as Error).message === "sensor/user-has-sensor-of-type") {
+            return {
+                success: false,
+                message: "Der Benutzer hat bereits einen Sensor dieses Typs zugewiesen.",
+            }
+        }
+        return {
+            success: false,
+            message: "Fehler beim Zuweisen",
+        };
     }
 }
 
