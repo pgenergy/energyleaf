@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
                 status: 200,
                 headers: {
                     "Content-Type": "text/csv",
-                    "Content-Disposition": `attachment; filename=export_${userId}.csv`,
+                    "Content-Disposition": `attachment; filename=export_${userId}_${new Date().getTime()}.csv`,
                     "Access-Control-Allow-Origin": "*",
                 },
             });
