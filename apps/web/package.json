@@ -10,6 +10,7 @@
 		"clean": "git clean -xdf .next .turbo node_modules"
 	},
 	"dependencies": {
+		"@boringer-avatars/react": "^0.2.1",
 		"@energyleaf/db": "workspace:^",
 		"@energyleaf/lib": "workspace:^",
 		"@energyleaf/mail": "workspace:*",

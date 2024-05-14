@@ -33,5 +33,10 @@
 		"react-error-boundary": "^4.0.13",
 		"typescript": "^5.4.5",
 		"zod": "^3.23.6"
+	},
+	"pnpm": {
+		"patchedDependencies": {
+			"@boringer-avatars/react@0.2.1": "patches/@boringer-avatars__react@0.2.1.patch"
+		}
 	}
 }
