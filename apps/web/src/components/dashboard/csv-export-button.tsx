@@ -37,15 +37,20 @@ export default function CSVExportButton({ userId, userHash, endpoint }: Props) {
         setLoading(true);
         toast.promise(
             async () => {
-                const res = await fetch(endpoint, {
-                    method: "POST",
-                    body: JSON.stringify({
-                        userId,
-                        userHash,
-                        start: range.from?.toISOString(),
-                        end: range.to?.toISOString(),
-                    }),
-                });
+                let res: Response;
+                try {
+                    res = await fetch(endpoint, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            userId,
+                            userHash,
+                            start: range.from?.toISOString(),
+                            end: range.to?.toISOString(),
+                        }),
+                    });
+                } catch (err) {
+                    throw new Error("Ein Fehler ist aufgetreten.");
+                }
 
                 if (!res.ok) {
                     throw new Error("Ein Fehler ist aufgetreten.");
@@ -53,7 +58,7 @@ export default function CSVExportButton({ userId, userHash, endpoint }: Props) {
 
                 if (res.headers.get("Content-Type") !== "text/csv") {
                     if (res.headers.get("Content-Type") === "application/json") {
-                        const body = await res.json() as { error: string; };
+                        const body = (await res.json()) as { error: string };
                         throw new Error(body.error);
                     }
 
