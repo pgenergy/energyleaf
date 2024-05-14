@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
         if (!userId || !userHash) {
             return NextResponse.json(
                 {
-                    error: "Sie habene keinen Zugriff.",
+                    error: "Sie haben keinen Zugriff.",
                 },
                 {
                     status: 401,
