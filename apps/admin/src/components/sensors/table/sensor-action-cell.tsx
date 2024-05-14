@@ -1,6 +1,5 @@
 "use client";
 
-import { removeUserFromSensor } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
 import type { SensorSelectType } from "@energyleaf/db/types";
 import {
@@ -13,7 +12,6 @@ import {
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
 import { Edit2Icon, MinusIcon, MoreVerticalIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
-import { toast } from "sonner";
 
 interface Props {
     sensor: SensorSelectType;
@@ -38,11 +36,8 @@ export default function SensorActionCell({ sensor }: Props) {
     }
 
     function removeUser() {
-        toast.promise(removeUserFromSensor(sensor.clientId), {
-            loading: "Nutzer wird entfernt...",
-            success: "Nutzer wurde entfernt",
-            error: "Fehler beim Entfernen des Nutzers",
-        });
+        sensorContext.setSensor(sensor);
+        sensorContext.setSensorResetDialogOpen(true);
     }
 
     return (
@@ -66,7 +61,7 @@ export default function SensorActionCell({ sensor }: Props) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="flex cursor-pointer flex-row gap-2" onClick={removeUser}>
                     <MinusIcon className="h-4 w-4" />
-                    Nutzer entfernen
+                    Sensor zurücksetzen
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

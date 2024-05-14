@@ -9,6 +9,7 @@ import { ErrorBoundary } from "@energyleaf/ui/error";
 import React, { Suspense } from "react";
 import SensorAddValueDialog from "./sensor-add-value-dialog";
 import SensorEditDialog from "./sensor-edit-dialog";
+import SensorResetAlert from "./sensor-reset-alert";
 
 export default function SensorsOverviewCard() {
     return (
@@ -17,6 +18,7 @@ export default function SensorsOverviewCard() {
             <SensorDeleteDialog />
             <SensorEditDialog />
             <SensorAddValueDialog />
+            <SensorResetAlert />
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Sensoren</CardTitle>
