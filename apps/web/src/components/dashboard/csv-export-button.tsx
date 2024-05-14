@@ -14,7 +14,7 @@ import {
 } from "@energyleaf/ui";
 import { DateRangePicker } from "@energyleaf/ui/components/utils";
 import { DownloadIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { toast } from "sonner";
 
@@ -48,11 +48,16 @@ export default function CSVExportButton({ userId, userHash, endpoint }: Props) {
                 });
 
                 if (!res.ok) {
-                    throw new Error("Unable to contact endpoint");
+                    throw new Error("Ein Fehler ist aufgetreten.");
                 }
 
-                if (res.headers.get("Content-Type") === "application/json") {
-                    throw new Error("Invalid request");
+                if (res.headers.get("Content-Type") !== "text/csv") {
+                    if (res.headers.get("Content-Type") === "application/json") {
+                        const body = await res.json() as { error: string; };
+                        throw new Error(body.error);
+                    }
+
+                    throw new Error("Ein Fehler ist aufgetreten.");
                 }
 
                 const content = await res.blob();
@@ -66,9 +71,9 @@ export default function CSVExportButton({ userId, userHash, endpoint }: Props) {
                     setOpen(false);
                     return "Export erstellt.";
                 },
-                error: () => {
+                error: (err: Error) => {
                     setLoading(false);
-                    return "Ein Fehler ist aufgetreten";
+                    return err.message;
                 },
             },
         );
@@ -85,7 +90,7 @@ export default function CSVExportButton({ userId, userHash, endpoint }: Props) {
                 <AlertDialogHeader>
                     <AlertDialogTitle>CSV Export</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Sie haben die möglichkeit ihre Daten als CSV zu exportieren. Wählen Sie hierzu den gewünschten
+                        Sie haben die Möglichkeit, Ihre Daten als CSV zu exportieren. Wählen Sie hierzu den gewünschten
                         Bereich aus.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
