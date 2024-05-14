@@ -90,7 +90,7 @@ export async function assignUserToSensor(data: z.infer<typeof assignUserToSensor
             return {
                 success: false,
                 message: "Der Benutzer hat bereits einen Sensor dieses Typs zugewiesen.",
-            }
+            };
         }
         return {
             success: false,

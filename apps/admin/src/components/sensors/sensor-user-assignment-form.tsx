@@ -1,15 +1,15 @@
-import {assignUserToSensor} from "@/actions/sensors";
+import { assignUserToSensor } from "@/actions/sensors";
 import UserSelector from "@/components/users/user-selector";
-import {useSensorContext} from "@/hooks/sensor-hook";
-import {assignUserToSensorSchema} from "@/lib/schema/sensor";
-import type {SensorSelectType} from "@energyleaf/db/types";
-import {Form, FormField, Spinner} from "@energyleaf/ui";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useState} from "react";
-import {type ControllerRenderProps, useForm} from "react-hook-form";
-import {toast} from "sonner";
-import type {z} from "zod";
-import type {DefaultActionReturnPayload} from "@energyleaf/lib";
+import { useSensorContext } from "@/hooks/sensor-hook";
+import { assignUserToSensorSchema } from "@/lib/schema/sensor";
+import type { SensorSelectType } from "@energyleaf/db/types";
+import type { DefaultActionReturnPayload } from "@energyleaf/lib";
+import { Form, FormField, Spinner } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { type ControllerRenderProps, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     sensor: SensorSelectType;
