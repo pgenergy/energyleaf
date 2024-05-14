@@ -50,6 +50,7 @@ export default function SensorUserAssignmentForm({ sensor, selectedUserId, selec
                 },
                 error: (_) => {
                     setIsSaving(false);
+                    form.reset();
                     return "Fehler beim Zuweisen";
                 },
             },
