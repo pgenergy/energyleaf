@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { env } from "@/env.mjs";
 import { getElectricitySensorIdForUser, getEnergyForSensorInRange } from "@energyleaf/db/query";
 import * as csv from "csv/sync";
 import { type NextRequest, NextResponse } from "next/server";
@@ -24,8 +26,8 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const base64UserId = Buffer.from(userId).toString("base64url").slice(0, 6);
-        if (base64UserId !== userHash) {
+        const hash = createHash("sha256").update(`${userId}${env.NEXTAUTH_SECRET}`).digest("hex");
+        if (hash !== userHash) {
             return NextResponse.json(
                 {
                     error: "Sie haben keinen Zugriff.",

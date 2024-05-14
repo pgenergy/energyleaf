@@ -1,11 +1,11 @@
+import { createHash } from "node:crypto";
 import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
+import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
 import calculatePeaks from "@/lib/consumption/peak-calculation";
 import { getDevicesByUser } from "@/query/device";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import type { PeakAssignment } from "@/types/consumption/peak";
-
-import { env } from "@/env.mjs";
 import type { ConsumptionData } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
@@ -66,7 +66,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     const csvExportData = {
         userId: user.id,
-        userHash: Buffer.from(userId).toString("base64url").slice(0, 6),
+        userHash: createHash("sha256").update(`${user.id}${env.NEXTAUTH_SECRET}`).digest("hex"),
         endpoint: env.VERCEL_URL ? `https://admin.${env.VERCEL_URL}/api/v1/csv` : "http://localhost:3001/api/v1/csv",
     };
 
