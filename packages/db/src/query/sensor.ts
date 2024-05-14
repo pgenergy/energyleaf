@@ -597,6 +597,16 @@ export async function assignSensorToUser(clientId: string, userId: string | null
             throw new Error("sensor/not-found");
         }
 
+        if (userId) {
+            const userSensorOfSameType = await trx
+                .select()
+                .from(sensor)
+                .where(and(eq(sensor.userId, userId), eq(sensor.sensorType, query[0].sensorType)));
+            if (userSensorOfSameType.length > 0) {
+                throw new Error("sensor/user-has-sensor-of-type");
+            }
+        }
+
         const currentSensor = query[0];
         if (currentSensor.userId) {
             // Safe in history table so that the previous user can still see his data
