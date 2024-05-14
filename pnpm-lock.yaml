@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@boringer-avatars/react@0.2.1':
+    hash: h2esg5bkozas3b3eaclyriav6i
+    path: patches/@boringer-avatars__react@0.2.1.patch
+
 importers:
 
   .:
@@ -42,6 +47,9 @@ importers:
 
   apps/admin:
     dependencies:
+      '@boringer-avatars/react':
+        specifier: ^0.2.1
+        version: 0.2.1(patch_hash=h2esg5bkozas3b3eaclyriav6i)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@energyleaf/db':
         specifier: workspace:^
         version: link:../../packages/db
@@ -157,6 +165,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@boringer-avatars/react':
+        specifier: ^0.2.1
+        version: 0.2.1(patch_hash=h2esg5bkozas3b3eaclyriav6i)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@energyleaf/db':
         specifier: workspace:^
         version: link:../../packages/db
@@ -634,6 +645,12 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
+
+  '@boringer-avatars/react@0.2.1':
+    resolution: {integrity: sha512-krK64quOY7O1DsAS1NAu0FH+3XoFprkD1+wrltmYbrPFIFRSrsMTDeu4jeIXHpPQ+Bs+4J0Cc9jdzcDfSNylxQ==}
+    peerDependencies:
+      react: ^18.2.0
+      react-dom: ^18.2.0
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -4077,6 +4094,22 @@ packages:
     resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
     hasBin: true
 
+  mobx-react-lite@3.4.3:
+    resolution: {integrity: sha512-NkJREyFTSUXR772Qaai51BnE1voWx56LOL80xG7qkZr6vo8vEaLF3sz1JNUVh+rxmUzxYaqOhfuxTfqUh0FXUg==}
+    peerDependencies:
+      mobx: ^6.1.0
+      react: ^16.8.0 || ^17 || ^18
+      react-dom: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+
+  mobx@6.12.3:
+    resolution: {integrity: sha512-c8NKkO4R2lShkSXZ2Ongj1ycjugjzFFo/UswHBnS62y07DMcTc9Rvo03/3nRyszIvwPNljlkd4S828zIBv/piw==}
+
   ms@2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
 
@@ -5142,6 +5175,15 @@ snapshots:
 
   '@biomejs/cli-win32-x64@1.7.3':
     optional: true
+
+  '@boringer-avatars/react@0.2.1(patch_hash=h2esg5bkozas3b3eaclyriav6i)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      mobx: 6.12.3
+      mobx-react-lite: 3.4.3(mobx@6.12.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - react-native
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -8440,6 +8482,15 @@ snapshots:
   mkdirp@0.5.6:
     dependencies:
       minimist: 1.2.8
+
+  mobx-react-lite@3.4.3(mobx@6.12.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      mobx: 6.12.3
+      react: 18.3.1
+    optionalDependencies:
+      react-dom: 18.3.1(react@18.3.1)
+
+  mobx@6.12.3: {}
 
   ms@2.1.2: {}
 
