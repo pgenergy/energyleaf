@@ -5,11 +5,13 @@ import { getDevicesByUser } from "@/query/device";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import type { PeakAssignment } from "@/types/consumption/peak";
 
+import { env } from "@/env.mjs";
 import type { ConsumptionData } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { redirect } from "next/navigation";
+import CSVExportButton from "./csv-export-button";
 import DashboardZoomReset from "./dashboard-zoom-reset";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
@@ -62,12 +64,27 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
             ? await calculatePeaks(data, startDate, endDate, sensorId)
             : [];
 
+    const csvExportData = {
+        userId: user.id,
+        userHash: Buffer.from(userId).toString("base64url").slice(0, 6),
+        endpoint: env.VERCEL_URL ? `https://admin.${env.VERCEL_URL}/api/v1/csv` : "http://localhost:3001/api/v1/csv",
+    };
+
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-col justify-start">
-                <div className="flex flex-col gap-2">
-                    <CardTitle>Verbrauch</CardTitle>
-                    <CardDescription>Übersicht Ihres Verbrauchs im Zeitraum.</CardDescription>
+                <div className="flex flex-row justify-between gap-2">
+                    <div className="flex flex-col gap-2">
+                        <CardTitle>Verbrauch</CardTitle>
+                        <CardDescription>Übersicht Ihres Verbrauchs im Zeitraum.</CardDescription>
+                    </div>
+                    {user.id !== "demo" ? (
+                        <CSVExportButton
+                            userId={csvExportData.userId}
+                            userHash={csvExportData.userHash}
+                            endpoint={csvExportData.endpoint}
+                        />
+                    ) : null}
                 </div>
                 <div className="flex flex-row gap-4">
                     <DashboardZoomReset />
