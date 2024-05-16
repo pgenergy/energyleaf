@@ -1,6 +1,6 @@
-import { AggregationType } from "@energyleaf/lib";
+import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, between, desc, eq, gt, gte, lt, lte, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, gt, gte, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
@@ -576,6 +576,19 @@ export async function assignSensorToUser(clientId: string, userId: string | null
             throw new Error("sensor/not-found");
         }
 
+        if (userId) {
+            const sensorType = query[0].sensorType;
+            const userSensorOfSameType = await trx
+                .select()
+                .from(sensor)
+                .where(
+                    and(eq(sensor.userId, userId), eq(sensor.sensorType, sensorType), ne(sensor.clientId, clientId)),
+                );
+            if (userSensorOfSameType.length > 0) {
+                throw new UserHasSensorOfSameType(userId, sensorType);
+            }
+        }
+
         const currentSensor = query[0];
         if (currentSensor.userId) {
             // Safe in history table so that the previous user can still see his data
@@ -617,10 +630,29 @@ export async function assignSensorToUser(clientId: string, userId: string | null
 }
 
 /**
- * Delete the current user from the sensor without inserting it in sensorHistory
+ * Resets the sensor values including:
+ * - removing the current user without assigning sensor history
+ * - setting the needsScript to true
+ * - removing current script
+ * - removing the sensor token
+ * - removing the sensor data
+ *
+ * This is a function only for the admin panel
  */
-export async function deleteUserFromSensor(clientId: string) {
-    await db.update(sensor).set({ userId: null }).where(eq(sensor.clientId, clientId));
+export async function resetSensorValues(clientId: string) {
+    await db.transaction(async (trx) => {
+        const sensors = await trx.select({ id: sensor.id }).from(sensor).where(eq(sensor.clientId, clientId));
+        if (sensors.length === 0) {
+            return;
+        }
+
+        await trx
+            .update(sensor)
+            .set({ userId: null, needsScript: true, script: null })
+            .where(eq(sensor.clientId, clientId));
+        await trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensors[0].id));
+        await trx.delete(sensorData).where(eq(sensorData.sensorId, sensors[0].id));
+    });
 }
 
 /**
