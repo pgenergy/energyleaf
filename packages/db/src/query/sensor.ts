@@ -1,4 +1,4 @@
-import { AggregationType } from "@energyleaf/lib";
+import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 import { and, between, desc, eq, gt, gte, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -598,18 +598,15 @@ export async function assignSensorToUser(clientId: string, userId: string | null
         }
 
         if (userId) {
+            const sensorType = query[0].sensorType;
             const userSensorOfSameType = await trx
                 .select()
                 .from(sensor)
                 .where(
-                    and(
-                        eq(sensor.userId, userId),
-                        eq(sensor.sensorType, query[0].sensorType),
-                        ne(sensor.clientId, clientId),
-                    ),
+                    and(eq(sensor.userId, userId), eq(sensor.sensorType, sensorType), ne(sensor.clientId, clientId)),
                 );
             if (userSensorOfSameType.length > 0) {
-                throw new Error("sensor/user-has-sensor-of-type");
+                throw new UserHasSensorOfSameType(userId, sensorType);
             }
         }
 

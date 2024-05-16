@@ -14,7 +14,7 @@ import {
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
 import type { SensorInsertType, SensorType } from "@energyleaf/db/types";
-import type { AggregationType } from "@energyleaf/lib";
+import { type AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { revalidatePath } from "next/cache";
 import "server-only";
 import type { z } from "zod";
@@ -86,7 +86,7 @@ export async function assignUserToSensor(data: z.infer<typeof assignUserToSensor
             payload: newId,
         };
     } catch (err) {
-        if ((err as unknown as Error).message === "sensor/user-has-sensor-of-type") {
+        if (err instanceof UserHasSensorOfSameType) {
             return {
                 success: false,
                 message: "Der Benutzer hat bereits einen Sensor dieses Typs zugewiesen.",
