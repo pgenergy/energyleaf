@@ -1,11 +1,12 @@
 "use client";
 
-import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
-import { Card, CardContent, CardDescription, CardHeader } from "@energyleaf/ui";
-import { format } from "date-fns";
+import { format, getISOWeek } from "date-fns";
 import { de } from "date-fns/locale";
+import { useMemo } from 'react';
 import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
+import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
+import { Card, CardContent, CardDescription, CardHeader } from "@energyleaf/ui";
 
 interface Props {
     aggregationType: AggregationType;
@@ -20,46 +21,36 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
               timestamp: string;
           }
         | undefined;
-    const energy = data?.energy;
-    const timestamp = data?.timestamp;
 
-    if (!energy || !timestamp) {
+    const formattedTimestamp = useMemo(() => {
+        if (!data?.timestamp) return "Datum fehlt";
+        const date = new Date(data.timestamp);
+        if (Number.isNaN(date.getTime())) {
+            return "Ungültiges Datum";
+        }        
+        const formatOptions = {
+            [AggregationType.RAW]: "dd.MM.yyyy HH:mm",
+            [AggregationType.HOUR]: "HH 'Uhr'",
+            [AggregationType.DAY]: "dd. MMMM yyyy",
+            [AggregationType.MONTH]: "MMMM yyyy",
+            [AggregationType.YEAR]: "yyyy",
+            [AggregationType.WEEK]: `'KW' ${getISOWeek(date)} yyyy`
+        };
+        return format(date, formatOptions[aggregationType] || "dd.MM.yyyy", { locale: de });
+    }, [data?.timestamp, aggregationType]);
+
+    if (!data?.energy) {
         return null;
     }
-
-    const formattedTimestamp = () => {
-        if (aggregationType === AggregationType.RAW) {
-            return format(new Date(timestamp), "dd.MM.yyyy HH:mm");
-        }
-
-        if (aggregationType === AggregationType.HOUR) {
-            return `${format(new Date(timestamp), "HH")} Uhr`;
-        }
-
-        if (aggregationType === AggregationType.DAY) {
-            return `Tag: ${format(new Date(timestamp), "dd")}`;
-        }
-
-        if (aggregationType === AggregationType.MONTH) {
-            return `Monat: ${format(new Date(timestamp), "MMMM", {
-                locale: de,
-            })}`;
-        }
-
-        if (aggregationType === AggregationType.YEAR) {
-            return `Jahr: ${format(new Date(timestamp), "yyyy")}`;
-        }
-    };
 
     return (
         <Card className="z-10">
             <CardHeader>
-                <CardDescription>{formattedTimestamp()}</CardDescription>
+                <CardDescription>{formattedTimestamp}</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <p className="text-sm">
-                    <span className="font-bold">Verbrauch:</span> {energy.toFixed(2)}{" "}
-                    {computeTimestampLabel(aggregationType, true)}
+                    <span className="font-bold">Verbrauch:</span> {data.energy.toFixed(2)} {computeTimestampLabel(aggregationType, true)}
                 </p>
             </CardContent>
         </Card>
