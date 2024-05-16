@@ -3,6 +3,9 @@ import { getAvgEnergyConsumptionForSensor, getElectricitySensorIdForUser } from 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { redirect } from "next/navigation";
 
+const formatNumber = (number: number) =>
+    number.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 export default async function AvgEnergyConsumptionCard() {
     const { session, user } = await getSession();
 
@@ -33,11 +36,11 @@ export default async function AvgEnergyConsumptionCard() {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Durchschnittlicher Energieverbrauch</CardTitle>
-                <CardDescription>Ihr durchschnittlicher Energieverbrauch</CardDescription>
+                <CardDescription>Hier sehen Sie Ihren durchschnittlichen Energieverbrauch über die gesamte Zeit</CardDescription>
             </CardHeader>
             <CardContent>
                 {avg ? (
-                    <h1 className="text-center font-bold text-2xl text-primary">{avg.toFixed(2)} kWh</h1>
+                    <h1 className="text-center font-bold text-2xl text-primary">{formatNumber(avg)} kWh</h1>
                 ) : (
                     <p className="text-center text-muted-foreground">Keine Daten vorhanden</p>
                 )}
