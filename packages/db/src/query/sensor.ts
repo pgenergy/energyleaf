@@ -6,15 +6,18 @@ import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
 
-/**
- * Get the energy utils for a sensor in a given time range
- */
+interface EnergyData {
+    sensorId: string;
+    value: number;
+    timestamp: string;
+}
+
 export async function getEnergyForSensorInRange(
     start: Date,
     end: Date,
     sensorId: string,
     aggregation = AggregationType.RAW,
-) {
+): Promise<EnergyData[]> {
     if (aggregation === AggregationType.RAW) {
         const query = await db
             .select()
@@ -35,7 +38,7 @@ export async function getEnergyForSensorInRange(
             ...row,
             id: row.id,
             value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-            timestamp: row.timestamp.toISOString(),
+            timestamp: (row.timestamp as Date).toISOString(),
         }));
     }
 
@@ -82,9 +85,10 @@ export async function getEnergyForSensorInRange(
         ...row,
         id: index.toString(),
         value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
+        timestamp: String(row.timestamp),
     }));
 
-    return results.slice(1);
+    return results.slice(1) as EnergyData[];
 }
 
 export async function getEnergyLastEntry(sensorId: string) {
