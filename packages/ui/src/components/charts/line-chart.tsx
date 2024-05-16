@@ -48,7 +48,13 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
         if (!xAxes?.dataKey) {
             return;
         }
-        const dates = data.map((d) => new Date(d[xAxes.dataKey] as string));
+        const dates = data
+        .map(d => {
+            const dateString = d[xAxes.dataKey] as string;
+            return parseISO(dateString);
+        })
+        .filter(isValid);    
+
         if (dates.length === 0) {
             return (value: string) => value;
         }

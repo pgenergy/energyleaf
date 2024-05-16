@@ -6,15 +6,18 @@ import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
 
-/**
- * Get the energy utils for a sensor in a given time range
- */
+interface EnergyData {
+    sensorId: string;
+    value: number;
+    timestamp: string;
+}
+
 export async function getEnergyForSensorInRange(
     start: Date,
     end: Date,
     sensorId: string,
     aggregation = AggregationType.RAW,
-) {
+): Promise<EnergyData[]> {
     if (aggregation === AggregationType.RAW) {
         const query = await db
             .select()
@@ -31,81 +34,61 @@ export async function getEnergyForSensorInRange(
             )
             .orderBy(sensorData.timestamp);
 
-        return query.map((row, index) => {
-            if (index === 0) {
-                return {
-                    ...row,
-                    id: row.id,
-                    value: Number(0),
-                };
-            }
-
-            return {
-                ...row,
-                id: row.id,
-                value: Number(row.value) - Number(query[index - 1].value),
-            };
-        });
+        return query.map((row, index) => ({
+            ...row,
+            id: row.id,
+            value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
+            timestamp: (row.timestamp as Date).toISOString(),
+        }));
     }
 
-    let grouper = sql<string | number>`EXTRACT(hour FROM ${sensorData.timestamp})`;
-    // needs to be hacky because we need a fixed date for the grouping
-    let timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '2000-01-01 %H:00:00') AS DATETIME)`;
+    let dateFormat: string;
     switch (aggregation) {
+        case AggregationType.HOUR:
+            dateFormat = "%Y-%m-%dT%H:00:00Z";
+            break;
         case AggregationType.DAY:
-            grouper = sql<string | number>`WEEKDAY(${sensorData.timestamp})`;
-            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '2000-01-%d 00:00:00') AS DATETIME)`;
+            dateFormat = "%Y-%m-%dT00:00:00Z";
             break;
         case AggregationType.WEEK:
-            grouper = sql<string | number>`EXTRACT(week FROM ${sensorData.timestamp})`;
-            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-%m-%d 00:00:00') AS DATETIME)`;
+            dateFormat = "%X-W%V";
             break;
         case AggregationType.MONTH:
-            grouper = sql<string | number>`EXTRACT(month FROM ${sensorData.timestamp})`;
-            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-%m-01 00:00:00') AS DATETIME)`;
+            dateFormat = "%Y-%m-01T00:00:00Z";
             break;
         case AggregationType.YEAR:
-            grouper = sql<string | number>`EXTRACT(year FROM ${sensorData.timestamp})`;
-            timestamp = sql<Date>`CAST(DATE_FORMAT(${sensorData.timestamp}, '%Y-01-01 00:00:00') AS DATETIME)`;
+            dateFormat = "%Y-01-01T00:00:00Z";
             break;
+        default:
+            throw new Error(`Unsupported aggregation type: ${aggregation}`);
     }
+
+    const formattedTimestamp = sql`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
 
     const query = await db
         .select({
             sensorId: sensorData.sensorId,
-            value: sql<string>`AVG(${sensorData.value})`,
-            timestamp: timestamp,
-            grouper: grouper,
+            value: sql`AVG(${sensorData.value})`,
+            timestamp: formattedTimestamp,
         })
         .from(sensorData)
         .where(
             and(
                 eq(sensorData.sensorId, sensorId),
-                or(
-                    between(sensorData.timestamp, start, end),
-                    eq(sensorData.timestamp, start),
-                    eq(sensorData.timestamp, end),
-                ),
+                between(sensorData.timestamp, start, end),
             ),
         )
-        .groupBy(grouper, timestamp)
-        .orderBy(grouper);
+        .groupBy(formattedTimestamp)
+        .orderBy(formattedTimestamp);
 
-    return query.map((row, index) => {
-        if (index === 0) {
-            return {
-                ...row,
-                id: index.toString(),
-                value: Number(0),
-            };
-        }
+    const results = query.map((row, index) => ({
+        ...row,
+        id: index.toString(),
+        value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
+        timestamp: String(row.timestamp),
+    }));
 
-        return {
-            ...row,
-            id: index.toString(),
-            value: Number(row.value) - Number(query[index - 1].value),
-        };
-    });
+    return results.slice(1) as EnergyData[];
 }
 
 export async function getEnergyLastEntry(sensorId: string) {
