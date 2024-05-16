@@ -1,6 +1,6 @@
-import { AggregationType } from "@energyleaf/lib";
+import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, between, desc, eq, gt, gte, lt, lte, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, gt, gte, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
@@ -595,6 +595,19 @@ export async function assignSensorToUser(clientId: string, userId: string | null
         const query = await trx.select().from(sensor).where(eq(sensor.clientId, clientId));
         if (query.length === 0) {
             throw new Error("sensor/not-found");
+        }
+
+        if (userId) {
+            const sensorType = query[0].sensorType;
+            const userSensorOfSameType = await trx
+                .select()
+                .from(sensor)
+                .where(
+                    and(eq(sensor.userId, userId), eq(sensor.sensorType, sensorType), ne(sensor.clientId, clientId)),
+                );
+            if (userSensorOfSameType.length > 0) {
+                throw new UserHasSensorOfSameType(userId, sensorType);
+            }
         }
 
         const currentSensor = query[0];

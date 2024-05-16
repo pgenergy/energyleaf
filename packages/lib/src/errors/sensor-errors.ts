@@ -6,3 +6,14 @@ export class SensorAlreadyExistsError extends Error {
         this.macAddress = macAddress;
     }
 }
+
+export class UserHasSensorOfSameType extends Error {
+    userId: string;
+    sensorType: string;
+
+    constructor(userId: string, sensorType: string) {
+        super(`The user with ID ${userId} already has a sensor of type ${sensorType}`);
+        this.userId = userId;
+        this.sensorType = sensorType;
+    }
+}
