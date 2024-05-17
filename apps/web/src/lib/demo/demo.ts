@@ -38,6 +38,9 @@ export function getUserDataCookieStore() {
             consumptionGoal: 20,
             electricityMeterType: "digital",
             electricityMeterImgUrl: null,
+            wifiAtElectricityMeter: true,
+            powerAtElectricityMeter: true,
+            installationComment: null,
         },
     };
 

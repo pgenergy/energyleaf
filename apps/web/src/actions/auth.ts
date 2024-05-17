@@ -29,11 +29,18 @@ import type { z } from "zod";
  * Server action for creating a new account
  */
 export async function createAccount(data: FormData) {
+    const phone = data.get("phone") as string | undefined;
+    const firstname = data.get("firstname") as string;
+    const lastname = data.get("lastname") as string;
+    const address = data.get("address") as string;
+    const comment = data.get("comment") as string | undefined;
     const mail = data.get("mail") as string;
+    const hasWifi = (data.get("hasWifi") as string) === "true";
+    const hasPower = (data.get("hasPower") as string) === "true";
     const password = data.get("password") as string;
     const passwordRepeat = data.get("passwordRepeat") as string;
     const username = data.get("username") as string;
-    const file = data.get("file") as File;
+    const file = data.get("file") as File | undefined;
     const electricityMeterType = data.get(
         "electricityMeterType",
     ) as (typeof userData.electricityMeterType.enumValues)[number];
@@ -97,6 +104,13 @@ export async function createAccount(data: FormData) {
 
     try {
         await createUser({
+            firstname,
+            address,
+            lastname,
+            phone,
+            comment,
+            hasPower,
+            hasWifi,
             email: mail,
             password: hash,
             username,
@@ -105,7 +119,7 @@ export async function createAccount(data: FormData) {
         } satisfies CreateUserType);
         await sendAccountCreatedEmail({
             to: mail,
-            name: username,
+            name: `${firstname} ${lastname}`,
             apiKey: env.RESEND_API_KEY,
             from: env.RESEND_API_MAIL,
         });

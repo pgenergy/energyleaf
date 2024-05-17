@@ -20,6 +20,8 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
+    Switch,
+    Textarea,
 } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -34,7 +36,14 @@ export default function SignUpForm() {
     const form = useForm<z.infer<typeof signupSchema>>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
+            firstname: "",
+            lastname: "",
             mail: "",
+            phone: "",
+            address: "",
+            comment: "",
+            hasWifi: false,
+            hasPower: false,
             password: "",
             passwordRepeat: "",
             username: "",
@@ -82,11 +91,39 @@ export default function SignUpForm() {
             <p className="mb-2 text-muted-foreground">Verständnis über den eigenen Energieverbrauch aufbauen.</p>
             <Form {...form}>
                 <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+                    {/* Personal Info */}
+                    <FormField
+                        control={form.control}
+                        name="firstname"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Vorname</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Vorname" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="lastname"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Nachname</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Nachname" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <FormField
                         control={form.control}
                         name="username"
                         render={({ field }) => (
                             <FormItem>
+                                <FormLabel>Benutzername</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Benutzername" {...field} />
                                 </FormControl>
@@ -99,6 +136,7 @@ export default function SignUpForm() {
                         name="mail"
                         render={({ field }) => (
                             <FormItem>
+                                <FormLabel>E-Mail</FormLabel>
                                 <FormControl>
                                     <Input placeholder="E-Mail" type="email" {...field} />
                                 </FormControl>
@@ -108,9 +146,41 @@ export default function SignUpForm() {
                     />
                     <FormField
                         control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Telefonnummer (optional)</FormLabel>
+                                <FormControl>
+                                    <Input type="tel" placeholder="Telefonnr." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="address"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Adresse</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Adresse" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                    Wir benötigen ihre Adresse um den Sensor bei ihnen zu installieren.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    {/* Installation Info */}
+                    <div className="pb-4" />
+                    <FormField
+                        control={form.control}
                         name="electricityMeterType"
                         render={({ field }) => (
                             <FormItem>
+                                <FormLabel>Stromzähler</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
@@ -133,11 +203,12 @@ export default function SignUpForm() {
                         name="file"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Foto von Ihrem Stromzähler</FormLabel>
+                                <FormLabel>Foto von Ihrem Stromzähler (optional)</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="file"
-                                        accept=".jpg, .jpeg, .png, .svg, .gif, .mp4"
+                                        accept="image/*"
+                                        capture={true}
                                         onChange={(e) => {
                                             field.onChange(e.target.files ? e.target.files[0] : null);
                                         }}
@@ -151,12 +222,64 @@ export default function SignUpForm() {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="hasWifi"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex flex-row items-center justify-between">
+                                    <FormLabel>WLAN vorhanden?</FormLabel>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                </div>
+                                <FormDescription>
+                                    Ist eine stabile WLAN-Verbindung an ihrem Stromzähler vorhanden?
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="hasPower"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex flex-row items-center justify-between">
+                                    <FormLabel>Steckdose vorhanden?</FormLabel>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                </div>
+                                <FormDescription>
+                                    Befindet sich in der nähe ihres Stromzählers eine Steckdose, sollte dies nicht der
+                                    Fall sein, erhalten sie von uns ein Akku um den Sensor zu betreiben.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="comment"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Zusätzliche Informationen (optional)</FormLabel>
+                                <FormControl>
+                                    <Textarea {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    {/* Password */}
                     <div className="pb-4" />
                     <FormField
                         control={form.control}
                         name="password"
                         render={({ field }) => (
                             <FormItem>
+                                <FormLabel>Passwort</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Passwort" type="password" {...field} />
                                 </FormControl>
@@ -169,6 +292,7 @@ export default function SignUpForm() {
                         name="passwordRepeat"
                         render={({ field }) => (
                             <FormItem>
+                                <FormLabel>Password wiederholen</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Passwort wiederholen" type="password" {...field} />
                                 </FormControl>
