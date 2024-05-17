@@ -85,7 +85,9 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
                                     <CommandItem
                                         key={user.id}
                                         onSelect={() => {
-                                            onUserSelected(user.id);
+                                            if (selectedUserId !== user.id) {
+                                                onUserSelected(user.id);
+                                            }
                                             setIsOpen(false);
                                         }}
                                         value={user.name}
