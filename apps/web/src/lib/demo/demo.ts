@@ -37,6 +37,7 @@ export function getUserDataCookieStore() {
             timestamp: new Date(2021, 1, 1),
             consumptionGoal: 20,
             electricityMeterType: "digital",
+            electricityMeterImgUrl: null,
         },
     };
 
