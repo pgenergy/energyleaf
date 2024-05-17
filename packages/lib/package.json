@@ -14,10 +14,10 @@
 	},
 	"devDependencies": {
 		"@energyleaf/tsconfig": "workspace:^",
-		"@types/node": "^20.12.11",
+		"@types/node": "^20.12.12",
 		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"jose": "^5.2.4"
+		"jose": "^5.3.0"
 	}
 }

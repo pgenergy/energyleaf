@@ -38,6 +38,7 @@ export type CreateUserType = {
     password: string;
     username: string;
     electricityMeterType: (typeof userData.electricityMeterType.enumValues)[number];
+    meterImgUrl?: string;
 };
 
 /**
@@ -73,6 +74,7 @@ export async function createUser(data: CreateUserType) {
         await trx.insert(userData).values({
             userId: id,
             electricityMeterType: data.electricityMeterType,
+            electricityMeterImgUrl: data.meterImgUrl || null,
         });
 
         await trx.insert(reports).values({

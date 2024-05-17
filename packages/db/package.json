@@ -12,9 +12,9 @@
 		"./types": "./src/types/types.ts"
 	},
 	"scripts": {
-		"push": "drizzle-kit push:mysql --config ./drizzle-local.config.ts",
-		"push:prod": "drizzle-kit push:mysql",
-		"studio": "drizzle-kit studio --config ./drizzle-local.config.ts",
+		"push": "drizzle-kit push --config=./drizzle-local.config.ts",
+		"push:prod": "drizzle-kit push",
+		"studio": "drizzle-kit studio --config=./drizzle-local.config.ts",
 		"studio:prod": "drizzle-kit studio",
 		"clean": "git clean -xdf node_modules"
 	},
@@ -26,9 +26,9 @@
 		"nanoid": "^5.0.7"
 	},
 	"devDependencies": {
-        "@types/node": "^20.12.11",
 		"@energyleaf/tsconfig": "workspace:^",
-		"drizzle-kit": "^0.21.0",
+		"@types/node": "^20.12.12",
+		"drizzle-kit": "^0.21.2",
 		"mysql2": "^3.9.7",
 		"typescript": "^5.4.5"
 	}

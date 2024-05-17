@@ -4,7 +4,8 @@ import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import { onboardingCompleteCookieName } from "@/lib/constants";
 import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
-import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
+import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
+import { genId } from "@energyleaf/db";
 import { type CreateUserType, createUser, getUserById, getUserByMail, updatePassword } from "@energyleaf/db/query";
 import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
@@ -20,13 +21,22 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
+import type { userData } from "@energyleaf/db/schema";
+import { put } from "@vercel/blob";
 import type { z } from "zod";
 
 /**
  * Server action for creating a new account
  */
-export async function createAccount(data: z.infer<typeof signupSchema>) {
-    const { mail, password, passwordRepeat, username } = data;
+export async function createAccount(data: FormData) {
+    const mail = data.get("mail") as string;
+    const password = data.get("password") as string;
+    const passwordRepeat = data.get("passwordRepeat") as string;
+    const username = data.get("username") as string;
+    const file = data.get("file") as File;
+    const electricityMeterType = data.get(
+        "electricityMeterType",
+    ) as (typeof userData.electricityMeterType.enumValues)[number];
 
     if (mail === "demo@energyleaf.de") {
         return {
@@ -71,12 +81,27 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
 
     const hash = await new Argon2id().hash(password);
 
+    let url: string | undefined = undefined;
+    if (file && env.BLOB_READ_WRITE_TOKEN) {
+        try {
+            const id = genId(25);
+            const type = file.name.split(".").pop();
+            const res = await put(`electricitiy_meter/${id}.${type}`, file, {
+                access: "public",
+            });
+            url = res.url;
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     try {
         await createUser({
             email: mail,
             password: hash,
             username,
-            electricityMeterType: data.electricityMeterType,
+            electricityMeterType,
+            meterImgUrl: url,
         } satisfies CreateUserType);
         await sendAccountCreatedEmail({
             to: mail,
@@ -87,8 +112,9 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
         await sendAdminNewAccountCreatedEmail({
             email: mail,
             name: username,
-            meter: userDataElectricityMeterTypeEnums[data.electricityMeterType],
-            to: "energyleaf@uni-oldenburg.de",
+            meter: userDataElectricityMeterTypeEnums[electricityMeterType],
+            img: url,
+            to: env.ADMIN_MAIL,
             from: env.RESEND_API_MAIL,
             apiKey: env.RESEND_API_KEY,
         });

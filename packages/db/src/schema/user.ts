@@ -8,6 +8,7 @@ import {
     mysqlEnum,
     mysqlTable,
     smallint,
+    text,
     timestamp,
     varchar,
 } from "drizzle-orm/mysql-core";
@@ -42,6 +43,7 @@ export const userData = mysqlTable("user_data", {
     monthlyPayment: int("advance_payment_electricity"),
     consumptionGoal: int("consumption_goal"),
     electricityMeterType: mysqlEnum("electricity_meter_type", ["digital", "analog"]),
+    electricityMeterImgUrl: text("electricity_meter_img_url"),
 });
 
 export const session = mysqlTable("session", {
@@ -64,6 +66,7 @@ export const historyUserData = mysqlTable("history_user_data", {
     monthlyPayment: int("advance_payment_electricity"),
     consumptionGoal: int("consumption_goal"),
     electricityMeterType: mysqlEnum("electricity_meter_type", ["digital", "analog"]),
+    electricityMeterImgUrl: text("electricity_meter_img_url"),
 });
 
 export const reports = mysqlTable("reports", {

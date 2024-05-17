@@ -19,6 +19,10 @@ export const signupSchema = z.object({
     electricityMeterType: z
         .enum([...userData.electricityMeterType.enumValues])
         .default(userData.electricityMeterType.enumValues[0]),
+    file: z
+        .instanceof(File)
+        .refine((f) => f.size < 4000000, { message: "Das Bild darf nicht größer als 4MB sein." })
+        .optional(),
 });
 
 export const forgotSchema = z.object({

@@ -205,6 +205,7 @@ type AdminNewAccountMailOptions = MailOptions & {
     name: string;
     meter: string;
     email: string;
+    img?: string;
 };
 
 export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMailOptions) {
@@ -221,6 +222,7 @@ export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMail
             name: props.name,
             meter: props.meter,
             mail: props.email,
+            img: props.img,
         }),
     });
 

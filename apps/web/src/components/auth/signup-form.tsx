@@ -9,8 +9,10 @@ import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
+    FormLabel,
     FormMessage,
     Input,
     Select,
@@ -36,13 +38,20 @@ export default function SignUpForm() {
             password: "",
             passwordRepeat: "",
             username: "",
+            file: new File([], ""),
         },
     });
 
     async function createAccountCallback(data: z.infer<typeof signupSchema>) {
         let res: DefaultActionReturn = undefined;
         try {
-            res = await createAccount(data);
+            const form = new FormData();
+            const keys = Object.keys(data);
+            for (const key of keys) {
+                const value = data[key];
+                form.append(key, value);
+            }
+            res = await createAccount(form);
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
@@ -116,6 +125,29 @@ export default function SignUpForm() {
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="file"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Foto von Ihrem Stromzähler</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="file"
+                                        accept=".jpg, .jpeg, .png, .svg, .gif, .mp4"
+                                        onChange={(e) => {
+                                            field.onChange(e.target.files ? e.target.files[0] : null);
+                                        }}
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Sie haben die Möglichkeit ein Foto von Ihrem Stromzähler anzuhängen, dies
+                                    erleichtert uns die Installation ihres Sensors
+                                </FormDescription>
+                                <FormMessage />
                             </FormItem>
                         )}
                     />
