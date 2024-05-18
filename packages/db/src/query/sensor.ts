@@ -148,17 +148,32 @@ export async function getEnergySumForSensorInRange(start: Date, end: Date, senso
 export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
     const query = await db
         .select({
-            sensorId: sensorData.sensorId,
-            avg: sql<string>`AVG(${sensorData.value})`,
+            value: sensorData.value,
+            timestamp: sensorData.timestamp,
         })
         .from(sensorData)
-        .where(eq(sensorData.sensorId, sensorId));
+        .where(eq(sensorData.sensorId, sensorId))
+        .orderBy(sensorData.timestamp);
 
     if (query.length === 0) {
         return null;
     }
 
-    return Number(query[0].avg);
+    let previousValue = query[0].value;
+    const differences = query.map((entry, index) => {
+        if (index === 0) {
+            return 0;
+        } else {
+            const difference = Number(entry.value) - Number(previousValue);
+            previousValue = entry.value;
+            return difference;
+        }
+    });
+
+    const sumOfDifferences = differences.reduce((acc, diff) => acc + diff, 0);
+    const averageDifference = sumOfDifferences / (differences.length - 1);
+
+    return averageDifference;
 }
 
 /**
@@ -177,10 +192,11 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
             return null;
         }
 
-        const avg = await trx
+        const sensorQuery = await trx
             .select({
-                avg: sql<string>`AVG(${sensorData.value})`,
-                count: sql<string>`COUNT(DISTINCT ${sensor.id})`,
+                sensorId: sensorData.sensorId,
+                value: sensorData.value,
+                timestamp: sensorData.timestamp,
             })
             .from(sensorData)
             .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
@@ -192,15 +208,36 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
                     eq(userData.property, user.property),
                 ),
             )
-            .groupBy(userData.livingSpace, userData.household, userData.property);
+            .orderBy(sensorData.sensorId, sensorData.timestamp);
 
-        if (avg.length === 0) {
+        if (sensorQuery.length === 0) {
             return null;
         }
 
+        const sensorDifferences: Record<string, number[]> = {};
+
+        sensorQuery.forEach((entry, index) => {
+            if (!sensorDifferences[entry.sensorId]) {
+                sensorDifferences[entry.sensorId] = [];
+            }
+
+            const sensorDataList = sensorDifferences[entry.sensorId];
+            if (sensorDataList.length === 0) {
+                sensorDataList.push(0);
+            } else {
+                const previousValue = sensorDataList[sensorDataList.length - 1];
+                const difference = Number(entry.value) - previousValue;
+                sensorDataList.push(difference);
+            }
+        });
+
+        const differences = Object.values(sensorDifferences).flat();
+        const sumOfDifferences = differences.reduce((acc, diff) => acc + diff, 0);
+        const averageDifference = sumOfDifferences / (differences.length - Object.keys(sensorDifferences).length);
+
         return {
-            avg: Number(avg[0].avg),
-            count: Number(avg[0].count),
+            avg: averageDifference,
+            count: Object.keys(sensorDifferences).length,
         };
     });
 
