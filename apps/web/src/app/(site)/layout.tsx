@@ -60,7 +60,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                 actions={
                     <>
                         <ThemeSwitcher />
-                        <NavbarAvatar user={user} />
+                        <NavbarAvatar user={{ ...user, phone: user.phone || null }} />
                     </>
                 }
                 links={filteredNavLinks}
