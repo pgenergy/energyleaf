@@ -163,11 +163,11 @@ export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
     const differences = query.map((entry, index) => {
         if (index === 0) {
             return 0;
-        } else {
-            const difference = Number(entry.value) - Number(previousValue);
-            previousValue = entry.value;
-            return difference;
         }
+        
+        const difference = Number(entry.value) - Number(previousValue);
+        previousValue = entry.value;
+        return difference;
     });
 
     const sumOfDifferences = differences.reduce((acc, diff) => acc + diff, 0);
