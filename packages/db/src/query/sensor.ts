@@ -697,7 +697,7 @@ export async function resetSensorValues(clientId: string) {
 }
 
 /**
- * Get the average energy utils per device
+ * Get the average power consumption in watts per device
  */
 export async function getAverageConsumptionPerDevice(userId: string) {
     const peaksQuery = await db
@@ -727,7 +727,10 @@ export async function getAverageConsumptionPerDevice(userId: string) {
         const currentTimestamp = new Date(current.timestamp);
 
         const previousQuery = await db
-            .select({ value: sensorData.value })
+            .select({
+                value: sensorData.value,
+                timestamp: sensorData.timestamp,
+            })
             .from(sensorData)
             .where(
                 and(
@@ -738,14 +741,23 @@ export async function getAverageConsumptionPerDevice(userId: string) {
             .orderBy(desc(sensorData.timestamp))
             .limit(1);
 
-        const previousValue = previousQuery.length > 0 ? Number(previousQuery[0].value) : 0;
-        const difference = Number(current.value) - previousValue;
+        if (previousQuery.length === 0) {
+            continue;
+        }
+
+        const previous = previousQuery[0];
+        const previousTimestamp = new Date(previous.timestamp);
+        const previousValue = Number(previous.value);
+
+        const timeDiffHours = (currentTimestamp.getTime() - previousTimestamp.getTime()) / (1000 * 60 * 60);
+        const energyDiffKwh = Number(current.value) - previousValue;
+        const powerWatt = (energyDiffKwh / timeDiffHours) * 1000;
 
         if (!deviceConsumption[current.deviceId.toString()]) {
             deviceConsumption[current.deviceId.toString()] = [];
         }
 
-        deviceConsumption[current.deviceId.toString()].push(difference);
+        deviceConsumption[current.deviceId.toString()].push(powerWatt);
     }
 
     const result = Object.keys(deviceConsumption).map(deviceId => {

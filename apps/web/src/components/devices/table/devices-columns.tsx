@@ -62,7 +62,7 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
     },
     {
         accessorKey: "averageConsumption",
-        header: () => "Durchschn. Verbrauch",
+        header: () => "Durchschn. Leistung",
         cell: ({ row }) => {
             const consumptionValue = row.getValue("averageConsumption");
             const consumption = typeof consumptionValue === "number" ? consumptionValue.toString() : consumptionValue;
@@ -71,7 +71,7 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
                 const formattedConsumption = `${Number(consumption).toLocaleString("de-DE", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
-                })} kWh`;
+                })} Watt`;
                 return <span>{formattedConsumption}</span>;
             }
             return <span>N/A</span>;
