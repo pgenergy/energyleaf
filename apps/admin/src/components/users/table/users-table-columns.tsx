@@ -40,7 +40,7 @@ export const usersTableColumns: ColumnDef<UserSelectType>[] = [
         },
     },
     {
-        accessorKey: "username",
+        id: "fullname",
         header: ({ column }) => {
             return (
                 <Button
@@ -50,6 +50,38 @@ export const usersTableColumns: ColumnDef<UserSelectType>[] = [
                     variant="ghost"
                 >
                     Name
+                    {column.getIsSorted() === "asc" ? (
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
+                    )}
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            const firstname = row.original.firstname;
+            const lastname = row.original.lastName;
+
+            return (
+                <span>
+                    {firstname} {lastname}
+                </span>
+            );
+        },
+    },
+    {
+        accessorKey: "username",
+        header: ({ column }) => {
+            return (
+                <Button
+                    onClick={() => {
+                        column.toggleSorting(column.getIsSorted() === "asc");
+                    }}
+                    variant="ghost"
+                >
+                    Nutzername
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
                     ) : column.getIsSorted() === "desc" ? (
