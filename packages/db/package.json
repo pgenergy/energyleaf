@@ -12,9 +12,9 @@
 		"./types": "./src/types/types.ts"
 	},
 	"scripts": {
-		"push": "drizzle-kit push:mysql --config ./drizzle-local.config.ts",
+		"push": "drizzle-kit push --config=./drizzle-local.config.ts",
 		"push:prod": "drizzle-kit push:mysql",
-		"studio": "drizzle-kit studio --config ./drizzle-local.config.ts",
+		"studio": "drizzle-kit studio --config=./drizzle-local.config.ts",
 		"studio:prod": "drizzle-kit studio",
 		"clean": "git clean -xdf node_modules"
 	},
