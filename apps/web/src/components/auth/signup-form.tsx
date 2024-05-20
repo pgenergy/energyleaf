@@ -184,7 +184,7 @@ export default function SignUpForm() {
                                 <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Wähle deinen Stromzähler" />
+                                            <SelectValue placeholder="Wählen Sie ihren Stromzähler" />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
