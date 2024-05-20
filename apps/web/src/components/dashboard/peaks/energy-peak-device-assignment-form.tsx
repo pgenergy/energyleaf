@@ -1,7 +1,7 @@
 "use client";
 
-import { addOrUpdatePeak } from "@/actions/peak";
-import { peakSchema } from "@/lib/schema/peak";
+import { updateDevicesForPeak } from "@/actions/peak";
+import {type deviceSchema, peakSchema} from "@/lib/schema/peak";
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
@@ -11,18 +11,14 @@ import {
     FormField,
     FormItem,
     FormLabel,
-    FormMessage,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+    FormMessage, MultiSelect, type Option
 } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
+import {useState} from "react";
 
 interface Props {
     devices: DeviceSelectType[];
@@ -31,6 +27,16 @@ interface Props {
     timestamp: string;
     onInteract: () => void;
 }
+
+const deviceSchemaToOption = (devices: z.infer<typeof deviceSchema>[]): Option[] => devices.map((device) => ({
+    label: device.name,
+    value: device.id.toString()
+}));
+
+const optionToDeviceSchema = (option: Option): z.infer<typeof deviceSchema> => ({
+    id: Number(option.value),
+    name: option.label
+});
 
 export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorId, timestamp, onInteract }: Props) {
     const form = useForm<z.infer<typeof peakSchema>>({
@@ -44,7 +50,7 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
         let res: DefaultActionReturn = undefined;
 
         try {
-            res = await addOrUpdatePeak(data, sensorId, timestamp);
+            res = await updateDevicesForPeak(data, sensorId, timestamp);
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
@@ -69,32 +75,32 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
         onInteract();
     }
 
+    const options: Option[] = devices.map((device) => ({
+       label: device.name,
+       value: device.id.toString()
+    }));
+
     return (
         <Form {...form}>
             <form className="flex flex-col gap-4" onAbortCapture={onAbort} onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                     control={form.control}
-                    name="deviceId"
-                    render={({ field }) => (
+                    name="device"
+                    render={({ field }) => {
+                        console.log(field.value)
+                        return (
                         <FormItem>
                             <FormLabel>Gerät</FormLabel>
                             <FormControl>
-                                <Select defaultValue={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Gerät wählen" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {devices.map((device) => (
-                                            <SelectItem key={device.id} value={device.id.toString()}>
-                                                {device.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <MultiSelect
+                                    options={options}
+                                    onSelected={(values) => { field.onChange(values.map(optionToDeviceSchema)) }}
+                                    values={deviceSchemaToOption(field.value)}
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
-                    )}
+                    )}}
                 />
 
                 <div className="flex flex-row justify-end">

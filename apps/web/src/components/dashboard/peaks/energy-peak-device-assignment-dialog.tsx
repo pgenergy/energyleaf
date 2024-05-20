@@ -2,6 +2,8 @@ import type { Peak } from "@/types/consumption/peak";
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
+import type {z} from "zod";
+import {peakSchema} from "@/lib/schema/peak";
 
 interface Props {
     open: boolean;
@@ -11,8 +13,8 @@ interface Props {
 }
 
 export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, devices }: Props) {
-    const initialValues = {
-        deviceId: value.device?.toString() || "",
+    const initialValues: z.infer<typeof peakSchema> = {
+        device: []
     };
 
     return (

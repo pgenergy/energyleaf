@@ -2,13 +2,13 @@
 
 import { getActionSession } from "@/lib/auth/auth.action";
 import type { peakSchema } from "@/lib/schema/peak";
-import { addOrUpdatePeak as addOrUpdatePeakDb } from "@energyleaf/db/query";
+import { updateDevicesForPeak as updateDevicesForPeakDb } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import "server-only";
 import type { z } from "zod";
 
-export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
+export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
     try {
         const { session } = await getActionSession();
 
@@ -16,8 +16,9 @@ export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId
             throw new UserNotLoggedInError();
         }
 
+        const devices = data.device.map((device) => device.id);
         try {
-            await addOrUpdatePeakDb(sensorId, new Date(timestamp), Number(data.deviceId));
+            await updateDevicesForPeakDb(sensorId, new Date(timestamp), devices);
         } catch (e) {
             return {
                 success: false,
@@ -28,7 +29,7 @@ export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId
         if (err instanceof UserNotLoggedInError) {
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein um die Peaks zu bearbeiten.",
+                message: "Sie müssen angemeldet sein, um die Peaks zu bearbeiten.",
             };
         }
 

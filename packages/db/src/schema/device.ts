@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { int, mysqlTable, primaryKey, timestamp, unique, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import {index, int, mysqlTable, primaryKey, timestamp, unique, uniqueIndex, varchar} from "drizzle-orm/mysql-core";
 
 export const device = mysqlTable("device", {
     id: int("id").autoincrement().primaryKey().notNull(),
@@ -33,7 +33,7 @@ export const deviceToPeak = mysqlTable(
     (table) => {
         return {
             pk: primaryKey({ columns: [table.deviceId, table.sensorId, table.timestamp] }),
-            unique: uniqueIndex("sensor_id_timestamp_idx").on(table.sensorId, table.timestamp),
+            idx: index("sensor_id_timestamp_idx").on(table.sensorId, table.timestamp),
         };
     },
 );
