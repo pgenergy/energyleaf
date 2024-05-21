@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { redirect } from "next/navigation";
+import { formatNumber } from "@/lib/consumption/number-format";
 
 interface Props {
     startDate: Date;
@@ -53,7 +54,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
             </CardHeader>
             <CardContent>
                 <h1 className="text-center font-bold text-2xl text-primary">
-                    {absolut.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kWh
+                    {formatNumber(absolut)} kWh
                 </h1>
             </CardContent>
         </Card>

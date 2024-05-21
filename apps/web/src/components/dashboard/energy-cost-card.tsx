@@ -9,6 +9,7 @@ import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { formatNumber } from "@/lib/consumption/number-format";
 
 interface Props {
     startDate: Date;
@@ -56,15 +57,9 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const parsedCost = Number.parseFloat(cost);
     const parsedCalculatedPayment = Number.parseFloat(calculatedPayment || "0");
 
-    const formattedCost = parsedCost.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const formattedCalculatedPayment = parsedCalculatedPayment.toLocaleString("de-DE", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
-    const formattedPredictedCost = predictedCost.toLocaleString("de-DE", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
+    const formattedCost = formatNumber(parsedCost);
+    const formattedCalculatedPayment = formatNumber(parsedCalculatedPayment);
+    const formattedPredictedCost = formatNumber(predictedCost);
     const forecastMonth = format(new Date(), "MMMM yyyy", { locale: de });
 
     return (

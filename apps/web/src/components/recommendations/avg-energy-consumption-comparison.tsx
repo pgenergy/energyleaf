@@ -6,9 +6,7 @@ import {
 } from "@/query/energy";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { redirect } from "next/navigation";
-
-const formatNumber = (number: number) =>
-    number.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+import { formatNumber } from "@/lib/consumption/number-format";
 
 export default async function AvgEnergyConsumptionComparisonCard() {
     const { session, user } = await getSession();
