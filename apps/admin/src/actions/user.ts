@@ -99,6 +99,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
             {
                 isAdmin: data.isAdmin,
                 isActive: data.active,
+                isParticipant: data.isParticipant,
                 appVersion: data.appVersion,
             },
             id,

@@ -71,6 +71,22 @@ export default function UserStateForm({ initialValues, id }: Props) {
                 />
                 <FormField
                     control={form.control}
+                    name="isParticipant"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
+                            <div className="flex flex-col gap-2">
+                                <FormLabel>Experiment</FormLabel>
+                                <FormDescription>Gibt an ob diese Person am Experiment teilnimmt.</FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
                     name="isAdmin"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">

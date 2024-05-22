@@ -29,6 +29,7 @@ export default function UserActionsCard({ user }: Props) {
     const userState: z.infer<typeof userStateSchema> = {
         isAdmin: user.isAdmin,
         active: user.isActive,
+        isParticipant: user.isParticipant,
         appVersion: user.appVersion,
     };
 

@@ -199,6 +199,32 @@ export const usersTableColumns: ColumnDef<UserSelectType>[] = [
         },
     },
     {
+        accessorKey: "isParticipant",
+        header: ({ column }) => {
+            return (
+                <Button
+                    onClick={() => {
+                        column.toggleSorting(column.getIsSorted() === "asc");
+                    }}
+                    variant="ghost"
+                >
+                    Im Experiment?
+                    {column.getIsSorted() === "asc" ? (
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
+                    )}
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            const admin = row.getValue<boolean>("isParticipant");
+            return admin ? <CheckCircle2Icon className="text-green-500" /> : <BanIcon className="text-red-500" />;
+        },
+    },
+    {
         id: "actions",
         cell: ({ row }) => {
             return <UserActionCell user={row.original} />;
