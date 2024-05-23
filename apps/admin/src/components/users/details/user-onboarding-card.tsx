@@ -42,13 +42,13 @@ export default async function UserOnboardingCard({ userId }: Props) {
                 ) : null}
                 {data.wifiAtElectricityMeter ? (
                     <div className="flex flex-row justify-between">
-                        <p>Wifi vorhanden?</p>
+                        <p>WLAN-Verbindung am Stromzähler vorhanden?</p>
                         <p>{data.wifiAtElectricityMeter ? "Ja" : "Nein"}</p>
                     </div>
                 ) : null}
                 {data.powerAtElectricityMeter ? (
                     <div className="flex flex-row justify-between">
-                        <p>Strom vorhanden?</p>
+                        <p>Steckdose am Stromzähler vorhanden?</p>
                         <p>{data.wifiAtElectricityMeter ? "Ja" : "Nein"}</p>
                     </div>
                 ) : null}

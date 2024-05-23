@@ -17,7 +17,7 @@ export default function AdminNewAccountCreatedTemplate({ name, meter, mail, img 
                 <Header>Neues Konto erstellt.</Header>
                 <Container className="flex flex-col gap-2 px-4">
                     <Text>
-                        Es wurde ein neues Konto auf energyleaf.de erstellt.
+                        Es wurde ein neues Konto auf Energyleaf erstellt.
                         <br />
                         Folgende Details gibt es zu diesem Account:
                         <br />

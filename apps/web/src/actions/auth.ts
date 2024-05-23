@@ -41,9 +41,17 @@ export async function createAccount(data: FormData) {
     const passwordRepeat = data.get("passwordRepeat") as string;
     const username = data.get("username") as string;
     const file = data.get("file") as File | undefined;
+    const tos = (data.get("tos") as string) === "true";
     const electricityMeterType = data.get(
         "electricityMeterType",
     ) as (typeof userData.electricityMeterType.enumValues)[number];
+
+    if (!tos) {
+        return {
+            success: false,
+            message: "Sie müssen den Datenschutzbestimmungen zustimmen.",
+        };
+    }
 
     if (mail === "demo@energyleaf.de") {
         return {

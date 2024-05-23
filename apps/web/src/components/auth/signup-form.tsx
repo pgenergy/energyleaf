@@ -7,6 +7,7 @@ import { userData } from "@energyleaf/db/schema";
 import { userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
+    Checkbox,
     Form,
     FormControl,
     FormDescription,
@@ -22,6 +23,7 @@ import {
     SelectValue,
     Switch,
     Textarea,
+    buttonVariants,
 } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -48,6 +50,7 @@ export default function SignUpForm() {
             passwordRepeat: "",
             username: "",
             file: new File([], ""),
+            tos: false,
         },
     });
 
@@ -167,7 +170,7 @@ export default function SignUpForm() {
                                     <Input placeholder="Adresse" {...field} />
                                 </FormControl>
                                 <FormDescription>
-                                    Wir benötigen ihre Adresse um den Sensor bei ihnen zu installieren.
+                                    Wir benötigen Ihre Adressei, um den Sensor am Stromzähler zu installieren.
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -252,8 +255,8 @@ export default function SignUpForm() {
                                     </FormControl>
                                 </div>
                                 <FormDescription>
-                                    Befindet sich in der nähe ihres Stromzählers eine Steckdose, sollte dies nicht der
-                                    Fall sein, erhalten sie von uns ein Akku um den Sensor zu betreiben.
+                                    Befindet sich in der Nähe ihres Stromzählers eine Steckdose,? Sollte dies nicht der
+                                    Fall sein, erhalten sie von uns einen Akku, um den Sensor damit zu betreiben.
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -297,6 +300,31 @@ export default function SignUpForm() {
                                     <Input placeholder="Passwort wiederholen" type="password" {...field} />
                                 </FormControl>
                                 <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <div className="pb-b" />
+                    <FormField
+                        control={form.control}
+                        name="tos"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                                <FormControl>
+                                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                </FormControl>
+                                <div className="space-y-1 leading-none">
+                                    <FormLabel>
+                                        Ich habe die{" "}
+                                        <Link
+                                            className={buttonVariants({ variant: "link" })}
+                                            href="/privacy"
+                                            target="_blank"
+                                        >
+                                            Datenschutzrichtlinien
+                                        </Link>{" "}
+                                        gelesen und akzeptiere diese.
+                                    </FormLabel>
+                                </div>
                             </FormItem>
                         )}
                     />

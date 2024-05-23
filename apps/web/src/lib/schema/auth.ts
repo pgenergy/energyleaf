@@ -35,6 +35,10 @@ export const signupSchema = z.object({
         .instanceof(File)
         .refine((f) => f.size < 4000000, { message: "Das Bild darf nicht größer als 4MB sein." })
         .optional(),
+    tos: z
+        .boolean()
+        .default(false)
+        .refine((d) => !d, { message: "Sie müssen die Datenschutzbestimmung bestätigen." }),
 });
 
 export const forgotSchema = z.object({
