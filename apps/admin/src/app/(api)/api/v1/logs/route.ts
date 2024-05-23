@@ -1,7 +1,8 @@
-import {NextRequest, NextResponse} from "next/server";
+import {type NextRequest, NextResponse} from "next/server";
 import {env} from "@/env.mjs";
 import {createReportsAndSendMails} from "@/lib/reports/send-reports";
 import * as Console from "node:console";
+import {insertLog} from "@energyleaf/db/query";
 
 export const POST = async (req: NextRequest) => {
     const reportApiKey = env.REPORTS_API_KEY;
@@ -13,12 +14,14 @@ export const POST = async (req: NextRequest) => {
     Console.log(req.headers)
     Console.log(req.body)
 
-    // if (!data) {
-    //     return NextResponse.json({status: 400, statusMessage: "Bad Request"});
-    // }
+    const data = req.body;
+
+    if (!data) {
+        return NextResponse.json({status: 400, statusMessage: "Bad Request"});
+    }
 
     try {
-        // await insertLog(data);
+        await insertLog({logType: "admin", content: data.content});
         await createReportsAndSendMails();
         return NextResponse.json({
             status: 200,
