@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useTransition } from "react";
 import { updateUserDataInformation } from "@/actions/profile";
 import DataFormFields from "@/components/profile/data-form-fields";
 import { userDataSchema } from "@/lib/schema/profile";
+import type { DefaultActionReturn } from "@energyleaf/lib";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
+import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
 
 interface Props {
     initialData: z.infer<typeof userDataSchema>;
@@ -26,11 +26,25 @@ export default function UserDataForm({ initialData, disabled }: Props) {
         },
     });
 
+    async function updateUserDataInformationCallback(data: z.infer<typeof userDataSchema>) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await updateUserDataInformation(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof userDataSchema>) {
         if (disabled) return;
         startTransition(() => {
             track("updateUserData()");
-            toast.promise(updateUserDataInformation(data), {
+            toast.promise(updateUserDataInformationCallback(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
                 error: "Fehler beim Aktualisieren",

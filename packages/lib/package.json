@@ -1,25 +1,23 @@
 {
-    "name": "@energyleaf/lib",
-    "version": "1.0.0",
-    "private": true,
-    "type": "module",
-    "exports": {
-        ".": "./src/index.ts",
-        "./errors/auth": "./src/errors/auth-errors.ts",
-        "./errors/sensor": "./src/errors/sensor-errors.ts",
-        "./versioning": "./src/versioning/versions.ts"
-    },
-    "scripts": {
-        "clean": "git clean -xdf node_modules"
-    },
-    "devDependencies": {
-        "@energyleaf/eslint-config": "workspace:^",
-        "@energyleaf/tsconfig": "workspace:^",
-        "@types/node": "^20.12.7",
-        "eslint": "^8.57.0",
-        "typescript": "^5.4.5"
-    },
-    "dependencies": {
-        "jose": "^5.2.4"
-    }
+	"name": "@energyleaf/lib",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./errors/auth": "./src/errors/auth-errors.ts",
+		"./errors/sensor": "./src/errors/sensor-errors.ts",
+		"./versioning": "./src/versioning/versions.ts"
+	},
+	"scripts": {
+		"clean": "git clean -xdf node_modules"
+	},
+	"devDependencies": {
+		"@energyleaf/tsconfig": "workspace:^",
+		"@types/node": "^20.12.12",
+		"typescript": "^5.4.5"
+	},
+	"dependencies": {
+		"jose": "^5.3.0"
+	}
 }

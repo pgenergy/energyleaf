@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
 import { clsx } from "clsx";
-import { format, isValid } from "date-fns";
+import { differenceInCalendarDays, format, isValid, max, min, parseISO } from "date-fns";
+import { useMemo, useState } from "react";
 import {
     Area,
     AreaChart,
@@ -44,24 +44,59 @@ interface Props {
 export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoints, zoomCallback }: Props) {
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
-    const formatter = useCallback(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tickFormatter is any
-        (value: any, _index: number) => {
-            const workDate = value as string | number | null;
-            if (workDate && isValid(new Date(workDate)) && xAxes) {
-                if (
-                    new Date(data[0][xAxes.dataKey] as string).getDate ===
-                    new Date(data[data.length - 1][xAxes.dataKey] as string).getDate
-                ) {
-                    return format(new Date(workDate), "HH:mm");
+    const dynamicTickFormatter = useMemo(() => {
+        if (!xAxes?.dataKey) {
+            return;
+        }
+        const dates = data
+        .map(d => {
+            const dateString = d[xAxes.dataKey] as string;
+            return parseISO(dateString);
+        })
+        .filter(isValid);    
+
+        if (dates.length === 0) {
+            return (value: string) => value;
+        }
+        const minDate = min(dates);
+        const maxDate = max(dates);
+        const diffDays = differenceInCalendarDays(maxDate, minDate);
+
+        let lastSeenHour = "";
+        let lastSeenDate = "";
+        // Ensures the interval between displayed dates in the chart is at least 1 and adapts dynamically to span 20 intervals across the date range
+        const dateInterval = Math.max(1, Math.ceil(diffDays / 20));
+
+        const lastDateStr = format(maxDate, "dd.MM");
+        const lastHourStr = `${format(maxDate, "HH")}:00`;
+
+        return (value: string) => {
+            if (!isValid(parseISO(value))) {
+                return value;
+            }
+            const date = parseISO(value);
+            const dateStr = format(date, "dd.MM");
+            const hourStr = `${format(date, "HH")}:00`;
+            const currentDateDiff = differenceInCalendarDays(date, minDate);
+
+            if (diffDays <= 1) {
+                if (dateStr === lastDateStr && hourStr === lastHourStr) {
+                    return "";
                 }
-                return format(new Date(workDate), "dd.MM.yyyy");
+                if (lastSeenHour !== hourStr) {
+                    lastSeenHour = hourStr;
+                    return hourStr;
+                }
+                return "";
             }
 
-            return workDate?.toString() || "";
-        },
-        [data, xAxes],
-    );
+            if (currentDateDiff % dateInterval === 0 && lastSeenDate !== dateStr) {
+                lastSeenDate = dateStr;
+                return dateStr;
+            }
+            return "";
+        };
+    }, [data, xAxes]);
 
     const handleZoom = () => {
         if (!leftValue || !rightValue || !zoomCallback) return;
@@ -86,6 +121,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
     return (
         <ResponsiveContainer height="100%" width="100%">
             <AreaChart
+                className="select-none"
                 data={data}
                 margin={{
                     top: 0,
@@ -111,41 +147,37 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                         <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                     </linearGradient>
                 </defs>
-                {xAxes ? (
-                    <XAxis
-                        dataKey={xAxes.dataKey}
-                        interval="equidistantPreserveStart"
-                        stroke="hsl(var(--muted-foreground))"
-                        tickFormatter={formatter}
-                    >
-                        {xAxes.name ? (
-                            <Label
-                                offset={0}
-                                position="insideBottom"
-                                style={{
-                                    color: "hsl(var(--muted-foreground))",
-                                }}
-                                value={xAxes.name}
-                            />
-                        ) : null}
-                    </XAxis>
-                ) : null}
-                {yAxes ? (
-                    <YAxis dataKey={yAxes.dataKey} stroke="hsl(var(--muted-foreground))">
-                        {yAxes.name ? (
-                            <Label
-                                angle={270}
-                                offset={10}
-                                position="insideLeft"
-                                style={{
-                                    color: "hsl(var(--muted-foreground))",
-                                    textAnchor: "middle",
-                                }}
-                                value={yAxes.name}
-                            />
-                        ) : null}
-                    </YAxis>
-                ) : null}
+                <XAxis
+                    dataKey={xAxes?.dataKey}
+                    stroke="hsl(var(--muted-foreground))"
+                    tickFormatter={dynamicTickFormatter}
+                    tickLine={false}
+                >
+                    {xAxes?.name ? (
+                        <Label
+                            offset={0}
+                            position="insideBottom"
+                            style={{
+                                color: "hsl(var(--muted-foreground))",
+                            }}
+                            value={xAxes.name}
+                        />
+                    ) : null}
+                </XAxis>
+                <YAxis dataKey={yAxes?.dataKey} stroke="hsl(var(--muted-foreground))">
+                    {yAxes?.name ? (
+                        <Label
+                            angle={270}
+                            offset={10}
+                            position="insideLeft"
+                            style={{
+                                color: "hsl(var(--muted-foreground))",
+                                textAnchor: "middle",
+                            }}
+                            value={yAxes.name}
+                        />
+                    ) : null}
+                </YAxis>
                 {tooltip ? <Tooltip content={tooltip.content} /> : null}
                 <Area
                     dataKey={keyName}
@@ -155,27 +187,21 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     type="monotone"
                 />
                 {referencePoints
-                    ? referencePoints.data.map((value) => {
-                          return (
-                              <ReferenceDot
-                                  className={clsx(referencePoints.callback ? "cursor-pointer" : "cursor-default")}
-                                  fill="hsl(var(--destructive))"
-                                  isFront
-                                  key={`${value[referencePoints.xKeyName]?.toString() || ""}-${
-                                      value[referencePoints.yKeyName]?.toString() || ""
-                                  }`}
-                                  onClick={() => {
-                                      if (referencePoints.callback) {
-                                          referencePoints.callback(value);
-                                      }
-                                  }}
-                                  r={10}
-                                  stroke="hsl(var(--destructive))"
-                                  x={value[referencePoints.xKeyName]}
-                                  y={value[referencePoints.yKeyName]}
-                              />
-                          );
-                      })
+                    ? referencePoints.data.map((value) => (
+                          <ReferenceDot
+                              className={clsx(referencePoints.callback ? "cursor-pointer" : "cursor-default")}
+                              fill="hsl(var(--destructive))"
+                              isFront
+                              key={`${value[referencePoints.xKeyName]?.toString()}-${value[
+                                  referencePoints.yKeyName
+                              ]?.toString()}`}
+                              onClick={() => referencePoints?.callback?.(value)}
+                              r={10}
+                              stroke="hsl(var(--destructive))"
+                              x={value[referencePoints.xKeyName]}
+                              y={value[referencePoints.yKeyName]}
+                          />
+                      ))
                     : null}
                 {leftValue && rightValue && zoomCallback ? (
                     <ReferenceArea

@@ -1,10 +1,9 @@
-import React from "react";
 import type { userGoalSchema } from "@/lib/schema/profile";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Input } from "@energyleaf/ui";
 import { CircleHelp } from "lucide-react";
+import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type { z } from "zod";
-
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Input } from "@energyleaf/ui";
 
 interface Props {
     form: UseFormReturn<z.infer<typeof userGoalSchema>>;

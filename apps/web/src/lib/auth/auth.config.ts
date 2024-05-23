@@ -1,7 +1,6 @@
 import { env } from "@/env.mjs";
-import { Lucia } from "lucia";
-
 import { adapter } from "@energyleaf/db/adapter";
+import { Lucia } from "lucia";
 
 export const lucia = new Lucia(adapter, {
     sessionCookie: {

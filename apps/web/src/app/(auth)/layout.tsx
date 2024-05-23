@@ -1,16 +1,14 @@
+import { DemoBanner } from "@/components/footer/demo-banner";
+import { Card, CardHeader, buttonVariants } from "@energyleaf/ui";
 import Image from "next/image";
 import Link from "next/link";
-import { DemoBanner } from "@/components/footer/demo-banner";
-
-import { buttonVariants, Card, CardHeader } from "@energyleaf/ui";
-
 import bg from "../../../public/image/bg/login.png";
 import logo from "../../../public/image/logo/logo.png";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
-            <main className="flex h-screen w-screen flex-col justify-center ">
+            <main className="flex h-screen w-screen flex-col justify-center">
                 <div className="fixed inset-0 z-[-1] h-screen w-screen overflow-hidden object-fill">
                     <Image alt="Background" fill placeholder="blur" src={bg} />
                 </div>

@@ -1,19 +1,17 @@
 "use client";
 
-import * as React from "react";
+import { cn } from "@energyleaf/tailwindcss/utils";
 import type * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
+import * as React from "react";
 import {
     Controller,
-    FormProvider,
-    useFormContext,
     type ControllerProps,
     type FieldPath,
     type FieldValues,
+    FormProvider,
+    useFormContext,
 } from "react-hook-form";
-
-import { cn } from "@energyleaf/tailwindcss/utils";
-
 import { Label } from "./label";
 
 const Form = FormProvider;
@@ -135,7 +133,7 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<
 
         return (
             <p
-                className={cn("text-[0.8rem] font-medium text-destructive", className)}
+                className={cn("font-medium text-[0.8rem] text-destructive", className)}
                 id={formMessageId}
                 ref={ref}
                 {...props}

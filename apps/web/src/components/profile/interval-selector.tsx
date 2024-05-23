@@ -1,8 +1,7 @@
 "use client";
 
-import * as React from "react";
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
+import * as React from "react";
 
 interface Props {
     value: number;
@@ -34,7 +33,8 @@ export default function IntervalSelector({ value, onChange }: Props) {
 function getString(value: number) {
     if (value === 1) {
         return "Täglich";
-    } else if (value === 7) {
+    }
+    if (value === 7) {
         return "Wöchentlich";
     }
     return `Alle ${value.toString()} Tage`;

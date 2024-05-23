@@ -20,3 +20,7 @@ export const env = createEnv({
     client: {},
     experimental__runtimeEnv: {},
 });
+
+export const getUrl = (env) => {
+    return env.VERCEL_URL || env.NEXTAUTH_URL || "energyleaf.de";
+};

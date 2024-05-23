@@ -1,7 +1,6 @@
-import { eq, ExtractTablesWithRelations } from "drizzle-orm";
-import { MySqlTransaction } from "drizzle-orm/mysql-core";
-import { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
-
+import { type ExtractTablesWithRelations, eq } from "drizzle-orm";
+import type { MySqlTransaction } from "drizzle-orm/mysql-core";
+import type { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
 import db from "../";
 import { device, deviceHistory } from "../schema";
 

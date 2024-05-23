@@ -1,15 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
-import type { User } from "lucia";
-import { LogOutIcon } from "lucide-react";
-import { toast } from "sonner";
-
 import {
     Avatar,
-    AvatarFallback,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
@@ -17,6 +10,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui";
+import type { User } from "lucia";
+import { LogOutIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { toast } from "sonner";
+import { Avatar as BAvatar } from "@boringer-avatars/react";
 
 interface Props {
     user: User;
@@ -43,13 +42,18 @@ export default function NavbarAvatar({ user }: Props) {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                    <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    <BAvatar
+                        size={40}
+                        variant="beam"
+                        name={user.id}
+                        colors={["#FFAD08", "#EDD75A", "#73B06F", "#0C8F8F", "#405059"]}
+                    />
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel className="flex flex-col gap-1">
                     <p className="font-medium">Konto</p>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                    <p className="text-muted-foreground text-sm">{user.email}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="cursor-pointer text-destructive" onClick={onSignOut}>

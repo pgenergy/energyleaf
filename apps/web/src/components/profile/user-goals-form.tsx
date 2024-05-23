@@ -1,16 +1,10 @@
 "use client";
 
-import React, { useTransition } from "react";
 import { updateUserGoals } from "@/actions/profile";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 import { userGoalSchema } from "@/lib/schema/profile";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import type { UserDataSelectType } from "@energyleaf/db/types";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     Button,
     Card,
@@ -22,6 +16,12 @@ import {
     Label,
     Spinner,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
+import React, { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     userData: UserDataSelectType | undefined;
@@ -37,13 +37,27 @@ export default function UserGoalsForm({ userData }: Props) {
         mode: "onChange",
     });
 
+    async function updateUserGoalsCallback(data: z.infer<typeof userGoalSchema>) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await updateUserGoals(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof userGoalSchema>) {
         startTransition(() => {
             track("updateUserGoals()");
-            toast.promise(updateUserGoals(data), {
+            toast.promise(updateUserGoalsCallback(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
-                error: "Fehler beim Aktualisieren",
+                error: (err: Error) => err.message,
             });
         });
     }
@@ -70,7 +84,7 @@ export default function UserGoalsForm({ userData }: Props) {
                 <p className="text-[0.8rem] text-muted-foreground">
                     Mit dem Zielverbrauch haben Sie gemäß Ihres Strompreises folgende Kosten pro Tag.
                 </p>
-                <h1 className="text-center text-2xl font-bold text-primary">
+                <h1 className="text-center font-bold text-2xl text-primary">
                     {(form.getValues().goalValue * (userData?.workingPrice || 0)).toFixed(2)} €
                 </h1>
             </CardContent>

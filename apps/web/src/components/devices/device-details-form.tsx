@@ -2,14 +2,9 @@
 
 import { createDevice, updateDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import { DeviceCategory } from "@energyleaf/db/types";
 import type { DeviceSelectType } from "@energyleaf/db/types";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     Button,
     Form,
@@ -25,6 +20,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     device?: DeviceSelectType;
@@ -40,15 +40,41 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
         },
     });
 
+    async function createDeviceCallback(data: z.infer<typeof deviceSchema>) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await createDevice(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
+    async function updateDeviceCallback(data: z.infer<typeof deviceSchema>, id: number) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await updateDevice(data, id);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     const onSubmit = (data: z.infer<typeof deviceSchema>) => {
-        toast.promise(device ? updateDevice(data, device.id) : createDevice(data), {
+        toast.promise(device ? updateDeviceCallback(data, device.id) : createDeviceCallback(data), {
             loading: device ? "Speichern..." : "Erstellen...",
             success: () => {
                 track(device ? "updateDevice" : "createDevice");
                 onCallback();
                 return device ? "Gerät aktualisiert." : "Gerät hinzugefügt.";
             },
-            error: "Es ist ein Fehler aufgetreten.",
+            error: (err: Error) => err.message,
         });
     };
 

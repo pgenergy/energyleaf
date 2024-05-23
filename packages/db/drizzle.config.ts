@@ -2,8 +2,9 @@ import type { Config } from "drizzle-kit";
 
 export default {
     schema: "./src/schema/*",
-    driver: "mysql2",
+    dialect: "mysql",
     dbCredentials: {
-        uri: process.env.DATABASE_PUSH_URL!,
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        url: process.env.DATABASE_PUSH_URL!,
     },
 } satisfies Config;

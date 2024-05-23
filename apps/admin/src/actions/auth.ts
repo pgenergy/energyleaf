@@ -1,20 +1,17 @@
 "use server";
 
-import type { signInSchema } from "@/lib/schema/auth";
-
-import "server-only";
-
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { env } from "@/env.mjs";
+import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
-import { Argon2id, Bcrypt } from "oslo/password";
-import type { z } from "zod";
-
+import type { signInSchema } from "@/lib/schema/auth";
 import { getUserById, getUserByMail, updatePassword } from "@energyleaf/db/query";
-import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
+import { UserNotActiveError, buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import { sendPasswordResetMailForUser } from "@energyleaf/mail";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { Argon2id, Bcrypt } from "oslo/password";
+import "server-only";
+import type { z } from "zod";
 
 export async function signInAction(data: z.infer<typeof signInSchema>) {
     const { session } = await getActionSession();
@@ -79,7 +76,7 @@ export async function resetUserPassword(userId: string) {
         userId: user.id,
         secret: env.NEXTAUTH_SECRET,
     });
-    const resetUrl = buildResetPasswordUrl({ env, token });
+    const resetUrl = buildResetPasswordUrl({ baseUrl: getUrl(env), token });
 
     try {
         await sendPasswordResetMailForUser({

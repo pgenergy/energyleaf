@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { cva, VariantProps } from "class-variance-authority";
-
 import { cn } from "@energyleaf/tailwindcss/utils";
+import { type VariantProps, cva } from "class-variance-authority";
+import type React from "react";
+import { useMemo } from "react";
 
 const circularProgressVariants = cva("w-full h-full fill-transparent", {
     variants: {
@@ -41,8 +41,9 @@ const CircularProgress = ({ progress, variant, children, size = 100, strokeWidth
     const arcOffset = useMemo(() => arcLength * ((100 - progress) / 100), [arcLength, progress]);
 
     return (
-        <div className={cn(`relative`, `w-[${size}px]`)} style={{ width: `${size}px`, height: `${size}px` }}>
-            <svg className="absolute left-0 top-0 h-full w-full -rotate-90">
+        <div className={cn("relative", `w-[${size}px]`)} style={{ width: `${size}px`, height: `${size}px` }}>
+            <svg className="-rotate-90 absolute top-0 left-0 h-full w-full">
+                <title>Progress</title>
                 <circle
                     className="h-full w-full fill-transparent stroke-accent"
                     strokeWidth={strokeWidth}
@@ -61,7 +62,7 @@ const CircularProgress = ({ progress, variant, children, size = 100, strokeWidth
                     style={{ transition: "stroke-dashoffset 0.3s ease" }}
                 />
             </svg>
-            <div className="absolute left-0 top-0 flex h-full w-full flex-col items-center justify-center">
+            <div className="absolute top-0 left-0 flex h-full w-full flex-col items-center justify-center">
                 {children}
             </div>
         </div>

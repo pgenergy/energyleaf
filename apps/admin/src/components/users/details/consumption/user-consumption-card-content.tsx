@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { getConsumptionBySensor, getElectricitySensorByUser } from "@/actions/sensors";
 import { useUserContext } from "@/hooks/user-hook";
-
 import { AggregationType } from "@energyleaf/lib";
 import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/components/charts";
+import { useEffect, useState } from "react";
 
 interface Props {
     userId: string;
@@ -51,15 +50,17 @@ function useConsumptionData(userId: string) {
                 context.endDate,
                 context.aggregationType || AggregationType.RAW,
             );
-            return energyData.map((entry) => ({
+
+            const formattedData = energyData.map((entry) => ({
                 sensorId: entry.sensorId || 0,
                 energy: entry.value,
-                timestamp: entry.timestamp.toString(),
+                timestamp: typeof entry.timestamp === 'string' || typeof entry.timestamp === 'number' ? new Date(entry.timestamp).toISOString() : ''
             }));
+
+            return formattedData;
         };
 
         fetchData()
-            .catch(() => [])
             .then(
                 (x) => {
                     setData(x || []);
@@ -67,7 +68,10 @@ function useConsumptionData(userId: string) {
                 () => {
                     setData([]);
                 },
-            );
+            )
+            .catch(() => {
+                setData([]);
+            });
     }, [userId, context.startDate, context.endDate, context.aggregationType]);
 
     return data;

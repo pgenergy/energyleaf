@@ -1,26 +1,25 @@
 {
-    "name": "@energyleaf/proto",
-    "private": true,
-    "version": "1.0.0",
-    "description": "",
-    "type": "module",
-    "exports": {
-        ".": "./lib/energyleaf.ts",
-        "./util": "./util/util.ts"
-    },
-    "scripts": {
-        "compile": "protoc --ts_out ./lib --proto_path protos protos/*.proto",
-        "clean": "git clean -xdf node_modules"
-    },
-    "license": "ISC",
-    "dependencies": {
-        "@protobuf-ts/runtime": "^2.9.4"
-    },
-    "devDependencies": {
-        "@energyleaf/eslint-config": "workspace:^",
-        "@energyleaf/tsconfig": "workspace:^",
-        "@protobuf-ts/plugin": "^2.9.4",
-        "@protobuf-ts/protoc": "^2.9.4",
-        "typescript": "5.4.5"
-    }
+	"name": "@energyleaf/proto",
+	"private": true,
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"exports": {
+		".": "./lib/energyleaf.ts",
+		"./util": "./util/util.ts"
+	},
+	"scripts": {
+		"compile": "protoc --ts_out ./lib --proto_path protos protos/*.proto",
+		"clean": "git clean -xdf node_modules"
+	},
+	"license": "ISC",
+	"dependencies": {
+		"@protobuf-ts/runtime": "^2.9.4"
+	},
+	"devDependencies": {
+		"@energyleaf/tsconfig": "workspace:^",
+		"@protobuf-ts/plugin": "^2.9.4",
+		"@protobuf-ts/protoc": "^2.9.4",
+		"typescript": "5.4.5"
+	}
 }

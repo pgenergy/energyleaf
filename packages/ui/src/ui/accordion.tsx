@@ -1,10 +1,9 @@
 "use client";
 
-import * as React from "react";
+import { cn } from "@energyleaf/tailwindcss/utils";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronDown } from "lucide-react";
-
-import { cn } from "@energyleaf/tailwindcss/utils";
+import * as React from "react";
 
 const Accordion = AccordionPrimitive.Root;
 
@@ -23,7 +22,7 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Header className="flex">
         <AccordionPrimitive.Trigger
             className={cn(
-                "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+                "flex flex-1 items-center justify-between py-4 font-medium transition-all [&[data-state=open]>svg]:rotate-180 hover:underline",
                 className,
             )}
             ref={ref}
@@ -48,7 +47,7 @@ const AccordionContent = React.forwardRef<
         ref={ref}
         {...props}
     >
-        <div className="pb-4 pt-0">{children}</div>
+        <div className="pt-0 pb-4">{children}</div>
     </AccordionPrimitive.Content>
 ));
 AccordionContent.displayName = AccordionPrimitive.Content.displayName;
