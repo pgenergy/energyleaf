@@ -15,6 +15,7 @@ import {
     YAxis,
 } from "recharts";
 import type { CategoricalChartState } from "recharts/types/chart/types";
+import type { EnergyData } from "@energyleaf/ui/components/charts";
 
 type AxesValue = string | number | undefined;
 
@@ -38,10 +39,11 @@ interface Props {
         yKeyName: string;
         callback?: (value: Record<string, AxesValue>) => void;
     };
+    classificationPoints?: EnergyData[];
     zoomCallback?: (left: Date, right: Date) => void;
 }
 
-export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoints, zoomCallback }: Props) {
+export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoints, classificationPoints, zoomCallback }: Props) {
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
     const dynamicTickFormatter = useMemo(() => {
@@ -200,6 +202,20 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                               stroke="hsl(var(--destructive))"
                               x={value[referencePoints.xKeyName]}
                               y={value[referencePoints.yKeyName]}
+                          />
+                      ))
+                    : null}
+                {classificationPoints
+                    ? classificationPoints.map((value) => (
+                          <ReferenceDot
+                              className="cursor-default"
+                              fill="blue"
+                              isFront
+                              key={`${value.timestamp?.toString()}-${value.energy?.toString()}`}
+                              r={10}
+                              stroke="blue"
+                              x={value.timestamp}
+                              y={value.energy}
                           />
                       ))
                     : null}

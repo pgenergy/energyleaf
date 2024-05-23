@@ -19,6 +19,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
         | {
               energy: number;
               timestamp: string;
+              classification?: string;
           }
         | undefined;
 
@@ -27,7 +28,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
         const date = new Date(data.timestamp);
         if (Number.isNaN(date.getTime())) {
             return "Ungültiges Datum";
-        }        
+        }
         const formatOptions = {
             [AggregationType.RAW]: "dd.MM.yyyy HH:mm",
             [AggregationType.HOUR]: "HH 'Uhr'",
@@ -52,6 +53,11 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                 <p className="text-sm">
                     <span className="font-bold">Verbrauch:</span> {data.energy.toFixed(2)} {computeTimestampLabel(aggregationType, true)}
                 </p>
+                {data.classification && (
+                    <p className="text-sm">
+                        <span className="font-bold">Gerät:</span> {data.classification}
+                    </p>
+                )}
             </CardContent>
         </Card>
     );

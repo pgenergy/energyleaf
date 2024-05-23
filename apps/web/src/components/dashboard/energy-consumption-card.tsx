@@ -52,10 +52,12 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
     const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
-    const data: ConsumptionData[] = energyData.map((entry) => ({
+
+    const data: ConsumptionData[] = energyData.map((entry, index) => ({
         sensorId: entry.sensorId || 0,
         energy: entry.value,
         timestamp: (entry.timestamp as Date).toString(),
+        classification: index % 500 === 0 ? "dryer" : undefined
     }));
 
     const devices = !hasAggregation ? await getDevicesByUser(userId) : [];

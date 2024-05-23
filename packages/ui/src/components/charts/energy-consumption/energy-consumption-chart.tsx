@@ -24,14 +24,18 @@ export type EnergyData = {
     sensorId: string | number;
     energy: number;
     timestamp: string;
+    classification?: string;
 };
 
 export function EnergyConsumptionChart({ data, referencePoints, aggregation, zoomCallback }: Props) {
+    const classificationPoints = data.filter(d => d.classification);
+
     return (
         <LineChart
             data={data}
             keyName="energy"
             referencePoints={referencePoints}
+            classificationPoints={classificationPoints}
             tooltip={{
                 // eslint-disable-next-line react/no-unstable-nested-components -- needs to be a function
                 content: (props: TooltipProps<ValueType, NameType>) => {
