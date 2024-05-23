@@ -38,7 +38,7 @@ export const signupSchema = z.object({
     tos: z
         .boolean()
         .default(false)
-        .refine((d) => !d, { message: "Sie müssen die Datenschutzbestimmung bestätigen." }),
+        .refine((d) => d, { message: "Sie müssen die Datenschutzbestimmung bestätigen." }),
 });
 
 export const forgotSchema = z.object({
