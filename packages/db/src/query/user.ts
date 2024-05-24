@@ -34,9 +34,18 @@ export async function getUserByMail(email: string) {
 }
 
 export type CreateUserType = {
+    firstname: string;
+    lastname: string;
+    phone?: string;
+    comment?: string;
+    hasPower: boolean;
+    address: string;
+    hasWifi: boolean;
     email: string;
     password: string;
     username: string;
+    electricityMeterType: (typeof userData.electricityMeterType.enumValues)[number];
+    meterImgUrl?: string;
 };
 
 /**
@@ -51,6 +60,10 @@ export async function createUser(data: CreateUserType) {
         }
 
         await trx.insert(user).values({
+            firstname: data.firstname,
+            lastName: data.lastname,
+            address: data.address,
+            phone: data.phone,
             username: data.username,
             email: data.email,
             password: data.password,
@@ -71,6 +84,11 @@ export async function createUser(data: CreateUserType) {
 
         await trx.insert(userData).values({
             userId: id,
+            electricityMeterType: data.electricityMeterType,
+            electricityMeterImgUrl: data.meterImgUrl || null,
+            powerAtElectricityMeter: data.hasPower,
+            wifiAtElectricityMeter: data.hasWifi,
+            installationComment: data.comment,
         });
 
         await trx.insert(reports).values({

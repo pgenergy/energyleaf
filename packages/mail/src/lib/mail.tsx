@@ -2,6 +2,7 @@ import type * as React from "react";
 import { Resend } from "resend";
 import AccountActivatedTemplate from "../templates/account-activated";
 import AccountCreatedTemplate from "../templates/account-created";
+import AdminNewAccountCreatedTemplate from "../templates/admin-new-account";
 import AnomalyDetectedTemplate from "../templates/anomaly-detected";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
@@ -189,8 +190,40 @@ export async function sendAnomalyEmail({ from, to, apiKey, name, link, unsubscri
     const resp = await resend.emails.send({
         to,
         from,
-        subject: "Konto aktiviert",
+        subject: "Anomalie erkannt.",
         react: AnomalyDetectedTemplate({ name, link, unsubscribeLink }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type AdminNewAccountMailOptions = MailOptions & {
+    name: string;
+    meter: string;
+    email: string;
+    img?: string;
+};
+
+export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMailOptions) {
+    if (!props.apiKey || props.apiKey === "") {
+        return;
+    }
+    const resend = createResend(props.apiKey);
+
+    const resp = await resend.emails.send({
+        to: props.to,
+        from: props.from,
+        subject: "Neues Konto erstellt",
+        react: AdminNewAccountCreatedTemplate({
+            name: props.name,
+            meter: props.meter,
+            mail: props.email,
+            img: props.img,
+        }),
     });
 
     if (resp.error) {

@@ -54,7 +54,10 @@ function useConsumptionData(userId: string) {
             const formattedData = energyData.map((entry) => ({
                 sensorId: entry.sensorId || 0,
                 energy: entry.value,
-                timestamp: typeof entry.timestamp === 'string' || typeof entry.timestamp === 'number' ? new Date(entry.timestamp).toISOString() : ''
+                timestamp:
+                    typeof entry.timestamp === "string" || typeof entry.timestamp === "number"
+                        ? new Date(entry.timestamp).toISOString()
+                        : "",
             }));
 
             return formattedData;

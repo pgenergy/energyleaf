@@ -72,12 +72,7 @@ export async function getEnergyForSensorInRange(
             timestamp: formattedTimestamp,
         })
         .from(sensorData)
-        .where(
-            and(
-                eq(sensorData.sensorId, sensorId),
-                between(sensorData.timestamp, start, end),
-            ),
-        )
+        .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, start, end)))
         .groupBy(formattedTimestamp)
         .orderBy(formattedTimestamp);
 

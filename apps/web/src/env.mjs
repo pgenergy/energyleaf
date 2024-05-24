@@ -15,7 +15,11 @@ export const env = createEnv({
         DATABASE_NAME: z.string(),
 
         RESEND_API_KEY: z.string(),
-        RESEND_API_MAIL: z.string(),
+        RESEND_API_MAIL: z.string().email(),
+
+        ADMIN_MAIL: z.string().email(),
+
+        BLOB_READ_WRITE_TOKEN: z.string().optional(),
     },
     client: {},
     experimental__runtimeEnv: {},

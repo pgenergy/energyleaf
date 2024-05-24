@@ -49,11 +49,11 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
             return;
         }
         const dates = data
-        .map(d => {
-            const dateString = d[xAxes.dataKey] as string;
-            return parseISO(dateString);
-        })
-        .filter(isValid);    
+            .map((d) => {
+                const dateString = d[xAxes.dataKey] as string;
+                return parseISO(dateString);
+            })
+            .filter(isValid);
 
         if (dates.length === 0) {
             return (value: string) => value;

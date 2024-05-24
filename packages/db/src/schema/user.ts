@@ -8,6 +8,7 @@ import {
     mysqlEnum,
     mysqlTable,
     smallint,
+    text,
     timestamp,
     varchar,
 } from "drizzle-orm/mysql-core";
@@ -20,10 +21,15 @@ export const user = mysqlTable("user", {
         .$defaultFn(() => nanoid(30)),
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
     email: varchar("email", { length: 256 }).notNull(),
+    phone: varchar("phone", { length: 40 }),
+    address: text("address").notNull().default(""),
+    firstname: varchar("firstname", { length: 30 }).notNull().default(""),
+    lastName: varchar("lastname", { length: 30 }).notNull().default(""),
     username: varchar("username", { length: 30 }).notNull(),
     password: varchar("password", { length: 256 }).notNull(),
     isAdmin: boolean("is_admin").default(false).notNull(),
     isActive: boolean("is_active").default(false).notNull(),
+    isParticipant: boolean("is_participant").default(false).notNull(),
     onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
     appVersion: smallint("app_version").default(Versions.transparency).notNull(),
 });
@@ -41,6 +47,11 @@ export const userData = mysqlTable("user_data", {
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
     monthlyPayment: int("advance_payment_electricity"),
     consumptionGoal: int("consumption_goal"),
+    electricityMeterType: mysqlEnum("electricity_meter_type", ["digital", "analog"]),
+    electricityMeterImgUrl: text("electricity_meter_img_url"),
+    powerAtElectricityMeter: boolean("power_at_electricity_meter").default(false),
+    wifiAtElectricityMeter: boolean("wifi_at_electricity_meter").default(false),
+    installationComment: text("installation_comment"),
 });
 
 export const session = mysqlTable("session", {
@@ -62,6 +73,11 @@ export const historyUserData = mysqlTable("history_user_data", {
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
     monthlyPayment: int("advance_payment_electricity"),
     consumptionGoal: int("consumption_goal"),
+    electricityMeterType: mysqlEnum("electricity_meter_type", ["digital", "analog"]),
+    electricityMeterImgUrl: text("electricity_meter_img_url"),
+    powerAtElectricityMeter: boolean("power_at_electricity_meter").default(false),
+    wifiAtElectricityMeter: boolean("wifi_at_electricity_meter").default(false),
+    installationComment: text("installation_comment"),
 });
 
 export const reports = mysqlTable("reports", {

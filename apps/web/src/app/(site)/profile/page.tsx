@@ -34,7 +34,15 @@ export default async function ProfilePage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationForm disabled={isDemo} email={user.email} username={user.username} />
+            <BaseInformationForm
+                disabled={isDemo}
+                firstname={user.firstname}
+                lastname={user.lastname}
+                email={user.email}
+                username={user.username}
+                phone={user.phone ?? undefined}
+                address={user.address}
+            />
             <ChangePasswordForm disabled={isDemo} />
             <MailSettingsForm disabled={isDemo} initialValues={reportConfig} />
             <UserDataForm initialData={data} />

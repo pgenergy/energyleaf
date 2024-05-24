@@ -1,4 +1,4 @@
-import { DemoBanner } from "@/components/footer/demo-banner";
+import DemoBanner from "@/components/footer/demo-banner";
 import Footer from "@/components/footer/footer";
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
@@ -60,7 +60,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                 actions={
                     <>
                         <ThemeSwitcher />
-                        <NavbarAvatar user={user} />
+                        <NavbarAvatar user={{ ...user, phone: user.phone || null }} />
                     </>
                 }
                 links={filteredNavLinks}

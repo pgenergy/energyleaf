@@ -10,7 +10,11 @@ export const getActionSession = async () => {
             user: {
                 id: "demo",
                 username: "Demo Nutzer",
+                firstname: "Demo",
+                lastname: "Nutzer",
                 email: "demo@energyleaf.de",
+                phone: undefined,
+                address: "Demo Adresse",
                 created: new Date().toISOString(),
                 isAdmin: false,
                 isActive: true,
