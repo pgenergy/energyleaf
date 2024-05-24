@@ -61,7 +61,11 @@ export default function SignUpForm() {
             const keys = Object.keys(data);
             for (const key of keys) {
                 const value = data[key];
-                form.append(key, value);
+                if (typeof value === "boolean") {
+                    form.append(key, (value as boolean) ? 'true' : 'false');
+                } else {
+                    form.append(key, value);
+                }
             }
             res = await createAccount(form);
         } catch (err) {
