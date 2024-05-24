@@ -6,7 +6,7 @@ export const env = createEnv({
         NEXTAUTH_URL: z.string().optional(),
         NEXTAUTH_SECRET: z.string(),
 
-        VERCEL_URL: z.string().optional(),
+        VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
         VERCEL_ENV: z.string().optional(),
 
         DATABASE_HOST: z.string(),
@@ -26,5 +26,5 @@ export const env = createEnv({
 });
 
 export const getUrl = (env) => {
-    return env.VERCEL_URL || env.NEXTAUTH_URL || "energyleaf.de";
+    return env.VERCEL_PROJECT_PRODUCTION_URL || env.NEXTAUTH_URL || "energyleaf.de";
 };
