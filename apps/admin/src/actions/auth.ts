@@ -86,7 +86,7 @@ export async function resetUserPassword(userId: string) {
             from: env.RESEND_API_MAIL,
             to: user.email,
             name: user.username,
-            link: resetUrl.replace("admin.", ""),
+            link: resetUrl,
             apiKey: env.RESEND_API_KEY,
         });
     } catch (err) {
