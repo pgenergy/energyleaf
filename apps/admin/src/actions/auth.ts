@@ -76,14 +76,17 @@ export async function resetUserPassword(userId: string) {
         userId: user.id,
         secret: env.NEXTAUTH_SECRET,
     });
-    const resetUrl = buildResetPasswordUrl({ baseUrl: getUrl(env), token });
+
+    // replace admin.energyleaf.de to energyleaf.de
+    // needed because we dont want to send a reset link to admin dashboard
+    const resetUrl = buildResetPasswordUrl({ baseUrl: getUrl(env), token }).replace("admin.", "");
 
     try {
         await sendPasswordResetMailForUser({
             from: env.RESEND_API_MAIL,
             to: user.email,
             name: user.username,
-            link: resetUrl,
+            link: resetUrl.replace("admin.", ""),
             apiKey: env.RESEND_API_KEY,
         });
     } catch (err) {
