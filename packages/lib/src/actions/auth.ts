@@ -19,12 +19,12 @@ export async function getResetPasswordToken({ userId, secret }: ResetPasswordTok
 
 interface ResetPasswordEmailParams {
     env: {
-        VERCEL_URL?: string;
+        VERCEL_PROJECT_PRODUCTION_URL?: string;
         NEXTAUTH_URL?: string;
     };
     token: string;
 }
 
 export function buildResetPasswordUrl({ env, token }: ResetPasswordEmailParams) {
-    return `https://${env.VERCEL_URL || env.NEXTAUTH_URL || "energyleaf.de"}/reset?token=${token}`;
+    return `https://${env.VERCEL_PROJECT_PRODUCTION_URL || env.NEXTAUTH_URL || "energyleaf.de"}/reset?token=${token}`;
 }

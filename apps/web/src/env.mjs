@@ -6,7 +6,7 @@ export const env = createEnv({
         NEXTAUTH_URL: z.string().optional(),
         NEXTAUTH_SECRET: z.string(),
 
-        VERCEL_URL: z.string().optional(),
+        VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
         VERCEL_ENV: z.string().optional(),
 
         DATABASE_HOST: z.string(),

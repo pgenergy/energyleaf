@@ -21,7 +21,7 @@ export const metadata: Metadata = {
         description,
         type: "website",
         locale: "de_DE",
-        url: env.VERCEL_URL || env.NEXTAUTH_URL || "http://localhost:3000",
+        url: env.VERCEL_PROJECT_PRODUCTION_URL || env.NEXTAUTH_URL || "http://localhost:3000",
     },
 };
 export const revalidate = 0;
