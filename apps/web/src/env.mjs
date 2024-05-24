@@ -1,13 +1,11 @@
 import { createEnv } from "@t3-oss/env-nextjs";
+import { vercel } from "@t3-oss/env-core/presets";
 import { z } from "zod";
 
 export const env = createEnv({
     server: {
         NEXTAUTH_URL: z.string().optional(),
         NEXTAUTH_SECRET: z.string(),
-
-        VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
-        VERCEL_ENV: z.string().optional(),
 
         DATABASE_HOST: z.string(),
         DATABASE_USERNAME: z.string(),
@@ -23,8 +21,10 @@ export const env = createEnv({
     },
     client: {},
     experimental__runtimeEnv: {},
+    extends: [ vercel() ],
 });
 
 export const getUrl = (env) => {
-    return env.VERCEL_PROJECT_PRODUCTION_URL || env.NEXTAUTH_URL || "energyleaf.de";
+    const vercelUrl = env.VERCEL_ENV === "production" ? env.VERCEL_PROJECT_PRODUCTION_URL : env.VERCEL_URL;
+    return vercelUrl || env.NEXTAUTH_URL || "energyleaf.de";
 };
