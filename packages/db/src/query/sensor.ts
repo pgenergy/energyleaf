@@ -232,32 +232,6 @@ export async function getDevicesByPeak(sensorId: string, timestamp: Date) {
         .where(and(eq(deviceToPeak.sensorId, sensorId), eq(deviceToPeak.timestamp, timestamp)));
 }
 
-/**
- *  gets all peaks for a given device
- */
-export async function getPeaksBySensor(start: Date, end: Date, sensorId: string) {
-    const sensorDataQuery = db
-        .select({
-            sensor_data: sensorData,
-        })
-        .from(sensorData)
-        .where(and(eq(sensorData.sensorId, sensorId), sensorDataTimeFilter(start, end)));
-
-    const peaksQuery = db
-        .select({
-            peaks: deviceToPeak,
-        })
-        .from(deviceToPeak)
-        .where(and(eq(deviceToPeak.sensorId, sensorId), sensorDataTimeFilter(start, end)));
-
-    const result = await Promise.all([sensorDataQuery, peaksQuery]);
-
-    return result[0].map((sensorDataEntry) => ({
-        ...sensorDataEntry,
-        peaks: result[1].filter((peakEntry) => peakEntry.peaks.timestamp === sensorDataEntry.sensor_data.timestamp),
-    }));
-}
-
 function sensorDataTimeFilter(start: Date, end: Date) {
     return or(
         between(sensorData.timestamp, start, end),
@@ -670,33 +644,6 @@ export async function resetSensorValues(clientId: string) {
         await trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensors[0].id));
         await trx.delete(sensorData).where(eq(sensorData.sensorId, sensors[0].id));
     });
-}
-
-/**
- * Get the average energy utils per device
- */
-export async function getAverageConsumptionPerDevice(userId: string) {
-    // const result = await db
-    //     .select({
-    //         deviceId: peaks.deviceId,
-    //         averageConsumption: sql<number>`AVG(${sensorData.value})`,
-    //     })
-    //     .from(device)
-    //     .innerJoin(peaks, and(eq(device.id, peaks.deviceId)))
-    //     .innerJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
-    //     .where(eq(device.userId, userId))
-    //     .groupBy(peaks.deviceId)
-    //     .execute();
-    //
-    // return result;
-    return await new Promise((resolve) =>
-        resolve([
-            {
-                deviceId: 1,
-                averageConsumption: 1000,
-            },
-        ]),
-    );
 }
 
 /**

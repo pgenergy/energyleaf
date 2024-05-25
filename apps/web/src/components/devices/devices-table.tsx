@@ -1,5 +1,5 @@
 import { getSession } from "@/lib/auth/auth.server";
-import { getAverageConsumptionPerDevice, getDevicesByUser } from "@/query/device";
+import { getDevicesByUser } from "@/query/device";
 import { devicesColumns } from "./table/devices-columns";
 import { DevicesDataTable } from "./table/devices-data-table";
 
