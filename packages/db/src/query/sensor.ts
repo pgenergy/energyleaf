@@ -3,7 +3,7 @@ import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 import { and, between, desc, eq, gt, gte, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
-import {device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData} from "../schema";
+import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 interface EnergyData {
@@ -207,7 +207,9 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
  */
 export async function updateDevicesForPeak(sensorId: string, timestamp: Date, deviceIds: number[]) {
     return db.transaction(async (trx) => {
-        await trx.delete(deviceToPeak).where(and(eq(deviceToPeak.sensorId, sensorId), eq(deviceToPeak.timestamp, timestamp)));
+        await trx
+            .delete(deviceToPeak)
+            .where(and(eq(deviceToPeak.sensorId, sensorId), eq(deviceToPeak.timestamp, timestamp)));
 
         for (const deviceId of deviceIds) {
             await trx.insert(deviceToPeak).values({
@@ -217,6 +219,17 @@ export async function updateDevicesForPeak(sensorId: string, timestamp: Date, de
             });
         }
     });
+}
+
+export async function getDevicesByPeak(sensorId: string, timestamp: Date) {
+    return db
+        .select({
+            id: deviceToPeak.deviceId,
+            name: device.name,
+        })
+        .from(deviceToPeak)
+        .innerJoin(device, eq(device.id, deviceToPeak.deviceId))
+        .where(and(eq(deviceToPeak.sensorId, sensorId), eq(deviceToPeak.timestamp, timestamp)));
 }
 
 /**
@@ -232,16 +245,16 @@ export async function getPeaksBySensor(start: Date, end: Date, sensorId: string)
 
     const peaksQuery = db
         .select({
-            peaks: deviceToPeak
+            peaks: deviceToPeak,
         })
         .from(deviceToPeak)
         .where(and(eq(deviceToPeak.sensorId, sensorId), sensorDataTimeFilter(start, end)));
 
     const result = await Promise.all([sensorDataQuery, peaksQuery]);
 
-    return result[0].map(sensorDataEntry => ({
+    return result[0].map((sensorDataEntry) => ({
         ...sensorDataEntry,
-        peaks: result[1].filter(peakEntry => peakEntry.peaks.timestamp === sensorDataEntry.sensor_data.timestamp)
+        peaks: result[1].filter((peakEntry) => peakEntry.peaks.timestamp === sensorDataEntry.sensor_data.timestamp),
     }));
 }
 
@@ -676,10 +689,14 @@ export async function getAverageConsumptionPerDevice(userId: string) {
     //     .execute();
     //
     // return result;
-    return await new Promise((resolve) => resolve([{
-        deviceId: 1,
-        averageConsumption: 1000,
-    }]));
+    return await new Promise((resolve) =>
+        resolve([
+            {
+                deviceId: 1,
+                averageConsumption: 1000,
+            },
+        ]),
+    );
 }
 
 /**

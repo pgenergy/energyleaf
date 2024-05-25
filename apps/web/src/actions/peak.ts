@@ -2,10 +2,14 @@
 
 import { getActionSession } from "@/lib/auth/auth.action";
 import type { peakSchema } from "@/lib/schema/peak";
-import { updateDevicesForPeak as updateDevicesForPeakDb } from "@energyleaf/db/query";
+import {
+    getDevicesByPeak as getDevicesByPeakDb,
+    updateDevicesForPeak as updateDevicesForPeakDb,
+} from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import "server-only";
+import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
 import type { z } from "zod";
 
 export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
@@ -39,4 +43,12 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         };
     }
     revalidatePath("/dashboard");
+}
+
+export async function getDevicesByUser(userId: string, search?: string) {
+    return getDbDevicesByUser(userId, search);
+}
+
+export async function getDevicesByPeak(sensorId: string, timestamp: string) {
+    return getDevicesByPeakDb(sensorId, new Date(timestamp));
 }

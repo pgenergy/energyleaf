@@ -2,7 +2,7 @@
 
 import type { Peak, PeakAssignment } from "@/types/consumption/peak";
 import type { DeviceSelectType } from "@energyleaf/db/types";
-import type {AggregationType, ConsumptionData} from "@energyleaf/lib";
+import type { AggregationType, ConsumptionData } from "@energyleaf/lib";
 import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/components/charts";
 import { formatISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -13,9 +13,10 @@ interface Props {
     data: ConsumptionData[];
     peaks?: ConsumptionData[];
     aggregation?: AggregationType;
+    userId: string;
 }
 
-export default function EnergyConsumptionCardChart({ data, peaks, aggregation }: Props) {
+export default function EnergyConsumptionCardChart({ data, peaks, aggregation, userId }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<ConsumptionData | null>(null);
     const router = useRouter();
@@ -31,7 +32,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation }:
             setValue({
                 sensorId: callbackData.sensorId,
                 energy: Number(callbackData.energy),
-                timestamp: callbackData.timestamp?.toString() || ""
+                timestamp: callbackData.timestamp?.toString() || "",
             });
             setOpen(true);
         },
@@ -76,7 +77,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation }:
     return (
         <>
             {value ? (
-                <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} />
+                <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} userId={userId} />
             ) : null}
             <EnergyConsumptionChart
                 aggregation={aggregation}

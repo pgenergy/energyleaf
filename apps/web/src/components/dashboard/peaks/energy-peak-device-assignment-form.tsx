@@ -1,8 +1,7 @@
 "use client";
 
-import { updateDevicesForPeak } from "@/actions/peak";
-import {type deviceSchema, peakSchema} from "@/lib/schema/peak";
-import type { DeviceSelectType } from "@energyleaf/db/types";
+import { getDevicesByPeak, getDevicesByUser, updateDevicesForPeak } from "@/actions/peak";
+import { type deviceSchema, peakSchema } from "@/lib/schema/peak";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     Button,
@@ -11,40 +10,73 @@ import {
     FormField,
     FormItem,
     FormLabel,
-    FormMessage, MultiSelect, type Option
+    FormMessage,
+    MultiSelect,
+    type Option,
 } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import {useState} from "react";
 
 interface Props {
-    devices: DeviceSelectType[];
+    userId: string;
     initialValues: z.infer<typeof peakSchema>;
     sensorId: string;
     timestamp: string;
     onInteract: () => void;
 }
 
-const deviceSchemaToOption = (devices: z.infer<typeof deviceSchema>[]): Option[] => devices.map((device) => ({
-    label: device.name,
-    value: device.id.toString()
-}));
+const deviceSchemaToOption = (devices: z.infer<typeof deviceSchema>[]): Option[] =>
+    devices.map((device) => ({
+        value: device.id.toString(),
+        label: device.name,
+    }));
 
 const optionToDeviceSchema = (option: Option): z.infer<typeof deviceSchema> => ({
     id: Number(option.value),
-    name: option.label
+    name: option.label,
 });
 
-export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorId, timestamp, onInteract }: Props) {
+export function EnergyPeakDeviceAssignmentForm({ userId, initialValues, sensorId, timestamp, onInteract }: Props) {
     const form = useForm<z.infer<typeof peakSchema>>({
         resolver: zodResolver(peakSchema),
         defaultValues: {
             ...initialValues,
         },
     });
+    const [loadPreselection, setLoadPreselection] = useState(false);
+
+    useEffect(() => {
+        let ignore = false;
+
+        async function getSelectedDevices() {
+            try {
+                setLoadPreselection(true);
+                const devices = await getDevicesByPeak(sensorId, timestamp);
+
+                if (!ignore) {
+                    form.setValue(
+                        "device",
+                        devices.map((device) => ({
+                            id: device.id,
+                            name: device.name,
+                        })),
+                    );
+                }
+            } finally {
+                setLoadPreselection(false);
+            }
+        }
+
+        getSelectedDevices();
+
+        return () => {
+            ignore = true;
+        };
+    }, [form.setValue, sensorId, timestamp]);
 
     async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
         let res: DefaultActionReturn = undefined;
@@ -75,10 +107,13 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
         onInteract();
     }
 
-    const options: Option[] = devices.map((device) => ({
-       label: device.name,
-       value: device.id.toString()
-    }));
+    async function loadOptions(search: string) {
+        const devices = await getDevicesByUser(userId, search);
+        return devices.map((device) => ({
+            label: device.name,
+            value: device.id.toString(),
+        }));
+    }
 
     return (
         <Form {...form}>
@@ -87,20 +122,23 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
                     control={form.control}
                     name="device"
                     render={({ field }) => {
-                        console.log(field.value)
                         return (
-                        <FormItem>
-                            <FormLabel>Gerät</FormLabel>
-                            <FormControl>
-                                <MultiSelect
-                                    options={options}
-                                    onSelected={(values) => { field.onChange(values.map(optionToDeviceSchema)) }}
-                                    values={deviceSchemaToOption(field.value)}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}}
+                            <FormItem>
+                                <FormLabel>Gerät</FormLabel>
+                                <FormControl>
+                                    <MultiSelect
+                                        loadOptions={loadOptions}
+                                        onSelected={(values) => {
+                                            field.onChange(values.map(optionToDeviceSchema));
+                                        }}
+                                        values={deviceSchemaToOption(field.value)}
+                                        isLoading={loadPreselection}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        );
+                    }}
                 />
 
                 <div className="flex flex-row justify-end">
