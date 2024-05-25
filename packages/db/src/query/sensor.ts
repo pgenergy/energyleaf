@@ -228,14 +228,26 @@ export async function updateDevicesForPeak(sensorId: string, timestamp: Date, de
  *  gets all peaks for a given device
  */
 export async function getPeaksBySensor(start: Date, end: Date, sensorId: string) {
-    return db
+    const sensorDataQuery = db
         .select({
             sensor_data: sensorData,
+        })
+        .from(sensorData)
+        .where(and(eq(sensorData.sensorId, sensorId), sensorDataTimeFilter(start, end)));
+
+    const peaksQuery = db
+        .select({
             peaks: deviceToPeak
         })
         .from(deviceToPeak)
-        .leftJoin(sensorData, and(eq(deviceToPeak.sensorId, sensorData.sensorId), eq(deviceToPeak.timestamp, sensorData.timestamp)))
-        .where(and(eq(sensorData.sensorId, sensorId), sensorDataTimeFilter(start, end)))
+        .where(and(eq(deviceToPeak.sensorId, sensorId), sensorDataTimeFilter(start, end)));
+
+    const result = await Promise.all([sensorDataQuery, peaksQuery]);
+
+    return result[0].map(sensorDataEntry => ({
+        ...sensorDataEntry,
+        peaks: result[1].filter(peakEntry => peakEntry.peaks.timestamp === sensorDataEntry.sensor_data.timestamp)
+    }));
 }
 
 function sensorDataTimeFilter(start: Date, end: Date) {
