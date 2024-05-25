@@ -76,10 +76,3 @@ export const sensorData = mysqlTable(
         };
     },
 );
-
-export const peaks = mysqlTable("peaks", {
-    id: int("id").autoincrement().primaryKey().notNull(),
-    sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-    deviceId: int("device_id").notNull(),
-    timestamp: timestamp("timestamp"),
-});

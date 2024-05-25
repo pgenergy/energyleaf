@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { int, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {index, int, mysqlTable, primaryKey, timestamp, unique, uniqueIndex, varchar} from "drizzle-orm/mysql-core";
 
 export const device = mysqlTable("device", {
     id: int("id").autoincrement().primaryKey().notNull(),
@@ -19,3 +19,21 @@ export const deviceHistory = mysqlTable("history_device", {
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
     timestamp: timestamp("timestamp"),
 });
+
+/**
+ * A table to handle the n:m relationship between devices and peaks. A peak is an entry in the sensor_data table.
+ */
+export const deviceToPeak = mysqlTable(
+    "device_to_peak",
+    {
+        deviceId: int("device_id").notNull(),
+        sensorId: varchar("sensor_data_sensor_id", { length: 30 }).notNull(),
+        timestamp: timestamp("sensor_data_timestamp")
+    },
+    (table) => {
+        return {
+            pk: primaryKey({ columns: [table.deviceId, table.sensorId, table.timestamp] }),
+            idx: index("sensor_id_timestamp_idx").on(table.sensorId, table.timestamp),
+        };
+    },
+);

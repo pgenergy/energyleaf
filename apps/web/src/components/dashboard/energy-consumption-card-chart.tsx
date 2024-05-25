@@ -2,7 +2,7 @@
 
 import type { Peak, PeakAssignment } from "@/types/consumption/peak";
 import type { DeviceSelectType } from "@energyleaf/db/types";
-import type { AggregationType } from "@energyleaf/lib";
+import type {AggregationType, ConsumptionData} from "@energyleaf/lib";
 import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/components/charts";
 import { formatISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -10,15 +10,14 @@ import { useCallback, useState } from "react";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
 
 interface Props {
-    data: EnergyData[];
-    devices: DeviceSelectType[] | null;
-    peaks?: PeakAssignment[];
+    data: ConsumptionData[];
+    peaks?: ConsumptionData[];
     aggregation?: AggregationType;
 }
 
-export default function EnergyConsumptionCardChart({ data, peaks, devices, aggregation }: Props) {
+export default function EnergyConsumptionCardChart({ data, peaks, aggregation }: Props) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<Peak | null>(null);
+    const [value, setValue] = useState<ConsumptionData | null>(null);
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -28,20 +27,16 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
             sensorId: string;
             energy: number;
             timestamp: string | number | undefined;
-            device?: number;
         }) => {
             setValue({
                 sensorId: callbackData.sensorId,
                 energy: Number(callbackData.energy),
-                timestamp: callbackData.timestamp?.toString() || "",
-                device: callbackData.device ? Number(callbackData.device) : undefined,
+                timestamp: callbackData.timestamp?.toString() || ""
             });
             setOpen(true);
         },
         [],
     );
-
-    const onClick = devices && devices.length > 0 ? clickCallback : undefined;
 
     const convertDateFormat = useCallback((dateStr: string) => {
         const cleanedDateStr = dateStr.replace(/\(.+\)$/, "").trim();
@@ -60,7 +55,6 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
                 sensorId: sensorData?.sensorId ?? "",
                 timestamp: sensorData?.timestamp ? convertDateFormat(sensorData.timestamp) : "",
                 energy: sensorData?.energy ?? 0,
-                device: peak.device,
             };
         },
         [data, convertDateFormat],
@@ -81,8 +75,8 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
 
     return (
         <>
-            {value && devices ? (
-                <EnergyPeakDeviceAssignmentDialog devices={devices} open={open} setOpen={setOpen} value={value} />
+            {value ? (
+                <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} />
             ) : null}
             <EnergyConsumptionChart
                 aggregation={aggregation}
@@ -96,7 +90,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, devices, aggre
                               data: peaks.map(convertToAxesValue),
                               xKeyName: "timestamp",
                               yKeyName: "energy",
-                              callback: onClick,
+                              callback: clickCallback,
                           }
                         : undefined
                 }
