@@ -23,7 +23,6 @@ import type { z } from "zod";
 
 interface Props {
     userId: string;
-    initialValues: z.infer<typeof peakSchema>;
     sensorId: string;
     timestamp: string;
     onInteract: () => void;
@@ -40,11 +39,11 @@ const optionToDeviceSchema = (option: Option): z.infer<typeof deviceSchema> => (
     name: option.label,
 });
 
-export function EnergyPeakDeviceAssignmentForm({ userId, initialValues, sensorId, timestamp, onInteract }: Props) {
+export function EnergyPeakDeviceAssignmentForm({ userId, sensorId, timestamp, onInteract }: Props) {
     const form = useForm<z.infer<typeof peakSchema>>({
         resolver: zodResolver(peakSchema),
         defaultValues: {
-            ...initialValues,
+            device: [],
         },
     });
     const [loadPreselection, setLoadPreselection] = useState(false);
