@@ -1,9 +1,7 @@
 "use client";
 
-import type { Peak, PeakAssignment } from "@/types/consumption/peak";
-import type { DeviceSelectType } from "@energyleaf/db/types";
 import type { AggregationType, ConsumptionData } from "@energyleaf/lib";
-import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/components/charts";
+import { EnergyConsumptionChart } from "@energyleaf/ui/components/charts";
 import { formatISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -51,7 +49,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation, u
     }, []);
 
     const convertToAxesValue = useCallback(
-        (peak: Peak): Record<string, string | number | undefined> => {
+        (peak: ConsumptionData): Record<string, string | number | undefined> => {
             const sensorData = data.find((x) => x.sensorId === peak.sensorId && x.timestamp === peak.timestamp);
 
             return {
