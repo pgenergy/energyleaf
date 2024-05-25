@@ -16,7 +16,7 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId 
                 <DialogHeader>
                     <DialogTitle>Geräteauswahl</DialogTitle>
                     <DialogDescription>
-                        Wählen Sie ein Gerät aus, das diesen Verbrauch verursacht hat.
+                        Wählen Sie die Geräte aus, die diesen Verbrauch verursacht haben.
                     </DialogDescription>
                 </DialogHeader>
                 <p>Verbrauch: {value.energy}</p>
