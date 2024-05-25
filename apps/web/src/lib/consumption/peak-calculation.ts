@@ -4,7 +4,7 @@ import type { ConsumptionData } from "@energyleaf/lib";
 
 const peakWindowWidthInMinutes = 60;
 
-export default function calculatePeaks(data: ConsumptionData[]): Promise<ConsumptionData[]> {
+export default function calculatePeaks(data: ConsumptionData[]): ConsumptionData[] {
     const dataAboveThreshold = getDataAboveThreshold(data);
     const peakWindows = splitIntoWindows(dataAboveThreshold);
     return peakWindows.map(getPeakWithMaxEnergyInWindow);
