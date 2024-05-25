@@ -56,10 +56,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         sensorId: entry.sensorId || 0,
         energy: entry.value,
         timestamp: (entry.timestamp as Date).toString(),
+        sensorDataId: entry.id,
     }));
 
     const peaks: ConsumptionData[] =
-        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection) ? await calculatePeaks(data) : [];
+        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection) ? calculatePeaks(data) : [];
 
     const csvExportData = {
         userId: user.id,

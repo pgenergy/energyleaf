@@ -10,6 +10,7 @@ interface EnergyData {
     sensorId: string;
     value: number;
     timestamp: string;
+    id: string;
 }
 
 export async function getEnergyForSensorInRange(
@@ -205,23 +206,20 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
 /**
  *  adds or updates a peak in the database
  */
-export async function updateDevicesForPeak(sensorId: string, timestamp: Date, deviceIds: number[]) {
+export async function updateDevicesForPeak(sensorDataId: string, deviceIds: number[]) {
     return db.transaction(async (trx) => {
-        await trx
-            .delete(deviceToPeak)
-            .where(and(eq(deviceToPeak.sensorId, sensorId), eq(deviceToPeak.timestamp, timestamp)));
+        await trx.delete(deviceToPeak).where(eq(deviceToPeak.sensorDataId, sensorDataId));
 
         for (const deviceId of deviceIds) {
             await trx.insert(deviceToPeak).values({
-                sensorId,
                 deviceId,
-                timestamp,
+                sensorDataId,
             });
         }
     });
 }
 
-export async function getDevicesByPeak(sensorId: string, timestamp: Date) {
+export async function getDevicesByPeak(sensorDataId: string) {
     return db
         .select({
             id: deviceToPeak.deviceId,
@@ -229,15 +227,7 @@ export async function getDevicesByPeak(sensorId: string, timestamp: Date) {
         })
         .from(deviceToPeak)
         .innerJoin(device, eq(device.id, deviceToPeak.deviceId))
-        .where(and(eq(deviceToPeak.sensorId, sensorId), eq(deviceToPeak.timestamp, timestamp)));
-}
-
-function sensorDataTimeFilter(start: Date, end: Date) {
-    return or(
-        between(sensorData.timestamp, start, end),
-        eq(sensorData.timestamp, start),
-        eq(sensorData.timestamp, end),
-    );
+        .where(eq(deviceToPeak.sensorDataId, sensorDataId));
 }
 
 /**

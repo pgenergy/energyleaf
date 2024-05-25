@@ -27,13 +27,11 @@ export const deviceToPeak = mysqlTable(
     "device_to_peak",
     {
         deviceId: int("device_id").notNull(),
-        sensorId: varchar("sensor_data_sensor_id", { length: 30 }).notNull(),
-        timestamp: timestamp("sensor_data_timestamp"),
+        sensorDataId: varchar("id", { length: 35 }).notNull(),
     },
     (table) => {
         return {
-            pk: primaryKey({ columns: [table.deviceId, table.sensorId, table.timestamp], name: "device_to_peak_pk" }),
-            idx: index("sensor_id_timestamp_idx").on(table.sensorId, table.timestamp),
+            pk: primaryKey({ columns: [table.deviceId, table.sensorDataId] }),
         };
     },
 );

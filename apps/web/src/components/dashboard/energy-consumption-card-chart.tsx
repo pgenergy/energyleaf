@@ -28,11 +28,13 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation, u
             sensorId: string;
             energy: number;
             timestamp: string | number | undefined;
+            sensorDataId: string;
         }) => {
             setValue({
                 sensorId: callbackData.sensorId,
                 energy: Number(callbackData.energy),
                 timestamp: callbackData.timestamp?.toString() || "",
+                sensorDataId: callbackData.sensorDataId,
             });
             setOpen(true);
         },
@@ -56,6 +58,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation, u
                 sensorId: sensorData?.sensorId ?? "",
                 timestamp: sensorData?.timestamp ? convertDateFormat(sensorData.timestamp) : "",
                 energy: sensorData?.energy ?? 0,
+                sensorDataId: sensorData?.sensorDataId ?? "",
             };
         },
         [data, convertDateFormat],

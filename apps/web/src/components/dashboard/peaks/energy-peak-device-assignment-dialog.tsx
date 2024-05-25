@@ -25,8 +25,7 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId 
                     onInteract={() => {
                         setOpen(false);
                     }}
-                    sensorId={value.sensorId.toString()}
-                    timestamp={value.timestamp}
+                    sensorDataId={value.sensorDataId}
                 />
             </DialogContent>
         </Dialog>

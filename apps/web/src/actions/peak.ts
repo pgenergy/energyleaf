@@ -12,7 +12,7 @@ import "server-only";
 import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
 import type { z } from "zod";
 
-export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
+export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sensorDataId: string) {
     try {
         const { session } = await getActionSession();
 
@@ -22,7 +22,7 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
 
         const devices = data.device.map((device) => device.id);
         try {
-            await updateDevicesForPeakDb(sensorId, new Date(timestamp), devices);
+            await updateDevicesForPeakDb(sensorDataId, devices);
         } catch (e) {
             return {
                 success: false,
@@ -49,6 +49,6 @@ export async function getDevicesByUser(userId: string, search?: string) {
     return getDbDevicesByUser(userId, search);
 }
 
-export async function getDevicesByPeak(sensorId: string, timestamp: string) {
-    return getDevicesByPeakDb(sensorId, new Date(timestamp));
+export async function getDevicesByPeak(sensorDataId: string) {
+    return getDevicesByPeakDb(sensorDataId);
 }

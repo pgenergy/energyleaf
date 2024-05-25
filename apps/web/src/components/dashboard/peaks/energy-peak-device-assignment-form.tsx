@@ -2,6 +2,7 @@
 
 import { getDevicesByPeak, getDevicesByUser, updateDevicesForPeak } from "@/actions/peak";
 import { type deviceSchema, peakSchema } from "@/lib/schema/peak";
+import { sensorData } from "@energyleaf/db/schema";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     Button,
@@ -23,8 +24,7 @@ import type { z } from "zod";
 
 interface Props {
     userId: string;
-    sensorId: string;
-    timestamp: string;
+    sensorDataId: string;
     onInteract: () => void;
 }
 
@@ -39,7 +39,7 @@ const optionToDeviceSchema = (option: Option): z.infer<typeof deviceSchema> => (
     name: option.label,
 });
 
-export function EnergyPeakDeviceAssignmentForm({ userId, sensorId, timestamp, onInteract }: Props) {
+export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInteract }: Props) {
     const form = useForm<z.infer<typeof peakSchema>>({
         resolver: zodResolver(peakSchema),
         defaultValues: {
@@ -54,7 +54,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorId, timestamp, on
         async function getSelectedDevices() {
             try {
                 setLoadPreselection(true);
-                const devices = await getDevicesByPeak(sensorId, timestamp);
+                const devices = await getDevicesByPeak(sensorDataId);
 
                 if (!ignore) {
                     form.setValue(
@@ -75,13 +75,13 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorId, timestamp, on
         return () => {
             ignore = true;
         };
-    }, [form.setValue, sensorId, timestamp]);
+    }, [form.setValue, sensorDataId]);
 
-    async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
+    async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>) {
         let res: DefaultActionReturn = undefined;
 
         try {
-            res = await updateDevicesForPeak(data, sensorId, timestamp);
+            res = await updateDevicesForPeak(data, sensorDataId);
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
@@ -93,7 +93,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorId, timestamp, on
 
     function onSubmit(data: z.infer<typeof peakSchema>) {
         track("assignEnergyPeakToDevice()");
-        toast.promise(addOrUpdatePeakCallback(data, sensorId, timestamp), {
+        toast.promise(addOrUpdatePeakCallback(data), {
             loading: "Peak zuweisen...",
             success: "Erfolgreich zugewiesen",
             error: (err: Error) => err.message,
