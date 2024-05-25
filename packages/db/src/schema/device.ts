@@ -27,7 +27,7 @@ export const deviceToPeak = mysqlTable(
     "device_to_peak",
     {
         deviceId: int("device_id").notNull(),
-        sensorDataId: varchar("id", { length: 35 }).notNull(),
+        sensorDataId: varchar("sensor_data_id", { length: 35 }).notNull(),
     },
     (table) => {
         return {
