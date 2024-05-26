@@ -706,85 +706,87 @@ export async function resetSensorValues(clientId: string) {
  * Get the average power consumption in watts per device
  */
 export async function getAverageConsumptionPerDevice(userId: string) {
-    const peaksQuery = await db
-        .select({
-            peakSensorId: peaks.sensorId,
-            deviceId: peaks.deviceId,
-            peakTimestamp: peaks.timestamp,
-            peakValue: sensorData.value,
-        })
-        .from(peaks)
-        .innerJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
-        .innerJoin(device, eq(peaks.deviceId, device.id))
-        .where(eq(device.userId, userId))
-        .orderBy(peaks.sensorId, peaks.timestamp);
-
-    if (peaksQuery.length === 0) {
-        return null;
-    }
-
-    const deviceConsumption: Record<string, number[]> = {};
-
-    for (const current of peaksQuery) {
-        if (!current.peakTimestamp) {
-            continue;
-        }
-
-        const currentTimestamp = new Date(current.peakTimestamp);
-        
-        const lastSensorDataQuery = await db
+    return await db.transaction(async (trx) => {
+        const peaksQuery = await trx
             .select({
-                lastTimestamp: sensorData.timestamp,
-                lastValue: sensorData.value,
+                peakSensorId: peaks.sensorId,
+                deviceId: peaks.deviceId,
+                peakTimestamp: peaks.timestamp,
+                peakValue: sensorData.value,
             })
-            .from(sensorData)
-            .where(and(
-                eq(sensorData.sensorId, current.peakSensorId),
-                lt(sensorData.timestamp, currentTimestamp)
-            ))
-            .orderBy(desc(sensorData.timestamp))
-            .limit(1);
+            .from(peaks)
+            .innerJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
+            .innerJoin(device, eq(peaks.deviceId, device.id))
+            .where(eq(device.userId, userId))
+            .orderBy(peaks.sensorId, peaks.timestamp);
 
-        if (lastSensorDataQuery.length === 0) {
-            continue;
+        if (peaksQuery.length === 0) {
+            return null;
         }
 
-        const lastSensorData = lastSensorDataQuery[0];
-        const previousTimestamp = new Date(lastSensorData.lastTimestamp);
-        const previousValue = Number(lastSensorData.lastValue);
+        const deviceConsumption: Record<string, number[]> = {};
 
-        const timeDiffMinutes = (currentTimestamp.getTime() - previousTimestamp.getTime()) / (1000 * 60);
+        for (const current of peaksQuery) {
+            if (!current.peakTimestamp) {
+                continue;
+            }
 
-        if (timeDiffMinutes <= 0 || timeDiffMinutes > 1) {
-            continue;
+            const currentTimestamp = new Date(current.peakTimestamp);
+            
+            const lastSensorDataQuery = await trx
+                .select({
+                    lastTimestamp: sensorData.timestamp,
+                    lastValue: sensorData.value,
+                })
+                .from(sensorData)
+                .where(and(
+                    eq(sensorData.sensorId, current.peakSensorId),
+                    lt(sensorData.timestamp, currentTimestamp)
+                ))
+                .orderBy(desc(sensorData.timestamp))
+                .limit(1);
+
+            if (lastSensorDataQuery.length === 0) {
+                continue;
+            }
+
+            const lastSensorData = lastSensorDataQuery[0];
+            const previousTimestamp = new Date(lastSensorData.lastTimestamp);
+            const previousValue = Number(lastSensorData.lastValue);
+
+            const timeDiffMinutes = (currentTimestamp.getTime() - previousTimestamp.getTime()) / (1000 * 60);
+
+            if (timeDiffMinutes <= 0 || timeDiffMinutes > 1) {
+                continue;
+            }
+
+            const energyDiffKwh = Number(current.peakValue) - previousValue;
+            if (energyDiffKwh < 0) {
+                continue;
+            }
+
+            const powerWatt = (energyDiffKwh / (timeDiffMinutes / 60)) * 1000;
+
+            if (!deviceConsumption[current.deviceId.toString()]) {
+                deviceConsumption[current.deviceId.toString()] = [];
+            }
+
+            deviceConsumption[current.deviceId.toString()].push(powerWatt);
         }
 
-        const energyDiffKwh = Number(current.peakValue) - previousValue;
-        if (energyDiffKwh < 0) {
-            continue;
-        }
+        const result = Object.keys(deviceConsumption).map(deviceId => {
+            const consumptions = deviceConsumption[deviceId];
+            const sum = consumptions.reduce((acc: number, value: number) => acc + value, 0);
+            const average = sum / consumptions.length;
 
-        const powerWatt = (energyDiffKwh / (timeDiffMinutes / 60)) * 1000; // Convert minutes to hours
+            return {
+                deviceId: Number(deviceId),
+                averageConsumption: average,
+            };
+        });
 
-        if (!deviceConsumption[current.deviceId.toString()]) {
-            deviceConsumption[current.deviceId.toString()] = [];
-        }
-
-        deviceConsumption[current.deviceId.toString()].push(powerWatt);
-    }
-
-    const result = Object.keys(deviceConsumption).map(deviceId => {
-        const consumptions = deviceConsumption[deviceId];
-        const sum = consumptions.reduce((acc: number, value: number) => acc + value, 0);
-        const average = sum / consumptions.length;
-
-        return {
-            deviceId: Number(deviceId),
-            averageConsumption: average,
-        };
+        return result;
     });
-
-    return result;
 }
 
 /**
