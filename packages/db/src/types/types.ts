@@ -56,6 +56,14 @@ export const userDataHotWaterEnums: Record<(typeof userData.hotWater.enumValues)
     not_electric: "Nicht elektrisch",
 };
 
+export const userDataElectricityMeterTypeEnums: Record<
+    (typeof userData.electricityMeterType.enumValues)[number],
+    string
+> = {
+    digital: "Digital",
+    analog: "Analog",
+};
+
 export enum DeviceCategory {
     CoolingAndFreezing = "Kühl- und Gefriergeräte",
     CookingAndBaking = "Koch- und Backgeräte",

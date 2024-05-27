@@ -1,5 +1,5 @@
-import { differenceInCalendarDays, differenceInMonths, differenceInWeeks, differenceInYears } from "date-fns";
 import { AggregationType } from "@energyleaf/lib";
+import { differenceInCalendarDays, differenceInMonths, differenceInWeeks, differenceInYears } from "date-fns";
 
 export function calculateAggregationOptions(startDateStr, endDateStr) {
     if (!startDateStr || !endDateStr) {

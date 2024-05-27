@@ -11,10 +11,8 @@ export function energyDataJoinUserData(
 ): EnergyEntryWithUserData[] {
     return energyData.map((sensorData) => {
         const sensorTimestamp = new Date(sensorData.timestamp);
-        
-        const userDataEntry = userData.findLast(
-            (x) => x.timestamp.getTime() <= sensorTimestamp.getTime()
-        );
+
+        const userDataEntry = userData.findLast((x) => x.timestamp.getTime() <= sensorTimestamp.getTime());
 
         return {
             userData: userDataEntry,

@@ -76,8 +76,12 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
     try {
         await updateUserDb(
             {
+                firstname: data.firstname,
+                lastName: data.lastname,
                 username: data.username,
                 email: data.email,
+                phone: data.phone,
+                address: data.address,
             },
             id,
         );
@@ -95,6 +99,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
             {
                 isAdmin: data.isAdmin,
                 isActive: data.active,
+                isParticipant: data.isParticipant,
                 appVersion: data.appVersion,
             },
             id,

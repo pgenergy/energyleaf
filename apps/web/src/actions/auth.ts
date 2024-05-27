@@ -1,28 +1,57 @@
 "use server";
-
 import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import { onboardingCompleteCookieName } from "@/lib/constants";
 import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
-import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
+import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
+import { genId } from "@energyleaf/db";
 import { type CreateUserType, createUser, getUserById, getUserByMail, updatePassword } from "@energyleaf/db/query";
-import type { UserSelectType } from "@energyleaf/db/types";
+import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
-import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
+import {
+    sendAccountCreatedEmail,
+    sendAdminNewAccountCreatedEmail,
+    sendPasswordChangedEmail,
+    sendPasswordResetEmail,
+} from "@energyleaf/mail";
 import * as jose from "jose";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
+import type { userData } from "@energyleaf/db/schema";
+import { put } from "@vercel/blob";
 import type { z } from "zod";
 
 /**
  * Server action for creating a new account
  */
-export async function createAccount(data: z.infer<typeof signupSchema>) {
-    const { mail, password, passwordRepeat, username } = data;
+export async function createAccount(data: FormData) {
+    const phone = data.get("phone") as string | undefined;
+    const firstname = data.get("firstname") as string;
+    const lastname = data.get("lastname") as string;
+    const address = data.get("address") as string;
+    const comment = data.get("comment") as string | undefined;
+    const mail = data.get("mail") as string;
+    const hasWifi = (data.get("hasWifi") as string) === "true";
+    const hasPower = (data.get("hasPower") as string) === "true";
+    const password = data.get("password") as string;
+    const passwordRepeat = data.get("passwordRepeat") as string;
+    const username = data.get("username") as string;
+    const file = data.get("file") as File | undefined;
+    const tos = (data.get("tos") as string) === "true";
+    const electricityMeterType = data.get(
+        "electricityMeterType",
+    ) as (typeof userData.electricityMeterType.enumValues)[number];
+
+    if (!tos) {
+        return {
+            success: false,
+            message: "Sie müssen den Datenschutzbestimmungen zustimmen.",
+        };
+    }
 
     if (mail === "demo@energyleaf.de") {
         return {
@@ -67,17 +96,49 @@ export async function createAccount(data: z.infer<typeof signupSchema>) {
 
     const hash = await new Argon2id().hash(password);
 
+    let url: string | undefined = undefined;
+    if (file && env.BLOB_READ_WRITE_TOKEN) {
+        try {
+            const id = genId(25);
+            const type = file.name.split(".").pop();
+            const res = await put(`electricitiy_meter/${id}.${type}`, file, {
+                access: "public",
+            });
+            url = res.url;
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     try {
         await createUser({
+            firstname,
+            address,
+            lastname,
+            phone,
+            comment,
+            hasPower,
+            hasWifi,
             email: mail,
             password: hash,
             username,
+            electricityMeterType,
+            meterImgUrl: url,
         } satisfies CreateUserType);
         await sendAccountCreatedEmail({
             to: mail,
-            name: username,
+            name: `${firstname} ${lastname}`,
             apiKey: env.RESEND_API_KEY,
             from: env.RESEND_API_MAIL,
+        });
+        await sendAdminNewAccountCreatedEmail({
+            email: mail,
+            name: username,
+            meter: userDataElectricityMeterTypeEnums[electricityMeterType],
+            img: url,
+            to: env.ADMIN_MAIL,
+            from: env.RESEND_API_MAIL,
+            apiKey: env.RESEND_API_KEY,
         });
     } catch (err) {
         console.error(err);

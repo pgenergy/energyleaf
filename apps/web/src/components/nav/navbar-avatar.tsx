@@ -1,6 +1,7 @@
 "use client";
 
 import { signOutAction, signOutDemoAction } from "@/actions/auth";
+import { Avatar as BAvatar } from "@boringer-avatars/react";
 import {
     Avatar,
     DropdownMenu,
@@ -16,7 +17,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { Avatar as BAvatar } from "@boringer-avatars/react";
 
 interface Props {
     user: User;

@@ -10,7 +10,9 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
+import { XIcon } from "lucide-react";
 import { useState } from "react";
+import { Button } from "./button";
 import { Input } from "./input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
 
@@ -39,14 +41,28 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="max-w-sm">
-                <Input
-                    onChange={(event) => {
-                        table.setGlobalFilter(event.target.value);
-                    }}
-                    placeholder="Suchen"
-                    value={(table.getState().globalFilter as string) || ""}
-                />
+            <div className="flex flex-row items-center justify-between">
+                <div className="max-w-sm">
+                    <Input
+                        onChange={(event) => {
+                            table.setGlobalFilter(event.target.value);
+                        }}
+                        placeholder="Suchen"
+                        value={(table.getState().globalFilter as string) || ""}
+                    />
+                </div>
+                {sorting.length > 0 ? (
+                    <div className="">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setSorting([]);
+                            }}
+                        >
+                            <XIcon className="h-4 w-4" />
+                        </Button>
+                    </div>
+                ) : null}
             </div>
             <div className="rounded-md border">
                 <Table>

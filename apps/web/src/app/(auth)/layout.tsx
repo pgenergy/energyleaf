@@ -1,4 +1,3 @@
-import { DemoBanner } from "@/components/footer/demo-banner";
 import { Card, CardHeader, buttonVariants } from "@energyleaf/ui";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,7 +11,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 <div className="fixed inset-0 z-[-1] h-screen w-screen overflow-hidden object-fill">
                     <Image alt="Background" fill placeholder="blur" src={bg} />
                 </div>
-                <div className="flex w-full flex-col items-center overflow-y-auto">
+                <div className="flex w-full flex-col items-center overflow-y-auto px-4 py-4">
                     <Card className="w-full max-w-xl">
                         <CardHeader>
                             <div className="flex flex-row items-center justify-center gap-2">
@@ -33,9 +32,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                     </Card>
                 </div>
             </main>
-            <footer>
-                <DemoBanner />
-            </footer>
         </>
     );
 }

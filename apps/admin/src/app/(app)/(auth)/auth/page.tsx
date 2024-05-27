@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function AuthPage() {
     return (
-        <Card className="w-full max-w-lg">
+        <Card className="mx-4 w-full max-w-lg">
             <CardHeader>
                 <CardTitle className="flex flex-row items-center justify-center gap-2">
                     <Image alt="Energyleaf Logo" className="h-10 w-10" src={logo} />

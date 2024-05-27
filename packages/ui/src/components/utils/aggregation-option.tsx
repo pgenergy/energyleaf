@@ -1,5 +1,5 @@
-import React from "react";
 import { AggregationType, aggregationLabels } from "@energyleaf/lib";
+import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui";
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function AggregationOption({ selected, onSelectedChange, availableOptions }: Props) {
-    const filteredOptions = Object.values(AggregationType).filter(type => availableOptions.includes(type));
+    const filteredOptions = Object.values(AggregationType).filter((type) => availableOptions.includes(type));
 
     return (
         <div className="flex flex-row justify-end gap-4">

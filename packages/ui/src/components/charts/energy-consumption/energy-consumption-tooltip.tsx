@@ -1,12 +1,12 @@
 "use client";
 
-import { format, getISOWeek } from "date-fns";
-import { de } from "date-fns/locale";
-import { useMemo } from 'react';
-import type { TooltipProps } from "recharts";
-import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader } from "@energyleaf/ui";
+import { format, getISOWeek } from "date-fns";
+import { de } from "date-fns/locale";
+import { useMemo } from "react";
+import type { TooltipProps } from "recharts";
+import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
 interface Props {
     aggregationType: AggregationType;
@@ -35,7 +35,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
             [AggregationType.DAY]: "dd. MMMM yyyy",
             [AggregationType.MONTH]: "MMMM yyyy",
             [AggregationType.YEAR]: "yyyy",
-            [AggregationType.WEEK]: `'KW' ${getISOWeek(date)} yyyy`
+            [AggregationType.WEEK]: `'KW' ${getISOWeek(date)} yyyy`,
         };
         return format(date, formatOptions[aggregationType] || "dd.MM.yyyy", { locale: de });
     }, [data?.timestamp, aggregationType]);
@@ -51,7 +51,8 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <p className="text-sm">
-                    <span className="font-bold">Verbrauch:</span> {data.energy.toFixed(2)} {computeTimestampLabel(aggregationType, true)}
+                    <span className="font-bold">Verbrauch:</span> {data.energy.toFixed(2)}{" "}
+                    {computeTimestampLabel(aggregationType, true)}
                 </p>
                 {data.classification && (
                     <p className="text-sm">

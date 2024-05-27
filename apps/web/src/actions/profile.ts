@@ -41,6 +41,10 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
         try {
             await updateUser(
                 {
+                    firstname: data.firstname,
+                    lastName: data.lastname,
+                    phone: data.phone,
+                    address: data.address,
                     username: data.username,
                     email: data.email,
                 },

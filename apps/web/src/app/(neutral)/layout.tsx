@@ -1,4 +1,3 @@
-import { DemoBanner } from "@/components/footer/demo-banner";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "../../../public/image/logo/logo.png";
@@ -17,9 +16,6 @@ export default function NeutralLayout(props: Props) {
                 </Link>
             </header>
             <main className="mx-auto flex max-w-[75%] flex-col gap-4 px-8 py-10">{props.children}</main>
-            <footer>
-                <DemoBanner />
-            </footer>
         </>
     );
 }

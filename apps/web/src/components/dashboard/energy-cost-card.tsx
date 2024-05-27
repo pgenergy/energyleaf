@@ -40,9 +40,12 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     }
 
     const energyDataRaw = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const energyData = energyDataRaw.map(data => ({
+    const energyData = energyDataRaw.map((data) => ({
         ...data,
-        timestamp: (typeof data.timestamp === 'string' || typeof data.timestamp === 'number') ? new Date(data.timestamp) : new Date()
+        timestamp:
+            typeof data.timestamp === "string" || typeof data.timestamp === "number"
+                ? new Date(data.timestamp)
+                : new Date(),
     }));
 
     const userData = await getUserDataHistory(userId);

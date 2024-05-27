@@ -6,6 +6,7 @@ import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
+    AlertDialogContent,
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
@@ -48,27 +49,29 @@ export default function SensorResetAlert() {
                 }
             }}
         >
-            <AlertDialogHeader>
-                <AlertDialogTitle>Sensor zurücksetzen</AlertDialogTitle>
-                <AlertDialogDescription>
-                    Diese Aktion entfernt alle Werte, die diesem Sensor zugeordnet sind. Das beinhaltet alle Token,
-                    Werte, Skripte sowie den aktuellen Nutzer.
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel
-                    disabled={pending}
-                    onClick={() => {
-                        sensorContext.setSensorResetDialogOpen(false);
-                        sensorContext.setSensor(undefined);
-                    }}
-                >
-                    Abbrechen
-                </AlertDialogCancel>
-                <AlertDialogAction disabled={pending} onClick={onReset}>
-                    Zurücksetzen
-                </AlertDialogAction>
-            </AlertDialogFooter>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Sensor zurücksetzen</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Diese Aktion entfernt alle Werte, die diesem Sensor zugeordnet sind. Das beinhaltet alle Token,
+                        Werte, Skripte sowie den aktuellen Nutzer.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel
+                        disabled={pending}
+                        onClick={() => {
+                            sensorContext.setSensorResetDialogOpen(false);
+                            sensorContext.setSensor(undefined);
+                        }}
+                    >
+                        Abbrechen
+                    </AlertDialogCancel>
+                    <AlertDialogAction disabled={pending} onClick={onReset}>
+                        Zurücksetzen
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
         </AlertDialog>
     );
 }

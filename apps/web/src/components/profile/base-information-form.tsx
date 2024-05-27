@@ -10,12 +10,16 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 interface Props {
+    phone?: string;
+    address: string;
+    firstname: string;
+    lastname: string;
     username: string;
     email: string;
     disabled?: boolean;
 }
 
-export default function BaseInformationForm({ username, email, disabled }: Props) {
+export default function BaseInformationForm({ username, email, firstname, lastname, phone, address, disabled }: Props) {
     const [changeIsPending, startTransition] = useTransition();
 
     async function updateBaseInformationUsernameCallback(data: z.infer<typeof baseInformationSchema>) {
@@ -61,6 +65,10 @@ export default function BaseInformationForm({ username, email, disabled }: Props
                     changeIsPending={changeIsPending}
                     disabled={disabled}
                     email={email}
+                    address={address}
+                    phone={phone}
+                    firstname={firstname}
+                    lastname={lastname}
                     onSubmit={onSubmit}
                     username={username}
                 />
