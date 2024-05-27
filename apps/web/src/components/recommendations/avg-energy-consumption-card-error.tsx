@@ -9,7 +9,7 @@ export default function AvgEnergyConsumptionError({ resetErrorBoundary }: Fallba
         <Card>
             <CardHeader>
                 <CardTitle>Durchschnittlicher Energieverbrauch</CardTitle>
-                <CardDescription>Ihr durchschnittlicher Energieverbrauch</CardDescription>
+                <CardDescription>Hier sehen Sie Ihren durchschnittlichen Energieverbrauch über die gesamte Zeit</CardDescription>
             </CardHeader>
             <CardContent>
                 <TryAgainErrorHint resetErrorBoundary={resetErrorBoundary} />

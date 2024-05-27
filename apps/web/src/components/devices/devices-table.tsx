@@ -13,6 +13,10 @@ export default async function DevicesTable() {
     const devices = await getDevicesByUser(user.id);
     const consumptionData = await getAverageConsumptionPerDevice(user.id);
 
+    if (!consumptionData) {
+        return <DevicesDataTable columns={devicesColumns} data={devices} />;
+    }
+
     const enrichedDevices = devices.map((device) => {
         const deviceConsumption = consumptionData.find(
             (consumption) => consumption.deviceId === device.id,

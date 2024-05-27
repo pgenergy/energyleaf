@@ -143,17 +143,32 @@ export async function getEnergySumForSensorInRange(start: Date, end: Date, senso
 export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
     const query = await db
         .select({
-            sensorId: sensorData.sensorId,
-            avg: sql<string>`AVG(${sensorData.value})`,
+            value: sensorData.value,
+            timestamp: sensorData.timestamp,
         })
         .from(sensorData)
-        .where(eq(sensorData.sensorId, sensorId));
+        .where(eq(sensorData.sensorId, sensorId))
+        .orderBy(sensorData.timestamp);
 
     if (query.length === 0) {
         return null;
     }
 
-    return Number(query[0].avg);
+    let previousValue = query[0].value;
+    const differences = query.map((entry, index) => {
+        if (index === 0) {
+            return 0;
+        }
+        
+        const difference = Number(entry.value) - Number(previousValue);
+        previousValue = entry.value;
+        return difference;
+    });
+
+    const sumOfDifferences = differences.reduce((acc, diff) => acc + diff, 0);
+    const averageDifference = sumOfDifferences / (differences.length - 1);
+
+    return averageDifference;
 }
 
 /**
@@ -172,10 +187,11 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
             return null;
         }
 
-        const avg = await trx
+        const sensorQuery = await trx
             .select({
-                avg: sql<string>`AVG(${sensorData.value})`,
-                count: sql<string>`COUNT(DISTINCT ${sensor.id})`,
+                sensorId: sensorData.sensorId,
+                value: sensorData.value,
+                timestamp: sensorData.timestamp,
             })
             .from(sensorData)
             .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
@@ -187,15 +203,42 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
                     eq(userData.property, user.property),
                 ),
             )
-            .groupBy(userData.livingSpace, userData.household, userData.property);
+            .orderBy(sensorData.sensorId, sensorData.timestamp);
 
-        if (avg.length === 0) {
+        if (sensorQuery.length === 0) {
             return null;
         }
 
+        const sensorDifferences: Record<string, number[]> = {};
+
+        sensorQuery.forEach((entry, index) => {
+            if (!sensorDifferences[entry.sensorId]) {
+                sensorDifferences[entry.sensorId] = [];
+            }
+
+            const sensorDataList = sensorDifferences[entry.sensorId];
+            if (sensorDataList.length === 0) {
+                sensorDataList.push(0);
+            } else {
+                const previousValue = sensorDataList[sensorDataList.length - 1];
+                const difference = Number(entry.value) - previousValue;
+                sensorDataList.push(difference);
+            }
+        });
+
+        const differences = Object.values(sensorDifferences).flat();
+        const sumOfDifferences = differences.reduce((acc, diff) => acc + diff, 0);
+        const sensorCount = Object.keys(sensorDifferences).length;
+
+        if (sensorCount === 0) {
+            return null;
+        }
+
+        const averageDifference = sumOfDifferences / sensorCount;
+
         return {
-            avg: Number(avg[0].avg),
-            count: Number(avg[0].count),
+            avg: averageDifference,
+            count: sensorCount,
         };
     });
 
@@ -655,22 +698,90 @@ export async function resetSensorValues(clientId: string) {
 }
 
 /**
- * Get the average energy utils per device
+ * Get the average power consumption in watts per device
  */
 export async function getAverageConsumptionPerDevice(userId: string) {
-    const result = await db
-        .select({
-            deviceId: peaks.deviceId,
-            averageConsumption: sql<number>`AVG(${sensorData.value})`,
-        })
-        .from(device)
-        .innerJoin(peaks, and(eq(device.id, peaks.deviceId)))
-        .innerJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
-        .where(eq(device.userId, userId))
-        .groupBy(peaks.deviceId)
-        .execute();
+    return await db.transaction(async (trx) => {
+        const peaksQuery = await trx
+            .select({
+                peakSensorId: peaks.sensorId,
+                deviceId: peaks.deviceId,
+                peakTimestamp: peaks.timestamp,
+                peakValue: sensorData.value,
+            })
+            .from(peaks)
+            .innerJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
+            .innerJoin(device, eq(peaks.deviceId, device.id))
+            .where(eq(device.userId, userId))
+            .orderBy(peaks.sensorId, peaks.timestamp);
 
-    return result;
+        if (peaksQuery.length === 0) {
+            return null;
+        }
+
+        const deviceConsumption: Record<string, number[]> = {};
+
+        for (const current of peaksQuery) {
+            if (!current.peakTimestamp) {
+                continue;
+            }
+
+            const currentTimestamp = new Date(current.peakTimestamp);
+            
+            const lastSensorDataQuery = await trx
+                .select({
+                    lastTimestamp: sensorData.timestamp,
+                    lastValue: sensorData.value,
+                })
+                .from(sensorData)
+                .where(and(
+                    eq(sensorData.sensorId, current.peakSensorId),
+                    lt(sensorData.timestamp, currentTimestamp)
+                ))
+                .orderBy(desc(sensorData.timestamp))
+                .limit(1);
+
+            if (lastSensorDataQuery.length === 0) {
+                continue;
+            }
+
+            const lastSensorData = lastSensorDataQuery[0];
+            const previousTimestamp = new Date(lastSensorData.lastTimestamp);
+            const previousValue = Number(lastSensorData.lastValue);
+
+            const timeDiffMinutes = (currentTimestamp.getTime() - previousTimestamp.getTime()) / (1000 * 60);
+
+            if (timeDiffMinutes <= 0 || timeDiffMinutes > 1) {
+                continue;
+            }
+
+            const energyDiffKwh = Number(current.peakValue) - previousValue;
+            if (energyDiffKwh < 0) {
+                continue;
+            }
+
+            const powerWatt = (energyDiffKwh / (timeDiffMinutes / 60)) * 1000;
+
+            if (!deviceConsumption[current.deviceId.toString()]) {
+                deviceConsumption[current.deviceId.toString()] = [];
+            }
+
+            deviceConsumption[current.deviceId.toString()].push(powerWatt);
+        }
+
+        const result = Object.keys(deviceConsumption).map(deviceId => {
+            const consumptions = deviceConsumption[deviceId];
+            const sum = consumptions.reduce((acc: number, value: number) => acc + value, 0);
+            const average = sum / consumptions.length;
+
+            return {
+                deviceId: Number(deviceId),
+                averageConsumption: average,
+            };
+        });
+
+        return result;
+    });
 }
 
 /**
