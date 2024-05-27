@@ -1,8 +1,7 @@
 "use client";
 
-import * as React from "react";
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
+import * as React from "react";
 
 interface Props {
     value: number;

@@ -1,13 +1,8 @@
 "use server";
 
-import "server-only";
-
-import { revalidatePath } from "next/cache";
 import { env } from "@/env.mjs";
 import { checkIfAdmin } from "@/lib/auth/auth.action";
 import type { userStateSchema } from "@/lib/schema/user";
-import type { z } from "zod";
-
 import {
     deleteUser as deleteUserDb,
     getAllUsers as getAllUsersDb,
@@ -18,6 +13,9 @@ import {
 } from "@energyleaf/db/query";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { sendAccountActivatedEmail } from "@energyleaf/mail";
+import { revalidatePath } from "next/cache";
+import "server-only";
+import type { z } from "zod";
 
 export async function getAllUsersAction() {
     await checkIfAdmin();
@@ -78,8 +76,12 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
     try {
         await updateUserDb(
             {
+                firstname: data.firstname,
+                lastName: data.lastname,
                 username: data.username,
                 email: data.email,
+                phone: data.phone,
+                address: data.address,
             },
             id,
         );
@@ -93,15 +95,17 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
     await checkIfAdmin();
 
     try {
-        await setUserActiveDb(id, data.active);
-        await setUserAdminDb(id, data.isAdmin);
+        await updateUserDb(
+            {
+                isAdmin: data.isAdmin,
+                isActive: data.active,
+                isParticipant: data.isParticipant,
+                appVersion: data.appVersion,
+            },
+            id,
+        );
         revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to update user");
     }
-}
-
-export async function getAllUsers() {
-    await checkIfAdmin();
-    return getAllUsersDb();
 }

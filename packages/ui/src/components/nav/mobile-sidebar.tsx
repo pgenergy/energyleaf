@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { cn } from "@energyleaf/tailwindcss/utils";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { PanelRightCloseIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { PanelRightCloseIcon } from "lucide-react";
-
-import { cn } from "@energyleaf/tailwindcss/utils";
-
+import { useState } from "react";
 import { Button, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../../ui";
 
 interface NavLink {
@@ -44,7 +42,7 @@ export default function MobileSidebar({ title, titleLink, links }: Props) {
                                 src="/image/logo/logo.png"
                                 width={499}
                             />
-                            <h1 className="text-2xl font-bold">{title}</h1>
+                            <h1 className="font-bold text-2xl">{title}</h1>
                         </Link>
                     </SheetTitle>
                 </SheetHeader>

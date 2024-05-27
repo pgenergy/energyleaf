@@ -1,10 +1,4 @@
-import { cache } from "react";
-
-import "server-only";
-
-import { cookies } from "next/headers";
 import { getUserDataCookieStore } from "@/lib/demo/demo";
-
 import {
     getUserById as getDbUserById,
     getUserData as getDbUserDataById,
@@ -12,6 +6,10 @@ import {
     getUserIdByToken as getDbUserIdByToken,
 } from "@energyleaf/db/query";
 import type { UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import { Versions } from "@energyleaf/lib/versioning";
+import { cookies } from "next/headers";
+import { cache } from "react";
+import "server-only";
 
 /**
  * Cached query to retrieve user data
@@ -25,6 +23,8 @@ export const getUserById = cache(async (id: string) => {
             password: "demo",
             isAdmin: false,
             created: new Date(),
+            isActive: true,
+            appVersion: Versions.transparency,
         };
     }
 

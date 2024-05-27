@@ -1,7 +1,8 @@
 import { getPeaksBySensor } from "@/query/energy";
-import type ConsumptionData from "@/types/consumption/consumption-data";
 import type { PeakAssignment } from "@/types/consumption/peak";
 import { differenceInMinutes } from "date-fns";
+
+import type { ConsumptionData } from "@energyleaf/lib";
 
 const peakWindowWidthInMinutes = 60;
 
@@ -38,7 +39,6 @@ function splitIntoWindows(data: ConsumptionData[]): ConsumptionData[][] {
                 return acc;
             }
             const currentGroup = acc[acc.length - 1];
-
             if (
                 differenceInMinutes(new Date(curr.timestamp), new Date(currentGroup[0].timestamp)) >=
                 peakWindowWidthInMinutes
@@ -47,17 +47,14 @@ function splitIntoWindows(data: ConsumptionData[]): ConsumptionData[][] {
             } else {
                 currentGroup.push(curr);
             }
-
             return acc;
         }, [])
-        .filter((x) => differenceInMinutes(now, new Date(x[0].timestamp)) >= peakWindowWidthInMinutes); // ignore groups that are less than 60 minutes old as they are not complete
+        .filter((x) => x.length > 0 && differenceInMinutes(now, new Date(x[0].timestamp)) >= peakWindowWidthInMinutes); // Consolidated filtering logic to ensure groups are older than 60 minutes and not empty
 }
 
 function calculatePeakThreshold(data: ConsumptionData[]): number {
     const mean = data.reduce((acc, cur) => acc + cur.energy, 0) / data.length;
-    const std = Math.sqrt(
-        data.map((x) => Math.pow(x.energy - mean, 2)).reduce((acc, cur) => acc + cur, 0) / data.length,
-    );
+    const std = Math.sqrt(data.map((x) => (x.energy - mean) ** 2).reduce((acc, cur) => acc + cur, 0) / data.length);
     return mean + 2 * std;
 }
 
@@ -80,7 +77,6 @@ async function getPeaksWithDevicesAssigned(startDate: Date, endDate: Date, senso
                     timestamp: x.peaks.timestamp,
                 };
             }
-
             return null;
         })
         .filter(Boolean);

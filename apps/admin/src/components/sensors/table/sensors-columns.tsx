@@ -1,14 +1,13 @@
 "use client";
 
-import React from "react";
 import SensorUserAssignmentForm from "@/components/sensors/sensor-user-assignment-form";
 import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
-import { type ColumnDef } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-
 import type { SensorSelectTypeWithUser } from "@energyleaf/db/types";
 import { SensorTypeMap } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import React from "react";
 
 export const sensorsColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
     {
@@ -87,10 +86,10 @@ export const sensorsOverviewColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
             );
         },
         cell: ({ row }) => {
+            const sensor = row.original.sensor;
             const userId: string | undefined = row.original.user?.id || undefined;
             const userName: string | undefined = row.original.user?.username || undefined;
-            const clientId: string = row.original.sensor.clientId;
-            return <SensorUserAssignmentForm clientId={clientId} selectedUserId={userId} selectedUserName={userName} />;
+            return <SensorUserAssignmentForm sensor={sensor} selectedUserId={userId} selectedUserName={userName} />;
         },
     },
     {

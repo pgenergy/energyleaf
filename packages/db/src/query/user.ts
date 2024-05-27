@@ -1,9 +1,7 @@
-import {and, desc, eq} from "drizzle-orm";
-
+import { and, eq, gt, lte, or, sql } from "drizzle-orm";
 import db from "../";
-import {historyUserData, token, user, userData} from "../schema";
-import {reportConfig} from "../schema/reports";
-import {TokenType} from "../types/types";
+import { historyReports, historyUserData, reports, user, userData } from "../schema";
+import type { UserSelectType } from "../types/types";
 
 /**
  * Get a user by id from the database
@@ -36,9 +34,18 @@ export async function getUserByMail(email: string) {
 }
 
 export type CreateUserType = {
+    firstname: string;
+    lastname: string;
+    phone?: string;
+    comment?: string;
+    hasPower: boolean;
+    address: string;
+    hasWifi: boolean;
     email: string;
     password: string;
     username: string;
+    electricityMeterType: (typeof userData.electricityMeterType.enumValues)[number];
+    meterImgUrl?: string;
 };
 
 /**
@@ -53,6 +60,10 @@ export async function createUser(data: CreateUserType) {
         }
 
         await trx.insert(user).values({
+            firstname: data.firstname,
+            lastName: data.lastname,
+            address: data.address,
+            phone: data.phone,
             username: data.username,
             email: data.email,
             password: data.password,
@@ -73,6 +84,11 @@ export async function createUser(data: CreateUserType) {
 
         await trx.insert(userData).values({
             userId: id,
+            electricityMeterType: data.electricityMeterType,
+            electricityMeterImgUrl: data.meterImgUrl || null,
+            powerAtElectricityMeter: data.hasPower,
+            wifiAtElectricityMeter: data.hasWifi,
+            installationComment: data.comment,
         });
 
         await trx.insert(reportConfig).values({
@@ -116,8 +132,8 @@ export async function getUserDataHistory(id: string) {
 /**
  * Update the user data in the database
  */
-export async function updateUser(data: Partial<CreateUserType>, id: string) {
-    return await db.update(user).set(data).where(eq(user.id, id));
+export async function updateUser(data: Partial<UserSelectType>, id: string) {
+    return db.update(user).set(data).where(eq(user.id, id));
 }
 
 /**
@@ -125,6 +141,43 @@ export async function updateUser(data: Partial<CreateUserType>, id: string) {
  */
 export async function updatePassword(data: Partial<CreateUserType>, id: string) {
     return await db.update(user).set(data).where(eq(user.id, id));
+}
+
+/**
+ * Update the user report settings data in the database
+ */
+export async function updateReportSettings(
+    data: {
+        receiveMails: boolean;
+        interval: number;
+        time: number;
+    },
+    id: string,
+) {
+    return db.transaction(async (trx) => {
+        const oldReportData = await getReportDataByUserId(id);
+        if (!oldReportData) {
+            throw new Error("Old user data not found");
+        }
+        await trx.insert(historyReports).values({
+            userId: oldReportData.userId,
+            receiveMails: oldReportData.receiveMails,
+            interval: oldReportData.interval,
+            time: oldReportData.time,
+            timestampLast: oldReportData.timestampLast,
+            createdTimestamp: oldReportData.createdTimestamp,
+        });
+
+        await trx
+            .update(reports)
+            .set({
+                receiveMails: data.receiveMails,
+                interval: data.interval,
+                time: data.time,
+                createdTimestamp: new Date(),
+            })
+            .where(eq(reports.userId, id));
+    });
 }
 
 type UpdateUserData = {

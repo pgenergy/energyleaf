@@ -1,41 +1,42 @@
 {
-    "private": true,
-    "scripts": {
-        "build": "dotenv -- turbo run build --no-daemon",
-        "build:app": "dotenv -- turbo run build --filter web --no-daemon",
-        "build:admin": "dotenv -- turbo run build --filter admin --no-daemon",
-        "dev": "dotenv -- turbo run dev",
-        "dev:app": "dotenv -- turbo run dev --filter web",
-        "dev:admin": "dotenv -- turbo run dev --filter admin",
-        "dev:mail": "dotenv -- pnpm --filter mail run dev:mail",
-        "start": "dotenv -- turbo run start",
-        "lint": "dotenv -- turbo run lint",
-        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-        "fix": "pnpm run format && pnpm run lint -- --fix",
-        "db:push": "dotenv -- pnpm --filter db run push",
-        "db:push:prod": "dotenv -- pnpm --filter db run push:prod",
-        "db:studio": "dotenv -- pnpm --filter db run studio",
-        "db:studio:prod": "dotenv -- pnpm --filter db run studio:prod",
-        "proto:compile": "dotenv -- pnpm --filter proto run compile",
-        "clean": "turbo run clean && git clean -xdf .turbo node_modules"
-    },
-    "devDependencies": {
-        "@energyleaf/tsconfig": "workspace:*",
-        "@total-typescript/ts-reset": "^0.5.1",
-        "eslint": "^8.57.0",
-        "prettier": "^3.2.5",
-        "turbo": "^1.13.1"
-    },
-    "packageManager": "pnpm@8.6.10",
-    "name": "energyleaf",
-    "dependencies": {
-        "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
-        "@vercel/analytics": "^1.2.2",
-        "dotenv-cli": "^7.4.1",
-        "mysql2": "^3.9.3",
-        "prettier-plugin-tailwindcss": "^0.5.13",
-        "react-error-boundary": "^4.0.13",
-        "typescript": "^5.4.3",
-        "zod": "^3.22.4"
-    }
+	"private": true,
+	"scripts": {
+		"build": "dotenv -- turbo run build --no-daemon",
+		"build:app": "dotenv -- turbo run build --filter web --no-daemon",
+		"build:admin": "dotenv -- turbo run build --filter admin --no-daemon",
+		"dev": "dotenv -- turbo run dev",
+		"dev:app": "dotenv -- turbo run dev --filter web",
+		"dev:admin": "dotenv -- turbo run dev --filter admin",
+		"dev:mail": "dotenv -- pnpm --filter mail run dev:mail",
+		"start": "dotenv -- turbo run start",
+		"lint": "biome lint ./apps ./packages",
+		"format": "biome format --write . && biome check --apply-unsafe .",
+		"db:push": "dotenv -- pnpm --filter db run push",
+		"db:push:prod": "dotenv -- pnpm --filter db run push:prod",
+		"db:studio": "dotenv -- pnpm --filter db run studio",
+		"db:studio:prod": "dotenv -- pnpm --filter db run studio:prod",
+		"proto:compile": "dotenv -- pnpm --filter proto run compile",
+		"clean": "turbo run clean && git clean -xdf .turbo node_modules"
+	},
+	"devDependencies": {
+		"@energyleaf/tsconfig": "workspace:*",
+		"@total-typescript/ts-reset": "^0.5.1",
+		"turbo": "^1.13.3"
+	},
+	"packageManager": "pnpm@9.1.2",
+	"name": "energyleaf",
+	"dependencies": {
+		"@biomejs/biome": "^1.7.3",
+		"@vercel/analytics": "^1.2.2",
+		"dotenv-cli": "^7.4.2",
+		"mysql2": "^3.9.7",
+		"react-error-boundary": "^4.0.13",
+		"typescript": "^5.4.5",
+		"zod": "^3.23.8"
+	},
+	"pnpm": {
+		"patchedDependencies": {
+			"@boringer-avatars/react@0.2.1": "patches/@boringer-avatars__react@0.2.1.patch"
+		}
+	}
 }

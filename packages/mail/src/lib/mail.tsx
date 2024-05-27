@@ -1,14 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- This is a React file
-import * as React from "react";
+import type * as React from "react";
 import { Resend } from "resend";
-
 import AccountActivatedTemplate from "../templates/account-activated";
 import AccountCreatedTemplate from "../templates/account-created";
+import AdminNewAccountCreatedTemplate from "../templates/admin-new-account";
+import AnomalyDetectedTemplate from "../templates/anomaly-detected";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
-import ReportTemplate from "../templates/report";
-import {ReportProps} from "../types/reportProps";
+import type AnomalyProps from "../types/AnomalyProps";
 
 interface MailOptions {
     apiKey: string;
@@ -42,7 +41,7 @@ interface PasswordResetMailOptions extends MailOptions {
  * @throws An error if the email could not be sent
  */
 export async function sendPasswordResetEmail({ from, to, name, link, apiKey }: PasswordResetMailOptions) {
-    return sendMailByTemplate({from, to, apiKey}, "Passwort zurücksetzen", PasswordResetTemplate({name, link}));
+    return sendPasswordResetMailByTemplate({ from, to, apiKey }, PasswordResetTemplate({ name, link }));
 }
 
 /**
@@ -58,16 +57,19 @@ export async function sendPasswordResetEmail({ from, to, name, link, apiKey }: P
  * @throws An error if the email could not be sent
  */
 export async function sendPasswordResetMailForUser({ from, to, name, link, apiKey }: PasswordResetMailOptions) {
-    return sendMailByTemplate({from, to, apiKey}, "Passwort zurücksetzen", PasswordResetByAdminTemplate({name, link}));
+    return sendPasswordResetMailByTemplate({ from, to, apiKey }, PasswordResetByAdminTemplate({ name, link }));
 }
 
-async function sendMailByTemplate({from, to, apiKey}: MailOptions, subject: string, template: React.JSX.Element) {
+async function sendPasswordResetMailByTemplate({ from, to, apiKey }: MailOptions, template: React.JSX.Element) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
         to,
         from,
-        subject: `[Energyleaf] ${subject}`,
+        subject: "Passwort zurücksetzen",
         react: template,
     });
 
@@ -92,17 +94,23 @@ type PasswordChangedMailOptions = MailOptions & { name: string };
  * @throws An error if the email could not be sent
  */
 export async function sendPasswordChangedEmail({ from, to, name, apiKey }: PasswordChangedMailOptions) {
-    return sendMailByTemplate({ from, to, apiKey }, "Passwort geändert", PasswordChangedTemplate({ name }));
-}
+    if (!apiKey || apiKey === "") {
+        return;
+    }
+    const resend = createResend(apiKey);
 
+    const resp = await resend.emails.send({
+        to,
+        from,
+        subject: "Passwort geändert",
+        react: PasswordChangedTemplate({ name }),
+    });
 
-interface ReportMailOptions extends MailOptions {
-    unsubscribeLink: string;
-    reportProps: ReportProps;
-}
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
 
-export async function sendReport(options : ReportMailOptions) {
-    return sendMailByTemplate(options, `Energieverbrauch-Bericht von ${options.reportProps.dateFrom}`, ReportTemplate(options.reportProps))
+    return resp.data?.id;
 }
 
 type AccountCreatedMailOptions = PasswordChangedMailOptions;
@@ -119,6 +127,9 @@ type AccountCreatedMailOptions = PasswordChangedMailOptions;
  * @throws An error if the email could not be sent
  */
 export async function sendAccountCreatedEmail({ from, to, name, apiKey }: AccountCreatedMailOptions) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
@@ -149,6 +160,9 @@ type AccountActivatedMailOptions = PasswordChangedMailOptions;
  * @throws An error if the email could not be sent
  */
 export async function sendAccountActivatedEmail({ from, to, name, apiKey }: AccountActivatedMailOptions) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
@@ -156,6 +170,60 @@ export async function sendAccountActivatedEmail({ from, to, name, apiKey }: Acco
         from,
         subject: "Konto aktiviert",
         react: AccountActivatedTemplate({ name }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type AnomalyMailOptions = MailOptions & AnomalyProps;
+
+export async function sendAnomalyEmail({ from, to, apiKey, name, link, unsubscribeLink }: AnomalyMailOptions) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
+    const resend = createResend(apiKey);
+
+    const resp = await resend.emails.send({
+        to,
+        from,
+        subject: "Anomalie erkannt.",
+        react: AnomalyDetectedTemplate({ name, link, unsubscribeLink }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type AdminNewAccountMailOptions = MailOptions & {
+    name: string;
+    meter: string;
+    email: string;
+    img?: string;
+};
+
+export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMailOptions) {
+    if (!props.apiKey || props.apiKey === "") {
+        return;
+    }
+    const resend = createResend(props.apiKey);
+
+    const resp = await resend.emails.send({
+        to: props.to,
+        from: props.from,
+        subject: "Neues Konto erstellt",
+        react: AdminNewAccountCreatedTemplate({
+            name: props.name,
+            meter: props.meter,
+            mail: props.email,
+            img: props.img,
+        }),
     });
 
     if (resp.error) {

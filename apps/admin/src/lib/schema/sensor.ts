@@ -1,6 +1,5 @@
-import { z } from "zod";
-
 import { SensorType } from "@energyleaf/db/types";
+import { z } from "zod";
 
 export const addSensorSchema = z.object({
     macAddress: z
@@ -12,4 +11,8 @@ export const addSensorSchema = z.object({
 
 export const assignUserToSensorSchema = z.object({
     userId: z.string().nullable(),
+});
+
+export const addSensorValueSchema = z.object({
+    value: z.coerce.number().nonnegative(),
 });

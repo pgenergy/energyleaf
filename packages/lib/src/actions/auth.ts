@@ -18,17 +18,19 @@ export async function getResetPasswordToken({ userId, secret }: ResetPasswordTok
 }
 
 interface EmailAuthParams {
-    env: {
-        VERCEL_URL?: string;
-        NEXTAUTH_URL?: string;
-    };
+    baseUrl: string;
     token: string;
 }
 
-export function buildResetPasswordUrl({ env, token }: EmailAuthParams) {
-    return `https://${env.VERCEL_URL || env.NEXTAUTH_URL || "energyleaf.de"}/reset?token=${token}`;
+interface ResetPasswordEmailParams {
+    baseUrl: string;
+    token: string;
 }
 
-export function buildUnsubscribeReportsUrl({ env, token }: EmailAuthParams) {
-    return `https://${env.VERCEL_URL || env.NEXTAUTH_URL || "energyleaf.de"}/unsubscribe?token=${token}`;
+export function buildResetPasswordUrl({ baseUrl, token }: ResetPasswordEmailParams) {
+    return `https://${baseUrl}/reset?token=${token}`;
+}
+
+export function buildUnsubscribeReportsUrl({ baseUrl, token }: EmailAuthParams) {
+    return `https://${baseUrl}/unsubscribe?token=${token}`;
 }

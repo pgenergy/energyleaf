@@ -10,7 +10,10 @@ export function energyDataJoinUserData(
     userData: UserDataSelectType[],
 ): EnergyEntryWithUserData[] {
     return energyData.map((sensorData) => {
-        const userDataEntry = userData.findLast((x) => x.timestamp.getTime() <= sensorData.timestamp.getTime());
+        const sensorTimestamp = new Date(sensorData.timestamp);
+
+        const userDataEntry = userData.findLast((x) => x.timestamp.getTime() <= sensorTimestamp.getTime());
+
         return {
             userData: userDataEntry,
             energyData: sensorData,
@@ -102,7 +105,7 @@ export function getPredictedCost(userData: UserDataSelectType[], energyData: Sen
     const monthlyUsage: number = (totalConsumptionCurrentMonth / daysPassed) * lastDayOfMonth.getDate();
 
     const predictedConsumption: number = monthlyUsage - totalConsumptionCurrentMonth;
-    return parseFloat((predictedConsumption * (price / 1000)).toFixed(2));
+    return Number.parseFloat((predictedConsumption * (price / 1000)).toFixed(2));
 }
 
 function getLatestUserData(userData: UserDataSelectType[]): UserDataSelectType {

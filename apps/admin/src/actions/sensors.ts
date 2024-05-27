@@ -1,25 +1,23 @@
 "use server";
 
+import { checkIfAdmin } from "@/lib/auth/auth.action";
+import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import {
     assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
+    resetSensorValues as dbResetSensorValues,
     deleteSensor as deleteSensorDb,
-    deleteUserFromSensor,
     getElectricitySensorIdForUser,
     getEnergyForSensorInRange,
+    insertRawSensorValue,
     sensorExists,
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
-
-import "server-only";
-
-import { revalidatePath } from "next/cache";
-import { checkIfAdmin } from "@/lib/auth/auth.action";
-import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
-import type { z } from "zod";
-
 import type { SensorInsertType, SensorType } from "@energyleaf/db/types";
-import type { AggregationType } from "@energyleaf/lib";
+import { type AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
+import { revalidatePath } from "next/cache";
+import "server-only";
+import type { z } from "zod";
 
 /**
  * Creates a new sensor.
@@ -79,20 +77,45 @@ export async function deleteSensor(sensorId: string) {
 export async function assignUserToSensor(data: z.infer<typeof assignUserToSensorSchema>, clientId: string) {
     await checkIfAdmin();
     try {
-        await assignSensorToUserDb(clientId, data.userId);
+        const newId = await assignSensorToUserDb(clientId, data.userId);
         revalidatePath("/sensors");
-    } catch (e) {
-        throw new Error("Error while assigning user to sensor");
+
+        return {
+            success: true,
+            message: "Der Sensor wurde erfolgreich zum Benutzer zugeordnet.",
+            payload: newId,
+        };
+    } catch (err) {
+        if (err instanceof UserHasSensorOfSameType) {
+            return {
+                success: false,
+                message: "Der Benutzer hat bereits einen Sensor dieses Typs zugewiesen.",
+            };
+        }
+        return {
+            success: false,
+            message: "Fehler beim Zuweisen",
+        };
     }
 }
 
-export async function removeUserFromSensor(clientId: string) {
+export async function resetSensorValues(clientId: string) {
     await checkIfAdmin();
 
     try {
-        await deleteUserFromSensor(clientId);
+        await dbResetSensorValues(clientId);
         revalidatePath("/sensors");
     } catch (err) {
         throw new Error("Error while removing user from sensor");
+    }
+}
+
+export async function insertSensorValue(sensorId: string, value: number) {
+    await checkIfAdmin();
+
+    try {
+        await insertRawSensorValue(sensorId, value);
+    } catch (err) {
+        throw new Error("Error while inserting sensor value");
     }
 }

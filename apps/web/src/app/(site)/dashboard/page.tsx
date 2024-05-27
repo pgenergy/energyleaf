@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
 import AbsolutEnergyConsumptionError from "@/components/dashboard/absolut-energy-consumption-card-error";
 import EnergyConsumptionCard from "@/components/dashboard/energy-consumption-card";
@@ -9,40 +8,49 @@ import EnergyCostCard from "@/components/dashboard/energy-cost-card";
 import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
 import GoalsCard from "@/components/dashboard/goals/goals-card";
 import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
-
+import { getActionSession } from "@/lib/auth/auth.action";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import { Suspense } from "react";
 
 export const metadata = {
     title: "Dashboard | Energyleaf",
 };
 
-export default function DashboardPage({
+export default async function DashboardPage({
     searchParams,
 }: {
     searchParams: { start?: string; end?: string; aggregation?: string };
 }) {
+    const { user } = await getActionSession();
+    if (!user) {
+        return null;
+    }
+
     const startDateString = searchParams.start;
     const endDateString = searchParams.end;
     const aggregationType = searchParams.aggregation;
-    const startDate = startDateString ? new Date(startDateString) : new Date();
-    const endDate = endDateString ? new Date(endDateString) : new Date();
+    const startDate = startDateString ? new Date(new Date(startDateString).toUTCString()) : new Date();
+    const endDate = endDateString ? new Date(new Date(endDateString).toUTCString()) : new Date();
 
     if (!startDateString) {
-        startDate.setHours(0, 0, 0, 0);
+        startDate.setUTCHours(0, 0, 0, 0);
     }
 
     if (!endDateString) {
-        endDate.setHours(23, 59, 59, 999);
+        endDate.setUTCHours(23, 59, 59, 999);
     }
 
     return (
         <div className="flex flex-col gap-4">
-            <ErrorBoundary fallback={GoalsCardError}>
-                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                    <GoalsCard />
-                </Suspense>
-            </ErrorBoundary>
+            {fulfills(user.appVersion, Versions.self_reflection) && (
+                <ErrorBoundary fallback={GoalsCardError}>
+                    <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                        <GoalsCard />
+                    </Suspense>
+                </ErrorBoundary>
+            )}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <ErrorBoundary fallback={AbsolutEnergyConsumptionError}>
                     <Suspense fallback={<Skeleton className="h-72 w-full" />}>
