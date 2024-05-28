@@ -2,7 +2,6 @@
 
 import { getDevicesByPeak, getDevicesByUser, updateDevicesForPeak } from "@/actions/peak";
 import { type deviceSchema, peakSchema } from "@/lib/schema/peak";
-import { sensorData } from "@energyleaf/db/schema";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     Button,
@@ -16,8 +15,9 @@ import {
     type Option,
 } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { track } from "@vercel/analytics";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -40,42 +40,23 @@ const optionToDeviceSchema = (option: Option): z.infer<typeof deviceSchema> => (
 });
 
 export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInteract }: Props) {
+    const { data, isLoading } = useQuery({
+        queryKey: ["selectedDevices"],
+        queryFn: () => getDevicesByPeak(sensorDataId),
+    });
+
     const form = useForm<z.infer<typeof peakSchema>>({
         resolver: zodResolver(peakSchema),
         defaultValues: {
             device: [],
         },
     });
-    const [loadPreselection, setLoadPreselection] = useState(false);
 
     useEffect(() => {
-        let ignore = false;
-
-        async function getSelectedDevices() {
-            try {
-                setLoadPreselection(true);
-                const devices = await getDevicesByPeak(sensorDataId);
-
-                if (!ignore) {
-                    form.setValue(
-                        "device",
-                        devices.map((device) => ({
-                            id: device.id,
-                            name: device.name,
-                        })),
-                    );
-                }
-            } finally {
-                setLoadPreselection(false);
-            }
+        if (data) {
+            form.setValue("device", data);
         }
-
-        getSelectedDevices();
-
-        return () => {
-            ignore = true;
-        };
-    }, [form.setValue, sensorDataId]);
+    }, [data, form]);
 
     async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>) {
         let res: DefaultActionReturn = undefined;
@@ -131,7 +112,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
                                             field.onChange(values.map(optionToDeviceSchema));
                                         }}
                                         values={deviceSchemaToOption(field.value)}
-                                        isLoading={loadPreselection}
+                                        isLoading={isLoading}
                                     />
                                 </FormControl>
                                 <FormMessage />
