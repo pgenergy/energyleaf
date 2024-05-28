@@ -1,4 +1,5 @@
 import { getSession } from "@/lib/auth/auth.server";
+import { formatNumber } from "@/lib/consumption/number-format";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { format } from "date-fns";
@@ -13,9 +14,6 @@ interface Props {
 interface EnergyDataItem {
     value: number;
 }
-
-const formatNumber = (number: number) =>
-    number.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default async function EnergyConsumptionStatisticCard({ startDate, endDate }: Props) {
     const { session, user } = await getSession();

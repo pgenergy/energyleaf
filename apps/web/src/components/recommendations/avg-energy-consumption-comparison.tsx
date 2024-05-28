@@ -1,4 +1,5 @@
 import { getSession } from "@/lib/auth/auth.server";
+import { formatNumber } from "@/lib/consumption/number-format";
 import {
     getAvgEnergyConsumptionForSensor,
     getAvgEnergyConsumptionForUserInComparison,
@@ -37,14 +38,16 @@ export default async function AvgEnergyConsumptionComparisonCard() {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Durchschnittlicher Energieverbrauch</CardTitle>
-                <CardDescription>Im Vergleich zu anderen Nutzern mit vergleichbaren Daten</CardDescription>
+                <CardTitle>Vergleich des Energieverbrauchs</CardTitle>
+                <CardDescription>
+                    Hier sehen Sie Ihren durchschnittlichen Energieverbrauch im Vergleich zu anderen Nutzern
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 {avg && avgUser ? (
                     <p className="text-center text-2xl text-primary">
                         <span className="font-bold">Durchschnitt: </span>
-                        {avg.avg.toFixed(2)} kWh
+                        {formatNumber(avg.avg)} kWh
                     </p>
                 ) : (
                     <p className="text-center text-muted-foreground">Keine Daten vorhanden</p>

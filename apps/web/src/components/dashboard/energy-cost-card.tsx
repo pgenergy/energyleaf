@@ -1,5 +1,6 @@
 import { calculateCosts, getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth.server";
+import { formatNumber } from "@/lib/consumption/number-format";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
 import { cn } from "@energyleaf/tailwindcss/utils";
@@ -59,15 +60,9 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const parsedCost = Number.parseFloat(cost);
     const parsedCalculatedPayment = Number.parseFloat(calculatedPayment || "0");
 
-    const formattedCost = parsedCost.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const formattedCalculatedPayment = parsedCalculatedPayment.toLocaleString("de-DE", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
-    const formattedPredictedCost = predictedCost.toLocaleString("de-DE", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
+    const formattedCost = formatNumber(parsedCost);
+    const formattedCalculatedPayment = formatNumber(parsedCalculatedPayment);
+    const formattedPredictedCost = formatNumber(predictedCost);
     const forecastMonth = format(new Date(), "MMMM yyyy", { locale: de });
 
     return (
