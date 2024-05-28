@@ -1,12 +1,12 @@
 "use client";
 
+import { formatNumber } from "@/lib/consumption/number-format";
 import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui";
 import type { ColumnDef } from "@tanstack/react-table";
 import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import DeviceActionCell from "./device-action-cell";
-import { formatNumber } from "@/lib/consumption/number-format";
 
 export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
     {

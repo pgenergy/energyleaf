@@ -81,7 +81,8 @@ export const historyUserData = mysqlTable("history_user_data", {
 });
 
 export const token = mysqlTable("token", {
-    token: varchar("id", { length: 30 }).primaryKey()
+    token: varchar("id", { length: 30 })
+        .primaryKey()
         .$defaultFn(() => nanoid(30)),
     userId: varchar("user_id", { length: 30 }).notNull(),
     receiveMails: boolean("receive_mails").default(true).notNull(),

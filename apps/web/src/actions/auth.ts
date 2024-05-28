@@ -6,23 +6,31 @@ import { onboardingCompleteCookieName } from "@/lib/constants";
 import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
 import { genId } from "@energyleaf/db";
-import { type CreateUserType, createUser, getUserById, getUserByMail, updatePassword } from "@energyleaf/db/query";
+import {
+    type CreateUserType,
+    createUser,
+    getUserById,
+    getUserByMail,
+    updatePassword,
+    updateReportConfig,
+} from "@energyleaf/db/query";
+import type { userData } from "@energyleaf/db/schema";
 import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
-import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
+import { UserNotFoundError, UserNotLoggedInError, buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import {
     sendAccountCreatedEmail,
     sendAdminNewAccountCreatedEmail,
     sendPasswordChangedEmail,
     sendPasswordResetEmail,
 } from "@energyleaf/mail";
+import { put } from "@vercel/blob";
 import * as jose from "jose";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
-import type { userData } from "@energyleaf/db/schema";
-import { put } from "@vercel/blob";
+import type { reportSettingsSchema } from "@/lib/schema/profile";
 import type { z } from "zod";
 
 /**
@@ -151,7 +159,7 @@ export async function createAccount(data: FormData) {
 }
 
 export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
-    const {mail} = data;
+    const { mail } = data;
 
     if (mail === "demo@energyleaf.de") {
         return {
@@ -189,7 +197,7 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
 }
 
 export async function resetPassword(data: z.infer<typeof resetSchema>, resetToken: string) {
-    const {password: newPassword, passwordRepeat} = data;
+    const { password: newPassword, passwordRepeat } = data;
 
     if (newPassword !== passwordRepeat) {
         return {
@@ -198,7 +206,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
         };
     }
 
-    const {sub} = jose.decodeJwt(resetToken);
+    const { sub } = jose.decodeJwt(resetToken);
     if (!sub) {
         return {
             success: false,
@@ -260,7 +268,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
  * Server action to sign a user in
  */
 export async function signInAction(email: string, password: string) {
-    const {session} = await getActionSession();
+    const { session } = await getActionSession();
     if (session) {
         await handleSignIn(session, null);
     }
@@ -334,7 +342,7 @@ async function handleSignIn(session: Session, user: UserSelectType | null) {
  * Server action to sign a user in as demo
  */
 export async function signInDemoAction() {
-    const {session} = await getActionSession();
+    const { session } = await getActionSession();
     if (session) {
         redirect("/dashboard");
     }
@@ -350,7 +358,7 @@ export async function signInDemoAction() {
  * Server action to sign a user out
  */
 export async function signOutAction() {
-    const {session} = await getActionSession();
+    const { session } = await getActionSession();
     if (!session) {
         return;
     }
@@ -373,8 +381,19 @@ export async function signOutDemoAction() {
     redirect("/");
 }
 
-export async function updateReportConfigSettings(data: z.infer<typeof reportSettingsSchema>, userId: string) {
-    const dbUser = await getUserById(userId);
+export async function updateReportConfigSettings(data: z.infer<typeof reportSettingsSchema>, userId: string | null) {
+    let id = userId;
+    if (!id) {
+        const { user } = await getActionSession();
+
+        if (!user) {
+            throw new UserNotLoggedInError();
+        }
+
+        id = user.id;
+    }
+
+    const dbUser = await getUserById(id);
     if (!dbUser) {
         throw new UserNotFoundError();
     }
@@ -386,10 +405,10 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
                 interval: data.interval,
                 time: data.time,
             },
-            userId,
+            id,
         );
     } catch (e) {
         console.log(e);
-        throw new Error("Error while updating user: " + e);
+        throw new Error(`Error while updating user: ${e}`);
     }
 }

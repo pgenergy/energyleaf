@@ -3,9 +3,9 @@ import { createReportsAndSendMails } from "@/lib/reports/send-reports";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
-    const reportApiKey = env.CRON_SECRET;
+    const reportApiKey = env.REPORTS_API_KEY;
     if (!req.headers.has("authorization") || req.headers.get("authorization") !== `Bearer ${reportApiKey}`) {
-        return NextResponse.json({ status: 403, statusMessage: "Forbidden" });
+        return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 
     try {

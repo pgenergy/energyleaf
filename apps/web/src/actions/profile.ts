@@ -4,16 +4,16 @@ import { getActionSession } from "@/lib/auth/auth.action";
 import { isDemoUser, updateUserDataCookieStore } from "@/lib/demo/demo";
 import type {
     deleteAccountSchema,
-    reportSettingsSchema,
     passwordSchema,
+    reportSettingsSchema,
     userDataSchema,
     userGoalSchema,
 } from "@/lib/schema/profile";
 import {
     deleteUser,
     getUserById,
-    updateReportConfig,
     updatePassword,
+    updateReportSettings,
     updateUser,
     updateUserData,
 } from "@energyleaf/db/query";
@@ -121,7 +121,7 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
     }
 }
 
-export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>) {
+export async function updateMailInformation(data: z.infer<typeof reportSettingsSchema>) {
     try {
         const { user, session } = await getActionSession();
 

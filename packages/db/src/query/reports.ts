@@ -1,19 +1,21 @@
-import {and, desc, eq, gt, lte, or, sql} from "drizzle-orm";
+import { and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
 
+import type { DayStatistics, ReportProps } from "@energyleaf/lib";
 import db from "../";
-import {user} from "../schema/user";
-import {historyReportConfig, reportConfig, reports, reportsDayStatistics} from "../schema/reports";
-import {DayStatistics, ReportProps} from "@energyleaf/mail/types";
+import { historyReportConfig, reportConfig, reports, reportsDayStatistics } from "../schema/reports";
+import { user } from "../schema/user";
 
 /**
  * Update the user report settings data in the database
  */
-export async function updateReportConfig(data: {
-    receiveMails: boolean;
-    interval: number;
-    time: number;
-}, id: string) {
-
+export async function updateReportConfig(
+    data: {
+        receiveMails: boolean;
+        interval: number;
+        time: number;
+    },
+    id: string,
+) {
     return db.transaction(async (trx) => {
         const oldReportData = await getReportConfigByUserId(id);
         if (!oldReportData) {
@@ -51,7 +53,7 @@ export async function getReportConfigByUserId(id: string) {
 }
 
 export async function updateLastReportTimestamp(userId: string) {
-    return db.update(reportConfig).set({timestampLast: new Date()}).where(eq(reportConfig.userId, userId));
+    return db.update(reportConfig).set({ timestampLast: new Date() }).where(eq(reportConfig.userId, userId));
 }
 
 /**
@@ -64,8 +66,11 @@ export async function updateLastReportTimestamp(userId: string) {
 export async function getUsersWitDueReport() {
     return db
         .select({
-            userId: user.id, userName: user.username, email: user.email, receiveMails: reportConfig.receiveMails,
-            interval: reportConfig.interval
+            userId: user.id,
+            userName: user.username,
+            email: user.email,
+            receiveMails: reportConfig.receiveMails,
+            interval: reportConfig.interval,
         })
         .from(reportConfig)
         .innerJoin(user, eq(user.id, reportConfig.userId))
@@ -74,13 +79,13 @@ export async function getUsersWitDueReport() {
                 gt(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reportConfig.interval),
                 and(
                     eq(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reportConfig.interval),
-                    lte(reportConfig.time, new Date().getHours())
+                    lte(reportConfig.time, new Date().getHours()),
                 ),
-            )
+            ),
         );
 }
 
-export async function getLastReportForUser(userId: string): Promise<ReportProps | null>  {
+export async function getLastReportForUser(userId: string): Promise<ReportProps | null> {
     const userReports = await getReportForUserDescending(userId);
 
     if (!userReports || userReports.length === 0) {
@@ -91,8 +96,8 @@ export async function getLastReportForUser(userId: string): Promise<ReportProps 
     const lastReport = userReports[0];
 
     return {
-        dateFrom: new Date(lastReport.dateFrom),
-        dateTo: new Date(lastReport.dateTo),
+        dateFrom: new Date(lastReport.dateFrom).toString(),
+        dateTo: new Date(lastReport.dateTo).toString(),
         totalEnergyConsumption: lastReport.totalEnergyConsumption,
         avgEnergyConsumptionPerDay: lastReport.avgEnergyConsumptionPerDay,
         totalEnergyCost: lastReport.totalEnergyCost,
@@ -100,9 +105,9 @@ export async function getLastReportForUser(userId: string): Promise<ReportProps 
         highestPeak: {
             dateTime: new Date(lastReport.highestPeakDateTime ?? new Date(0)),
             deviceName: lastReport.highestPeakDeviceName ?? "",
-            consumption: lastReport.highestPeakConsumption ?? ""
+            consumption: lastReport.highestPeakConsumption ?? "",
         },
-        dayEnergyStatistics: []
+        dayEnergyStatistics: [],
     };
 }
 
@@ -118,7 +123,7 @@ export async function getReportForUserDescending(userId: string) {
             avgEnergyCost: reports.avgEnergyCost,
             highestPeakDateTime: reports.highestPeakDateTime,
             highestPeakDeviceName: reports.highestPeakDeviceName,
-            highestPeakConsumption: reports.highestPeakConsumption
+            highestPeakConsumption: reports.highestPeakConsumption,
         })
         .from(reports)
         .where(eq(reports.userId, userId))
@@ -129,8 +134,8 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
     return db.transaction(async (trx) => {
         await trx.insert(reports).values({
             timestamp: new Date(),
-            dateFrom: reportProps.dateFrom,
-            dateTo: reportProps.dateTo,
+            dateFrom: new Date(reportProps.dateFrom),
+            dateTo: new Date(reportProps.dateTo),
             userId: userId,
             totalEnergyConsumption: reportProps.totalEnergyConsumption,
             avgEnergyConsumptionPerDay: reportProps.avgEnergyConsumptionPerDay,
@@ -141,21 +146,22 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
             highestPeakConsumption: reportProps.highestPeak.consumption,
         });
         const newReport = await trx
-            .select({id: reports.id,}).from(reports)
-            .where(and(eq(reports.userId, userId), eq(reports.dateFrom, reportProps.dateFrom)));
+            .select({ id: reports.id })
+            .from(reports)
+            .where(and(eq(reports.userId, userId), eq(reports.dateFrom, new Date(reportProps.dateFrom))));
 
         const reportID = newReport[0].id;
 
         const tasks = reportProps.dayEnergyStatistics.map(async (dayStat: DayStatistics) => {
             await trx.insert(reportsDayStatistics).values({
-                date: dayStat.day,
+                date: new Date(dayStat.day),
                 dailyConsumption: dayStat.dailyConsumption,
                 progress: dayStat.progress,
                 exceeded: dayStat.exceeded,
                 dailyGoal: dayStat.dailyGoal,
                 reportId: reportID,
             });
-        })
+        });
         await Promise.all(tasks);
     });
 }

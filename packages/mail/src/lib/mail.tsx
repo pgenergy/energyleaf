@@ -1,3 +1,4 @@
+import type { ReportProps } from "@energyleaf/lib";
 import type * as React from "react";
 import { Resend } from "resend";
 import AccountActivatedTemplate from "../templates/account-activated";
@@ -7,7 +8,8 @@ import AnomalyDetectedTemplate from "../templates/anomaly-detected";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
-import type AnomalyProps from "../types/AnomalyProps";
+import ReportTemplate from "../templates/report";
+import type { AnomalyProps } from "../types";
 
 interface MailOptions {
     apiKey: string;
@@ -224,6 +226,28 @@ export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMail
             mail: props.email,
             img: props.img,
         }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type ReportMailOptions = MailOptions & ReportProps & { unsubscribeLink: string };
+
+export async function sendReport(options: ReportMailOptions) {
+    if (!options.apiKey || options.apiKey === "") {
+        return;
+    }
+    const resend = createResend(options.apiKey);
+
+    const resp = await resend.emails.send({
+        to: options.to,
+        from: options.from,
+        subject: `Energieverbrauch-Bericht von ${options.dateFrom}`,
+        react: ReportTemplate(options, options.unsubscribeLink),
     });
 
     if (resp.error) {

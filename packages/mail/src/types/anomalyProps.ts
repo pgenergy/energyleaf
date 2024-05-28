@@ -1,4 +1,5 @@
 export interface AnomalyProps {
-    name: string,
-    link: string
+    name: string;
+    unsubscribeLink: string;
+    link: string;
 }

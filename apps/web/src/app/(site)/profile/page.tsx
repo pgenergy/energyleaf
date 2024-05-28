@@ -44,7 +44,12 @@ export default async function ProfilePage() {
                 address={user.address}
             />
             <ChangePasswordForm disabled={isDemo} />
-            <MailSettingsForm disabled={isDemo} initialValues={reportConfig} />
+            <ReportConfigCard
+                disabled={isDemo}
+                receiveMails={reportConfig.receiveMails}
+                interval={reportConfig.interval}
+                time={reportConfig.time}
+            />
             <UserDataForm initialData={data} />
             {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData?.user_data} />}
             <AccountDeletionForm disabled={isDemo} />

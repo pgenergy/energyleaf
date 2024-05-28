@@ -159,7 +159,7 @@ export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
         if (index === 0) {
             return 0;
         }
-        
+
         const difference = Number(entry.value) - Number(previousValue);
         previousValue = entry.value;
         return difference;
@@ -710,7 +710,10 @@ export async function getAverageConsumptionPerDevice(userId: string) {
                 peakValue: sensorData.value,
             })
             .from(peaks)
-            .innerJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
+            .innerJoin(
+                sensorData,
+                and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)),
+            )
             .innerJoin(device, eq(peaks.deviceId, device.id))
             .where(eq(device.userId, userId))
             .orderBy(peaks.sensorId, peaks.timestamp);
@@ -727,17 +730,14 @@ export async function getAverageConsumptionPerDevice(userId: string) {
             }
 
             const currentTimestamp = new Date(current.peakTimestamp);
-            
+
             const lastSensorDataQuery = await trx
                 .select({
                     lastTimestamp: sensorData.timestamp,
                     lastValue: sensorData.value,
                 })
                 .from(sensorData)
-                .where(and(
-                    eq(sensorData.sensorId, current.peakSensorId),
-                    lt(sensorData.timestamp, currentTimestamp)
-                ))
+                .where(and(eq(sensorData.sensorId, current.peakSensorId), lt(sensorData.timestamp, currentTimestamp)))
                 .orderBy(desc(sensorData.timestamp))
                 .limit(1);
 
@@ -769,7 +769,7 @@ export async function getAverageConsumptionPerDevice(userId: string) {
             deviceConsumption[current.deviceId.toString()].push(powerWatt);
         }
 
-        const result = Object.keys(deviceConsumption).map(deviceId => {
+        const result = Object.keys(deviceConsumption).map((deviceId) => {
             const consumptions = deviceConsumption[deviceId];
             const sum = consumptions.reduce((acc: number, value: number) => acc + value, 0);
             const average = sum / consumptions.length;

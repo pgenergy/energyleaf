@@ -1,12 +1,13 @@
-interface DayStatistics {
-    day: Date,
-    dailyConsumption: number,
-    dailyGoal?: number,
-    exceeded?: boolean,
-    progress?: number
+export interface DayStatistics {
+    // formatted Date string
+    day: string;
+    dailyConsumption: number;
+    dailyGoal?: number;
+    exceeded?: boolean;
+    progress?: number;
 }
 
-interface ReportProps {
+export interface ReportProps {
     name?: string;
     // formatted Date string
     dateFrom: string;
@@ -18,10 +19,11 @@ interface ReportProps {
     totalEnergyCost: number;
     avgEnergyCost: number;
     highestPeak: {
-        dateTime: Date;
+        // formatted Date string
+        dateTime: string;
         deviceName: string;
         consumption: string;
-    }
+    };
 
     /**
      * base64 image
@@ -41,5 +43,3 @@ interface ReportProps {
      */
     lastReport?: ReportProps;
 }
-
-export type { ReportProps, DayStatistics };

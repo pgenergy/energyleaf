@@ -1,2 +1,1 @@
-export * from "./reportProps";
-export * from "./anomalyProps"
+export * from "./anomalyProps";

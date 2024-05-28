@@ -1,16 +1,17 @@
 "use client";
 
-import React, {useTransition} from "react";
-import {updateReportConfigSettings} from "@/actions/profile";
 import IntervalSelector from "@/components/profile/interval-selector";
 import TimeSelector from "@/components/profile/time-selector";
-import {reportSettingsSchema} from "@/lib/schema/profile";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {track} from "@vercel/analytics";
-import {useForm} from "react-hook-form";
-import {toast} from "sonner";
-import type {z} from "zod";
+import type { reportSettingsSchema } from "@/lib/schema/profile";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
+import React, { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
+import { updateReportConfigSettings } from "@/actions/auth";
+import ReportConfigForm from "@/components/profile/report-config-form";
 import {
     Button,
     Card,
@@ -27,7 +28,6 @@ import {
     Spinner,
     Switch,
 } from "@energyleaf/ui";
-import ReportConfigForm from "@/components/profile/report-config-form";
 
 interface Props {
     receiveMails: boolean;
@@ -36,10 +36,10 @@ interface Props {
     disabled?: boolean;
 }
 
-export default function ReportConfigCard({receiveMails, interval, time, disabled}: Props) {
+export default function ReportConfigCard({ receiveMails, interval, time, disabled }: Props) {
     function onSubmit(data: z.infer<typeof reportSettingsSchema>) {
         track("updateReportConfig()");
-        toast.promise(updateReportConfigSettings(data), {
+        toast.promise(updateReportConfigSettings(data, null), {
             loading: "Aktualisiere Einstellungen...",
             success: "Einstellungen erfolgreich aktualisiert",
             error: "Ihre Einstellungen konnten nicht aktualisiert werden",
@@ -62,7 +62,7 @@ export default function ReportConfigCard({receiveMails, interval, time, disabled
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <ReportConfigForm reportConfig={reportConfig} disabled={disabled} onSubmit={onSubmit}/>
+                <ReportConfigForm reportConfig={reportConfig} disabled={disabled} onSubmit={onSubmit} />
             </CardContent>
         </Card>
     );
