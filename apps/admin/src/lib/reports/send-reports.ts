@@ -43,7 +43,7 @@ export async function createReportsAndSendMails() {
             continue;
         }
 
-        if (userReport.receiveMails) {
+        if (userReport.receiveMails && reportProps) {
             try {
                 await sendReportMail(userReport, reportProps, unsubscribeLink);
                 sentReports++;
@@ -122,7 +122,7 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
         totalEnergyCost: totalEnergyCost,
         avgEnergyCost: avgEnergyCost,
         highestPeak: {
-            dateTime: dateTo,
+            dateTime: dateTo.toLocaleDateString(),
             deviceName: "my device",
             consumption: "1000 kWh",
         },

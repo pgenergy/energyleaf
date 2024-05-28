@@ -57,8 +57,8 @@ export async function updateLastReportTimestamp(userId: string) {
 }
 
 /**
- * Get users with due report to create and send reports </br>
- * the report is due if the current date is greater than the last report date + interval or </br>
+ * Get users with due report to create and send reports. </br>
+ * The report is due if the current date is greater than the last report date + interval or </br>
  * if the current date is equal to the last report date + interval and the current time is greater than the report time </br>
  *
  * @returns The users with due report
@@ -89,7 +89,7 @@ export async function getLastReportForUser(userId: string): Promise<ReportProps 
     const userReports = await getReportForUserDescending(userId);
 
     if (!userReports || userReports.length === 0) {
-        console.log("No report found for user");
+        console.info("No report found for user");
         return null;
     }
 
@@ -103,7 +103,7 @@ export async function getLastReportForUser(userId: string): Promise<ReportProps 
         totalEnergyCost: lastReport.totalEnergyCost,
         avgEnergyCost: lastReport.avgEnergyCost,
         highestPeak: {
-            dateTime: new Date(lastReport.highestPeakDateTime ?? new Date(0)),
+            dateTime: (lastReport.highestPeakDateTime ?? new Date(0)).toLocaleDateString(),
             deviceName: lastReport.highestPeakDeviceName ?? "",
             consumption: lastReport.highestPeakConsumption ?? "",
         },
@@ -150,7 +150,7 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
             .from(reports)
             .where(and(eq(reports.userId, userId), eq(reports.dateFrom, new Date(reportProps.dateFrom))));
 
-        const reportID = newReport[0].id;
+        const reportId = newReport[0].id;
 
         const tasks = reportProps.dayEnergyStatistics.map(async (dayStat: DayStatistics) => {
             await trx.insert(reportsDayStatistics).values({
@@ -159,7 +159,7 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
                 progress: dayStat.progress,
                 exceeded: dayStat.exceeded,
                 dailyGoal: dayStat.dailyGoal,
-                reportId: reportID,
+                reportId: reportId,
             });
         });
         await Promise.all(tasks);
