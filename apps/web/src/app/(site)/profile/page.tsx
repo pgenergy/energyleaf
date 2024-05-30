@@ -13,6 +13,7 @@ import {
 import { getUserData } from "@/query/user";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { redirect } from "next/navigation";
+import posthog from "posthog-js";
 
 export const metadata = {
     title: "Profil | Energyleaf",
@@ -24,6 +25,8 @@ export default async function ProfilePage() {
     if (!user) {
         redirect("/");
     }
+
+    posthog.capture('my event', { property: 'value' })
 
     const isDemo = await isDemoUser();
 
