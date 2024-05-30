@@ -3,8 +3,9 @@ import { ThemeProvider } from "@/hooks/theme-provider";
 import "@energyleaf/tailwindcss/global.css";
 import { Toaster } from "@energyleaf/ui/components/utils";
 import { Analytics } from "@vercel/analytics/react";
-import { CSPostHogProvider } from './providers'
 import type { Metadata } from "next";
+import PostHogPageView from "@/app/PostHogPageView";
+import { PHProvider } from "./providers";
 
 const description =
     "Mit diesem Tool können Sie Ihren Stromverbrauch übersichtlich darstellen und besser verstehen. Analysieren Sie Ihren Verbrauch, finden Sie Einsparpotenziale und senken Sie Ihre Kosten.";
@@ -28,15 +29,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
     return (
         <html lang="de" suppressHydrationWarning>
             <head />
+            <PHProvider>
             <body>
                 <ThemeProvider attribute="class" defaultTheme="system" disableTransitionOnChange enableSystem>
-                    <CSPostHogProvider>
-                        {children}
-                    </CSPostHogProvider>
+                    <PostHogPageView />
+                    {children}
                     <Toaster richColors />
                 </ThemeProvider>
                 <Analytics />
             </body>
+            </PHProvider>
         </html>
     );
 }
