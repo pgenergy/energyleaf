@@ -28,6 +28,7 @@
 	"dependencies": {
 		"@biomejs/biome": "^1.7.3",
 		"@vercel/analytics": "^1.2.2",
+		"@vercel/functions": "^1.0.2",
 		"dotenv-cli": "^7.4.2",
 		"mysql2": "^3.9.7",
 		"react-error-boundary": "^4.0.13",
