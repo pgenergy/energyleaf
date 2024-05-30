@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/hooks/theme-provider";
 import "@energyleaf/tailwindcss/global.css";
 import { Toaster } from "@energyleaf/ui/components/utils";
 import { Analytics } from "@vercel/analytics/react";
+import { CSPostHogProvider } from './providers'
 import type { Metadata } from "next";
 
 const description =
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
             <head />
             <body>
                 <ThemeProvider attribute="class" defaultTheme="system" disableTransitionOnChange enableSystem>
-                    {children}
+                    <CSPostHogProvider>
+                        {children}
+                    </CSPostHogProvider>
                     <Toaster richColors />
                 </ThemeProvider>
                 <Analytics />
