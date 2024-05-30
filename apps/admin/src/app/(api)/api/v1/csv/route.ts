@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
 import { env } from "@/env.mjs";
-import { getElectricitySensorIdForUser, getEnergyForSensorInRange } from "@energyleaf/db/query";
+import { getElectricitySensorIdForUser, getEnergyForSensorInRange, log } from "@energyleaf/db/query";
 import * as csv from "csv/sync";
 import { type NextRequest, NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 
 interface Props {
     userId: string;
@@ -19,8 +20,23 @@ interface EnergyData {
 export async function POST(req: NextRequest) {
     try {
         const { userId, userHash, start, end } = (await req.json()) as Props;
+        const detailsObj = {
+            userId,
+            userHash,
+            start,
+            end,
+        };
+        const details = JSON.stringify(detailsObj);
 
         if (!userId || !userHash) {
+            waitUntil(
+                log(
+                    "Kein Zugriff auf CSV Export, weil keine userID oder kein userHash vorhanden ist.k",
+                    "error",
+                    "api",
+                    details,
+                ),
+            );
             return NextResponse.json(
                 {
                     error: "Sie haben keinen Zugriff.",
@@ -33,6 +49,14 @@ export async function POST(req: NextRequest) {
 
         const hash = createHash("sha256").update(`${userId}${env.NEXTAUTH_SECRET}`).digest("hex");
         if (hash !== userHash) {
+            waitUntil(
+                log(
+                    "Kein Zugriff auf CSV Export, weil der userHash nicht korrekt ist.",
+                    "error",
+                    "api",
+                    details + JSON.stringify({ hash }),
+                ),
+            );
             return NextResponse.json(
                 {
                     error: "Sie haben keinen Zugriff.",
@@ -51,6 +75,15 @@ export async function POST(req: NextRequest) {
             }
         } catch (err) {
             console.error(err);
+            waitUntil(
+                log(
+                    "Kein Zugriff auf CSV Export, weil kein Sensor vorhanden ist.",
+                    "error",
+                    "api",
+                    details + JSON.stringify({ sensorId }) + JSON.stringify(err),
+                ),
+            );
+
             return NextResponse.json(
                 {
                     error: "Sie haben keinen Sensor.",
@@ -69,6 +102,15 @@ export async function POST(req: NextRequest) {
             const parsedData = energyData.map((e) => [e.value, e.timestamp]);
             const csvData = csv.stringify([["Verbrauch in kWh", "Zeitstempel"], ...parsedData]);
 
+            const logDetails = {
+                startDate,
+                endDate,
+                energyData,
+                parsedData,
+                csvData,
+            };
+            waitUntil(log("CSV Export erfolgreich.", "info", "api", details + JSON.stringify(logDetails)));
+
             return new NextResponse(csvData, {
                 status: 200,
                 headers: {
@@ -79,6 +121,19 @@ export async function POST(req: NextRequest) {
             });
         } catch (err) {
             console.error(err);
+            waitUntil(
+                log(
+                    "Fehler bei der Ermittlung der Energydata im CSV Export.",
+                    "error",
+                    "api",
+                    details +
+                        JSON.stringify({ sensorId }) +
+                        JSON.stringify(startDate) +
+                        JSON.stringify(endDate) +
+                        JSON.stringify(err),
+                ),
+            );
+
             return NextResponse.json(
                 {
                     error: "Ein Fehler ist aufgetreten.",
@@ -90,6 +145,8 @@ export async function POST(req: NextRequest) {
         }
     } catch (err) {
         console.error(err);
+        waitUntil(log("Allgemeiner Fehler beim CSV Export.", "error", "api", JSON.stringify(err)));
+
         return NextResponse.json(
             {
                 error: "Ein Fehler ist aufgetreten.",
