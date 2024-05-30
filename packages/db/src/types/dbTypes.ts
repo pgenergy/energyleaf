@@ -8,7 +8,7 @@ import { customType } from "drizzle-orm/mysql-core";
  */
 export const decimalType = customType<{ data: number; driverData: string }>({
     dataType() {
-        return "decimal(12, 4)";
+        return "decimal(30, 6)";
     },
     fromDriver(data: string): number {
         return Number(data);
