@@ -1,14 +1,8 @@
 "use client";
 
-import React, { useTransition } from "react";
-import { updateBaseInformationPassword } from "@/actions/profile";
+import { updateBaseInformationPassword, updateBaseInformationUsername } from "@/actions/profile";
 import { passwordSchema } from "@/lib/schema/profile";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
 import {
     Button,
@@ -26,6 +20,12 @@ import {
     Input,
     Spinner,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
+import React, { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     disabled?: boolean;
@@ -42,6 +42,20 @@ export default function ChangePasswordForm({ disabled }: Props) {
         },
     });
 
+    async function updateBaseInformationPasswordCallback(data: z.infer<typeof passwordSchema>) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await updateBaseInformationPassword(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmitPassword(data: z.infer<typeof passwordSchema>) {
         if (disabled) {
             return;
@@ -55,15 +69,15 @@ export default function ChangePasswordForm({ disabled }: Props) {
 
         startTransition(() => {
             track("changePassword()");
-            toast.promise(updateBaseInformationPassword(data), {
+            toast.promise(updateBaseInformationPasswordCallback(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
-                error: (err) => {
+                error: (err: Error) => {
                     if (err instanceof PasswordsDoNotMatchError) {
                         return "Das aktuelle Passwort ist falsch";
                     }
 
-                    return "Fehler beim Aktualisieren";
+                    return err.message;
                 },
             });
         });

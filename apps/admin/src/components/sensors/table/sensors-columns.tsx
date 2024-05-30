@@ -1,14 +1,13 @@
 "use client";
 
-import React from "react";
 import SensorUserAssignmentForm from "@/components/sensors/sensor-user-assignment-form";
 import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
-import { type ColumnDef } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-
 import type { SensorSelectTypeWithUser } from "@energyleaf/db/types";
 import { SensorTypeMap } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import React from "react";
 
 export const sensorsColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
     {

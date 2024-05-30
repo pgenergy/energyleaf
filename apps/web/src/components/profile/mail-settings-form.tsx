@@ -1,59 +1,51 @@
 "use client";
 
-import React, { useTransition } from "react";
 import { updateMailInformation } from "@/actions/profile";
-import IntervalSelector from "@/components/profile/interval-selector";
-import TimeSelector from "@/components/profile/time-selector";
+import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import { mailSettingsSchema } from "@/lib/schema/profile";
+import type { DefaultActionReturn } from "@energyleaf/lib";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
+import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-import {
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    Spinner,
-    Switch,
-} from "@energyleaf/ui";
-
 interface Props {
-    receiveMails: boolean;
-    interval: number;
-    time: number;
     disabled?: boolean;
+    initialValues: z.infer<typeof mailSettingsSchema>;
 }
 
-export default function MailSettingsForm({ receiveMails, interval, time, disabled }: Props) {
+export default function MailSettingsForm({ initialValues, disabled }: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),
-        defaultValues: {
-            receiveMails,
-            interval,
-            time,
-        },
+        defaultValues: initialValues,
     });
+
+    async function updateMailInformationCallback(data: z.infer<typeof mailSettingsSchema>) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await updateMailInformation(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
 
     function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
         if (disabled) return;
         startTransition(() => {
             track("updateMailSettings()");
-            toast.promise(updateMailInformation(data), {
+            toast.promise(updateMailInformationCallback(data), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
-                error: "Ihre Einstellungen konnten nicht aktualisiert werden",
+                error: (err: Error) => err.message,
             });
         });
     }
@@ -70,50 +62,7 @@ export default function MailSettingsForm({ receiveMails, interval, time, disable
             <CardContent>
                 <Form {...form}>
                     <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-                        <FormField
-                            control={form.control}
-                            name="receiveMails"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between">
-                                    <div className="flex flex-col gap-2">
-                                        <FormLabel>Senden der Berichte als E-Mails</FormLabel>
-                                        <FormDescription>
-                                            Erhalten Sie Ihre Berichte mit einer Zusammenfassung Ihres vergangenen
-                                            Verbrauchs im eingestellten Intervall per Mail.
-                                        </FormDescription>
-                                    </div>
-                                    <FormControl>
-                                        <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="interval"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Intervall der Berichte</FormLabel>
-                                        <FormControl>
-                                            <IntervalSelector onChange={field.onChange} value={field.value} />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="time"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Uhrzeit der Berichte</FormLabel>
-                                        <FormControl>
-                                            <TimeSelector onChange={field.onChange} value={field.value} />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                        <MailSettingsFormFields form={form} />
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending || disabled} type="submit">
                                 {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}

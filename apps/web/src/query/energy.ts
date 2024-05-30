@@ -1,5 +1,4 @@
-import { cache } from "react";
-
+import { getDemoSensorData } from "@/lib/demo/demo";
 import {
     getAvgEnergyConsumptionForSensor as getDbAvgEnergyConsumptionForSensor,
     getAvgEnergyConsumptionForUserInComparison as getDbAvgEnergyConsumptionForUserInComparison,
@@ -7,20 +6,14 @@ import {
     getEnergyForSensorInRange as getDbEnergyForSensorInRange,
     getPeaksBySensor as getDbPeaksBySensor,
 } from "@energyleaf/db/query";
-
-import "server-only";
-
-import { cookies } from "next/headers";
-import { getDemoSensorData, getPeaksCookieStore } from "@/lib/demo/demo";
-
 import { AggregationType } from "@energyleaf/lib";
+import { cache } from "react";
+import "server-only";
 
 export const getEnergyDataForSensor = cache(
     async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) => {
         if (sensorId === "demo_sensor") {
-            const demoStart = new Date(new Date().setHours(0, 0, 0, 0));
-            const demoEnd = new Date(new Date().setHours(23, 59, 59, 999));
-            return getDemoSensorData(demoStart, demoEnd);
+            return getDemoSensorData(start, end);
         }
         return getDbEnergyForSensorInRange(start, end, sensorId, aggregation);
     },
@@ -56,17 +49,5 @@ export const getElectricitySensorIdForUser = cache(async (userId: string) => {
 });
 
 export const getPeaksBySensor = cache(async (start: Date, end: Date, sensorId: string) => {
-    if (sensorId === "demo_sensor") {
-        const peaks = getPeaksCookieStore(cookies());
-        const sensorData = getDemoSensorData(start, end);
-
-        return peaks.map((p) => {
-            return {
-                peaks: p,
-                sensor_data: sensorData.find((s) => s.timestamp.getTime() === p.timestamp.getTime()) || null,
-            };
-        });
-    }
-
     return getDbPeaksBySensor(start, end, sensorId);
 });

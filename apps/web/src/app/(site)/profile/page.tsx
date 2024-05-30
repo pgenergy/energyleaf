@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import ChangePasswordForm from "@/components/profile/change-password-form";
@@ -7,45 +6,47 @@ import MailSettingsForm from "@/components/profile/mail-settings-form";
 import UserGoalsForm from "@/components/profile/user-goals-form";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
+import {
+    createMailSettingsSchemaFromUserDataType,
+    createUserDataSchemaFromUserDataType,
+} from "@/lib/schema/conversion/profile";
 import { getUserData } from "@/query/user";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import { redirect } from "next/navigation";
 
 export const metadata = {
     title: "Profil | Energyleaf",
 };
 
 export default async function ProfilePage() {
-    const { session, user } = await getSession();
+    const { user } = await getSession();
 
-    if (!session) {
+    if (!user) {
         redirect("/");
     }
 
     const isDemo = await isDemoUser();
 
     const userData = await getUserData(user.id);
-    const data = {
-        houseType: userData?.user_data.property || "house",
-        livingSpace: userData?.user_data.livingSpace || 0,
-        people: userData?.user_data.household || 0,
-        hotWater: userData?.user_data.hotWater || "electric",
-        tariff: userData?.user_data.tariff || "basic",
-        basePrice: userData?.user_data.basePrice || 0,
-        workingPrice: userData?.user_data.workingPrice || 0,
-        monthlyPayment: userData?.user_data.monthlyPayment || 0,
-    };
+    const data = createUserDataSchemaFromUserDataType(userData);
+
+    const reportConfig = createMailSettingsSchemaFromUserDataType(userData);
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationForm disabled={isDemo} email={user.email} username={user.username} />
-            <ChangePasswordForm disabled={isDemo} />
-            <MailSettingsForm
+            <BaseInformationForm
                 disabled={isDemo}
-                interval={userData?.reports.interval || 3}
-                receiveMails={userData?.reports.receiveMails || false}
-                time={userData?.reports.time || 6}
+                firstname={user.firstname}
+                lastname={user.lastname}
+                email={user.email}
+                username={user.username}
+                phone={user.phone ?? undefined}
+                address={user.address}
             />
+            <ChangePasswordForm disabled={isDemo} />
+            <MailSettingsForm disabled={isDemo} initialValues={reportConfig} />
             <UserDataForm initialData={data} />
-            <UserGoalsForm userData={userData?.user_data} />
+            {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData?.user_data} />}
             <AccountDeletionForm disabled={isDemo} />
         </div>
     );

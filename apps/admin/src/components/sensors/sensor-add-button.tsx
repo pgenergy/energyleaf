@@ -1,9 +1,8 @@
 "use client";
 
 import { useSensorContext } from "@/hooks/sensor-hook";
-import { PlusIcon } from "lucide-react";
-
 import { Button } from "@energyleaf/ui";
+import { PlusIcon } from "lucide-react";
 
 export default function SensorAddButton() {
     const sensorContext = useSensorContext();

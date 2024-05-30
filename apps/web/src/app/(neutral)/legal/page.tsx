@@ -7,7 +7,7 @@ export const metadata = {
 export default function LegalPage() {
     return (
         <>
-            <h2 className="text-xl font-bold">Impressum</h2>
+            <h2 className="font-bold text-xl">Impressum</h2>
             <p>
                 <span className="font-bold">Beauftragter im datenschutzrechtlichen Sinne</span>
                 <br />
@@ -27,8 +27,7 @@ export default function LegalPage() {
                 <span className="font-bold">Datenschutzbeauftragter</span>
                 <br />
                 Carl von Ossietzky Universität Oldenburg
-                <br />
-                - Der Datenschutzbeauftragte -
+                <br />- Der Datenschutzbeauftragte -
                 <br />
                 Ammerländer Heerstraße 114-118
                 <br />

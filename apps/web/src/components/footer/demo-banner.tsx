@@ -1,24 +1,41 @@
-import Link from "next/link";
-import { getSession } from "@/lib/auth/auth.server";
+"use client";
 
-import DemoBannerExit from "./demo-banner-exit";
+import { signOutDemoAction } from "@/actions/auth";
+import { Button } from "@energyleaf/ui";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
-export async function DemoBanner() {
-    const { user } = await getSession();
+export default function DemoBanner() {
+    const [pending, startTransition] = useTransition();
+    const router = useRouter();
+
+    function signOut() {
+        startTransition(() => {
+            toast.promise(signOutDemoAction, {
+                loading: "Beenden...",
+                success: () => {
+                    router.push("/");
+                    return "Demo erfolgreich beendet.";
+                },
+                error: "Fehler beim Beenden der Demo.",
+            });
+        });
+    }
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 flex flex-col items-center justify-center bg-primary px-8 py-2 text-center text-primary-foreground">
-            {user && user.id === "demo" ? <DemoBannerExit /> : null}
-            <div className="flex flex-row items-center justify-center gap-2">
-                <p>Haben Sie Interesse? Dann füllen Sie folgendes Formular aus</p>
-                <Link
-                    className="text-primary-foreground underline hover:no-underline"
-                    href="https://forms.gle/rCLGkkNQoJQ51a7SA"
-                    target="_blank"
-                >
-                    Zum Formular
-                </Link>
-            </div>
+        <div className="fixed right-0 bottom-0 left-0 flex flex-row items-center justify-center gap-2 bg-primary px-8 py-2 text-center text-primary-foreground text-sm">
+            <p>Derzeit ist der Demo Modus aktiv</p>
+            <Button
+                className="text-primary-foreground text-sm underline hover:text-primary-foreground hover:no-underline"
+                disabled={pending}
+                onClick={() => {
+                    signOut();
+                }}
+                variant="link"
+            >
+                Demo beenden
+            </Button>
         </div>
     );
 }

@@ -2,11 +2,6 @@
 
 import { createSensor, isSensorRegistered, updateSensor } from "@/actions/sensors";
 import { addSensorSchema } from "@/lib/schema/sensor";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import type { SensorSelectType } from "@energyleaf/db/types";
 import { SensorType, SensorTypeMap } from "@energyleaf/db/types";
 import {
@@ -26,6 +21,10 @@ import {
     SelectValue,
     Textarea,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     sensor?: SensorSelectType;
@@ -53,9 +52,9 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                 loading: "Laden...",
                 success: (_) => {
                     onCallback();
-                    return `Erfolgreich aktualisiert`;
+                    return "Erfolgreich aktualisiert";
                 },
-                error: `Fehler beim Aktualisieren`,
+                error: "Fehler beim Aktualisieren",
             });
 
             return;
@@ -75,9 +74,9 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                 loading: "Laden...",
                 success: (_) => {
                     onCallback();
-                    return `Erfolgreich hinzugefügt`;
+                    return "Erfolgreich hinzugefügt";
                 },
-                error: `Fehler beim Hinzufügen`,
+                error: "Fehler beim Hinzufügen",
             },
         );
     }

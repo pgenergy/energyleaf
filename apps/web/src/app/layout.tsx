@@ -1,12 +1,9 @@
+import { env, getUrl } from "@/env.mjs";
 import { ThemeProvider } from "@/hooks/theme-provider";
-
 import "@energyleaf/tailwindcss/global.css";
-
-import type { Metadata } from "next";
-import { env } from "@/env.mjs";
-import { Analytics } from "@vercel/analytics/react";
-
 import { Toaster } from "@energyleaf/ui/components/utils";
+import { Analytics } from "@vercel/analytics/react";
+import type { Metadata } from "next";
 
 const description =
     "Mit diesem Tool können Sie Ihren Stromverbrauch übersichtlich darstellen und besser verstehen. Analysieren Sie Ihren Verbrauch, finden Sie Einsparpotenziale und senken Sie Ihre Kosten.";
@@ -21,7 +18,7 @@ export const metadata: Metadata = {
         description,
         type: "website",
         locale: "de_DE",
-        url: env.VERCEL_PROJECT_PRODUCTION_URL || env.NEXTAUTH_URL || "http://localhost:3000",
+        url: getUrl(env),
     },
 };
 export const revalidate = 0;

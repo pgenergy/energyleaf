@@ -1,13 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
 import { updateUserState } from "@/actions/user";
 import { userStateSchema } from "@/lib/schema/user";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import type { z } from "zod";
-
+import { Versions, stringify } from "@energyleaf/lib/versioning";
 import {
     Button,
     Form,
@@ -17,24 +12,30 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
     Spinner,
     Switch,
 } from "@energyleaf/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
-    isAdmin: boolean;
-    active: boolean;
+    initialValues: z.infer<typeof userStateSchema>;
     id: string;
 }
 
-export default function UserStateForm({ isAdmin, active, id }: Props) {
+export default function UserStateForm({ initialValues, id }: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof userStateSchema>>({
         resolver: zodResolver(userStateSchema),
-        defaultValues: {
-            isAdmin,
-            active,
-        },
+        defaultValues: initialValues,
     });
 
     function onSubmit(data: z.infer<typeof userStateSchema>) {
@@ -70,6 +71,22 @@ export default function UserStateForm({ isAdmin, active, id }: Props) {
                 />
                 <FormField
                     control={form.control}
+                    name="isParticipant"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
+                            <div className="flex flex-col gap-2">
+                                <FormLabel>Experiment</FormLabel>
+                                <FormDescription>Gibt an ob diese Person am Experiment teilnimmt.</FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
                     name="isAdmin"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
@@ -79,6 +96,40 @@ export default function UserStateForm({ isAdmin, active, id }: Props) {
                             </div>
                             <FormControl>
                                 <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="appVersion"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>App-Version</FormLabel>
+                            <FormControl>
+                                <Select
+                                    onValueChange={(value) => {
+                                        field.onChange(Number(value));
+                                    }}
+                                    value={field.value.toString()}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="App-Version wählen..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {Object.keys(Versions)
+                                            .filter((key) => Number.isNaN(Number(key)))
+                                            .map((key) => {
+                                                const appVersion = Versions[key] as Versions;
+                                                return (
+                                                    <SelectItem key={key} value={appVersion.toString()}>
+                                                        {stringify(appVersion)}
+                                                    </SelectItem>
+                                                );
+                                            })}
+                                    </SelectContent>
+                                </Select>
                             </FormControl>
                             <FormMessage />
                         </FormItem>

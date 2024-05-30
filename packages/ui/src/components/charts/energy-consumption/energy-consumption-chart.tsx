@@ -1,11 +1,9 @@
 "use client";
 
+import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
 import React from "react";
 import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
-
-import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
-
 import { LineChart } from "../line-chart";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
@@ -18,21 +16,24 @@ interface Props {
         callback?: (value: Record<string, string | number | undefined>) => void;
     };
     aggregation?: AggregationType;
+    zoomCallback?: (left: Date, right: Date) => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- needs to be a type
 export type EnergyData = {
     sensorId: string | number;
     energy: number;
     timestamp: string;
 };
 
-export function EnergyConsumptionChart({ data, referencePoints, aggregation }: Props) {
+export function EnergyConsumptionChart({ data, referencePoints, aggregation, zoomCallback }: Props) {
     return (
         <LineChart
             data={data}
             keyName="energy"
             referencePoints={referencePoints}
             tooltip={{
+                // eslint-disable-next-line react/no-unstable-nested-components -- needs to be a function
                 content: (props: TooltipProps<ValueType, NameType>) => {
                     return (
                         <EnergyConsumptionTooltip
@@ -42,8 +43,9 @@ export function EnergyConsumptionChart({ data, referencePoints, aggregation }: P
                     );
                 },
             }}
-            xAxes={{ dataKey: "timestamp", name: "Vergangene Zeit " + computeTimestampLabel(aggregation, false) }}
+            xAxes={{ dataKey: "timestamp", name: `Vergangene Zeit ${computeTimestampLabel(aggregation, false)}` }}
             yAxes={{ dataKey: "energy", name: "Energieverbauch in kWh" }}
+            zoomCallback={zoomCallback}
         />
     );
 }

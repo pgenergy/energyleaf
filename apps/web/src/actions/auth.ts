@@ -1,67 +1,151 @@
 "use server";
-
-import "server-only";
-
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { env } from "@/env.mjs";
+import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
+import { onboardingCompleteCookieName } from "@/lib/constants";
 import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
-import type { forgotSchema, resetSchema, signupSchema } from "@/lib/schema/auth";
+import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
+import { genId } from "@energyleaf/db";
+import { type CreateUserType, createUser, getUserById, getUserByMail, updatePassword } from "@energyleaf/db/query";
+import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
+import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
+import {
+    sendAccountCreatedEmail,
+    sendAdminNewAccountCreatedEmail,
+    sendPasswordChangedEmail,
+    sendPasswordResetEmail,
+} from "@energyleaf/mail";
 import * as jose from "jose";
+import type { Session } from "lucia";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
+import "server-only";
+import type { userData } from "@energyleaf/db/schema";
+import { put } from "@vercel/blob";
 import type { z } from "zod";
-
-import { createUser, getUserById, getUserByMail, updatePassword, type CreateUserType } from "@energyleaf/db/query";
-import { buildResetPasswordUrl, getResetPasswordToken, UserNotActiveError } from "@energyleaf/lib";
-import { sendAccountCreatedEmail, sendPasswordChangedEmail, sendPasswordResetEmail } from "@energyleaf/mail";
 
 /**
  * Server action for creating a new account
  */
-export async function createAccount(data: z.infer<typeof signupSchema>) {
-    const { mail, password, passwordRepeat, username } = data;
+export async function createAccount(data: FormData) {
+    const phone = data.get("phone") as string | undefined;
+    const firstname = data.get("firstname") as string;
+    const lastname = data.get("lastname") as string;
+    const address = data.get("address") as string;
+    const comment = data.get("comment") as string | undefined;
+    const mail = data.get("mail") as string;
+    const hasWifi = (data.get("hasWifi") as string) === "true";
+    const hasPower = (data.get("hasPower") as string) === "true";
+    const password = data.get("password") as string;
+    const passwordRepeat = data.get("passwordRepeat") as string;
+    const username = data.get("username") as string;
+    const file = data.get("file") as File | undefined;
+    const tos = (data.get("tos") as string) === "true";
+    const electricityMeterType = data.get(
+        "electricityMeterType",
+    ) as (typeof userData.electricityMeterType.enumValues)[number];
+
+    if (!tos) {
+        return {
+            success: false,
+            message: "Sie müssen den Datenschutzbestimmungen zustimmen.",
+        };
+    }
 
     if (mail === "demo@energyleaf.de") {
-        throw new Error("Demo-Account kann nicht erstellt werden.");
+        return {
+            success: false,
+            message: "Demo-Account kann nicht erstellt werden.",
+        };
     }
 
     if (password !== passwordRepeat) {
-        throw new Error("Passwörter stimmen nicht überein.");
+        return {
+            success: false,
+            message: "Passwörter stimmen nicht überein.",
+        };
     }
 
     if (mail.length >= 256) {
-        throw new Error("E-Mail muss unter dem Zeichenlimit von 256 Zeichen liegen.");
+        return {
+            success: false,
+            message: "E-Mail muss unter dem Zeichenlimit von 256 Zeichen liegen.",
+        };
     }
     if (username.length >= 30) {
-        throw new Error("Benutzername muss unter dem Zeichenlimit von 30 Zeichen liegen.");
+        return {
+            success: false,
+            message: "Benutzername muss unter dem Zeichenlimit von 30 Zeichen liegen.",
+        };
     }
     if (password.length >= 256) {
-        throw new Error("Passwort muss unter dem Zeichenlimit von 256 Zeichen liegen.");
+        return {
+            success: false,
+            message: "Passwort muss unter dem Zeichenlimit von 256 Zeichen liegen.",
+        };
     }
 
     const user = await getUserByMail(mail);
     if (user) {
-        throw new Error("E-Mail wird bereits verwendet.");
+        return {
+            success: false,
+            message: "E-Mail wird bereits verwendet.",
+        };
     }
 
     const hash = await new Argon2id().hash(password);
 
+    let url: string | undefined = undefined;
+    if (file && env.BLOB_READ_WRITE_TOKEN) {
+        try {
+            const id = genId(25);
+            const type = file.name.split(".").pop();
+            const res = await put(`electricitiy_meter/${id}.${type}`, file, {
+                access: "public",
+            });
+            url = res.url;
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     try {
         await createUser({
+            firstname,
+            address,
+            lastname,
+            phone,
+            comment,
+            hasPower,
+            hasWifi,
             email: mail,
             password: hash,
             username,
+            electricityMeterType,
+            meterImgUrl: url,
         } satisfies CreateUserType);
         await sendAccountCreatedEmail({
             to: mail,
-            name: username,
+            name: `${firstname} ${lastname}`,
             apiKey: env.RESEND_API_KEY,
             from: env.RESEND_API_MAIL,
         });
-    } catch (_err) {
-        throw new Error("Fehler beim Erstellen des Accounts.");
+        await sendAdminNewAccountCreatedEmail({
+            email: mail,
+            name: username,
+            meter: userDataElectricityMeterTypeEnums[electricityMeterType],
+            img: url,
+            to: env.ADMIN_MAIL,
+            from: env.RESEND_API_MAIL,
+            apiKey: env.RESEND_API_KEY,
+        });
+    } catch (err) {
+        console.error(err);
+        return {
+            success: false,
+            message: "Fehler beim Erstellen des Accounts.",
+        };
     }
     redirect("/created");
 }
@@ -70,16 +154,22 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
     const { mail } = data;
 
     if (mail === "demo@energyleaf.de") {
-        throw new Error("Demo-Account kann nicht zurückgesetzt werden.");
+        return {
+            success: false,
+            message: "Demo-Account kann nicht zurückgesetzt werden.",
+        };
     }
 
     const user = await getUserByMail(mail);
     if (!user) {
-        throw new Error("E-Mail wird nicht verwendet.");
+        return {
+            success: false,
+            message: "E-Mail wird nicht verwendet.",
+        };
     }
 
     const token = await getResetPasswordToken({ userId: user.id, secret: env.NEXTAUTH_SECRET });
-    const resetUrl = buildResetPasswordUrl({ env, token });
+    const resetUrl = buildResetPasswordUrl({ baseUrl: getUrl(env), token });
 
     try {
         await sendPasswordResetEmail({
@@ -90,7 +180,11 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
             apiKey: env.RESEND_API_KEY,
         });
     } catch (err) {
-        throw new Error("Fehler beim Senden der E-Mail.");
+        console.error(err);
+        return {
+            success: false,
+            message: "Fehler beim Senden der E-Mail.",
+        };
     }
 }
 
@@ -98,29 +192,53 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     const { password: newPassword, passwordRepeat } = data;
 
     if (newPassword !== passwordRepeat) {
-        throw new Error("Passwörter stimmen nicht überein.");
+        return {
+            success: false,
+            message: "Passwörter stimmen nicht überein.",
+        };
     }
 
     const { sub } = jose.decodeJwt(resetToken);
     if (!sub) {
-        throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
+        return {
+            success: false,
+            message: "Ungültiges oder abgelaufenes Passwort-Reset-Token",
+        };
     }
 
     const user = await getUserById(sub);
 
     if (!user) {
-        throw new Error("Ungültiges oder abgelaufenes Passwort-Reset-Token");
+        return {
+            success: false,
+            message: "Ungültiges oder abgelaufenes Passwort-Reset-Token",
+        };
     }
 
-    await jose.jwtVerify(resetToken, Buffer.from(env.NEXTAUTH_SECRET, "hex"), {
-        audience: "energyleaf",
-        issuer: "energyleaf",
-        algorithms: ["HS256"],
-    });
-    // no exception was thrown, so everything is fine
+    try {
+        await jose.jwtVerify(resetToken, Buffer.from(env.NEXTAUTH_SECRET, "hex"), {
+            audience: "energyleaf",
+            issuer: "energyleaf",
+            algorithms: ["HS256"],
+        });
+    } catch (err) {
+        console.error(err);
+        return {
+            success: false,
+            message: "Fehler beim Verifizieren des Tokens.",
+        };
+    }
 
-    const hash = await new Argon2id().hash(newPassword);
-    await updatePassword({ password: hash }, user.id);
+    try {
+        const hash = await new Argon2id().hash(newPassword);
+        await updatePassword({ password: hash }, user.id);
+    } catch (err) {
+        console.error(err);
+        return {
+            success: false,
+            message: "Fehler beim Ändern des Passworts.",
+        };
+    }
 
     try {
         await sendPasswordChangedEmail({
@@ -130,7 +248,11 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
             apiKey: env.RESEND_API_KEY,
         });
     } catch (err) {
-        throw new Error("Fehler beim Senden der E-Mail.");
+        console.error(err);
+        return {
+            success: false,
+            message: "Fehler beim Senden der E-Mail.",
+        };
     }
 }
 
@@ -140,16 +262,19 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
 export async function signInAction(email: string, password: string) {
     const { session } = await getActionSession();
     if (session) {
-        redirect("/dashboard");
+        await handleSignIn(session, null);
     }
 
     const user = await getUserByMail(email);
     if (!user) {
-        throw new Error("E-Mail oder Passwort falsch.");
+        return {
+            success: false,
+            message: "E-Mail oder Passwort falsch.",
+        };
     }
 
     if (!user.isActive) {
-        throw new UserNotActiveError();
+        redirect("/created");
     }
 
     let match = false;
@@ -159,20 +284,49 @@ export async function signInAction(email: string, password: string) {
     } catch (err) {
         match = await new Bcrypt().verify(user.password, password);
         if (!match) {
-            throw new Error("E-Mail oder Passwort falsch.");
+            return {
+                success: false,
+                message: "E-Mail oder Passwort falsch.",
+            };
         }
 
-        const hash = await new Argon2id().hash(password);
-        await updatePassword({ password: hash }, user.id);
+        try {
+            const hash = await new Argon2id().hash(password);
+            await updatePassword({ password: hash }, user.id);
+        } catch (err) {
+            console.error(err);
+            return {
+                success: false,
+                message: "Ein Fehler ist aufgetreten.",
+            };
+        }
     }
 
     if (!match) {
-        throw new Error("E-Mail oder Passwort falsch.");
+        return {
+            success: false,
+            message: "E-Mail oder Passwort falsch.",
+        };
     }
 
     const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
+    await handleSignIn(newSession, user);
+}
+
+async function handleSignIn(session: Session, user: UserSelectType | null) {
+    let userData = user;
+    if (!userData) {
+        userData = await getUserById(session.userId);
+    }
+    const onboardingCompleted = userData?.onboardingCompleted ?? false;
+    cookies().set(onboardingCompleteCookieName, onboardingCompleted.toString());
+
+    if (!onboardingCompleted) {
+        redirect("/onboarding");
+    }
+
     redirect("/dashboard");
 }
 
@@ -203,6 +357,7 @@ export async function signOutAction() {
 
     await lucia.invalidateSession(session.id);
     cookies().delete("auth_session");
+    cookies().delete(onboardingCompleteCookieName);
     redirect("/");
 }
 

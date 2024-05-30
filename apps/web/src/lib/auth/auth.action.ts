@@ -1,7 +1,6 @@
+import { Versions } from "@energyleaf/lib/versioning";
 import { cookies } from "next/headers";
-
 import "server-only";
-
 import { lucia } from "./auth.config";
 
 export const getActionSession = async () => {
@@ -11,10 +10,15 @@ export const getActionSession = async () => {
             user: {
                 id: "demo",
                 username: "Demo Nutzer",
+                firstname: "Demo",
+                lastname: "Nutzer",
                 email: "demo@energyleaf.de",
+                phone: undefined,
+                address: "Demo Adresse",
                 created: new Date().toISOString(),
                 isAdmin: false,
                 isActive: true,
+                appVersion: Versions.transparency as number,
             },
             session: {
                 id: "demo",

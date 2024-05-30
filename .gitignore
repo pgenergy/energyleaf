@@ -35,8 +35,5 @@ yarn-error.log*
 # vercel
 .vercel
 
-#.idea
-.idea
-
 # docker data
 data

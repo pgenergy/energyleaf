@@ -1,10 +1,21 @@
 "use client";
 
 import { useUserContext } from "@/hooks/user-hook";
-
-import { AggregationOption } from "@energyleaf/ui/components/utils";
+import { AggregationOption, calculateAggregationOptions } from "@energyleaf/ui/components/utils";
+import React, { useMemo } from "react";
 
 export default function UserConsumptionAggregationOption() {
     const context = useUserContext();
-    return <AggregationOption onSelectedChange={context.setAggregationType} selected={context.aggregationType} />;
+
+    const availableOptions = useMemo(() => {
+        return calculateAggregationOptions(context.startDate, context.endDate);
+    }, [context.startDate, context.endDate]);
+
+    return (
+        <AggregationOption
+            availableOptions={availableOptions}
+            onSelectedChange={context.setAggregationType}
+            selected={context.aggregationType}
+        />
+    );
 }

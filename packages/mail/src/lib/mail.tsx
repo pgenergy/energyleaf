@@ -1,12 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports -- This is a React file
-import * as React from "react";
+import type * as React from "react";
 import { Resend } from "resend";
-
 import AccountActivatedTemplate from "../templates/account-activated";
 import AccountCreatedTemplate from "../templates/account-created";
+import AdminNewAccountCreatedTemplate from "../templates/admin-new-account";
+import AnomalyDetectedTemplate from "../templates/anomaly-detected";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
+import type AnomalyProps from "../types/AnomalyProps";
 
 interface MailOptions {
     apiKey: string;
@@ -60,6 +61,9 @@ export async function sendPasswordResetMailForUser({ from, to, name, link, apiKe
 }
 
 async function sendPasswordResetMailByTemplate({ from, to, apiKey }: MailOptions, template: React.JSX.Element) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
@@ -76,7 +80,7 @@ async function sendPasswordResetMailByTemplate({ from, to, apiKey }: MailOptions
     return resp.data?.id;
 }
 
-type PasswordChangedMailOptions = MailOptions & { to: string; name: string };
+type PasswordChangedMailOptions = MailOptions & { name: string };
 
 /**
  * Send a password changed email
@@ -90,6 +94,9 @@ type PasswordChangedMailOptions = MailOptions & { to: string; name: string };
  * @throws An error if the email could not be sent
  */
 export async function sendPasswordChangedEmail({ from, to, name, apiKey }: PasswordChangedMailOptions) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
@@ -120,6 +127,9 @@ type AccountCreatedMailOptions = PasswordChangedMailOptions;
  * @throws An error if the email could not be sent
  */
 export async function sendAccountCreatedEmail({ from, to, name, apiKey }: AccountCreatedMailOptions) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
@@ -150,6 +160,9 @@ type AccountActivatedMailOptions = PasswordChangedMailOptions;
  * @throws An error if the email could not be sent
  */
 export async function sendAccountActivatedEmail({ from, to, name, apiKey }: AccountActivatedMailOptions) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
     const resend = createResend(apiKey);
 
     const resp = await resend.emails.send({
@@ -157,6 +170,60 @@ export async function sendAccountActivatedEmail({ from, to, name, apiKey }: Acco
         from,
         subject: "Konto aktiviert",
         react: AccountActivatedTemplate({ name }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type AnomalyMailOptions = MailOptions & AnomalyProps;
+
+export async function sendAnomalyEmail({ from, to, apiKey, name, link, unsubscribeLink }: AnomalyMailOptions) {
+    if (!apiKey || apiKey === "") {
+        return;
+    }
+    const resend = createResend(apiKey);
+
+    const resp = await resend.emails.send({
+        to,
+        from,
+        subject: "Anomalie erkannt.",
+        react: AnomalyDetectedTemplate({ name, link, unsubscribeLink }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type AdminNewAccountMailOptions = MailOptions & {
+    name: string;
+    meter: string;
+    email: string;
+    img?: string;
+};
+
+export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMailOptions) {
+    if (!props.apiKey || props.apiKey === "") {
+        return;
+    }
+    const resend = createResend(props.apiKey);
+
+    const resp = await resend.emails.send({
+        to: props.to,
+        from: props.from,
+        subject: "Neues Konto erstellt",
+        react: AdminNewAccountCreatedTemplate({
+            name: props.name,
+            meter: props.meter,
+            mail: props.email,
+            img: props.img,
+        }),
     });
 
     if (resp.error) {

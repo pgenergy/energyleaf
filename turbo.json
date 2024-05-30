@@ -1,43 +1,26 @@
 {
-    "$schema": "https://turbo.build/schema.json",
-    "globalDependencies": [
-        "**/.env.*local"
-    ],
-    "globalEnv": [
-        ".env",
-        "NEXTAUTH_URL"
-    ],
-    "pipeline": {
-        "build": {
-            "dotEnv": [
-                ".env"
-            ],
-            "dependsOn": [
-                "^build"
-            ],
-            "outputs": [
-                ".next/**",
-                "!.next/cache/**"
-            ]
-        },
-        "lint": {},
-        "clean": {
-            "cache": false,
-            "persistent": false
-        },
-        "start": {
-            "dotEnv": [
-                ".env"
-            ],
-            "cache": false,
-            "persistent": false
-        },
-        "dev": {
-            "dotEnv": [
-                ".env"
-            ],
-            "cache": false,
-            "persistent": true
-        }
-    }
+	"$schema": "https://turbo.build/schema.json",
+	"globalDependencies": ["**/.env.*local"],
+	"globalEnv": [".env", "NEXTAUTH_URL"],
+	"pipeline": {
+		"build": {
+			"dotEnv": [".env"],
+			"dependsOn": ["^build"],
+			"outputs": [".next/**", "!.next/cache/**"]
+		},
+		"clean": {
+			"cache": false,
+			"persistent": false
+		},
+		"start": {
+			"dotEnv": [".env"],
+			"cache": false,
+			"persistent": false
+		},
+		"dev": {
+			"dotEnv": [".env"],
+			"cache": false,
+			"persistent": true
+		}
+	}
 }

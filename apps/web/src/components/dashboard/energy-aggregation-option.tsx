@@ -1,23 +1,24 @@
 "use client";
 
-import React from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { useMemo } from "react";
 
-import type { AggregationType } from "@energyleaf/lib";
-import { AggregationOption } from "@energyleaf/ui/components/utils";
+import { AggregationOption, calculateAggregationOptions } from "@energyleaf/ui/components/utils";
 
-interface Props {
-    selected?: AggregationType;
-}
-
-export default function EnergyAggregation({ selected }: Props) {
+export default function EnergyAggregation({ selected }) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const onChange = (selectedOption: string) => {
-        track("changeAggregationOption()");
+    const availableOptions = useMemo(() => {
+        const startDateStr = searchParams.get("start");
+        const endDateStr = searchParams.get("end");
+        return calculateAggregationOptions(startDateStr, endDateStr);
+    }, [searchParams]);
+
+    const onChange = (selectedOption) => {
+        track("changeAggregationOption");
         const search = new URLSearchParams();
         searchParams.forEach((value, key) => {
             search.set(key, value);
@@ -28,5 +29,5 @@ export default function EnergyAggregation({ selected }: Props) {
         router.refresh();
     };
 
-    return <AggregationOption onSelectedChange={onChange} selected={selected} />;
+    return <AggregationOption availableOptions={availableOptions} onSelectedChange={onChange} selected={selected} />;
 }

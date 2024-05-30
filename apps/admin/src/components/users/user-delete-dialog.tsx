@@ -1,10 +1,7 @@
 "use client";
 
-import { useTransition } from "react";
 import { deleteUser } from "@/actions/user";
 import { useUserContext } from "@/hooks/user-hook";
-import { toast } from "sonner";
-
 import {
     AlertDialog,
     AlertDialogAction,
@@ -15,6 +12,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@energyleaf/ui";
+import { useTransition } from "react";
+import { toast } from "sonner";
 
 interface Props {
     onSuccess?: () => void;

@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { getSession } from "@/lib/auth/auth.server";
-
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { buttonVariants } from "@energyleaf/ui";
+import Link from "next/link";
 
 export default async function Footer() {
     const { user } = await getSession();

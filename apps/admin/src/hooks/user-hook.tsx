@@ -1,9 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
-
 import type { UserSelectType } from "@energyleaf/db/types";
-import { type AggregationType } from "@energyleaf/lib";
+import type { AggregationType } from "@energyleaf/lib";
+import type React from "react";
+import { createContext, useContext, useState } from "react";
 
 export type UserContextType = {
     deleteDialogOpen: boolean;
@@ -18,6 +18,8 @@ export type UserContextType = {
     setStartDate: (date: Date) => void;
     endDate: Date;
     setEndDate: (date: Date) => void;
+    zoomed: boolean;
+    setZoomed: (zoomed: boolean) => void;
 } | null;
 
 const userContext = createContext<UserContextType>(null);
@@ -33,6 +35,7 @@ export function UserContextProvider({ children }: Props) {
     const [aggregationType, setAggregationType] = useState<AggregationType | undefined>(undefined);
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
+    const [zoomed, setZoomed] = useState(false);
 
     return (
         <userContext.Provider
@@ -49,6 +52,8 @@ export function UserContextProvider({ children }: Props) {
                 setStartDate,
                 endDate,
                 setEndDate,
+                zoomed,
+                setZoomed,
             }}
         >
             {children}

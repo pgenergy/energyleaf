@@ -1,4 +1,4 @@
-import { device, peaks, reports, sensor, sensorData, user, userData } from "../schema";
+import type { device, peaks, reports, sensor, sensorData, user, userData } from "../schema";
 
 export enum SortOrder {
     ASC = "ASC",
@@ -54,6 +54,14 @@ export const userDataPropertyEnums: Record<(typeof userData.property.enumValues)
 export const userDataHotWaterEnums: Record<(typeof userData.hotWater.enumValues)[number], string> = {
     electric: "Elektrisch",
     not_electric: "Nicht elektrisch",
+};
+
+export const userDataElectricityMeterTypeEnums: Record<
+    (typeof userData.electricityMeterType.enumValues)[number],
+    string
+> = {
+    digital: "Digital",
+    analog: "Analog",
 };
 
 export enum DeviceCategory {

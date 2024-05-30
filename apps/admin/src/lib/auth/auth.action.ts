@@ -1,7 +1,5 @@
 import { cookies } from "next/headers";
-
 import "server-only";
-
 import { lucia } from "./auth.config";
 
 export const getActionSession = async () => {

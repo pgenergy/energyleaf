@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { default as clsx } from "clsx";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface NavLink {
     slug: string;
@@ -24,8 +24,8 @@ export function Sidebar({ links }: Props) {
     }
 
     return (
-        <nav className="fixed left-0 top-14 hidden w-[13%] md:flex">
-            <ScrollArea className="max-h-[calc(100vh - 3.5rem)] flex w-full flex-col gap-4 py-8">
+        <nav className="fixed top-14 left-0 hidden w-[13%] md:flex">
+            <ScrollArea className="- 3.5rem)] flex max-h-[calc(100vh w-full flex-col gap-4 py-8">
                 {links.map((link) => (
                     <Link
                         className={clsx(
