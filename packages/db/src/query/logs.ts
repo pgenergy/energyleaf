@@ -1,14 +1,16 @@
 import db from "../index";
-import {logs} from "../schema/logs";
+import { logs } from "../schema/logs";
 
-export type LogType = {
-    logType:  (typeof logs.logType.enumValues)[number];
-    content: string;
-};
-
-export async function insertLog(data: LogType) {
+export async function log(
+    title: string,
+    logType: (typeof logs.logType.enumValues)[number],
+    appComponent: (typeof logs.appComponent.enumValues)[number],
+    details: string,
+) {
     await db.insert(logs).values({
-        logType: data.logType,
-        content: data.content
+        title: title,
+        logType: logType,
+        appComponent: appComponent,
+        details: details,
     });
 }
