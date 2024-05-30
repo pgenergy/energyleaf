@@ -15,7 +15,7 @@ import {
     type Option,
 } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { track } from "@vercel/analytics";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -40,8 +40,10 @@ const optionToDeviceSchema = (option: Option): z.infer<typeof deviceSchema> => (
 });
 
 export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInteract }: Props) {
+    const queryClient = useQueryClient();
+    const queryKey = ["selectedDevices"];
     const { data, isLoading } = useQuery({
-        queryKey: ["selectedDevices"],
+        queryKey: queryKey,
         queryFn: () => getDevicesByPeak(sensorDataId),
     });
 
@@ -63,6 +65,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
 
         try {
             res = await updateDevicesForPeak(data, sensorDataId);
+            await queryClient.invalidateQueries({ queryKey: queryKey });
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
