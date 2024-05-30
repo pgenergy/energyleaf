@@ -7,7 +7,9 @@ import {
     differenceInYears
 } from "date-fns";
 
-export function calculateAggregationOptions(startDateStr, endDateStr) {
+type DateType = Date | string | null;
+
+export function calculateAggregationOptions(startDateStr: DateType, endDateStr: DateType) {
     if (!startDateStr || !endDateStr) {
         return [AggregationType.RAW];
     }

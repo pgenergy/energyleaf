@@ -11,6 +11,10 @@ export default function UserConsumptionAggregationOption() {
         return calculateAggregationOptions(context.startDate, context.endDate);
     }, [context.startDate, context.endDate]);
 
+    if (availableOptions.length <= 1) {
+        return null;
+    }
+
     return (
         <AggregationOption
             availableOptions={availableOptions}
