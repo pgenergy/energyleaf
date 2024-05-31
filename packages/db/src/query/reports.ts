@@ -141,7 +141,7 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
             avgEnergyConsumptionPerDay: reportProps.avgEnergyConsumptionPerDay,
             totalEnergyCost: reportProps.totalEnergyCost,
             avgEnergyCost: reportProps.avgEnergyCost,
-            highestPeakDateTime: reportProps.highestPeak.dateTime,
+            highestPeakDateTime: new Date(reportProps.highestPeak.dateTime),
             highestPeakDeviceName: reportProps.highestPeak.deviceName,
             highestPeakConsumption: reportProps.highestPeak.consumption,
         });
