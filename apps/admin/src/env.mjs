@@ -7,7 +7,7 @@ export const env = createEnv({
         NEXTAUTH_URL: z.string().optional(),
         NEXTAUTH_SECRET: z.string(),
 
-        VERCEL_PROJECT_PRODUCTION_URL: z.string(),
+        VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
 
         DATABASE_HOST: z.string(),
         DATABASE_USERNAME: z.string(),
