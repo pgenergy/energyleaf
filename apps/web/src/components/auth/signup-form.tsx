@@ -41,7 +41,6 @@ export default function SignUpForm() {
             firstname: "",
             lastname: "",
             mail: "",
-            phone: "",
             address: "",
             comment: "",
             hasWifi: false,
