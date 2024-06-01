@@ -40,3 +40,4 @@ export * from "./spinner";
 export * from "./command";
 export * from "./circular-progress";
 export * from "./wizard";
+export * from "./multi-select";

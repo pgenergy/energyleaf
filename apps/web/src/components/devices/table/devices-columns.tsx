@@ -1,12 +1,12 @@
 "use client";
 
+import { formatNumber } from "@/lib/consumption/number-format";
 import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui";
 import type { ColumnDef } from "@tanstack/react-table";
 import { track } from "@vercel/analytics";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import DeviceActionCell from "./device-action-cell";
-import { formatNumber } from "@/lib/consumption/number-format";
 
 export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
     {
@@ -59,20 +59,6 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
             }
 
             return <span>{Intl.DateTimeFormat("de-DE").format(row.getValue("created"))}</span>;
-        },
-    },
-    {
-        accessorKey: "averageConsumption",
-        header: () => "Durchschn. Leistung",
-        cell: ({ row }) => {
-            const consumptionValue = row.getValue("averageConsumption");
-            const consumption = typeof consumptionValue === "number" ? consumptionValue.toString() : consumptionValue;
-
-            if (consumption) {
-                const formattedConsumption = `${formatNumber(Number(consumption))} Watt`;
-                return <span>{formattedConsumption}</span>;
-            }
-            return <span>N/A</span>;
         },
     },
     {

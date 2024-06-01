@@ -3,13 +3,14 @@ import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 import { and, between, desc, eq, gt, gte, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
-import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
+import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 interface EnergyData {
     sensorId: string;
     value: number;
     timestamp: string;
+    id: string;
 }
 
 export async function getEnergyForSensorInRange(
@@ -159,7 +160,7 @@ export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
         if (index === 0) {
             return 0;
         }
-        
+
         const difference = Number(entry.value) - Number(previousValue);
         previousValue = entry.value;
         return difference;
@@ -248,47 +249,28 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
 /**
  *  adds or updates a peak in the database
  */
-export async function addOrUpdatePeak(sensorId: string, timestamp: Date, deviceId: number) {
+export async function updateDevicesForPeak(sensorDataId: string, deviceIds: number[]) {
     return db.transaction(async (trx) => {
-        const data = await trx
-            .select()
-            .from(peaks)
-            .where(and(eq(peaks.sensorId, sensorId), eq(peaks.timestamp, timestamp)));
+        await trx.delete(deviceToPeak).where(eq(deviceToPeak.sensorDataId, sensorDataId));
 
-        if (data.length === 0) {
-            return trx.insert(peaks).values({
-                sensorId,
+        for (const deviceId of deviceIds) {
+            await trx.insert(deviceToPeak).values({
                 deviceId,
-                timestamp,
+                sensorDataId,
             });
         }
-
-        return trx
-            .update(peaks)
-            .set({
-                deviceId,
-            })
-            .where(and(eq(peaks.sensorId, sensorId), eq(peaks.timestamp, timestamp)));
     });
 }
 
-/**
- *  gets all peaks for a given device
- */
-export async function getPeaksBySensor(start: Date, end: Date, sensorId: string) {
+export async function getDevicesByPeak(sensorDataId: string) {
     return db
-        .select()
-        .from(peaks)
-        .leftJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
-        .where(and(eq(sensorData.sensorId, sensorId), sensorDataTimeFilter(start, end)));
-}
-
-function sensorDataTimeFilter(start: Date, end: Date) {
-    return or(
-        between(sensorData.timestamp, start, end),
-        eq(sensorData.timestamp, start),
-        eq(sensorData.timestamp, end),
-    );
+        .select({
+            id: deviceToPeak.deviceId,
+            name: device.name,
+        })
+        .from(deviceToPeak)
+        .innerJoin(device, eq(device.id, deviceToPeak.deviceId))
+        .where(eq(deviceToPeak.sensorDataId, sensorDataId));
 }
 
 /**
@@ -694,93 +676,6 @@ export async function resetSensorValues(clientId: string) {
             .where(eq(sensor.clientId, clientId));
         await trx.delete(sensorToken).where(eq(sensorToken.sensorId, sensors[0].id));
         await trx.delete(sensorData).where(eq(sensorData.sensorId, sensors[0].id));
-    });
-}
-
-/**
- * Get the average power consumption in watts per device
- */
-export async function getAverageConsumptionPerDevice(userId: string) {
-    return await db.transaction(async (trx) => {
-        const peaksQuery = await trx
-            .select({
-                peakSensorId: peaks.sensorId,
-                deviceId: peaks.deviceId,
-                peakTimestamp: peaks.timestamp,
-                peakValue: sensorData.value,
-            })
-            .from(peaks)
-            .innerJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
-            .innerJoin(device, eq(peaks.deviceId, device.id))
-            .where(eq(device.userId, userId))
-            .orderBy(peaks.sensorId, peaks.timestamp);
-
-        if (peaksQuery.length === 0) {
-            return null;
-        }
-
-        const deviceConsumption: Record<string, number[]> = {};
-
-        for (const current of peaksQuery) {
-            if (!current.peakTimestamp) {
-                continue;
-            }
-
-            const currentTimestamp = new Date(current.peakTimestamp);
-            
-            const lastSensorDataQuery = await trx
-                .select({
-                    lastTimestamp: sensorData.timestamp,
-                    lastValue: sensorData.value,
-                })
-                .from(sensorData)
-                .where(and(
-                    eq(sensorData.sensorId, current.peakSensorId),
-                    lt(sensorData.timestamp, currentTimestamp)
-                ))
-                .orderBy(desc(sensorData.timestamp))
-                .limit(1);
-
-            if (lastSensorDataQuery.length === 0) {
-                continue;
-            }
-
-            const lastSensorData = lastSensorDataQuery[0];
-            const previousTimestamp = new Date(lastSensorData.lastTimestamp);
-            const previousValue = Number(lastSensorData.lastValue);
-
-            const timeDiffMinutes = (currentTimestamp.getTime() - previousTimestamp.getTime()) / (1000 * 60);
-
-            if (timeDiffMinutes <= 0 || timeDiffMinutes > 1) {
-                continue;
-            }
-
-            const energyDiffKwh = Number(current.peakValue) - previousValue;
-            if (energyDiffKwh < 0) {
-                continue;
-            }
-
-            const powerWatt = (energyDiffKwh / (timeDiffMinutes / 60)) * 1000;
-
-            if (!deviceConsumption[current.deviceId.toString()]) {
-                deviceConsumption[current.deviceId.toString()] = [];
-            }
-
-            deviceConsumption[current.deviceId.toString()].push(powerWatt);
-        }
-
-        const result = Object.keys(deviceConsumption).map(deviceId => {
-            const consumptions = deviceConsumption[deviceId];
-            const sum = consumptions.reduce((acc: number, value: number) => acc + value, 0);
-            const average = sum / consumptions.length;
-
-            return {
-                deviceId: Number(deviceId),
-                averageConsumption: average,
-            };
-        });
-
-        return result;
     });
 }
 

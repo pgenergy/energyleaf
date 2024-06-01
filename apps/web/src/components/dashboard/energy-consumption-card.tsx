@@ -3,9 +3,7 @@ import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
 import calculatePeaks from "@/lib/consumption/peak-calculation";
-import { getDevicesByUser } from "@/query/device";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import type { PeakAssignment } from "@/types/consumption/peak";
 import type { ConsumptionData } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
@@ -56,18 +54,18 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         sensorId: entry.sensorId || 0,
         energy: entry.value,
         timestamp: (entry.timestamp as Date).toString(),
+        sensorDataId: entry.id,
     }));
 
-    const devices = !hasAggregation ? await getDevicesByUser(userId) : [];
-    const peakAssignments: PeakAssignment[] =
-        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
-            ? await calculatePeaks(data, startDate, endDate, sensorId)
-            : [];
+    const peaks: ConsumptionData[] =
+        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection) ? calculatePeaks(data) : [];
 
     const csvExportData = {
         userId: user.id,
         userHash: createHash("sha256").update(`${user.id}${env.NEXTAUTH_SECRET}`).digest("hex"),
-        endpoint: env.VERCEL_PROJECT_PRODUCTION_URL ? `https://admin.${env.VERCEL_PROJECT_PRODUCTION_URL}/api/v1/csv` : "http://localhost:3001/api/v1/csv",
+        endpoint: env.VERCEL_PROJECT_PRODUCTION_URL
+            ? `https://admin.${env.VERCEL_PROJECT_PRODUCTION_URL}/api/v1/csv`
+            : "http://localhost:3001/api/v1/csv",
     };
 
     return (
@@ -105,9 +103,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     ) : (
                         <EnergyConsumptionCardChart
                             data={data}
-                            devices={devices}
-                            peaks={hasAggregation ? undefined : peakAssignments}
+                            peaks={hasAggregation ? undefined : peaks}
                             aggregation={aggregation}
+                            userId={userId}
                         />
                     )}
                 </div>
