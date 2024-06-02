@@ -20,12 +20,15 @@ export const env = createEnv({
         ADMIN_MAIL: z.string().email(),
 
         BLOB_READ_WRITE_TOKEN: z.string().optional(),
-
+    },
+    client: {
         NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
         NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
     },
-    client: {},
-    experimental__runtimeEnv: {},
+    experimental__runtimeEnv: {
+        NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+        NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+    },
     extends: [ vercel() ],
 });
 
