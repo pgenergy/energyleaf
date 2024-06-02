@@ -1,5 +1,6 @@
 import { env } from "@/env.mjs";
 import { PostHog } from "posthog-node";
+import "server-only";
 
 export default function PostHogServerClient() {
     const key = env.NEXT_PUBLIC_POSTHOG_KEY;
