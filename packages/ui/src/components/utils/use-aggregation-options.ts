@@ -4,7 +4,7 @@ import {
     differenceInHours,
     differenceInMonths,
     differenceInWeeks,
-    differenceInYears
+    differenceInYears,
 } from "date-fns";
 
 type DateType = Date | string | null;

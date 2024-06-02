@@ -1,10 +1,10 @@
 import { getSession } from "@/lib/auth/auth.server";
+import { formatNumber } from "@/lib/consumption/number-format";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { redirect } from "next/navigation";
-import { formatNumber } from "@/lib/consumption/number-format";
 
 interface Props {
     startDate: Date;

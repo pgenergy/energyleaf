@@ -1,5 +1,6 @@
 import { calculateCosts, getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth.server";
+import { formatNumber } from "@/lib/consumption/number-format";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
 import { cn } from "@energyleaf/tailwindcss/utils";
@@ -9,7 +10,6 @@ import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { formatNumber } from "@/lib/consumption/number-format";
 
 interface Props {
     startDate: Date;

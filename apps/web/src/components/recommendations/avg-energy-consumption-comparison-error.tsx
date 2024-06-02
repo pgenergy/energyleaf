@@ -9,7 +9,9 @@ export default function AvgEnergyConsumptionComparisonError({ resetErrorBoundary
         <Card>
             <CardHeader>
                 <CardTitle>Vergleich des Energieverbrauchs</CardTitle>
-                <CardDescription>Hier sehen Sie Ihren durchschnittlichen Energieverbrauch im Vergleich zu anderen Nutzern</CardDescription>
+                <CardDescription>
+                    Hier sehen Sie Ihren durchschnittlichen Energieverbrauch im Vergleich zu anderen Nutzern
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 <TryAgainErrorHint resetErrorBoundary={resetErrorBoundary} />

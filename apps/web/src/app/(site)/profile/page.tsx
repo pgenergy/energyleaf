@@ -26,7 +26,7 @@ export default async function ProfilePage() {
         redirect("/");
     }
 
-    posthog.capture('my event', { property: 'value' })
+    posthog.capture("my event", { property: "value" });
 
     const isDemo = await isDemoUser();
 
