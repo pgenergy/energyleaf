@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
     boolean,
+    index,
     int,
     mysqlEnum,
     mysqlTable,
@@ -50,14 +51,22 @@ export const sensorHistory = mysqlTable(
     },
 );
 
-export const sensorToken = mysqlTable("sensor_token", {
-    code: varchar("code", { length: 30 })
-        .notNull()
-        .primaryKey()
-        .$defaultFn(() => nanoid(30)),
-    sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-    timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`),
-});
+export const sensorToken = mysqlTable(
+    "sensor_token",
+    {
+        code: varchar("code", { length: 30 })
+            .notNull()
+            .primaryKey()
+            .$defaultFn(() => nanoid(30)),
+        sensorId: varchar("sensor_id", { length: 30 }).notNull(),
+        timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`),
+    },
+    (table) => {
+        return {
+            sensorIdIdx: index("sensor_id_idx_sensor_token").on(table.sensorId),
+        };
+    },
+);
 
 export const sensorData = mysqlTable(
     "sensor_data",
@@ -73,6 +82,42 @@ export const sensorData = mysqlTable(
     (table) => {
         return {
             uniqueIdx: uniqueIndex("sensor_data_sensor_id_timestamp").on(table.sensorId, table.timestamp),
+        };
+    },
+);
+
+export const sensorDataCurrentTable = mysqlTable(
+    "sensor_data_current",
+    {
+        id: varchar("id", { length: 35 })
+            .primaryKey()
+            .notNull()
+            .$defaultFn(() => nanoid(35)),
+        sensorId: varchar("sensor_id", { length: 30 }).notNull(),
+        value: decimalType("value").notNull(),
+        timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
+    },
+    (table) => {
+        return {
+            uidx: uniqueIndex("sensor_data_current_sensor_id_timestamp").on(table.sensorId, table.timestamp),
+        };
+    },
+);
+
+export const sensorDataOutTable = mysqlTable(
+    "sensor_data_out",
+    {
+        id: varchar("id", { length: 35 })
+            .primaryKey()
+            .notNull()
+            .$defaultFn(() => nanoid(35)),
+        sensorId: varchar("sensor_id", { length: 30 }).notNull(),
+        value: decimalType("value").notNull(),
+        timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
+    },
+    (table) => {
+        return {
+            uidx: uniqueIndex("sensor_data_out_sensor_id_timestamp").on(table.sensorId, table.timestamp),
         };
     },
 );

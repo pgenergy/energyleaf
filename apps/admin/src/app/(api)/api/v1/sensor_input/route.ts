@@ -34,9 +34,17 @@ export const POST = async (req: NextRequest) => {
         try {
             const sensorId = await getSensorIdFromSensorToken(data.accessToken);
             const needsSum = data.type === SensorType.ANALOG_ELECTRICITY;
+            const inputData = {
+                sensorId,
+                value: data.value,
+                valueOut: data.valueOut,
+                valueCurrent: data.valueCurrent,
+                sum: needsSum,
+                timestamp: data.timestamp ? new Date(Number(data.timestamp)) : new Date(Date.now()),
+            };
 
             try {
-                await insertSensorData({ sensorId, value: data.value, sum: needsSum });
+                await insertSensorData(inputData);
             } catch (e) {
                 console.error(e, data);
                 if ((e as unknown as Error).message === "value/too-high") {

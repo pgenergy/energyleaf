@@ -3,7 +3,18 @@ import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 import { and, between, desc, eq, gt, gte, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
-import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
+import {
+    device,
+    deviceToPeak,
+    sensor,
+    sensorData,
+    sensorDataCurrentTable,
+    sensorDataOutTable,
+    sensorHistory,
+    sensorToken,
+    user,
+    userData,
+} from "../schema";
 import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 interface EnergyData {
@@ -212,7 +223,7 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
 
         const sensorDifferences: Record<string, number[]> = {};
 
-        sensorQuery.forEach((entry, index) => {
+        sensorQuery.forEach((entry, _) => {
             if (!sensorDifferences[entry.sensorId]) {
                 sensorDifferences[entry.sensorId] = [];
             }
@@ -300,10 +311,19 @@ export async function getElectricitySensorIdForUser(userId: string) {
     });
 }
 
+interface SensorDataInput {
+    sensorId: string;
+    value: number;
+    valueOut?: number;
+    valueCurrent?: number;
+    sum: boolean;
+    timestamp: Date;
+}
+
 /**
- * Insert sensor data
+ * Insert a new sensor value
  */
-export async function insertSensorData(data: { sensorId: string; value: number; sum: boolean }) {
+async function insertSensorInValue(data: SensorDataInput) {
     await db.transaction(async (trx) => {
         const dbSensors = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
 
@@ -315,7 +335,7 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
         const lastEntries = await trx
             .select()
             .from(sensorData)
-            .where(eq(sensorData.sensorId, dbSensor.id))
+            .where(and(eq(sensorData.sensorId, dbSensor.id), lt(sensorData.timestamp, data.timestamp)))
             .orderBy(desc(sensorData.timestamp))
             .limit(1);
 
@@ -327,7 +347,7 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
             await trx.insert(sensorData).values({
                 sensorId: dbSensor.id,
                 value: newValue,
-                timestamp: sql<Date>`NOW()`,
+                timestamp: data.timestamp,
             });
             return;
         }
@@ -351,9 +371,93 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
         await trx.insert(sensorData).values({
             sensorId: dbSensor.id,
             value: newValue,
-            timestamp: sql<Date>`NOW()`,
+            timestamp: data.timestamp,
         });
     });
+}
+
+/**
+ * Insert out data if the sensor supports it
+ * its the same code as in function and redundant but we keep it so we can change in the future if needed
+ */
+async function insertSensorOutValue(data: SensorDataInput) {
+    await db.transaction(async (trx) => {
+        const dbSensors = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
+
+        if (dbSensors.length === 0) {
+            throw new Error("Sensor not found");
+        }
+        const dbSensor = dbSensors[0];
+
+        const lastEntries = await trx
+            .select()
+            .from(sensorDataOutTable)
+            .where(and(eq(sensorDataOutTable.sensorId, dbSensor.id), lt(sensorDataOutTable.timestamp, data.timestamp)))
+            .orderBy(desc(sensorDataOutTable.timestamp))
+            .limit(1);
+
+        if (lastEntries.length === 0) {
+            const newValue = data.value;
+            if (newValue <= 0) {
+                return;
+            }
+            await trx.insert(sensorDataOutTable).values({
+                sensorId: dbSensor.id,
+                value: newValue,
+                timestamp: data.timestamp,
+            });
+            return;
+        }
+        const lastEntry = lastEntries[0];
+
+        const newValue = data.sum ? data.value + lastEntry.value : data.value;
+        if (newValue <= 0 || newValue < lastEntry.value) {
+            return;
+        }
+
+        // in this check we allow 0.4 kwh per minute
+        // so for 15 seconds which is currently the sensor rate we allow 0.1 kwh
+        // in an hour this would be 24 kwh
+        // this is a very high value and should never be reached
+        // but is hopefully a good protection against faulty sensors
+        const timeDiff = new Date(new Date().toUTCString()).getTime() - lastEntry.timestamp.getTime() / 1000 / 60;
+        if (newValue - lastEntry.value > timeDiff * 0.4) {
+            throw new Error("value/too-high");
+        }
+
+        await trx.insert(sensorDataOutTable).values({
+            sensorId: dbSensor.id,
+            value: newValue,
+            timestamp: data.timestamp ? new Date(Number(data.timestamp)) : sql<Date>`NOW()`,
+        });
+    });
+}
+
+/**
+ * Insert a new current value, here a less checks required
+ */
+async function insertSensorCurrentValue(data: SensorDataInput) {
+    await db.insert(sensorDataCurrentTable).values({
+        sensorId: data.sensorId,
+        value: data.value,
+        timestamp: data.timestamp,
+    });
+}
+
+/**
+ * Insert sensor data
+ */
+export async function insertSensorData(data: SensorDataInput) {
+    const promises: Promise<void>[] = [];
+    promises.push(insertSensorInValue(data));
+    if (data.valueOut) {
+        promises.push(insertSensorOutValue(data));
+    }
+    if (data.valueCurrent) {
+        promises.push(insertSensorCurrentValue(data));
+    }
+
+    await Promise.all(promises);
 }
 
 /**
