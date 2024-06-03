@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import "server-only";
-import { lucia } from "./auth.config";
 import { redirect } from "next/navigation";
+import { lucia } from "./auth.config";
 
 export const getActionSession = async () => {
     const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
