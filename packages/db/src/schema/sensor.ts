@@ -77,47 +77,13 @@ export const sensorData = mysqlTable(
             .$defaultFn(() => nanoid(35)),
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
         value: decimalType("value").notNull(),
+        valueOut: decimalType("value_out"),
+        valueCurrent: decimalType("value_current"),
         timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
     },
     (table) => {
         return {
             uniqueIdx: uniqueIndex("sensor_data_sensor_id_timestamp").on(table.sensorId, table.timestamp),
-        };
-    },
-);
-
-export const sensorDataCurrentTable = mysqlTable(
-    "sensor_data_current",
-    {
-        id: varchar("id", { length: 35 })
-            .primaryKey()
-            .notNull()
-            .$defaultFn(() => nanoid(35)),
-        sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-        value: decimalType("value").notNull(),
-        timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
-    },
-    (table) => {
-        return {
-            uidx: uniqueIndex("sensor_data_current_sensor_id_timestamp").on(table.sensorId, table.timestamp),
-        };
-    },
-);
-
-export const sensorDataOutTable = mysqlTable(
-    "sensor_data_out",
-    {
-        id: varchar("id", { length: 35 })
-            .primaryKey()
-            .notNull()
-            .$defaultFn(() => nanoid(35)),
-        sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-        value: decimalType("value").notNull(),
-        timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
-    },
-    (table) => {
-        return {
-            uidx: uniqueIndex("sensor_data_out_sensor_id_timestamp").on(table.sensorId, table.timestamp),
         };
     },
 );
