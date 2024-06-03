@@ -1,8 +1,8 @@
 import { Versions } from "@energyleaf/lib/versioning";
 import { cookies } from "next/headers";
 import "server-only";
-import { lucia } from "./auth.config";
 import { redirect } from "next/navigation";
+import { lucia } from "./auth.config";
 
 export const getActionSession = async () => {
     const demoMode = cookies().get("demo_mode")?.value === "true";
