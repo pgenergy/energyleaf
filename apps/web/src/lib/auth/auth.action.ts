@@ -20,6 +20,7 @@ export const getActionSession = async () => {
                 isAdmin: false,
                 isActive: true,
                 appVersion: Versions.transparency as number,
+                onboardingCompleted: true,
             },
             session: {
                 id: "demo",
