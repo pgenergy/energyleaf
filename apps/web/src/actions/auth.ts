@@ -39,16 +39,25 @@ export async function createAccount(data: FormData) {
     const password = data.get("password") as string;
     const passwordRepeat = data.get("passwordRepeat") as string;
     const username = data.get("username") as string;
-    const file = data.get("file") as File | undefined;
+    const file = data.get("file") as File;
     const tos = (data.get("tos") as string) === "true";
+    const pin = (data.get("pin") as string) === "true";
     const electricityMeterType = data.get(
         "electricityMeterType",
     ) as (typeof userData.electricityMeterType.enumValues)[number];
+    const electricityMeterNumber = data.get("electricityMeterNumber") as string;
 
     if (!tos) {
         return {
             success: false,
             message: "Sie müssen den Datenschutzbestimmungen zustimmen.",
+        };
+    }
+
+    if (!pin) {
+        return {
+            success: false,
+            message: "Sie müssen der PIN-Beantragung zustimmen..",
         };
     }
 
@@ -96,7 +105,7 @@ export async function createAccount(data: FormData) {
     const hash = await new Argon2id().hash(password);
 
     let url: string | undefined = undefined;
-    if (file && env.BLOB_READ_WRITE_TOKEN) {
+    if (env.BLOB_READ_WRITE_TOKEN) {
         try {
             const id = genId(25);
             const type = file.name.split(".").pop();
@@ -123,6 +132,7 @@ export async function createAccount(data: FormData) {
             username,
             electricityMeterType,
             meterImgUrl: url,
+            electricityMeterNumber,
         } satisfies CreateUserType);
         await sendAccountCreatedEmail({
             to: mail,
@@ -134,6 +144,9 @@ export async function createAccount(data: FormData) {
             email: mail,
             name: username,
             meter: userDataElectricityMeterTypeEnums[electricityMeterType],
+            meterNumber: electricityMeterNumber,
+            hasWifi,
+            hasPower,
             img: url,
             to: env.ADMIN_MAIL,
             from: env.RESEND_API_MAIL,

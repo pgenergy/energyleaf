@@ -205,6 +205,9 @@ type AdminNewAccountMailOptions = MailOptions & {
     name: string;
     meter: string;
     email: string;
+    hasWifi: boolean;
+    hasPower: boolean;
+    meterNumber: string;
     img?: string;
 };
 
@@ -221,6 +224,9 @@ export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMail
         react: AdminNewAccountCreatedTemplate({
             name: props.name,
             meter: props.meter,
+            meterNumber: props.meterNumber,
+            hasWifi: props.hasWifi,
+            hasPower: props.hasPower,
             mail: props.email,
             img: props.img,
         }),

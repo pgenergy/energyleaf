@@ -21,24 +21,34 @@ export const signupSchema = z.object({
         .regex(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, {
             message: "Geben Sie eine gültige Telefonnummer ein.",
         })
+        .transform((d) => d.replaceAll(" ", ""))
         .optional(),
     address: z.string().min(1, { message: "Geben sie eine Adresse ein" }),
-    password: z.string().min(1, { message: passwordNonemptyMsg }),
-    passwordRepeat: z.string().min(1, { message: passwordNonemptyMsg }),
+    password: z
+        .string()
+        .min(8, { message: "Ihr Passwort muss eine Länge von mindestes 8 haben." }),
+    passwordRepeat: z
+        .string()
+        .min(8, { message: "Ihr Passwort muss eine Länge von mindestesn 8 haben." }),
     hasPower: z.boolean().default(false),
     hasWifi: z.boolean().default(false),
     comment: z.string().optional(),
-    electricityMeterType: z
-        .enum([...userData.electricityMeterType.enumValues])
-        .default(userData.electricityMeterType.enumValues[0]),
+    electricityMeterNumber: z.string().min(1, { message: "Bitte geben Sie einen Zählernummer an" }),
+    electricityMeterType: z.enum([...userData.electricityMeterType.enumValues], {
+        message: "Bitte wählen Sie die Art ihres Zählers aus.",
+    }),
     file: z
         .instanceof(File)
         .refine((f) => f.size < 4000000, { message: "Das Bild darf nicht größer als 4MB sein." })
-        .optional(),
+        .refine((f) => f.type.startsWith("image/"), { message: "Bitte wählen Sie ein Bild aus." }),
     tos: z
         .boolean()
         .default(false)
         .refine((d) => d, { message: "Sie müssen die Datenschutzbestimmung bestätigen." }),
+    pin: z
+        .boolean()
+        .default(false)
+        .refine((d) => d, { message: "Sie müssen uns die Berechtigung geben, einen Pin zu beantragen" }),
 });
 
 export const forgotSchema = z.object({
@@ -46,6 +56,6 @@ export const forgotSchema = z.object({
 });
 
 export const resetSchema = z.object({
-    password: z.string().min(1, { message: passwordNonemptyMsg }),
-    passwordRepeat: z.string().min(1, { message: passwordNonemptyMsg }),
+    password: z.string().min(8, { message: "Ihr Passwort muss eine Länge von mindestes 8 haben." }),
+    passwordRepeat: z.string().min(8, { message: "Ihr Passwort muss eine Länge von mindestesn 8 haben." }),
 });
