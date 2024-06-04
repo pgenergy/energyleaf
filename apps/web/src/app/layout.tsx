@@ -1,10 +1,11 @@
 import { env, getUrl } from "@/env.mjs";
 import { ThemeProvider } from "@/hooks/theme-provider";
 import "@energyleaf/tailwindcss/global.css";
-import { PHProvider, PostHogPageView } from "@/lib/posthog/posthog-client";
+import { PHProvider } from "@/lib/posthog/posthog-client";
 import { Toaster } from "@energyleaf/ui/components/utils";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
+import {PostHogPageView} from "@/lib/posthog/posthog-pageview";
 
 const description =
     "Mit diesem Tool können Sie Ihren Stromverbrauch übersichtlich darstellen und besser verstehen. Analysieren Sie Ihren Verbrauch, finden Sie Einsparpotenziale und senken Sie Ihre Kosten.";
