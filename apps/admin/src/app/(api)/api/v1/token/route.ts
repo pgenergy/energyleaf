@@ -33,8 +33,6 @@ export const POST = async (req: NextRequest) => {
                 });
             }
 
-            const lastEntry = await getEnergyLastEntry(sensorData.id);
-
             if ((sensorData.needsScript || data.needScript) && sensorData.script) {
                 return new NextResponse(
                     TokenResponse.toBinary({
@@ -42,7 +40,6 @@ export const POST = async (req: NextRequest) => {
                         accessToken: code,
                         expiresIn: 3600,
                         script: sensorData.script,
-                        currentValue: lastEntry?.value,
                     }),
                     {
                         status: 200,
@@ -58,7 +55,6 @@ export const POST = async (req: NextRequest) => {
                     accessToken: code,
                     expiresIn: 3600,
                     status: 200,
-                    currentValue: lastEntry?.value,
                 }),
                 {
                     status: 200,

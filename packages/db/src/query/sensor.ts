@@ -212,7 +212,7 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
 
         const sensorDifferences: Record<string, number[]> = {};
 
-        sensorQuery.forEach((entry, index) => {
+        sensorQuery.forEach((entry, _) => {
             if (!sensorDifferences[entry.sensorId]) {
                 sensorDifferences[entry.sensorId] = [];
             }
@@ -300,10 +300,19 @@ export async function getElectricitySensorIdForUser(userId: string) {
     });
 }
 
+interface SensorDataInput {
+    sensorId: string;
+    value: number;
+    valueOut?: number;
+    valueCurrent?: number;
+    sum: boolean;
+    timestamp: Date;
+}
+
 /**
  * Insert sensor data
  */
-export async function insertSensorData(data: { sensorId: string; value: number; sum: boolean }) {
+export async function insertSensorData(data: SensorDataInput) {
     await db.transaction(async (trx) => {
         const dbSensors = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
 
@@ -315,7 +324,7 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
         const lastEntries = await trx
             .select()
             .from(sensorData)
-            .where(eq(sensorData.sensorId, dbSensor.id))
+            .where(and(eq(sensorData.sensorId, dbSensor.id), lt(sensorData.timestamp, data.timestamp)))
             .orderBy(desc(sensorData.timestamp))
             .limit(1);
 
@@ -327,7 +336,9 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
             await trx.insert(sensorData).values({
                 sensorId: dbSensor.id,
                 value: newValue,
-                timestamp: sql<Date>`NOW()`,
+                valueOut: data.valueOut,
+                valueCurrent: data.valueCurrent,
+                timestamp: data.timestamp,
             });
             return;
         }
@@ -351,7 +362,9 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
         await trx.insert(sensorData).values({
             sensorId: dbSensor.id,
             value: newValue,
-            timestamp: sql<Date>`NOW()`,
+            valueOut: data.valueOut,
+            valueCurrent: data.valueCurrent,
+            timestamp: data.timestamp,
         });
     });
 }
