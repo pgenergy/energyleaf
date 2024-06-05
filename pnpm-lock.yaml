@@ -60,8 +60,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/mail
       '@energyleaf/proto':
-        specifier: workspace:*
-        version: link:../../packages/proto
+        specifier: ^0.1.6
+        version: 0.1.6
       '@energyleaf/tailwindcss':
         specifier: workspace:*
         version: link:../../packages/tailwindcss
@@ -77,9 +77,6 @@ importers:
       '@node-rs/bcrypt':
         specifier: ^1.10.4
         version: 1.10.4
-      '@protobuf-ts/runtime':
-        specifier: ^2.9.4
-        version: 2.9.4
       '@t3-oss/env-core':
         specifier: ^0.10.1
         version: 0.10.1(typescript@5.4.5)(zod@3.23.8)
@@ -747,6 +744,9 @@ packages:
 
   '@emotion/weak-memoize@0.3.1':
     resolution: {integrity: sha512-EsBwpc7hBUJWAsNPBmJy4hxWx12v6bshQsldrVmjxJoc3isbxhOrF2IcCpaXxfvq03NwkI7sbsOLXbYuqF/8Ww==}
+
+  '@energyleaf/proto@0.1.6':
+    resolution: {integrity: sha512-M3otwKqeeHmoXRH8B5tJ2gF9LUGEniC/aDN+gpyH9k7IEGH42V6CW6tIhjLjHb8trZ9sd6droTOOxkHtj6zVwA==}
 
   '@esbuild-kit/core-utils@3.3.2':
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
@@ -5463,6 +5463,10 @@ snapshots:
   '@emotion/utils@1.2.1': {}
 
   '@emotion/weak-memoize@0.3.1': {}
+
+  '@energyleaf/proto@0.1.6':
+    dependencies:
+      '@protobuf-ts/runtime': 2.9.4
 
   '@esbuild-kit/core-utils@3.3.2':
     dependencies:
