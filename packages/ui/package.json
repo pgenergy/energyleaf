@@ -70,7 +70,6 @@
         "react-day-picker": "^8.10.1",
         "react-dom": "^18.3.1",
         "react-hook-form": "^7.51.4",
-        "react-select": "^5.8.0",
         "react-use-wizard": "^2.3.0",
         "recharts": "^2.12.7",
         "sonner": "^1.4.41",
