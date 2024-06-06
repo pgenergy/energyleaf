@@ -1,11 +1,11 @@
 "use client";
 
-import * as React from "react";
 import { X } from "lucide-react";
+import * as React from "react";
 
+import { Command as CommandPrimitive } from "cmdk";
 import { Badge } from "./badge";
 import { Command, CommandGroup, CommandItem, CommandList } from "./command";
-import { Command as CommandPrimitive } from "cmdk";
 import { Spinner } from "./spinner";
 
 type Option = {
@@ -33,18 +33,24 @@ export function MultiSelect<T extends Option>({
     const [selected, setSelected] = React.useState<T[]>(initialSelected);
     const [inputValue, setInputValue] = React.useState("");
 
-    const handleUnselect = React.useCallback((option: T) => {
-        const newSelected = [...selected].filter((s) => s.value !== option.value);
-        setSelected((prev) => prev.filter((s) => s.value !== option.value));
-        onSelectedChange(newSelected);
-    }, [selected, onSelectedChange]);
+    const handleUnselect = React.useCallback(
+        (option: T) => {
+            const newSelected = [...selected].filter((s) => s.value !== option.value);
+            setSelected((prev) => prev.filter((s) => s.value !== option.value));
+            onSelectedChange(newSelected);
+        },
+        [selected, onSelectedChange],
+    );
 
-    const handleSelect = React.useCallback((option: T) => {
-        setInputValue("");
-        const newSelected = [...selected, option];
-        setSelected((prev) => [...prev, option]);
-        onSelectedChange(newSelected);
-    }, [selected, onSelectedChange]);
+    const handleSelect = React.useCallback(
+        (option: T) => {
+            setInputValue("");
+            const newSelected = [...selected, option];
+            setSelected((prev) => [...prev, option]);
+            onSelectedChange(newSelected);
+        },
+        [selected, onSelectedChange],
+    );
 
     const handleKeyDown = React.useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
         const input = inputRef.current;

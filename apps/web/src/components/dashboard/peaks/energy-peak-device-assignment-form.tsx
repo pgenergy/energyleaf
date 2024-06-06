@@ -3,16 +3,7 @@
 import { getDevicesByPeak, getDevicesByUser, updateDevicesForPeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import {
-    Button,
-    MultiSelect,
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@energyleaf/ui";
+import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, MultiSelect } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { track } from "@vercel/analytics";
@@ -37,7 +28,6 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
         queryKey: ["devices"],
         queryFn: () => getDevicesByUser(userId),
     });
-
 
     const form = useForm<z.infer<typeof peakSchema>>({
         resolver: zodResolver(peakSchema),
@@ -94,9 +84,17 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
                                 <FormLabel>Gerät</FormLabel>
                                 <FormControl>
                                     <MultiSelect
-                                        options={devices?.map((device) => ({ ...device, label: device.name, value: device.id.toString() }))}
+                                        options={devices?.map((device) => ({
+                                            ...device,
+                                            label: device.name,
+                                            value: device.id.toString(),
+                                        }))}
                                         loading={devicesLoading || selectedDevicesLoading}
-                                        initialSelected={field.value.map((device) => ({ ...device, label: device.name, value: device.id.toString() }))}
+                                        initialSelected={field.value.map((device) => ({
+                                            ...device,
+                                            label: device.name,
+                                            value: device.id.toString(),
+                                        }))}
                                         onSelectedChange={field.onChange}
                                         placeholder="Geräte auswählen..."
                                     />
