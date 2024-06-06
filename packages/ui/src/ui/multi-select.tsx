@@ -30,8 +30,14 @@ export function MultiSelect<T extends Option>({
 }: Props<T>) {
     const inputRef = React.useRef<HTMLInputElement>(null);
     const [open, setOpen] = React.useState(false);
-    const [selected, setSelected] = React.useState<T[]>(initialSelected);
+    const [selected, setSelected] = React.useState<T[]>([]);
     const [inputValue, setInputValue] = React.useState("");
+
+    React.useEffect(() => {
+        if (initialSelected.length > 0 && selected.length === 0) {
+            setSelected([...initialSelected]);
+        }
+    }, [initialSelected, selected]);
 
     const handleUnselect = React.useCallback(
         (option: T) => {

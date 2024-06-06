@@ -85,12 +85,13 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
                                 <FormControl>
                                     <MultiSelect
                                         options={devices?.map((device) => ({
-                                            ...device,
+                                            id: device.id,
+                                            name: device.name,
                                             label: device.name,
                                             value: device.id.toString(),
                                         }))}
                                         loading={devicesLoading || selectedDevicesLoading}
-                                        initialSelected={field.value.map((device) => ({
+                                        initialSelected={selectedDevices?.map((device) => ({
                                             ...device,
                                             label: device.name,
                                             value: device.id.toString(),
