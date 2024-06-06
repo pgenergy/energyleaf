@@ -58,7 +58,7 @@ export default function ReportConfigCard({ receiveMails, interval, time, disable
                 <CardTitle>E-Mail & Berichte</CardTitle>
                 <CardDescription>
                     Hier können Sie einstellen, ob Sie die erstellen Berichte über Ihren Verbrauch per E-Mail erhalten
-                    möchten, und das Intervall der Übersichten und die Erstellungszeit Ihrer Berichte festlegen.
+                    möchten, und das Intervall sowie die Erstellungszeit Ihrer Berichte festlegen.
                 </CardDescription>
             </CardHeader>
             <CardContent>

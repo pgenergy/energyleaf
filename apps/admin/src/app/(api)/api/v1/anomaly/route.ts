@@ -5,7 +5,7 @@ import { sendAnomalyEmail } from "@energyleaf/mail";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
-    const reportApiKey = env.REPORTS_API_KEY;
+    const reportApiKey = env.CRON_SECRET;
     if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== reportApiKey) {
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }

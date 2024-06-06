@@ -23,7 +23,7 @@ interface UserReportData {
 }
 
 export async function createReportsAndSendMails() {
-    const userReportData: Array<UserReportData> = await getUsersWitDueReport();
+    const userReportData: UserReportData[] = await getUsersWitDueReport();
 
     const totalReports = userReportData.length;
     let successfulReports = 0;
@@ -43,7 +43,7 @@ export async function createReportsAndSendMails() {
             continue;
         }
 
-        if (userReport.receiveMails && reportProps) {
+        if (userReport.receiveMails) {
             try {
                 await sendReportMail(userReport, reportProps, unsubscribeLink);
                 sentReports++;
@@ -113,7 +113,7 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     const lastReport = await getLastReportForUser(user.userId);
 
     return {
-        name: user.userName,
+        userName: user.userName,
         dateFrom: dateFrom.toLocaleDateString(),
         dateTo: dateTo.toLocaleDateString(),
         dayEnergyStatistics: dayStatistics,
@@ -160,7 +160,7 @@ async function getDayStatistics(
 }
 
 export async function sendReportMail(userReport: UserReportData, reportProps: ReportProps, unsubscribeLink: string) {
-    if (userReport.email === null) {
+    if (!userReport.email) {
         throw new Error(
             `No email address for User ${userReport.userName} (User-ID ${userReport.userId}) to send report to`,
         );

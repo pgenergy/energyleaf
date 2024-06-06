@@ -4,7 +4,7 @@ import React from "react";
 
 import type { ReportProps } from "@energyleaf/lib";
 import { Footer, Header, Main, UnsubscribeText } from "../components";
-import DayTile from "../components/dayTile";
+import DayTile from "../components/day-tile";
 import Tile from "../components/tile";
 
 export default function ReportTemplate(props: ReportProps, unsubscribeLink: string) {
@@ -16,7 +16,7 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
                 <Header>{`Bericht von ${props.dateFrom}`}</Header>
 
                 <Container className="mb-8 px-4">
-                    <Text>Hallo {props.name},</Text>
+                    <Text>Hallo {props.userName},</Text>
                     <Text>
                         Hier ist Ihre Energieverbrauch-Übersicht für den Zeitraum vom {props.dateFrom} bis zum{" "}
                         {props.dateTo}:
@@ -59,9 +59,7 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
                     </Tile>
 
                     <Tile visible={true} large={false} icon={<BarChart3 />} heading="Höchster Peak">
-                        {!props.highestPeak ? (
-                            <></>
-                        ) : (
+                        {props.highestPeak && (
                             <div>
                                 <div>{props.highestPeak.deviceName}</div>
                                 <div>{props.highestPeak.consumption}{" kWh"}</div>

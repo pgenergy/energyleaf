@@ -1,23 +1,27 @@
-import { and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
+import {and, desc, eq, ExtractTablesWithRelations, gt, lte, or, sql} from "drizzle-orm";
 
 import type { DayStatistics, ReportProps } from "@energyleaf/lib";
 import db from "../";
 import { historyReportConfig, reportConfig, reports, reportsDayStatistics } from "../schema/reports";
 import { user } from "../schema/user";
+import type {MySqlTransaction} from "drizzle-orm/mysql-core";
+import type {PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT} from "drizzle-orm/planetscale-serverless";
+
+interface ReportConfig {
+    receiveMails: boolean;
+    interval: number;
+    time: number;
+}
 
 /**
  * Update the user report settings data in the database
  */
 export async function updateReportConfig(
-    data: {
-        receiveMails: boolean;
-        interval: number;
-        time: number;
-    },
-    id: string,
+    data: ReportConfig,
+    userId: string,
 ) {
     return db.transaction(async (trx) => {
-        const oldReportData = await getReportConfigByUserId(id);
+        const oldReportData = await getReportConfigByUserId(trx,userId);
         if (!oldReportData) {
             throw new Error("Old user data not found");
         }
@@ -38,12 +42,12 @@ export async function updateReportConfig(
                 time: data.time,
                 createdTimestamp: new Date(),
             })
-            .where(eq(reportConfig.userId, id));
+            .where(eq(reportConfig.userId, userId));
     });
 }
 
-export async function getReportConfigByUserId(id: string) {
-    const data = await db.select().from(reportConfig).where(eq(reportConfig.userId, id));
+export async function getReportConfigByUserId(trx: MySqlTransaction<PlanetscaleQueryResultHKT, PlanetScalePreparedQueryHKT, Record<string, never>, ExtractTablesWithRelations<Record<string, never>>>, id: string) {
+    const data = await trx.select().from(reportConfig).where(eq(reportConfig.userId, id));
 
     if (data.length === 0) {
         return null;
@@ -76,9 +80,9 @@ export async function getUsersWitDueReport() {
         .innerJoin(user, eq(user.id, reportConfig.userId))
         .where(
             or(
-                gt(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reportConfig.interval),
+                gt(sql`DATEDIFF(NOW(), report_config.timestamp_last)`, reportConfig.interval),
                 and(
-                    eq(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reportConfig.interval),
+                    eq(sql`DATEDIFF(NOW(), report_config.timestamp_last)`, reportConfig.interval),
                     lte(reportConfig.time, new Date().getHours()),
                 ),
             ),

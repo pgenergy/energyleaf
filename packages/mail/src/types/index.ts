@@ -1,1 +1,1 @@
-export * from "./anomalyProps";
+export * from "./anomaly-props";

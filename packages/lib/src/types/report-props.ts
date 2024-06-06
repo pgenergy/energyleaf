@@ -8,7 +8,7 @@ export interface DayStatistics {
 }
 
 export interface ReportProps {
-    name?: string;
+    userName?: string;
     // formatted Date string
     dateFrom: string;
     // formatted Date string

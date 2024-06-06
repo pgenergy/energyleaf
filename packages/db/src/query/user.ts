@@ -161,7 +161,7 @@ export async function updateReportSettings(
     id: string,
 ) {
     return db.transaction(async (trx) => {
-        const oldReportData = await getReportConfigByUserId(id);
+        const oldReportData = await getReportConfigByUserId(trx, id);
         if (!oldReportData) {
             throw new Error("Old user data not found");
         }

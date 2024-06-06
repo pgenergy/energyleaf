@@ -384,7 +384,10 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
         const { user } = await getActionSession();
 
         if (!user) {
-            throw new UserNotLoggedInError();
+            return {
+                success: false,
+                message: "Nicht eingeloggt.",
+            };
         }
 
         id = user.id;
@@ -392,7 +395,10 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
 
     const dbUser = await getUserById(id);
     if (!dbUser) {
-        throw new UserNotFoundError();
+        return {
+            success: false,
+            message: "Nutzer nicht gefunden.",
+        };
     }
 
     try {
@@ -406,6 +412,9 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
         );
     } catch (e) {
         console.log(e);
-        throw new Error(`Error while updating user: ${e}`);
+        return {
+            success: false,
+            message: "Fehler beim Speichern der Einstellungen.",
+        };
     }
 }

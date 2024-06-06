@@ -1,19 +1,13 @@
 import type { DayStatistics } from "@energyleaf/lib";
 import { Text } from "@react-email/components";
-import { CircleDashed, Sparkles } from "lucide-react";
 import React from "react";
-import { TrendIcon } from "./trendIcon";
+import { TrendIcon } from "./trend-icon";
 
-function getTargetIcon(value: number, targetValue: number) {
-    if (value <= targetValue) {
-        return <Sparkles className="h-8 w-8 p-1 text-primary" />;
-    }
-
-    return <CircleDashed strokeWidth={2.25} className="h-8 w-8 p-1 text-orange-500" />;
+interface Props {
+    stats: DayStatistics;
 }
 
-export default function DayTile(props: { stats: DayStatistics }) {
-    const stats = props.stats;
+export default function DayTile({ stats }: Props) {
     return (
         <div className="m-4 flex flex-col rounded bg-muted p-2">
             <Text className="m-0 p-0 font-semibold">{stats.day}</Text>

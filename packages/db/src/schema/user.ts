@@ -85,10 +85,6 @@ export const token = mysqlTable("token", {
         .primaryKey()
         .$defaultFn(() => nanoid(30)),
     userId: varchar("user_id", { length: 30 }).notNull(),
-    receiveMails: boolean("receive_mails").default(true).notNull(),
-    interval: int("interval").default(3).notNull(),
-    time: int("time").default(6).notNull(),
-    timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
     createdTimestamp: timestamp("created_timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
