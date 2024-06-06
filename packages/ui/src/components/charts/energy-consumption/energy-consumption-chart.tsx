@@ -24,6 +24,7 @@ export type EnergyData = {
     sensorId: string | number;
     energy: number;
     timestamp: string;
+    sensorDataId: string;
 };
 
 export function EnergyConsumptionChart({ data, referencePoints, aggregation, zoomCallback }: Props) {

@@ -62,20 +62,6 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
         },
     },
     {
-        accessorKey: "averageConsumption",
-        header: () => "Durchschn. Leistung",
-        cell: ({ row }) => {
-            const consumptionValue = row.getValue("averageConsumption");
-            const consumption = typeof consumptionValue === "number" ? consumptionValue.toString() : consumptionValue;
-
-            if (consumption) {
-                const formattedConsumption = `${formatNumber(Number(consumption))} Watt`;
-                return <span>{formattedConsumption}</span>;
-            }
-            return <span>N/A</span>;
-        },
-    },
-    {
         accessorKey: "category",
         header: "Kategorie",
         cell: ({ row }) => {

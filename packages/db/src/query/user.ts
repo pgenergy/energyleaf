@@ -1,6 +1,6 @@
 import { and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
 import db from "../";
-import { historyReports, historyUserData, reportConfig, reports, token, user, userData } from "../schema";
+import {historyReports, historyUserData, reportConfig, reports, session, token, user, userData} from "../schema";
 import type { UserSelectType } from "../types/types";
 import { TokenType } from "../types/types";
 import { getReportConfigByUserId } from "./reports";
@@ -18,6 +18,10 @@ export async function getUserById(id: string) {
         return null;
     }
     return query[0];
+}
+
+export async function deleteSessionsOfUser(id: string) {
+    return await db.delete(session).where(eq(session.userId, id));
 }
 
 /**

@@ -1,8 +1,7 @@
 "use client";
 
-import { addOrUpdatePeak } from "@/actions/peak";
-import { peakSchema } from "@/lib/schema/peak";
-import type { DeviceSelectType } from "@energyleaf/db/types";
+import { getDevicesByPeak, getDevicesByUser, updateDevicesForPeak } from "@/actions/peak";
+import { type deviceSchema, peakSchema } from "@/lib/schema/peak";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     Button,
@@ -12,39 +11,61 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+    MultiSelect,
+    type Option,
 } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { track } from "@vercel/analytics";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
 interface Props {
-    devices: DeviceSelectType[];
-    initialValues: z.infer<typeof peakSchema>;
-    sensorId: string;
-    timestamp: string;
+    userId: string;
+    sensorDataId: string;
     onInteract: () => void;
 }
 
-export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorId, timestamp, onInteract }: Props) {
+const deviceSchemaToOption = (devices: z.infer<typeof deviceSchema>[]): Option[] =>
+    devices.map((device) => ({
+        value: device.id.toString(),
+        label: device.name,
+    }));
+
+const optionToDeviceSchema = (option: Option): z.infer<typeof deviceSchema> => ({
+    id: Number(option.value),
+    name: option.label,
+});
+
+export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInteract }: Props) {
+    const queryClient = useQueryClient();
+    const queryKey = ["selectedDevices"];
+    const { data, isLoading } = useQuery({
+        queryKey: queryKey,
+        queryFn: () => getDevicesByPeak(sensorDataId),
+    });
+
     const form = useForm<z.infer<typeof peakSchema>>({
         resolver: zodResolver(peakSchema),
         defaultValues: {
-            ...initialValues,
+            device: [],
         },
     });
 
-    async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
+    useEffect(() => {
+        if (data) {
+            form.setValue("device", data);
+        }
+    }, [data, form]);
+
+    async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>) {
         let res: DefaultActionReturn = undefined;
 
         try {
-            res = await addOrUpdatePeak(data, sensorId, timestamp);
+            res = await updateDevicesForPeak(data, sensorDataId);
+            await queryClient.invalidateQueries({ queryKey: queryKey });
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
@@ -56,7 +77,7 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
 
     function onSubmit(data: z.infer<typeof peakSchema>) {
         track("assignEnergyPeakToDevice()");
-        toast.promise(addOrUpdatePeakCallback(data, sensorId, timestamp), {
+        toast.promise(addOrUpdatePeakCallback(data), {
             loading: "Peak zuweisen...",
             success: "Erfolgreich zugewiesen",
             error: (err: Error) => err.message,
@@ -69,32 +90,38 @@ export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorI
         onInteract();
     }
 
+    async function loadOptions(search: string) {
+        const devices = await getDevicesByUser(userId, search);
+        return devices.map((device) => ({
+            label: device.name,
+            value: device.id.toString(),
+        }));
+    }
+
     return (
         <Form {...form}>
             <form className="flex flex-col gap-4" onAbortCapture={onAbort} onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                     control={form.control}
-                    name="deviceId"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Gerät</FormLabel>
-                            <FormControl>
-                                <Select defaultValue={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Gerät wählen" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {devices.map((device) => (
-                                            <SelectItem key={device.id} value={device.id.toString()}>
-                                                {device.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
+                    name="device"
+                    render={({ field }) => {
+                        return (
+                            <FormItem>
+                                <FormLabel>Gerät</FormLabel>
+                                <FormControl>
+                                    <MultiSelect
+                                        loadOptions={loadOptions}
+                                        onSelected={(values) => {
+                                            field.onChange(values.map(optionToDeviceSchema));
+                                        }}
+                                        values={deviceSchemaToOption(field.value)}
+                                        isLoading={isLoading}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        );
+                    }}
                 />
 
                 <div className="flex flex-row justify-end">
