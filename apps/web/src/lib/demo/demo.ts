@@ -107,6 +107,8 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
                     id: index.toString(),
                     sensorId: "demo_sensor",
                     value: item.value,
+                    valueOut: null,
+                    valueCurrent: null,
                     timestamp: date,
                 };
             }

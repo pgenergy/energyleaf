@@ -11,11 +11,6 @@ interface Props {
     end?: string;
 }
 
-interface EnergyData {
-    value: number;
-    timestamp: string;
-}
-
 export async function POST(req: NextRequest) {
     try {
         const { userId, userHash, start, end } = (await req.json()) as Props;
@@ -65,9 +60,12 @@ export async function POST(req: NextRequest) {
         const endDate = end ? new Date(end) : new Date();
 
         try {
-            const energyData = (await getEnergyForSensorInRange(startDate, endDate, sensorId)) as EnergyData[];
-            const parsedData = energyData.map((e) => [e.value, e.timestamp]);
-            const csvData = csv.stringify([["Verbrauch in kWh", "Zeitstempel"], ...parsedData]);
+            const energyData = await getEnergyForSensorInRange(startDate, endDate, sensorId);
+            const parsedData = energyData.map((e) => [e.value, e.valueOut, e.valueCurrent, e.timestamp.toISOString()]);
+            const csvData = csv.stringify([
+                ["Verbrauch in kWh", "Erzeugt in kWh", "Leistung in Watt", "Zeitstempel"],
+                ...parsedData,
+            ]);
 
             return new NextResponse(csvData, {
                 status: 200,

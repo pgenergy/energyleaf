@@ -4,21 +4,19 @@ import { and, between, desc, eq, gt, gte, lt, lte, ne, or, sql } from "drizzle-o
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
-import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
-
-interface EnergyData {
-    sensorId: string;
-    value: number;
-    timestamp: string;
-    id: string;
-}
+import {
+    type SensorDataSelectType,
+    type SensorInsertType,
+    type SensorSelectTypeWithUser,
+    SensorType,
+} from "../types/types";
 
 export async function getEnergyForSensorInRange(
     start: Date,
     end: Date,
     sensorId: string,
     aggregation = AggregationType.RAW,
-): Promise<EnergyData[]> {
+): Promise<SensorDataSelectType[]> {
     if (aggregation === AggregationType.RAW) {
         const query = await db
             .select()
@@ -39,7 +37,17 @@ export async function getEnergyForSensorInRange(
             ...row,
             id: row.id,
             value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-            timestamp: (row.timestamp as Date).toISOString(),
+            valueOut: row.valueOut
+                ? index === 0
+                    ? 0
+                    : Number(row.valueOut) - Number(query[index - 1].valueOut)
+                : null,
+            valueCurrent: row.valueCurrent
+                ? index === 0
+                    ? 0
+                    : Number(row.valueCurrent) - Number(query[index - 1].valueCurrent)
+                : null,
+            timestamp: row.timestamp,
         }));
     }
 
@@ -64,12 +72,14 @@ export async function getEnergyForSensorInRange(
             throw new Error(`Unsupported aggregation type: ${aggregation}`);
     }
 
-    const formattedTimestamp = sql`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
+    const formattedTimestamp = sql<string>`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
 
     const query = await db
         .select({
             sensorId: sensorData.sensorId,
-            value: sql`AVG(${sensorData.value})`,
+            value: sql<number>`AVG(${sensorData.value})`,
+            valueOut: sql<number | null>`AVG(${sensorData.valueOut})`,
+            valueCurrent: sql<number | null>`AVG(${sensorData.valueCurrent})`,
             timestamp: formattedTimestamp,
         })
         .from(sensorData)
@@ -81,10 +91,16 @@ export async function getEnergyForSensorInRange(
         ...row,
         id: index.toString(),
         value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-        timestamp: String(row.timestamp),
+        valueOut: row.valueOut ? (index === 0 ? 0 : Number(row.valueOut) - Number(query[index - 1].valueOut)) : null,
+        valueCurrent: row.valueCurrent
+            ? index === 0
+                ? 0
+                : Number(row.valueCurrent) - Number(query[index - 1].valueCurrent)
+            : null,
+        timestamp: new Date(row.timestamp),
     }));
 
-    return results.slice(1) as EnergyData[];
+    return results.slice(1);
 }
 
 export async function getEnergyLastEntry(sensorId: string) {
