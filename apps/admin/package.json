@@ -23,6 +23,7 @@
 		"@t3-oss/env-core": "^0.10.1",
 		"@t3-oss/env-nextjs": "^0.10.1",
 		"@tanstack/react-table": "^8.17.3",
+		"canvas": "^2.11.2",
 		"clsx": "^2.1.1",
 		"csv": "^6.3.9",
 		"date-fns": "^3.6.0",
