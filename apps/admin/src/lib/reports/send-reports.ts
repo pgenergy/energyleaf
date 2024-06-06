@@ -1,7 +1,6 @@
-import { getElectricitySensorByUser } from "@/actions/sensors";
 import { env, getUrl } from "@/env.mjs";
 import {
-    createToken,
+    createToken, getElectricitySensorIdForUser,
     getEnergySumForSensorInRange,
     getLastReportForUser,
     getUserDataByUserId,
@@ -91,7 +90,7 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     const dateTo = new Date();
     dateTo.setDate(dateTo.getDate() - 1);
     dateTo.setHours(23, 59, 59, 999);
-    const sensor = await getElectricitySensorByUser(user.userId);
+    const sensor = await getElectricitySensorIdForUser(user.userId);
     if (!sensor) {
         throw new Error("No electricity sensor found for User");
     }

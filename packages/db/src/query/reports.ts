@@ -1,4 +1,4 @@
-import {and, desc, eq, ExtractTablesWithRelations, gt, lte, or, sql} from "drizzle-orm";
+import {and, desc, eq, type ExtractTablesWithRelations, gt, lte, or, sql} from "drizzle-orm";
 
 import type { DayStatistics, ReportProps } from "@energyleaf/lib";
 import db from "../";
@@ -156,7 +156,7 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
 
         const reportId = newReport[0].id;
 
-        const tasks = reportProps.dayEnergyStatistics.map(async (dayStat: DayStatistics) => {
+        for (const dayStat of reportProps.dayEnergyStatistics) {
             await trx.insert(reportsDayStatistics).values({
                 date: new Date(dayStat.day),
                 dailyConsumption: dayStat.dailyConsumption,
@@ -165,7 +165,6 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
                 dailyGoal: dayStat.dailyGoal,
                 reportId: reportId,
             });
-        });
-        await Promise.all(tasks);
+        }
     });
 }
