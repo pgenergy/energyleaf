@@ -1,4 +1,4 @@
-import { env, getUrl } from "@/env.mjs";
+import { env } from "@/env.mjs";
 import { getAnomaliesByUser } from "@/query/sensor";
 import { getAllUsers } from "@/query/user";
 import { sendAnomalyEmail } from "@energyleaf/mail";
@@ -22,14 +22,16 @@ export const POST = async (req: NextRequest) => {
                 continue;
             }
 
-            await sendAnomalyEmail({
-                to: user.email,
-                name: user.username,
-                from: env.RESEND_API_MAIL,
-                apiKey: env.RESEND_API_KEY,
-                unsubscribeLink: "",
-                link: getUrl(env),
-            });
+            if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+                await sendAnomalyEmail({
+                    to: user.email,
+                    name: user.username,
+                    from: env.RESEND_API_MAIL,
+                    apiKey: env.RESEND_API_KEY,
+                    unsubscribeLink: "",
+                    link: env.APP_URL,
+                });
+            }
         }
 
         return NextResponse.json({ status: 200, statusMessage: "Anomaly mails created and sent" });

@@ -34,7 +34,7 @@ export async function setUserActive(id: string, active: boolean) {
         await setUserActiveDb(id, active);
         if (active) {
             const user = await getUserById(id);
-            if (user) {
+            if (user && env.RESEND_API_MAIL && env.RESEND_API_KEY) {
                 await sendAccountActivatedEmail({
                     to: user.email,
                     name: user.username,

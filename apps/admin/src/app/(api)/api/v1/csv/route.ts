@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const hash = createHash("sha256").update(`${userId}${env.NEXTAUTH_SECRET}`).digest("hex");
+        const hash = createHash("sha256").update(`${userId}${env.HASH_SECRET}`).digest("hex");
         if (hash !== userHash) {
             return NextResponse.json(
                 {

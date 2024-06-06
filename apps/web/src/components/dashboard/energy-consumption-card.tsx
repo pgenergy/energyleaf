@@ -62,10 +62,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     const csvExportData = {
         userId: user.id,
-        userHash: createHash("sha256").update(`${user.id}${env.NEXTAUTH_SECRET}`).digest("hex"),
-        endpoint: env.VERCEL_PROJECT_PRODUCTION_URL
-            ? `https://admin.${env.VERCEL_PROJECT_PRODUCTION_URL}/api/v1/csv`
-            : "http://localhost:3001/api/v1/csv",
+        userHash: createHash("sha256").update(`${user.id}${env.HASH_SECRET}`).digest("hex"),
+        endpoint:
+            env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
+                ? `https://${env.ADMIN_URL}/api/v1/csv`
+                : `http://${env.ADMIN_URL}/api/v1/csv`,
     };
 
     return (

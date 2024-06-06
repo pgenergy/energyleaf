@@ -124,21 +124,25 @@ export async function createAccount(data: FormData) {
             electricityMeterType,
             meterImgUrl: url,
         } satisfies CreateUserType);
-        await sendAccountCreatedEmail({
-            to: mail,
-            name: `${firstname} ${lastname}`,
-            apiKey: env.RESEND_API_KEY,
-            from: env.RESEND_API_MAIL,
-        });
-        await sendAdminNewAccountCreatedEmail({
-            email: mail,
-            name: username,
-            meter: userDataElectricityMeterTypeEnums[electricityMeterType],
-            img: url,
-            to: env.ADMIN_MAIL,
-            from: env.RESEND_API_MAIL,
-            apiKey: env.RESEND_API_KEY,
-        });
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendAccountCreatedEmail({
+                to: mail,
+                name: `${firstname} ${lastname}`,
+                apiKey: env.RESEND_API_KEY,
+                from: env.RESEND_API_MAIL,
+            });
+            if (env.ADMIN_MAIL) {
+                await sendAdminNewAccountCreatedEmail({
+                    email: mail,
+                    name: username,
+                    meter: userDataElectricityMeterTypeEnums[electricityMeterType],
+                    img: url,
+                    to: env.ADMIN_MAIL,
+                    from: env.RESEND_API_MAIL,
+                    apiKey: env.RESEND_API_KEY,
+                });
+            }
+        }
     } catch (err) {
         console.error(err);
         return {
@@ -167,17 +171,19 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         };
     }
 
-    const token = await getResetPasswordToken({ userId: user.id, secret: env.NEXTAUTH_SECRET });
+    const token = await getResetPasswordToken({ userId: user.id, secret: env.HASH_SECRET });
     const resetUrl = buildResetPasswordUrl({ baseUrl: getUrl(env), token });
 
     try {
-        await sendPasswordResetEmail({
-            from: env.RESEND_API_MAIL,
-            to: mail,
-            name: user.username,
-            link: resetUrl,
-            apiKey: env.RESEND_API_KEY,
-        });
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendPasswordResetEmail({
+                from: env.RESEND_API_MAIL,
+                to: mail,
+                name: user.username,
+                link: resetUrl,
+                apiKey: env.RESEND_API_KEY,
+            });
+        }
     } catch (err) {
         console.error(err);
         return {
@@ -215,7 +221,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     try {
-        await jose.jwtVerify(resetToken, Buffer.from(env.NEXTAUTH_SECRET, "hex"), {
+        await jose.jwtVerify(resetToken, Buffer.from(env.HASH_SECRET, "hex"), {
             audience: "energyleaf",
             issuer: "energyleaf",
             algorithms: ["HS256"],
@@ -240,12 +246,14 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     try {
-        await sendPasswordChangedEmail({
-            from: env.RESEND_API_MAIL,
-            to: user.email,
-            name: user.username,
-            apiKey: env.RESEND_API_KEY,
-        });
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendPasswordChangedEmail({
+                from: env.RESEND_API_MAIL,
+                to: user.email,
+                name: user.username,
+                apiKey: env.RESEND_API_KEY,
+            });
+        }
     } catch (err) {
         console.error(err);
         return {

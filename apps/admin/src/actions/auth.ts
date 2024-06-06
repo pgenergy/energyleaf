@@ -1,6 +1,6 @@
 "use server";
 
-import { env, getUrl } from "@/env.mjs";
+import { env } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import type { signInSchema } from "@/lib/schema/auth";
@@ -74,21 +74,23 @@ export async function resetUserPassword(userId: string) {
 
     const token = await getResetPasswordToken({
         userId: user.id,
-        secret: env.NEXTAUTH_SECRET,
+        secret: env.HASH_SECRET,
     });
 
     // replace admin.energyleaf.de to energyleaf.de
     // needed because we dont want to send a reset link to admin dashboard
-    const resetUrl = buildResetPasswordUrl({ baseUrl: getUrl(env), token }).replace("admin.", "");
+    const resetUrl = buildResetPasswordUrl({ baseUrl: env.APP_URL, token });
 
     try {
-        await sendPasswordResetMailForUser({
-            from: env.RESEND_API_MAIL,
-            to: user.email,
-            name: user.username,
-            link: resetUrl,
-            apiKey: env.RESEND_API_KEY,
-        });
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendPasswordResetMailForUser({
+                from: env.RESEND_API_MAIL,
+                to: user.email,
+                name: user.username,
+                link: resetUrl,
+                apiKey: env.RESEND_API_KEY,
+            });
+        }
     } catch (err) {
         throw new Error("Fehler beim Senden der E-Mail.");
     }

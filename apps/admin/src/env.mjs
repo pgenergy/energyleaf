@@ -4,8 +4,8 @@ import { z } from "zod";
 
 export const env = createEnv({
     server: {
-        NEXTAUTH_URL: z.string().optional(),
-        NEXTAUTH_SECRET: z.string(),
+        APP_URL: z.string(),
+        HASH_SECRET: z.string(),
 
         VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
 
@@ -14,12 +14,12 @@ export const env = createEnv({
         DATABASE_PASSWORD: z.string(),
         DATABASE_NAME: z.string(),
 
-        RESEND_API_KEY: z.string(),
-        RESEND_API_MAIL: z.string().email(),
+        RESEND_API_KEY: z.string().optional(),
+        RESEND_API_MAIL: z.string().email().optional(),
 
         REPORTS_API_KEY: z.string(),
 
-        ADMIN_MAIL: z.string().email(),
+        ADMIN_MAIL: z.string().email().optional(),
 
         BLOB_READ_WRITE_TOKEN: z.string().optional(),
     },
@@ -30,5 +30,5 @@ export const env = createEnv({
 
 export const getUrl = (env) => {
     const vercelUrl = env.VERCEL_ENV === "production" ? env.VERCEL_PROJECT_PRODUCTION_URL : env.VERCEL_URL;
-    return vercelUrl || env.NEXTAUTH_URL || "energyleaf.de";
+    return vercelUrl || "localhost:3001";
 };
