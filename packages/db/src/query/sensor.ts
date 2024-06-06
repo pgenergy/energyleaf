@@ -120,7 +120,13 @@ export async function getEnergySumForSensorInRange(start: Date, end: Date, senso
             const firstSensorEntry = await trx
                 .select({ value: sensorData.value })
                 .from(sensorData)
-                .where(and(eq(sensorData.sensorId, sensorId), gte(sensorData.timestamp, start)))
+                .where(
+                    and(
+                        eq(sensorData.sensorId, sensorId),
+                        gte(sensorData.timestamp, start),
+                        lte(sensorData.timestamp, end),
+                    ),
+                )
                 .orderBy(sensorData.timestamp)
                 .limit(1);
             valueBeforeStart = firstSensorEntry.length > 0 ? firstSensorEntry[0].value : 0;

@@ -62,7 +62,10 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
                         {props.highestPeak && (
                             <div>
                                 <div>{props.highestPeak.deviceName}</div>
-                                <div>{props.highestPeak.consumption}{" kWh"}</div>
+                                <div>
+                                    {props.highestPeak.consumption}
+                                    {" kWh"}
+                                </div>
                                 <div>{props.highestPeak.dateTime}</div>
                             </div>
                         )}
@@ -72,17 +75,17 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
                         <div />
                     </Tile>
 
-                    <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
-                        <Img className="pb-4" src={props.consumptionGraph1} alt="Verbrauch" />
+                    <Tile visible={true} large={true} heading="Absoluter Tagesverbrauch" icon={null}>
+                        <Img className="pb-4" src={props.consumptionGraph1} alt="Graph mit absolutem Tagesverbrauch" />
                     </Tile>
 
-                    <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
+                    {/* <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
                         <Img className="pb-4" src={props.consumptionGraph2} alt="Verbrauch" />
                     </Tile>
 
                     <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
                         <Img className="pb-4" src={props.consumptionGraph3} alt="Verbrauch" />
-                    </Tile>
+                    </Tile> */}
                 </div>
                 <UnsubscribeText href={unsubscribeLink} />
                 <Footer />

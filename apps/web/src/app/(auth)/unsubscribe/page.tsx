@@ -21,7 +21,7 @@ export default async function Page({ searchParams }: UnsubscribeFormProps) {
         return (
             <CardContent>
                 <div className="flex flex-col gap-2">
-                    <p className="font-bold text-xl">Ungültiges oder abgelaufenes Passwort-Reset-Token</p>
+                    <p className="font-bold text-xl">Ungültiges oder abgelaufenes Token.</p>
                 </div>
             </CardContent>
         );

@@ -1,6 +1,7 @@
 import { env, getUrl } from "@/env.mjs";
 import {
-    createToken, getElectricitySensorIdForUser,
+    createToken,
+    getElectricitySensorIdForUser,
     getEnergySumForSensorInRange,
     getLastReportForUser,
     getUserDataByUserId,
@@ -12,6 +13,7 @@ import { TokenType, type UserDataSelectType } from "@energyleaf/db/types";
 import { buildUnsubscribeReportsUrl } from "@energyleaf/lib";
 import type { DayStatistics, ReportProps } from "@energyleaf/lib";
 import { sendReport } from "@energyleaf/mail";
+import { renderChart } from "@energyleaf/ui/tools";
 
 interface UserReportData {
     userId: string;
@@ -109,6 +111,39 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
 
     const dayStatistics: DayStatistics[] = await getDayStatistics(userData, sensor, dateFrom, user.interval);
 
+    let graph1: string | undefined = undefined;
+    try {
+        graph1 = await renderChart(
+            {
+                type: "line",
+                data: {
+                    labels: dayStatistics.map((x) => x.day),
+                    datasets: [
+                        {
+                            label: "Täglicher Verbrauch",
+                            data: dayStatistics.map((x) => x.dailyConsumption),
+                            fill: false,
+                            borderColor: "rgb(75, 192, 192)",
+                            tension: 0.1,
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            },
+            800,
+            400,
+        );
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
+
     const lastReport = await getLastReportForUser(user.userId);
 
     return {
@@ -126,6 +161,7 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
             consumption: "1000 kWh",
         },
         lastReport: lastReport ?? undefined,
+        consumptionGraph1: graph1,
     };
 }
 

@@ -14,7 +14,7 @@
         "./components/charts": "./src/components/charts/index.tsx",
         "./components/charts/energy-consumption": "./src/components/charts/energy-consumption/index.tsx",
         "./components/utils": "./src/components/utils/index.tsx",
-        "./tools": "./src/tools/index.tsx",
+        "./tools": "./src/tools/index.ts",
         "./components/forms": "./src/components/forms/index.tsx",
         "./error": "./src/error/index.tsx"
     },
