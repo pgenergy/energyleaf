@@ -196,6 +196,15 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                                   referencePoints.yKeyName
                               ]?.toString()}`}
                               onClick={() => referencePoints?.callback?.(value)}
+                              onMouseDown={(_, e) => {
+                                  e.stopPropagation();
+                              }}
+                              onMouseMove={(_, e) => {
+                                  e.stopPropagation();
+                              }}
+                              onMouseUp={(_, e) => {
+                                  e.stopPropagation();
+                              }}
                               r={10}
                               stroke="hsl(var(--destructive))"
                               x={value[referencePoints.xKeyName]}

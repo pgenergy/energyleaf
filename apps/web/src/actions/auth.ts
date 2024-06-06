@@ -2,7 +2,6 @@
 import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
-import { onboardingCompleteCookieName } from "@/lib/constants";
 import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
 import { genId } from "@energyleaf/db";
@@ -321,7 +320,6 @@ async function handleSignIn(session: Session, user: UserSelectType | null) {
         userData = await getUserById(session.userId);
     }
     const onboardingCompleted = userData?.onboardingCompleted ?? false;
-    cookies().set(onboardingCompleteCookieName, onboardingCompleted.toString());
 
     if (!onboardingCompleted) {
         redirect("/onboarding");
@@ -357,7 +355,6 @@ export async function signOutAction() {
 
     await lucia.invalidateSession(session.id);
     cookies().delete("auth_session");
-    cookies().delete(onboardingCompleteCookieName);
     redirect("/");
 }
 

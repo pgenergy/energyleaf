@@ -1,10 +1,8 @@
 "use server";
 
 import { getActionSession } from "@/lib/auth/auth.action";
-import { onboardingCompleteCookieName } from "@/lib/constants";
 import { updateUser } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import "server-only";
 
@@ -29,6 +27,5 @@ export async function completeOnboarding() {
             message: "Ein Fehler beim Onboarding.",
         };
     }
-    cookies().set(onboardingCompleteCookieName, "true");
     redirect("/dashboard");
 }

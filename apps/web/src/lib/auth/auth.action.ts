@@ -1,6 +1,7 @@
 import { Versions } from "@energyleaf/lib/versioning";
 import { cookies } from "next/headers";
 import "server-only";
+import { redirect } from "next/navigation";
 import { lucia } from "./auth.config";
 
 export const getActionSession = async () => {
@@ -19,6 +20,7 @@ export const getActionSession = async () => {
                 isAdmin: false,
                 isActive: true,
                 appVersion: Versions.transparency as number,
+                onboardingCompleted: true,
             },
             session: {
                 id: "demo",
@@ -36,18 +38,23 @@ export const getActionSession = async () => {
         };
     }
 
-    const result = await lucia.validateSession(sessionId);
     try {
-        if (result.session?.fresh) {
-            const sessionCookie = lucia.createSessionCookie(result.session.id);
-            cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+        const result = await lucia.validateSession(sessionId);
+        try {
+            if (result.session?.fresh) {
+                const sessionCookie = lucia.createSessionCookie(result.session.id);
+                cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+            }
+            if (!result.session) {
+                const sessionCookie = lucia.createBlankSessionCookie();
+                cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+            }
+        } catch {
+            // ignore
         }
-        if (!result.session) {
-            const sessionCookie = lucia.createBlankSessionCookie();
-            cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-        }
+        return result;
     } catch {
-        // ignore
+        cookies().delete(lucia.sessionCookieName);
+        redirect("/");
     }
-    return result;
 };

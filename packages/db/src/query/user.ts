@@ -1,6 +1,6 @@
 import { and, eq, gt, lte, or, sql } from "drizzle-orm";
 import db from "../";
-import { historyReports, historyUserData, reports, user, userData } from "../schema";
+import { historyReports, historyUserData, reports, session, user, userData } from "../schema";
 import type { UserSelectType } from "../types/types";
 
 /**
@@ -16,6 +16,10 @@ export async function getUserById(id: string) {
         return null;
     }
     return query[0];
+}
+
+export async function deleteSessionsOfUser(id: string) {
+    return await db.delete(session).where(eq(session.userId, id));
 }
 
 /**

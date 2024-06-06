@@ -1,6 +1,7 @@
 "use server";
 
 import { getActionSession } from "@/lib/auth/auth.action";
+import { lucia } from "@/lib/auth/auth.config";
 import { isDemoUser, updateUserDataCookieStore } from "@/lib/demo/demo";
 import type {
     deleteAccountSchema,
@@ -10,6 +11,7 @@ import type {
     userGoalSchema,
 } from "@/lib/schema/profile";
 import {
+    deleteSessionsOfUser,
     deleteUser,
     getUserById,
     updatePassword,
@@ -306,6 +308,8 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
 
         try {
             await deleteUser(user.id);
+            await deleteSessionsOfUser(user.id);
+            cookies().delete(lucia.sessionCookieName);
             revalidatePath("/profile");
             revalidatePath("/dashboard");
         } catch (e) {

@@ -1,6 +1,5 @@
 import { getSensorIdFromSensorToken, updateNeedsScript } from "@energyleaf/db/query";
-import { ScriptAcceptedRequest, ScriptAcceptedResponse } from "@energyleaf/proto";
-import { parseReadableStream } from "@energyleaf/proto/util";
+import { ScriptAcceptedRequest, ScriptAcceptedResponse, parseReadableStream } from "@energyleaf/proto";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 

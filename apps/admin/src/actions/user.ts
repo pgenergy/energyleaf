@@ -4,6 +4,7 @@ import { env } from "@/env.mjs";
 import { checkIfAdmin } from "@/lib/auth/auth.action";
 import type { userStateSchema } from "@/lib/schema/user";
 import {
+    deleteSessionsOfUser,
     deleteUser as deleteUserDb,
     getAllUsers as getAllUsersDb,
     getUserById,
@@ -64,6 +65,7 @@ export async function deleteUser(id: string) {
 
     try {
         await deleteUserDb(id);
+        await deleteSessionsOfUser(id);
         revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to delete user");
