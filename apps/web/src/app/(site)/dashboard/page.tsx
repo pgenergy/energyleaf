@@ -35,11 +35,11 @@ export default async function DashboardPage({
     const endDate = endDateString ? new Date(new Date(endDateString).toUTCString()) : new Date();
 
     if (!startDateString) {
-        startDate.setUTCHours(0, 0, 0, 0);
+        startDate.setHours(0, 0, 0, 0);
     }
 
     if (!endDateString) {
-        endDate.setUTCHours(23, 59, 59, 999);
+        endDate.setHours(23, 59, 59, 999);
     }
 
     return (
