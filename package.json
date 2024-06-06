@@ -1,12 +1,12 @@
 {
 	"private": true,
 	"scripts": {
-		"build": "dotenv -- turbo run build --no-daemon",
-		"build:app": "dotenv -- turbo run build --filter web --no-daemon",
-		"build:admin": "dotenv -- turbo run build --filter admin --no-daemon",
-		"dev": "dotenv -- turbo run dev",
-		"dev:app": "dotenv -- turbo run dev --filter web",
-		"dev:admin": "dotenv -- turbo run dev --filter admin",
+		"build": "dotenv -- turbo run build --env-mode=loose",
+		"build:app": "dotenv -- turbo run build --filter web --env-mode=loose",
+		"build:admin": "dotenv -- turbo run build --filter admin --env-mode=loose",
+		"dev": "dotenv -- turbo run dev --env-mode=loose",
+		"dev:app": "dotenv -- turbo run dev --filter web --env-mode=loose",
+		"dev:admin": "dotenv -- turbo run dev --filter admin --env-mode=loose",
 		"dev:mail": "dotenv -- pnpm --filter mail run dev:mail",
 		"start": "dotenv -- turbo run start",
 		"lint": "biome lint ./apps ./packages",
@@ -21,7 +21,7 @@
 	"devDependencies": {
 		"@energyleaf/tsconfig": "workspace:*",
 		"@total-typescript/ts-reset": "^0.5.1",
-		"turbo": "^1.13.3"
+		"turbo": "^2.0.1"
 	},
 	"packageManager": "pnpm@9.1.4",
 	"name": "energyleaf",
