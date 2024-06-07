@@ -1,5 +1,6 @@
 import type { ChartConfiguration } from "chart.js/auto";
 import { Chart } from "chart.js/auto";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import { JSDOM } from "jsdom";
 
 /**
@@ -31,6 +32,8 @@ export function renderChart(config: ChartConfiguration, width: number, height: n
         throw new Error("Could not get canvas context");
     }
 
+    Chart.register(ChartDataLabels);
+
     const chart = new Chart(ctx, {
         ...config,
         options: {
@@ -38,6 +41,7 @@ export function renderChart(config: ChartConfiguration, width: number, height: n
             animation: false,
             responsive: false,
         },
+        plugins: [ChartDataLabels],
     });
 
     const data = chart.toBase64Image();

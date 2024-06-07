@@ -29,7 +29,7 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
                     ))}
                 </div>
 
-                <div className="mb-4 flex flex-row flex-wrap items-stretch justify-evenly gap-4">
+                <div className="mb-4 flex flex-row flex-wrap items-stretch justify-center gap-4">
                     <Tile visible={true} large={true} icon={<Zap />} heading="Energieverbrauch">
                         <div>
                             <div className="flex flex-row items-center justify-center">
