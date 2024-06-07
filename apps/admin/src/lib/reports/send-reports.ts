@@ -113,6 +113,13 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     const avgEnergyCost = avgEnergyConsumption * workingPrice;
 
     const dailyConsumption: DailyConsumption[] = await getDailyConsumption(sensor, dateFrom, user.interval);
+    const bestDay = dailyConsumption.reduce((prev, current) =>
+        prev.consumption < current.consumption ? prev : current,
+    );
+    const worstDay = dailyConsumption.reduce((prev, current) =>
+        prev.consumption > current.consumption ? prev : current,
+    );
+
     const dayStatistics: DailyGoalStatistic[] | undefined = fulfills(user.appVersion, Versions.self_reflection)
         ? await getDailyGoalStatistic(dailyConsumption, userData)
         : undefined;
@@ -130,11 +137,8 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
         avgEnergyConsumptionPerDay: avgEnergyConsumption,
         totalEnergyCost: totalEnergyCost,
         avgEnergyCost: avgEnergyCost,
-        highestPeak: {
-            dateTime: dateTo,
-            deviceName: "my device",
-            consumption: "1000 kWh",
-        },
+        bestDay: bestDay,
+        worstDay: worstDay,
         lastReport: lastReport ?? undefined,
         consumptionGraph1: graph1,
     };

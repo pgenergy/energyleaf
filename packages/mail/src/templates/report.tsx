@@ -1,9 +1,10 @@
 import { Container, Head, Html, Img, Preview, Text } from "@react-email/components";
-import { BadgeEuroIcon, BarChart3, RadioReceiver, ReceiptEuroIcon, Zap } from "lucide-react";
+import { BadgeEuroIcon, ReceiptEuroIcon, ThumbsDown, ThumbsUp, Zap } from "lucide-react";
 import React from "react";
 
-import { type ReportProps, formatDate } from "@energyleaf/lib";
+import { type ReportProps, formatDate, formatNumber, getDayOfWeek } from "@energyleaf/lib";
 import { Footer, Header, Main, UnsubscribeText } from "../components";
+import Card from "../components/card";
 import DayTile from "../components/day-tile";
 import Tile from "../components/tile";
 
@@ -13,10 +14,12 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
 
     return (
         <Html lang="de">
-            <Preview>Energyleaf Bericht für {dateForm}</Preview>
+            <Preview>
+                Energyleaf Bericht für {dateForm} bis {dateTo}
+            </Preview>
             <Head />
             <Main>
-                <Header>{`Bericht von ${dateForm}`}</Header>
+                <Header>{`Bericht von ${dateForm} bis ${dateTo}`}</Header>
 
                 <Container className="mb-8 px-4">
                     <Text>Hallo {props.userName},</Text>
@@ -25,7 +28,7 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
                     </Text>
                 </Container>
 
-                <Tile visible={true} heading="Tägliche Ziele">
+                <Tile visible={(props.dayEnergyStatistics?.length ?? 0) > 0} heading="Tägliche Ziele">
                     <div className="grid-flow grid grid-cols-3 justify-evenly">
                         {props.dayEnergyStatistics?.map((x) => (
                             <DayTile key={x.day.toDateString()} stats={x} />
@@ -33,59 +36,39 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
                     </div>
                 </Tile>
 
-                <div className="mb-4 flex flex-row flex-wrap items-stretch justify-center gap-4">
-                    <Tile visible={true} icon={<Zap />} heading="Energieverbrauch">
-                        <div>
-                            <div className="flex flex-row items-center justify-center">
-                                {props.totalEnergyConsumption}
-                                {" kWh"}
-                                <span className="pl-1 font-normal">insgesamt</span>
+                <Tile heading="Aktuelle Kennzahlen">
+                    <div className="grid grid-cols-2 gap-2">
+                        <Card heading="Verbrauch Gesamt" icon={<Zap />}>{`${props.totalEnergyConsumption} kWh`}</Card>
+                        <Card heading="Durschnittl. Verbrauch pro Tag" icon={<Zap />}>
+                            {`${formatNumber(props.avgEnergyConsumptionPerDay)} kWh`}
+                        </Card>
+                        <Card heading="Energiekosten Gesamt" icon={<BadgeEuroIcon />}>
+                            {`${formatNumber(props.totalEnergyCost)} €`}
+                        </Card>
+                        <Card heading="Durschschnittl. Energiekosten pro Tag" icon={<ReceiptEuroIcon />}>
+                            {`${formatNumber(props.avgEnergyCost)} €`}
+                        </Card>
+                        <Card heading="Bester Tag" icon={<ThumbsUp className="text-primary" />}>
+                            <div className="flex flex-col items-center gap-1">
+                                <span>{getDayOfWeek(props.bestDay.day)}</span>
+                                <span>{formatDate(props.bestDay.day)}</span>
+                                <span>{`${formatNumber(props.bestDay.consumption)} kWh`}</span>
                             </div>
-                            <div className="flex flex-row items-center justify-center">
-                                {props.avgEnergyConsumptionPerDay}
-                                {" kWh"}
-                                <span className="pl-1 font-normal">∅ pro Tag</span>
+                        </Card>
+                        <Card heading="Schlechtester Tag" icon={<ThumbsDown className="text-destructive" />}>
+                            <div className="flex flex-col items-center gap-1">
+                                <span>{getDayOfWeek(props.worstDay.day)}</span>
+                                <span>{formatDate(props.worstDay.day)}</span>
+                                <span>{`${formatNumber(props.worstDay.consumption)} kWh`}</span>
                             </div>
-                        </div>
-                    </Tile>
+                        </Card>
+                    </div>
+                </Tile>
 
-                    <Tile visible={true} icon={<BadgeEuroIcon />} heading="Gesamte Energiekosten">
-                        <>{props.totalEnergyCost} €</>
-                    </Tile>
+                <Tile heading="Absoluter Tagesverbrauch">
+                    <Img className="pb-4" src={props.consumptionGraph1} alt="Graph mit absolutem Tagesverbrauch" />
+                </Tile>
 
-                    <Tile visible={true} icon={<ReceiptEuroIcon />} heading="Durchschnittliche Energiekosten pro Tag">
-                        <>{props.avgEnergyCost} €</>
-                    </Tile>
-
-                    <Tile visible={true} icon={<BarChart3 />} heading="Höchster Peak">
-                        {props.highestPeak && (
-                            <div>
-                                <div>{props.highestPeak.deviceName}</div>
-                                <div>
-                                    {props.highestPeak.consumption}
-                                    {" kWh"}
-                                </div>
-                                <div>{formatDate(props.highestPeak.dateTime)}</div>
-                            </div>
-                        )}
-                    </Tile>
-
-                    <Tile visible={true} icon={<RadioReceiver />} heading="Größter Verbraucher">
-                        <div />
-                    </Tile>
-
-                    <Tile visible={true} heading="Absoluter Tagesverbrauch">
-                        <Img className="pb-4" src={props.consumptionGraph1} alt="Graph mit absolutem Tagesverbrauch" />
-                    </Tile>
-
-                    {/* <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
-                        <Img className="pb-4" src={props.consumptionGraph2} alt="Verbrauch" />
-                    </Tile>
-
-                    <Tile visible={true} large={true} heading="Verbrauch" icon={null}>
-                        <Img className="pb-4" src={props.consumptionGraph3} alt="Verbrauch" />
-                    </Tile> */}
-                </div>
                 <UnsubscribeText href={unsubscribeLink} />
                 <Footer />
             </Main>

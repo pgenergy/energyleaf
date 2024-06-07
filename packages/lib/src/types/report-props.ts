@@ -27,11 +27,8 @@ export interface ReportProps {
     avgEnergyConsumptionPerDay: number;
     totalEnergyCost: number;
     avgEnergyCost: number;
-    highestPeak: {
-        dateTime: Date;
-        deviceName: string;
-        consumption: string;
-    };
+    bestDay: DailyConsumption;
+    worstDay: DailyConsumption;
 
     /**
      * base64 image

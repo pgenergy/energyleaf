@@ -246,7 +246,7 @@ export async function sendReport(options: ReportMailOptions) {
     const resp = await resend.emails.send({
         to: options.to,
         from: options.from,
-        subject: `Energieverbrauch-Bericht von ${formatDate(options.dateFrom)}`,
+        subject: `Energyleaf: Bericht von ${formatDate(options.dateFrom)} bis ${formatDate(options.dateTo)}`,
         react: ReportTemplate(options, options.unsubscribeLink),
     });
 

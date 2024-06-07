@@ -25,5 +25,17 @@ export const computeTimestampLabel = (aggregationParam: AggregationType | undefi
  * @returns the formatted date in the format "dd.MM.yyyy"
  */
 export function formatDate(date: Date): string {
+    if (!date) {
+        return "";
+    }
+
     return `${`0${date.getDate()}`.slice(-2)}.${`0${date.getMonth() + 1}`.slice(-2)}.${date.getFullYear()}`;
+}
+
+export const formatNumber = (number: number) =>
+    number.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+export function getDayOfWeek(date: Date): string {
+    const days = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+    return days[date.getDay()];
 }
