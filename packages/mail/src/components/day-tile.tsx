@@ -1,22 +1,17 @@
-import type { DayStatistics } from "@energyleaf/lib";
-import { Text } from "@react-email/components";
+import { type DailyGoalStatistic, formatDate } from "@energyleaf/lib";
+import { Img, Text } from "@react-email/components";
 import React from "react";
-import { TrendIcon } from "./trend-icon";
 
 interface Props {
-    stats: DayStatistics;
+    stats: DailyGoalStatistic;
 }
 
 export default function DayTile({ stats }: Props) {
     return (
-        <div className="m-4 flex flex-col rounded bg-muted p-2">
-            <Text className="m-0 p-0 font-semibold">{stats.day}</Text>
-            <Text className="m-0 p-0">{stats.dailyConsumption}</Text>
+        <div className="m-4 flex flex-col items-center rounded bg-muted p-2">
+            <Text className="m-0 p-0 font-semibold">{formatDate(stats.day)}</Text>
 
-            <div className={`flex flex-row${(stats.dailyGoal ?? 0) > 0 ? "text-red-600" : "text-primary"}`}>
-                <TrendIcon difference={13} size={16} />
-                <Text className="m-0 ml-1 text-xs">{stats.progress}</Text>
-            </div>
+            <Img className="pb-4" src={stats.image} alt={`Erreichung Zielverbrauch für ${stats.day}`} />
         </div>
     );
 }

@@ -1,11 +1,11 @@
-import {and, desc, eq, type ExtractTablesWithRelations, gt, lte, or, sql} from "drizzle-orm";
+import { type ExtractTablesWithRelations, and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
 
-import type { DayStatistics, ReportProps } from "@energyleaf/lib";
+import type { ReportProps } from "@energyleaf/lib";
+import type { MySqlTransaction } from "drizzle-orm/mysql-core";
+import type { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
 import db from "../";
 import { historyReportConfig, reportConfig, reports, reportsDayStatistics } from "../schema/reports";
 import { user } from "../schema/user";
-import type {MySqlTransaction} from "drizzle-orm/mysql-core";
-import type {PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT} from "drizzle-orm/planetscale-serverless";
 
 interface ReportConfig {
     receiveMails: boolean;
@@ -16,12 +16,9 @@ interface ReportConfig {
 /**
  * Update the user report settings data in the database
  */
-export async function updateReportConfig(
-    data: ReportConfig,
-    userId: string,
-) {
+export async function updateReportConfig(data: ReportConfig, userId: string) {
     return db.transaction(async (trx) => {
-        const oldReportData = await getReportConfigByUserId(trx,userId);
+        const oldReportData = await getReportConfigByUserId(trx, userId);
         if (!oldReportData) {
             throw new Error("Old user data not found");
         }
@@ -46,7 +43,15 @@ export async function updateReportConfig(
     });
 }
 
-export async function getReportConfigByUserId(trx: MySqlTransaction<PlanetscaleQueryResultHKT, PlanetScalePreparedQueryHKT, Record<string, never>, ExtractTablesWithRelations<Record<string, never>>>, id: string) {
+export async function getReportConfigByUserId(
+    trx: MySqlTransaction<
+        PlanetscaleQueryResultHKT,
+        PlanetScalePreparedQueryHKT,
+        Record<string, never>,
+        ExtractTablesWithRelations<Record<string, never>>
+    >,
+    id: string,
+) {
     const data = await trx.select().from(reportConfig).where(eq(reportConfig.userId, id));
 
     if (data.length === 0) {
@@ -72,6 +77,7 @@ export async function getUsersWitDueReport() {
         .select({
             userId: user.id,
             userName: user.username,
+            appVersion: user.appVersion,
             email: user.email,
             receiveMails: reportConfig.receiveMails,
             interval: reportConfig.interval,
@@ -100,14 +106,14 @@ export async function getLastReportForUser(userId: string): Promise<ReportProps 
     const lastReport = userReports[0];
 
     return {
-        dateFrom: new Date(lastReport.dateFrom).toString(),
-        dateTo: new Date(lastReport.dateTo).toString(),
+        dateFrom: new Date(lastReport.dateFrom),
+        dateTo: new Date(lastReport.dateTo),
         totalEnergyConsumption: lastReport.totalEnergyConsumption,
         avgEnergyConsumptionPerDay: lastReport.avgEnergyConsumptionPerDay,
         totalEnergyCost: lastReport.totalEnergyCost,
         avgEnergyCost: lastReport.avgEnergyCost,
         highestPeak: {
-            dateTime: (lastReport.highestPeakDateTime ?? new Date(0)).toLocaleDateString(),
+            dateTime: lastReport.highestPeakDateTime ?? new Date(0),
             deviceName: lastReport.highestPeakDeviceName ?? "",
             consumption: lastReport.highestPeakConsumption ?? "",
         },
@@ -156,7 +162,7 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
 
         const reportId = newReport[0].id;
 
-        for (const dayStat of reportProps.dayEnergyStatistics) {
+        for (const dayStat of reportProps.dayEnergyStatistics ?? []) {
             await trx.insert(reportsDayStatistics).values({
                 date: new Date(dayStat.day),
                 dailyConsumption: dayStat.dailyConsumption,

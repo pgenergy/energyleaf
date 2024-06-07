@@ -11,14 +11,16 @@ import {
 } from "@energyleaf/db/query";
 import { TokenType, type UserDataSelectType } from "@energyleaf/db/types";
 import { buildUnsubscribeReportsUrl } from "@energyleaf/lib";
-import type { DayStatistics, ReportProps } from "@energyleaf/lib";
+import type { DailyConsumption, DailyGoalProgress, DailyGoalStatistic, ReportProps } from "@energyleaf/lib";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { sendReport } from "@energyleaf/mail";
 import { renderChart } from "@energyleaf/ui/tools";
-import { renderDailyConsumptionChart } from "./graphs";
+import { renderDailyConsumptionChart, renderDailyStatistic } from "./graphs";
 
 interface UserReportData {
     userId: string;
     userName: string;
+    appVersion: Versions;
     email: string;
     receiveMails: boolean;
     interval: number;
@@ -110,23 +112,26 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     const totalEnergyCost = totalEnergyConsumption * workingPrice;
     const avgEnergyCost = avgEnergyConsumption * workingPrice;
 
-    const dayStatistics: DayStatistics[] = await getDayStatistics(userData, sensor, dateFrom, user.interval);
+    const dailyConsumption: DailyConsumption[] = await getDailyConsumption(sensor, dateFrom, user.interval);
+    const dayStatistics: DailyGoalStatistic[] | undefined = fulfills(user.appVersion, Versions.self_reflection)
+        ? await getDailyGoalStatistic(dailyConsumption, userData)
+        : undefined;
 
-    const graph1: string | undefined = renderDailyConsumptionChart(dayStatistics);
+    const graph1: string | undefined = renderDailyConsumptionChart(dailyConsumption);
 
     const lastReport = await getLastReportForUser(user.userId);
 
     return {
         userName: user.userName,
-        dateFrom: dateFrom.toLocaleDateString(),
-        dateTo: dateTo.toLocaleDateString(),
+        dateFrom: dateFrom,
+        dateTo: dateTo,
         dayEnergyStatistics: dayStatistics,
         totalEnergyConsumption: totalEnergyConsumption,
         avgEnergyConsumptionPerDay: avgEnergyConsumption,
         totalEnergyCost: totalEnergyCost,
         avgEnergyCost: avgEnergyCost,
         highestPeak: {
-            dateTime: dateTo.toLocaleDateString(),
+            dateTime: dateTo,
             deviceName: "my device",
             consumption: "1000 kWh",
         },
@@ -135,33 +140,53 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     };
 }
 
-async function getDayStatistics(
-    userData: UserDataSelectType,
-    sensor: string,
-    dateFrom: Date,
-    interval: number,
-): Promise<DayStatistics[]> {
+async function getDailyConsumption(sensor: string, dateFrom: Date, interval: number): Promise<DailyConsumption[]> {
     const dates = new Array(interval).fill(null).map((_, index) => {
         const date = new Date(dateFrom);
         date.setDate(date.getDate() + index);
         date.setHours(0, 0, 0, 0);
         return date;
     });
-    const tasks: Promise<DayStatistics>[] = dates.map(async (date) => {
+    const tasks: Promise<DailyConsumption>[] = dates.map(async (date) => {
         const endDate = new Date(date);
         endDate.setHours(23, 59, 59, 999);
 
         const sumOfDay = await getEnergySumForSensorInRange(date, endDate, sensor);
 
         return {
-            day: date.toLocaleDateString(),
-            dailyConsumption: sumOfDay,
-            dailyGoal: userData.consumptionGoal ?? undefined,
-            exceeded: userData.consumptionGoal ? sumOfDay > userData.consumptionGoal : undefined,
-            progress: userData.consumptionGoal ? sumOfDay / userData.consumptionGoal : undefined,
+            day: date,
+            consumption: sumOfDay,
         };
     });
     return await Promise.all(tasks);
+}
+
+async function getDailyGoalStatistic(
+    dailyConsumption: DailyConsumption[],
+    userData: UserDataSelectType,
+): Promise<DailyGoalStatistic[]> {
+    const dailyGoalProgresses = await getDailyGoalProgress(dailyConsumption, userData);
+    return dailyGoalProgresses.map((day) => {
+        return {
+            ...day,
+            image: renderDailyStatistic(day),
+        };
+    });
+}
+
+async function getDailyGoalProgress(
+    dailyConsumption: DailyConsumption[],
+    userData: UserDataSelectType,
+): Promise<DailyGoalProgress[]> {
+    return dailyConsumption.map((day) => {
+        return {
+            day: day.day,
+            dailyConsumption: day.consumption,
+            dailyGoal: userData.consumptionGoal ?? undefined,
+            exceeded: userData.consumptionGoal ? day.consumption > userData.consumptionGoal : undefined,
+            progress: userData.consumptionGoal ? (day.consumption / userData.consumptionGoal) * 100 : undefined,
+        };
+    });
 }
 
 export async function sendReportMail(userReport: UserReportData, reportProps: ReportProps, unsubscribeLink: string) {

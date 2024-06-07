@@ -1,28 +1,92 @@
-import type { DayStatistics } from "@energyleaf/lib";
+import { type DailyConsumption, type DailyGoalProgress, formatDate } from "@energyleaf/lib";
 import { renderChart } from "@energyleaf/ui/tools";
+import type { ChartConfiguration, ChartOptions } from "chart.js/auto";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
-export function renderDailyConsumptionChart(dayStatistics: DayStatistics[]) {
+const primaryColor = "#439869";
+const onPrimaryColor = "#FFFFFF";
+
+export function renderDailyConsumptionChart(dayStatistics: DailyConsumption[]) {
     return renderChart(
         {
             type: "bar",
             data: {
-                labels: dayStatistics.map((x) => x.day),
+                labels: dayStatistics.map((x) => formatDate(x.day)),
                 datasets: [
                     {
                         label: "Täglicher Verbrauch",
-                        data: dayStatistics.map((x) => x.dailyConsumption),
+                        data: dayStatistics.map((x) => x.consumption),
                         fill: false,
-                        backgroundColor: "#439869",
+                        backgroundColor: primaryColor,
                         tension: 0.1,
                         datalabels: {
-                            color: "#FFFFFF",
+                            color: onPrimaryColor,
                             formatter: (value) => `${value} kWh`,
                         },
                     },
                 ],
             },
+            plugins: [ChartDataLabels],
         },
         800,
         400,
     );
+}
+
+export function renderDailyStatistic({ progress, exceeded }: DailyGoalProgress) {
+    const prog = progress ?? 0;
+    const remaining = prog < 100 ? 100 - prog : 0;
+
+    const barColor = exceeded ? "#EF4444" : primaryColor;
+
+    const chartOptions: ChartOptions<"doughnut"> = {
+        responsive: true,
+        cutout: "80%",
+        circumference: 360,
+        plugins: {
+            tooltip: { enabled: false },
+            legend: { display: false },
+        },
+    };
+
+    const chartConfiguration: ChartConfiguration<"doughnut"> = {
+        type: "doughnut",
+        data: {
+            datasets: [
+                {
+                    data: [prog, remaining],
+                    backgroundColor: [barColor, onPrimaryColor],
+                    borderWidth: 0,
+                },
+            ],
+        },
+        options: chartOptions,
+        plugins: [
+            {
+                id: "centerText",
+                afterDatasetsDraw(chart) {
+                    const { ctx, data } = chart;
+                    ctx.save();
+
+                    const xCenter = chart.getDatasetMeta(0).data[0].x;
+                    const yCenter = chart.getDatasetMeta(0).data[0].y;
+
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.font = "24px Arial";
+                    ctx.fillStyle = "#000";
+
+                    // Get the percentage from the data
+                    const percentage = Math.round(data.datasets[0].data[0] as number);
+
+                    // Draw the percentage text
+                    ctx.fillText(`${percentage}%`, xCenter, yCenter);
+
+                    ctx.restore();
+                },
+            },
+        ],
+    };
+
+    return renderChart(chartConfiguration as ChartConfiguration, 100, 100);
 }

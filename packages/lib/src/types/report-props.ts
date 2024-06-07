@@ -1,26 +1,34 @@
-export interface DayStatistics {
-    // formatted Date string
-    day: string;
+export interface DailyGoalProgress {
+    day: Date;
     dailyConsumption: number;
     dailyGoal?: number;
     exceeded?: boolean;
+    /**
+     * The progress in percent. A value of 25 means 25%.
+     */
     progress?: number;
+}
+
+export interface DailyGoalStatistic extends DailyGoalProgress {
+    image: string;
+}
+
+export interface DailyConsumption {
+    day: Date;
+    consumption: number;
 }
 
 export interface ReportProps {
     userName?: string;
-    // formatted Date string
-    dateFrom: string;
-    // formatted Date string
-    dateTo: string;
-    dayEnergyStatistics: DayStatistics[];
+    dateFrom: Date;
+    dateTo: Date;
+    dayEnergyStatistics?: DailyGoalStatistic[];
     totalEnergyConsumption: number;
     avgEnergyConsumptionPerDay: number;
     totalEnergyCost: number;
     avgEnergyCost: number;
     highestPeak: {
-        // formatted Date string
-        dateTime: string;
+        dateTime: Date;
         deviceName: string;
         consumption: string;
     };

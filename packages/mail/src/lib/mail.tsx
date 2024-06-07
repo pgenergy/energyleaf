@@ -1,4 +1,4 @@
-import type { ReportProps } from "@energyleaf/lib";
+import { type ReportProps, formatDate } from "@energyleaf/lib";
 import type * as React from "react";
 import { Resend } from "resend";
 import AccountActivatedTemplate from "../templates/account-activated";
@@ -246,7 +246,7 @@ export async function sendReport(options: ReportMailOptions) {
     const resp = await resend.emails.send({
         to: options.to,
         from: options.from,
-        subject: `Energieverbrauch-Bericht von ${options.dateFrom}`,
+        subject: `Energieverbrauch-Bericht von ${formatDate(options.dateFrom)}`,
         react: ReportTemplate(options, options.unsubscribeLink),
     });
 

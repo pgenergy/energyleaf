@@ -24,6 +24,8 @@
 		"@t3-oss/env-nextjs": "^0.10.1",
 		"@tanstack/react-table": "^8.17.3",
 		"canvas": "^2.11.2",
+		"chart.js": "^4.4.2",
+		"chartjs-plugin-datalabels": "^2.2.0",
 		"clsx": "^2.1.1",
 		"csv": "^6.3.9",
 		"date-fns": "^3.6.0",

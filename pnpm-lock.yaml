@@ -89,6 +89,12 @@ importers:
       canvas:
         specifier: ^2.11.2
         version: 2.11.2
+      chart.js:
+        specifier: ^4.4.2
+        version: 4.4.3
+      chartjs-plugin-datalabels:
+        specifier: ^2.2.0
+        version: 2.2.0(chart.js@4.4.3)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1

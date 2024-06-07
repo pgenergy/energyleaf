@@ -2,35 +2,39 @@ import { Container, Head, Html, Img, Preview, Text } from "@react-email/componen
 import { BadgeEuroIcon, BarChart3, RadioReceiver, ReceiptEuroIcon, Zap } from "lucide-react";
 import React from "react";
 
-import type { ReportProps } from "@energyleaf/lib";
+import { type ReportProps, formatDate } from "@energyleaf/lib";
 import { Footer, Header, Main, UnsubscribeText } from "../components";
 import DayTile from "../components/day-tile";
 import Tile from "../components/tile";
 
 export default function ReportTemplate(props: ReportProps, unsubscribeLink: string) {
+    const dateForm = formatDate(props.dateFrom);
+    const dateTo = formatDate(props.dateTo);
+
     return (
         <Html lang="de">
-            <Preview>Energyleaf Bericht für {props.dateFrom}</Preview>
+            <Preview>Energyleaf Bericht für {dateForm}</Preview>
             <Head />
             <Main>
-                <Header>{`Bericht von ${props.dateFrom}`}</Header>
+                <Header>{`Bericht von ${dateForm}`}</Header>
 
                 <Container className="mb-8 px-4">
                     <Text>Hallo {props.userName},</Text>
                     <Text>
-                        Hier ist Ihre Energieverbrauch-Übersicht für den Zeitraum vom {props.dateFrom} bis zum{" "}
-                        {props.dateTo}:
+                        Hier ist Ihre Energieverbrauch-Übersicht für den Zeitraum vom {dateForm} bis zum {dateTo}:
                     </Text>
                 </Container>
 
-                <div className="flex flex-row justify-evenly">
-                    {props.dayEnergyStatistics?.map((x) => (
-                        <DayTile key={x.day} stats={x} />
-                    ))}
-                </div>
+                <Tile visible={true} heading="Tägliche Ziele">
+                    <div className="grid-flow grid grid-cols-3 justify-evenly">
+                        {props.dayEnergyStatistics?.map((x) => (
+                            <DayTile key={x.day.toDateString()} stats={x} />
+                        ))}
+                    </div>
+                </Tile>
 
                 <div className="mb-4 flex flex-row flex-wrap items-stretch justify-center gap-4">
-                    <Tile visible={true} large={true} icon={<Zap />} heading="Energieverbrauch">
+                    <Tile visible={true} icon={<Zap />} heading="Energieverbrauch">
                         <div>
                             <div className="flex flex-row items-center justify-center">
                                 {props.totalEnergyConsumption}
@@ -45,20 +49,15 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
                         </div>
                     </Tile>
 
-                    <Tile visible={true} large={false} icon={<BadgeEuroIcon />} heading="Gesamte Energiekosten">
+                    <Tile visible={true} icon={<BadgeEuroIcon />} heading="Gesamte Energiekosten">
                         <>{props.totalEnergyCost} €</>
                     </Tile>
 
-                    <Tile
-                        visible={true}
-                        large={false}
-                        icon={<ReceiptEuroIcon />}
-                        heading="Durchschnittliche Energiekosten pro Tag"
-                    >
+                    <Tile visible={true} icon={<ReceiptEuroIcon />} heading="Durchschnittliche Energiekosten pro Tag">
                         <>{props.avgEnergyCost} €</>
                     </Tile>
 
-                    <Tile visible={true} large={false} icon={<BarChart3 />} heading="Höchster Peak">
+                    <Tile visible={true} icon={<BarChart3 />} heading="Höchster Peak">
                         {props.highestPeak && (
                             <div>
                                 <div>{props.highestPeak.deviceName}</div>
@@ -66,16 +65,16 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
                                     {props.highestPeak.consumption}
                                     {" kWh"}
                                 </div>
-                                <div>{props.highestPeak.dateTime}</div>
+                                <div>{formatDate(props.highestPeak.dateTime)}</div>
                             </div>
                         )}
                     </Tile>
 
-                    <Tile visible={true} large={false} icon={<RadioReceiver />} heading="Größter Verbraucher">
+                    <Tile visible={true} icon={<RadioReceiver />} heading="Größter Verbraucher">
                         <div />
                     </Tile>
 
-                    <Tile visible={true} large={true} heading="Absoluter Tagesverbrauch" icon={null}>
+                    <Tile visible={true} heading="Absoluter Tagesverbrauch">
                         <Img className="pb-4" src={props.consumptionGraph1} alt="Graph mit absolutem Tagesverbrauch" />
                     </Tile>
 
