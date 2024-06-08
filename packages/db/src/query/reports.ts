@@ -112,10 +112,13 @@ export async function getLastReportForUser(userId: string): Promise<ReportProps 
         avgEnergyConsumptionPerDay: lastReport.avgEnergyConsumptionPerDay,
         totalEnergyCost: lastReport.totalEnergyCost,
         avgEnergyCost: lastReport.avgEnergyCost,
-        highestPeak: {
-            dateTime: lastReport.highestPeakDateTime ?? new Date(0),
-            deviceName: lastReport.highestPeakDeviceName ?? "",
-            consumption: lastReport.highestPeakConsumption ?? "",
+        bestDay: {
+            day: new Date(lastReport.bestDay),
+            consumption: lastReport.bestDayConsumption,
+        },
+        worstDay: {
+            day: new Date(lastReport.worstDay),
+            consumption: lastReport.worstDayConsumption,
         },
         dayEnergyStatistics: [],
     };
@@ -131,9 +134,10 @@ export async function getReportForUserDescending(userId: string) {
             avgEnergyConsumptionPerDay: reports.avgEnergyConsumptionPerDay,
             totalEnergyCost: reports.totalEnergyCost,
             avgEnergyCost: reports.avgEnergyCost,
-            highestPeakDateTime: reports.highestPeakDateTime,
-            highestPeakDeviceName: reports.highestPeakDeviceName,
-            highestPeakConsumption: reports.highestPeakConsumption,
+            bestDay: reports.bestDay,
+            bestDayConsumption: reports.bestDayConsumption,
+            worstDay: reports.worstDay,
+            worstDayConsumption: reports.worstDayConsumption,
         })
         .from(reports)
         .where(eq(reports.userId, userId))
@@ -144,27 +148,28 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
     return db.transaction(async (trx) => {
         await trx.insert(reports).values({
             timestamp: new Date(),
-            dateFrom: new Date(reportProps.dateFrom),
-            dateTo: new Date(reportProps.dateTo),
+            dateFrom: reportProps.dateFrom,
+            dateTo: reportProps.dateTo,
             userId: userId,
             totalEnergyConsumption: reportProps.totalEnergyConsumption,
             avgEnergyConsumptionPerDay: reportProps.avgEnergyConsumptionPerDay,
             totalEnergyCost: reportProps.totalEnergyCost,
             avgEnergyCost: reportProps.avgEnergyCost,
-            highestPeakDateTime: new Date(reportProps.highestPeak.dateTime),
-            highestPeakDeviceName: reportProps.highestPeak.deviceName,
-            highestPeakConsumption: reportProps.highestPeak.consumption,
+            bestDay: reportProps.bestDay.day,
+            bestDayConsumption: reportProps.bestDay.consumption,
+            worstDay: reportProps.worstDay.day,
+            worstDayConsumption: reportProps.worstDay.consumption,
         });
         const newReport = await trx
             .select({ id: reports.id })
             .from(reports)
-            .where(and(eq(reports.userId, userId), eq(reports.dateFrom, new Date(reportProps.dateFrom))));
+            .where(and(eq(reports.userId, userId), eq(reports.dateFrom, reportProps.dateFrom)));
 
         const reportId = newReport[0].id;
 
         for (const dayStat of reportProps.dayEnergyStatistics ?? []) {
             await trx.insert(reportsDayStatistics).values({
-                date: new Date(dayStat.day),
+                date: dayStat.day,
                 dailyConsumption: dayStat.dailyConsumption,
                 progress: dayStat.progress,
                 exceeded: dayStat.exceeded,

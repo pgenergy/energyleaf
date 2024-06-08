@@ -1,4 +1,4 @@
-import { type DailyConsumption, type DailyGoalProgress, formatDate } from "@energyleaf/lib";
+import { type DailyConsumption, type DailyGoalProgress, formatDate, formatNumber } from "@energyleaf/lib";
 import { renderChart } from "@energyleaf/ui/tools";
 import type { ChartConfiguration, ChartOptions } from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
@@ -14,22 +14,22 @@ export function renderDailyConsumptionChart(dayStatistics: DailyConsumption[]) {
                 labels: dayStatistics.map((x) => formatDate(x.day)),
                 datasets: [
                     {
-                        label: "Täglicher Verbrauch",
+                        label: "Täglicher Verbrauch in kWh",
                         data: dayStatistics.map((x) => x.consumption),
                         fill: false,
                         backgroundColor: primaryColor,
                         tension: 0.1,
                         datalabels: {
                             color: onPrimaryColor,
-                            formatter: (value) => `${value} kWh`,
+                            formatter: (value) => formatNumber(value),
                         },
                     },
                 ],
             },
             plugins: [ChartDataLabels],
         },
-        800,
-        400,
+        600,
+        300,
     );
 }
 

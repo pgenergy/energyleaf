@@ -29,7 +29,7 @@ export default function ReportTemplate(props: ReportProps, unsubscribeLink: stri
                 </Container>
 
                 <Tile visible={(props.dayEnergyStatistics?.length ?? 0) > 0} heading="Tägliche Ziele">
-                    <div className="grid-flow grid grid-cols-3 justify-evenly">
+                    <div className="grid-flow grid grid-cols-4 justify-evenly">
                         {props.dayEnergyStatistics?.map((x) => (
                             <DayTile key={x.day.toDateString()} stats={x} />
                         ))}

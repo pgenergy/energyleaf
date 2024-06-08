@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, float, int, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, date, float, int, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
 
 export const reportConfig = mysqlTable("report_config", {
@@ -35,9 +35,10 @@ export const reports = mysqlTable("reports", {
     avgEnergyConsumptionPerDay: float("avg_energy_consumption_per_day").notNull(),
     totalEnergyCost: float("total_energy_cost").notNull(),
     avgEnergyCost: float("avg_energy_cost").notNull(),
-    highestPeakDateTime: timestamp("highest_peak_date_time"),
-    highestPeakDeviceName: varchar("highest_peak_device_name", { length: 255 }),
-    highestPeakConsumption: varchar("highest_peak_consumption", { length: 255 }),
+    worstDay: timestamp("worst_day").notNull(),
+    worstDayConsumption: float("worst_day_consumption").notNull(),
+    bestDay: timestamp("best_day").notNull(),
+    bestDayConsumption: float("best_day_consumption").notNull(),
 });
 
 export const reportsDayStatistics = mysqlTable("reports_day_statistics", {
@@ -45,7 +46,7 @@ export const reportsDayStatistics = mysqlTable("reports_day_statistics", {
         .primaryKey()
         .notNull()
         .$defaultFn(() => nanoid(35)),
-    date: timestamp("date").default(sql`CURRENT_TIMESTAMP`).notNull(),
+    date: timestamp("date").notNull(),
     dailyConsumption: float("daily_consumption").notNull(),
     dailyGoal: float("daily_goal"),
     exceeded: boolean("exceeded"),
