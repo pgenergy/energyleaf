@@ -17,31 +17,14 @@ UserGoalsFormFields.defaultProps = {
 
 export default function UserGoalsFormFields({ form, goalIsCalculated }: Props) {
     const workingPrice = 3; // TODO
-    function consumptionToCost(consumption: number) {
-        return consumption * workingPrice;
-    }
 
-    const [costFieldValue, setCostFieldValue] = useState<number | undefined>(
-        consumptionToCost(form.getValues("goalValue")),
-    );
     const goalValueField = form.watch("goalValue");
-
-    useEffect(() => {
-        setCostFieldValue(goalValueField * workingPrice);
-    }, [goalValueField]);
-
-    useEffect(() => {
-        if (!costFieldValue) {
-            form.setValue("goalValue", Number.NaN);
-            return;
-        }
-        form.setValue("goalValue", costFieldValue / workingPrice);
-    }, [costFieldValue, form.setValue]);
+    const costField = Number.isNaN(goalValueField) ? Number.NaN : goalValueField * workingPrice;
 
     function onMoneyInputChange(e: ChangeEvent<HTMLInputElement>) {
-        const parsedValue = Number.parseFloat(e.target.value);
-        const newValue = !Number.isNaN(parsedValue) ? parsedValue : undefined;
-        setCostFieldValue(newValue);
+        const newValue = Number.parseFloat(e.target.value);
+        form.setValue("goalValue", newValue / workingPrice);
+        form.clearErrors("goalValue");
     }
 
     return (
@@ -61,7 +44,7 @@ export default function UserGoalsFormFields({ form, goalIsCalculated }: Props) {
                     <FormLabel>Zielkosten (in €)</FormLabel>
                     <FormDescription>Hier können Sie Ihre Zielkosten für einen Tag festlegen.</FormDescription>
                     <FormControl>
-                        <Input type="number" onChange={onMoneyInputChange} value={costFieldValue} />
+                        <Input type="number" onChange={onMoneyInputChange} value={costField} />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
