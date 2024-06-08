@@ -28,7 +28,7 @@
 		"date-fns": "^3.6.0",
 		"jose": "^5.4.0",
 		"lucia": "^3.2.0",
-		"lucide-react": "^0.383.0",
+		"lucide-react": "^0.390.0",
 		"next": "^14.2.3",
 		"next-themes": "^0.3.0",
 		"oslo": "^1.2.0",
@@ -37,7 +37,7 @@
 		"react-dom": "^18.3.1",
 		"react-hook-form": "^7.51.5",
 		"server-only": "^0.0.1",
-		"sonner": "^1.4.41",
+		"sonner": "^1.5.0",
 		"zod": "^3.23.8"
 	},
 	"devDependencies": {

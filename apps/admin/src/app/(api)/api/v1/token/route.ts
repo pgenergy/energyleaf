@@ -1,6 +1,8 @@
 import { createSensorToken, getSensorDataByClientId } from "@energyleaf/db/query";
-import { TokenRequest, TokenResponse, parseReadableStream } from "@energyleaf/proto";
+import { energyleaf, parseReadableStream } from "@energyleaf/proto";
 import { type NextRequest, NextResponse } from "next/server";
+
+const { TokenRequest, TokenResponse } = energyleaf;
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;
