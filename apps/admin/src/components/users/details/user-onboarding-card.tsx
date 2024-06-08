@@ -35,7 +35,7 @@ export default async function UserOnboardingCard({ userId }: Props) {
                 {data.electricityMeterImgUrl ? (
                     <div className="flex flex-row justify-between">
                         <p>Foto vom Zähler</p>
-                        <a href={data.electricityMeterImgUrl} target="_blank" rel="noreferrer">
+                        <a href={data.electricityMeterImgUrl} target="_blank" rel="noreferrer" className="text-primary underline hover:no-underline">
                             Anzeigen
                         </a>
                     </div>

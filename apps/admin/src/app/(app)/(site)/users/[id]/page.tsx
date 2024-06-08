@@ -2,6 +2,7 @@ import UserConsumptionCard, {
     UserConsumptionCardError,
 } from "@/components/users/details/consumption/user-consumption-card";
 import UserActionsCard from "@/components/users/details/user-actions-card";
+import UserDangerActionsCard from "@/components/users/details/user-danger-actions";
 import UserDetailsDeleteDialog from "@/components/users/details/user-details-delete-dialog";
 import UserInformationCard from "@/components/users/details/user-information-card";
 import UserOnboardingCard from "@/components/users/details/user-onboarding-card";
@@ -57,6 +58,7 @@ export default async function UserDetailsPage({ params }: Props) {
                         <UserConsumptionCard userId={user.id} />
                     </Suspense>
                 </ErrorBoundary>
+                <UserDangerActionsCard user={user} />
             </div>
         </UserContextProvider>
     );
