@@ -9,7 +9,7 @@ interface Props {
 
 export default function Card({ children, heading, icon }: Props) {
     return (
-        <div className="flex flex-col items-center rounded bg-muted p-2">
+        <div className="flex flex-col items-center justify-evenly rounded bg-muted p-2">
             {icon}
             <h4 className="text-center">{heading}</h4>
             {children}
