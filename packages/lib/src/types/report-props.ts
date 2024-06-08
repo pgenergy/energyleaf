@@ -25,8 +25,8 @@ export interface ReportProps {
     dayEnergyStatistics?: DailyGoalStatistic[];
     totalEnergyConsumption: number;
     avgEnergyConsumptionPerDay: number;
-    totalEnergyCost: number;
-    avgEnergyCost: number;
+    totalEnergyCost?: number;
+    avgEnergyCost?: number;
     bestDay: DailyConsumption;
     worstDay: DailyConsumption;
 

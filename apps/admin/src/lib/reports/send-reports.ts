@@ -108,9 +108,9 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
     const totalEnergyConsumption = await getEnergySumForSensorInRange(dateFrom, dateTo, sensor);
 
     const avgEnergyConsumption = totalEnergyConsumption / user.interval;
-    const workingPrice = userData.workingPrice ?? 0;
-    const totalEnergyCost = totalEnergyConsumption * workingPrice;
-    const avgEnergyCost = avgEnergyConsumption * workingPrice;
+    const workingPrice = userData.workingPrice;
+    const totalEnergyCost = workingPrice ? totalEnergyConsumption * workingPrice : undefined;
+    const avgEnergyCost = workingPrice ? avgEnergyConsumption * workingPrice : undefined;
 
     const dailyConsumption: DailyConsumption[] = await getDailyConsumption(sensor, dateFrom, user.interval);
     const bestDay = dailyConsumption.reduce((prev, current) =>

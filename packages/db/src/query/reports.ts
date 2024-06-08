@@ -113,8 +113,8 @@ export async function getLastReportForUser(userId: string): Promise<ReportProps 
         dateTo: new Date(lastReport.dateTo),
         totalEnergyConsumption: lastReport.totalEnergyConsumption,
         avgEnergyConsumptionPerDay: lastReport.avgEnergyConsumptionPerDay,
-        totalEnergyCost: lastReport.totalEnergyCost,
-        avgEnergyCost: lastReport.avgEnergyCost,
+        totalEnergyCost: lastReport.totalEnergyCost ?? undefined,
+        avgEnergyCost: lastReport.avgEnergyCost ?? undefined,
         bestDay: {
             day: new Date(lastReport.bestDay),
             consumption: lastReport.bestDayConsumption,

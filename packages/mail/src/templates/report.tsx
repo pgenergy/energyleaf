@@ -9,7 +9,7 @@ import DayTile from "../components/day-tile";
 import MetricCard from "../components/metric-card";
 import { TrendIcon } from "../components/tend-icon";
 import Tile from "../components/tile";
-import { getTrendMode } from "../types/trend-modes";
+import { TrendModes, getTrendMode } from "../types/trend-modes";
 
 export default function ReportTemplate(
     {
@@ -24,7 +24,7 @@ export default function ReportTemplate(
         avgEnergyCost,
         bestDay,
         worstDay,
-        consumptionGraph1,
+        dailyTotalConsumptionGraph,
     }: ReportProps,
     unsubscribeLink: string,
 ) {
@@ -91,25 +91,35 @@ export default function ReportTemplate(
                             heading="Energiekosten Gesamt"
                             icon={<BadgeEuroIcon />}
                             lastReportInfo={
-                                lastReport && {
-                                    mode: getTrendMode(lastReport.totalEnergyCost, totalEnergyCost),
-                                    lastReportElement: () => `${formatNumber(lastReport.totalEnergyCost)} €`,
-                                }
+                                lastReport?.totalEnergyCost
+                                    ? {
+                                          mode: totalEnergyCost
+                                              ? getTrendMode(lastReport.totalEnergyCost, totalEnergyCost)
+                                              : TrendModes.RIGHT,
+                                          lastReportElement: () =>
+                                              `${formatNumber(Number(lastReport.totalEnergyCost))} €`,
+                                      }
+                                    : undefined
                             }
                         >
-                            {`${formatNumber(totalEnergyCost)} €`}
+                            {totalEnergyCost ? `${formatNumber(totalEnergyCost)} €` : <i>Nicht konfiguriert</i>}
                         </MetricCard>
                         <MetricCard
                             heading="Durschschnittl. Energiekosten pro Tag"
                             icon={<ReceiptEuroIcon />}
                             lastReportInfo={
-                                lastReport && {
-                                    mode: getTrendMode(lastReport.avgEnergyCost, avgEnergyCost),
-                                    lastReportElement: () => `${formatNumber(lastReport.avgEnergyCost)} €`,
-                                }
+                                lastReport?.avgEnergyCost
+                                    ? {
+                                          mode: avgEnergyCost
+                                              ? getTrendMode(lastReport.avgEnergyCost, avgEnergyCost)
+                                              : TrendModes.RIGHT,
+                                          lastReportElement: () =>
+                                              `${formatNumber(Number(lastReport.avgEnergyCost))} €`,
+                                      }
+                                    : undefined
                             }
                         >
-                            {`${formatNumber(avgEnergyCost)} €`}
+                            {avgEnergyCost ? `${formatNumber(avgEnergyCost)} €` : <i>Nicht konfiguriert</i>}
                         </MetricCard>
                         <Card heading="Bester Tag" icon={<ThumbsUp className="text-primary" />}>
                             <div className="flex flex-col items-center gap-1">
@@ -129,7 +139,7 @@ export default function ReportTemplate(
                 </Tile>
 
                 <Tile heading="Absoluter Tagesverbrauch">
-                    <Img className="pb-4" src={consumptionGraph1} alt="Graph mit absolutem Tagesverbrauch" />
+                    <Img className="pb-4" src={dailyTotalConsumptionGraph} alt="Graph mit absolutem Tagesverbrauch" />
                 </Tile>
 
                 <UnsubscribeText href={unsubscribeLink} />
