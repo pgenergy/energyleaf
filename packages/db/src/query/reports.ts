@@ -85,12 +85,15 @@ export async function getUsersWitDueReport() {
         .from(reportConfig)
         .innerJoin(user, eq(user.id, reportConfig.userId))
         .where(
-            or(
-                gt(sql`DATEDIFF(NOW(), report_config.timestamp_last)`, reportConfig.interval),
-                and(
-                    eq(sql`DATEDIFF(NOW(), report_config.timestamp_last)`, reportConfig.interval),
-                    lte(reportConfig.time, new Date().getHours()),
+            and(
+                or(
+                    gt(sql`DATEDIFF(NOW(), report_config.timestamp_last)`, reportConfig.interval),
+                    and(
+                        eq(sql`DATEDIFF(NOW(), report_config.timestamp_last)`, reportConfig.interval),
+                        lte(reportConfig.time, new Date().getHours()),
+                    ),
                 ),
+                eq(user.isActive, true),
             ),
         );
 }

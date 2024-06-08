@@ -31,17 +31,9 @@ export interface ReportProps {
     worstDay: DailyConsumption;
 
     /**
-     * base64 image
+     * Image of the daily total consumption graph encoded as base64.
      */
-    consumptionGraph1?: string;
-    /**
-     * base64 image
-     */
-    consumptionGraph2?: string;
-    /**
-     * base64 image
-     */
-    consumptionGraph3?: string;
+    dailyTotalConsumptionGraph?: string;
 
     /**
      * The values of the last report to compare with the new report

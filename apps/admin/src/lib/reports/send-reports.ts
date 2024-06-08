@@ -124,7 +124,7 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
         ? await getDailyGoalStatistic(dailyConsumption, userData)
         : undefined;
 
-    const graph1: string | undefined = renderDailyConsumptionChart(dailyConsumption);
+    const dailyConsumptionGraph: string | undefined = renderDailyConsumptionChart(dailyConsumption);
 
     const lastReport = await getLastReportForUser(user.userId);
 
@@ -140,7 +140,7 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
         bestDay: bestDay,
         worstDay: worstDay,
         lastReport: lastReport ?? undefined,
-        consumptionGraph1: graph1,
+        dailyTotalConsumptionGraph: dailyConsumptionGraph,
     };
 }
 
