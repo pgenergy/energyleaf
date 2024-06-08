@@ -1,4 +1,4 @@
-import type {device, reportConfig, reports, sensor, sensorData, user, userData} from "../schema";
+import type { device, reportConfig, reports, sensor, sensorData, user, userData } from "../schema";
 
 export enum SortOrder {
     ASC = "ASC",

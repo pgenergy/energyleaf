@@ -1,6 +1,6 @@
 import { and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
 import db from "../";
-import {historyReports, historyUserData, reportConfig, reports, session, token, user, userData} from "../schema";
+import { historyReports, historyUserData, reportConfig, reports, session, token, user, userData } from "../schema";
 import type { UserSelectType } from "../types/types";
 import { TokenType } from "../types/types";
 import { getReportConfigByUserId } from "./reports";
