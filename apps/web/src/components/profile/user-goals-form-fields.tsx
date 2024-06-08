@@ -9,22 +9,24 @@ import type { z } from "zod";
 interface Props {
     form: UseFormReturn<z.infer<typeof userGoalSchema>>;
     goalIsCalculated: boolean;
+    workingPrice: number | null | undefined;
 }
 
 UserGoalsFormFields.defaultProps = {
     goalIsCalculated: false,
 };
 
-export default function UserGoalsFormFields({ form, goalIsCalculated }: Props) {
-    const workingPrice = 3; // TODO
-
+export default function UserGoalsFormFields({ form, goalIsCalculated, workingPrice }: Props) {
     const goalValueField = form.watch("goalValue");
-    const costField = Number.isNaN(goalValueField) ? Number.NaN : goalValueField * workingPrice;
+    const costField = workingPrice && !Number.isNaN(goalValueField) ? goalValueField * workingPrice : Number.NaN;
+    const hasWorkingPrice = Boolean(workingPrice);
 
     function onMoneyInputChange(e: ChangeEvent<HTMLInputElement>) {
+        console.log(e.target.value);
+        if (!workingPrice) return;
+
         const newValue = Number.parseFloat(e.target.value);
         form.setValue("goalValue", newValue / workingPrice);
-        form.clearErrors("goalValue");
     }
 
     return (
@@ -44,7 +46,12 @@ export default function UserGoalsFormFields({ form, goalIsCalculated }: Props) {
                     <FormLabel>Zielkosten (in €)</FormLabel>
                     <FormDescription>Hier können Sie Ihre Zielkosten für einen Tag festlegen.</FormDescription>
                     <FormControl>
-                        <Input type="number" onChange={onMoneyInputChange} value={costField} />
+                        <Input
+                            disabled={!hasWorkingPrice}
+                            type="number"
+                            onChange={onMoneyInputChange}
+                            value={costField}
+                        />
                     </FormControl>
                     <FormMessage />
                 </FormItem>

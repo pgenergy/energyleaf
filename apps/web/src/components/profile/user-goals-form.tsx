@@ -70,7 +70,7 @@ export default function UserGoalsForm({ userData }: Props) {
             <CardContent>
                 <Form {...form}>
                     <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-                        <UserGoalsFormFields form={form} />
+                        <UserGoalsFormFields form={form} workingPrice={userData?.workingPrice} />
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending} type="submit">
                                 {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
