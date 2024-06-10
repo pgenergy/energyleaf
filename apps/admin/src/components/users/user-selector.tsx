@@ -1,15 +1,9 @@
 import { getAllUsersAction } from "@/actions/user";
 import { cn } from "@energyleaf/tailwindcss/utils";
-import {
-    Command,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "@energyleaf/ui/command";
-import { Spinner } from "@energyleaf/ui/spinner";
 import { Button } from "@energyleaf/ui/button";
+import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@energyleaf/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { useQuery } from "@tanstack/react-query";
 import { CheckIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

@@ -2,6 +2,7 @@
 
 import { useSensorContext } from "@/hooks/sensor-hook";
 import type { SensorSelectType } from "@energyleaf/db/types";
+import { Button } from "@energyleaf/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -10,7 +11,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@energyleaf/ui/dropdown-menu";
-import { Button } from "@energyleaf/ui/button";
 import { Edit2Icon, MinusIcon, MoreVerticalIcon, PlusCircleIcon, TrashIcon } from "lucide-react";
 
 interface Props {

@@ -1,12 +1,12 @@
 "use client";
 
 import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
-import { Card, CardContent, CardDescription, CardHeader } from "../../ui/card";
 import { format, getISOWeek } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
 import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
+import { Card, CardContent, CardDescription, CardHeader } from "../../ui/card";
 
 interface Props {
     aggregationType: AggregationType;

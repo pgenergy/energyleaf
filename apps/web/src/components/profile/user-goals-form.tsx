@@ -5,15 +5,9 @@ import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 import { userGoalSchema } from "@/lib/schema/profile";
 import type { UserDataSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@energyleaf/ui/card";
-import { Form } from "@energyleaf/ui/form";
 import { Button } from "@energyleaf/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Form } from "@energyleaf/ui/form";
 import { Label } from "@energyleaf/ui/label";
 import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";

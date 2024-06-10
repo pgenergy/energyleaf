@@ -3,23 +3,9 @@ import { addSensorSchema } from "@/lib/schema/sensor";
 import type { SensorSelectType } from "@energyleaf/db/types";
 import { SensorType, SensorTypeMap } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui/button";
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@energyleaf/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@energyleaf/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
 import { Textarea } from "@energyleaf/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";

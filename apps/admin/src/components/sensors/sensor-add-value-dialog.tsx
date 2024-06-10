@@ -3,22 +3,9 @@
 import { insertSensorValue } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
 import { addSensorValueSchema } from "@/lib/schema/sensor";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@energyleaf/ui/form";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@energyleaf/ui/dialog";
 import { Button } from "@energyleaf/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";

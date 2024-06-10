@@ -10,8 +10,8 @@ import GoalsCard from "@/components/dashboard/goals/goals-card";
 import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { Skeleton } from "@energyleaf/ui/skeleton";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";
 
 export const metadata = {

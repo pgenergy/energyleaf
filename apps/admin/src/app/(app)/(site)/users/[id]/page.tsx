@@ -12,8 +12,8 @@ import UserSensorsCard from "@/components/users/details/user-sensors-card";
 import UserSensorsCardError from "@/components/users/details/user-sensors-card-error";
 import { UserContextProvider } from "@/hooks/user-hook";
 import { getUserById } from "@/query/user";
-import { Skeleton } from "@energyleaf/ui/skeleton";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";
 
 export const metadata = {

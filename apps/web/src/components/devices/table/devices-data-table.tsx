@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@energyleaf/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@energyleaf/ui/table";
 import type { ColumnFiltersState, SortingState } from "@tanstack/react-table";
 import {
@@ -11,7 +12,6 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import { Input } from "@energyleaf/ui/input";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
