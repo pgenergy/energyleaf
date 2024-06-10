@@ -13,6 +13,17 @@ interface EnergyData {
     id: string;
 }
 
+export async function insertRawEnergyValues(
+    data: {
+        id: string;
+        value: number;
+        timestamp: Date;
+        sensorId: string;
+    }[],
+) {
+    await db.insert(sensorData).values(data);
+}
+
 export async function getEnergyForSensorInRange(
     start: Date,
     end: Date,
