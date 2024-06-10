@@ -8,7 +8,7 @@ export async function insertEnergyData(args: string[]) {
         throw new Error("sensorId is required");
     }
 
-    const filePath = path.join(__dirname, "demo.json");
+    const filePath = path.join(process.cwd(), "apps", "web", "src", "lib", "demo", "demo.json");
     const fileContent = fs.readFileSync(path.join(filePath, "demo.json"));
     const day = new Date().getDate() + 1;
     const month = new Date().getMonth();
