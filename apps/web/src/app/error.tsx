@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
 import { track } from "@vercel/analytics";
 import { RotateCwIcon } from "lucide-react";
 import Image from "next/image";

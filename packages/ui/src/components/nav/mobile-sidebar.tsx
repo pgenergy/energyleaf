@@ -7,7 +7,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../../ui";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../../ui/sheet";
+import { Button } from "../../ui/button";
 
 interface NavLink {
     slug: string;

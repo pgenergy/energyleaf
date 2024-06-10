@@ -1,6 +1,6 @@
 import QueryClientProvider from "@/hooks/query-provider";
 import { ThemeProvider } from "@/hooks/theme/theme-provider";
-import { Toaster } from "@energyleaf/ui/components/utils";
+import { Toaster } from "@energyleaf/ui/utils/toaster";
 
 interface Props {
     children: React.ReactNode;

@@ -1,14 +1,14 @@
 "use client";
 
 import {
-    Button,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/dropdown-menu";
+import { Button } from "@energyleaf/ui/button";
 import { ComputerIcon, MoonIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 

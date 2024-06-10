@@ -1,11 +1,11 @@
-"use client";
-
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
-import { Button, Calendar, Popover, PopoverContent, PopoverTrigger } from "../../ui";
+import { Button } from "../../ui/button";
+import { Calendar } from "../../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 
 interface Props {
     startDate: Date;

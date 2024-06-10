@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { formatNumber } from "@/lib/consumption/number-format";
 import { getAvgEnergyConsumptionForSensor, getElectricitySensorIdForUser } from "@/query/energy";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 
 export default async function AvgEnergyConsumptionCard() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { DateRangePicker } from "@energyleaf/ui/components/utils";
+import { DateRangePicker } from "@energyleaf/ui/utils/date-range-picker";
 import { track } from "@vercel/analytics";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { DateRange } from "react-day-picker";

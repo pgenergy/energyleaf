@@ -1,25 +1,27 @@
 "use client";
 
-import { updateBaseInformationPassword, updateBaseInformationUsername } from "@/actions/profile";
+import { updateBaseInformationPassword } from "@/actions/profile";
 import { passwordSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
 import {
-    Button,
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
+} from "@energyleaf/ui/card";
+import {
     Form,
     FormControl,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
-    Input,
-    Spinner,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/form";
+import { Button } from "@energyleaf/ui/button";
+import { Input } from "@energyleaf/ui/input";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
 import React, { useTransition } from "react";

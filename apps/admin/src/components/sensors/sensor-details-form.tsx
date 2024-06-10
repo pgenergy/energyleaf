@@ -1,11 +1,9 @@
-"use client";
-
 import { createSensor, isSensorRegistered, updateSensor } from "@/actions/sensors";
 import { addSensorSchema } from "@/lib/schema/sensor";
 import type { SensorSelectType } from "@energyleaf/db/types";
 import { SensorType, SensorTypeMap } from "@energyleaf/db/types";
+import { Button } from "@energyleaf/ui/button";
 import {
-    Button,
     Form,
     FormControl,
     FormDescription,
@@ -13,14 +11,16 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-    Input,
+} from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
+import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-    Textarea,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/select";
+import { Textarea } from "@energyleaf/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";

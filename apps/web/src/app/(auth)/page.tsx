@@ -1,5 +1,5 @@
 import LoginForm from "@/components/auth/login-form";
-import { CardContent } from "@energyleaf/ui";
+import { CardContent } from "@energyleaf/ui/card";
 
 export const metadata = {
     title: "Energyleaf",

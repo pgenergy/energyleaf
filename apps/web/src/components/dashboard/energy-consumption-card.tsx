@@ -7,7 +7,7 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import type { ConsumptionData } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import CSVExportButton from "./csv-export-button";
 import DashboardZoomReset from "./dashboard-zoom-reset";

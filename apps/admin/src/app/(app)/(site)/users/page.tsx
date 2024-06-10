@@ -1,6 +1,6 @@
 import UsersOverviewCard from "@/components/users/users-overview-card";
 import { UsersOverviewCardError } from "@/components/users/users-overview-card-error";
-import { Skeleton } from "@energyleaf/ui";
+import { Skeleton } from "@energyleaf/ui/skeleton";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Suspense } from "react";
 

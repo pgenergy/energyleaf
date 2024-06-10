@@ -2,7 +2,8 @@
 
 import { useUserContext } from "@/hooks/user-hook";
 import type { UserSelectType } from "@energyleaf/db/types";
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Button } from "@energyleaf/ui/button";
 
 interface Props {
     user: UserSelectType;

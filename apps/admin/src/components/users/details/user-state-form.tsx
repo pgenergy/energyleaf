@@ -4,7 +4,6 @@ import { updateUserState } from "@/actions/user";
 import { userStateSchema } from "@/lib/schema/user";
 import { Versions, stringify } from "@energyleaf/lib/versioning";
 import {
-    Button,
     Form,
     FormControl,
     FormDescription,
@@ -12,14 +11,11 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    Spinner,
-    Switch,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
+import { Switch } from "@energyleaf/ui/switch";
+import { Button } from "@energyleaf/ui/button";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";

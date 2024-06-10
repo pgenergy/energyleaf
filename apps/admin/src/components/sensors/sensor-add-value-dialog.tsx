@@ -4,20 +4,22 @@ import { insertSensorValue } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
 import { addSensorValueSchema } from "@/lib/schema/sensor";
 import {
-    Button,
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
     Form,
     FormControl,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
-    Input,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/form";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@energyleaf/ui/dialog";
+import { Button } from "@energyleaf/ui/button";
+import { Input } from "@energyleaf/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";

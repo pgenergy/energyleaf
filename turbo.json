@@ -1,11 +1,25 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [
-    "**/.env.*local"
+    "**/.env",
+    ".env"
   ],
   "globalEnv": [
-    ".env",
-    "NEXTAUTH_URL"
+    "HASH_SECRET",
+    "DATABASE_HOST",
+    "DATABASE_USERNAME",
+    "DATABASE_PASSWORD",
+    "DATABASE_NAME",
+    "DATABASE_LOCAL_URL",
+    "DATABASE_PUSH_URL",
+    "RESEND_API_MAIL",
+    "RESEND_API_KEY",
+    "ADMIN_MAIL",
+    "BLOB_READ_WRITE_TOKEN",
+    "REPORTS_API_KEY",
+    "APP_URL",
+    "CRON_SECRET",
+    "ADMIN_URL"
   ],
   "tasks": {
     "build": {

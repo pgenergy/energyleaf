@@ -2,7 +2,8 @@ import AvgEnergyConsumptionCard from "@/components/recommendations/avg-energy-co
 import AvgEnergyConsumptionError from "@/components/recommendations/avg-energy-consumption-card-error";
 import AvgEnergyConsumptionComparisonCard from "@/components/recommendations/avg-energy-consumption-comparison";
 import AvgEnergyConsumptionComparisonError from "@/components/recommendations/avg-energy-consumption-comparison-error";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Skeleton } from "@energyleaf/ui/skeleton";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Suspense } from "react";
 

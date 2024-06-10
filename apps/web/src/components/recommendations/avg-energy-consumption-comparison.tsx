@@ -5,7 +5,7 @@ import {
     getAvgEnergyConsumptionForUserInComparison,
     getElectricitySensorIdForUser,
 } from "@/query/energy";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 
 export default async function AvgEnergyConsumptionComparisonCard() {

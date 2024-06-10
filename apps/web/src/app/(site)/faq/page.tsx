@@ -1,14 +1,16 @@
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/card";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger
+} from "@energyleaf/ui/accordion";
 
 export const metadata = {
     title: "FAQ | Energyleaf",

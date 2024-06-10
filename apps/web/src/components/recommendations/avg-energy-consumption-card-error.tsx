@@ -1,6 +1,4 @@
-"use client";
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { TryAgainErrorHint } from "@energyleaf/ui/error";
 import type { FallbackProps } from "react-error-boundary";
 

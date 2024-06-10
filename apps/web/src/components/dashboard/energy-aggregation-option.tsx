@@ -2,9 +2,9 @@
 
 import { track } from "@vercel/analytics";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { calculateAggregationOptions } from "@energyleaf/lib/utils/use-aggregation-options";
 import React, { useMemo } from "react";
-
-import { AggregationOption, calculateAggregationOptions } from "@energyleaf/ui/components/utils";
+import { AggregationOption } from "@energyleaf/ui/utils/aggregation-option";
 
 export default function EnergyAggregation({ selected }) {
     const router = useRouter();

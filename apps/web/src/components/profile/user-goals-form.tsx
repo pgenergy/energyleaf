@@ -6,16 +6,16 @@ import { userGoalSchema } from "@/lib/schema/profile";
 import type { UserDataSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
-    Button,
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-    Form,
-    Label,
-    Spinner,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/card";
+import { Form } from "@energyleaf/ui/form";
+import { Button } from "@energyleaf/ui/button";
+import { Label } from "@energyleaf/ui/label";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
 import React, { useTransition } from "react";

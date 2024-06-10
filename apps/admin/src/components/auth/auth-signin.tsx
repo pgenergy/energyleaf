@@ -2,7 +2,10 @@
 
 import { signInAction } from "@/actions/auth";
 import { signInSchema } from "@/lib/schema/auth";
-import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Spinner } from "@energyleaf/ui";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
+import { Button } from "@energyleaf/ui/button";
+import { Input } from "@energyleaf/ui/input";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";

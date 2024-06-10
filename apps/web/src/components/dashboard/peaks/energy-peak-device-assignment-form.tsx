@@ -1,9 +1,9 @@
-"use client";
-
 import { getDevicesByPeak, getDevicesByUser, updateDevicesForPeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, MultiSelect } from "@energyleaf/ui";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
+import { Button } from "@energyleaf/ui/button";
+import { MultiSelect } from "@energyleaf/ui/multi-select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { track } from "@vercel/analytics";

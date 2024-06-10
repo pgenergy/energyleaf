@@ -1,6 +1,6 @@
 import { getUserDataById } from "@/query/user";
 import { userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 interface Props {
     userId: string;

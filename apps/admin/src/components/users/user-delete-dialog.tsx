@@ -11,7 +11,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/alert-dialog";
 import { useTransition } from "react";
 import { toast } from "sonner";
 

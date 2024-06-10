@@ -1,25 +1,25 @@
-"use client";
-
 import { createDevice, updateDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
 import { DeviceCategory } from "@energyleaf/db/types";
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
-    Button,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@energyleaf/ui/select";
+import {
     Form,
     FormControl,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
-    Input,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
+import { Button } from "@energyleaf/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";

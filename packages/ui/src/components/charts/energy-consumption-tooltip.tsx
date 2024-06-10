@@ -1,7 +1,7 @@
 "use client";
 
 import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
-import { Card, CardContent, CardDescription, CardHeader } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader } from "../../ui/card";
 import { format, getISOWeek } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";

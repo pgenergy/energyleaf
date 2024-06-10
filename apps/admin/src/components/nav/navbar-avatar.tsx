@@ -3,14 +3,14 @@
 import { signOutAction } from "@/actions/auth";
 import { Avatar as BAvatar } from "@boringer-avatars/react";
 import {
-    Avatar,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/dropdown-menu";
+import { Avatar } from "@energyleaf/ui/avatar";
 import type { User } from "lucia";
 import { LogOutIcon } from "lucide-react";
 import { useRouter } from "next/navigation";

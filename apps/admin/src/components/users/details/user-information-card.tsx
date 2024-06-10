@@ -3,8 +3,8 @@
 import { updateUser } from "@/actions/user";
 import type { UserSelectType } from "@energyleaf/db/types";
 import type { baseInformationSchema } from "@energyleaf/lib";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
-import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { UserBaseInformationForm } from "@energyleaf/ui/forms/user-base-information-form";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import type { z } from "zod";

@@ -3,7 +3,7 @@
 import UserStateForm from "@/components/users/details/user-state-form";
 import type { userStateSchema } from "@/lib/schema/user";
 import type { UserSelectType } from "@energyleaf/db/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import type { z } from "zod";
 
 interface Props {

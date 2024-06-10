@@ -6,25 +6,19 @@ import { signupSchema } from "@/lib/schema/auth";
 import { userData } from "@energyleaf/db/schema";
 import { userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
 import {
-    Checkbox,
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-    Input,
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-    Switch,
-    Textarea,
-    buttonVariants,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/select";
+import { Switch } from "@energyleaf/ui/switch";
+import { Textarea } from "@energyleaf/ui/textarea";
+import { buttonVariants } from "@energyleaf/ui/button";
+import { Checkbox } from "@energyleaf/ui/checkbox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useState, useTransition } from "react";

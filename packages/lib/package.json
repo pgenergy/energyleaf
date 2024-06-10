@@ -7,17 +7,23 @@
 		".": "./src/index.ts",
 		"./errors/auth": "./src/errors/auth-errors.ts",
 		"./errors/sensor": "./src/errors/sensor-errors.ts",
-		"./versioning": "./src/versioning/versions.ts"
+		"./versioning": "./src/versioning/versions.ts",
+		"./utils/*": "./src/utils/*.ts"
 	},
 	"scripts": {
 		"clean": "git clean -xdf node_modules"
 	},
 	"devDependencies": {
 		"@energyleaf/tsconfig": "workspace:^",
+		"@types/jsdom": "^21.1.7",
 		"@types/node": "^20.14.2",
 		"typescript": "^5.4.5"
 	},
 	"dependencies": {
-		"jose": "^5.4.0"
+		"canvas": "^2.11.2",
+		"chart.js": "^4.4.2",
+		"date-fns": "^3.6.0",
+		"jose": "^5.4.0",
+		"jsdom": "^24.1.0"
 	}
 }

@@ -5,14 +5,14 @@ import { setUserActive, setUserAdmin } from "@/actions/user";
 import { useUserContext } from "@/hooks/user-hook";
 import type { UserSelectType } from "@energyleaf/db/types";
 import {
-    Button,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/dropdown-menu";
+import { Button } from "@energyleaf/ui/button";
 import {
     BanIcon,
     CheckCircle2Icon,

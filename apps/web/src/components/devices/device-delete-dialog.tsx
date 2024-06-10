@@ -12,8 +12,8 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    buttonVariants,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/alert-dialog";
+import { buttonVariants } from "@energyleaf/ui/button";
 import { track } from "@vercel/analytics";
 import { useTransition } from "react";
 import { toast } from "sonner";

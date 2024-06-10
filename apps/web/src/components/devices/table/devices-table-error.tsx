@@ -1,6 +1,5 @@
-"use client";
-
-import { Button, Input } from "@energyleaf/ui";
+import { Input } from "@energyleaf/ui/Input";
+import { Button } from "@energyleaf/ui/button";
 import type { FallbackProps } from "react-error-boundary";
 
 export default function DevicesTableError({ resetErrorBoundary }: FallbackProps) {

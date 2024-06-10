@@ -8,20 +8,16 @@
         "clean": "git clean -xdf node_modules"
     },
     "exports": {
-        ".": "./src/ui/index.tsx",
-        "./hooks": "./src/hooks/index.tsx",
-        "./components/nav": "./src/components/nav/index.tsx",
-        "./components/charts": "./src/components/charts/index.tsx",
-        "./components/charts/energy-consumption": "./src/components/charts/energy-consumption/index.tsx",
-        "./components/utils": "./src/components/utils/index.tsx",
-        "./tools": "./src/tools/index.tsx",
-        "./components/forms": "./src/components/forms/index.tsx",
+        "./*": "./src/ui/*.tsx",
+        "./charts/*": "./src/components/charts/*.tsx",
+        "./forms/*": "./src/components/forms/*.tsx",
+        "./nav/*": "./src/components/nav/*.tsx",
+        "./utils/*": "./src/components/utils/*.tsx",
         "./error": "./src/error/index.tsx"
     },
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:*",
         "@turbo/gen": "^1.13.3",
-        "@types/jsdom": "^21.1.7",
         "@types/node": "^20.14.2",
         "@types/react": "^18.3.3",
         "@types/react-dom": "^18.3.0",
@@ -59,7 +55,6 @@
         "@radix-ui/react-toggle": "^1.0.3",
         "@radix-ui/react-tooltip": "^1.0.7",
         "@tanstack/react-table": "^8.17.3",
-        "chart.js": "^4.4.2",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
         "cmdk": "^1.0.0",

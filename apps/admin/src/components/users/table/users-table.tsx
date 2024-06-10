@@ -1,6 +1,6 @@
 import { usersTableColumns } from "@/components/users/table/users-table-columns";
 import { getAllUsers } from "@/query/user";
-import { DataTable } from "@energyleaf/ui";
+import { DataTable } from "@energyleaf/ui/data-table";
 
 export default async function UsersTable() {
     const users = await getAllUsers();
