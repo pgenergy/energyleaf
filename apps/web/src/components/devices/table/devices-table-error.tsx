@@ -1,4 +1,4 @@
-import { Input } from "@energyleaf/ui/Input";
+import { Input } from "@energyleaf/ui/input";
 import { Button } from "@energyleaf/ui/button";
 import type { FallbackProps } from "react-error-boundary";
 
