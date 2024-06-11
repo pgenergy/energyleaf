@@ -1,3 +1,4 @@
+import { Row, Section } from "@react-email/components";
 import type { ReactElement, ReactNode } from "react";
 import type { TrendModes } from "../types/trend-modes";
 import Card from "./card";
@@ -18,11 +19,13 @@ export default function MetricCard({ heading, icon, children, lastReportInfo }: 
         <Card heading={heading} icon={icon}>
             <span>{children}</span>
             {lastReportInfo && (
-                <div className="flex flex-col items-center pt-3 text-xs">
-                    <TrendIcon mode={lastReportInfo.mode} size={20} />
-                    <span className="font-semibold">Vorheriger Bericht:</span>
-                    <span>{lastReportInfo.lastReportElement()}</span>
-                </div>
+                <Section className="pt-3 text-xs">
+                    <Row>
+                        <TrendIcon mode={lastReportInfo.mode} size={20} />
+                    </Row>
+                    <Row className="font-semibold">Vorheriger Bericht:</Row>
+                    <Row>{lastReportInfo.lastReportElement()}</Row>
+                </Section>
             )}
         </Card>
     );

@@ -1,9 +1,11 @@
-import React, { type ReactElement } from "react";
+import { Container, Heading, Section } from "@react-email/components";
+import React, { type ReactNode, type ReactElement } from "react";
+import Centering from "./centering";
 
 interface Props {
     visible?: boolean;
     heading: string;
-    children: ReactElement;
+    children: ReactNode;
 }
 
 export default function Tile({ visible, heading, children }: Props) {
@@ -13,9 +15,9 @@ export default function Tile({ visible, heading, children }: Props) {
     }
 
     return (
-        <div>
-            <h3 className="flex flex-row justify-center">{heading}</h3>
-            <div className="m-2 flex flex-row justify-center">{children}</div>
-        </div>
+        <Centering>
+            <Heading as="h3">{heading}</Heading>
+            {children}
+        </Centering>
     );
 }

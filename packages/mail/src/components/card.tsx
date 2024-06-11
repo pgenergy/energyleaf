@@ -1,5 +1,6 @@
-import { Container } from "lucide-react";
+import { Container, Heading, Section } from "@react-email/components";
 import type { ReactElement, ReactNode } from "react";
+import Centering from "./centering";
 
 interface Props {
     children: ReactNode;
@@ -9,10 +10,10 @@ interface Props {
 
 export default function Card({ children, heading, icon }: Props) {
     return (
-        <div className="flex flex-col items-center justify-evenly rounded bg-muted p-2">
+        <Container className="rounded bg-muted p-2 text-center">
             {icon}
-            <h4 className="text-center">{heading}</h4>
-            {children}
-        </div>
+            <Heading as="h4">{heading}</Heading>
+            <Section>{children}</Section>
+        </Container>
     );
 }
