@@ -16,6 +16,9 @@ importers:
       '@biomejs/biome':
         specifier: ^1.7.3
         version: 1.7.3
+      '@energyleaf/db':
+        specifier: workspace:*
+        version: link:packages/db
       '@vercel/analytics':
         specifier: ^1.2.2
         version: 1.2.2(next@14.2.3(react@18.3.1))(react@18.3.1)
@@ -41,6 +44,9 @@ importers:
       '@total-typescript/ts-reset':
         specifier: ^0.5.1
         version: 0.5.1
+      jiti:
+        specifier: ^1.21.6
+        version: 1.21.6
       turbo:
         specifier: ^1.13.3
         version: 1.13.3
@@ -369,25 +375,6 @@ importers:
         version: 18.3.0
       typescript:
         specifier: ^5.4.5
-        version: 5.4.5
-
-  packages/proto:
-    dependencies:
-      '@protobuf-ts/runtime':
-        specifier: ^2.9.4
-        version: 2.9.4
-    devDependencies:
-      '@energyleaf/tsconfig':
-        specifier: workspace:^
-        version: link:../tsconfig
-      '@protobuf-ts/plugin':
-        specifier: ^2.9.4
-        version: 2.9.4
-      '@protobuf-ts/protoc':
-        specifier: ^2.9.4
-        version: 2.9.4
-      typescript:
-        specifier: 5.4.5
         version: 5.4.5
 
   packages/tailwindcss:
@@ -1207,6 +1194,7 @@ packages:
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -1214,6 +1202,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@humanwhocodes/retry@0.2.4':
     resolution: {integrity: sha512-Ttl/jHpxfS3st5sxwICYfk4pOH0WrLI1SpW283GgQL7sCWU7EHIOhX4b4fkIxr3tkfzwg8+FNojtzsIEE7Ecgg==}
@@ -1742,20 +1731,6 @@ packages:
   '@planetscale/database@1.18.0':
     resolution: {integrity: sha512-t2XdOfrVgcF7AW791FtdPS27NyNqcE1SpoXgk3HpziousvUMsJi4Q6NL3JyOBpsMOrvk94749o8yyonvX5quPw==}
     engines: {node: '>=16'}
-
-  '@protobuf-ts/plugin-framework@2.9.4':
-    resolution: {integrity: sha512-9nuX1kjdMliv+Pes8dQCKyVhjKgNNfwxVHg+tx3fLXSfZZRcUHMc1PMwB9/vTvc6gBKt9QGz5ERqSqZc0++E9A==}
-
-  '@protobuf-ts/plugin@2.9.4':
-    resolution: {integrity: sha512-Db5Laq5T3mc6ERZvhIhkj1rn57/p8gbWiCKxQWbZBBl20wMuqKoHbRw4tuD7FyXi+IkwTToaNVXymv5CY3E8Rw==}
-    hasBin: true
-
-  '@protobuf-ts/protoc@2.9.4':
-    resolution: {integrity: sha512-hQX+nOhFtrA+YdAXsXEDrLoGJqXHpgv4+BueYF0S9hy/Jq0VRTVlJS1Etmf4qlMt/WdigEes5LOd/LDzui4GIQ==}
-    hasBin: true
-
-  '@protobuf-ts/runtime-rpc@2.9.4':
-    resolution: {integrity: sha512-y9L9JgnZxXFqH5vD4d7j9duWvIJ7AShyBRoNKJGhu9Q27qIbchfzli66H9RvrQNIFk5ER7z1Twe059WZGqERcA==}
 
   '@protobuf-ts/runtime@2.9.4':
     resolution: {integrity: sha512-vHRFWtJJB/SiogWDF0ypoKfRIZ41Kq+G9cEFj6Qm1eQaAhJ1LDFvgZ7Ja4tb3iLOQhz0PaoPnnOijF1qmEqTxg==}
@@ -4026,6 +4001,10 @@ packages:
     resolution: {integrity: sha512-gFqAIbuKyyso/3G2qhiO2OM6shY6EPP/R0+mkDbyspxKazh8BXDC5FiFsUjlczgdNz/vfra0da2y+aHrusLG/Q==}
     hasBin: true
 
+  jiti@1.21.6:
+    resolution: {integrity: sha512-2yTgeWTWzMWkHu6Jp9NKgePDaYHbntiwvYuuJLbbN9vl7DC9DvXKOB2BC3ZZ92D3cvV/aflH0osDfwpHepQ53w==}
+    hasBin: true
+
   jose@5.3.0:
     resolution: {integrity: sha512-IChe9AtAE79ru084ow8jzkN2lNrG3Ntfiv65Cvj9uOCE2m5LNsdHG+9EbxWxAoWRF9TgDOqLN5jm08++owDVRg==}
 
@@ -5106,11 +5085,6 @@ packages:
   type@2.7.2:
     resolution: {integrity: sha512-dzlvlNlt6AXU7EBSfpAscydQ7gXB+pPGsPnfJnZpiNJBDj7IaJzQlBZYGdEi4R9HmPdBv2XmWJ6YUtoTa7lmCw==}
 
-  typescript@3.9.10:
-    resolution: {integrity: sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
-
   typescript@5.1.6:
     resolution: {integrity: sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA==}
     engines: {node: '>=14.17'}
@@ -6117,25 +6091,6 @@ snapshots:
     optional: true
 
   '@planetscale/database@1.18.0': {}
-
-  '@protobuf-ts/plugin-framework@2.9.4':
-    dependencies:
-      '@protobuf-ts/runtime': 2.9.4
-      typescript: 3.9.10
-
-  '@protobuf-ts/plugin@2.9.4':
-    dependencies:
-      '@protobuf-ts/plugin-framework': 2.9.4
-      '@protobuf-ts/protoc': 2.9.4
-      '@protobuf-ts/runtime': 2.9.4
-      '@protobuf-ts/runtime-rpc': 2.9.4
-      typescript: 3.9.10
-
-  '@protobuf-ts/protoc@2.9.4': {}
-
-  '@protobuf-ts/runtime-rpc@2.9.4':
-    dependencies:
-      '@protobuf-ts/runtime': 2.9.4
 
   '@protobuf-ts/runtime@2.9.4': {}
 
@@ -8611,6 +8566,8 @@ snapshots:
 
   jiti@1.21.0: {}
 
+  jiti@1.21.6: {}
+
   jose@5.3.0: {}
 
   js-beautify@1.15.1:
@@ -9843,8 +9800,6 @@ snapshots:
   type-fest@0.7.1: {}
 
   type@2.7.2: {}
-
-  typescript@3.9.10: {}
 
   typescript@5.1.6: {}
 
