@@ -16,6 +16,7 @@ import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { sendReport } from "@energyleaf/mail";
 import { renderChart } from "@energyleaf/ui/tools";
 import { renderDailyConsumptionChart, renderDailyStatistic } from "./graphs";
+import { renderImage } from "./image";
 
 interface UserReportData {
     userId: string;
@@ -124,7 +125,7 @@ export async function createReportData(user: UserReportData): Promise<ReportProp
         ? await getDailyGoalStatistic(dailyConsumption, userData)
         : undefined;
 
-    const dailyConsumptionGraph: string | undefined = renderDailyConsumptionChart(dailyConsumption);
+    const dailyConsumptionGraph: string = await renderImage(() => renderDailyConsumptionChart(dailyConsumption));
 
     const lastReport = await getLastReportForUser(user.userId);
 
@@ -170,12 +171,13 @@ async function getDailyGoalStatistic(
     userData: UserDataSelectType,
 ): Promise<DailyGoalStatistic[]> {
     const dailyGoalProgresses = await getDailyGoalProgress(dailyConsumption, userData);
-    return dailyGoalProgresses.map((day) => {
+    const promises = dailyGoalProgresses.map(async (day) => {
         return {
             ...day,
-            image: renderDailyStatistic(day),
+            image: await renderImage(() => renderDailyStatistic(day)),
         };
     });
+    return await Promise.all(promises);
 }
 
 async function getDailyGoalProgress(
