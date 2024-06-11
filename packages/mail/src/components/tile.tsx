@@ -1,5 +1,5 @@
-import { Container, Heading, Section } from "@react-email/components";
-import React, { type ReactNode, type ReactElement } from "react";
+import { Heading } from "@react-email/components";
+import React, { type ReactNode } from "react";
 import Centering from "./centering";
 
 interface Props {

@@ -1,5 +1,5 @@
 import { type DailyGoalStatistic, formatDate } from "@energyleaf/lib";
-import { Img, Section, Text } from "@react-email/components";
+import { Img, Text } from "@react-email/components";
 import React from "react";
 
 interface Props {

@@ -1,6 +1,5 @@
 import { Container, Heading, Section } from "@react-email/components";
 import type { ReactElement, ReactNode } from "react";
-import Centering from "./centering";
 
 interface Props {
     children: ReactNode;

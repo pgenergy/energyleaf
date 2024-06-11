@@ -14,7 +14,6 @@ import { buildUnsubscribeReportsUrl } from "@energyleaf/lib";
 import type { DailyConsumption, DailyGoalProgress, DailyGoalStatistic, ReportProps } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { sendReport } from "@energyleaf/mail";
-import { renderChart } from "@energyleaf/ui/tools";
 import { renderDailyConsumptionChart, renderDailyStatistic } from "./graphs";
 import { renderImage } from "./image";
 
