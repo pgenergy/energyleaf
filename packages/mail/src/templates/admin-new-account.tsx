@@ -11,7 +11,15 @@ interface Props {
     img?: string;
 }
 
-export default function AdminNewAccountCreatedTemplate({ name, meter, mail, img, meterNumber, hasWifi, hasPower }: Props) {
+export default function AdminNewAccountCreatedTemplate({
+    name,
+    meter,
+    mail,
+    img,
+    meterNumber,
+    hasWifi,
+    hasPower,
+}: Props) {
     return (
         <Html lang="de">
             <Preview>Energyleaf Konto erstellt.</Preview>

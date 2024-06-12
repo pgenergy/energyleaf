@@ -24,12 +24,8 @@ export const signupSchema = z.object({
         .transform((d) => d.replaceAll(" ", ""))
         .optional(),
     address: z.string().min(1, { message: "Geben sie eine Adresse ein" }),
-    password: z
-        .string()
-        .min(8, { message: "Ihr Passwort muss eine Länge von mindestes 8 haben." }),
-    passwordRepeat: z
-        .string()
-        .min(8, { message: "Ihr Passwort muss eine Länge von mindestesn 8 haben." }),
+    password: z.string().min(8, { message: "Ihr Passwort muss eine Länge von mindestes 8 Zeichen haben." }),
+    passwordRepeat: z.string().min(8, { message: "Ihr Passwort muss eine Länge von mindestesn 8 Zeichen haben." }),
     hasPower: z.boolean().default(false),
     hasWifi: z.boolean().default(false),
     comment: z.string().optional(),
@@ -56,6 +52,6 @@ export const forgotSchema = z.object({
 });
 
 export const resetSchema = z.object({
-    password: z.string().min(8, { message: "Ihr Passwort muss eine Länge von mindestes 8 haben." }),
-    passwordRepeat: z.string().min(8, { message: "Ihr Passwort muss eine Länge von mindestesn 8 haben." }),
+    password: z.string().min(8, { message: "Ihr Passwort muss eine Länge von mindestes 8 Zeichen haben." }),
+    passwordRepeat: z.string().min(8, { message: "Ihr Passwort muss eine Länge von mindestesn 8 Zeichen haben." }),
 });

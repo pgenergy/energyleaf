@@ -1,6 +1,6 @@
 import { and, eq, gt, lte, or, sql } from "drizzle-orm";
 import db from "../";
-import { historyReports, historyUserData, reports, session, user, userData } from "../schema";
+import { historyReports, historyUserData, reports, session, user, userData, userExperimentData } from "../schema";
 import type { UserSelectType } from "../types/types";
 
 /**
@@ -18,8 +18,27 @@ export async function getUserById(id: string) {
     return query[0];
 }
 
+/**
+ * Delete all sessions of a user
+ *
+ * @param id<string> The id of the user
+ */
 export async function deleteSessionsOfUser(id: string) {
     return await db.delete(session).where(eq(session.userId, id));
+}
+
+/**
+ * Get user experiment data
+ *
+ * @param userId<string> The id of the user
+ */
+export async function getUserExperimentData(userId: string) {
+    const data = await db.select().from(userExperimentData).where(eq(userExperimentData.userId, userId));
+    if (!data || data.length === 0) {
+        return null;
+    }
+
+    return data[0];
 }
 
 /**

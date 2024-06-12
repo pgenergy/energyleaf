@@ -96,11 +96,19 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
 export async function updateUserState(data: z.infer<typeof userStateSchema>, id: string) {
     await checkIfAdmin();
 
+    if (data.experimentStatus === "installation" && !data.installationDate) {
+        throw new Error("Installation date is required for installation status");
+    }
+
+    if (data.experimentStatus === "deinstallation" && !data.deinstallationDate) {
+        throw new Error("Deinstallation date is required for deinstallation status");
+    }
+
     try {
         await updateUserDb(
             {
+                isActive: data.isActive,
                 isAdmin: data.isAdmin,
-                isActive: data.active,
                 isParticipant: data.isParticipant,
                 appVersion: data.appVersion,
             },
@@ -109,5 +117,9 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
         revalidatePath("/users");
     } catch (e) {
         throw new Error("Failed to update user");
+    }
+
+    if (!data.isParticipant) {
+        return;
     }
 }

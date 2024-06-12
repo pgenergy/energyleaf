@@ -32,6 +32,29 @@ export const user = mysqlTable("user", {
     isParticipant: boolean("is_participant").default(false).notNull(),
     onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
     appVersion: smallint("app_version").default(Versions.transparency).notNull(),
+    activationDate: timestamp("activation_date"),
+});
+
+export const userExperimentData = mysqlTable("user_experiment_data", {
+    userId: varchar("user_id", { length: 30 }).notNull().primaryKey(),
+    experimentStatus: mysqlEnum("experiment_status", [
+        "registered",
+        "approved",
+        "dismissed",
+        "exported",
+        "first_survey",
+        "first_finished",
+        "installation",
+        "second_survey",
+        "second_finished",
+        "third_survey",
+        "third_finished",
+        "deinstallation",
+        "inactive",
+    ]),
+    installationDate: timestamp("installation_date"),
+    deinstallationDate: timestamp("deinstallation_date"),
+    experimentNumber: int("experiment_number"),
 });
 
 export const userData = mysqlTable("user_data", {
