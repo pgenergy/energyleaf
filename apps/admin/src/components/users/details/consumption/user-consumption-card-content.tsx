@@ -51,16 +51,15 @@ function useConsumptionData(userId: string) {
                 context.aggregationType || AggregationType.RAW,
             );
 
-            const formattedData = energyData.map((entry) => ({
+            return energyData.map((entry) => ({
                 sensorId: entry.sensorId || 0,
                 energy: entry.value,
                 timestamp:
                     typeof entry.timestamp === "string" || typeof entry.timestamp === "number"
                         ? new Date(entry.timestamp).toISOString()
                         : "",
+                sensorDataId: entry.id,
             }));
-
-            return formattedData;
         };
 
         fetchData()

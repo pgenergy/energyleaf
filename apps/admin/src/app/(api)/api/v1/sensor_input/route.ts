@@ -1,6 +1,5 @@
 import { getSensorIdFromSensorToken, insertSensorData } from "@energyleaf/db/query";
-import { SensorDataRequest, SensorDataResponse, SensorType } from "@energyleaf/proto";
-import { parseReadableStream } from "@energyleaf/proto/util";
+import { SensorDataRequest, SensorDataResponse, SensorType, parseReadableStream } from "@energyleaf/proto";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
@@ -34,9 +33,17 @@ export const POST = async (req: NextRequest) => {
         try {
             const sensorId = await getSensorIdFromSensorToken(data.accessToken);
             const needsSum = data.type === SensorType.ANALOG_ELECTRICITY;
+            const inputData = {
+                sensorId,
+                value: data.value,
+                valueOut: data.valueOut,
+                valueCurrent: data.valueCurrent,
+                sum: needsSum,
+                timestamp: data.timestamp ? new Date(Number(data.timestamp)) : new Date(Date.now()),
+            };
 
             try {
-                await insertSensorData({ sensorId, value: data.value, sum: needsSum });
+                await insertSensorData(inputData);
             } catch (e) {
                 console.error(e, data);
                 if ((e as unknown as Error).message === "value/too-high") {

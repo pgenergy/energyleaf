@@ -17,6 +17,10 @@ export default function EnergyAggregation({ selected }) {
         return calculateAggregationOptions(startDateStr, endDateStr);
     }, [searchParams]);
 
+    if (availableOptions.length <= 1) {
+        return null;
+    }
+
     const onChange = (selectedOption) => {
         track("changeAggregationOption");
         const search = new URLSearchParams();

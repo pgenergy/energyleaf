@@ -41,7 +41,6 @@ export default function SignUpForm() {
             firstname: "",
             lastname: "",
             mail: "",
-            phone: "",
             address: "",
             comment: "",
             hasWifi: false,
@@ -62,7 +61,7 @@ export default function SignUpForm() {
             for (const key of keys) {
                 const value = data[key];
                 if (typeof value === "boolean") {
-                    form.append(key, (value as boolean) ? 'true' : 'false');
+                    form.append(key, (value as boolean) ? "true" : "false");
                 } else {
                     form.append(key, value);
                 }
