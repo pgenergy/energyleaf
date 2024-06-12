@@ -34,7 +34,7 @@ export async function logError(
     };
 
     //Important todo -> Use blob function to store error stack
-
+    // todo for next pge-180 -> Integrate postHog custom events?
     console.error(error);
     await log(title, "error", appFunction, appComponent, detailsObj);
 }

@@ -10,9 +10,8 @@ import {
     createUser,
     getUserById,
     getUserByMail,
-    updatePassword,
-    log,
-    logError, trackAction
+    logError, trackAction,
+    updatePassword
 } from "@energyleaf/db/query";
 import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
@@ -30,8 +29,8 @@ import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
 import type { userData } from "@energyleaf/db/schema";
 import { put } from "@vercel/blob";
-import {string, z} from "zod";
 import {waitUntil} from "@vercel/functions";
+import type {z} from "zod";
 
 /**
  * Server action for creating a new account
@@ -480,7 +479,7 @@ export async function signInAction(email: string, password: string) {
         redirect("/created");
     }
 
-    let match = false;
+    let match: boolean;
 
     try {
         match = await new Argon2id().verify(user.password, password);
