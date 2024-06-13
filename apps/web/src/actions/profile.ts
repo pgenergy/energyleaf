@@ -33,9 +33,10 @@ import type { Session } from "lucia";
 import type { z } from "zod";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
+    let session: Session | undefined = undefined;
+    const userDataToLog = "private";
     try {
-        const { session } = await getActionSession();
-        const userDataToLog = "private";
+        session = (await getActionSession())?.session as Session;
         if (!session) {
             throw new UserNotLoggedInError();
         }
@@ -55,7 +56,7 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
                     username: data.username,
                     email: data.email,
                 },
-                user.id,
+                session.userId,
             );
             waitUntil(
                 trackAction("user/update-base-information", "update-base-information", "web", {
@@ -91,14 +92,15 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
 }
 
 export async function updateBaseInformationPassword(data: z.infer<typeof passwordSchema>) {
+    let session: Session | undefined = undefined;
     try {
-        const { user, session } = await getActionSession();
+        session = (await getActionSession())?.session as Session;
 
         if (!session) {
             throw new UserNotLoggedInError();
         }
 
-        const dbuser = await getUserById(user.id);
+        const dbuser = await getUserById(session.userId);
         if (!dbuser) {
             throw new UserNotFoundError();
         }
@@ -113,7 +115,7 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
                 {
                     password: hash,
                 },
-                user.id,
+                session.userId,
             );
             waitUntil(trackAction("user/update-password", "update-password", "web", { session }));
             revalidatePath("/profile");
@@ -142,14 +144,15 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
 }
 
 export async function updateMailInformation(data: z.infer<typeof reportSettingsSchema>) {
+    let session: Session | undefined = undefined;
     try {
-        const { user, session } = await getActionSession();
+        session = (await getActionSession())?.session as Session;
 
         if (!session) {
             throw new UserNotLoggedInError();
         }
 
-        const dbuser = await getUserById(user.id);
+        const dbuser = await getUserById(session.userId);
         if (!dbuser) {
             throw new UserNotFoundError();
         }
@@ -161,7 +164,7 @@ export async function updateMailInformation(data: z.infer<typeof reportSettingsS
                     interval: data.interval,
                     time: data.time,
                 },
-                user.id,
+                session.userId,
             );
             revalidatePath("/profile");
             revalidatePath("/dashboard");
@@ -187,7 +190,7 @@ export async function updateMailInformation(data: z.infer<typeof reportSettingsS
 }
 
 export async function updateUserDataInformation(data: z.infer<typeof userDataSchema>) {
-    let session;
+    let session: Session | undefined = undefined;
     try {
         session = (await getActionSession())?.session as Session;
 
@@ -258,8 +261,9 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
 }
 
 export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
+    let session: Session | undefined = undefined;
     try {
-        const { user, session } = await getActionSession();
+        session = (await getActionSession())?.session as Session;
 
         if (!session) {
             throw new UserNotLoggedInError();
@@ -272,12 +276,12 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
                     consumptionGoal: data.goalValue,
                 },
             } as Partial<UserDataType>);
-            trackAction("user/update-goals-demo", "update-user-goals", "web", { data, session });
+            waitUntil(trackAction("user/update-goals-demo", "update-user-goals", "web", { data, session }));
             revalidateUserDataPaths();
             return;
         }
 
-        const dbuser = await getUserById(user.id);
+        const dbuser = await getUserById(session.userId);
         if (!dbuser) {
             throw new UserNotFoundError();
         }
@@ -288,7 +292,7 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
                     timestamp: new Date(),
                     consumptionGoal: data.goalValue,
                 },
-                user.id,
+                session.userId,
             );
             waitUntil(trackAction("user/updated-goals", "update-user-goals", "web", { data, session }));
             revalidateUserDataPaths();
@@ -316,14 +320,15 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
 }
 
 export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
+    let session: Session | undefined = undefined;
     try {
-        const { user, session } = await getActionSession();
-
+        session = (await getActionSession())?.session as Session;
         if (!session) {
             throw new UserNotLoggedInError();
         }
 
-        const dbuser = await getUserById(user.id);
+        const userId = session.userId;
+        const dbuser = await getUserById(userId);
         if (!dbuser) {
             throw new UserNotFoundError();
         }
@@ -334,9 +339,9 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
         }
 
         try {
-            await deleteUser(user.id);
-            await deleteSessionsOfUser(user.id);
-            waitUntil(trackAction("user/deleted-account", "delete-account", "web", { session, userId: user.id }));
+            await deleteUser(session.userId);
+            await deleteSessionsOfUser(userId);
+            waitUntil(trackAction("user/deleted-account", "delete-account", "web", { session, userId: userId }));
             cookies().delete(lucia.sessionCookieName);
             revalidatePath("/profile");
             revalidatePath("/dashboard");

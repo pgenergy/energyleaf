@@ -13,11 +13,13 @@ import { revalidatePath } from "next/cache";
 import "server-only";
 import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
+import type { Session } from "lucia";
 import type { z } from "zod";
 
 export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sensorDataId: string) {
+    let session: Session | undefined = undefined;
     try {
-        const { session } = await getActionSession();
+        session = (await getActionSession())?.session as Session;
 
         if (!session) {
             throw new UserNotLoggedInError();
@@ -26,7 +28,7 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         const devices = data.device.map((device) => device.id);
         try {
             await updateDevicesForPeakDb(sensorDataId, devices);
-            await trackAction("peak/update-devices", "update-devices-for-peak", "web", { data, session });
+            waitUntil(trackAction("peak/update-devices", "update-devices-for-peak", "web", { data, session }));
         } catch (e) {
             waitUntil(logError("peak/error-updating-devices", "update-devices-for-peak", "web", { data, session }, e));
             return {
@@ -36,13 +38,13 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(logError("user/not-logged-in", "update-devices-for-peak", "web", {}, err));
+            waitUntil(logError("user/not-logged-in", "update-devices-for-peak", "web", { data }, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um die Peaks zu bearbeiten.",
             };
         }
-        waitUntil(logError("peak/error", "update-devices-for-peak", "web", {}, err));
+        waitUntil(logError("peak/error", "update-devices-for-peak", "web", { data, session }, err));
         return {
             success: false,
             message: "Es ist ein Fehler aufgetreten.",

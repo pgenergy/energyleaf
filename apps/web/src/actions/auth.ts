@@ -142,14 +142,14 @@ export async function createAccount(data: FormData) {
             electricityMeterType,
             meterImgUrl: url,
         } satisfies CreateUserType);
-        await trackAction("user-account/created", "create-account", "web", { mail });
+        waitUntil(trackAction("user-account/created", "create-account", "web", { mail }));
         await sendAccountCreatedEmail({
             to: mail,
             name: `${firstname} ${lastname}`,
             apiKey: env.RESEND_API_KEY,
             from: env.RESEND_API_MAIL,
         });
-        await trackAction("account-created-mail/sent", "create-account", "web", { mail });
+        waitUntil(trackAction("account-created-mail/sent", "create-account", "web", { mail }));
         await sendAdminNewAccountCreatedEmail({
             email: mail,
             name: username,
@@ -159,7 +159,7 @@ export async function createAccount(data: FormData) {
             from: env.RESEND_API_MAIL,
             apiKey: env.RESEND_API_KEY,
         });
-        await trackAction("admin-new-account-created-mail/sent", "create-account", "web", { mail, username });
+        waitUntil(trackAction("admin-new-account-created-mail/sent", "create-account", "web", { mail, username }));
     } catch (err) {
         waitUntil(logError("error-creating-user", "create-account", "web", { mail }, err));
         return {
@@ -201,7 +201,7 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
             link: resetUrl,
             apiKey: env.RESEND_API_KEY,
         });
-        await trackAction("reset-mail/sent", "forgot-password", "web", { mail, userId: user.id, token, resetUrl });
+        waitUntil(trackAction("reset-mail/sent", "forgot-password", "web", { mail, userId: user.id, token, resetUrl }));
     } catch (err) {
         console.error(err);
         waitUntil(
@@ -267,7 +267,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     try {
         const hash = await new Argon2id().hash(newPassword);
         await updatePassword({ password: hash }, user.id);
-        await trackAction("password-changed", "reset-password", "web", { resetToken, userId: sub });
+        waitUntil(trackAction("password-changed", "reset-password", "web", { resetToken, userId: sub }));
     } catch (err) {
         waitUntil(logError("updating-password", "reset-password", "web", { resetToken, userId: sub }, err));
         return {
@@ -283,7 +283,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
             name: user.username,
             apiKey: env.RESEND_API_KEY,
         });
-        await trackAction("password-changed-mail/sent", "reset-password", "web", { resetToken, userId: sub });
+        waitUntil(trackAction("password-changed-mail/sent", "reset-password", "web", { resetToken, userId: sub }));
     } catch (err) {
         waitUntil(
             logError("password-changed-mail/error-sending", "reset-password", "web", { resetToken, userId: sub }, err),
@@ -357,7 +357,7 @@ export async function signInAction(email: string, password: string) {
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
     await handleSignIn(newSession, user);
-    await trackAction("user-signed-in", "sign-in", "web", { email, userId: user.id });
+    waitUntil(trackAction("user-signed-in", "sign-in", "web", { email, userId: user.id }));
 }
 
 async function handleSignIn(session: Session, user: UserSelectType | null) {
@@ -387,7 +387,7 @@ export async function signInDemoAction() {
 
     cookieStore.set("demo_mode", "true");
     cookieStore.set("demo_data", JSON.stringify(getUserDataCookieStore()));
-    await trackAction("demo-user-signed-in", "sign-in-demo", "web", {});
+    waitUntil(trackAction("demo-user-signed-in", "sign-in-demo", "web", {}));
     redirect("/dashboard");
 }
 
@@ -416,7 +416,7 @@ export async function signOutDemoAction() {
     cookieStore.delete("demo_devices");
     cookieStore.delete("demo_peaks");
     cookieStore.delete("demo_mode");
-    await trackAction("demo-user-signed-out", "sign-out-demo", "web", {});
+    waitUntil(trackAction("demo-user-signed-out", "sign-out-demo", "web", {}));
     redirect("/");
 }
 

@@ -6,16 +6,18 @@ import { UserNotLoggedInError } from "@energyleaf/lib";
 import { redirect } from "next/navigation";
 import "server-only";
 import { waitUntil } from "@vercel/functions";
+import type { Session } from "lucia";
 
 export async function completeOnboarding() {
+    let session: Session | undefined = undefined;
     try {
-        const { session } = await getActionSession();
+        session = (await getActionSession())?.session as Session;
         if (!session) {
             throw new UserNotLoggedInError();
         }
 
         await updateUser({ onboardingCompleted: true }, session.userId);
-        await trackAction("user/update-onboarding-completed", "complete-onboarding", "web", { session });
+        waitUntil(trackAction("user/update-onboarding-completed", "complete-onboarding", "web", { session }));
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
             waitUntil(logError("user/not-logged-in", "complete-onboarding", "web", {}, err));

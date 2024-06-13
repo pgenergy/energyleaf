@@ -32,9 +32,6 @@ export async function logError(
             stack: error.stack?.split("\n").slice(1, 5).join("\n"),
         },
     };
-
-    //Important todo -> Use blob function to store error stack
-    // todo for next pge-180 -> Integrate postHog custom events?
     console.error(error);
     await log(title, "error", appFunction, appComponent, detailsObj);
 }
@@ -45,5 +42,8 @@ export async function trackAction(
     appComponent: (typeof logs.appComponent.enumValues)[number],
     details: object,
 ) {
+    // todo for pge-180 -> Integrate postHog custom events?
+    
+    console.info(title, appFunction, appComponent, details)
     await log(title, "action", appFunction, appComponent, details);
 }
