@@ -11,26 +11,30 @@ import {
     getUserById,
     getUserByMail,
     logError, trackAction,
-    updatePassword
+    updatePassword,
+    updateReportConfig,
 } from "@energyleaf/db/query";
+import type { userData } from "@energyleaf/db/schema";
 import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
-import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
+import { UserNotFoundError, UserNotLoggedInError, buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import {
     sendAccountCreatedEmail,
     sendAdminNewAccountCreatedEmail,
     sendPasswordChangedEmail,
     sendPasswordResetEmail,
 } from "@energyleaf/mail";
+import { put } from "@vercel/blob";
 import * as jose from "jose";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
+import type { reportSettingsSchema } from "@/lib/schema/profile";
+import type { z } from "zod";
 import type { userData } from "@energyleaf/db/schema";
 import { put } from "@vercel/blob";
 import {waitUntil} from "@vercel/functions";
-import type {z} from "zod";
 
 /**
  * Server action for creating a new account
@@ -636,4 +640,45 @@ export async function signOutDemoAction() {
         {}
     )
     redirect("/");
+}
+
+export async function updateReportConfigSettings(data: z.infer<typeof reportSettingsSchema>, userId: string | null) {
+    let id = userId;
+    if (!id) {
+        const { user } = await getActionSession();
+
+        if (!user) {
+            return {
+                success: false,
+                message: "Nicht eingeloggt.",
+            };
+        }
+
+        id = user.id;
+    }
+
+    const dbUser = await getUserById(id);
+    if (!dbUser) {
+        return {
+            success: false,
+            message: "Nutzer nicht gefunden.",
+        };
+    }
+
+    try {
+        await updateReportConfig(
+            {
+                receiveMails: data.receiveMails,
+                interval: data.interval,
+                time: data.time,
+            },
+            id,
+        );
+    } catch (e) {
+        console.log(e);
+        return {
+            success: false,
+            message: "Fehler beim Speichern der Einstellungen.",
+        };
+    }
 }

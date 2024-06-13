@@ -1,5 +1,5 @@
-import { formatNumber } from "@/lib/consumption/number-format";
 import { GoalState, type GoalStatus } from "@/types/goals";
+import { formatNumber } from "@energyleaf/lib";
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { CircularProgress } from "@energyleaf/ui";
 import { CheckCircleIcon, CircleAlertIcon, XCircleIcon } from "lucide-react";

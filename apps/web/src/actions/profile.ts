@@ -5,8 +5,8 @@ import { lucia } from "@/lib/auth/auth.config";
 import { isDemoUser, updateUserDataCookieStore } from "@/lib/demo/demo";
 import type {
     deleteAccountSchema,
-    mailSettingsSchema,
     passwordSchema,
+    reportSettingsSchema,
     userDataSchema,
     userGoalSchema,
 } from "@/lib/schema/profile";
@@ -195,7 +195,7 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
     }
 }
 
-export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>) {
+export async function updateMailInformation(data: z.infer<typeof reportSettingsSchema>) {
     try {
         const { user, session } = await getActionSession();
 

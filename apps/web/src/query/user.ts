@@ -3,6 +3,7 @@ import {
     getUserById as getDbUserById,
     getUserData as getDbUserDataById,
     getUserDataHistory as getDbUserDataHistoryById,
+    getUserIdByToken as getDbUserIdByToken,
 } from "@energyleaf/db/query";
 import type { UserDataSelectType, UserDataType } from "@energyleaf/db/types";
 import { Versions } from "@energyleaf/lib/versioning";
@@ -56,4 +57,8 @@ export const getUserDataHistory = cache(async (id: string): Promise<UserDataSele
         return userData ? [userData.user_data] : [];
     }
     return await getDbUserDataHistoryById(id);
+});
+
+export const getUserIdByToken = cache(async (token: string) => {
+    return await getDbUserIdByToken(token);
 });

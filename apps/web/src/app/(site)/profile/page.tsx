@@ -2,7 +2,7 @@ import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import ChangePasswordForm from "@/components/profile/change-password-form";
 import UserDataForm from "@/components/profile/data-form";
-import MailSettingsForm from "@/components/profile/mail-settings-form";
+import ReportConfigCard from "@/components/profile/report-config-card";
 import UserGoalsForm from "@/components/profile/user-goals-form";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
@@ -44,7 +44,12 @@ export default async function ProfilePage() {
                 address={user.address}
             />
             <ChangePasswordForm disabled={isDemo} />
-            <MailSettingsForm disabled={isDemo} initialValues={reportConfig} />
+            <ReportConfigCard
+                disabled={isDemo}
+                receiveMails={reportConfig.receiveMails}
+                interval={reportConfig.interval}
+                time={reportConfig.time}
+            />
             <UserDataForm initialData={data} />
             {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData?.user_data} />}
             <AccountDeletionForm disabled={isDemo} />

@@ -1,4 +1,4 @@
-import type { device, reports, sensor, sensorData, user, userData } from "../schema";
+import type { device, reportConfig, reports, sensor, sensorData, user, userData } from "../schema";
 
 export enum SortOrder {
     ASC = "ASC",
@@ -11,10 +11,12 @@ export type UserDataSelectType = typeof userData.$inferSelect;
 
 export type DeviceSelectType = typeof device.$inferSelect;
 
+export type ReportConfigSelectType = typeof reportConfig.$inferSelect;
+
 export type ReportSelectType = typeof reports.$inferSelect;
 
 export type UserDataType = {
-    reports: ReportSelectType;
+    report_config: ReportConfigSelectType;
     user_data: UserDataSelectType;
 };
 
@@ -71,4 +73,8 @@ export enum DeviceCategory {
     ClimateAndHeating = "Klima- und Heizgeräte",
     Lighting = "Beleuchtung",
     Care = "Pflege",
+}
+
+export enum TokenType {
+    Report = "report",
 }
