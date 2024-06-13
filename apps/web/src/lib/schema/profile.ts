@@ -45,8 +45,5 @@ export const deleteAccountSchema = z.object({
 });
 
 export const userGoalSchema = z.object({
-    goalValue: z.coerce
-        .number()
-        .int({ message: "Bitte geben Sie eine Zahl ohne Kommawerte ein." })
-        .positive({ message: "Bitte geben Sie einen gültigen Wert an." }),
+    goalValue: z.number().positive({ message: "Bitte geben Sie einen gültigen Wert an." }),
 });

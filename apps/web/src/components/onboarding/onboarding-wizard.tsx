@@ -169,7 +169,11 @@ function GoalStep({ userData }: UserDataStepProps) {
         <WizardPage title="Ziel">
             <Form {...form}>
                 <form className="flex flex-col gap-4">
-                    <UserGoalsFormFields form={form} goalIsCalculated={goalCalculated} />
+                    <UserGoalsFormFields
+                        form={form}
+                        goalIsCalculated={goalCalculated}
+                        workingPrice={userData.workingPrice}
+                    />
                 </form>
             </Form>
         </WizardPage>

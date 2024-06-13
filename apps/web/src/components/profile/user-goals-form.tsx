@@ -34,7 +34,6 @@ export default function UserGoalsForm({ userData }: Props) {
         defaultValues: {
             goalValue: userData?.consumptionGoal || 0,
         },
-        mode: "onChange",
     });
 
     async function updateUserGoalsCallback(data: z.infer<typeof userGoalSchema>) {
@@ -71,7 +70,7 @@ export default function UserGoalsForm({ userData }: Props) {
             <CardContent>
                 <Form {...form}>
                     <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-                        <UserGoalsFormFields form={form} />
+                        <UserGoalsFormFields form={form} workingPrice={userData?.workingPrice} />
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending} type="submit">
                                 {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
@@ -80,13 +79,6 @@ export default function UserGoalsForm({ userData }: Props) {
                         </div>
                     </form>
                 </Form>
-                <Label>Budget</Label>
-                <p className="text-[0.8rem] text-muted-foreground">
-                    Mit dem Zielverbrauch haben Sie gemäß Ihres Strompreises folgende Kosten pro Tag.
-                </p>
-                <h1 className="text-center font-bold text-2xl text-primary">
-                    {(form.getValues().goalValue * (userData?.workingPrice || 0)).toFixed(2)} €
-                </h1>
             </CardContent>
         </Card>
     );

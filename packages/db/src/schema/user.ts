@@ -46,7 +46,7 @@ export const userData = mysqlTable("user_data", {
     livingSpace: int("living_space"),
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
     monthlyPayment: int("advance_payment_electricity"),
-    consumptionGoal: int("consumption_goal"),
+    consumptionGoal: float("consumption_goal"),
     electricityMeterType: mysqlEnum("electricity_meter_type", ["digital", "analog"]),
     electricityMeterImgUrl: text("electricity_meter_img_url"),
     powerAtElectricityMeter: boolean("power_at_electricity_meter").default(false),
