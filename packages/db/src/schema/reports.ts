@@ -22,7 +22,7 @@ export const historyReportConfig = mysqlTable("history_report_config", {
     createdTimestamp: timestamp("created_timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
-export const reports = mysqlTable("reports", {
+export const reports = mysqlTable("report_data", {
     id: varchar("id", { length: 35 })
         .primaryKey()
         .notNull()
