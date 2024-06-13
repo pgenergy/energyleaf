@@ -11,6 +11,7 @@ export const userStateSchema = z
         experimentStatus: z.enum(userExperimentData.experimentStatus.enumValues).optional(),
         installationDate: z.date().optional(),
         deinstallationDate: z.date().optional(),
+        getsPaid: z.boolean().default(false),
     })
     .superRefine((data, ctx) => {
         if (data.experimentStatus === "installation" && !data.installationDate) {

@@ -42,6 +42,26 @@ export async function getUserExperimentData(userId: string) {
 }
 
 /**
+ * Create experiment data for a user
+ */
+export async function createExperimentDataForUser(data: typeof userExperimentData.$inferInsert) {
+    return await db.insert(userExperimentData).values({
+        ...data,
+    });
+}
+
+/**
+ * Update experiment data for a user
+ */
+export async function updateExperimentDataForUser(data: Partial<typeof userExperimentData.$inferInsert>, id: string) {
+    return await db.update(userExperimentData).set(data).where(eq(userExperimentData.userId, id));
+}
+
+export async function deleteExperimentDataForUser(id: string) {
+    return await db.delete(userExperimentData).where(eq(userExperimentData.userId, id));
+}
+
+/**
  * Get a user by mail from the database
  *
  * @param email<string> The email of the user

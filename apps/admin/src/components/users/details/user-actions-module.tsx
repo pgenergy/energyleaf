@@ -35,6 +35,7 @@ export default function UserActionsModule({ user, experimentData }: Props) {
         experimentStatus: experimentData?.experimentStatus ?? undefined,
         installationDate: experimentData?.installationDate ?? undefined,
         deinstallationDate: experimentData?.deinstallationDate ?? undefined,
+        getsPaid: experimentData?.getsPaid ?? false,
     };
 
     return (

@@ -55,6 +55,7 @@ export const userExperimentData = mysqlTable("user_experiment_data", {
     installationDate: timestamp("installation_date"),
     deinstallationDate: timestamp("deinstallation_date"),
     experimentNumber: int("experiment_number"),
+    getsPaid: boolean("gets_paid").default(false).notNull(),
 });
 
 export const userData = mysqlTable("user_data", {

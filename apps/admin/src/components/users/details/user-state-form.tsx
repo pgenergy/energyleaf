@@ -142,8 +142,26 @@ export default function UserStateForm({ initialValues, id }: Props) {
                         </FormItem>
                     )}
                 />
-                {initialValues.isParticipant ? (
+                {form.getValues().isParticipant ? (
                     <>
+                        <FormField
+                            control={form.control}
+                            name="getsPaid"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
+                                    <div className="flex flex-col gap-2">
+                                        <FormLabel>Wird bezahlt</FormLabel>
+                                        <FormDescription>
+                                            Gibt an ob dieser Nutzer von Prolific bezahlt wird.
+                                        </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                             control={form.control}
                             name="experimentStatus"
