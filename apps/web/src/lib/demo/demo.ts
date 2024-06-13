@@ -75,11 +75,11 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
     const day = date.getDate();
     const month = date.getMonth();
     const inputData = demoData as {
-            id: string;
-            sensorId: string;
-            value: number;
-            timestamp: string;
-        }[]
+        id: string;
+        sensorId: string;
+        value: number;
+        timestamp: string;
+    }[];
 
     const fixedData = inputData.map((item, index) => {
         const dataDate = new Date(item.timestamp);

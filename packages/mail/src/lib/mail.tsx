@@ -12,7 +12,7 @@ import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
 import ReportTemplate from "../templates/report";
 import SurveyInviteTemplate from "../templates/survey-invite";
-import type AnomalyProps from "../types/AnomalyProps";
+import type { AnomalyProps } from "../types";
 
 interface MailOptions {
     apiKey: string;

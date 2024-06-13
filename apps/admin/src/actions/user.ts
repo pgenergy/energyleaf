@@ -13,8 +13,8 @@ import {
     getUserExperimentData,
     setUserActive as setUserActiveDb,
     setUserAdmin as setUserAdminDb,
-    updateLastReportTimestamp,
     updateExperimentDataForUser,
+    updateLastReportTimestamp,
     updateUser as updateUserDb,
 } from "@energyleaf/db/query";
 import type { baseInformationSchema } from "@energyleaf/lib";
