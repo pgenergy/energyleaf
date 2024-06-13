@@ -22,7 +22,6 @@ export default function UserGoalsFormFields({ form, goalIsCalculated, workingPri
     const hasWorkingPrice = Boolean(workingPrice);
 
     function onMoneyInputChange(e: ChangeEvent<HTMLInputElement>) {
-        console.log(e.target.value);
         if (!workingPrice) return;
 
         const newValue = Number.parseFloat(e.target.value);
