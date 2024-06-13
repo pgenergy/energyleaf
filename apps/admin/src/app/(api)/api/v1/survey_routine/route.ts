@@ -3,7 +3,12 @@ import { getUsersWhoReciveSurveyMail, updateExperimentDataForUser } from "@energ
 import { sendSurveyInviteEmail } from "@energyleaf/mail";
 import { type NextRequest, NextResponse } from "next/server";
 
-const sendMails = async (date: Date, status: "first_survey" | "second_survey", surveyId: string) => {
+const sendMails = async (
+    date: Date,
+    status: "second_survey" | "third_survey",
+    surveyId: string,
+    surveyNumber: number,
+) => {
     const firstSurveyUsers = await getUsersWhoReciveSurveyMail(date);
     for (const firstSurveyUser of firstSurveyUsers) {
         const { user } = firstSurveyUser;
@@ -33,7 +38,7 @@ const sendMails = async (date: Date, status: "first_survey" | "second_survey", s
                 from: env.RESEND_API_MAIL,
                 apiKey: env.RESEND_API_KEY,
                 name,
-                surveyNumber: 1,
+                surveyNumber,
                 surveyLink,
             });
         } catch (err) {
@@ -52,14 +57,14 @@ export const POST = async (req: NextRequest) => {
     checkDate.setHours(0, 0, 0, 0);
     checkDate.setDate(checkDate.getDate() - 7);
     try {
-        await sendMails(checkDate, "first_survey", "1");
+        await sendMails(checkDate, "second_survey", "1", 2);
     } catch (err) {
         console.error("Failed to send first survey mail", err);
     }
 
     checkDate.setDate(checkDate.getDate() - 7);
     try {
-        await sendMails(checkDate, "second_survey", "2");
+        await sendMails(checkDate, "third_survey", "2", 3);
     } catch (err) {
         console.error("Failed to send second survey mail", err);
     }
