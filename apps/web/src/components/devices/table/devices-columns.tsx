@@ -1,6 +1,5 @@
 "use client";
 
-import { formatNumber } from "@/lib/consumption/number-format";
 import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
 import { Button } from "@energyleaf/ui";
 import type { ColumnDef } from "@tanstack/react-table";

@@ -1,5 +1,7 @@
+import { Chart as ChartJS } from "chart.js";
 import type { ChartConfiguration } from "chart.js/auto";
 import { Chart } from "chart.js/auto";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 import { JSDOM } from "jsdom";
 
 /**

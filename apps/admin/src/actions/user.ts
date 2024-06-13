@@ -10,6 +10,7 @@ import {
     getUserById,
     setUserActive as setUserActiveDb,
     setUserAdmin as setUserAdminDb,
+    updateLastReportTimestamp,
     updateUser as updateUserDb,
 } from "@energyleaf/db/query";
 import type { baseInformationSchema } from "@energyleaf/lib";
@@ -42,6 +43,8 @@ export async function setUserActive(id: string, active: boolean) {
                     apiKey: env.RESEND_API_KEY,
                 });
             }
+
+            await updateLastReportTimestamp(id);
         }
         revalidatePath("/users");
     } catch (e) {

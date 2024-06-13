@@ -9,8 +9,8 @@ import {
     createMailSettingsSchemaFromReportSelectType,
     createUserDataSchemaFromUserDataSelectType,
 } from "@/lib/schema/conversion/profile";
-import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
-import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import { reportSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
+import type { ReportConfigSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button, Form, Wizard, WizardPage, useWizard } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,7 +53,7 @@ export default function OnboardingWizard({ userData, showGoals }: Props) {
             <InformationStep />
             <UserDataStep userData={userData.user_data} />
             {Boolean(showGoals) && <GoalStep userData={userData.user_data} />}
-            <MailSettingsStep reports={userData.reports} />
+            <MailSettingsStep reports={userData.report_config} />
             <ThankYouStep />
         </Wizard>
     );
@@ -181,12 +181,12 @@ function GoalStep({ userData }: UserDataStepProps) {
 }
 
 interface MailSettingsStepProps {
-    reports: ReportSelectType;
+    reports: ReportConfigSelectType;
 }
 
 function MailSettingsStep({ reports }: MailSettingsStepProps) {
-    const form = useForm<z.infer<typeof mailSettingsSchema>>({
-        resolver: zodResolver(mailSettingsSchema),
+    const form = useForm<z.infer<typeof reportSettingsSchema>>({
+        resolver: zodResolver(reportSettingsSchema),
         defaultValues: createMailSettingsSchemaFromReportSelectType(reports),
     });
 
@@ -199,7 +199,7 @@ function MailSettingsStep({ reports }: MailSettingsStepProps) {
     });
 
     handleStep(async () => {
-        const data: z.infer<typeof mailSettingsSchema> = form.getValues();
+        const data: z.infer<typeof reportSettingsSchema> = form.getValues();
         await updateMailInformation(data);
     });
 
