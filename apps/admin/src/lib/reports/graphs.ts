@@ -39,9 +39,11 @@ export function renderDailyStatistic({ progress, exceeded }: DailyGoalProgress) 
 
     const barColor = exceeded ? "#EF4444" : primaryColor;
 
+    const cutout = 80;
+
     const chartOptions: ChartOptions<"doughnut"> = {
         responsive: true,
-        cutout: "80%",
+        cutout: `${cutout}%`,
         circumference: 360,
         plugins: {
             tooltip: { enabled: false },
@@ -63,7 +65,25 @@ export function renderDailyStatistic({ progress, exceeded }: DailyGoalProgress) 
         options: chartOptions,
         plugins: [
             {
-                id: "centerText",
+                id: "whiteCenter",
+                beforeDatasetDraw(chart) {
+                    const { ctx } = chart;
+                    ctx.save();
+
+                    const xCenter = chart.getDatasetMeta(0).data[0].x;
+                    const yCenter = chart.getDatasetMeta(0).data[0].y;
+
+                    const startAngle = 0;
+                    const endAngle = 2 * Math.PI;
+                    const radius = 0.6 * cutout; // a bit more than half to prevent a small gap
+
+                    ctx.beginPath();
+                    ctx.arc(xCenter, yCenter, radius, startAngle, endAngle);
+                    ctx.fillStyle = "#f4f4f5";
+                    ctx.fill();
+
+                    ctx.restore();
+                },
                 afterDatasetsDraw(chart) {
                     const { ctx, data } = chart;
                     ctx.save();

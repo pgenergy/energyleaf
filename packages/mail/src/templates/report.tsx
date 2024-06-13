@@ -1,4 +1,4 @@
-import { Column, Container, Head, Heading, Html, Img, Preview, Row, Section, Text } from "@react-email/components";
+import { Container, Head, Html, Img, Preview, Row, Section, Text } from "@react-email/components";
 import { BadgeEuroIcon, ReceiptEuroIcon, ThumbsDown, ThumbsUp, Zap } from "lucide-react";
 import React from "react";
 
@@ -9,11 +9,8 @@ import Centering from "../components/centering";
 import DayTile from "../components/day-tile";
 import HalfRow from "../components/half-row";
 import MetricCard from "../components/metric-card";
-import { TrendIcon } from "../components/tend-icon";
 import Tile from "../components/tile";
 import { TrendModes, getTrendMode } from "../types/trend-modes";
-import DynamicGrid from "./dynamic-grid";
-
 export default function ReportTemplate(
     {
         dateFrom: fromDate,
@@ -51,9 +48,13 @@ export default function ReportTemplate(
                 </Container>
 
                 <Tile visible={(dayEnergyStatistics?.length ?? 0) > 0} heading="Tägliche Ziele">
-                    <DynamicGrid maxColumns={4}>
-                        {...(dayEnergyStatistics?.map((x) => <DayTile key={x.day.toDateString()} stats={x} />) ?? [])}
-                    </DynamicGrid>
+                    <Section align="center">
+                        {dayEnergyStatistics?.map((x) => (
+                            <Row key={x.day.toDateString()}>
+                                <DayTile stats={x} />
+                            </Row>
+                        ))}
+                    </Section>
                 </Tile>
 
                 <Tile heading="Aktuelle Kennzahlen">

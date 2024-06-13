@@ -39,7 +39,6 @@ export default async function Page({ searchParams }: UnsubscribeFormProps) {
             <CardHeader>
                 <CardTitle>Report Einstellungen aktualisieren</CardTitle>
                 <CardDescription>
-                    {" "}
                     Hier können Sie einstellen, ob und in welchem Intervall die für Sie erstellen Berichte über Ihren
                     Verbrauch erstellt werden sollen. Sollten Sie die Berichte deaktivieren wollen, deaktivieren Sie
                     einfach die Einstellung "Senden der Berichte als E-Mails".

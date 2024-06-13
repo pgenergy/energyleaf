@@ -3,7 +3,7 @@ import { type ExtractTablesWithRelations, and, desc, eq, gt, lte, or, sql } from
 import type { ReportProps } from "@energyleaf/lib";
 import type { MySqlTransaction } from "drizzle-orm/mysql-core";
 import type { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
-import db from "../";
+import db, { genId } from "../";
 import { historyReportConfig, reportConfig, reports, reportsDayStatistics } from "../schema/reports";
 import { user } from "../schema/user";
 
@@ -149,7 +149,9 @@ export async function getReportForUserDescending(userId: string) {
 
 export async function saveReport(reportProps: ReportProps, userId: string) {
     return db.transaction(async (trx) => {
+        const reportId = genId(35);
         await trx.insert(reports).values({
+            id: reportId,
             timestamp: new Date(),
             dateFrom: reportProps.dateFrom,
             dateTo: reportProps.dateTo,
@@ -163,12 +165,6 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
             worstDay: reportProps.worstDay.day,
             worstDayConsumption: reportProps.worstDay.consumption,
         });
-        const newReport = await trx
-            .select({ id: reports.id })
-            .from(reports)
-            .where(and(eq(reports.userId, userId), eq(reports.dateFrom, reportProps.dateFrom)));
-
-        const reportId = newReport[0].id;
 
         for (const dayStat of reportProps.dayEnergyStatistics ?? []) {
             await trx.insert(reportsDayStatistics).values({
