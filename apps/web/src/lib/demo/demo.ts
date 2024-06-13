@@ -15,7 +15,7 @@ export async function isDemoUser() {
 
 export function getUserDataCookieStore() {
     const data: UserDataType = {
-        reports: {
+        report_config: {
             id: 1,
             userId: "demo",
             receiveMails: false,
@@ -57,8 +57,8 @@ export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data:
     const parsedData = JSON.parse(userData.value) as UserDataType;
     const newData = {
         reports: {
-            ...parsedData.reports,
-            ...data.reports,
+            ...parsedData.report_config,
+            ...data.report_config,
         },
         user_data: {
             ...parsedData.user_data,
