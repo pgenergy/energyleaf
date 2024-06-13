@@ -53,3 +53,16 @@ export const reportsDayStatistics = mysqlTable("reports_day_statistics", {
     progress: float("progress"),
     reportId: varchar("report_id", { length: 35 }).notNull(),
 });
+
+/**
+ * Do not use this table! It is only for legacy purposes.
+ */
+export const reports_legacy = mysqlTable("reports", {
+    id: int("id").autoincrement().primaryKey().notNull(),
+    userId: varchar("user_id", { length: 30 }).notNull(),
+    receiveMails: boolean("receive_mails").default(true).notNull(),
+    interval: int("interval").default(3).notNull(),
+    time: int("time").default(6).notNull(),
+    timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
+    createdTimestamp: timestamp("created_timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
