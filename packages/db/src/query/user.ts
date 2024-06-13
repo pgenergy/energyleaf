@@ -1,7 +1,9 @@
-import { and, eq, gt, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
 import db from "../";
-import { historyReports, historyUserData, reports, session, user, userData, userExperimentData } from "../schema";
+import { historyReports, historyUserData, reports, reportConfig, session, user, userData, userExperimentData } from "../schema";
 import type { UserSelectType } from "../types/types";
+import { TokenType } from "../types/types";
+import { getReportConfigByUserId } from "./reports";
 
 /**
  * Get a user by id from the database
@@ -136,7 +138,7 @@ export async function createUser(data: CreateUserType) {
             installationComment: data.comment,
         });
 
-        await trx.insert(reports).values({
+        await trx.insert(reportConfig).values({
             userId: id,
             timestampLast: new Date(),
         });
@@ -150,7 +152,7 @@ export async function getUserData(id: string) {
     const data = await db
         .select()
         .from(userData)
-        .innerJoin(reports, eq(userData.userId, reports.userId))
+        .innerJoin(reportConfig, eq(userData.userId, reportConfig.userId))
         .where(eq(userData.userId, id));
 
     if (data.length === 0) {
@@ -200,7 +202,7 @@ export async function updateReportSettings(
     id: string,
 ) {
     return db.transaction(async (trx) => {
-        const oldReportData = await getReportDataByUserId(id);
+        const oldReportData = await getReportConfigByUserId(trx, id);
         if (!oldReportData) {
             throw new Error("Old user data not found");
         }
@@ -214,7 +216,7 @@ export async function updateReportSettings(
         });
 
         await trx
-            .update(reports)
+            .update(reportConfig)
             .set({
                 receiveMails: data.receiveMails,
                 interval: data.interval,
@@ -276,39 +278,24 @@ export async function setUserAdmin(id: string, isAdmin: boolean) {
     return db.update(user).set({ isAdmin }).where(eq(user.id, id));
 }
 
-/**
- * Get users with due report to create and send reports </br>
- * the report is due if the current date is greater than the last report date + interval or </br>
- * if the current date is equal to the last report date + interval and the current time is greater than the report time </br>
- *
- * @returns The users with due report
- */
-export async function getUsersWitDueReport() {
-    return db
-        .select({ userId: user.id, userName: user.username, email: user.email, receiveMails: reports.receiveMails })
-        .from(reports)
-        .innerJoin(user, eq(user.id, reports.userId))
-        .where(
-            or(
-                gt(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reports.interval),
-                and(
-                    eq(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reports.interval),
-                    lte(reports.time, new Date().getHours()),
-                ),
-            ),
-        );
+export async function createToken(userId: string, type: TokenType = TokenType.Report) {
+    return db.transaction(async (trx) => {
+        await trx.insert(token).values({ userId });
+
+        const createdToken = await trx
+            .select()
+            .from(token)
+            .where(and(eq(token.userId, userId)))
+            .orderBy(desc(token.createdTimestamp))
+            .limit(1);
+        return createdToken[0].token;
+    });
 }
 
-export async function getReportDataByUserId(id: string) {
-    const data = await db.select().from(reports).where(eq(reports.userId, id));
-
+export async function getUserIdByToken(givenToken: string) {
+    const data = await db.select().from(token).where(eq(token.token, givenToken));
     if (data.length === 0) {
         return null;
     }
-
-    return data[0];
-}
-
-export async function updateLastReportTimestamp(userId: string) {
-    return db.update(reports).set({ timestampLast: new Date() }).where(eq(reports.userId, userId));
+    return data[0].userId;
 }

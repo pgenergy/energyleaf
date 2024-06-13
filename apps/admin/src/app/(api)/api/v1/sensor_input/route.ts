@@ -1,6 +1,5 @@
 import { getSensorIdFromSensorToken, insertSensorData } from "@energyleaf/db/query";
-import { SensorDataRequest, SensorDataResponse, SensorType } from "@energyleaf/proto";
-import { parseReadableStream } from "@energyleaf/proto/util";
+import { SensorDataRequest, SensorDataResponse, SensorType, parseReadableStream } from "@energyleaf/proto";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {

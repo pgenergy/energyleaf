@@ -16,17 +16,20 @@
 		"db:studio": "dotenv -- pnpm --filter db run studio",
 		"db:studio:prod": "dotenv -- pnpm --filter db run studio:prod",
 		"proto:compile": "dotenv -- pnpm --filter proto run compile",
-		"clean": "turbo run clean && git clean -xdf .turbo node_modules"
+		"clean": "turbo run clean && git clean -xdf .turbo node_modules",
+        "execute": "dotenv -- node scripts/execute.cjs"
 	},
 	"devDependencies": {
 		"@energyleaf/tsconfig": "workspace:*",
 		"@total-typescript/ts-reset": "^0.5.1",
+		"jiti": "^1.21.6",
 		"turbo": "^1.13.3"
 	},
 	"packageManager": "pnpm@9.1.4",
 	"name": "energyleaf",
 	"dependencies": {
 		"@biomejs/biome": "^1.7.3",
+		"@energyleaf/db": "workspace:*",
 		"@vercel/analytics": "^1.2.2",
 		"dotenv-cli": "^7.4.2",
 		"mysql2": "^3.9.7",
