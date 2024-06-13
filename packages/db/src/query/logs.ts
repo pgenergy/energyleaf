@@ -30,7 +30,7 @@ export async function logError(
             name: error.name,
             message: error.message,
             stack: error.stack?.split("\n").slice(1, 5).join("\n"),
-        }
+        },
     };
 
     //Important todo -> Use blob function to store error stack
@@ -47,4 +47,3 @@ export async function trackAction(
 ) {
     await log(title, "action", appFunction, appComponent, details);
 }
-

@@ -5,14 +5,16 @@ import type { deviceSchema } from "@/lib/schema/device";
 import {
     createDevice as createDeviceDb,
     deleteDevice as deleteDeviceDb,
-    getUserById, logError, trackAction,
+    getUserById,
+    logError,
+    trackAction,
     updateDevice as updateDeviceDb,
 } from "@energyleaf/db/query";
 import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import "server-only";
+import { waitUntil } from "@vercel/functions";
 import type { z } from "zod";
-import {waitUntil} from "@vercel/functions";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
     const { session } = await getActionSession();
@@ -33,22 +35,9 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
                 userId: session.userId,
                 category: data.category,
             });
-            await trackAction(
-                "device/create",
-                "create-device",
-                "web",
-                {data, session},
-            )
+            await trackAction("device/create", "create-device", "web", { data, session });
         } catch (error: unknown) {
-            waitUntil(
-                logError(
-                    "device/not-created",
-                    "create-device",
-                    "web",
-                    {data, session},
-                    error,
-                )
-            )
+            waitUntil(logError("device/not-created", "create-device", "web", { data, session }, error));
             return {
                 success: false,
                 message: "Fehler beim Erstellen des Gerätes.",
@@ -56,15 +45,7 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         }
     } catch (err) {
         if (err instanceof UserNotFoundError) {
-            waitUntil(
-                logError(
-                    "user/not-found",
-                    "create-device",
-                    "web",
-                    {data, session},
-                    err,
-                )
-            )
+            waitUntil(logError("user/not-found", "create-device", "web", { data, session }, err));
             return {
                 success: false,
                 message: "Das Gerät konnte nicht gespeichert werden.",
@@ -72,30 +53,14 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         }
 
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(
-                logError(
-                    "user/not-logged-in",
-                    "create-device",
-                    "web",
-                    {data, session},
-                    err,
-                )
-            )
+            waitUntil(logError("user/not-logged-in", "create-device", "web", { data, session }, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um ein Gerät zu ändern.",
             };
         }
 
-        waitUntil(
-            logError(
-                "device/error-creating",
-                "create-device",
-                "web",
-                {data, session},
-                err,
-            )
-        )
+        waitUntil(logError("device/error-creating", "create-device", "web", { data, session }, err));
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -123,20 +88,9 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
                 userId: user.id,
                 category: data.category,
             });
-            await trackAction(
-                "device/update",
-                "update-device",
-                "web",
-                {data, deviceId, session},
-            )
+            await trackAction("device/update", "update-device", "web", { data, deviceId, session });
         } catch (error: unknown) {
-            logError(
-                "device/error-updating",
-                "update-device",
-                "web",
-                {data, deviceId, session},
-                error,
-            )
+            logError("device/error-updating", "update-device", "web", { data, deviceId, session }, error);
             return {
                 success: false,
                 message: "Fehler beim Speichern des Gerätes.",
@@ -144,13 +98,7 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         }
     } catch (err) {
         if (err instanceof UserNotFoundError) {
-            logError(
-                "user/not-found",
-                "update-device",
-                "web",
-                {data, deviceId, session},
-                err,
-            )
+            logError("user/not-found", "update-device", "web", { data, deviceId, session }, err);
             return {
                 success: false,
                 message: "Es konnte kein Gerät erstellt werden.",
@@ -158,27 +106,13 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         }
 
         if (err instanceof UserNotLoggedInError) {
-            logError(
-                "user/not-logged-in",
-                "update-device",
-                "web",
-                {data, deviceId, session},
-                err,
-            )
+            logError("user/not-logged-in", "update-device", "web", { data, deviceId, session }, err);
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um ein Gerät zu erstellen.",
             };
         }
-        waitUntil(
-            logError(
-                "device/error-updating",
-                "update-device",
-                "web",
-                {data, deviceId, session},
-                err,
-            )
-        )
+        waitUntil(logError("device/error-updating", "update-device", "web", { data, deviceId, session }, err));
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -197,22 +131,9 @@ export async function deleteDevice(deviceId: number) {
         const userId = session.userId;
         try {
             await deleteDeviceDb(deviceId, userId);
-            await trackAction(
-                "device/delete",
-                "delete-device",
-                "web",
-                {deviceId, session},
-            )
+            await trackAction("device/delete", "delete-device", "web", { deviceId, session });
         } catch (error) {
-            waitUntil(
-                logError(
-                    "device/error-deleting",
-                    "delete-device",
-                    "web",
-                    {deviceId, session},
-                    error,
-                )
-            )
+            waitUntil(logError("device/error-deleting", "delete-device", "web", { deviceId, session }, error));
             return {
                 success: false,
                 message: "Fehler beim Löschen des Geräts",
@@ -220,29 +141,13 @@ export async function deleteDevice(deviceId: number) {
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(
-                logError(
-                    "user/not-logged-in",
-                    "delete-device",
-                    "web",
-                    {deviceId, session},
-                    err,
-                )
-            )
+            waitUntil(logError("user/not-logged-in", "delete-device", "web", { deviceId, session }, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um ein Gerät zu löschen.",
             };
         }
-        waitUntil(
-            logError(
-                "device/error-deleting",
-                "delete-device",
-                "web",
-                {deviceId, session},
-                err,
-            )
-        )
+        waitUntil(logError("device/error-deleting", "delete-device", "web", { deviceId, session }, err));
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",

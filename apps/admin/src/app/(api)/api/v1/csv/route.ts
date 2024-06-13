@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
 import { env } from "@/env.mjs";
 import { getElectricitySensorIdForUser, getEnergyForSensorInRange, log } from "@energyleaf/db/query";
+import { waitUntil } from "@vercel/functions";
 import * as csv from "csv/sync";
 import { type NextRequest, NextResponse } from "next/server";
-import { waitUntil } from "@vercel/functions";
 
 interface Props {
     userId: string;
