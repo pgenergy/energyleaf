@@ -29,7 +29,7 @@ export async function logError(
         error: {
             name: error.name,
             message: error.message,
-            stack: error.stack?.split("\n").slice(1, 4).join("\n"),
+            stack: error.stack?.split("\n").slice(1, 5).join("\n"),
         }
     };
 
@@ -47,3 +47,4 @@ export async function trackAction(
 ) {
     await log(title, "action", appFunction, appComponent, details);
 }
+

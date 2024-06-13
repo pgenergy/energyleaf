@@ -13,7 +13,7 @@ import type {
 import {
     deleteSessionsOfUser,
     deleteUser,
-    getUserById,
+    getUserById, logError, trackAction,
     updatePassword,
     updateReportSettings,
     updateUser,
@@ -27,15 +27,18 @@ import { cookies } from "next/headers";
 import { Argon2id } from "oslo/password";
 import "server-only";
 import type { z } from "zod";
+import {waitUntil} from "@vercel/functions";
+import {Session} from "lucia";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
     try {
-        const { user, session } = await getActionSession();
+        const { session } = await getActionSession();
+        const userDataToLog = "private"
         if (!session) {
             throw new UserNotLoggedInError();
         }
 
-        const dbuser = await getUserById(user.id);
+        const dbuser = await getUserById(session.userId);
         if (!dbuser) {
             throw new UserNotFoundError();
         }
@@ -52,9 +55,27 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
                 },
                 user.id,
             );
+            waitUntil(
+                trackAction(
+                    "user/update-base-information",
+                    "update-base-information",
+                    "web",
+                    { userDataToLog, session },
+
+                )
+            )
             revalidatePath("/profile");
             revalidatePath("/dashboard");
         } catch (e) {
+            waitUntil(
+                logError(
+                    "user/not-updated",
+                    "update-base-information",
+                    "web",
+                    { userDataToLog, session },
+                    e,
+                )
+            )
             return {
                 success: false,
                 message: "Es gab einen Fehler beim Speichern.",
@@ -62,12 +83,29 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
+            waitUntil(
+                logError(
+                    "user/not-logged-in",
+                    "update-base-information",
+                    "web",
+                    {userDataToLog, session},
+                    err,
+                )
+            )
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihr Profil zu bearbeiten.",
             };
         }
-
+        waitUntil(
+            logError(
+                "profile/error",
+                "update-base-information",
+                "web",
+                {userDataToLog, session},
+                err,
+            )
+        )
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -100,9 +138,26 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
                 },
                 user.id,
             );
+            waitUntil(
+                trackAction(
+                    "user/update-password",
+                    "update-password",
+                    "web",
+                    { session },
+                )
+            )
             revalidatePath("/profile");
             revalidatePath("/dashboard");
         } catch (e) {
+            waitUntil(
+                logError(
+                    "user/not-updated",
+                    "update-password",
+                    "web",
+                    { session },
+                    e,
+                )
+            )
             return {
                 success: false,
                 message: "Fehler beim aktualisieren ihres Passworts.",
@@ -110,12 +165,29 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
+            waitUntil(
+                logError(
+                    "user/not-logged-in",
+                    "update-password",
+                    "web",
+                    {},
+                    err,
+                )
+            )
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihr Passwort zu ändern.",
             };
         }
-
+        waitUntil(
+            logError(
+                "profile/error",
+                "update-password",
+                "web",
+                {},
+                err,
+            )
+        )
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -169,8 +241,9 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
 }
 
 export async function updateUserDataInformation(data: z.infer<typeof userDataSchema>) {
+    let session;
     try {
-        const { user, session } = await getActionSession();
+        session = ((await getActionSession())?.session as Session);
 
         if (!session) {
             throw new UserNotLoggedInError();
@@ -189,10 +262,18 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
                     property: data.houseType,
                 },
             } as Partial<UserDataType>);
+            waitUntil(
+                trackAction(
+                    "user/update-data-demo ",
+                    "update-user-data",
+                    "web",
+                    { session },
+                )
+            )
             return;
         }
 
-        const dbuser = await getUserById(user.id);
+        const dbuser = await getUserById(session.userId);
         if (!dbuser) {
             throw new UserNotFoundError();
         }
@@ -210,10 +291,27 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
                     workingPrice: data.workingPrice,
                     monthlyPayment: data.monthlyPayment,
                 },
-                user.id,
+                session.userId,
             );
+            waitUntil(
+                trackAction(
+                    "user/updated-data",
+                    "update-user-data",
+                    "web",
+                    { data, session },
+                )
+            )
             revalidateUserDataPaths();
         } catch (e) {
+            waitUntil(
+                logError(
+                    "user/error-updating-data",
+                    "update-user-data",
+                    "web",
+                    { data, session },
+                    e,
+                )
+            )
             return {
                 success: false,
                 message: "Ein Fehler beim Ändern ihrer Daten ist aufgetreten.",
@@ -221,12 +319,29 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
+            waitUntil(
+                logError(
+                    "user/not-logged-in",
+                    "update-user-data",
+                    "web",
+                    { data, session },
+                    err,
+                )
+            )
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihre Daten zu ändern.",
             };
         }
-
+        waitUntil(
+            logError(
+                "profile/error",
+                "update-user-data",
+                "web",
+                { data, session },
+                err,
+            )
+        )
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -249,6 +364,12 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
                     consumptionGoal: data.goalValue,
                 },
             } as Partial<UserDataType>);
+            trackAction(
+                "user/update-goals-demo",
+                "update-user-goals",
+                "web",
+                { data, session },
+            )
             revalidateUserDataPaths();
             return;
         }
@@ -266,8 +387,25 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
                 },
                 user.id,
             );
+            waitUntil(
+                trackAction(
+                    "user/updated-goals",
+                    "update-user-goals",
+                    "web",
+                    { data, session },
+                )
+            )
             revalidateUserDataPaths();
         } catch (e) {
+            waitUntil(
+                logError(
+                    "user/error-updating-goals",
+                    "update-user-goals",
+                    "web",
+                    { data, session },
+                    e,
+                )
+            )
             return {
                 success: false,
                 message: "Ein Fehler beim Speichern Ihrer Ziele ist aufgetreten.",
@@ -275,12 +413,29 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
+            waitUntil(
+                logError(
+                    "user/not-logged-in",
+                    "update-user-goals",
+                    "web",
+                    {},
+                    err,
+                )
+            )
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihre Ziele zu aktualisieren.",
             };
         }
-
+        waitUntil(
+            logError(
+                "profile/error",
+                "update-user-goals",
+                "web",
+                {},
+                err,
+            )
+        )
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten",
@@ -309,23 +464,57 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
         try {
             await deleteUser(user.id);
             await deleteSessionsOfUser(user.id);
+            waitUntil(
+                trackAction(
+                    "user/deleted-account",
+                    "delete-account",
+                    "web",
+                    { session, "userId": user.id },
+                )
+            )
             cookies().delete(lucia.sessionCookieName);
             revalidatePath("/profile");
             revalidatePath("/dashboard");
         } catch (e) {
+            waitUntil(
+                logError(
+                    "user/error-deleting",
+                    "delete-account",
+                    "web",
+                    { session },
+                    e,
+                )
+            )
             return {
                 success: false,
                 message: "Ein Fehler beim löschen Ihrers Accounts ist aufgetreten.",
             };
         }
     } catch (err) {
+        waitUntil(
+            logError(
+                "user/error",
+                "delete-account",
+                "web",
+                {},
+                err,
+            )
+        )
         if (err instanceof UserNotLoggedInError) {
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihren Account zu löschen.",
             };
         }
-
+        waitUntil(
+            logError(
+                "user/error",
+                "delete-account",
+                "web",
+                {},
+                err,
+            )
+        )
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten",
