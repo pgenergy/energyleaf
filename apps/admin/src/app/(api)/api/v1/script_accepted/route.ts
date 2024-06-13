@@ -1,4 +1,4 @@
-import { getSensorIdFromSensorToken, log, logError, trackAction, updateNeedsScript } from "@energyleaf/db/query";
+import { getSensorIdFromSensorToken, log, logError, updateNeedsScript } from "@energyleaf/db/query";
 import { ScriptAcceptedRequest, ScriptAcceptedResponse, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
 import type { NextRequest } from "next/server";
@@ -24,7 +24,7 @@ export const POST = async (req: NextRequest) => {
             const sensorId = await getSensorIdFromSensorToken(data.accessToken);
 
             await updateNeedsScript(sensorId, false);
-            waitUntil(log("sensor/accepted-script", "info", "accepting-script", "api", sensorId));
+            waitUntil(log("sensor/accepted-script", "info", "accepting-script", "api", data));
             return new NextResponse(ScriptAcceptedResponse.toBinary({ status: 200 }), { status: 200 });
         } catch (err) {
             if ((err as unknown as Error).message === "token/expired") {

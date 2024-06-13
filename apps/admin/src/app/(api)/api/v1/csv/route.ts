@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
             end,
         };
         if (!userId || !userHash) {
-            waitUntil(trackAction("user/missing-user-id-or-user-hash", "csv-export", "api", details));
+            waitUntil(log("user/missing-user-id-or-user-hash", "error", "csv-export", "api", details));
             return NextResponse.json(
                 {
                     error: "Sie haben keinen Zugriff.",
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
         const hash = createHash("sha256").update(`${userId}${env.NEXTAUTH_SECRET}`).digest("hex");
         if (hash !== userHash) {
-            waitUntil(trackAction("user/invalid-user-hash", "csv-export", "api", { detailsObj: details, hash }));
+            waitUntil(log("user/invalid-user-hash", "error", "csv-export", "api", details));
             return NextResponse.json(
                 {
                     error: "Sie haben keinen Zugriff.",

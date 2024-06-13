@@ -1,6 +1,6 @@
 import { env } from "@/env.mjs";
 import { createReportsAndSendMails } from "@/lib/reports/send-reports";
-import { log, logError, trackAction } from "@energyleaf/db/query";
+import { log, logError } from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
