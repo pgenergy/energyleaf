@@ -39,7 +39,18 @@ export default function UserGoalsFormFields({ form, goalIsCalculated, workingPri
                     <FormDescription>Hier können Sie Ihren Zielverbrauch für einen Tag festlegen.</FormDescription>
                     <FormControl className="pb-3">
                         <div className="flex flex-row items-center">
-                            <Input type="number" {...field} />
+                            <Input
+                                type="number"
+                                step="any"
+                                {...field}
+                                onChange={(e) => {
+                                    if (e.target.value === "" || e.target.value === null) {
+                                        field.onChange(Number.NaN);
+                                        return;
+                                    }
+                                    field.onChange(Number(e.target.value));
+                                }}
+                            />
                             {goalIsCalculated && !form.formState.isDirty ? <HelpCircle /> : null}
                         </div>
                     </FormControl>
@@ -49,6 +60,7 @@ export default function UserGoalsFormFields({ form, goalIsCalculated, workingPri
                         <Input
                             disabled={!hasWorkingPrice}
                             type="number"
+                            step="any"
                             onChange={onMoneyInputChange}
                             value={costField}
                         />
