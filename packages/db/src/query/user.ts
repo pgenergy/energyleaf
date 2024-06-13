@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, exists, lte } from "drizzle-orm";
 import db from "../";
 import {
     historyReports,
@@ -69,8 +69,29 @@ export async function updateExperimentDataForUser(data: Partial<typeof userExper
     return await db.update(userExperimentData).set(data).where(eq(userExperimentData.userId, id));
 }
 
+/**
+ * Delete experiment data for a user
+ */
 export async function deleteExperimentDataForUser(id: string) {
     return await db.delete(userExperimentData).where(eq(userExperimentData.userId, id));
+}
+
+/**
+ * Get all users who recive an survey mail
+ */
+export async function getUsersWhoReciveSurveyMail(date: Date) {
+    return await db
+        .select()
+        .from(user)
+        .innerJoin(userExperimentData, eq(user.id, userExperimentData.userId))
+        .where(
+            and(
+                eq(user.activationDate, date),
+                eq(user.isParticipant, true),
+                eq(user.isActive, true),
+                eq(userExperimentData.getsPaid, false),
+            ),
+        );
 }
 
 /**
