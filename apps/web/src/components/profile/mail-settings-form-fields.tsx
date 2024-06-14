@@ -8,9 +8,10 @@ import type { z } from "zod";
 
 interface Props {
     form: UseFormReturn<z.infer<typeof mailSettingsSchema>>;
+    disabled?: boolean;
 }
 
-export default function MailSettingsFormFields({ form }: Props) {
+export default function MailSettingsFormFields({ form, disabled }: Props) {
     return (
         <>
             <h4 className="font-semibold text-xl">Berichte</h4>
@@ -27,7 +28,12 @@ export default function MailSettingsFormFields({ form }: Props) {
                             </FormDescription>
                         </div>
                         <FormControl>
-                            <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                            <Switch
+                                aria-readonly
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                disabled={disabled}
+                            />
                         </FormControl>
                     </FormItem>
                 )}
@@ -40,7 +46,7 @@ export default function MailSettingsFormFields({ form }: Props) {
                         <FormItem>
                             <FormLabel>Intervall der Berichte</FormLabel>
                             <FormControl>
-                                <IntervalSelector onChange={field.onChange} value={field.value} />
+                                <IntervalSelector onChange={field.onChange} value={field.value} disabled={disabled} />
                             </FormControl>
                         </FormItem>
                     )}
@@ -52,7 +58,7 @@ export default function MailSettingsFormFields({ form }: Props) {
                         <FormItem>
                             <FormLabel>Uhrzeit der Berichte</FormLabel>
                             <FormControl>
-                                <TimeSelector onChange={field.onChange} value={field.value} />
+                                <TimeSelector onChange={field.onChange} value={field.value} disabled={disabled} />
                             </FormControl>
                         </FormItem>
                     )}
@@ -71,7 +77,12 @@ export default function MailSettingsFormFields({ form }: Props) {
                             </FormDescription>
                         </div>
                         <FormControl>
-                            <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                            <Switch
+                                aria-readonly
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                disabled={disabled}
+                            />
                         </FormControl>
                     </FormItem>
                 )}

@@ -31,7 +31,7 @@ export default function MailConfigForm({ initialData: reportConfig, disabled, on
     return (
         <Form {...form}>
             <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmitInternal)}>
-                <MailSettingsFormFields form={form} />
+                <MailSettingsFormFields form={form} disabled={disabled} />
                 <div className="flex flex-row justify-end">
                     <Button disabled={isPending || disabled} type="submit">
                         {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
