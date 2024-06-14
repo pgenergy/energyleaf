@@ -39,7 +39,7 @@ export async function createReportsAndSendMails() {
     for (const userWithDueReport of usersWithDueReport) {
         let thisReportIsSuccessful = 1;
 
-        let reportProps: ReportProps | undefined = undefined;
+        let reportProps: ReportProps | null = null;
         let unsubscribeLink = "";
         try {
             reportProps = await createReportData(userWithDueReport);

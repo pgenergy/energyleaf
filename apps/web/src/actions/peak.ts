@@ -4,6 +4,7 @@ import { getActionSession } from "@/lib/auth/auth.action";
 import type { peakSchema } from "@/lib/schema/peak";
 import {
     getDevicesByPeak as getDevicesByPeakDb,
+    log,
     logError,
     trackAction,
     updateDevicesForPeak as updateDevicesForPeakDb,
@@ -17,11 +18,12 @@ import type { Session } from "lucia";
 import type { z } from "zod";
 
 export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sensorDataId: string) {
-    let session: Session | undefined = undefined;
+    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
 
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "update-devices-for-peak", "web", { data }));
             throw new UserNotLoggedInError();
         }
 

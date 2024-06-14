@@ -1,7 +1,7 @@
 "use server";
 
 import { getActionSession } from "@/lib/auth/auth.action";
-import { logError, trackAction, updateUser } from "@energyleaf/db/query";
+import { log, logError, trackAction, updateUser } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib";
 import { redirect } from "next/navigation";
 import "server-only";
@@ -9,10 +9,11 @@ import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 
 export async function completeOnboarding() {
-    let session: Session | undefined = undefined;
+    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "complete-onboarding", "web", {}));
             throw new UserNotLoggedInError();
         }
 

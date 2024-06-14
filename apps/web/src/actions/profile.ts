@@ -14,6 +14,7 @@ import {
     deleteSessionsOfUser,
     deleteUser,
     getUserById,
+    log,
     logError,
     trackAction,
     updatePassword,
@@ -33,16 +34,18 @@ import type { Session } from "lucia";
 import type { z } from "zod";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
-    let session: Session | undefined = undefined;
+    let session: Session | null = null;
     const userDataToLog = "private";
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "update-base-information", "web", data));
             throw new UserNotLoggedInError();
         }
 
         const dbuser = await getUserById(session.userId);
         if (!dbuser) {
+            waitUntil(log("user/not-found", "error", "update-base-information", "web", { data, session }));
             throw new UserNotFoundError();
         }
 
@@ -92,20 +95,23 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
 }
 
 export async function updateBaseInformationPassword(data: z.infer<typeof passwordSchema>) {
-    let session: Session | undefined = undefined;
+    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
 
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "update-password", "web", data));
             throw new UserNotLoggedInError();
         }
 
         const dbuser = await getUserById(session.userId);
         if (!dbuser) {
+            waitUntil(log("user/not-found", "error", "update-password", "web", { data, session }));
             throw new UserNotFoundError();
         }
         const match = await new Argon2id().verify(dbuser.password, data.oldPassword);
         if (!match) {
+            waitUntil(log("user/password-not-match", "error", "update-password", "web", { data, session }));
             throw new PasswordsDoNotMatchError();
         }
 
@@ -143,17 +149,19 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
     }
 }
 
-export async function updateMailInformation(data: z.infer<typeof reportSettingsSchema>) {
-    let session: Session | undefined = undefined;
+export async function updateReportSettingsInformation(data: z.infer<typeof reportSettingsSchema>) {
+    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
 
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "update-mail-information", "web", data));
             throw new UserNotLoggedInError();
         }
 
         const dbuser = await getUserById(session.userId);
         if (!dbuser) {
+            waitUntil(log("user/not-found", "error", "update-mail-information", "web", { data, session }));
             throw new UserNotFoundError();
         }
 
@@ -166,9 +174,21 @@ export async function updateMailInformation(data: z.infer<typeof reportSettingsS
                 },
                 session.userId,
             );
+            waitUntil(
+                trackAction("user/updated-mail-information", "update-mail-information", "web", { data, session }),
+            );
             revalidatePath("/profile");
             revalidatePath("/dashboard");
         } catch (e) {
+            waitUntil(
+                logError(
+                    "user/error-updating-mail-information",
+                    "update-mail-information",
+                    "web",
+                    { data, session },
+                    e,
+                ),
+            );
             return {
                 success: false,
                 message: "Es ist ein Fehler beim Ändern der E-Mail Einstellung aufgetreten.",
@@ -176,12 +196,13 @@ export async function updateMailInformation(data: z.infer<typeof reportSettingsS
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
+            waitUntil(logError("user/not-logged-in", "update-mail-information", "web", { data, session }, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihre E-Mail Einstellungen zu ändern.",
             };
         }
-
+        waitUntil(logError("profile/error", "update-mail-information", "web", { data, session }, err));
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -190,11 +211,12 @@ export async function updateMailInformation(data: z.infer<typeof reportSettingsS
 }
 
 export async function updateUserDataInformation(data: z.infer<typeof userDataSchema>) {
-    let session: Session | undefined = undefined;
+    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
 
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "update-user-data", "web", data));
             throw new UserNotLoggedInError();
         }
 
@@ -217,6 +239,7 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
 
         const dbuser = await getUserById(session.userId);
         if (!dbuser) {
+            waitUntil(log("user/not-found", "error", "update-user-data", "web", data));
             throw new UserNotFoundError();
         }
 
@@ -261,11 +284,12 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
 }
 
 export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
-    let session: Session | undefined = undefined;
+    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
 
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "update-user-goals", "web", data));
             throw new UserNotLoggedInError();
         }
 
@@ -283,6 +307,7 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
 
         const dbuser = await getUserById(session.userId);
         if (!dbuser) {
+            waitUntil(log("user/not-found", "error", "update-user-goals", "web", data));
             throw new UserNotFoundError();
         }
 
@@ -320,21 +345,24 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
 }
 
 export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
-    let session: Session | undefined = undefined;
+    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "delete-account", "web", data));
             throw new UserNotLoggedInError();
         }
 
         const userId = session.userId;
         const dbuser = await getUserById(userId);
         if (!dbuser) {
+            waitUntil(log("user/not-found", "error", "delete-account", "web", { session, userId }));
             throw new UserNotFoundError();
         }
 
         const match = await new Argon2id().verify(dbuser.password, data.password);
         if (!match) {
+            waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, userId }));
             throw new PasswordsDoNotMatchError();
         }
 

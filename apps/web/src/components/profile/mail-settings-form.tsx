@@ -1,6 +1,6 @@
 "use client";
 
-import { updateMailInformation } from "@/actions/profile";
+import { updateReportSettingsInformation } from "@/actions/profile";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import { reportSettingsSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
@@ -27,7 +27,7 @@ export default function MailSettingsForm({ initialValues, disabled }: Props) {
         let res: DefaultActionReturn = undefined;
 
         try {
-            res = await updateMailInformation(data);
+            res = await updateReportSettingsInformation(data);
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }

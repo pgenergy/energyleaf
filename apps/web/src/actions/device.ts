@@ -6,6 +6,7 @@ import {
     createDevice as createDeviceDb,
     deleteDevice as deleteDeviceDb,
     getUserById,
+    log,
     logError,
     trackAction,
     updateDevice as updateDeviceDb,
@@ -18,17 +19,19 @@ import type { Session } from "lucia";
 import type { z } from "zod";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
-    let session: Session | undefined = undefined;
+    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
 
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "create-device", "web", { data }));
             throw new UserNotLoggedInError();
         }
 
         const id = session.userId;
-        const dbuser = await getUserById(id);
-        if (!dbuser) {
+        const dbUser = await getUserById(id);
+        if (!dbUser) {
+            waitUntil(log("user/not-found", "error", "create-device", "web", { data, session }));
             throw new UserNotFoundError();
         }
 
@@ -73,17 +76,19 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
 }
 
 export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId: number) {
-    let session: Session | undefined = undefined;
+    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
 
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "update-device", "web", { data }));
             throw new UserNotLoggedInError();
         }
 
         const userId = session.userId;
-        const dbuser = await getUserById(userId);
-        if (!dbuser) {
+        const dbUser = await getUserById(userId);
+        if (!dbUser) {
+            waitUntil(log("user/not-found", "error", "update-device", "web", { data, deviceId, session }));
             throw new UserNotFoundError();
         }
 
@@ -127,11 +132,12 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
 }
 
 export async function deleteDevice(deviceId: number) {
-    let session: Session | undefined = undefined;
+    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session as Session;
+        session = (await getActionSession())?.session;
 
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "delete-device", "web", { deviceId }));
             throw new UserNotLoggedInError();
         }
 
