@@ -6,7 +6,6 @@ import { reportSettingsSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -41,7 +40,6 @@ export default function MailSettingsForm({ initialValues, disabled }: Props) {
     function onSubmit(data: z.infer<typeof reportSettingsSchema>) {
         if (disabled) return;
         startTransition(() => {
-            track("updateMailSettings()");
             toast.promise(updateMailInformationCallback(data), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",
