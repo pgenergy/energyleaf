@@ -1,5 +1,5 @@
 import { and, desc, eq, exists, lte } from "drizzle-orm";
-import db from "../";
+import db, { genId } from "../";
 import {
     historyReports,
     historyUserData,
@@ -122,6 +122,8 @@ export type CreateUserType = {
     username: string;
     electricityMeterType: (typeof userData.electricityMeterType.enumValues)[number];
     electricityMeterNumber: string;
+    participation: boolean;
+    prolific: boolean;
     meterImgUrl?: string;
 };
 
@@ -135,8 +137,10 @@ export async function createUser(data: CreateUserType) {
         if (check.length > 0) {
             throw new Error("User already exists");
         }
+        const userId = genId(30);
 
         await trx.insert(user).values({
+            id: userId,
             firstname: data.firstname,
             lastName: data.lastname,
             address: data.address,
@@ -144,23 +148,10 @@ export async function createUser(data: CreateUserType) {
             username: data.username,
             email: data.email,
             password: data.password,
+            isParticipant: data.participation || data.prolific,
         });
-
-        const newUser = await trx
-            .select({
-                id: user.id,
-            })
-            .from(user)
-            .where(eq(user.email, data.email));
-
-        if (newUser.length === 0) {
-            throw new Error("User not found");
-        }
-
-        const id = newUser[0].id;
-
         await trx.insert(userData).values({
-            userId: id,
+            userId,
             electricityMeterNumber: data.electricityMeterNumber,
             electricityMeterType: data.electricityMeterType,
             electricityMeterImgUrl: data.meterImgUrl || null,
@@ -168,11 +159,17 @@ export async function createUser(data: CreateUserType) {
             wifiAtElectricityMeter: data.hasWifi,
             installationComment: data.comment,
         });
-
         await trx.insert(reportConfig).values({
-            userId: id,
+            userId,
             timestampLast: new Date(),
         });
+
+        if (data.participation || data.prolific) {
+            await trx.insert(userExperimentData).values({
+                userId,
+                getsPaid: data.prolific,
+            });
+        }
     });
 }
 
@@ -301,8 +298,8 @@ export async function getAllUsers() {
     return db.select().from(user);
 }
 
-export async function setUserActive(id: string, isActive: boolean) {
-    return db.update(user).set({ isActive }).where(eq(user.id, id));
+export async function setUserActive(id: string, isActive: boolean, date: Date) {
+    return db.update(user).set({ isActive, activationDate: date }).where(eq(user.id, id));
 }
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {

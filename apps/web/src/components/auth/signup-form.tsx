@@ -52,6 +52,8 @@ export default function SignUpForm() {
             file: new File([], ""),
             tos: false,
             pin: false,
+            participation: false,
+            prolific: false,
         },
     });
 
@@ -340,6 +342,58 @@ export default function SignUpForm() {
                             </FormItem>
                         )}
                     />
+                    <div className="pb-4" />
+                    <p className="font-medium text-lg">Umfrage</p>
+                    <Separator />
+                    <FormField
+                        control={form.control}
+                        name="participation"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex flex-row items-center justify-between">
+                                    <FormLabel>Ich möchte an der Umfrage teilnehmen</FormLabel>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                </div>
+                                <FormDescription>
+                                    Durch die Teilnahme an der Umfrage, tragen Sie dazu bei, Forschungen im Bereich
+                                    Energie vorranzutreiben.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="participation"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex flex-row items-center justify-between">
+                                    <FormLabel>Ich möchte an Prolific teilnehmen (optional)</FormLabel>
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={(value) => {
+                                                field.onChange(value);
+                                                if (value && !form.getValues().participation) {
+                                                    form.setValue("participation", true);
+                                                }
+                                            }}
+                                        />
+                                    </FormControl>
+                                </div>
+                                <FormDescription>
+                                    Es ist uns Rechtlich nur möglich Geld für die Umfragen auszuzahlen, wenn Sie sich
+                                    über Prolific für diese Anmleden. Diese Anmeldung ist mit etwas Aufwand verbunden,
+                                    da eine Verifizierung stattfinden muss. Sie erhalten von uns eine genau Anleitung
+                                    hierzu.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    {/* Legal */}
                     <div className="pb-4" />
                     <p className="font-medium text-lg">Rechtliches</p>
                     <Separator />

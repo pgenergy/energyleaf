@@ -8,6 +8,8 @@ interface Props {
     meterNumber: string;
     hasWifi: boolean;
     hasPower: boolean;
+    participates: boolean;
+    prolific: boolean;
     img?: string;
 }
 
@@ -19,6 +21,8 @@ export default function AdminNewAccountCreatedTemplate({
     meterNumber,
     hasWifi,
     hasPower,
+    participates,
+    prolific,
 }: Props) {
     return (
         <Html lang="de">
@@ -37,6 +41,8 @@ export default function AdminNewAccountCreatedTemplate({
                         <br />- Zählernummer: {meterNumber}
                         <br />- WLAN: {hasWifi ? "Ja" : "Nein"}
                         <br />- Steckdose: {hasPower ? "Ja" : "Nein"}
+                        <br />- Möchte an Umfrage Teilnehmen: {participates ? "Ja" : "Nein"}
+                        <br />- Prolific: {prolific ? "Ja" : "Nein"}
                     </Text>
                     {img ? <Img src={img} /> : null}
                 </Container>

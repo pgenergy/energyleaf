@@ -41,7 +41,9 @@ export async function getAllUsersAction() {
 export async function setUserActive(id: string, active: boolean) {
     await checkIfAdmin();
     try {
-        await setUserActiveDb(id, active);
+        const activationDate = new Date();
+        activationDate.setHours(0, 0, 0, 0);
+        await setUserActiveDb(id, active, activationDate);
         if (active) {
             const user = await getUserById(id);
             if (user) {

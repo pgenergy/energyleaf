@@ -54,6 +54,8 @@ export async function createAccount(data: FormData) {
         "electricityMeterType",
     ) as (typeof userData.electricityMeterType.enumValues)[number];
     const electricityMeterNumber = data.get("electricityMeterNumber") as string;
+    const participation = (data.get("participation") as string) === "true";
+    const prolific = (data.get("prolific") as string) === "true";
 
     if (!tos) {
         return {
@@ -141,6 +143,8 @@ export async function createAccount(data: FormData) {
             electricityMeterType,
             meterImgUrl: url,
             electricityMeterNumber,
+            participation,
+            prolific,
         } satisfies CreateUserType);
         await sendAccountCreatedEmail({
             to: mail,
@@ -155,6 +159,8 @@ export async function createAccount(data: FormData) {
             meterNumber: electricityMeterNumber,
             hasWifi,
             hasPower,
+            participates: participation,
+            prolific,
             img: url,
             to: env.ADMIN_MAIL,
             from: env.RESEND_API_MAIL,
