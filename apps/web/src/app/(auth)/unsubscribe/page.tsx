@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 import { useSearchParams } from "next/navigation";
 
 export const metadata = {
-    title: "Report Einstellungen bearbeiten | Energyleaf",
+    title: "E-Mail Einstellungen bearbeiten | Energyleaf",
     robots: "noindex, nofollow",
 };
 
@@ -29,20 +29,20 @@ export default async function Page({ searchParams }: UnsubscribeFormProps) {
     }
 
     const mailSettings = await getUserMailConfig(userId);
-    const reportConfig = createMailSettingsSchema(mailSettings);
+    const mailConfig = createMailSettingsSchema(mailSettings);
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Report Einstellungen aktualisieren</CardTitle>
+                <CardTitle>E-Mail Einstellungen aktualisieren</CardTitle>
                 <CardDescription>
                     Hier können Sie einstellen, ob und in welchem Intervall die für Sie erstellen Berichte über Ihren
-                    Verbrauch erstellt werden sollen. Sollten Sie die Berichte deaktivieren wollen, deaktivieren Sie
-                    einfach die Einstellung "Senden der Berichte als E-Mails".
+                    Verbrauch erstellt werden sollen. Sie können sich hierbei von den E-Mail Benachrichtigungen
+                    abmelden.
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <UnsubscribeForm reportConfig={reportConfig} userId={userId} />
+                <UnsubscribeForm mailConfig={mailConfig} userId={userId} />
             </CardContent>
         </Card>
     );

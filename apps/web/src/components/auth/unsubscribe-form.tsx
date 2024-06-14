@@ -4,17 +4,17 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { updateMailSettings } from "@/actions/auth";
-import ReportConfigForm from "@/components/profile/report-config-form";
 import type { mailSettingsSchema, reportMailSettingsSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { useRouter } from "next/navigation";
+import MailConfigForm from "../profile/mail-config-form";
 
 interface Props {
-    reportConfig: z.infer<typeof mailSettingsSchema>;
+    mailConfig: z.infer<typeof mailSettingsSchema>;
     userId: string;
 }
 
-export default function UnsubscribeForm({ reportConfig, userId }: Props) {
+export default function UnsubscribeForm({ mailConfig, userId }: Props) {
     const router = useRouter();
 
     async function update(data: z.infer<typeof mailSettingsSchema>) {
@@ -42,5 +42,5 @@ export default function UnsubscribeForm({ reportConfig, userId }: Props) {
         });
     }
 
-    return <ReportConfigForm onSubmit={onSubmit} initialData={reportConfig} />;
+    return <MailConfigForm onSubmit={onSubmit} initialData={mailConfig} />;
 }

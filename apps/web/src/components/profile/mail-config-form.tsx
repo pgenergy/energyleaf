@@ -14,7 +14,7 @@ interface Props {
     initialData: z.infer<typeof mailSettingsSchema>;
 }
 
-export default function ReportConfigForm({ initialData: reportConfig, disabled, onSubmit }: Props) {
+export default function MailConfigForm({ initialData: reportConfig, disabled, onSubmit }: Props) {
     const [isPending, startTransition] = useTransition();
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),

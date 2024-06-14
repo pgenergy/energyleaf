@@ -7,16 +7,16 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { updateMailSettings } from "@/actions/auth";
-import ReportConfigForm from "@/components/profile/report-config-form";
 import type { MailConfig } from "@energyleaf/db/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import MailConfigForm from "./mail-config-form";
 
 interface Props {
     initialData: z.infer<typeof mailSettingsSchema>;
     disabled?: boolean;
 }
 
-export default function ReportConfigCard({ initialData, disabled }: Props) {
+export default function MailConfigCard({ initialData, disabled }: Props) {
     function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
         track("updateReportConfig()");
         toast.promise(updateMailSettings(data, null), {
@@ -31,12 +31,12 @@ export default function ReportConfigCard({ initialData, disabled }: Props) {
             <CardHeader>
                 <CardTitle>E-Mail & Berichte</CardTitle>
                 <CardDescription>
-                    Hier können Sie einstellen, ob Sie die erstellen Berichte über Ihren Verbrauch per E-Mail erhalten
+                    Hier können Sie einstellen, ob Sie die Informationen über Ihren Verbrauch per E-Mail erhalten
                     möchten, und das Intervall sowie die Erstellungszeit Ihrer Berichte festlegen.
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <ReportConfigForm initialData={initialData} disabled={disabled} onSubmit={onSubmit} />
+                <MailConfigForm initialData={initialData} disabled={disabled} onSubmit={onSubmit} />
             </CardContent>
         </Card>
     );
