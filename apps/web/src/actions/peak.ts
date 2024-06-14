@@ -54,7 +54,7 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
 }
 
 export async function getDevicesByUser(userId: string, search?: string) {
-    const session = await getActionSession();
+    const session = (await getActionSession())?.session;
     const devices = getDbDevicesByUser(userId, search);
     waitUntil(trackAction("devices/get", "get-devices-by-user", "web", { search, session }));
     return devices;
