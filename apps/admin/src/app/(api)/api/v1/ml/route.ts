@@ -14,7 +14,7 @@ export const POST = async (req: NextRequest) => {
 
     try {
         const ml_req = DeviceClassificationRequest.create(body);
-        const ml_res = await fetch(`${env.ML_API_URL}/classify_input`, {
+        const ml_res = await fetch(`${env.ML_API_URL}/classify_devices`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-protobuf",
