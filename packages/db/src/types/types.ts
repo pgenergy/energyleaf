@@ -83,7 +83,3 @@ export enum DeviceCategory {
     Lighting = "Beleuchtung",
     Care = "Pflege",
 }
-
-export enum TokenType {
-    Report = "report",
-}
