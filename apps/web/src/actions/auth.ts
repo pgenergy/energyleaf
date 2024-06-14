@@ -15,7 +15,7 @@ import {
 } from "@energyleaf/db/query";
 import type { userData } from "@energyleaf/db/schema";
 import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
-import { UserNotFoundError, UserNotLoggedInError, buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
+import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import {
     sendAccountCreatedEmail,
     sendAdminNewAccountCreatedEmail,
@@ -29,7 +29,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
-import type { mailSettingsSchema, reportMailSettingsSchema } from "@/lib/schema/profile";
+import type { mailSettingsSchema } from "@/lib/schema/profile";
 import type { z } from "zod";
 
 /**

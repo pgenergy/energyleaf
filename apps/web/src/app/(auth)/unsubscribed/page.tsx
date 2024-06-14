@@ -1,4 +1,3 @@
-import { UnsubscribeFormProps } from "@/app/(auth)/unsubscribe/page";
 import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 export const metadata = {

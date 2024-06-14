@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { updateMailSettings } from "@/actions/auth";
-import type { mailSettingsSchema, reportMailSettingsSchema } from "@/lib/schema/profile";
+import type { mailSettingsSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { useRouter } from "next/navigation";
 import MailConfigForm from "../profile/mail-config-form";

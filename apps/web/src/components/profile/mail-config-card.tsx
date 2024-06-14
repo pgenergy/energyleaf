@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 import { updateMailSettings } from "@/actions/auth";
-import type { MailConfig } from "@energyleaf/db/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import MailConfigForm from "./mail-config-form";
 

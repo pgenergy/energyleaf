@@ -4,7 +4,7 @@ import type { ReportProps } from "@energyleaf/lib";
 import type { MySqlTransaction } from "drizzle-orm/mysql-core";
 import type { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
 import db, { genId } from "../";
-import { historyReportConfig, reportConfig, reports, reportsDayStatistics } from "../schema/reports";
+import { reportConfig, reports, reportsDayStatistics } from "../schema/reports";
 import { user } from "../schema/user";
 
 export async function getReportConfigByUserId(

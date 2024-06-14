@@ -7,7 +7,6 @@ import type {
     deleteAccountSchema,
     mailSettingsSchema,
     passwordSchema,
-    reportMailSettingsSchema,
     userDataSchema,
     userGoalSchema,
 } from "@/lib/schema/profile";

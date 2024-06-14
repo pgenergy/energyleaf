@@ -1,9 +1,7 @@
-import { and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import db from "../";
-import { historyReports, historyUserData, reportConfig, reports, session, token, user, userData } from "../schema";
+import { historyUserData, reportConfig, session, token, user, userData } from "../schema";
 import type { UserDataSelectType, UserSelectType } from "../types/types";
-import { TokenType } from "../types/types";
-import { getReportConfigByUserId } from "./reports";
 
 /**
  * Get a user by id from the database

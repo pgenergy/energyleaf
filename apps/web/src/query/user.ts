@@ -1,4 +1,4 @@
-import { getDemoUserData, getUserDataCookieStoreDefaults } from "@/lib/demo/demo";
+import { getDemoUserData } from "@/lib/demo/demo";
 import {
     getMailSettings as getDbMailSettings,
     getUserById as getDbUserById,
@@ -6,9 +6,8 @@ import {
     getUserDataHistory as getDbUserDataHistoryById,
     getUserIdByToken as getDbUserIdByToken,
 } from "@energyleaf/db/query";
-import type { UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import type { UserDataSelectType } from "@energyleaf/db/types";
 import { Versions } from "@energyleaf/lib/versioning";
-import { cookies } from "next/headers";
 import { cache } from "react";
 import "server-only";
 
