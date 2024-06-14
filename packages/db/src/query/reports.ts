@@ -7,42 +7,6 @@ import db, { genId } from "../";
 import { historyReportConfig, reportConfig, reports, reportsDayStatistics } from "../schema/reports";
 import { user } from "../schema/user";
 
-interface ReportConfig {
-    receiveMails: boolean;
-    interval: number;
-    time: number;
-}
-
-/**
- * Update the user report settings data in the database
- */
-export async function updateReportConfig(data: ReportConfig, userId: string) {
-    return db.transaction(async (trx) => {
-        const oldReportData = await getReportConfigByUserId(trx, userId);
-        if (!oldReportData) {
-            throw new Error("Old user data not found");
-        }
-        await trx.insert(historyReportConfig).values({
-            userId: oldReportData.userId,
-            receiveMails: oldReportData.receiveMails,
-            interval: oldReportData.interval,
-            time: oldReportData.time,
-            timestampLast: oldReportData.timestampLast,
-            createdTimestamp: oldReportData.createdTimestamp,
-        });
-
-        await trx
-            .update(reportConfig)
-            .set({
-                receiveMails: data.receiveMails,
-                interval: data.interval,
-                time: data.time,
-                createdTimestamp: new Date(),
-            })
-            .where(eq(reportConfig.userId, userId));
-    });
-}
-
 export async function getReportConfigByUserId(
     trx: MySqlTransaction<
         PlanetscaleQueryResultHKT,

@@ -1,8 +1,6 @@
-import type { ReportConfigSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
-
-export function createUserDataSchemaFromUserDataType(userData: UserDataType | null) {
-    return createUserDataSchemaFromUserDataSelectType(userData?.user_data ?? null);
-}
+import type { MailConfig, ReportConfigSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import type { z } from "zod";
+import type { mailSettingsSchema } from "../profile";
 
 export function createUserDataSchemaFromUserDataSelectType(userData: UserDataSelectType | null) {
     return {
@@ -17,14 +15,11 @@ export function createUserDataSchemaFromUserDataSelectType(userData: UserDataSel
     };
 }
 
-export function createMailSettingsSchemaFromUserDataType(userData: UserDataType | null) {
-    return createMailSettingsSchemaFromReportSelectType(userData?.report_config ?? null);
-}
-
-export function createMailSettingsSchemaFromReportSelectType(reports: ReportConfigSelectType | null) {
+export function createMailSettingsSchema(mailConfig: MailConfig | null): z.infer<typeof mailSettingsSchema> {
     return {
-        interval: reports?.interval || 3,
-        receiveMails: reports?.receiveMails || false,
-        time: reports?.time || 6,
+        interval: mailConfig?.report_config.interval || 3,
+        receiveReportMails: mailConfig?.report_config.receiveMails || false,
+        time: mailConfig?.report_config.time || 6,
+        receiveAnomalyMails: mailConfig?.anomaly_config.receiveMails || false,
     };
 }

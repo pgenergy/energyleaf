@@ -7,8 +7,8 @@ export const passwordSchema = z.object({
     newPasswordRepeat: z.string().nonempty({ message: "Bitte geben Sie ein Passwort an." }),
 });
 
-export const reportSettingsSchema = z.object({
-    receiveMails: z.boolean().default(true),
+export const reportMailSettingsSchema = z.object({
+    receiveReportMails: z.boolean().default(true),
     interval: z.coerce
         .number()
         .int()
@@ -22,6 +22,12 @@ export const reportSettingsSchema = z.object({
         .max(23, { message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an." })
         .default(6),
 });
+
+export const anomalyMailSettingsSchema = z.object({
+    receiveAnomalyMails: z.boolean().default(true),
+});
+
+export const mailSettingsSchema = reportMailSettingsSchema.merge(anomalyMailSettingsSchema);
 
 export const userDataSchema = z.object({
     houseType: z.enum([...userData.property.enumValues]).default(userData.property.enumValues[0]),

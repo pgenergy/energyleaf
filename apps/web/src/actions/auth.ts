@@ -2,7 +2,7 @@
 import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
-import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
+import { getUserDataCookieStoreDefaults, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
 import { genId } from "@energyleaf/db";
 import {
@@ -10,8 +10,8 @@ import {
     createUser,
     getUserById,
     getUserByMail,
+    updateMailSettings as updateMailSettingsDb,
     updatePassword,
-    updateReportConfig,
 } from "@energyleaf/db/query";
 import type { userData } from "@energyleaf/db/schema";
 import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
@@ -29,7 +29,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
-import type { reportSettingsSchema } from "@/lib/schema/profile";
+import type { mailSettingsSchema, reportMailSettingsSchema } from "@/lib/schema/profile";
 import type { z } from "zod";
 
 /**
@@ -348,7 +348,7 @@ export async function signInDemoAction() {
     const cookieStore = cookies();
 
     cookieStore.set("demo_mode", "true");
-    cookieStore.set("demo_data", JSON.stringify(getUserDataCookieStore()));
+    cookieStore.set("demo_data", JSON.stringify(getUserDataCookieStoreDefaults()));
     redirect("/dashboard");
 }
 
@@ -378,7 +378,7 @@ export async function signOutDemoAction() {
     redirect("/");
 }
 
-export async function updateReportConfigSettings(data: z.infer<typeof reportSettingsSchema>, userId: string | null) {
+export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema>, userId: string | null) {
     let id = userId;
     if (!id) {
         const { user } = await getActionSession();
@@ -402,11 +402,16 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
     }
 
     try {
-        await updateReportConfig(
+        await updateMailSettingsDb(
             {
-                receiveMails: data.receiveMails,
-                interval: data.interval,
-                time: data.time,
+                reportConfig: {
+                    receiveMails: data.receiveReportMails,
+                    interval: data.interval,
+                    time: data.time,
+                },
+                anomalyConfig: {
+                    receiveMails: data.receiveAnomalyMails,
+                },
             },
             id,
         );

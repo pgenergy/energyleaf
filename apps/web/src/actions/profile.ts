@@ -5,8 +5,9 @@ import { lucia } from "@/lib/auth/auth.config";
 import { isDemoUser, updateUserDataCookieStore } from "@/lib/demo/demo";
 import type {
     deleteAccountSchema,
+    mailSettingsSchema,
     passwordSchema,
-    reportSettingsSchema,
+    reportMailSettingsSchema,
     userDataSchema,
     userGoalSchema,
 } from "@/lib/schema/profile";
@@ -14,8 +15,8 @@ import {
     deleteSessionsOfUser,
     deleteUser,
     getUserById,
+    updateMailSettings,
     updatePassword,
-    updateReportSettings,
     updateUser,
     updateUserData,
 } from "@energyleaf/db/query";
@@ -123,7 +124,7 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
     }
 }
 
-export async function updateMailInformation(data: z.infer<typeof reportSettingsSchema>) {
+export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>) {
     try {
         const { user, session } = await getActionSession();
 
@@ -137,11 +138,16 @@ export async function updateMailInformation(data: z.infer<typeof reportSettingsS
         }
 
         try {
-            await updateReportSettings(
+            await updateMailSettings(
                 {
-                    receiveMails: data.receiveMails,
-                    interval: data.interval,
-                    time: data.time,
+                    anomalyConfig: {
+                        receiveMails: data.receiveAnomalyMails,
+                    },
+                    reportConfig: {
+                        receiveMails: data.receiveReportMails,
+                        interval: data.interval,
+                        time: data.time,
+                    },
                 },
                 user.id,
             );

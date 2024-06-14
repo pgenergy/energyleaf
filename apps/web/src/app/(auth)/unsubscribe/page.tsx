@@ -1,5 +1,5 @@
 import UnsubscribeForm from "@/components/auth/unsubscribe-form";
-import { reportSettingsSchema } from "@/lib/schema/profile";
+import { reportMailSettingsSchema } from "@/lib/schema/profile";
 import { getUserData, getUserIdByToken } from "@/query/user";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { useSearchParams } from "next/navigation";
@@ -28,10 +28,12 @@ export default async function Page({ searchParams }: UnsubscribeFormProps) {
     }
 
     const userData = await getUserData(userId);
+    // TODO
     const reportConfig = {
-        receiveMails: userData?.report_config.receiveMails ?? true,
-        interval: userData?.report_config.interval ?? 3,
-        time: userData?.report_config.time ?? 6,
+        receiveReportMails: true,
+        interval: 3,
+        time: 6,
+        receiveAnomalyMails: false, // TODO: Implement anomaly mails
     };
 
     return (

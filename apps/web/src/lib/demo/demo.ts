@@ -1,5 +1,6 @@
 import type { SensorDataSelectType, UserDataType } from "@energyleaf/db/types";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { cookies } from "next/headers";
 import { getActionSession } from "../auth/auth.action";
 import demoData from "./demo.json";
 
@@ -13,17 +14,19 @@ export async function isDemoUser() {
     return true;
 }
 
-export function getUserDataCookieStore() {
+export function getDemoUserData() {
+    const data = cookies().get("demo_data")?.value;
+    if (!data) {
+        return getUserDataCookieStoreDefaults();
+    }
+
+    const userData = JSON.parse(data) as UserDataType;
+    userData.user_data.timestamp = new Date(userData.user_data.timestamp);
+    return userData;
+}
+
+export function getUserDataCookieStoreDefaults() {
     const data: UserDataType = {
-        report_config: {
-            id: 1,
-            userId: "demo",
-            receiveMails: false,
-            interval: 3,
-            time: 8,
-            timestampLast: new Date(),
-            createdTimestamp: new Date(),
-        },
         user_data: {
             id: 1,
             userId: "demo",
@@ -43,6 +46,20 @@ export function getUserDataCookieStore() {
             powerAtElectricityMeter: true,
             installationComment: null,
         },
+        mail_config: {
+            report_config: {
+                id: 1,
+                userId: "demo",
+                receiveMails: false,
+                interval: 3,
+                time: 8,
+                timestampLast: new Date(),
+                createdTimestamp: new Date(),
+            },
+            anomaly_config: {
+                receiveMails: false,
+            },
+        },
     };
 
     return data;
@@ -55,14 +72,20 @@ export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data:
     }
 
     const parsedData = JSON.parse(userData.value) as UserDataType;
-    const newData = {
-        reports: {
-            ...parsedData.report_config,
-            ...data.report_config,
-        },
+    const newData: UserDataType = {
         user_data: {
             ...parsedData.user_data,
             ...data.user_data,
+        },
+        mail_config: {
+            anomaly_config: {
+                ...parsedData.mail_config.anomaly_config,
+                ...data.mail_config?.anomaly_config,
+            },
+            report_config: {
+                ...parsedData.mail_config.report_config,
+                ...data.mail_config?.report_config,
+            },
         },
     };
 

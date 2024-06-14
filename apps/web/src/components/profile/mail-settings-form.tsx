@@ -2,7 +2,7 @@
 
 import { updateMailInformation } from "@/actions/profile";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
-import { reportSettingsSchema } from "@/lib/schema/profile";
+import { mailSettingsSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,17 +14,17 @@ import type { z } from "zod";
 
 interface Props {
     disabled?: boolean;
-    initialValues: z.infer<typeof reportSettingsSchema>;
+    initialValues: z.infer<typeof mailSettingsSchema>;
 }
 
 export default function MailSettingsForm({ initialValues, disabled }: Props) {
     const [isPending, startTransition] = useTransition();
-    const form = useForm<z.infer<typeof reportSettingsSchema>>({
-        resolver: zodResolver(reportSettingsSchema),
+    const form = useForm<z.infer<typeof mailSettingsSchema>>({
+        resolver: zodResolver(mailSettingsSchema),
         defaultValues: initialValues,
     });
 
-    async function updateMailInformationCallback(data: z.infer<typeof reportSettingsSchema>) {
+    async function updateMailInformationCallback(data: z.infer<typeof mailSettingsSchema>) {
         let res: DefaultActionReturn = undefined;
 
         try {
@@ -38,7 +38,7 @@ export default function MailSettingsForm({ initialValues, disabled }: Props) {
         }
     }
 
-    function onSubmit(data: z.infer<typeof reportSettingsSchema>) {
+    function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
         if (disabled) return;
         startTransition(() => {
             track("updateMailSettings()");

@@ -15,9 +15,18 @@ export type ReportConfigSelectType = typeof reportConfig.$inferSelect;
 
 export type ReportSelectType = typeof reports.$inferSelect;
 
-export type UserDataType = {
+export type AnomalyConfig = {
+    receiveMails: boolean;
+};
+
+export type MailConfig = {
     report_config: ReportConfigSelectType;
+    anomaly_config: AnomalyConfig;
+};
+
+export type UserDataType = {
     user_data: UserDataSelectType;
+    mail_config: MailConfig;
 };
 
 export type SensorSelectType = typeof sensor.$inferSelect;

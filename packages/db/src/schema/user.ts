@@ -32,6 +32,7 @@ export const user = mysqlTable("user", {
     isParticipant: boolean("is_participant").default(false).notNull(),
     onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
     appVersion: smallint("app_version").default(Versions.transparency).notNull(),
+    receiveAnomalyMails: boolean("receive_anomaly_mails").default(true).notNull(),
 });
 
 export const userData = mysqlTable("user_data", {
