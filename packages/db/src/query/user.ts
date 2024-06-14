@@ -196,7 +196,7 @@ export async function setUserAdmin(id: string, isAdmin: boolean) {
     return db.update(user).set({ isAdmin }).where(eq(user.id, id));
 }
 
-export async function createToken(userId: string, type: TokenType = TokenType.Report) {
+export async function createToken(userId: string) {
     return db.transaction(async (trx) => {
         await trx.insert(token).values({ userId });
 
