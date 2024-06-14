@@ -97,7 +97,7 @@ export const historyUserData = mysqlTable("history_user_data", {
     livingSpace: int("living_space"),
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
     monthlyPayment: int("advance_payment_electricity"),
-    consumptionGoal: int("consumption_goal"),
+    consumptionGoal: float("consumption_goal"),
     electricityMeterNumber: varchar("electricity_meter_number", { length: 256 }),
     electricityMeterType: mysqlEnum("electricity_meter_type", ["digital", "analog"]),
     electricityMeterImgUrl: text("electricity_meter_img_url"),
