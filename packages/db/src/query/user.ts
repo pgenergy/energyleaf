@@ -1,4 +1,4 @@
-import { and, desc, eq, exists, lte } from "drizzle-orm";
+import { and, desc, eq, exists, gte, lte } from "drizzle-orm";
 import db, { genId } from "../";
 import {
     historyReports,
@@ -90,6 +90,23 @@ export async function getUsersWhoReciveSurveyMail(date: Date) {
                 eq(user.isParticipant, true),
                 eq(user.isActive, true),
                 eq(userExperimentData.getsPaid, false),
+            ),
+        );
+}
+
+/**
+ * Return all users who are in the experiment and getting paid
+ */
+export async function getAllExperimentUsers() {
+    return await db
+        .select()
+        .from(user)
+        .innerJoin(userExperimentData, eq(user.id, userExperimentData.userId))
+        .where(
+            and(
+                eq(user.isParticipant, true),
+                eq(userExperimentData.experimentStatus, "approved"),
+                gte(userExperimentData.experimentNumber, 1),
             ),
         );
 }

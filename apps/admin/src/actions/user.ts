@@ -8,6 +8,7 @@ import {
     deleteExperimentDataForUser,
     deleteSessionsOfUser,
     deleteUser as deleteUserDb,
+    getAllExperimentUsers,
     getAllUsers as getAllUsersDb,
     getUserById,
     getUserExperimentData,
@@ -26,6 +27,7 @@ import {
 } from "@energyleaf/mail";
 import { revalidatePath } from "next/cache";
 import "server-only";
+import * as csv from "csv/sync";
 import type { z } from "zod";
 
 export async function getAllUsersAction() {
@@ -256,4 +258,21 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
     }
 
     revalidatePath("/users");
+}
+
+export async function exportCsvUserData() {
+    await checkIfAdmin();
+
+    const users = await getAllExperimentUsers();
+    const parsedData = users.map((user) => {
+        const parsedId = user.user.id.replace(/-_/g, "");
+        const mail = user.user.email;
+        const firstname = user.user.firstname;
+        const lastname = user.user.lastName;
+
+        return [firstname, lastname, mail, parsedId];
+    });
+
+    const csvData = csv.stringify([["Vorname", "Nachname", "Email", "ID"], ...parsedData]);
+    return csvData;
 }
