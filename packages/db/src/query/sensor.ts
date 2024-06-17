@@ -4,7 +4,12 @@ import { and, between, desc, eq, gt, gte, inArray, isNotNull, lt, lte, ne, or, s
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
-import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
+import {
+    type SensorInsertType,
+    type SensorSelectTypeWithUser,
+    SensorType,
+    type SensorDataSelectType,
+} from "../types/types";
 
 interface EnergyData {
     sensorId: string;
@@ -57,7 +62,7 @@ export async function findAndMarkPeaks(props: FindAndMarkPeaksProps) {
             const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
             const threshold = median + 1.4826 * mad * 1.2;
 
-            const peaks = [];
+            const peaks: SensorDataSelectType[] = [];
             let i = 0;
 
             while (i < energyData.length) {
