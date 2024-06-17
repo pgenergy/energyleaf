@@ -59,9 +59,11 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
 
             if (prev?.from) {
                 if (day.getTime() < prev?.from.getTime()) {
+                    const toDate = new Date(prev.from);
+                    toDate.setHours(23, 59, 59, 999);
                     from = day;
-                    to = prev.from;
-                    return { from: day, to: prev.from };
+                    to = toDate;
+                    return { from: day, to: toDate };
                 }
 
                 if (day.toDateString() === prev?.from.toDateString()) {
@@ -72,9 +74,11 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
                     return { from: prev.from, to: toDate };
                 }
 
+                const toDate = new Date(day);
+                toDate.setHours(23, 59, 59, 999);
                 from = prev.from;
-                to = day;
-                return { from: prev.from, to: day };
+                to = toDate;
+                return { from: prev.from, to: toDate };
             }
 
             from = day;
