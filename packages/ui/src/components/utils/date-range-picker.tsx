@@ -1,3 +1,5 @@
+"use client";
+
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
@@ -39,30 +41,48 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
     };
 
     function onChangeInternal(value?: DateRange) {
+        setRange(value);
+
+        if (value?.from && value?.to) {
+            onChange(value);
+        }
+    }
+
+    function onDayClick(day: Date) {
+        let from: Date | undefined;
+        let to: Date | undefined;
         setRange((prev) => {
             if (prev?.to) {
-                return { from: value?.from, to: undefined };
+                from = day;
+                return { from: day, to: undefined };
             }
 
-            if (prev?.from && value?.to) {
-                if (prev.from.getTime() > value.to.getTime()) {
-                    return { from: value.to, to: prev.from };
+            if (prev?.from) {
+                if (day.getTime() < prev?.from.getTime()) {
+                    from = day;
+                    to = prev.from;
+                    return { from: day, to: prev.from };
                 }
 
-                if (prev.from.getTime() === value.to.getTime()) {
-                    const toDate = new Date(prev.from);
+                if (day.toDateString() === prev?.from.toDateString()) {
+                    const toDate = new Date(day);
                     toDate.setHours(23, 59, 59, 999);
+                    from = prev.from;
+                    to = toDate;
                     return { from: prev.from, to: toDate };
                 }
 
-                return { from: prev.from, to: value.to };
+                from = prev.from;
+                to = day;
+                return { from: prev.from, to: day };
             }
 
-            return value;
+            from = day;
+            return { from: day, to: undefined };
         });
 
-        if (range?.from && range.to) {
-            onChange(range);
+        if (from && to) {
+            onChange({ from, to });
         }
     }
 
@@ -134,13 +154,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
                             Monat
                         </Button>
                     </div>
-                    <Calendar
-                        initialFocus
-                        mode="range"
-                        onSelect={onChangeInternal}
-                        selected={range}
-                        footer={calFooter}
-                    />
+                    <Calendar initialFocus mode="range" onDayClick={onDayClick} selected={range} footer={calFooter} />
                 </PopoverContent>
             </Popover>
         </div>
