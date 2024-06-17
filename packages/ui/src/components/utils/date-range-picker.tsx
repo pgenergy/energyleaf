@@ -1,5 +1,3 @@
-"use client";
-
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
@@ -41,10 +39,30 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
     };
 
     function onChangeInternal(value?: DateRange) {
-        setRange(value);
+        setRange((prev) => {
+            if (prev?.to) {
+                return { from: value?.from, to: undefined };
+            }
 
-        if (value?.from && value.to) {
-            onChange(value);
+            if (prev?.from && value?.to) {
+                if (prev.from.getTime() > value.to.getTime()) {
+                    return { from: value.to, to: prev.from };
+                }
+
+                if (prev.from.getTime() === value.to.getTime()) {
+                    const toDate = new Date(prev.from);
+                    toDate.setHours(23, 59, 59, 999);
+                    return { from: prev.from, to: toDate };
+                }
+
+                return { from: prev.from, to: value.to };
+            }
+
+            return value;
+        });
+
+        if (range?.from && range.to) {
+            onChange(range);
         }
     }
 
