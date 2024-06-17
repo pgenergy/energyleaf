@@ -366,7 +366,7 @@ export default function SignUpForm() {
                     />
                     <FormField
                         control={form.control}
-                        name="participation"
+                        name="prolific"
                         render={({ field }) => (
                             <FormItem>
                                 <div className="flex flex-row items-center justify-between">
@@ -386,8 +386,15 @@ export default function SignUpForm() {
                                 <FormDescription>
                                     Es ist uns Rechtlich nur möglich Geld für die Umfragen auszuzahlen, wenn Sie sich
                                     über Prolific für diese Anmleden. Diese Anmeldung ist mit etwas Aufwand verbunden,
-                                    da eine Verifizierung stattfinden muss. Sie erhalten von uns eine genau Anleitung
-                                    hierzu.
+                                    da eine Verifizierung stattfinden muss. Eine Anleitung finden sie{" "}
+                                    <a
+                                        href="https://jbh9hx6nwkx1up9t.public.blob.vercel-storage.com/downloads/prolific_anleitung.pdf"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        hier
+                                    </a>
+                                    .
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
