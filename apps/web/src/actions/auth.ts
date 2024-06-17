@@ -64,6 +64,13 @@ export async function createAccount(data: FormData) {
         };
     }
 
+    if (file && !file.type.startsWith("image/")) {
+        return {
+            success: false,
+            message: "Bitte laden Sie ein Bild hoch.",
+        };
+    }
+
     if (!pin) {
         return {
             success: false,
@@ -117,9 +124,21 @@ export async function createAccount(data: FormData) {
     let url: string | undefined = undefined;
     if (env.BLOB_READ_WRITE_TOKEN) {
         try {
+            const imageMimeToExtensionMap = {
+                "image/jpeg": "jpg",
+                "image/png": "png",
+                "image/gif": "gif",
+                "image/bmp": "bmp",
+                "image/webp": "webp",
+                "image/tiff": "tiff",
+                "image/svg+xml": "svg",
+                "image/heic": "heic",
+                "image/heif": "heif",
+            };
             const id = genId(25);
-            const type = file.name.split(".").pop();
-            const res = await put(`electricitiy_meter/${id}.${type}`, file, {
+            const type = file.type;
+            const ext = imageMimeToExtensionMap[type] || type.split("/")[1];
+            const res = await put(`electricitiy_meter/${id}.${ext}`, file, {
                 access: "public",
             });
             url = res.url;
