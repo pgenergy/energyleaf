@@ -1,6 +1,6 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, between, desc, eq, gt, gte, lt, lte, ne, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, gt, gte, inArray, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
@@ -22,6 +22,85 @@ export async function insertRawEnergyValues(
     }[],
 ) {
     await db.insert(sensorData).values(data);
+}
+
+export async function getAllSensors(active?: boolean) {
+    if (active) {
+        return db.select().from(sensor).where(isNotNull(sensor.userId));
+    }
+
+    return db.select().from(sensor);
+}
+
+interface FindAndMarkPeaksProps {
+    sensorId: string;
+    start: Date;
+    end: Date;
+}
+
+export async function findAndMarkPeaks(props: FindAndMarkPeaksProps) {
+    const { sensorId, start, end } = props;
+
+    try {
+        await db.transaction(async (trx) => {
+            const energyData = await trx
+                .select()
+                .from(sensorData)
+                .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, start, end)));
+
+            if (energyData.length === 0) {
+                return;
+            }
+
+            const values = energyData.map((d) => d.value);
+            const median = values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
+            const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
+            const threshold = median + 1.4826 * mad * 1.2;
+
+            const peaks = [];
+            let i = 0;
+
+            while (i < energyData.length) {
+                const entry = energyData[i];
+
+                if (entry.value > threshold) {
+                    let highestValue = entry;
+                    let sequenceEnd = i + 1;
+
+                    while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
+                        if (energyData[sequenceEnd].value > highestValue.value) {
+                            highestValue = energyData[sequenceEnd];
+                        }
+                        sequenceEnd++;
+                    }
+
+                    const sequenceLength = sequenceEnd - i;
+                    if (sequenceLength > 8) {
+                        peaks.push(highestValue);
+                    }
+                    i = sequenceEnd;
+                } else {
+                    i++;
+                }
+            }
+
+            if (peaks.length === 0) {
+                await trx
+                    .update(sensorData)
+                    .set({
+                        isPeak: true,
+                    })
+                    .where(
+                        inArray(
+                            sensorData.id,
+                            peaks.map((d) => d.id),
+                        ),
+                    );
+            }
+        });
+    } catch (err) {
+        return;
+    }
 }
 
 export async function getEnergyForSensorInRange(
