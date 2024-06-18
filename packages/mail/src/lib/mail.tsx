@@ -215,7 +215,6 @@ type AdminNewAccountMailOptions = MailOptions & {
     meterNumber: string;
     participates: boolean;
     prolific: boolean;
-    img?: string;
 };
 
 export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMailOptions) {
@@ -235,7 +234,6 @@ export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMail
             hasWifi: props.hasWifi,
             hasPower: props.hasPower,
             mail: props.email,
-            img: props.img,
             participates: props.participates,
             prolific: props.prolific,
         }),

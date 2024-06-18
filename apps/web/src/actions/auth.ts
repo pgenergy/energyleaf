@@ -181,7 +181,6 @@ export async function createAccount(data: FormData) {
             hasPower,
             participates: participation,
             prolific,
-            img: url,
             to: env.ADMIN_MAIL,
             from: env.RESEND_API_MAIL,
             apiKey: env.RESEND_API_KEY,

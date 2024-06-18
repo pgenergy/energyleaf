@@ -17,7 +17,6 @@ export default function AdminNewAccountCreatedTemplate({
     name,
     meter,
     mail,
-    img,
     meterNumber,
     hasWifi,
     hasPower,
@@ -44,7 +43,6 @@ export default function AdminNewAccountCreatedTemplate({
                         <br />- Möchte an Umfrage Teilnehmen: {participates ? "Ja" : "Nein"}
                         <br />- Prolific: {prolific ? "Ja" : "Nein"}
                     </Text>
-                    {img ? <Img src={img} /> : null}
                 </Container>
                 <Footer />
             </Main>
