@@ -422,10 +422,11 @@ export async function signOutDemoAction() {
 
 export async function updateReportConfigSettings(data: z.infer<typeof reportSettingsSchema>, userId: string | null) {
     let id = userId;
+    const { user } = await getActionSession();
     if (!id) {
-        const { user } = await getActionSession();
 
         if (!user) {
+            waitUntil(trackAction("user/not-logged-in", "update-report-config", "web", { data }));
             return {
                 success: false,
                 message: "Nicht eingeloggt.",
@@ -437,6 +438,7 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
 
     const dbUser = await getUserById(id);
     if (!dbUser) {
+        waitUntil(trackAction("user/not-found-in-db", "update-report-config", "web", { data, userId: id }));
         return {
             success: false,
             message: "Nutzer nicht gefunden.",
@@ -444,6 +446,7 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
     }
 
     try {
+        waitUntil(trackAction("report-config-updated", "update-report-config", "web", { data, userId: id }));
         await updateReportConfig(
             {
                 receiveMails: data.receiveMails,
@@ -453,7 +456,7 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
             id,
         );
     } catch (e) {
-        console.log(e);
+        waitUntil(logError("report-config-update-error", "update-report-config", "web", { data, userId: id }, e));
         return {
             success: false,
             message: "Fehler beim Speichern der Einstellungen.",
