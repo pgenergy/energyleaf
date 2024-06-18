@@ -422,11 +422,10 @@ export async function signOutDemoAction() {
 
 export async function updateReportConfigSettings(data: z.infer<typeof reportSettingsSchema>, userId: string | null) {
     let id = userId;
-    const { user } = await getActionSession();
+    const { user, session } = await getActionSession();
     if (!id) {
-
         if (!user) {
-            waitUntil(trackAction("user/not-logged-in", "update-report-config", "web", { data }));
+            waitUntil(trackAction("user/not-logged-in", "update-report-config", "web", { data, session }));
             return {
                 success: false,
                 message: "Nicht eingeloggt.",
@@ -438,7 +437,7 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
 
     const dbUser = await getUserById(id);
     if (!dbUser) {
-        waitUntil(trackAction("user/not-found-in-db", "update-report-config", "web", { data, userId: id }));
+        waitUntil(trackAction("user/not-found-in-db", "update-report-config", "web", { data, session }));
         return {
             success: false,
             message: "Nutzer nicht gefunden.",
@@ -446,7 +445,7 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
     }
 
     try {
-        waitUntil(trackAction("report-config-updated", "update-report-config", "web", { data, userId: id }));
+        waitUntil(trackAction("report-config-updated", "update-report-config", "web", { data, session }));
         await updateReportConfig(
             {
                 receiveMails: data.receiveMails,
@@ -456,7 +455,7 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
             id,
         );
     } catch (e) {
-        waitUntil(logError("report-config-update-error", "update-report-config", "web", { data, userId: id }, e));
+        waitUntil(logError("report-config-update-error", "update-report-config", "web", { data, session }, e));
         return {
             success: false,
             message: "Fehler beim Speichern der Einstellungen.",
