@@ -16,6 +16,7 @@
 		"@energyleaf/mail": "workspace:*",
 		"@energyleaf/tailwindcss": "workspace:*",
 		"@energyleaf/ui": "workspace:*",
+		"@vercel/functions": "^1.0.2",
 		"@hookform/resolvers": "^3.4.0",
 		"@node-rs/argon2": "^1.8.3",
 		"@node-rs/bcrypt": "^1.10.4",

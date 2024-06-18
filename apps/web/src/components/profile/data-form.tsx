@@ -6,7 +6,6 @@ import { userDataSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Form, Spinner } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -43,7 +42,6 @@ export default function UserDataForm({ initialData, disabled }: Props) {
     function onSubmit(data: z.infer<typeof userDataSchema>) {
         if (disabled) return;
         startTransition(() => {
-            track("updateUserData()");
             toast.promise(updateUserDataInformationCallback(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",

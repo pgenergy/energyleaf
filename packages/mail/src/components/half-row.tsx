@@ -16,7 +16,7 @@ export default function HalfRow({ children }: Props) {
     }
 
     return (
-        <Row className="pb-2 ">
+        <Row className="pb-2">
             {children.map((child, index) => (
                 <Column className="w-1/2 p-1" key={index.toString()}>
                     {child}

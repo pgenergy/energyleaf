@@ -100,7 +100,7 @@ export default function SignUpForm() {
 
     return (
         <div className="flex flex-col gap-2">
-            <p className="font-bold text-xl">Abenteuer beginnt hier!</p>
+            <p className="font-bold text-xl">Das Abenteuer beginnt hier!</p>
             <p className="mb-2 text-muted-foreground">Verständnis über den eigenen Energieverbrauch aufbauen.</p>
             <Form {...form}>
                 <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>

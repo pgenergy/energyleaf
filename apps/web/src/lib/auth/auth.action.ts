@@ -14,7 +14,7 @@ export const getActionSession = async () => {
                 firstname: "Demo",
                 lastname: "Nutzer",
                 email: "demo@energyleaf.de",
-                phone: undefined,
+                phone: null,
                 address: "Demo Adresse",
                 created: new Date().toISOString(),
                 isAdmin: false,

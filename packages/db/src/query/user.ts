@@ -232,7 +232,7 @@ export async function updateUser(data: Partial<UserSelectType>, id: string) {
  * Update the user's password in the database
  */
 export async function updatePassword(data: Partial<CreateUserType>, id: string) {
-    return await db.update(user).set(data).where(eq(user.id, id));
+    return db.update(user).set(data).where(eq(user.id, id));
 }
 
 /**

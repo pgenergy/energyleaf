@@ -15,8 +15,7 @@ import {
     type Option,
 } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { track } from "@vercel/analytics";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -76,7 +75,6 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
     }
 
     function onSubmit(data: z.infer<typeof peakSchema>) {
-        track("assignEnergyPeakToDevice()");
         toast.promise(addOrUpdatePeakCallback(data), {
             loading: "Peak zuweisen...",
             success: "Erfolgreich zugewiesen",
