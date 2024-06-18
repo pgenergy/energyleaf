@@ -8,10 +8,10 @@ import {
     deleteExperimentDataForUser,
     deleteSessionsOfUser,
     deleteUser as deleteUserDb,
-    getAllExperimentUsers,
     getAllUsers as getAllUsersDb,
     getUserById,
     getUserExperimentData,
+    logError,
     setUserActive as setUserActiveDb,
     setUserAdmin as setUserAdminDb,
     updateExperimentDataForUser,
@@ -25,9 +25,9 @@ import {
     sendExperimentRemovedEmail,
     sendSurveyInviteEmail,
 } from "@energyleaf/mail";
+import { waitUntil } from "@vercel/functions";
 import { revalidatePath } from "next/cache";
 import "server-only";
-import * as csv from "csv/sync";
 import type { z } from "zod";
 
 export async function getAllUsersAction() {
@@ -61,6 +61,18 @@ export async function setUserActive(id: string, active: boolean) {
         }
         revalidatePath("/users");
     } catch (e) {
+        waitUntil(
+            logError(
+                "user/actived-mail-failed",
+                "user-activate",
+                "admin",
+                {
+                    userId: id,
+                    active,
+                },
+                e,
+            ),
+        );
         throw new Error("Failed to set user active");
     }
 }
@@ -153,7 +165,18 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                 apiKey: env.RESEND_API_KEY,
             });
         } catch (err) {
-            console.error("Failed to send account activated mail", err);
+            waitUntil(
+                logError(
+                    "user/actived-mail-failed",
+                    "user-state-update",
+                    "admin",
+                    {
+                        userId: userData.id,
+                        data,
+                    },
+                    err,
+                ),
+            );
         }
     }
 
@@ -218,7 +241,18 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                 name,
             });
         } catch (err) {
-            console.error("Failed to send dismissed mail", err);
+            waitUntil(
+                logError(
+                    "user/dismissed-mail-failed",
+                    "user-state-update",
+                    "admin",
+                    {
+                        userId: userData.id,
+                        data: data,
+                    },
+                    err,
+                ),
+            );
         }
     }
 
@@ -239,7 +273,18 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                 surveyLink,
             });
         } catch (err) {
-            console.error("Failed to send invite mail", err);
+            waitUntil(
+                logError(
+                    "user/survey-invite-mail-failed",
+                    "user-state-update",
+                    "admin",
+                    {
+                        userId: userData.id,
+                        data: data,
+                    },
+                    err,
+                ),
+            );
         }
     }
 
@@ -253,7 +298,18 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                 name,
             });
         } catch (err) {
-            console.error("Failed to send experiment done mail", err);
+            waitUntil(
+                logError(
+                    "user/done-mail-failed",
+                    "user-state-update",
+                    "admin",
+                    {
+                        userId: userData.id,
+                        data: data,
+                    },
+                    err,
+                ),
+            );
         }
     }
 

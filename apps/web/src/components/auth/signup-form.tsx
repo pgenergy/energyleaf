@@ -256,7 +256,8 @@ export default function SignUpForm() {
                                 </FormControl>
                                 <FormDescription>
                                     Sie müssen ein Foto von Ihrem Stromzähler anhängen, dies erleichtert uns die
-                                    Installation ihres Sensors
+                                    Installation ihres Sensors. Auf dem Foto sollte der Hersteller, sowie die
+                                    Zählernummer erkenntlich sein.
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -358,7 +359,8 @@ export default function SignUpForm() {
                                 </div>
                                 <FormDescription>
                                     Durch die Teilnahme an der Umfrage, tragen Sie dazu bei, Forschungen im Bereich
-                                    Energie vorranzutreiben.
+                                    Energie vorranzutreiben. Teilnehmer, die an einer Umfrage teilnehmen, werden von uns
+                                    priorisiert an das System angeschlossen
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -384,9 +386,9 @@ export default function SignUpForm() {
                                     </FormControl>
                                 </div>
                                 <FormDescription>
-                                    Es ist uns Rechtlich nur möglich Geld für die Umfragen auszuzahlen, wenn Sie sich
-                                    über Prolific für diese Anmleden. Diese Anmeldung ist mit etwas Aufwand verbunden,
-                                    da eine Verifizierung stattfinden muss. Eine Anleitung finden sie{" "}
+                                    Es ist uns rechtlich nur möglich Geld für die Umfragen auszuzahlen, wenn Sie sich
+                                    über Prolific für unsere Umfragen registrieren. Diese Anmeldung ist mit etwas
+                                    Aufwand verbunden, da eine Verifizierung stattfinden muss. Eine Anleitung finden sie{" "}
                                     <a
                                         href="https://jbh9hx6nwkx1up9t.public.blob.vercel-storage.com/downloads/prolific_anleitung.pdf"
                                         target="_blank"

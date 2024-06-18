@@ -38,7 +38,7 @@ export default function SurveyInviteTemplate(props: Props) {
                 <CustomButton href={props.surveyLink}>Zur Umfrage</CustomButton>
                 <Container className="px-4">
                     <Text>
-                        Bei Fragen antworten Sie auf diese E-Mail oder schreiben Sie uns unter{" "}
+                        Bei Fragen antworten Sie auf diese E-Mail oder schreiben Sie uns pr Mail an{" "}
                         <Link href="mailto:energyleaf@uni-oldenburg.de">energyleaf@uni-oldenburg.de</Link>.
                     </Text>
                 </Container>

@@ -8,7 +8,7 @@ export const GET = async () => {
     const { user, session } = await getActionSession();
 
     if (!session) {
-        waitUntil(log("user/not-loggedin", "error", "csv-export-user", "api", {}));
+        waitUntil(log("user/not-logged-in", "error", "csv-export-user", "api", {}));
         return NextResponse.json(
             {
                 error: "Sie sind nicht angemeldet.",
@@ -36,7 +36,7 @@ export const GET = async () => {
         });
 
         const csvData = csv.stringify([["Vorname", "Nachname", "Email", "ID"], ...parsedData]);
-        waitUntil(trackAction("csv-export-user/success", "csv-export-user", "api", { details }));
+        waitUntil(trackAction("csv-export-user/success", "csv-export-user", "api", { details, session }));
         return new NextResponse(csvData, {
             status: 200,
             headers: {

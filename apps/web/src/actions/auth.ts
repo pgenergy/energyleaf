@@ -69,7 +69,7 @@ export async function createAccount(data: FormData) {
     }
 
     if (file && !file.type.startsWith("image/")) {
-        waitUntil(trackAction("image-upload/wrong-format", "create-account", "web", { mail }));
+        waitUntil(trackAction("image-upload/wrong-format", "create-account", "web", { mail, fileType: file.type }));
         return {
             success: false,
             message: "Bitte laden Sie ein Bild hoch.",
