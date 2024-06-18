@@ -19,7 +19,9 @@
     "REPORTS_API_KEY",
     "APP_URL",
     "CRON_SECRET",
-    "ADMIN_URL"
+    "ADMIN_URL",
+    "ML_API_KEY",
+    "ML_API_URL"
   ],
   "tasks": {
     "build": {

@@ -1,5 +1,4 @@
-import { UnsubscribeFormProps } from "@/app/(auth)/unsubscribe/page";
-import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export const metadata = {
     title: "Report Einstellungen aktualisiert | Energyleaf",

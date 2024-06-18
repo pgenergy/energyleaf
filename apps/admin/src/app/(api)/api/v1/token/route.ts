@@ -1,5 +1,5 @@
 import { createSensorToken, getSensorDataByClientId, log, logError } from "@energyleaf/db/query";
-import { TokenRequest, TokenResponse, parseReadableStream } from "@energyleaf/proto";
+import { energyleaf, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 

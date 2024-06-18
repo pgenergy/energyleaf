@@ -1,5 +1,5 @@
-import { Input } from "@energyleaf/ui/input";
 import { Button } from "@energyleaf/ui/button";
+import { Input } from "@energyleaf/ui/input";
 import type { FallbackProps } from "react-error-boundary";
 
 export default function DevicesTableError({ resetErrorBoundary }: FallbackProps) {

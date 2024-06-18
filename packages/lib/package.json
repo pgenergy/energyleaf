@@ -21,7 +21,8 @@
 	},
 	"dependencies": {
 		"canvas": "^2.11.2",
-		"chart.js": "^4.4.2",
+		"chart.js": "^4.4.3",
+        "chartjs-plugin-datalabels": "^2.2.0",
 		"date-fns": "^3.6.0",
 		"jose": "^5.4.0",
 		"jsdom": "^24.1.0"

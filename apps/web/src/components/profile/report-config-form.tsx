@@ -1,18 +1,10 @@
 import IntervalSelector from "@/components/profile/interval-selector";
 import TimeSelector from "@/components/profile/time-selector";
-import {
-    Button,
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    Spinner,
-    Switch,
-} from "@energyleaf/ui";
-
 import { reportSettingsSchema } from "@/lib/schema/profile";
+import { Button } from "@energyleaf/ui/button";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@energyleaf/ui/form";
+import { Spinner } from "@energyleaf/ui/spinner";
+import { Switch } from "@energyleaf/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";

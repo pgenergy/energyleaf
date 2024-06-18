@@ -11,6 +11,7 @@ import { Checkbox } from "@energyleaf/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
+import { Separator } from "@energyleaf/ui/separator";
 import { Switch } from "@energyleaf/ui/switch";
 import { Textarea } from "@energyleaf/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";

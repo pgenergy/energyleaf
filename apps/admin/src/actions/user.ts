@@ -156,7 +156,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
         throw new Error("Failed to update user");
     }
 
-    if (!userData.isActive && data.isActive) {
+    if (!userData.isActive && data.isActive && env.RESEND_API_KEY && env.RESEND_API_MAIL) {
         try {
             await sendAccountActivatedEmail({
                 to: userData.email,
@@ -224,6 +224,10 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
         } catch (err) {
             throw new Error("Failed to update experiment data");
         }
+    }
+
+    if (!env.RESEND_API_MAIL || !env.RESEND_API_KEY) {
+        return;
     }
 
     // Send user mails based on expent status

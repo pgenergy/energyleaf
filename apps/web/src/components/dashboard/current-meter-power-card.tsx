@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getEnergyLastEntry } from "@/query/energy";
 import { getElectricitySensorIdForUser } from "@energyleaf/db/query";
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default async function CurrentMeterPowerCard() {
     const { user } = await getSession();

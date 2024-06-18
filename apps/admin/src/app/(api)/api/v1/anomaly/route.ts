@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env, getUrl } from "@/env.mjs";
 import { getAnomaliesByUser } from "@/query/sensor";
 import { getAllUsers } from "@/query/user";
 import { log, logError, trackAction } from "@energyleaf/db/query";
@@ -29,21 +29,21 @@ export const POST = async (req: NextRequest) => {
             const link = getUrl(env);
             const unsubscribeLink = "";
             if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
-            await sendAnomalyEmail({
-                to: user.email,
-                name: user.username,
-                from: env.RESEND_API_MAIL,
-                apiKey: env.RESEND_API_KEY,
-                unsubscribeLink: unsubscribeLink,
-                link: link,
-            });
-            waitUntil(
-                trackAction("mail-sent", "anomaly-check", "api", {
-                    userId: user.id,
-                    email: user.email,
-                    link,
-                    unsubscribeLink,
-                }),
+                await sendAnomalyEmail({
+                    to: user.email,
+                    name: user.username,
+                    from: env.RESEND_API_MAIL,
+                    apiKey: env.RESEND_API_KEY,
+                    unsubscribeLink: unsubscribeLink,
+                    link: link,
+                });
+                waitUntil(
+                    trackAction("mail-sent", "anomaly-check", "api", {
+                        userId: user.id,
+                        email: user.email,
+                        link,
+                        unsubscribeLink,
+                    }),
                 );
             }
         }

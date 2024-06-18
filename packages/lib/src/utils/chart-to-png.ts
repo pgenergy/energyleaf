@@ -3,7 +3,6 @@ import type { ChartConfiguration } from "chart.js/auto";
 import { Chart } from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { JSDOM } from "jsdom";
-
 /**
  * Renders a chart to a base64 data string that can be used as a src for an image tag.
  *
