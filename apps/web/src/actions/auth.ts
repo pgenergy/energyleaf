@@ -69,6 +69,7 @@ export async function createAccount(data: FormData) {
     }
 
     if (file && !file.type.startsWith("image/")) {
+        waitUntil(trackAction("image-upload/wrong-format", "create-account", "web", { mail }));
         return {
             success: false,
             message: "Bitte laden Sie ein Bild hoch.",
@@ -76,6 +77,7 @@ export async function createAccount(data: FormData) {
     }
 
     if (!pin) {
+        waitUntil(trackAction("smart-meter-pin/not-accepted", "create-account", "web", { mail }));
         return {
             success: false,
             message: "Sie müssen der PIN-Beantragung zustimmen...",

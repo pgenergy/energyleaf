@@ -1,6 +1,7 @@
 import { env } from "@/env.mjs";
-import { getUsersWhoRecieveSurveyMail, updateExperimentDataForUser } from "@energyleaf/db/query";
+import { getUsersWhoRecieveSurveyMail, logError, trackAction, updateExperimentDataForUser } from "@energyleaf/db/query";
 import { sendSurveyInviteEmail } from "@energyleaf/mail";
+import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
 const sendMails = async (
@@ -21,7 +22,15 @@ const sendMails = async (
                 user.id,
             );
         } catch (err) {
-            console.error("Failed to update experiment data", err);
+            waitUntil(
+                logError(
+                    "survey-routine/experiment-status-update",
+                    "survey-routine",
+                    "api",
+                    { details: { userId: user.id } },
+                    err,
+                ),
+            );
         }
 
         let name = user.username;
@@ -32,6 +41,16 @@ const sendMails = async (
         const surveyToken = user.id.replace(/-_/g, "");
         const surveyLink = `https://umfragen.uni-oldenburg.de/index.php?r=survey/index&token=${surveyToken}&sid=${surveyId}&lang=de`;
 
+        const details = {
+            userId: user.id,
+            name,
+            surveyId,
+            surveyNumber,
+            surveyToken,
+            surveyLink,
+            status,
+        };
+
         try {
             await sendSurveyInviteEmail({
                 to: user.email,
@@ -41,8 +60,9 @@ const sendMails = async (
                 surveyNumber,
                 surveyLink,
             });
+            waitUntil(trackAction("survey-routine/success", "survey-routine", "api", { details }));
         } catch (err) {
-            console.error("Failed to send first survey mail", err);
+            waitUntil(logError("survey-routine/invite-mail-failed", "survey-routine", "api", { details }, err));
         }
     }
 };
@@ -59,13 +79,15 @@ export const POST = async (req: NextRequest) => {
     try {
         await sendMails(checkDate, "second_survey", "1", 2);
     } catch (err) {
-        console.error("Failed to send first survey mail", err);
+        // errors are handled in sendMails
     }
 
     checkDate.setDate(checkDate.getDate() - 7);
     try {
         await sendMails(checkDate, "third_survey", "2", 3);
     } catch (err) {
-        console.error("Failed to send second survey mail", err);
+        // errors are handled in sendMails
     }
+
+    return new NextResponse("", { status: 200 });
 };

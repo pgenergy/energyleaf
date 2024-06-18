@@ -1,12 +1,14 @@
 import { getActionSession } from "@/lib/auth/auth.action";
-import { getAllExperimentUsers } from "@energyleaf/db/query";
+import { getAllExperimentUsers, log, logError, trackAction } from "@energyleaf/db/query";
+import { waitUntil } from "@vercel/functions";
 import * as csv from "csv/sync";
 import { NextResponse } from "next/server";
 
 export const GET = async () => {
-    const { session } = await getActionSession();
+    const { user, session } = await getActionSession();
 
     if (!session) {
+        waitUntil(log("user/not-loggedin", "error", "csv-export-user", "api", {}));
         return NextResponse.json(
             {
                 error: "Sie sind nicht angemeldet.",
@@ -17,6 +19,10 @@ export const GET = async () => {
             },
         );
     }
+
+    const details = {
+        userId: user.id,
+    };
 
     try {
         const users = await getAllExperimentUsers();
@@ -30,6 +36,7 @@ export const GET = async () => {
         });
 
         const csvData = csv.stringify([["Vorname", "Nachname", "Email", "ID"], ...parsedData]);
+        waitUntil(trackAction("csv-export-user/success", "csv-export-user", "api", { details }));
         return new NextResponse(csvData, {
             status: 200,
             headers: {
@@ -39,6 +46,7 @@ export const GET = async () => {
             },
         });
     } catch (err) {
+        waitUntil(logError("user/no-sensor-found", "csv-export-user", "api", { detailsObj: details }, err));
         return NextResponse.json(
             {
                 error: "Ein Fehler ist aufgetreten.",
