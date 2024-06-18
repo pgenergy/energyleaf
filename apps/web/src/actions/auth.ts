@@ -74,7 +74,7 @@ export async function createAccount(data: FormData) {
     if (!pin) {
         return {
             success: false,
-            message: "Sie müssen der PIN-Beantragung zustimmen..",
+            message: "Sie müssen der PIN-Beantragung zustimmen...",
         };
     }
 

@@ -23,8 +23,8 @@ export const GET = async () => {
         const parsedData = users.map((user) => {
             const parsedId = user.user.id.replace(/-_/g, "");
             const mail = user.user.email;
-            const firstname = user.user.firstname;
-            const lastname = user.user.lastName;
+            const firstname = user.user.firstname.replace(/,/g, " ");
+            const lastname = user.user.lastName.replace(/,/g, " ");
 
             return [firstname, lastname, mail, parsedId];
         });

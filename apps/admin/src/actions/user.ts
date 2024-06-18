@@ -223,7 +223,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
     }
 
     // Only send invite mails if they are not getting paid through prolific
-    // this is normaly handled by the cron job, but when set manuelly we want to archive the same
+    // this is normaly handled by the cron job, but when set manuelly we want to achieve the same
     if ((data.experimentStatus === "second_survey" || data.experimentStatus === "third_survey") && !data.getsPaid) {
         const number = data.experimentStatus === "second_survey" ? 2 : 3;
         const surveyToken = userData.id.replace(/-_/g, "");

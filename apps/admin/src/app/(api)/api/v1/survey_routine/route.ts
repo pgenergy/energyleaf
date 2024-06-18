@@ -1,5 +1,5 @@
 import { env } from "@/env.mjs";
-import { getUsersWhoReciveSurveyMail, updateExperimentDataForUser } from "@energyleaf/db/query";
+import { getUsersWhoRecieveSurveyMail, updateExperimentDataForUser } from "@energyleaf/db/query";
 import { sendSurveyInviteEmail } from "@energyleaf/mail";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -9,7 +9,7 @@ const sendMails = async (
     surveyId: string,
     surveyNumber: number,
 ) => {
-    const firstSurveyUsers = await getUsersWhoReciveSurveyMail(date);
+    const firstSurveyUsers = await getUsersWhoRecieveSurveyMail(date);
     for (const firstSurveyUser of firstSurveyUsers) {
         const { user } = firstSurveyUser;
 
@@ -48,8 +48,8 @@ const sendMails = async (
 };
 
 export const POST = async (req: NextRequest) => {
-    const reportApiKey = env.CRON_SECRET;
-    if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== reportApiKey) {
+    const cronSecret = env.CRON_SECRET;
+    if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== cronSecret) {
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 

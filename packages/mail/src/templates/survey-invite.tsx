@@ -10,7 +10,7 @@ interface Props {
 export default function SurveyInviteTemplate(props: Props) {
     return (
         <Html lang="de">
-            <Preview>Energyleaf Passwort zurücksetzen</Preview>
+            <Preview>Einladung zur Umfrage</Preview>
             <Head />
             <Main>
                 <Header>Einladung zur Umfrage</Header>
@@ -22,7 +22,7 @@ export default function SurveyInviteTemplate(props: Props) {
                         <br />
                         Im Rahmen unseres Projektes "Energyleaf" haben wir eine Plattform zur Kontrolle des eigenen
                         Energieverbrauchs entwickelt. Mit dieser Studie untersuchen wir, wie gut unsere Anwendung
-                        private Haushalte beim Verständnis ihres Energieverbrauchs unterstützt. Die Umfrage Nummer{" "}
+                        private Haushalte beim Verständnis Ihres Energieverbrauchs unterstützt. Die Umfrage Nummer{" "}
                         {props.surveyNumber} dient zur Erfassung Ihres Energieverbrauchs-Verständnisses während der
                         Nutzung unserer Plattform. Es gibt keine richtigen oder falschen Antworten. Die Bearbeitungszeit
                         beträgt ca. 10 min.

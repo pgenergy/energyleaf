@@ -79,7 +79,7 @@ export async function deleteExperimentDataForUser(id: string) {
 /**
  * Get all users who recive an survey mail
  */
-export async function getUsersWhoReciveSurveyMail(date: Date) {
+export async function getUsersWhoRecieveSurveyMail(date: Date) {
     return await db
         .select()
         .from(user)
