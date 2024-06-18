@@ -1,5 +1,8 @@
 import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
 import AbsolutEnergyConsumptionError from "@/components/dashboard/absolut-energy-consumption-card-error";
+import CurrentMeterNumberCard from "@/components/dashboard/current-meter-number-card";
+import CurrentMeterOutCard from "@/components/dashboard/current-meter-out-card";
+import CurrentMeterPowerCard from "@/components/dashboard/current-meter-power-card";
 import EnergyConsumptionCard from "@/components/dashboard/energy-consumption-card";
 import EnergyConsumptionError from "@/components/dashboard/energy-consumption-card-error";
 import EnergyConsumptionStatisticCard from "@/components/dashboard/energy-consumption-statistics";
@@ -67,6 +70,15 @@ export default async function DashboardPage({
                         <EnergyCostCard endDate={endDate} startDate={startDate} />
                     </Suspense>
                 </ErrorBoundary>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <CurrentMeterNumberCard />
+                </Suspense>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <CurrentMeterOutCard />
+                </Suspense>
+                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <CurrentMeterPowerCard />
+                </Suspense>
             </div>
             <ErrorBoundary fallback={EnergyConsumptionError}>
                 <Suspense fallback={<Skeleton className="h-72 w-full" />}>

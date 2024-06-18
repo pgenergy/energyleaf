@@ -102,6 +102,8 @@ export async function getEnergyLastEntry(sensorId: string) {
     const query = await db
         .select({
             value: sensorData.value,
+            valueOut: sensorData.valueOut,
+            valueCurrent: sensorData.valueCurrent,
         })
         .from(sensorData)
         .where(eq(sensorData.sensorId, sensorId))
