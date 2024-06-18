@@ -140,6 +140,7 @@ export async function createAccount(data: FormData) {
             const ext = imageMimeToExtensionMap[type] || type.split("/")[1];
             const res = await put(`electricitiy_meter/${id}.${ext}`, file, {
                 access: "public",
+                contentType: type,
             });
             url = res.url;
         } catch (err) {
