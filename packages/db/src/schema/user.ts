@@ -32,6 +32,30 @@ export const user = mysqlTable("user", {
     isParticipant: boolean("is_participant").default(false).notNull(),
     onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
     appVersion: smallint("app_version").default(Versions.transparency).notNull(),
+    activationDate: timestamp("activation_date"),
+});
+
+export const userExperimentData = mysqlTable("user_experiment_data", {
+    userId: varchar("user_id", { length: 30 }).notNull().primaryKey(),
+    experimentStatus: mysqlEnum("experiment_status", [
+        "registered",
+        "approved",
+        "dismissed",
+        "exported",
+        "first_survey",
+        "first_finished",
+        "installation",
+        "second_survey",
+        "second_finished",
+        "third_survey",
+        "third_finished",
+        "deinstallation",
+        "inactive",
+    ]),
+    installationDate: timestamp("installation_date"),
+    deinstallationDate: timestamp("deinstallation_date"),
+    experimentNumber: int("experiment_number"),
+    getsPaid: boolean("gets_paid").default(false).notNull(),
 });
 
 export const userData = mysqlTable("user_data", {
@@ -46,7 +70,8 @@ export const userData = mysqlTable("user_data", {
     livingSpace: int("living_space"),
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
     monthlyPayment: int("advance_payment_electricity"),
-    consumptionGoal: int("consumption_goal"),
+    consumptionGoal: float("consumption_goal"),
+    electricityMeterNumber: varchar("electricity_meter_number", { length: 256 }),
     electricityMeterType: mysqlEnum("electricity_meter_type", ["digital", "analog"]),
     electricityMeterImgUrl: text("electricity_meter_img_url"),
     powerAtElectricityMeter: boolean("power_at_electricity_meter").default(false),
@@ -72,7 +97,8 @@ export const historyUserData = mysqlTable("history_user_data", {
     livingSpace: int("living_space"),
     hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
     monthlyPayment: int("advance_payment_electricity"),
-    consumptionGoal: int("consumption_goal"),
+    consumptionGoal: float("consumption_goal"),
+    electricityMeterNumber: varchar("electricity_meter_number", { length: 256 }),
     electricityMeterType: mysqlEnum("electricity_meter_type", ["digital", "analog"]),
     electricityMeterImgUrl: text("electricity_meter_img_url"),
     powerAtElectricityMeter: boolean("power_at_electricity_meter").default(false),
@@ -80,13 +106,11 @@ export const historyUserData = mysqlTable("history_user_data", {
     installationComment: text("installation_comment"),
 });
 
-export const reports = mysqlTable("reports", {
-    id: int("id").autoincrement().primaryKey().notNull(),
+export const token = mysqlTable("token", {
+    token: varchar("id", { length: 30 })
+        .primaryKey()
+        .$defaultFn(() => nanoid(30)),
     userId: varchar("user_id", { length: 30 }).notNull(),
-    receiveMails: boolean("receive_mails").default(true).notNull(),
-    interval: int("interval").default(3).notNull(),
-    time: int("time").default(6).notNull(),
-    timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
     createdTimestamp: timestamp("created_timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 

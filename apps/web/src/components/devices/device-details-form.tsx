@@ -8,7 +8,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@energyleaf/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -57,7 +56,6 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
         toast.promise(device ? updateDeviceCallback(data, device.id) : createDeviceCallback(data), {
             loading: device ? "Speichern..." : "Erstellen...",
             success: () => {
-                track(device ? "updateDevice" : "createDevice");
                 onCallback();
                 return device ? "Gerät aktualisiert." : "Gerät hinzugefügt.";
             },

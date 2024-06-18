@@ -1,7 +1,7 @@
 "use client";
 
 import { completeOnboarding } from "@/actions/onboarding";
-import { updateMailInformation, updateUserDataInformation, updateUserGoals } from "@/actions/profile";
+import { updateReportSettingsInformation, updateUserDataInformation, updateUserGoals } from "@/actions/profile";
 import DataFormFields from "@/components/profile/data-form-fields";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
@@ -9,8 +9,8 @@ import {
     createMailSettingsSchemaFromReportSelectType,
     createUserDataSchemaFromUserDataSelectType,
 } from "@/lib/schema/conversion/profile";
-import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
-import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
+import { reportSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
+import type { ReportConfigSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
 import { Form } from "@energyleaf/ui/form";
@@ -55,7 +55,7 @@ export default function OnboardingWizard({ userData, showGoals }: Props) {
             <InformationStep />
             <UserDataStep userData={userData.user_data} />
             {Boolean(showGoals) && <GoalStep userData={userData.user_data} />}
-            <MailSettingsStep reports={userData.reports} />
+            <MailSettingsStep reports={userData.report_config} />
             <ThankYouStep />
         </Wizard>
     );
@@ -171,7 +171,11 @@ function GoalStep({ userData }: UserDataStepProps) {
         <WizardPage title="Ziel">
             <Form {...form}>
                 <form className="flex flex-col gap-4">
-                    <UserGoalsFormFields form={form} goalIsCalculated={goalCalculated} />
+                    <UserGoalsFormFields
+                        form={form}
+                        goalIsCalculated={goalCalculated}
+                        workingPrice={userData.workingPrice}
+                    />
                 </form>
             </Form>
         </WizardPage>
@@ -179,12 +183,12 @@ function GoalStep({ userData }: UserDataStepProps) {
 }
 
 interface MailSettingsStepProps {
-    reports: ReportSelectType;
+    reports: ReportConfigSelectType;
 }
 
 function MailSettingsStep({ reports }: MailSettingsStepProps) {
-    const form = useForm<z.infer<typeof mailSettingsSchema>>({
-        resolver: zodResolver(mailSettingsSchema),
+    const form = useForm<z.infer<typeof reportSettingsSchema>>({
+        resolver: zodResolver(reportSettingsSchema),
         defaultValues: createMailSettingsSchemaFromReportSelectType(reports),
     });
 
@@ -197,8 +201,8 @@ function MailSettingsStep({ reports }: MailSettingsStepProps) {
     });
 
     handleStep(async () => {
-        const data: z.infer<typeof mailSettingsSchema> = form.getValues();
-        await updateMailInformation(data);
+        const data: z.infer<typeof reportSettingsSchema> = form.getValues();
+        await updateReportSettingsInformation(data);
     });
 
     return (

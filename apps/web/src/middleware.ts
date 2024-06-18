@@ -3,13 +3,14 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getActionSession } from "./lib/auth/auth.action";
 
 const publicRoutes = ["/legal", "/privacy"];
-const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created"];
+const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created", "/unsubscribe", "/unsubscribed"];
 const onboardingRoute = "/onboarding";
 
 type AppVersionSpecificRoute = Record<string, Versions>;
 const appVersionSpecificRoutes: AppVersionSpecificRoute = {
     "/devices": Versions.self_reflection,
     "/recommendations": Versions.support,
+    "/report": Versions.support, // TODO: Remove this line when the page is ready (PGE-101)
 };
 
 export default async function middleware(req: NextRequest) {

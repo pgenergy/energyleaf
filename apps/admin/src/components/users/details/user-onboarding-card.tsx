@@ -14,7 +14,8 @@ export default async function UserOnboardingCard({ userId }: Props) {
         (data.wifiAtElectricityMeter === null &&
             data.powerAtElectricityMeter === null &&
             !data.electricityMeterImgUrl &&
-            !data.electricityMeterType)
+            !data.electricityMeterType &&
+            !data.electricityMeterNumber)
     ) {
         return null;
     }
@@ -26,6 +27,12 @@ export default async function UserOnboardingCard({ userId }: Props) {
                 <CardDescription>Hier stehen einige Informationen über den Zähler der Person</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
+                {data.electricityMeterNumber ? (
+                    <div className="flex flex-row justify-between">
+                        <p>Zählernummer</p>
+                        <p>{data.electricityMeterNumber}</p>
+                    </div>
+                ) : null}
                 {data.electricityMeterType ? (
                     <div className="flex flex-row justify-between">
                         <p>Zählerart</p>

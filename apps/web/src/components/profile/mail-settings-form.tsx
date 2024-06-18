@@ -1,15 +1,14 @@
 "use client";
 
-import { updateMailInformation } from "@/actions/profile";
+import { updateReportSettingsInformation } from "@/actions/profile";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
-import { mailSettingsSchema } from "@/lib/schema/profile";
+import { reportSettingsSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { Form } from "@energyleaf/ui/form";
 import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -17,21 +16,21 @@ import type { z } from "zod";
 
 interface Props {
     disabled?: boolean;
-    initialValues: z.infer<typeof mailSettingsSchema>;
+    initialValues: z.infer<typeof reportSettingsSchema>;
 }
 
 export default function MailSettingsForm({ initialValues, disabled }: Props) {
     const [isPending, startTransition] = useTransition();
-    const form = useForm<z.infer<typeof mailSettingsSchema>>({
-        resolver: zodResolver(mailSettingsSchema),
+    const form = useForm<z.infer<typeof reportSettingsSchema>>({
+        resolver: zodResolver(reportSettingsSchema),
         defaultValues: initialValues,
     });
 
-    async function updateMailInformationCallback(data: z.infer<typeof mailSettingsSchema>) {
+    async function updateMailInformationCallback(data: z.infer<typeof reportSettingsSchema>) {
         let res: DefaultActionReturn = undefined;
 
         try {
-            res = await updateMailInformation(data);
+            res = await updateReportSettingsInformation(data);
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
@@ -41,10 +40,9 @@ export default function MailSettingsForm({ initialValues, disabled }: Props) {
         }
     }
 
-    function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
+    function onSubmit(data: z.infer<typeof reportSettingsSchema>) {
         if (disabled) return;
         startTransition(() => {
-            track("updateMailSettings()");
             toast.promise(updateMailInformationCallback(data), {
                 loading: "Aktulisiere Einstellungen...",
                 success: "Einstellungen erfolgreich aktualisiert",

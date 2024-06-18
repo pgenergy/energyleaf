@@ -1,31 +1,27 @@
-"use client";
-
-import UserStateForm from "@/components/users/details/user-state-form";
-import type { userStateSchema } from "@/lib/schema/user";
-import type { UserSelectType } from "@energyleaf/db/types";
+import { getUserById, getUserExperimentData } from "@/query/user";
+import UserActionsModule from "./user-actions-module";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import type { z } from "zod";
 
 interface Props {
-    user: UserSelectType;
+    userId: string;
 }
 
-export default function UserActionsCard({ user }: Props) {
-    const userState: z.infer<typeof userStateSchema> = {
-        isAdmin: user.isAdmin,
-        active: user.isActive,
-        isParticipant: user.isParticipant,
-        appVersion: user.appVersion,
-    };
+export default async function UserActionsCard({ userId }: Props) {
+    const user = await getUserById(userId);
+    const experimentData = await getUserExperimentData(userId);
+
+    if (!user) {
+        return null;
+    }
 
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Status</CardTitle>
+                <CardTitle>Nutzer Status</CardTitle>
                 <CardDescription>Hier können Sie den Status des Benutzers einsehen und ändern.</CardDescription>
             </CardHeader>
             <CardContent>
-                <UserStateForm id={user.id} initialValues={userState} />
+                <UserActionsModule user={user} experimentData={experimentData ?? undefined} />
             </CardContent>
         </Card>
     );

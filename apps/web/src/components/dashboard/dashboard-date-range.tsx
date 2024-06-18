@@ -1,7 +1,6 @@
 "use client";
 
 import { DateRangePicker } from "@energyleaf/ui/utils/date-range-picker";
-import { track } from "@vercel/analytics";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { DateRange } from "react-day-picker";
 
@@ -16,8 +15,6 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
     const searchParams = useSearchParams();
 
     function onChange(value: DateRange) {
-        track("changeDashboardDateRange()");
-
         if (value.from && value.to) {
             const search = new URLSearchParams();
             searchParams.forEach((v, key) => {

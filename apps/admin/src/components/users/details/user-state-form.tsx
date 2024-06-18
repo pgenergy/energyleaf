@@ -2,6 +2,7 @@
 
 import { updateUserState } from "@/actions/user";
 import { userStateSchema } from "@/lib/schema/user";
+import { userDataExperimentStatusEnum } from "@energyleaf/db/types";
 import { Versions, stringify } from "@energyleaf/lib/versioning";
 import { Button } from "@energyleaf/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
@@ -9,6 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@energyleaf/ui/spinner";
 import { Switch } from "@energyleaf/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -41,14 +45,12 @@ export default function UserStateForm({ initialValues, id }: Props) {
             <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                     control={form.control}
-                    name="active"
+                    name="isAdmin"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
                             <div className="flex flex-col gap-2">
-                                <FormLabel>Aktiv</FormLabel>
-                                <FormDescription>
-                                    Gibt an, ob der Benutzer aktiv ist und sich einloggen kann.
-                                </FormDescription>
+                                <FormLabel>Admin</FormLabel>
+                                <FormDescription>Gibt an, ob der Benutzer ein Administrator ist.</FormDescription>
                             </div>
                             <FormControl>
                                 <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
@@ -75,12 +77,12 @@ export default function UserStateForm({ initialValues, id }: Props) {
                 />
                 <FormField
                     control={form.control}
-                    name="isAdmin"
+                    name="isActive"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
                             <div className="flex flex-col gap-2">
-                                <FormLabel>Admin</FormLabel>
-                                <FormDescription>Gibt an, ob der Benutzer ein Administrator ist.</FormDescription>
+                                <FormLabel>Aktiv</FormLabel>
+                                <FormDescription>Gibt an, ob das Konto dieser Person aktiv ist.</FormDescription>
                             </div>
                             <FormControl>
                                 <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
@@ -123,6 +125,137 @@ export default function UserStateForm({ initialValues, id }: Props) {
                         </FormItem>
                     )}
                 />
+                {form.getValues().isParticipant ? (
+                    <>
+                        <FormField
+                            control={form.control}
+                            name="getsPaid"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
+                                    <div className="flex flex-col gap-2">
+                                        <FormLabel>Wird bezahlt</FormLabel>
+                                        <FormDescription>
+                                            Gibt an ob dieser Nutzer von Prolific bezahlt wird.
+                                        </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="experimentStatus"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Experimentphase</FormLabel>
+                                    <FormControl>
+                                        <Select
+                                            onValueChange={(value) => {
+                                                field.onChange(value);
+                                            }}
+                                            value={field.value}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Phase wählen" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {Object.keys(userDataExperimentStatusEnum).map((status) => (
+                                                    <SelectItem key={status} value={status}>
+                                                        {userDataExperimentStatusEnum[status]}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="installationDate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Installationsdatum</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-[240px] pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground",
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(field.value, "PPP", {
+                                                            locale: de,
+                                                        })
+                                                    ) : (
+                                                        <span>Datum wählen</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={field.onChange}
+                                                disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="installationDate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Installationsdatum</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-[240px] pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground",
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(field.value, "PPP", {
+                                                            locale: de,
+                                                        })
+                                                    ) : (
+                                                        <span>Datum wählen</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={field.onChange}
+                                                disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </FormItem>
+                            )}
+                        />
+                    </>
+                ) : null}
                 <div className="flex flex-row justify-end">
                     <Button disabled={isPending} type="submit">
                         {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}

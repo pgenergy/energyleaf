@@ -1,7 +1,19 @@
-import { and, eq, gt, lte, or, sql } from "drizzle-orm";
-import db from "../";
-import { historyReports, historyUserData, reports, session, user, userData } from "../schema";
+import { and, desc, eq, exists, gte, lte } from "drizzle-orm";
+import db, { genId } from "../";
+import {
+    historyReports,
+    historyUserData,
+    reportConfig,
+    reports,
+    session,
+    token,
+    user,
+    userData,
+    userExperimentData,
+} from "../schema";
 import type { UserSelectType } from "../types/types";
+import { TokenType } from "../types/types";
+import { getReportConfigByUserId } from "./reports";
 
 /**
  * Get a user by id from the database
@@ -18,8 +30,85 @@ export async function getUserById(id: string) {
     return query[0];
 }
 
+/**
+ * Delete all sessions of a user
+ *
+ * @param id<string> The id of the user
+ */
 export async function deleteSessionsOfUser(id: string) {
     return await db.delete(session).where(eq(session.userId, id));
+}
+
+/**
+ * Get user experiment data
+ *
+ * @param userId<string> The id of the user
+ */
+export async function getUserExperimentData(userId: string) {
+    const data = await db.select().from(userExperimentData).where(eq(userExperimentData.userId, userId));
+    if (!data || data.length === 0) {
+        return null;
+    }
+
+    return data[0];
+}
+
+/**
+ * Create experiment data for a user
+ */
+export async function createExperimentDataForUser(data: typeof userExperimentData.$inferInsert) {
+    return await db.insert(userExperimentData).values({
+        ...data,
+    });
+}
+
+/**
+ * Update experiment data for a user
+ */
+export async function updateExperimentDataForUser(data: Partial<typeof userExperimentData.$inferInsert>, id: string) {
+    return await db.update(userExperimentData).set(data).where(eq(userExperimentData.userId, id));
+}
+
+/**
+ * Delete experiment data for a user
+ */
+export async function deleteExperimentDataForUser(id: string) {
+    return await db.delete(userExperimentData).where(eq(userExperimentData.userId, id));
+}
+
+/**
+ * Get all users who recive an survey mail
+ */
+export async function getUsersWhoRecieveSurveyMail(date: Date) {
+    return await db
+        .select()
+        .from(user)
+        .innerJoin(userExperimentData, eq(user.id, userExperimentData.userId))
+        .where(
+            and(
+                eq(user.activationDate, date),
+                eq(user.isParticipant, true),
+                eq(user.isActive, true),
+                eq(userExperimentData.getsPaid, false),
+            ),
+        );
+}
+
+/**
+ * Return all users who are in the experiment and getting paid
+ */
+export async function getAllExperimentUsers() {
+    return await db
+        .select()
+        .from(user)
+        .innerJoin(userExperimentData, eq(user.id, userExperimentData.userId))
+        .where(
+            and(
+                eq(user.isParticipant, true),
+                eq(userExperimentData.experimentStatus, "approved"),
+                gte(userExperimentData.experimentNumber, 1),
+            ),
+        );
 }
 
 /**
@@ -49,6 +138,9 @@ export type CreateUserType = {
     password: string;
     username: string;
     electricityMeterType: (typeof userData.electricityMeterType.enumValues)[number];
+    electricityMeterNumber: string;
+    participation: boolean;
+    prolific: boolean;
     meterImgUrl?: string;
 };
 
@@ -62,8 +154,10 @@ export async function createUser(data: CreateUserType) {
         if (check.length > 0) {
             throw new Error("User already exists");
         }
+        const userId = genId(30);
 
         await trx.insert(user).values({
+            id: userId,
             firstname: data.firstname,
             lastName: data.lastname,
             address: data.address,
@@ -71,34 +165,28 @@ export async function createUser(data: CreateUserType) {
             username: data.username,
             email: data.email,
             password: data.password,
+            isParticipant: data.participation || data.prolific,
         });
-
-        const newUser = await trx
-            .select({
-                id: user.id,
-            })
-            .from(user)
-            .where(eq(user.email, data.email));
-
-        if (newUser.length === 0) {
-            throw new Error("User not found");
-        }
-
-        const id = newUser[0].id;
-
         await trx.insert(userData).values({
-            userId: id,
+            userId,
+            electricityMeterNumber: data.electricityMeterNumber,
             electricityMeterType: data.electricityMeterType,
             electricityMeterImgUrl: data.meterImgUrl || null,
             powerAtElectricityMeter: data.hasPower,
             wifiAtElectricityMeter: data.hasWifi,
             installationComment: data.comment,
         });
-
-        await trx.insert(reports).values({
-            userId: id,
+        await trx.insert(reportConfig).values({
+            userId,
             timestampLast: new Date(),
         });
+
+        if (data.participation || data.prolific) {
+            await trx.insert(userExperimentData).values({
+                userId,
+                getsPaid: data.prolific,
+            });
+        }
     });
 }
 
@@ -109,7 +197,7 @@ export async function getUserData(id: string) {
     const data = await db
         .select()
         .from(userData)
-        .innerJoin(reports, eq(userData.userId, reports.userId))
+        .innerJoin(reportConfig, eq(userData.userId, reportConfig.userId))
         .where(eq(userData.userId, id));
 
     if (data.length === 0) {
@@ -144,7 +232,7 @@ export async function updateUser(data: Partial<UserSelectType>, id: string) {
  * Update the user's password in the database
  */
 export async function updatePassword(data: Partial<CreateUserType>, id: string) {
-    return await db.update(user).set(data).where(eq(user.id, id));
+    return db.update(user).set(data).where(eq(user.id, id));
 }
 
 /**
@@ -159,7 +247,7 @@ export async function updateReportSettings(
     id: string,
 ) {
     return db.transaction(async (trx) => {
-        const oldReportData = await getReportDataByUserId(id);
+        const oldReportData = await getReportConfigByUserId(trx, id);
         if (!oldReportData) {
             throw new Error("Old user data not found");
         }
@@ -173,7 +261,7 @@ export async function updateReportSettings(
         });
 
         await trx
-            .update(reports)
+            .update(reportConfig)
             .set({
                 receiveMails: data.receiveMails,
                 interval: data.interval,
@@ -227,47 +315,32 @@ export async function getAllUsers() {
     return db.select().from(user);
 }
 
-export async function setUserActive(id: string, isActive: boolean) {
-    return db.update(user).set({ isActive }).where(eq(user.id, id));
+export async function setUserActive(id: string, isActive: boolean, date: Date) {
+    return db.update(user).set({ isActive, activationDate: date }).where(eq(user.id, id));
 }
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {
     return db.update(user).set({ isAdmin }).where(eq(user.id, id));
 }
 
-/**
- * Get users with due report to create and send reports </br>
- * the report is due if the current date is greater than the last report date + interval or </br>
- * if the current date is equal to the last report date + interval and the current time is greater than the report time </br>
- *
- * @returns The users with due report
- */
-export async function getUsersWitDueReport() {
-    return db
-        .select({ userId: user.id, userName: user.username, email: user.email, receiveMails: reports.receiveMails })
-        .from(reports)
-        .innerJoin(user, eq(user.id, reports.userId))
-        .where(
-            or(
-                gt(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reports.interval),
-                and(
-                    eq(sql`DATEDIFF(NOW(), reports.timestamp_last)`, reports.interval),
-                    lte(reports.time, new Date().getHours()),
-                ),
-            ),
-        );
+export async function createToken(userId: string, type: TokenType = TokenType.Report) {
+    return db.transaction(async (trx) => {
+        await trx.insert(token).values({ userId });
+
+        const createdToken = await trx
+            .select()
+            .from(token)
+            .where(and(eq(token.userId, userId)))
+            .orderBy(desc(token.createdTimestamp))
+            .limit(1);
+        return createdToken[0].token;
+    });
 }
 
-export async function getReportDataByUserId(id: string) {
-    const data = await db.select().from(reports).where(eq(reports.userId, id));
-
+export async function getUserIdByToken(givenToken: string) {
+    const data = await db.select().from(token).where(eq(token.token, givenToken));
     if (data.length === 0) {
         return null;
     }
-
-    return data[0];
-}
-
-export async function updateLastReportTimestamp(userId: string) {
-    return db.update(reports).set({ timestampLast: new Date() }).where(eq(reports.userId, userId));
+    return data[0].userId;
 }

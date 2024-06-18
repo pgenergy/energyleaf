@@ -6,7 +6,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { MultiSelect } from "@energyleaf/ui/multi-select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { track } from "@vercel/analytics";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -58,7 +57,6 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
     }
 
     function onSubmit(data: z.infer<typeof peakSchema>) {
-        track("assignEnergyPeakToDevice()");
         toast.promise(addOrUpdatePeakCallback(data), {
             loading: "Peak zuweisen...",
             success: "Erfolgreich zugewiesen",

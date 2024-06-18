@@ -28,16 +28,19 @@ export default function SignUpForm() {
         defaultValues: {
             firstname: "",
             lastname: "",
+            username: "",
             mail: "",
             address: "",
-            comment: "",
-            hasWifi: false,
-            hasPower: false,
             password: "",
             passwordRepeat: "",
-            username: "",
+            electricityMeterNumber: "",
+            hasWifi: false,
+            hasPower: false,
             file: new File([], ""),
             tos: false,
+            pin: false,
+            participation: false,
+            prolific: false,
         },
     });
 
@@ -48,6 +51,9 @@ export default function SignUpForm() {
             const keys = Object.keys(data);
             for (const key of keys) {
                 const value = data[key];
+                if (value === undefined) {
+                    continue;
+                }
                 if (typeof value === "boolean") {
                     form.append(key, (value as boolean) ? "true" : "false");
                 } else {
@@ -81,94 +87,120 @@ export default function SignUpForm() {
 
     return (
         <div className="flex flex-col gap-2">
-            <p className="font-bold text-xl">Abenteuer beginnt hier!</p>
+            <p className="font-bold text-xl">Das Abenteuer beginnt hier!</p>
             <p className="mb-2 text-muted-foreground">Verständnis über den eigenen Energieverbrauch aufbauen.</p>
             <Form {...form}>
                 <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                     {/* Personal Info */}
+                    <p className="font-medium text-lg">Persönliche Informationen</p>
+                    <Separator />
+                    <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                        <FormField
+                            control={form.control}
+                            name="firstname"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Vorname</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="lastname"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nachname</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="username"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Benutzername</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="mail"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>E-Mail</FormLabel>
+                                    <FormControl>
+                                        <Input type="email" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="phone"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Telefonnummer (optional)</FormLabel>
+                                    <FormControl>
+                                        <Input type="tel" {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Ihre Telefonnummer ermöglicht es uns, Sie einfach zu kontaktieren.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="address"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Adresse</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Wir benötigen Ihre Adresse, um den Sensor am Stromzähler zu installieren.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                    {/* Installation Info */}
+                    <div className="pb-4" />
+                    <p className="font-medium text-lg">Zähler-Informationen</p>
+                    <Separator />
                     <FormField
                         control={form.control}
-                        name="firstname"
+                        name="electricityMeterNumber"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Vorname</FormLabel>
+                                <FormLabel>Zählernummer</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Vorname" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="lastname"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Nachname</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Nachname" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="username"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Benutzername</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Benutzername" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="mail"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>E-Mail</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="E-Mail" type="email" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Telefonnummer (optional)</FormLabel>
-                                <FormControl>
-                                    <Input type="tel" placeholder="Telefonnr." {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Adresse</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Adresse" {...field} />
+                                    <Input {...field} />
                                 </FormControl>
                                 <FormDescription>
-                                    Wir benötigen Ihre Adressei, um den Sensor am Stromzähler zu installieren.
+                                    Für die Aktivierung ihres Zählers, benötigen wir Ihre Zählernummer. Diese befindet
+                                    sich auf Ihrem Zähler.
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
-                    {/* Installation Info */}
-                    <div className="pb-4" />
                     <FormField
                         control={form.control}
                         name="electricityMeterType"
@@ -189,6 +221,7 @@ export default function SignUpForm() {
                                         ))}
                                     </SelectContent>
                                 </Select>
+                                <FormMessage />
                             </FormItem>
                         )}
                     />
@@ -197,7 +230,7 @@ export default function SignUpForm() {
                         name="file"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Foto von Ihrem Stromzähler (optional)</FormLabel>
+                                <FormLabel>Foto von Ihrem Stromzähler</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="file"
@@ -209,8 +242,9 @@ export default function SignUpForm() {
                                     />
                                 </FormControl>
                                 <FormDescription>
-                                    Sie haben die Möglichkeit ein Foto von Ihrem Stromzähler anzuhängen, dies
-                                    erleichtert uns die Installation ihres Sensors
+                                    Sie müssen ein Foto von Ihrem Stromzähler anhängen, dies erleichtert uns die
+                                    Installation ihres Sensors. Auf dem Foto sollte der Hersteller, sowie die
+                                    Zählernummer erkenntlich sein.
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -268,6 +302,8 @@ export default function SignUpForm() {
                     />
                     {/* Password */}
                     <div className="pb-4" />
+                    <p className="font-medium text-lg">Sicherheit</p>
+                    <Separator />
                     <FormField
                         control={form.control}
                         name="password"
@@ -275,7 +311,7 @@ export default function SignUpForm() {
                             <FormItem>
                                 <FormLabel>Passwort</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Passwort" type="password" {...field} />
+                                    <Input type="password" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -288,37 +324,118 @@ export default function SignUpForm() {
                             <FormItem>
                                 <FormLabel>Password wiederholen</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Passwort wiederholen" type="password" {...field} />
+                                    <Input type="password" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
-                    <div className="pb-b" />
+                    <div className="pb-4" />
+                    <p className="font-medium text-lg">Umfrage</p>
+                    <Separator />
+                    <FormField
+                        control={form.control}
+                        name="participation"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex flex-row items-center justify-between">
+                                    <FormLabel>Ich möchte an der Umfrage teilnehmen</FormLabel>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                </div>
+                                <FormDescription>
+                                    Durch die Teilnahme an der Umfrage, tragen Sie dazu bei, Forschungen im Bereich
+                                    Energie vorranzutreiben. Teilnehmer, die an einer Umfrage teilnehmen, werden von uns
+                                    priorisiert an das System angeschlossen
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="prolific"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="flex flex-row items-center justify-between">
+                                    <FormLabel>Ich möchte an Prolific teilnehmen (optional)</FormLabel>
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={(value) => {
+                                                field.onChange(value);
+                                                if (value && !form.getValues().participation) {
+                                                    form.setValue("participation", true);
+                                                }
+                                            }}
+                                        />
+                                    </FormControl>
+                                </div>
+                                <FormDescription>
+                                    Es ist uns rechtlich nur möglich Geld für die Umfragen auszuzahlen, wenn Sie sich
+                                    über Prolific für unsere Umfragen registrieren. Diese Anmeldung ist mit etwas
+                                    Aufwand verbunden, da eine Verifizierung stattfinden muss. Eine Anleitung finden sie{" "}
+                                    <a
+                                        href="https://jbh9hx6nwkx1up9t.public.blob.vercel-storage.com/downloads/prolific_anleitung.pdf"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        hier
+                                    </a>
+                                    .
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    {/* Legal */}
+                    <div className="pb-4" />
+                    <p className="font-medium text-lg">Rechtliches</p>
+                    <Separator />
                     <FormField
                         control={form.control}
                         name="tos"
                         render={({ field }) => (
-                            <FormItem className="flex flex-row items-center gap-2 p-4">
+                            <FormItem className="flex flex-row items-center gap-2 space-y-0">
                                 <FormControl>
                                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                                 </FormControl>
-                                <div className="leading-none">
-                                    <FormLabel className="text-sm">
-                                        Ich habe die{" "}
-                                        <Link
-                                            className={buttonVariants({ variant: "link" })}
-                                            href="/privacy"
-                                            target="_blank"
-                                        >
-                                            Datenschutzrichtlinien
-                                        </Link>{" "}
-                                        gelesen und akzeptiere diese.
-                                    </FormLabel>
-                                </div>
+                                <FormLabel className="text-sm">
+                                    Ich habe die{" "}
+                                    <Link
+                                        className={buttonVariants({ variant: "link" })}
+                                        href="/privacy"
+                                        target="_blank"
+                                    >
+                                        Datenschutzrichtlinien
+                                    </Link>{" "}
+                                    gelesen und akzeptiere diese.
+                                </FormLabel>
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="pin"
+                        render={({ field }) => (
+                            <FormItem className="space-y-0">
+                                <div className="flex flex-row items-center gap-2">
+                                    <FormControl>
+                                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormLabel className="text-sm">
+                                        Ich bin damit Einverstanden, dass der PIN in meinem Namen beantragt wird.
+                                    </FormLabel>
+                                </div>
+                                <FormDescription>
+                                    Der PIN wird von Ihrem Stromanbieter zur Verfügung gestellt. Dieser ist notwendig um
+                                    die Daten ihres Zählers auszulesen.
+                                </FormDescription>
+                            </FormItem>
+                        )}
+                    />
+                    <div className="pb-4" />
                     <div className="flex flex-col items-center gap-4">
                         {error !== "" ? <p className="text-destructive text-sm">{error}</p> : null}
                         <SubmitButton pending={isPending} text="Konto erstellen" />

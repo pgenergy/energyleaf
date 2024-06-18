@@ -1,8 +1,8 @@
 import { calculateCosts, getCalculatedPayment, getPredictedCost } from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth.server";
-import { formatNumber } from "@/lib/consumption/number-format";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
+import { formatNumber } from "@energyleaf/lib";
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { format } from "date-fns";

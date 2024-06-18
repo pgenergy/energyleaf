@@ -7,7 +7,7 @@ export const passwordSchema = z.object({
     newPasswordRepeat: z.string().nonempty({ message: "Bitte geben Sie ein Passwort an." }),
 });
 
-export const mailSettingsSchema = z.object({
+export const reportSettingsSchema = z.object({
     receiveMails: z.boolean().default(true),
     interval: z.coerce
         .number()
@@ -45,8 +45,5 @@ export const deleteAccountSchema = z.object({
 });
 
 export const userGoalSchema = z.object({
-    goalValue: z.coerce
-        .number()
-        .int({ message: "Bitte geben Sie eine Zahl ohne Kommawerte ein." })
-        .positive({ message: "Bitte geben Sie einen gültigen Wert an." }),
+    goalValue: z.number().positive({ message: "Bitte geben Sie einen gültigen Wert an." }),
 });

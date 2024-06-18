@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth/auth.server";
-import { formatNumber } from "@/lib/consumption/number-format";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { formatNumber } from "@energyleaf/lib";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { redirect } from "next/navigation";

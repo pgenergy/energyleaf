@@ -11,6 +11,17 @@ import {
     SensorType,
 } from "../types/types";
 
+export async function insertRawEnergyValues(
+    data: {
+        id: string;
+        value: number;
+        timestamp: Date;
+        sensorId: string;
+    }[],
+) {
+    await db.insert(sensorData).values(data);
+}
+
 export async function getEnergyForSensorInRange(
     start: Date,
     end: Date,
@@ -107,6 +118,8 @@ export async function getEnergyLastEntry(sensorId: string) {
     const query = await db
         .select({
             value: sensorData.value,
+            valueOut: sensorData.valueOut,
+            valueCurrent: sensorData.valueCurrent,
         })
         .from(sensorData)
         .where(eq(sensorData.sensorId, sensorId))
@@ -136,7 +149,13 @@ export async function getEnergySumForSensorInRange(start: Date, end: Date, senso
             const firstSensorEntry = await trx
                 .select({ value: sensorData.value })
                 .from(sensorData)
-                .where(and(eq(sensorData.sensorId, sensorId), gte(sensorData.timestamp, start)))
+                .where(
+                    and(
+                        eq(sensorData.sensorId, sensorId),
+                        gte(sensorData.timestamp, start),
+                        lte(sensorData.timestamp, end),
+                    ),
+                )
                 .orderBy(sensorData.timestamp)
                 .limit(1);
             valueBeforeStart = firstSensorEntry.length > 0 ? firstSensorEntry[0].value : 0;
