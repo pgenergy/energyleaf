@@ -389,7 +389,7 @@ export async function insertSensorData(data: SensorDataInput) {
         // in an hour this would be 24 kwh
         // this is a very high value and should never be reached
         // but is hopefully a good protection against faulty sensors
-        const timeDiff = new Date(new Date().toUTCString()).getTime() - lastEntry.timestamp.getTime() / 1000 / 60;
+        const timeDiff = new Date().getTime() - lastEntry.timestamp.getTime() / 1000 / 60;
         if (newValue - lastEntry.value > timeDiff * 0.4) {
             throw new Error("value/too-high");
         }
@@ -598,7 +598,7 @@ export async function getSensorIdFromSensorToken(code: string) {
         }
 
         // check if token is older than 1 hour
-        const now = new Date(new Date().toUTCString());
+        const now = new Date();
         if (now.getTime() - tokenDate.getTime() > 3600000) {
             await trx.delete(sensorToken).where(eq(sensorToken.sensorId, token.sensorId));
             return {

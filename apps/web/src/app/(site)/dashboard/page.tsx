@@ -34,8 +34,8 @@ export default async function DashboardPage({
     const startDateString = searchParams.start;
     const endDateString = searchParams.end;
     const aggregationType = searchParams.aggregation;
-    const startDate = startDateString ? new Date(new Date(startDateString).toUTCString()) : new Date();
-    const endDate = endDateString ? new Date(new Date(endDateString).toUTCString()) : new Date();
+    const startDate = startDateString ? new Date(startDateString) : new Date();
+    const endDate = endDateString ? new Date(endDateString) : new Date();
 
     if (!startDateString) {
         startDate.setHours(0, 0, 0, 0);
