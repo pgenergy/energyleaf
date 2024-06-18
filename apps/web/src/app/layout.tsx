@@ -3,7 +3,6 @@ import { ThemeProvider } from "@/hooks/theme-provider";
 import "@energyleaf/tailwindcss/global.css";
 import QueryClientProvider from "@/hooks/query-client-provider";
 import { Toaster } from "@energyleaf/ui/components/utils";
-import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 
 const description =
@@ -33,7 +32,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
                     <QueryClientProvider>{children}</QueryClientProvider>
                     <Toaster richColors />
                 </ThemeProvider>
-                <Analytics />
             </body>
         </html>
     );
