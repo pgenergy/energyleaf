@@ -50,17 +50,37 @@ export async function createAccount(data: FormData) {
     const password = data.get("password") as string;
     const passwordRepeat = data.get("passwordRepeat") as string;
     const username = data.get("username") as string;
-    const file = data.get("file") as File | undefined;
+    const file = data.get("file") as File;
     const tos = (data.get("tos") as string) === "true";
+    const pin = (data.get("pin") as string) === "true";
     const electricityMeterType = data.get(
         "electricityMeterType",
     ) as (typeof userData.electricityMeterType.enumValues)[number];
+    const electricityMeterNumber = data.get("electricityMeterNumber") as string;
+    const participation = (data.get("participation") as string) === "true";
+    const prolific = (data.get("prolific") as string) === "true";
 
     if (!tos) {
         waitUntil(trackAction("privacy-policy/not-accepted", "create-account", "web", { mail }));
         return {
             success: false,
             message: "Sie müssen den Datenschutzbestimmungen zustimmen.",
+        };
+    }
+
+    if (file && !file.type.startsWith("image/")) {
+        waitUntil(trackAction("image-upload/wrong-format", "create-account", "web", { mail, fileType: file.type }));
+        return {
+            success: false,
+            message: "Bitte laden Sie ein Bild hoch.",
+        };
+    }
+
+    if (!pin) {
+        waitUntil(trackAction("smart-meter-pin/not-accepted", "create-account", "web", { mail }));
+        return {
+            success: false,
+            message: "Sie müssen der PIN-Beantragung zustimmen...",
         };
     }
 
@@ -114,12 +134,25 @@ export async function createAccount(data: FormData) {
     const hash = await new Argon2id().hash(password);
 
     let url: string | undefined = undefined;
-    if (file && env.BLOB_READ_WRITE_TOKEN) {
+    if (env.BLOB_READ_WRITE_TOKEN) {
         try {
+            const imageMimeToExtensionMap = {
+                "image/jpeg": "jpg",
+                "image/png": "png",
+                "image/gif": "gif",
+                "image/bmp": "bmp",
+                "image/webp": "webp",
+                "image/tiff": "tiff",
+                "image/svg+xml": "svg",
+                "image/heic": "heic",
+                "image/heif": "heif",
+            };
             const id = genId(25);
-            const type = file.name.split(".").pop();
-            const res = await put(`electricitiy_meter/${id}.${type}`, file, {
+            const type = file.type;
+            const ext = imageMimeToExtensionMap[type] || type.split("/")[1];
+            const res = await put(`electricitiy_meter/${id}.${ext}`, file, {
                 access: "public",
+                contentType: type,
             });
             url = res.url;
         } catch (err) {
@@ -141,6 +174,9 @@ export async function createAccount(data: FormData) {
             username,
             electricityMeterType,
             meterImgUrl: url,
+            electricityMeterNumber,
+            participation,
+            prolific,
         } satisfies CreateUserType);
         waitUntil(trackAction("user-account/created", "create-account", "web", { mail }));
         await sendAccountCreatedEmail({
@@ -154,7 +190,11 @@ export async function createAccount(data: FormData) {
             email: mail,
             name: username,
             meter: userDataElectricityMeterTypeEnums[electricityMeterType],
-            img: url,
+            meterNumber: electricityMeterNumber,
+            hasWifi,
+            hasPower,
+            participates: participation,
+            prolific,
             to: env.ADMIN_MAIL,
             from: env.RESEND_API_MAIL,
             apiKey: env.RESEND_API_KEY,
