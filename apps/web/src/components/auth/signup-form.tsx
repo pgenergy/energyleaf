@@ -93,7 +93,7 @@ export default function SignUpForm() {
 
     return (
         <div className="flex flex-col gap-2">
-            <p className="font-bold text-xl">Abenteuer beginnt hier!</p>
+            <p className="font-bold text-xl">Das Abenteuer beginnt hier!</p>
             <p className="mb-2 text-muted-foreground">Verständnis über den eigenen Energieverbrauch aufbauen.</p>
             <Form {...form}>
                 <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -173,7 +173,7 @@ export default function SignUpForm() {
                                     <Input placeholder="Adresse" {...field} />
                                 </FormControl>
                                 <FormDescription>
-                                    Wir benötigen Ihre Adressei, um den Sensor am Stromzähler zu installieren.
+                                    Wir benötigen Ihre Adresse, um den Sensor am Stromzähler zu installieren.
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>

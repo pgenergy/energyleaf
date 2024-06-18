@@ -1,6 +1,13 @@
 import { createHash } from "node:crypto";
 import { env } from "@/env.mjs";
-import { getElectricitySensorIdForUser, getEnergyForSensorInRange } from "@energyleaf/db/query";
+import {
+    getElectricitySensorIdForUser,
+    getEnergyForSensorInRange,
+    log,
+    logError,
+    trackAction,
+} from "@energyleaf/db/query";
+import { waitUntil } from "@vercel/functions";
 import * as csv from "csv/sync";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -19,8 +26,14 @@ interface EnergyData {
 export async function POST(req: NextRequest) {
     try {
         const { userId, userHash, start, end } = (await req.json()) as Props;
-
+        const details = {
+            userId,
+            userHash,
+            start,
+            end,
+        };
         if (!userId || !userHash) {
+            waitUntil(log("user/missing-user-id-or-user-hash", "error", "csv-export", "api", details));
             return NextResponse.json(
                 {
                     error: "Sie haben keinen Zugriff.",
@@ -33,6 +46,7 @@ export async function POST(req: NextRequest) {
 
         const hash = createHash("sha256").update(`${userId}${env.NEXTAUTH_SECRET}`).digest("hex");
         if (hash !== userHash) {
+            waitUntil(log("user/invalid-user-hash", "error", "csv-export", "api", details));
             return NextResponse.json(
                 {
                     error: "Sie haben keinen Zugriff.",
@@ -50,7 +64,8 @@ export async function POST(req: NextRequest) {
                 throw new Error();
             }
         } catch (err) {
-            console.error(err);
+            waitUntil(logError("user/no-sensor-found", "csv-export", "api", { detailsObj: details, sensorId }, err));
+
             return NextResponse.json(
                 {
                     error: "Sie haben keinen Sensor.",
@@ -69,6 +84,10 @@ export async function POST(req: NextRequest) {
             const parsedData = energyData.map((e) => [e.value, e.timestamp]);
             const csvData = csv.stringify([["Verbrauch in kWh", "Zeitstempel"], ...parsedData]);
 
+            waitUntil(
+                trackAction("csv-export/success", "csv-export", "api", { details, startDate, endDate, sensorId }),
+            );
+
             return new NextResponse(csvData, {
                 status: 200,
                 headers: {
@@ -78,7 +97,8 @@ export async function POST(req: NextRequest) {
                 },
             });
         } catch (err) {
-            console.error(err);
+            waitUntil(logError("csv-export/failed", "csv-export", "api", { details }, err));
+
             return NextResponse.json(
                 {
                     error: "Ein Fehler ist aufgetreten.",
@@ -89,7 +109,8 @@ export async function POST(req: NextRequest) {
             );
         }
     } catch (err) {
-        console.error(err);
+        waitUntil(logError("csv-export/failed", "csv-export", "api", req, err));
+
         return NextResponse.json(
             {
                 error: "Ein Fehler ist aufgetreten.",

@@ -2,7 +2,6 @@
 
 import { useDeviceContext } from "@/hooks/device-hook";
 import { Button } from "@energyleaf/ui";
-import { track } from "@vercel/analytics";
 import { PlusIcon } from "lucide-react";
 
 export default function DeviceAddButton() {
@@ -17,7 +16,6 @@ export default function DeviceAddButton() {
         <Button
             className="flex flex-row gap-2"
             onClick={() => {
-                track("openDialog(addDevice)");
                 openDialog();
             }}
         >

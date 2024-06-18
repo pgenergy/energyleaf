@@ -1,5 +1,6 @@
-import { createSensorToken, getSensorDataByClientId } from "@energyleaf/db/query";
+import { createSensorToken, getSensorDataByClientId, log, logError } from "@energyleaf/db/query";
 import { energyleaf, parseReadableStream } from "@energyleaf/proto";
+import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 const { TokenRequest, TokenResponse } = energyleaf;
 
@@ -7,6 +8,8 @@ export const POST = async (req: NextRequest) => {
     const body = req.body;
 
     if (!body) {
+        waitUntil(log("request-unauthorized/missing-body", "error", "accepting-script", "api", req));
+
         return new NextResponse(TokenResponse.toBinary({ status: 400, statusMessage: "No body" }), {
             status: 400,
             headers: {
@@ -25,6 +28,8 @@ export const POST = async (req: NextRequest) => {
             const code = await createSensorToken(data.clientId);
             const sensorData = await getSensorDataByClientId(data.clientId);
             if (!sensorData) {
+                waitUntil(log("sensor/not-found", "error", "sensor-token", "api", req));
+
                 return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
                     status: 404,
                     headers: {
@@ -34,6 +39,7 @@ export const POST = async (req: NextRequest) => {
             }
 
             if ((sensorData.needsScript || data.needScript) && sensorData.script) {
+                waitUntil(log("sensor/sent-script", "info", "sensor-token", "api", { sensorData, data }));
                 return new NextResponse(
                     TokenResponse.toBinary({
                         status: 200,
@@ -49,7 +55,7 @@ export const POST = async (req: NextRequest) => {
                     },
                 );
             }
-
+            waitUntil(log("sensor/token-sent", "info", "sensor-token", "api", { sensorData, data, code }));
             return new NextResponse(
                 TokenResponse.toBinary({
                     accessToken: code,
@@ -64,12 +70,11 @@ export const POST = async (req: NextRequest) => {
                 },
             );
         } catch (err) {
-            console.error(err, data);
-
             if (
                 (err as unknown as Error).message === "sensor/not-found" ||
                 (err as unknown as Error).message === "sensor/no-user"
             ) {
+                waitUntil(logError("sensor/not-found", "sensor-token", "api", data, err));
                 return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
                     status: 404,
                     headers: {
@@ -78,6 +83,7 @@ export const POST = async (req: NextRequest) => {
                 });
             }
 
+            waitUntil(logError("internal/database-error", "sensor-token", "api", data, err));
             return new NextResponse(TokenResponse.toBinary({ statusMessage: "Database error", status: 500 }), {
                 status: 500,
                 headers: {
@@ -86,8 +92,7 @@ export const POST = async (req: NextRequest) => {
             });
         }
     } catch (e) {
-        // eslint-disable-next-line no-console -- we need to log the error in the production logs
-        console.error(e);
+        waitUntil(logError("internal/invalid-data", "sensor-token", "api", req, e));
         return new NextResponse(TokenResponse.toBinary({ statusMessage: "Invalid data", status: 400 }), {
             status: 400,
             headers: {

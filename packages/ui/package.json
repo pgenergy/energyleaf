@@ -60,7 +60,7 @@
         "@radix-ui/react-tooltip": "^1.0.7",
         "@tanstack/react-table": "^8.17.3",
         "canvas": "^2.11.2",
-        "chart.js": "^4.4.2",
+        "chart.js": "^4.4.3",
         "chartjs-plugin-datalabels": "^2.2.0",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
