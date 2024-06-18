@@ -43,8 +43,50 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
     function onChangeInternal(value?: DateRange) {
         setRange(value);
 
-        if (value?.from && value.to) {
+        if (value?.from && value?.to) {
             onChange(value);
+        }
+    }
+
+    function onDayClick(day: Date) {
+        let from: Date | undefined;
+        let to: Date | undefined;
+        setRange((prev) => {
+            if (prev?.to) {
+                from = day;
+                return { from: day, to: undefined };
+            }
+
+            if (prev?.from) {
+                if (day.getTime() < prev?.from.getTime()) {
+                    const toDate = new Date(prev.from);
+                    toDate.setHours(23, 59, 59, 999);
+                    from = day;
+                    to = toDate;
+                    return { from: day, to: toDate };
+                }
+
+                if (day.toDateString() === prev?.from.toDateString()) {
+                    const toDate = new Date(day);
+                    toDate.setHours(23, 59, 59, 999);
+                    from = prev.from;
+                    to = toDate;
+                    return { from: prev.from, to: toDate };
+                }
+
+                const toDate = new Date(day);
+                toDate.setHours(23, 59, 59, 999);
+                from = prev.from;
+                to = toDate;
+                return { from: prev.from, to: toDate };
+            }
+
+            from = day;
+            return { from: day, to: undefined };
+        });
+
+        if (from && to) {
+            onChange({ from, to });
         }
     }
 
@@ -116,13 +158,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
                             Monat
                         </Button>
                     </div>
-                    <Calendar
-                        initialFocus
-                        mode="range"
-                        onSelect={onChangeInternal}
-                        selected={range}
-                        footer={calFooter}
-                    />
+                    <Calendar initialFocus mode="range" onDayClick={onDayClick} selected={range} footer={calFooter} />
                 </PopoverContent>
             </Popover>
         </div>
