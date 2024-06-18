@@ -2,7 +2,7 @@ import { getSensorIdFromSensorToken, updateNeedsScript } from "@energyleaf/db/qu
 import { energyleaf, parseReadableStream } from "@energyleaf/proto";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-const { ScriptAcceptedRequest, ScriptAcceptedResponse } = energyleaf
+const { ScriptAcceptedRequest, ScriptAcceptedResponse } = energyleaf;
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;

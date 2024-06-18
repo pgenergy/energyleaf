@@ -7,7 +7,7 @@ import { type NextRequest, NextResponse } from "next/server";
 export const POST = async (req: NextRequest) => {
     const reportApiKey = env.CRON_SECRET;
     if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== reportApiKey) {
-        return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
+        return NextResponse.json({ statusMessage: "Unauthorized" }, { status: 401 });
     }
 
     const start = new Date(new Date().setHours(0, 0, 0, 0));
@@ -16,9 +16,9 @@ export const POST = async (req: NextRequest) => {
     try {
         const users = await getAllUsers();
         for (const user of users) {
-            const qqq = await getAnomaliesByUser(user.id, start, end);
+            const anomaliesByUser = await getAnomaliesByUser(user.id, start, end);
 
-            if (qqq.length === 0) {
+            if (anomaliesByUser.length === 0) {
                 continue;
             }
 
@@ -32,8 +32,9 @@ export const POST = async (req: NextRequest) => {
             });
         }
 
-        return NextResponse.json({ status: 200, statusMessage: "Anomaly mails created and sent" });
+        return NextResponse.json({ statusMessage: "Anomaly mails created and sent" });
     } catch (e) {
-        return NextResponse.json({ status: 500, statusMessage: "Internal Server Error" });
+        console.log(e);
+        return NextResponse.json({ statusMessage: "Internal Server Error" }, { status: 500 });
     }
 };
