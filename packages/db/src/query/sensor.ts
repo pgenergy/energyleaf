@@ -44,10 +44,12 @@ interface FindAndMarkPeaksProps {
 }
 
 function findSequence(energyData: SensorDataSelectType[]) {
+    // using mad median absolute deviation with 1.4826 which is a scaling factor of a normal distributed set
+    // maybe ajust even further with another scaling factor
     const values = energyData.map((d) => d.value);
     const median = values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
     const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
-    const threshold = median + 1.4826 * mad * 1.2;
+    const threshold = median + 1.4826 * mad;
 
     const peaks: SensorDataSelectType[] = [];
     let i = 0;
@@ -63,11 +65,15 @@ function findSequence(energyData: SensorDataSelectType[]) {
             }
 
             const sequenceLength = sequenceEnd - i;
-            if (sequenceLength > 8) {
+            // only mark as peak if longer then 2.5min
+            if (sequenceLength > 10) {
                 peaks.push(entry);
             }
+            // find more peaks in the sequence if the sequence is longer then 10min
+            if (sequenceLength > 40) {
+                peaks.push(...findSequence(energyData.slice(i, sequenceEnd)));
+            }
             i = sequenceEnd;
-            peaks.push(...findSequence(energyData.slice(i, sequenceEnd)));
         } else {
             i++;
         }
