@@ -3,6 +3,7 @@
 import { updateUserState } from "@/actions/user";
 import { userStateSchema } from "@/lib/schema/user";
 import { userDataExperimentStatusEnum } from "@energyleaf/db/types";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Versions, stringify } from "@energyleaf/lib/versioning";
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { Button } from "@energyleaf/ui/button";
@@ -33,12 +34,25 @@ export default function UserStateForm({ initialValues, id }: Props) {
         defaultValues: initialValues,
     });
 
+    async function updateUserStateCallback(data: z.infer<typeof userStateSchema>, userId: string) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await updateUserState(data, userId);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof userStateSchema>) {
         startTransition(() => {
-            toast.promise(updateUserState(data, id), {
+            toast.promise(updateUserStateCallback(data, id), {
                 loading: "Aktualisiere Benutzer...",
                 success: "Benutzer erfolgreich aktualisiert.",
-                error: "Der Benutzer konnte nicht aktualisiert werden.",
+                error: (err: Error) => err.message,
             });
         });
     }

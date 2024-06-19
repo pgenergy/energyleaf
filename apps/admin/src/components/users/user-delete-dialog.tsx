@@ -2,6 +2,7 @@
 
 import { deleteUser } from "@/actions/user";
 import { useUserContext } from "@/hooks/user-hook";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -34,15 +35,28 @@ export function UserDeleteDialog({ onSuccess }: Props) {
         context.setUser(undefined);
     }
 
+    async function deleteUserCallback(userId: string) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await deleteUser(userId);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function deleteUserAction() {
         startTransition(() => {
-            toast.promise(deleteUser(user.id), {
+            toast.promise(deleteUserCallback(user.id), {
                 loading: "Nutzer wird gelöscht...",
                 success: () => {
                     onSuccess?.();
                     return "Nutzer wurde erfolgreich gelöscht.";
                 },
-                error: "Nutzer konnte aufgrund eines Fehlers nicht gelöscht werden.",
+                error: (err: Error) => err.message,
             });
         });
     }

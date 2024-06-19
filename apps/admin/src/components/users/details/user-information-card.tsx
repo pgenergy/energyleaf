@@ -2,7 +2,7 @@
 
 import { updateUser } from "@/actions/user";
 import type { UserSelectType } from "@energyleaf/db/types";
-import type { baseInformationSchema } from "@energyleaf/lib";
+import type { DefaultActionReturn, baseInformationSchema } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { UserBaseInformationForm } from "@energyleaf/ui/forms/user-base-information-form";
 import { useTransition } from "react";
@@ -18,12 +18,25 @@ const cardTitle = "Informationen";
 export default function UserInformationCard({ user }: Props) {
     const [changeIsPending, startTransition] = useTransition();
 
+    async function updateUserCallback(data: z.infer<typeof baseInformationSchema>, userId: string) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await updateUser(data, userId);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof baseInformationSchema>) {
         startTransition(() => {
-            toast.promise(updateUser(data, user.id), {
+            toast.promise(updateUserCallback(data, user.id), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
-                error: "Fehler beim Aktualisieren",
+                error: (err: Error) => err.message,
             });
         });
     }

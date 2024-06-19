@@ -3,6 +3,7 @@
 import { insertSensorValue } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
 import { addSensorValueSchema } from "@/lib/schema/sensor";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
@@ -21,6 +22,19 @@ export default function SensorAddValueDialog() {
         },
     });
 
+    async function insertRawSensorValueCallback(sensorId: string, value: number) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await insertSensorValue(sensorId, value);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof addSensorValueSchema>) {
         if (data.value <= 0) {
             return;
@@ -30,7 +44,7 @@ export default function SensorAddValueDialog() {
             return;
         }
 
-        toast.promise(insertSensorValue(sensorContext.sensor.id, data.value), {
+        toast.promise(insertRawSensorValueCallback(sensorContext.sensor.id, data.value), {
             loading: "Wert wird hinzugefügt...",
             success: (_) => {
                 form.reset();
@@ -38,7 +52,7 @@ export default function SensorAddValueDialog() {
                 sensorContext.setSensor(undefined);
                 return "Wert wurde hinzugefügt";
             },
-            error: "Fehler beim Hinzufügen des Wertes",
+            error: (err: Error) => err.message,
         });
     }
 

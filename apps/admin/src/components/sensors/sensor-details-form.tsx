@@ -1,7 +1,8 @@
 import { createSensor, isSensorRegistered, updateSensor } from "@/actions/sensors";
 import { addSensorSchema } from "@/lib/schema/sensor";
-import type { SensorSelectType } from "@energyleaf/db/types";
+import type { SensorInsertType, SensorSelectType } from "@energyleaf/db/types";
 import { SensorType, SensorTypeMap } from "@energyleaf/db/types";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
@@ -27,6 +28,32 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
         },
     });
 
+    async function updateSensorCallback(sensorId: string, data: Partial<SensorInsertType>) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await updateSensor(sensorId, data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
+    async function createSensorCallback(mac: string, sensorType: SensorType, script: string | undefined) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await createSensor(mac, sensorType, script);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof addSensorSchema>) {
         if (sensor) {
             const updateData = {
@@ -34,13 +61,13 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                 sensorType: data.sensorType,
                 script: data.script,
             };
-            toast.promise(updateSensor(sensor.id, updateData), {
+            toast.promise(updateSensorCallback(sensor.id, updateData), {
                 loading: "Laden...",
                 success: (_) => {
                     onCallback();
                     return "Erfolgreich aktualisiert";
                 },
-                error: "Fehler beim Aktualisieren",
+                error: (err: Error) => err.message,
             });
 
             return;
@@ -54,7 +81,7 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                     throw new Error("MAC-Adresse existiert bereits");
                 }
 
-                await createSensor(data.macAddress, data.sensorType, data.script);
+                await createSensorCallback(data.macAddress, data.sensorType, data.script);
             },
             {
                 loading: "Laden...",
@@ -62,7 +89,7 @@ export default function SensorDetailsForm({ onCallback, sensor }: Props) {
                     onCallback();
                     return "Erfolgreich hinzugefügt";
                 },
-                error: "Fehler beim Hinzufügen",
+                error: (err: Error) => err.message,
             },
         );
     }
