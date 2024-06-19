@@ -4,9 +4,10 @@ import { env } from "@/env.mjs";
 import { checkIfAdmin, getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import type { signInSchema } from "@/lib/schema/auth";
-import { getUserById, getUserByMail, updatePassword } from "@energyleaf/db/query";
+import { getUserById, getUserByMail, logError, trackAction, updatePassword } from "@energyleaf/db/query";
 import { UserNotActiveError, buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import { sendPasswordResetMailForUser } from "@energyleaf/mail";
+import { waitUntil } from "@vercel/functions";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
@@ -118,8 +119,24 @@ export async function resetUserPassword(userId: string) {
                     link: resetUrl,
                     apiKey: env.RESEND_API_KEY,
                 });
+                waitUntil(
+                    trackAction("pasword/reset-mail-sent", "admin-password-reset", "admin", {
+                        userId: user.id,
+                    }),
+                );
             }
         } catch (err) {
+            waitUntil(
+                logError(
+                    "password/admin-reset-mail-failed",
+                    "admin-password-reset",
+                    "admin",
+                    {
+                        userId: user.id,
+                    },
+                    err,
+                ),
+            );
             return {
                 success: false,
                 message: "Fehler beim senden der E-Mail.",
