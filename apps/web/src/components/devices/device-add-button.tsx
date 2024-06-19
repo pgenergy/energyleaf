@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeviceContext } from "@/hooks/device-hook";
-import { Button } from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
 import { PlusIcon } from "lucide-react";
 
 export default function DeviceAddButton() {

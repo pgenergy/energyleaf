@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { TryAgainErrorHint } from "@energyleaf/ui/error";
 
 interface Props {

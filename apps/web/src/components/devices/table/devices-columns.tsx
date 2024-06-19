@@ -1,9 +1,9 @@
 "use client";
 
 import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
-import { Button } from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon } from "lucide-react";
 import DeviceActionCell from "./device-action-cell";
 
 export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
@@ -20,8 +20,10 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
                     Name
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
-                    ) : (
+                    ) : column.getIsSorted() === "desc" ? (
                         <ChevronDownIcon className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );
@@ -43,8 +45,10 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
                     Erstellt
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
-                    ) : (
+                    ) : column.getIsSorted() === "desc" ? (
                         <ChevronDownIcon className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );

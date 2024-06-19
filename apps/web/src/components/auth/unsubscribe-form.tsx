@@ -1,13 +1,12 @@
 "use client";
 
-import { toast } from "sonner";
-import type { z } from "zod";
-
 import { updateReportConfigSettings } from "@/actions/auth";
 import ReportConfigForm from "@/components/profile/report-config-form";
 import type { reportSettingsSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 interface Props {
     reportConfig: z.infer<typeof reportSettingsSchema>;

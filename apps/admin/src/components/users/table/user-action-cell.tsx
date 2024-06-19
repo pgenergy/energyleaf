@@ -4,15 +4,16 @@ import { resetUserPassword } from "@/actions/auth";
 import { setUserActive, setUserAdmin } from "@/actions/user";
 import { useUserContext } from "@/hooks/user-hook";
 import type { UserSelectType } from "@energyleaf/db/types";
+import type { DefaultActionReturn } from "@energyleaf/lib";
+import { Button } from "@energyleaf/ui/button";
 import {
-    Button,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/dropdown-menu";
 import {
     BanIcon,
     CheckCircle2Icon,
@@ -45,34 +46,73 @@ export default function UserActionCell({ user }: Props) {
         userContext.setDeleteDialogOpen(true);
     }
 
+    async function setUserActiveCallback(userId: string, value: boolean) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await setUserActive(userId, value);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function toggleActive() {
         startTransition(() => {
             const operation = user.isActive ? "deaktiviert" : "aktiviert";
 
-            toast.promise(setUserActive(user.id, !user.isActive), {
+            toast.promise(setUserActiveCallback(user.id, !user.isActive), {
                 loading: `User wird ${operation}...`,
                 success: `User wurde erfolgreich ${operation}.`,
-                error: `User konnte aufgrund eines Fehlers nicht ${operation} werden.`,
+                error: (err: Error) => err.message,
             });
         });
+    }
+
+    async function setUserAdminCallback(userId: string, value: boolean) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await setUserAdmin(userId, value);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
     }
 
     function toggleIsAdmin() {
         startTransition(() => {
-            toast.promise(setUserAdmin(user.id, !user.isAdmin), {
+            toast.promise(setUserAdminCallback(user.id, !user.isAdmin), {
                 loading: "User-Rechte werden aktualisiert...",
                 success: "User-Rechte wurden erfolgreich aktualisiert.",
-                error: "User-Rechte konnten aufgrund eines Fehlers nicht aktualisiert werden.",
+                error: (err: Error) => err.message,
             });
         });
     }
 
+    async function resetUserPasswordCallback(userId: string) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await resetUserPassword(userId);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function sendUserForgetPasswordEmail() {
         startTransition(() => {
-            toast.promise(resetUserPassword(user.id), {
+            toast.promise(resetUserPasswordCallback(user.id), {
                 loading: "Passwort zurücksetzen Email wird gesendet...",
                 success: "Passwort zurücksetzen Email wurde erfolgreich gesendet.",
-                error: "Passwort zurücksetzen Email konnte aufgrund eines Fehlers nicht gesendet werden.",
+                error: (err: Error) => err.message,
             });
         });
     }

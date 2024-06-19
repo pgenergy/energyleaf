@@ -1,7 +1,9 @@
 import { getSensorIdFromSensorToken, insertSensorData, log, logError } from "@energyleaf/db/query";
-import { SensorDataRequest, SensorDataResponse, SensorType, parseReadableStream } from "@energyleaf/proto";
+import { energyleaf, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
+
+const { SensorDataRequest, SensorDataResponse, SensorType } = energyleaf;
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;

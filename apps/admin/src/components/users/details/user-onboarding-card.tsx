@@ -1,6 +1,6 @@
 import { getUserDataById } from "@/query/user";
 import { userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 interface Props {
     userId: string;
@@ -42,7 +42,12 @@ export default async function UserOnboardingCard({ userId }: Props) {
                 {data.electricityMeterImgUrl ? (
                     <div className="flex flex-row justify-between">
                         <p>Foto vom Zähler</p>
-                        <a href={data.electricityMeterImgUrl} target="_blank" rel="noreferrer">
+                        <a
+                            href={data.electricityMeterImgUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary underline hover:no-underline"
+                        >
                             Anzeigen
                         </a>
                     </div>

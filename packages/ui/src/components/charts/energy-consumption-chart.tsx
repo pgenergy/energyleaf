@@ -4,8 +4,8 @@ import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
 import React from "react";
 import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
-import { LineChart } from "../line-chart";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
+import { LineChart } from "./line-chart";
 
 interface Props {
     data: EnergyData[];
@@ -19,7 +19,6 @@ interface Props {
     zoomCallback?: (left: Date, right: Date) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- needs to be a type
 export type EnergyData = {
     sensorId: string | number;
     energy: number;

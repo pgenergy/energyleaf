@@ -7,7 +7,7 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import type { ConsumptionData } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import CSVExportButton from "./csv-export-button";
 import DashboardZoomReset from "./dashboard-zoom-reset";
@@ -53,7 +53,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     const data: ConsumptionData[] = energyData.map((entry) => ({
         sensorId: entry.sensorId || 0,
         energy: entry.value,
-        timestamp: (entry.timestamp as Date).toString(),
+        timestamp: entry.timestamp.toString(),
         sensorDataId: entry.id,
     }));
 
@@ -62,10 +62,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
 
     const csvExportData = {
         userId: user.id,
-        userHash: createHash("sha256").update(`${user.id}${env.NEXTAUTH_SECRET}`).digest("hex"),
-        endpoint: env.VERCEL_PROJECT_PRODUCTION_URL
-            ? `https://admin.${env.VERCEL_PROJECT_PRODUCTION_URL}/api/v1/csv_energy`
-            : "http://localhost:3001/api/v1/csv_energy",
+        userHash: createHash("sha256").update(`${user.id}${env.HASH_SECRET}`).digest("hex"),
+        endpoint:
+            env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
+                ? `https://${env.ADMIN_URL}/api/v1/csv`
+                : `http://${env.ADMIN_URL}/api/v1/csv`,
     };
 
     return (

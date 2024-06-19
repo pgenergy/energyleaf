@@ -1,5 +1,5 @@
 import type { ConsumptionData } from "@energyleaf/lib";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
 
 interface Props {

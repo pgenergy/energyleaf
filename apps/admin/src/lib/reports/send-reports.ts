@@ -225,11 +225,13 @@ export async function sendReportMail(userReport: UserReportData, reportProps: Re
             `No email address for User ${userReport.userName} (User-ID ${userReport.userId}) to send report to`,
         );
     }
-    await sendReport({
-        ...reportProps,
-        from: env.RESEND_API_MAIL,
-        to: userReport.email,
-        unsubscribeLink: unsubscribeLink,
-        apiKey: env.RESEND_API_KEY,
-    });
+    if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+        await sendReport({
+            ...reportProps,
+            from: env.RESEND_API_MAIL,
+            to: userReport.email,
+            unsubscribeLink: unsubscribeLink,
+            apiKey: env.RESEND_API_KEY,
+        });
+    }
 }

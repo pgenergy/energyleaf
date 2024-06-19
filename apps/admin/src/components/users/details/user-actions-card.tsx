@@ -1,5 +1,5 @@
 import { getUserById, getUserExperimentData } from "@/query/user";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import UserActionsModule from "./user-actions-module";
 
 interface Props {

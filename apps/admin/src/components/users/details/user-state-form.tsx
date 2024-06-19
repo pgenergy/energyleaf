@@ -3,29 +3,16 @@
 import { updateUserState } from "@/actions/user";
 import { userStateSchema } from "@/lib/schema/user";
 import { userDataExperimentStatusEnum } from "@energyleaf/db/types";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Versions, stringify } from "@energyleaf/lib/versioning";
 import { cn } from "@energyleaf/tailwindcss/utils";
-import {
-    Button,
-    Calendar,
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-    Spinner,
-    Switch,
-} from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Calendar } from "@energyleaf/ui/calendar";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
+import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
+import { Spinner } from "@energyleaf/ui/spinner";
+import { Switch } from "@energyleaf/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -47,12 +34,25 @@ export default function UserStateForm({ initialValues, id }: Props) {
         defaultValues: initialValues,
     });
 
+    async function updateUserStateCallback(data: z.infer<typeof userStateSchema>, userId: string) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await updateUserState(data, userId);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof userStateSchema>) {
         startTransition(() => {
-            toast.promise(updateUserState(data, id), {
+            toast.promise(updateUserStateCallback(data, id), {
                 loading: "Aktualisiere Benutzer...",
                 success: "Benutzer erfolgreich aktualisiert.",
-                error: "Der Benutzer konnte nicht aktualisiert werden.",
+                error: (err: Error) => err.message,
             });
         });
     }

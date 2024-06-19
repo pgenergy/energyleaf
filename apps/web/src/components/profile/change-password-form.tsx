@@ -4,22 +4,11 @@ import { updateBaseInformationPassword } from "@/actions/profile";
 import { passwordSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
-import {
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-    Input,
-    Spinner,
-} from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";

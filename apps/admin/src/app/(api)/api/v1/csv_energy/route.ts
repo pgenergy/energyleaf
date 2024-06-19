@@ -18,11 +18,6 @@ interface Props {
     end?: string;
 }
 
-interface EnergyData {
-    value: number;
-    timestamp: string;
-}
-
 export async function POST(req: NextRequest) {
     try {
         const { userId, userHash, start, end } = (await req.json()) as Props;
@@ -44,7 +39,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const hash = createHash("sha256").update(`${userId}${env.NEXTAUTH_SECRET}`).digest("hex");
+        const hash = createHash("sha256").update(`${userId}${env.HASH_SECRET}`).digest("hex");
         if (hash !== userHash) {
             waitUntil(log("user/invalid-user-hash", "error", "csv-export", "api", details));
             return NextResponse.json(
@@ -80,9 +75,12 @@ export async function POST(req: NextRequest) {
         const endDate = end ? new Date(end) : new Date();
 
         try {
-            const energyData = (await getEnergyForSensorInRange(startDate, endDate, sensorId)) as EnergyData[];
-            const parsedData = energyData.map((e) => [e.value, e.timestamp]);
-            const csvData = csv.stringify([["Verbrauch in kWh", "Zeitstempel"], ...parsedData]);
+            const energyData = await getEnergyForSensorInRange(startDate, endDate, sensorId);
+            const parsedData = energyData.map((e) => [e.value, e.valueOut, e.valueCurrent, e.timestamp.toISOString()]);
+            const csvData = csv.stringify([
+                ["Verbrauch in kWh", "Erzeugt in kWh", "Leistung in Watt", "Zeitstempel"],
+                ...parsedData,
+            ]);
 
             waitUntil(
                 trackAction("csv-export/success", "csv-export", "api", { details, startDate, endDate, sensorId }),

@@ -7,7 +7,7 @@ import type { z } from "zod";
 
 import { updateReportConfigSettings } from "@/actions/auth";
 import ReportConfigForm from "@/components/profile/report-config-form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 interface Props {
     receiveMails: boolean;
