@@ -5,10 +5,10 @@ import { nanoid } from "nanoid";
 import db from "../";
 import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import {
+    type SensorDataSelectType,
     type SensorInsertType,
     type SensorSelectTypeWithUser,
     SensorType,
-    type SensorDataSelectType,
 } from "../types/types";
 
 interface EnergyData {
@@ -43,6 +43,39 @@ interface FindAndMarkPeaksProps {
     end: Date;
 }
 
+function findSequence(energyData: SensorDataSelectType[]) {
+    const values = energyData.map((d) => d.value);
+    const median = values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
+    const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
+    const threshold = median + 1.4826 * mad * 1.2;
+
+    const peaks: SensorDataSelectType[] = [];
+    let i = 0;
+
+    while (i < energyData.length) {
+        const entry = energyData[i];
+
+        if (entry.value > threshold) {
+            let sequenceEnd = i + 1;
+
+            while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
+                sequenceEnd++;
+            }
+
+            const sequenceLength = sequenceEnd - i;
+            if (sequenceLength > 8) {
+                peaks.push(entry);
+            }
+            i = sequenceEnd;
+            peaks.push(...findSequence(energyData.slice(i, sequenceEnd)));
+        } else {
+            i++;
+        }
+    }
+
+    return peaks;
+}
+
 export async function findAndMarkPeaks(props: FindAndMarkPeaksProps) {
     const { sensorId, start, end } = props;
 
@@ -57,38 +90,7 @@ export async function findAndMarkPeaks(props: FindAndMarkPeaksProps) {
                 return;
             }
 
-            const values = energyData.map((d) => d.value);
-            const median = values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
-            const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
-            const threshold = median + 1.4826 * mad * 1.2;
-
-            const peaks: SensorDataSelectType[] = [];
-            let i = 0;
-
-            while (i < energyData.length) {
-                const entry = energyData[i];
-
-                if (entry.value > threshold) {
-                    let highestValue = entry;
-                    let sequenceEnd = i + 1;
-
-                    while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
-                        if (energyData[sequenceEnd].value > highestValue.value) {
-                            highestValue = energyData[sequenceEnd];
-                        }
-                        sequenceEnd++;
-                    }
-
-                    const sequenceLength = sequenceEnd - i;
-                    if (sequenceLength > 8) {
-                        peaks.push(highestValue);
-                    }
-                    i = sequenceEnd;
-                } else {
-                    i++;
-                }
-            }
-
+            const peaks = findSequence(energyData);
             if (peaks.length === 0) {
                 await trx
                     .update(sensorData)
