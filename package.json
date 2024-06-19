@@ -9,7 +9,7 @@
 		"dev:admin": "dotenv -- turbo run dev --filter admin",
 		"dev:mail": "dotenv -- pnpm --filter mail run dev:mail",
 		"start": "dotenv -- turbo run start",
-		"lint": "biome lint",
+		"lint": "biome lint && biome check --unsafe",
 		"format": "biome format --write&& biome check --write --unsafe",
 		"db:push": "dotenv -- pnpm --filter db run push",
 		"db:push:prod": "dotenv -- pnpm --filter db run push:prod",
