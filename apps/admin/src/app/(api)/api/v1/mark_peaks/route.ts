@@ -9,9 +9,9 @@ export const POST = async (req: NextRequest) => {
     }
 
     const startDate = new Date();
-    startDate.setHours(startDate.getHours() - 2);
+    startDate.setHours(startDate.getHours() - 2, 0, 0, 0);
     const endDate = new Date();
-    endDate.setHours(endDate.getHours() - 1);
+    endDate.setHours(endDate.getHours() - 2, 59, 59, 999);
 
     try {
         const sensors = await getAllSensors(true);
