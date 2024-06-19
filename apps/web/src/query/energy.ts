@@ -4,6 +4,7 @@ import {
     getAvgEnergyConsumptionForUserInComparison as getDbAvgEnergyConsumptionForUserInComparison,
     getElectricitySensorIdForUser as getDbElectricitySensorIdForUser,
     getEnergyForSensorInRange as getDbEnergyForSensorInRange,
+    getEnergyLastEntry as getDbEnergyLastEntry,
 } from "@energyleaf/db/query";
 import { AggregationType } from "@energyleaf/lib";
 import { cache } from "react";
@@ -45,4 +46,11 @@ export const getElectricitySensorIdForUser = cache(async (userId: string) => {
         return "demo_sensor";
     }
     return getDbElectricitySensorIdForUser(userId);
+});
+
+export const getEnergyLastEntry = cache(async (sensorId: string) => {
+    if (sensorId === "demo_sensor") {
+    }
+
+    return getDbEnergyLastEntry(sensorId);
 });

@@ -46,7 +46,7 @@ export default async function UserDetailsPage({ params }: Props) {
                         <UserOnboardingCard userId={user.id} />
                     </Suspense>
                 </ErrorBoundary>
-                <UserActionsCard user={user} />
+                <UserActionsCard userId={user.id} />
                 <ErrorBoundary fallback={UserSensorsCardError}>
                     <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
                         <UserSensorsCard userId={user.id} />

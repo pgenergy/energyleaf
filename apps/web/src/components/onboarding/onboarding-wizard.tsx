@@ -1,7 +1,7 @@
 "use client";
 
 import { completeOnboarding } from "@/actions/onboarding";
-import { updateMailInformation, updateUserDataInformation, updateUserGoals } from "@/actions/profile";
+import { updateReportSettingsInformation, updateUserDataInformation, updateUserGoals } from "@/actions/profile";
 import DataFormFields from "@/components/profile/data-form-fields";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
@@ -200,7 +200,7 @@ function MailSettingsStep({ reports }: MailSettingsStepProps) {
 
     handleStep(async () => {
         const data: z.infer<typeof reportSettingsSchema> = form.getValues();
-        await updateMailInformation(data);
+        await updateReportSettingsInformation(data);
     });
 
     return (

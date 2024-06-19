@@ -1,6 +1,5 @@
 "use client";
 
-import { track } from "@vercel/analytics";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useMemo } from "react";
 
@@ -22,7 +21,6 @@ export default function EnergyAggregation({ selected }) {
     }
 
     const onChange = (selectedOption) => {
-        track("changeAggregationOption");
         const search = new URLSearchParams();
         searchParams.forEach((value, key) => {
             search.set(key, value);
