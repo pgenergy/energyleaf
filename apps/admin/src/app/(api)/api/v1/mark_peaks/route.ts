@@ -30,7 +30,8 @@ export const POST = async (req: NextRequest) => {
             );
         }
 
-        await Promise.all(promises);
+        // use allSettled so we dont abort if one fails
+        await Promise.allSettled(promises);
     } catch (err) {
         return;
     }
