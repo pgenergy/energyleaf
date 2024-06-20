@@ -836,16 +836,12 @@ export async function calculateAnomaly(id: string, start: Date, end: Date) {
         })
         .from(sensorData)
         .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
-        .groupBy(sensorData.sensorId)
+        .where(and(eq(sensor.userId, id), gt(sensorData.timestamp, start), lt(sensorData.timestamp, end)))
         .having(
-            and(
-                eq(sensor.userId, id),
-                gt(sensorData.timestamp, start),
-                lt(sensorData.timestamp, end),
-                gt(
-                    sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value}))`,
-                    sql<number>`2 * STD(${sensorData.value})`,
-                ),
+            gt(
+                sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value}))`,
+                sql<number>`2 * STD(${sensorData.value})`,
             ),
-        );
+        )
+        .groupBy(sensorData.sensorId);
 }

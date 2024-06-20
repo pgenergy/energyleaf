@@ -1,9 +1,10 @@
 import UnsubscribeForm from "@/components/auth/unsubscribe-form";
-import { getUserData, getUserIdByToken } from "@/query/user";
+import { createMailSettingsSchema } from "@/lib/schema/conversion/profile";
+import { getUserIdByToken, getUserMailConfig } from "@/query/user";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export const metadata = {
-    title: "Report Einstellungen bearbeiten | Energyleaf",
+    title: "E-Mail Einstellungen bearbeiten | Energyleaf",
     robots: "noindex, nofollow",
 };
 
@@ -25,25 +26,21 @@ export default async function Page({ searchParams }: UnsubscribeFormProps) {
         );
     }
 
-    const userData = await getUserData(userId);
-    const reportConfig = {
-        receiveMails: userData?.report_config.receiveMails ?? true,
-        interval: userData?.report_config.interval ?? 3,
-        time: userData?.report_config.time ?? 6,
-    };
+    const mailSettings = await getUserMailConfig(userId);
+    const mailConfig = createMailSettingsSchema(mailSettings);
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Report Einstellungen aktualisieren</CardTitle>
+                <CardTitle>E-Mail Einstellungen aktualisieren</CardTitle>
                 <CardDescription>
-                    Hier können Sie einstellen, ob und in welchem Intervall die für Sie erstellen Berichte über Ihren
-                    Verbrauch erstellt werden sollen. Sollten Sie die Berichte deaktivieren wollen, deaktivieren Sie
-                    einfach die Einstellung "Senden der Berichte als E-Mails".
+                    Hier können Sie ihre E-Mail Einstellungen aktualisieren. Dabei können Sie die Einstellungen für die
+                    einzelnen E-Mail Arten konfigurieren. Bei den zyklischen Berichten können Sie auch Sendezeitpunkt
+                    sowie Intervall festlegen.
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <UnsubscribeForm reportConfig={reportConfig} userId={userId} />
+                <UnsubscribeForm mailConfig={mailConfig} userId={userId} />
             </CardContent>
         </Card>
     );

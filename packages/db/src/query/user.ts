@@ -1,19 +1,7 @@
-import { and, desc, eq, exists, gte, lte } from "drizzle-orm";
+import { and, desc, eq, gte } from "drizzle-orm";
 import db, { genId } from "../";
-import {
-    historyReports,
-    historyUserData,
-    reportConfig,
-    reports,
-    session,
-    token,
-    user,
-    userData,
-    userExperimentData,
-} from "../schema";
-import type { UserSelectType } from "../types/types";
-import { TokenType } from "../types/types";
-import { getReportConfigByUserId } from "./reports";
+import { historyUserData, reportConfig, session, token, user, userData, userExperimentData } from "../schema";
+import type { UserDataSelectType, UserSelectType } from "../types/types";
 
 /**
  * Get a user by id from the database
@@ -193,12 +181,8 @@ export async function createUser(data: CreateUserType) {
 /**
  * Get the current user data from the database
  */
-export async function getUserData(id: string) {
-    const data = await db
-        .select()
-        .from(userData)
-        .innerJoin(reportConfig, eq(userData.userId, reportConfig.userId))
-        .where(eq(userData.userId, id));
+export async function getUserData(id: string): Promise<UserDataSelectType | null> {
+    const data = await db.select().from(userData).where(eq(userData.userId, id));
 
     if (data.length === 0) {
         return null;
@@ -233,43 +217,6 @@ export async function updateUser(data: Partial<UserSelectType>, id: string) {
  */
 export async function updatePassword(data: Partial<CreateUserType>, id: string) {
     return db.update(user).set(data).where(eq(user.id, id));
-}
-
-/**
- * Update the user report settings data in the database
- */
-export async function updateReportSettings(
-    data: {
-        receiveMails: boolean;
-        interval: number;
-        time: number;
-    },
-    id: string,
-) {
-    return db.transaction(async (trx) => {
-        const oldReportData = await getReportConfigByUserId(trx, id);
-        if (!oldReportData) {
-            throw new Error("Old user data not found");
-        }
-        await trx.insert(historyReports).values({
-            userId: oldReportData.userId,
-            receiveMails: oldReportData.receiveMails,
-            interval: oldReportData.interval,
-            time: oldReportData.time,
-            timestampLast: oldReportData.timestampLast,
-            createdTimestamp: oldReportData.createdTimestamp,
-        });
-
-        await trx
-            .update(reportConfig)
-            .set({
-                receiveMails: data.receiveMails,
-                interval: data.interval,
-                time: data.time,
-                createdTimestamp: new Date(),
-            })
-            .where(eq(reports.userId, id));
-    });
 }
 
 type UpdateUserData = {
@@ -323,7 +270,7 @@ export async function setUserAdmin(id: string, isAdmin: boolean) {
     return db.update(user).set({ isAdmin }).where(eq(user.id, id));
 }
 
-export async function createToken(userId: string, type: TokenType = TokenType.Report) {
+export async function createToken(userId: string) {
     return db.transaction(async (trx) => {
         await trx.insert(token).values({ userId });
 
