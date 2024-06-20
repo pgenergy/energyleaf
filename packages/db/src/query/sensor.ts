@@ -196,6 +196,7 @@ export async function getEnergyForSensorInRange(
                 : Number(row.valueCurrent) - Number(query[index - 1].valueCurrent)
             : null,
         timestamp: new Date(row.timestamp),
+        isPeak: false,
     }));
 
     return results.slice(1);
