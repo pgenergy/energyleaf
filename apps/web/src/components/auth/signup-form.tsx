@@ -346,9 +346,9 @@ export default function SignUpForm() {
                                     </FormControl>
                                 </div>
                                 <FormDescription>
-                                    Durch die Teilnahme an der Umfrage, tragen Sie dazu bei, Forschungen im Bereich
+                                    Durch die Teilnahme an der Umfrage tragen Sie dazu bei, Forschungen im Bereich
                                     Energie vorranzutreiben. Teilnehmer, die an einer Umfrage teilnehmen, werden von uns
-                                    priorisiert an das System angeschlossen
+                                    priorisiert an das System angeschlossen.
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -376,14 +376,14 @@ export default function SignUpForm() {
                                 <FormDescription>
                                     Es ist uns rechtlich nur möglich Geld für die Umfragen auszuzahlen, wenn Sie sich
                                     über Prolific für unsere Umfragen registrieren. Diese Anmeldung ist mit etwas
-                                    Aufwand verbunden, da eine Verifizierung stattfinden muss. Eine Anleitung finden sie{" "}
-                                    <a
+                                    Aufwand verbunden, da eine Verifizierung stattfinden muss. Eine Anleitung finden sie {" "}
+                                    <Link
+                                        className="underline hover:no-underline text-primary-foreground"
                                         href="https://jbh9hx6nwkx1up9t.public.blob.vercel-storage.com/downloads/prolific_anleitung.pdf"
                                         target="_blank"
-                                        rel="noreferrer"
                                     >
                                         hier
-                                    </a>
+                                    </Link>
                                     .
                                 </FormDescription>
                                 <FormMessage />
@@ -426,12 +426,12 @@ export default function SignUpForm() {
                                         <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                                     </FormControl>
                                     <FormLabel className="text-sm">
-                                        Ich bin damit Einverstanden, dass der PIN in meinem Namen beantragt wird.
+                                        Ich bin damit einverstanden, dass der Freischaltungs-PIN meines Stormzählers in meinem Namen beantragt wird.
                                     </FormLabel>
                                 </div>
                                 <FormDescription>
-                                    Der PIN wird von Ihrem Stromanbieter zur Verfügung gestellt. Dieser ist notwendig um
-                                    die Daten ihres Zählers auszulesen.
+                                    Der PIN wird von Ihrem Stromanbieter zur Verfügung gestellt. Dieser wird dafür benötigt, dass
+                                    die genauen Daten ihres Zählers ausgelesen werden können.
                                 </FormDescription>
                             </FormItem>
                         )}
