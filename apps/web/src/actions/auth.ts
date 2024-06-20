@@ -10,10 +10,11 @@ import {
     createUser,
     getUserById,
     getUserByMail,
+    logError,
+    trackAction,
     updateMailSettings as updateMailSettingsDb,
     updatePassword,
 } from "@energyleaf/db/query";
-import type { userData } from "@energyleaf/db/schema";
 import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import {
@@ -30,6 +31,8 @@ import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
 import type { mailSettingsSchema } from "@/lib/schema/profile";
+import type { userData } from "@energyleaf/db/schema";
+import { waitUntil } from "@vercel/functions";
 import type { z } from "zod";
 
 /**
@@ -47,20 +50,42 @@ export async function createAccount(data: FormData) {
     const password = data.get("password") as string;
     const passwordRepeat = data.get("passwordRepeat") as string;
     const username = data.get("username") as string;
-    const file = data.get("file") as File | undefined;
+    const file = data.get("file") as File;
     const tos = (data.get("tos") as string) === "true";
+    const pin = (data.get("pin") as string) === "true";
     const electricityMeterType = data.get(
         "electricityMeterType",
     ) as (typeof userData.electricityMeterType.enumValues)[number];
+    const electricityMeterNumber = data.get("electricityMeterNumber") as string;
+    const participation = (data.get("participation") as string) === "true";
+    const prolific = (data.get("prolific") as string) === "true";
 
     if (!tos) {
+        waitUntil(trackAction("privacy-policy/not-accepted", "create-account", "web", { mail }));
         return {
             success: false,
             message: "Sie müssen den Datenschutzbestimmungen zustimmen.",
         };
     }
 
+    if (file && !file.type.startsWith("image/")) {
+        waitUntil(trackAction("image-upload/wrong-format", "create-account", "web", { mail, fileType: file.type }));
+        return {
+            success: false,
+            message: "Bitte laden Sie ein Bild hoch.",
+        };
+    }
+
+    if (!pin) {
+        waitUntil(trackAction("smart-meter-pin/not-accepted", "create-account", "web", { mail }));
+        return {
+            success: false,
+            message: "Sie müssen der PIN-Beantragung zustimmen...",
+        };
+    }
+
     if (mail === "demo@energyleaf.de") {
+        waitUntil(trackAction("user-mail/demo-account", "create-account", "web", { mail }));
         return {
             success: false,
             message: "Demo-Account kann nicht erstellt werden.",
@@ -68,6 +93,7 @@ export async function createAccount(data: FormData) {
     }
 
     if (password !== passwordRepeat) {
+        waitUntil(trackAction("user-passwords/not-matching", "create-account", "web", { mail }));
         return {
             success: false,
             message: "Passwörter stimmen nicht überein.",
@@ -75,18 +101,21 @@ export async function createAccount(data: FormData) {
     }
 
     if (mail.length >= 256) {
+        waitUntil(trackAction("user-mail/too-long", "create-account", "web", { mail }));
         return {
             success: false,
             message: "E-Mail muss unter dem Zeichenlimit von 256 Zeichen liegen.",
         };
     }
     if (username.length >= 30) {
+        waitUntil(trackAction("user-username/too-long", "create-account", "web", { mail, username }));
         return {
             success: false,
             message: "Benutzername muss unter dem Zeichenlimit von 30 Zeichen liegen.",
         };
     }
     if (password.length >= 256) {
+        waitUntil(trackAction("user-password/too-long", "create-account", "web", { mail }));
         return {
             success: false,
             message: "Passwort muss unter dem Zeichenlimit von 256 Zeichen liegen.",
@@ -95,6 +124,7 @@ export async function createAccount(data: FormData) {
 
     const user = await getUserByMail(mail);
     if (user) {
+        waitUntil(trackAction("user-mail/already-used", "create-account", "web", { mail, userId: user.id }));
         return {
             success: false,
             message: "E-Mail wird bereits verwendet.",
@@ -104,16 +134,29 @@ export async function createAccount(data: FormData) {
     const hash = await new Argon2id().hash(password);
 
     let url: string | undefined = undefined;
-    if (file && env.BLOB_READ_WRITE_TOKEN) {
+    if (env.BLOB_READ_WRITE_TOKEN) {
         try {
+            const imageMimeToExtensionMap = {
+                "image/jpeg": "jpg",
+                "image/png": "png",
+                "image/gif": "gif",
+                "image/bmp": "bmp",
+                "image/webp": "webp",
+                "image/tiff": "tiff",
+                "image/svg+xml": "svg",
+                "image/heic": "heic",
+                "image/heif": "heif",
+            };
             const id = genId(25);
-            const type = file.name.split(".").pop();
-            const res = await put(`electricitiy_meter/${id}.${type}`, file, {
+            const type = file.type;
+            const ext = imageMimeToExtensionMap[type] || type.split("/")[1];
+            const res = await put(`electricitiy_meter/${id}.${ext}`, file, {
                 access: "public",
+                contentType: type,
             });
             url = res.url;
         } catch (err) {
-            console.error(err);
+            await logError("electricity-meter/error-uploading-image", "create-account", "web", { mail }, err);
         }
     }
 
@@ -131,24 +174,40 @@ export async function createAccount(data: FormData) {
             username,
             electricityMeterType,
             meterImgUrl: url,
+            electricityMeterNumber,
+            participation,
+            prolific,
         } satisfies CreateUserType);
-        await sendAccountCreatedEmail({
-            to: mail,
-            name: `${firstname} ${lastname}`,
-            apiKey: env.RESEND_API_KEY,
-            from: env.RESEND_API_MAIL,
-        });
-        await sendAdminNewAccountCreatedEmail({
-            email: mail,
-            name: username,
-            meter: userDataElectricityMeterTypeEnums[electricityMeterType],
-            img: url,
-            to: env.ADMIN_MAIL,
-            from: env.RESEND_API_MAIL,
-            apiKey: env.RESEND_API_KEY,
-        });
+        waitUntil(trackAction("user-account/created", "create-account", "web", { mail }));
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendAccountCreatedEmail({
+                to: mail,
+                name: `${firstname} ${lastname}`,
+                apiKey: env.RESEND_API_KEY,
+                from: env.RESEND_API_MAIL,
+            });
+            waitUntil(trackAction("account-created-mail/sent", "create-account", "web", { mail }));
+            if (env.ADMIN_MAIL) {
+                await sendAdminNewAccountCreatedEmail({
+                    email: mail,
+                    name: username,
+                    meter: userDataElectricityMeterTypeEnums[electricityMeterType],
+                    meterNumber: electricityMeterNumber,
+                    hasWifi,
+                    hasPower,
+                    participates: participation,
+                    prolific,
+                    to: env.ADMIN_MAIL,
+                    from: env.RESEND_API_MAIL,
+                    apiKey: env.RESEND_API_KEY,
+                });
+                waitUntil(
+                    trackAction("admin-new-account-created-mail/sent", "create-account", "web", { mail, username }),
+                );
+            }
+        }
     } catch (err) {
-        console.error(err);
+        waitUntil(logError("error-creating-user", "create-account", "web", { mail }, err));
         return {
             success: false,
             message: "Fehler beim Erstellen des Accounts.",
@@ -161,6 +220,7 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
     const { mail } = data;
 
     if (mail === "demo@energyleaf.de") {
+        waitUntil(trackAction("user-mail/demo-account", "forgot-password", "web", { mail }));
         return {
             success: false,
             message: "Demo-Account kann nicht zurückgesetzt werden.",
@@ -169,25 +229,40 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
 
     const user = await getUserByMail(mail);
     if (!user) {
+        waitUntil(trackAction("user-mail/not-found", "forgot-password", "web", { mail }));
         return {
             success: false,
             message: "E-Mail wird nicht verwendet.",
         };
     }
 
-    const token = await getResetPasswordToken({ userId: user.id, secret: env.NEXTAUTH_SECRET });
+    const token = await getResetPasswordToken({ userId: user.id, secret: env.HASH_SECRET });
     const resetUrl = buildResetPasswordUrl({ baseUrl: getUrl(env), token });
 
     try {
-        await sendPasswordResetEmail({
-            from: env.RESEND_API_MAIL,
-            to: mail,
-            name: user.username,
-            link: resetUrl,
-            apiKey: env.RESEND_API_KEY,
-        });
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendPasswordResetEmail({
+                from: env.RESEND_API_MAIL,
+                to: mail,
+                name: user.username,
+                link: resetUrl,
+                apiKey: env.RESEND_API_KEY,
+            });
+            waitUntil(
+                trackAction("reset-mail/sent", "forgot-password", "web", { mail, userId: user.id, token, resetUrl }),
+            );
+        }
     } catch (err) {
         console.error(err);
+        waitUntil(
+            logError(
+                "reset-mail/error-sending",
+                "forgot-password",
+                "web",
+                { mail, userId: user.id, token, resetUrl },
+                err,
+            ),
+        );
         return {
             success: false,
             message: "Fehler beim Senden der E-Mail.",
@@ -199,6 +274,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     const { password: newPassword, passwordRepeat } = data;
 
     if (newPassword !== passwordRepeat) {
+        waitUntil(trackAction("user-passwords/not-matching", "reset-password", "web", { resetToken }));
         return {
             success: false,
             message: "Passwörter stimmen nicht überein.",
@@ -207,6 +283,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
 
     const { sub } = jose.decodeJwt(resetToken);
     if (!sub) {
+        waitUntil(trackAction("reset-token/invalid", "reset-password", "web", { resetToken }));
         return {
             success: false,
             message: "Ungültiges oder abgelaufenes Passwort-Reset-Token",
@@ -216,6 +293,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     const user = await getUserById(sub);
 
     if (!user) {
+        waitUntil(trackAction("user-id/not-found", "reset-password", "web", { resetToken, userId: sub }));
         return {
             success: false,
             message: "Ungültiges oder abgelaufenes Passwort-Reset-Token",
@@ -223,13 +301,13 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     try {
-        await jose.jwtVerify(resetToken, Buffer.from(env.NEXTAUTH_SECRET, "hex"), {
+        await jose.jwtVerify(resetToken, Buffer.from(env.HASH_SECRET, "hex"), {
             audience: "energyleaf",
             issuer: "energyleaf",
             algorithms: ["HS256"],
         });
     } catch (err) {
-        console.error(err);
+        waitUntil(logError("reset-token/error-verifying", "reset-password", "web", { resetToken, userId: sub }, err));
         return {
             success: false,
             message: "Fehler beim Verifizieren des Tokens.",
@@ -239,8 +317,9 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     try {
         const hash = await new Argon2id().hash(newPassword);
         await updatePassword({ password: hash }, user.id);
+        waitUntil(trackAction("password-changed", "reset-password", "web", { resetToken, userId: sub }));
     } catch (err) {
-        console.error(err);
+        waitUntil(logError("updating-password", "reset-password", "web", { resetToken, userId: sub }, err));
         return {
             success: false,
             message: "Fehler beim Ändern des Passworts.",
@@ -248,14 +327,19 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     try {
-        await sendPasswordChangedEmail({
-            from: env.RESEND_API_MAIL,
-            to: user.email,
-            name: user.username,
-            apiKey: env.RESEND_API_KEY,
-        });
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendPasswordChangedEmail({
+                from: env.RESEND_API_MAIL,
+                to: user.email,
+                name: user.username,
+                apiKey: env.RESEND_API_KEY,
+            });
+            waitUntil(trackAction("password-changed-mail/sent", "reset-password", "web", { resetToken, userId: sub }));
+        }
     } catch (err) {
-        console.error(err);
+        waitUntil(
+            logError("password-changed-mail/error-sending", "reset-password", "web", { resetToken, userId: sub }, err),
+        );
         return {
             success: false,
             message: "Fehler beim Senden der E-Mail.",
@@ -274,6 +358,7 @@ export async function signInAction(email: string, password: string) {
 
     const user = await getUserByMail(email);
     if (!user) {
+        waitUntil(trackAction("user-mail/not-found", "sign-in", "web", { email }));
         return {
             success: false,
             message: "E-Mail oder Passwort falsch.",
@@ -281,16 +366,19 @@ export async function signInAction(email: string, password: string) {
     }
 
     if (!user.isActive) {
+        waitUntil(trackAction("user-not-active", "sign-in", "web", { email, userId: user.id }));
         redirect("/created");
     }
 
-    let match = false;
+    let match: boolean;
 
     try {
         match = await new Argon2id().verify(user.password, password);
     } catch (err) {
+        waitUntil(logError("verifying-password", "sign-in", "web", { email, userId: user.id }, err));
         match = await new Bcrypt().verify(user.password, password);
         if (!match) {
+            waitUntil(trackAction("password-verification-error", "sign-in", "web", { email, userId: user.id }));
             return {
                 success: false,
                 message: "E-Mail oder Passwort falsch.",
@@ -301,7 +389,7 @@ export async function signInAction(email: string, password: string) {
             const hash = await new Argon2id().hash(password);
             await updatePassword({ password: hash }, user.id);
         } catch (err) {
-            console.error(err);
+            waitUntil(logError("updating-password", "sign-in", "web", { email, userId: user.id }, err));
             return {
                 success: false,
                 message: "Ein Fehler ist aufgetreten.",
@@ -310,6 +398,7 @@ export async function signInAction(email: string, password: string) {
     }
 
     if (!match) {
+        waitUntil(trackAction("password-verification-error", "sign-in", "web", { email, userId: user.id }));
         return {
             success: false,
             message: "E-Mail oder Passwort falsch.",
@@ -320,6 +409,7 @@ export async function signInAction(email: string, password: string) {
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
     await handleSignIn(newSession, user);
+    waitUntil(trackAction("user-signed-in", "sign-in", "web", { email, userId: user.id }));
 }
 
 async function handleSignIn(session: Session, user: UserSelectType | null) {
@@ -349,6 +439,7 @@ export async function signInDemoAction() {
 
     cookieStore.set("demo_mode", "true");
     cookieStore.set("demo_data", JSON.stringify(getUserDataCookieStoreDefaults()));
+    waitUntil(trackAction("demo-user-signed-in", "sign-in-demo", "web", {}));
     redirect("/dashboard");
 }
 
@@ -363,11 +454,13 @@ export async function signOutAction() {
 
     await lucia.invalidateSession(session.id);
     cookies().delete("auth_session");
+    await trackAction("user-signed-out", "sign-out", "web", { userId: session.userId });
     redirect("/");
 }
 
 export async function signOutDemoAction() {
     if (!(await isDemoUser())) {
+        await logError("not-demo-user", "sign-out-demo", "web", {}, new Error("Not a demo user"));
         throw new Error("Not a demo user");
     }
     const cookieStore = cookies();
@@ -375,15 +468,16 @@ export async function signOutDemoAction() {
     cookieStore.delete("demo_devices");
     cookieStore.delete("demo_peaks");
     cookieStore.delete("demo_mode");
+    waitUntil(trackAction("demo-user-signed-out", "sign-out-demo", "web", {}));
     redirect("/");
 }
 
 export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema>, userId: string | null) {
     let id = userId;
+    const { user, session } = await getActionSession();
     if (!id) {
-        const { user } = await getActionSession();
-
         if (!user) {
+            waitUntil(trackAction("user/not-logged-in", "update-report-config", "web", { data, session }));
             return {
                 success: false,
                 message: "Nicht eingeloggt.",
@@ -395,6 +489,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
 
     const dbUser = await getUserById(id);
     if (!dbUser) {
+        waitUntil(trackAction("user/not-found-in-db", "update-report-config", "web", { data, session }));
         return {
             success: false,
             message: "Nutzer nicht gefunden.",
@@ -402,6 +497,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
     }
 
     try {
+        waitUntil(trackAction("report-config-updated", "update-report-config", "web", { data, session }));
         await updateMailSettingsDb(
             {
                 reportConfig: {
@@ -416,7 +512,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
             id,
         );
     } catch (e) {
-        console.log(e);
+        waitUntil(logError("report-config-update-error", "update-report-config", "web", { data, session }, e));
         return {
             success: false,
             message: "Fehler beim Speichern der Einstellungen.",

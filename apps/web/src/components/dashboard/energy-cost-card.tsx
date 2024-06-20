@@ -4,7 +4,7 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import { getUserDataHistory } from "@/query/user";
 import { formatNumber } from "@energyleaf/lib";
 import { cn } from "@energyleaf/tailwindcss/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";

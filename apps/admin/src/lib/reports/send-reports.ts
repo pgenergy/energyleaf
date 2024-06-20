@@ -6,7 +6,9 @@ import {
     getLastReportForUser,
     getUserDataByUserId,
     getUsersWitDueReport,
+    logError,
     saveReport,
+    trackAction,
     updateLastReportTimestamp,
 } from "@energyleaf/db/query";
 import type { UserDataSelectType } from "@energyleaf/db/types";
@@ -14,6 +16,7 @@ import { buildUnsubscribeUrl } from "@energyleaf/lib";
 import type { DailyConsumption, DailyGoalProgress, DailyGoalStatistic, ReportProps } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { sendReport } from "@energyleaf/mail";
+import { waitUntil } from "@vercel/functions";
 import { renderDailyConsumptionChart, renderDailyStatistic } from "./graphs";
 import { renderImage } from "./image";
 
@@ -27,65 +30,87 @@ interface UserReportData {
 }
 
 export async function createReportsAndSendMails() {
-    const userReportData: UserReportData[] = await getUsersWitDueReport();
+    const usersWithDueReport: UserReportData[] = await getUsersWitDueReport();
+    waitUntil(trackAction("users/start-due-reports-check", "report", "api", usersWithDueReport));
 
-    const totalReports = userReportData.length;
+    const totalReports = usersWithDueReport.length;
     let successfulReports = 0;
-    let sentReports = 0;
-    let savedReports = 0;
-    let updatedLastReportTimestamps = 0;
 
-    for (const userReport of userReportData) {
-        let reportProps: ReportProps;
+    for (const userWithDueReport of usersWithDueReport) {
+        let thisReportIsSuccessful = 1;
+
+        let reportProps: ReportProps | null = null;
         let unsubscribeLink = "";
         try {
-            reportProps = await createReportData(userReport);
-            const unsubscribeToken = await createToken(userReport.userId);
+            reportProps = await createReportData(userWithDueReport);
+            const unsubscribeToken = await createToken(userWithDueReport.userId);
             unsubscribeLink = buildUnsubscribeUrl({ baseUrl: getUrl(env), token: unsubscribeToken });
         } catch (e) {
-            console.error(`Error creating report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
+            waitUntil(
+                logError(
+                    "create-report/failed",
+                    "report",
+                    "api",
+                    { userWithDueReport, reportProps, unsubscribeLink },
+                    e,
+                ),
+            );
+            thisReportIsSuccessful = 0;
             continue;
         }
 
-        if (userReport.receiveMails) {
+        if (userWithDueReport.receiveMails) {
             try {
-                await sendReportMail(userReport, reportProps, unsubscribeLink);
-                sentReports++;
+                await sendReportMail(userWithDueReport, reportProps, unsubscribeLink);
             } catch (e) {
-                console.error(
-                    `Error sending report for User ${userReport.userName} (User-ID ${userReport.userId}) to ${userReport.email}: ${e}`,
+                waitUntil(
+                    logError(
+                        "send-report/failed",
+                        "report",
+                        "api",
+                        { userWithDueReport, reportProps, unsubscribeLink },
+                        e,
+                    ),
                 );
+                thisReportIsSuccessful = 0;
                 continue;
             }
         }
 
         try {
-            await saveReport(reportProps, userReport.userId);
-            savedReports++;
+            await saveReport(reportProps, userWithDueReport.userId);
         } catch (e) {
-            console.error(`Error saving report for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`);
+            waitUntil(
+                logError(
+                    "save-report-in-db/failed",
+                    "report",
+                    "api",
+                    { userWithDueReport, reportProps, unsubscribeLink },
+                    e,
+                ),
+            );
+            thisReportIsSuccessful = 0;
         }
 
         try {
-            await updateLastReportTimestamp(userReport.userId);
-            updatedLastReportTimestamps++;
+            await updateLastReportTimestamp(userWithDueReport.userId);
         } catch (e) {
-            console.error(
-                `Error updating last report timestamp for User ${userReport.userName} (User-ID ${userReport.userId}): ${e}`,
+            waitUntil(
+                logError(
+                    "update-last-report-timestamp/failed",
+                    "report-creation",
+                    "api",
+                    { userWithDueReport, reportProps, unsubscribeLink },
+                    e,
+                ),
             );
+            thisReportIsSuccessful = 0;
         }
 
-        successfulReports++;
+        successfulReports += thisReportIsSuccessful;
     }
 
-    console.info(
-        "--Send Report Results-- ",
-        ` Total reports: ${totalReports} `,
-        ` Successful reports: ${successfulReports}`,
-        ` Sent reports: ${sentReports} `,
-        ` Saved reports: ${savedReports} `,
-        ` Updated last report timestamp: ${updatedLastReportTimestamps}`,
-    );
+    waitUntil(trackAction("users/end-due-reports-check", "report", "api", { totalReports, successfulReports }));
 }
 
 export async function createReportData(user: UserReportData): Promise<ReportProps> {
@@ -200,11 +225,13 @@ export async function sendReportMail(userReport: UserReportData, reportProps: Re
             `No email address for User ${userReport.userName} (User-ID ${userReport.userId}) to send report to`,
         );
     }
-    await sendReport({
-        ...reportProps,
-        from: env.RESEND_API_MAIL,
-        to: userReport.email,
-        unsubscribeLink: unsubscribeLink,
-        apiKey: env.RESEND_API_KEY,
-    });
+    if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+        await sendReport({
+            ...reportProps,
+            from: env.RESEND_API_MAIL,
+            to: userReport.email,
+            unsubscribeLink: unsubscribeLink,
+            apiKey: env.RESEND_API_KEY,
+        });
+    }
 }

@@ -1,4 +1,4 @@
-import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export const metadata = {
     title: "E-Mail Einstellungen aktualisiert | Energyleaf",

@@ -1,6 +1,6 @@
 import { sensorsColumns } from "@/components/sensors/table/sensors-columns";
 import { getSensorsByUser } from "@/query/sensor";
-import { DataTable } from "@energyleaf/ui";
+import { DataTable } from "@energyleaf/ui/data-table";
 import React from "react";
 
 interface Props {

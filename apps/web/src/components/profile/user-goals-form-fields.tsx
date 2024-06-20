@@ -1,5 +1,6 @@
 import type { userGoalSchema } from "@/lib/schema/profile";
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Input } from "@energyleaf/ui";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
 import { CircleHelp } from "lucide-react";
 import type React from "react";
 import { type ChangeEvent, useCallback, useEffect, useState } from "react";

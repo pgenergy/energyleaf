@@ -1,13 +1,12 @@
 "use client";
 
 import type { mailSettingsSchema } from "@/lib/schema/profile";
-import { track } from "@vercel/analytics";
 import React from "react";
 import { toast } from "sonner";
 import type { z } from "zod";
 
 import { updateMailSettings } from "@/actions/auth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import MailConfigForm from "./mail-config-form";
 
 interface Props {
@@ -17,7 +16,6 @@ interface Props {
 
 export default function MailConfigCard({ initialData, disabled }: Props) {
     function onSubmit(data: z.infer<typeof mailSettingsSchema>) {
-        track("updateReportConfig()");
         toast.promise(updateMailSettings(data, null), {
             loading: "Aktualisiere Einstellungen...",
             success: "Einstellungen erfolgreich aktualisiert",

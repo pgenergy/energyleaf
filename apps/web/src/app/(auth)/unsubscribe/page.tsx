@@ -1,7 +1,7 @@
 import UnsubscribeForm from "@/components/auth/unsubscribe-form";
 import { createMailSettingsSchema } from "@/lib/schema/conversion/profile";
 import { getUserIdByToken, getUserMailConfig } from "@/query/user";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export const metadata = {
     title: "E-Mail Einstellungen bearbeiten | Energyleaf",

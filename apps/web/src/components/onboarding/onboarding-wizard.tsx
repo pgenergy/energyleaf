@@ -9,7 +9,9 @@ import { createMailSettingsSchema, createUserDataSchemaFromUserDataSelectType } 
 import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
 import type { MailConfig, UserDataSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import { Button, Form, Wizard, WizardPage, useWizard } from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Form } from "@energyleaf/ui/form";
+import { Wizard, WizardPage, useWizard } from "@energyleaf/ui/wizard";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRightIcon } from "lucide-react";
 import React, { useCallback, useMemo } from "react";

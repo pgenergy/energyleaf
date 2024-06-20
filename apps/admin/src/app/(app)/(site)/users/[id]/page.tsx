@@ -2,6 +2,7 @@ import UserConsumptionCard, {
     UserConsumptionCardError,
 } from "@/components/users/details/consumption/user-consumption-card";
 import UserActionsCard from "@/components/users/details/user-actions-card";
+import UserDangerActionsCard from "@/components/users/details/user-danger-actions";
 import UserDetailsDeleteDialog from "@/components/users/details/user-details-delete-dialog";
 import UserInformationCard from "@/components/users/details/user-information-card";
 import UserOnboardingCard from "@/components/users/details/user-onboarding-card";
@@ -11,8 +12,8 @@ import UserSensorsCard from "@/components/users/details/user-sensors-card";
 import UserSensorsCardError from "@/components/users/details/user-sensors-card-error";
 import { UserContextProvider } from "@/hooks/user-hook";
 import { getUserById } from "@/query/user";
-import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -46,7 +47,7 @@ export default async function UserDetailsPage({ params }: Props) {
                         <UserOnboardingCard userId={user.id} />
                     </Suspense>
                 </ErrorBoundary>
-                <UserActionsCard user={user} />
+                <UserActionsCard userId={user.id} />
                 <ErrorBoundary fallback={UserSensorsCardError}>
                     <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
                         <UserSensorsCard userId={user.id} />
@@ -57,6 +58,7 @@ export default async function UserDetailsPage({ params }: Props) {
                         <UserConsumptionCard userId={user.id} />
                     </Suspense>
                 </ErrorBoundary>
+                <UserDangerActionsCard user={user} />
             </div>
         </UserContextProvider>
     );

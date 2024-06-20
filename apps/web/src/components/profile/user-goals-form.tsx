@@ -5,19 +5,12 @@ import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 import { userGoalSchema } from "@/lib/schema/profile";
 import type { UserDataSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import {
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Form,
-    Label,
-    Spinner,
-} from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Form } from "@energyleaf/ui/form";
+import { Label } from "@energyleaf/ui/label";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -52,7 +45,6 @@ export default function UserGoalsForm({ userData }: Props) {
 
     function onSubmit(data: z.infer<typeof userGoalSchema>) {
         startTransition(() => {
-            track("updateUserGoals()");
             toast.promise(updateUserGoalsCallback(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",

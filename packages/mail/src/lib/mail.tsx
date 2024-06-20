@@ -5,10 +5,13 @@ import AccountActivatedTemplate from "../templates/account-activated";
 import AccountCreatedTemplate from "../templates/account-created";
 import AdminNewAccountCreatedTemplate from "../templates/admin-new-account";
 import AnomalyDetectedTemplate from "../templates/anomaly-detected";
+import ExperimentDoneTemplate from "../templates/experiment-done";
+import ExperimentRemovedTemplate from "../templates/experiment-remove";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
 import ReportTemplate from "../templates/report";
+import SurveyInviteTemplate from "../templates/survey-invite";
 import type { AnomalyProps } from "../types";
 
 interface MailOptions {
@@ -207,7 +210,11 @@ type AdminNewAccountMailOptions = MailOptions & {
     name: string;
     meter: string;
     email: string;
-    img?: string;
+    hasWifi: boolean;
+    hasPower: boolean;
+    meterNumber: string;
+    participates: boolean;
+    prolific: boolean;
 };
 
 export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMailOptions) {
@@ -223,8 +230,12 @@ export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMail
         react: AdminNewAccountCreatedTemplate({
             name: props.name,
             meter: props.meter,
+            meterNumber: props.meterNumber,
+            hasWifi: props.hasWifi,
+            hasPower: props.hasPower,
             mail: props.email,
-            img: props.img,
+            participates: props.participates,
+            prolific: props.prolific,
         }),
     });
 
@@ -248,6 +259,91 @@ export async function sendReport(options: ReportMailOptions) {
         from: options.from,
         subject: `Energyleaf: Bericht von ${formatDate(options.dateFrom)} bis ${formatDate(options.dateTo)}`,
         react: ReportTemplate(options, options.unsubscribeLink),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type ExperimentRemovedMail = MailOptions & {
+    name: string;
+};
+
+export async function sendExperimentRemovedEmail(props: ExperimentRemovedMail) {
+    if (!props.apiKey || props.apiKey === "") {
+        return;
+    }
+
+    const resend = createResend(props.apiKey);
+
+    const resp = await resend.emails.send({
+        to: props.to,
+        from: props.from,
+        subject: "Teilnahme nicht möglich",
+        react: ExperimentRemovedTemplate({
+            name: props.name,
+        }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type SurveyInviteMailOptions = MailOptions & {
+    name: string;
+    surveyNumber: number;
+    surveyLink: string;
+};
+
+export async function sendSurveyInviteEmail(props: SurveyInviteMailOptions) {
+    if (!props.apiKey || props.apiKey === "") {
+        return;
+    }
+
+    const resend = createResend(props.apiKey);
+
+    const resp = await resend.emails.send({
+        to: props.to,
+        from: props.from,
+        subject: "Einladung zur Umfrage",
+        react: SurveyInviteTemplate({
+            name: props.name,
+            surveyNumber: props.surveyNumber,
+            surveyLink: props.surveyLink,
+        }),
+    });
+
+    if (resp.error) {
+        throw new Error(resp.error.message);
+    }
+
+    return resp.data?.id;
+}
+
+type ExperimentDoneMailOptions = MailOptions & {
+    name: string;
+};
+
+export async function sendExperimentDoneEmail(props: ExperimentDoneMailOptions) {
+    if (!props.apiKey || props.apiKey === "") {
+        return;
+    }
+
+    const resend = createResend(props.apiKey);
+
+    const resp = await resend.emails.send({
+        to: props.to,
+        from: props.from,
+        subject: "Teilnahme abgeschlossen",
+        react: ExperimentDoneTemplate({
+            name: props.name,
+        }),
     });
 
     if (resp.error) {

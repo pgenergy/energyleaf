@@ -1,6 +1,7 @@
-import { Button, Form, Spinner } from "@energyleaf/ui";
-
 import { mailSettingsSchema } from "@/lib/schema/profile";
+import { Button } from "@energyleaf/ui/button";
+import { Form } from "@energyleaf/ui/form";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
