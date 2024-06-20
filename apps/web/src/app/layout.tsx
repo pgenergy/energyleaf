@@ -1,8 +1,8 @@
-import { env } from "@/env.mjs";
+import { env, getUrl } from "@/env.mjs";
 import { ThemeProvider } from "@/hooks/theme-provider";
 import "@energyleaf/tailwindcss/global.css";
-import { Toaster } from "@energyleaf/ui/components/utils";
-import { Analytics } from "@vercel/analytics/react";
+import QueryClientProvider from "@/hooks/query-client-provider";
+import { Toaster } from "@energyleaf/ui/utils/toaster";
 import type { Metadata } from "next";
 
 const description =
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         description,
         type: "website",
         locale: "de_DE",
-        url: env.VERCEL_URL || env.NEXTAUTH_URL || "http://localhost:3000",
+        url: getUrl(env),
     },
 };
 export const revalidate = 0;
@@ -29,10 +29,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
             <head />
             <body>
                 <ThemeProvider attribute="class" defaultTheme="system" disableTransitionOnChange enableSystem>
-                    {children}
+                    <QueryClientProvider>{children}</QueryClientProvider>
                     <Toaster richColors />
                 </ThemeProvider>
-                <Analytics />
             </body>
         </html>
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
 import { RotateCwIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

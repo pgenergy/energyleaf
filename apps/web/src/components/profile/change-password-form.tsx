@@ -2,25 +2,14 @@
 
 import { updateBaseInformationPassword } from "@/actions/profile";
 import { passwordSchema } from "@/lib/schema/profile";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
-import {
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-    Input,
-    Spinner,
-} from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -41,6 +30,20 @@ export default function ChangePasswordForm({ disabled }: Props) {
         },
     });
 
+    async function updateBaseInformationPasswordCallback(data: z.infer<typeof passwordSchema>) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await updateBaseInformationPassword(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmitPassword(data: z.infer<typeof passwordSchema>) {
         if (disabled) {
             return;
@@ -53,16 +56,15 @@ export default function ChangePasswordForm({ disabled }: Props) {
         }
 
         startTransition(() => {
-            track("changePassword()");
-            toast.promise(updateBaseInformationPassword(data), {
+            toast.promise(updateBaseInformationPasswordCallback(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
-                error: (err) => {
+                error: (err: Error) => {
                     if (err instanceof PasswordsDoNotMatchError) {
                         return "Das aktuelle Passwort ist falsch";
                     }
 
-                    return "Fehler beim Aktualisieren";
+                    return err.message;
                 },
             });
         });

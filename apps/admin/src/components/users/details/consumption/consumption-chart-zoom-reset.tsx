@@ -1,5 +1,5 @@
 import { useUserContext } from "@/hooks/user-hook";
-import { Button } from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
 import type { MouseEvent } from "react";
 
 export default function ConsumptionChartZoomReset() {

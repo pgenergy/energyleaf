@@ -1,0 +1,14 @@
+diff --git a/package.json b/package.json
+index 6deaa46d99d4f18752c60c766528b0005e851796..2dd6c1d4986ed26f1ace123367cb3e521131bd76 100644
+--- a/package.json
++++ b/package.json
+@@ -13,7 +13,8 @@
+   "exports": {
+     ".": {
+       "import": "./dist/boringer-avatars.react.es.js",
+-      "require": "./dist/boringer-avatars.react.umd.js"
++      "require": "./dist/boringer-avatars.react.umd.js",
++      "types": "./dist/index.d.ts"
+     }
+   },
+   "dependencies": {

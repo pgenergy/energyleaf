@@ -4,7 +4,8 @@ import {
     getAvgEnergyConsumptionForUserInComparison,
     getElectricitySensorIdForUser,
 } from "@/query/energy";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { formatNumber } from "@energyleaf/lib";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 
 export default async function AvgEnergyConsumptionComparisonCard() {
@@ -37,14 +38,16 @@ export default async function AvgEnergyConsumptionComparisonCard() {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Durchschnittlicher Energieverbrauch</CardTitle>
-                <CardDescription>Im Vergleich zu anderen Nutzern mit vergleichbaren Daten</CardDescription>
+                <CardTitle>Vergleich des Energieverbrauchs</CardTitle>
+                <CardDescription>
+                    Hier sehen Sie Ihren durchschnittlichen Energieverbrauch im Vergleich zu anderen Nutzern
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 {avg && avgUser ? (
                     <p className="text-center text-2xl text-primary">
                         <span className="font-bold">Durchschnitt: </span>
-                        {avg.avg.toFixed(2)} kWh
+                        {formatNumber(avg.avg)} kWh
                     </p>
                 ) : (
                     <p className="text-center text-muted-foreground">Keine Daten vorhanden</p>

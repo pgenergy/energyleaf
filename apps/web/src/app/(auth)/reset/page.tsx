@@ -1,5 +1,6 @@
 import ResetForm from "@/components/auth/reset-form";
-import { CardContent, Separator } from "@energyleaf/ui";
+import { CardContent } from "@energyleaf/ui/card";
+import { Separator } from "@energyleaf/ui/separator";
 import Link from "next/link";
 
 export const metadata = {

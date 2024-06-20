@@ -1,16 +1,17 @@
 "use client";
 
 import { signOutAction } from "@/actions/auth";
+import { Avatar as BAvatar } from "@boringer-avatars/react";
+import type { DefaultActionReturn } from "@energyleaf/lib";
+import { Avatar } from "@energyleaf/ui/avatar";
 import {
-    Avatar,
-    AvatarFallback,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/dropdown-menu";
 import type { User } from "lucia";
 import { LogOutIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -25,15 +26,28 @@ export default function NavbarAvatar({ user }: Props) {
     const [_isPending, startTransition] = useTransition();
     const router = useRouter();
 
+    async function signOutActionCallback() {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await signOutAction();
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSignOut() {
         startTransition(() => {
-            toast.promise(signOutAction, {
+            toast.promise(signOutActionCallback, {
                 loading: "Abmelden...",
                 success: () => {
                     router.push("/");
                     return "Erfolgreich abgemeldet.";
                 },
-                error: "Fehler beim Abmelden.",
+                error: (err: Error) => err.message,
             });
         });
     }
@@ -42,7 +56,12 @@ export default function NavbarAvatar({ user }: Props) {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                    <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    <BAvatar
+                        size={40}
+                        variant="beam"
+                        name={user.id}
+                        colors={["#FFAD08", "#EDD75A", "#73B06F", "#0C8F8F", "#405059"]}
+                    />
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

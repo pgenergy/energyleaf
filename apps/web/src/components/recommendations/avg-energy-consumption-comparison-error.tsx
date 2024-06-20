@@ -1,6 +1,4 @@
-"use client";
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { TryAgainErrorHint } from "@energyleaf/ui/error";
 import type { FallbackProps } from "react-error-boundary";
 
@@ -8,8 +6,10 @@ export default function AvgEnergyConsumptionComparisonError({ resetErrorBoundary
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Durchschnittlicher Energieverbrauch</CardTitle>
-                <CardDescription>Im Vergleich zu anderen Nutzern mit vergleichbaren Daten</CardDescription>
+                <CardTitle>Vergleich des Energieverbrauchs</CardTitle>
+                <CardDescription>
+                    Hier sehen Sie Ihren durchschnittlichen Energieverbrauch im Vergleich zu anderen Nutzern
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 <TryAgainErrorHint resetErrorBoundary={resetErrorBoundary} />

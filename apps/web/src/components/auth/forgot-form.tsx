@@ -3,7 +3,9 @@
 import { forgotPassword } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { forgotSchema } from "@/lib/schema/auth";
-import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import type { DefaultActionReturn } from "@energyleaf/lib";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -20,15 +22,28 @@ export default function ForgotForm() {
         },
     });
 
+    async function forgotPasswordCallback(data: z.infer<typeof forgotSchema>) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await forgotPassword(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof forgotSchema>) {
         setError("");
         startTransition(() => {
-            toast.promise(forgotPassword(data), {
+            toast.promise(forgotPasswordCallback(data), {
                 loading: "E-Mail wird versendet...",
                 success: "E-Mail erfolgreich versendet",
-                error: (err) => {
-                    setError((err as unknown as Error).message);
-                    return "Fehler beim Anmelden";
+                error: (err: Error) => {
+                    setError(err.message);
+                    return err.message;
                 },
             });
         });

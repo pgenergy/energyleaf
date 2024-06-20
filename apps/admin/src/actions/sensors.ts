@@ -5,8 +5,8 @@ import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import {
     assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
+    resetSensorValues as dbResetSensorValues,
     deleteSensor as deleteSensorDb,
-    deleteUserFromSensor,
     getElectricitySensorIdForUser,
     getEnergyForSensorInRange,
     insertRawSensorValue,
@@ -14,7 +14,7 @@ import {
     updateSensor as updateSensorDb,
 } from "@energyleaf/db/query";
 import type { SensorInsertType, SensorType } from "@energyleaf/db/types";
-import type { AggregationType } from "@energyleaf/lib";
+import { type AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { revalidatePath } from "next/cache";
 import "server-only";
 import type { z } from "zod";
@@ -22,13 +22,27 @@ import type { z } from "zod";
 /**
  * Creates a new sensor.
  */
-export async function createSensor(macAddress: string, sensorType: SensorType, script?: string): Promise<void> {
-    await checkIfAdmin();
-    await createSensorDb({
-        macAddress,
-        sensorType,
-        script: script !== "" ? script : undefined,
-    });
+export async function createSensor(macAddress: string, sensorType: SensorType, script?: string) {
+    try {
+        await checkIfAdmin();
+    } catch (err) {
+        return {
+            success: false,
+            message: "Keine Berechtigung.",
+        };
+    }
+    try {
+        await createSensorDb({
+            macAddress,
+            sensorType,
+            script: script !== "" ? script : undefined,
+        });
+    } catch (err) {
+        return {
+            success: false,
+            message: "Fehler beim Erstellen des Sensors.",
+        };
+    }
     revalidatePath("/sensors");
 }
 
@@ -36,7 +50,14 @@ export async function createSensor(macAddress: string, sensorType: SensorType, s
  * Update an existing sensor.
  */
 export async function updateSensor(sensorId: string, data: Partial<SensorInsertType>) {
-    await checkIfAdmin();
+    try {
+        await checkIfAdmin();
+    } catch (err) {
+        return {
+            success: false,
+            message: "Keine Berechtigung.",
+        };
+    }
     if (data.script === "") {
         data.script = null;
     }
@@ -49,12 +70,20 @@ export async function updateSensor(sensorId: string, data: Partial<SensorInsertT
 }
 
 export async function isSensorRegistered(macAddress: string): Promise<boolean> {
-    await checkIfAdmin();
+    try {
+        await checkIfAdmin();
+    } catch (err) {
+        return false;
+    }
     return sensorExists(macAddress);
 }
 
 export async function getElectricitySensorByUser(id: string) {
-    await checkIfAdmin();
+    try {
+        await checkIfAdmin();
+    } catch (err) {
+        return null;
+    }
     return getElectricitySensorIdForUser(id);
 }
 
@@ -64,44 +93,103 @@ export async function getConsumptionBySensor(
     endDate: Date,
     aggregationType: AggregationType,
 ) {
-    await checkIfAdmin();
+    try {
+        await checkIfAdmin();
+    } catch (err) {
+        return [];
+    }
     return getEnergyForSensorInRange(startDate, endDate, sensorId, aggregationType);
 }
 
 export async function deleteSensor(sensorId: string) {
-    await checkIfAdmin();
-    await deleteSensorDb(sensorId);
-    revalidatePath("/sensors");
-}
-
-export async function assignUserToSensor(data: z.infer<typeof assignUserToSensorSchema>, clientId: string) {
-    await checkIfAdmin();
     try {
-        const newId = await assignSensorToUserDb(clientId, data.userId);
+        await checkIfAdmin();
+    } catch (err) {
+        return {
+            success: false,
+            message: "Keine Berechtigung.",
+        };
+    }
+    try {
+        await deleteSensorDb(sensorId);
         revalidatePath("/sensors");
-        return newId;
-    } catch (e) {
-        throw new Error("Error while assigning user to sensor");
+    } catch (err) {
+        return {
+            success: false,
+            message: "Fehler beim Löschen des Sensors.",
+        };
     }
 }
 
-export async function removeUserFromSensor(clientId: string) {
-    await checkIfAdmin();
+export async function assignUserToSensor(data: z.infer<typeof assignUserToSensorSchema>, clientId: string) {
+    try {
+        await checkIfAdmin();
+    } catch (err) {
+        return {
+            success: false,
+            message: "Keine Berechtigung.",
+        };
+    }
+    try {
+        const newId = await assignSensorToUserDb(clientId, data.userId);
+        revalidatePath("/sensors");
+
+        return {
+            success: true,
+            message: "Der Sensor wurde erfolgreich zum Benutzer zugeordnet.",
+            payload: newId,
+        };
+    } catch (err) {
+        if (err instanceof UserHasSensorOfSameType) {
+            return {
+                success: false,
+                message: "Der Benutzer hat bereits einen Sensor dieses Typs zugewiesen.",
+            };
+        }
+        return {
+            success: false,
+            message: "Fehler beim Zuweisen",
+        };
+    }
+}
+
+export async function resetSensorValues(clientId: string) {
+    try {
+        await checkIfAdmin();
+    } catch (err) {
+        return {
+            success: false,
+            message: "Keine Berechtigung.",
+        };
+    }
 
     try {
-        await deleteUserFromSensor(clientId);
+        await dbResetSensorValues(clientId);
         revalidatePath("/sensors");
     } catch (err) {
-        throw new Error("Error while removing user from sensor");
+        return {
+            success: false,
+            message: "Fehler beim Zurücksetzen der Sensorwerte.",
+        };
     }
 }
 
 export async function insertSensorValue(sensorId: string, value: number) {
-    await checkIfAdmin();
+    try {
+        await checkIfAdmin();
+    } catch (err) {
+        return {
+            success: false,
+            message: "Keine Berechtigung.",
+        };
+    }
 
     try {
         await insertRawSensorValue(sensorId, value);
     } catch (err) {
-        throw new Error("Error while inserting sensor value");
+        return {
+            success: false,
+            message: "Fehler beim Eintragen der Sensorwerte.",
+        };
     }
 }

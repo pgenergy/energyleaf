@@ -1,16 +1,16 @@
 "use client";
 
 import { signOutAction, signOutDemoAction } from "@/actions/auth";
+import { Avatar as BAvatar } from "@boringer-avatars/react";
+import { Avatar } from "@energyleaf/ui/avatar";
 import {
-    Avatar,
-    AvatarFallback,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/dropdown-menu";
 import type { User } from "lucia";
 import { LightbulbIcon, LogOutIcon, User2Icon } from "lucide-react";
 import Link from "next/link";
@@ -56,7 +56,12 @@ export default function NavbarAvatar({ user }: Props) {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer">
-                    <AvatarFallback>{user.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    <BAvatar
+                        size={40}
+                        variant="beam"
+                        name={user.id}
+                        colors={["#FFAD08", "#EDD75A", "#73B06F", "#0C8F8F", "#405059"]}
+                    />
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

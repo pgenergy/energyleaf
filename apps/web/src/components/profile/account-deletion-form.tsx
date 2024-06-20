@@ -3,27 +3,14 @@
 import { signOutAction } from "@/actions/auth";
 import { deleteAccount } from "@/actions/profile";
 import { deleteAccountSchema } from "@/lib/schema/profile";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
-import {
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormMessage,
-    Input,
-    Spinner,
-} from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -44,6 +31,20 @@ export default function AccountDeletionForm({ disabled }: Props) {
         },
     });
 
+    async function deleteAccountCallback(data: z.infer<typeof deleteAccountSchema>) {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await deleteAccount(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof deleteAccountSchema>) {
         startTransition(() => {
             setOpen(false);
@@ -52,18 +53,18 @@ export default function AccountDeletionForm({ disabled }: Props) {
             }
             toast.promise(
                 async () => {
-                    await deleteAccount(data);
+                    await deleteAccountCallback(data);
                     await signOutAction();
                 },
                 {
                     loading: "Lösche...",
                     success: "Ihr Account wurde erfolgreich gelöscht",
-                    error: (err) => {
+                    error: (err: Error) => {
                         if (err instanceof PasswordsDoNotMatchError) {
                             return "Bitte geben Sie das richtige Passwort an";
                         }
 
-                        return "Ihr Account konnte nicht gelöscht werden";
+                        return err.message;
                     },
                 },
             );

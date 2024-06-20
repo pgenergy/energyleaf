@@ -3,7 +3,9 @@ import UserSelector from "@/components/users/user-selector";
 import { useSensorContext } from "@/hooks/sensor-hook";
 import { assignUserToSensorSchema } from "@/lib/schema/sensor";
 import type { SensorSelectType } from "@energyleaf/db/types";
-import { Form, FormField, Spinner } from "@energyleaf/ui";
+import type { DefaultActionReturnPayload } from "@energyleaf/lib";
+import { Form, FormField } from "@energyleaf/ui/form";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { type ControllerRenderProps, useForm } from "react-hook-form";
@@ -31,26 +33,37 @@ export default function SensorUserAssignmentForm({ sensor, selectedUserId, selec
         toast.promise(
             async () => {
                 setIsSaving(true);
-                const newId = await assignUserToSensor(data, sensor.clientId);
-                return newId;
+                let resp: DefaultActionReturnPayload<string> = undefined;
+                try {
+                    resp = await assignUserToSensor(data, sensor.clientId);
+                } catch (e) {
+                    throw new Error("Fehler beim Zuweisen");
+                }
+
+                if (!resp?.success) {
+                    throw new Error(resp.message);
+                }
+
+                return resp.payload;
             },
             {
                 loading: "Zuweisung wird durchgeführt...",
-                success: (newId) => {
+                success: (resp) => {
                     setIsSaving(false);
-                    if (data.userId) {
+                    if (data.userId && resp) {
                         sensorContext.setSensor({
                             ...sensor,
-                            id: newId,
+                            id: resp,
                             userId: data.userId,
                         });
                         sensorContext.setAddValueDialogOpen(true);
                     }
                     return "Der Sensor wurde erfolgreich zum Benutzer zugeordnet.";
                 },
-                error: (_) => {
+                error: (err) => {
                     setIsSaving(false);
-                    return "Fehler beim Zuweisen";
+                    form.reset();
+                    return err.message;
                 },
             },
         );

@@ -3,7 +3,9 @@
 import { resetPassword } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { resetSchema } from "@/lib/schema/auth";
-import { Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import type { DefaultActionReturn } from "@energyleaf/lib";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { redirect, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -25,15 +27,28 @@ export default function ResetForm() {
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
 
+    async function resetPasswordCallback(data: z.infer<typeof resetSchema>, token: string) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await resetPassword(data, token);
+        } catch (err) {
+            throw new Error("Fehler beim Zurücksetzen des Passworts.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function onSubmit(data: z.infer<typeof resetSchema>) {
         setError("");
         startTransition(() => {
-            toast.promise(resetPassword(data, token || ""), {
+            toast.promise(resetPasswordCallback(data, token || ""), {
                 loading: "Passwort wird zurückgesetzt...",
                 success: "Passwort erfolgreich zurückgesetzt",
-                error: (err) => {
-                    setError((err as unknown as Error).message);
-                    return "Fehler beim Anmelden";
+                error: (err: Error) => {
+                    setError(err.message);
+                    return err.message;
                 },
             });
 

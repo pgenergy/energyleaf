@@ -5,13 +5,13 @@ import { updateMailInformation, updateUserDataInformation, updateUserGoals } fro
 import DataFormFields from "@/components/profile/data-form-fields";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
-import {
-    createMailSettingsSchemaFromReportSelectType,
-    createUserDataSchemaFromUserDataSelectType,
-} from "@/lib/schema/conversion/profile";
+import { createMailSettingsSchema, createUserDataSchemaFromUserDataSelectType } from "@/lib/schema/conversion/profile";
 import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
-import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
-import { Button, Form, Wizard, WizardPage, useWizard } from "@energyleaf/ui";
+import type { MailConfig, UserDataSelectType } from "@energyleaf/db/types";
+import type { DefaultActionReturn } from "@energyleaf/lib";
+import { Button } from "@energyleaf/ui/button";
+import { Form } from "@energyleaf/ui/form";
+import { Wizard, WizardPage, useWizard } from "@energyleaf/ui/wizard";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRightIcon } from "lucide-react";
 import React, { useCallback, useMemo } from "react";
@@ -20,25 +20,40 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 interface Props {
-    userData: UserDataType;
+    userData: UserDataSelectType;
+    mailConfig: MailConfig;
     showGoals: boolean;
 }
 
-export default function OnboardingWizard({ userData, showGoals }: Props) {
+export default function OnboardingWizard({ userData, mailConfig, showGoals }: Props) {
+    async function completeOnboardingCallback() {
+        let res: DefaultActionReturn = undefined;
+
+        try {
+            res = await completeOnboarding();
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     function finishHandler() {
-        toast.promise(completeOnboarding(), {
+        toast.promise(completeOnboardingCallback, {
             loading: "Schließe Onboarding ab...",
             success: "Onboarding abgeschlossen",
-            error: "Fehler beim Abschließen des Onboardings",
+            error: (err: Error) => err.message,
         });
     }
 
     return (
         <Wizard finishHandler={finishHandler}>
             <InformationStep />
-            <UserDataStep userData={userData.user_data} />
-            {Boolean(showGoals) && <GoalStep userData={userData.user_data} />}
-            <MailSettingsStep reports={userData.reports} />
+            <UserDataStep userData={userData} />
+            {Boolean(showGoals) && <GoalStep userData={userData} />}
+            <MailSettingsStep mailConfig={mailConfig} />
             <ThankYouStep />
         </Wizard>
     );
@@ -154,7 +169,11 @@ function GoalStep({ userData }: UserDataStepProps) {
         <WizardPage title="Ziel">
             <Form {...form}>
                 <form className="flex flex-col gap-4">
-                    <UserGoalsFormFields form={form} goalIsCalculated={goalCalculated} />
+                    <UserGoalsFormFields
+                        form={form}
+                        goalIsCalculated={goalCalculated}
+                        workingPrice={userData.workingPrice}
+                    />
                 </form>
             </Form>
         </WizardPage>
@@ -162,13 +181,13 @@ function GoalStep({ userData }: UserDataStepProps) {
 }
 
 interface MailSettingsStepProps {
-    reports: ReportSelectType;
+    mailConfig: MailConfig;
 }
 
-function MailSettingsStep({ reports }: MailSettingsStepProps) {
+function MailSettingsStep({ mailConfig }: MailSettingsStepProps) {
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),
-        defaultValues: createMailSettingsSchemaFromReportSelectType(reports),
+        defaultValues: createMailSettingsSchema(mailConfig),
     });
 
     const { handleNextClick, handleStep } = useWizard();

@@ -1,5 +1,5 @@
 import { Container, Head, Html, Preview, Text } from "@react-email/components";
-import { ButtonAlt, CustomButton, Footer, Header, Main } from "../components";
+import { ButtonAltText, CustomButton, Footer, Header, Main } from "../components";
 
 interface Props {
     name: string;
@@ -26,7 +26,7 @@ export default function PasswordResetByAdminTemplate({ name, link }: Props) {
                 <Container className="px-4">
                     <Text>Sollten Sie kein neues Passwort benötigen, kann diese E-Mail ignoriert werden.</Text>
                 </Container>
-                <ButtonAlt href={link} />
+                <ButtonAltText href={link} />
                 <Footer />
             </Main>
         </Html>

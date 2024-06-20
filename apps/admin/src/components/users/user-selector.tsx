@@ -1,24 +1,12 @@
 import { getAllUsersAction } from "@/actions/user";
 import { cn } from "@energyleaf/tailwindcss/utils";
-import {
-    Button,
-    Command,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-    Spinner,
-} from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@energyleaf/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
+import { Spinner } from "@energyleaf/ui/spinner";
+import { useQuery } from "@tanstack/react-query";
 import { CheckIcon } from "lucide-react";
-import { useEffect, useRef, useState, useTransition } from "react";
-
-interface User {
-    id: string;
-    name: string;
-}
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
     selectedUserName?: string | null;
@@ -27,8 +15,10 @@ interface Props {
 }
 
 export default function UserSelector({ selectedUserId, onUserSelected, selectedUserName }: Props) {
-    const [isLoading, startLoadTransition] = useTransition();
-    const [users, setUsers] = useState<User[]>([]);
+    const { data: users, isLoading } = useQuery({
+        queryKey: ["users"],
+        queryFn: () => getAllUsersAction(),
+    });
     const [isOpen, setIsOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -38,25 +28,12 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
         }
     }, [isOpen]);
 
-    function loadUsers(isOpened: boolean) {
-        setIsOpen(isOpened);
-        if (!isOpened) {
-            setUsers([]);
-            return;
-        }
-
-        startLoadTransition(async () => {
-            const allUsers = (await getAllUsersAction()).map((user) => ({
-                id: user.id,
-                name: user.username,
-            }));
-
-            setUsers(allUsers);
-        });
-    }
+    useEffect(() => {
+        console.log(users);
+    }, [users]);
 
     return (
-        <Popover onOpenChange={loadUsers} open={isOpen}>
+        <Popover onOpenChange={setIsOpen} open={isOpen}>
             <PopoverTrigger asChild>
                 <Button aria-expanded={isOpen} role="combobox" size="sm" variant="ghost">
                     {selectedUserName || "Nicht zugeordnet"}
@@ -81,14 +58,16 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
                         </CommandGroup>
                         <CommandGroup heading="Nutzer">
                             {!isLoading ? (
-                                users.map((user) => (
+                                users?.map((user) => (
                                     <CommandItem
                                         key={user.id}
                                         onSelect={() => {
-                                            onUserSelected(user.id);
+                                            if (selectedUserId !== user.id) {
+                                                onUserSelected(user.id);
+                                            }
                                             setIsOpen(false);
                                         }}
-                                        value={user.name}
+                                        value={user.username}
                                     >
                                         <CheckIcon
                                             className={cn(
@@ -96,7 +75,7 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
                                                 selectedUserId === user.id ? "opacity-100" : "opacity-0",
                                             )}
                                         />
-                                        {user.name}
+                                        {user.username}
                                     </CommandItem>
                                 ))
                             ) : (

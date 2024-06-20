@@ -1,8 +1,9 @@
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
 import { getSession } from "@/lib/auth/auth.server";
-import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
-import { AreaChartIcon, CpuIcon, HomeIcon, Users2Icon } from "lucide-react";
+import { Navbar } from "@energyleaf/ui/nav/navbar";
+import { Sidebar } from "@energyleaf/ui/nav/sidebar";
+import { CpuIcon, HomeIcon, Users2Icon } from "lucide-react";
 import { redirect } from "next/navigation";
 
 interface Props {
@@ -17,22 +18,16 @@ const navLinks = [
         icon: <HomeIcon className="mr-2 h-4 w-4" />,
     },
     {
-        slug: "sesnors",
-        title: "Sensoren",
-        path: "/sensors",
-        icon: <CpuIcon className="mr-2 h-4 w-4" />,
-    },
-    {
         slug: "users",
         title: "Nutzer",
         path: "/users",
         icon: <Users2Icon className="mr-2 h-4 w-4" />,
     },
     {
-        slug: "analytics",
-        title: "Analytics",
-        path: "/analytics",
-        icon: <AreaChartIcon className="mr-2 h-4 w-4" />,
+        slug: "sensors",
+        title: "Sensoren",
+        path: "/sensors",
+        icon: <CpuIcon className="mr-2 h-4 w-4" />,
     },
 ];
 

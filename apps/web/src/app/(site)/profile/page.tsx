@@ -2,15 +2,12 @@ import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import ChangePasswordForm from "@/components/profile/change-password-form";
 import UserDataForm from "@/components/profile/data-form";
-import MailSettingsForm from "@/components/profile/mail-settings-form";
+import MailConfigCard from "@/components/profile/mail-config-card";
 import UserGoalsForm from "@/components/profile/user-goals-form";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
-import {
-    createMailSettingsSchemaFromUserDataType,
-    createUserDataSchemaFromUserDataType,
-} from "@/lib/schema/conversion/profile";
-import { getUserData } from "@/query/user";
+import { createMailSettingsSchema, createUserDataSchemaFromUserDataSelectType } from "@/lib/schema/conversion/profile";
+import { getUserData, getUserMailConfig } from "@/query/user";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { redirect } from "next/navigation";
 
@@ -28,17 +25,26 @@ export default async function ProfilePage() {
     const isDemo = await isDemoUser();
 
     const userData = await getUserData(user.id);
-    const data = createUserDataSchemaFromUserDataType(userData);
+    const data = createUserDataSchemaFromUserDataSelectType(userData);
 
-    const reportConfig = createMailSettingsSchemaFromUserDataType(userData);
+    const mailConfig = await getUserMailConfig(user.id);
+    const mailConfigInitial = createMailSettingsSchema(mailConfig);
 
     return (
         <div className="flex flex-col gap-4">
-            <BaseInformationForm disabled={isDemo} email={user.email} username={user.username} />
+            <BaseInformationForm
+                disabled={isDemo}
+                firstname={user.firstname}
+                lastname={user.lastname}
+                email={user.email}
+                username={user.username}
+                phone={user.phone ?? undefined}
+                address={user.address}
+            />
             <ChangePasswordForm disabled={isDemo} />
-            <MailSettingsForm disabled={isDemo} initialValues={reportConfig} />
+            <MailConfigCard disabled={isDemo} initialData={mailConfigInitial} />
             <UserDataForm initialData={data} />
-            {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData?.user_data} />}
+            {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData ?? undefined} />}
             <AccountDeletionForm disabled={isDemo} />
         </div>
     );

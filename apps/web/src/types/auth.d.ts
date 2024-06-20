@@ -10,9 +10,14 @@ declare module "lucia" {
 interface DatabaseUserAttributes {
     id: string;
     username: string;
+    firstname: string;
+    lastname: string;
     email: string;
+    phone: string | null;
+    address: string;
     created: string | null;
     isAdmin: boolean;
     isActive: boolean;
     appVersion: number;
+    onboardingCompleted: boolean;
 }

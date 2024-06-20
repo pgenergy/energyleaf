@@ -15,11 +15,16 @@ export const lucia = new Lucia(adapter, {
         return {
             id: attributes.id,
             username: attributes.username,
+            firstname: attributes.firstname,
+            lastname: attributes.lastname,
             email: attributes.email,
+            phone: attributes.phone,
+            address: attributes.address,
             created: attributes.created,
             isAdmin: attributes.isAdmin,
             isActive: attributes.isActive,
             appVersion: attributes.appVersion,
+            onboardingCompleted: attributes.onboardingCompleted,
         };
     },
 });
