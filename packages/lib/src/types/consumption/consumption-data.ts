@@ -3,4 +3,5 @@ export interface ConsumptionData {
     energy: number;
     timestamp: string;
     sensorDataId: string;
+    isPeak?: boolean;
 }
