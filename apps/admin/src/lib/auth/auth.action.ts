@@ -28,9 +28,10 @@ export const getActionSession = async () => {
         }
         return result;
     } catch {
-        cookies().delete(lucia.sessionCookieName);
-        redirect("/");
+        // ignore
     }
+    cookies().delete(lucia.sessionCookieName);
+    redirect("/");
 };
 
 export const checkIfAdmin = async () => {
