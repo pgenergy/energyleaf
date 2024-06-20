@@ -4,14 +4,12 @@ import { and, between, desc, eq, gt, gte, lt, lte, ne, or, sql } from "drizzle-o
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
-import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
-
-interface EnergyData {
-    sensorId: string;
-    value: number;
-    timestamp: string;
-    id: string;
-}
+import {
+    type SensorDataSelectType,
+    type SensorInsertType,
+    type SensorSelectTypeWithUser,
+    SensorType,
+} from "../types/types";
 
 export async function insertRawEnergyValues(
     data: {
@@ -29,7 +27,7 @@ export async function getEnergyForSensorInRange(
     end: Date,
     sensorId: string,
     aggregation = AggregationType.RAW,
-): Promise<EnergyData[]> {
+): Promise<SensorDataSelectType[]> {
     if (aggregation === AggregationType.RAW) {
         const query = await db
             .select()
@@ -50,7 +48,17 @@ export async function getEnergyForSensorInRange(
             ...row,
             id: row.id,
             value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-            timestamp: (row.timestamp as Date).toISOString(),
+            valueOut: row.valueOut
+                ? index === 0
+                    ? 0
+                    : Number(row.valueOut) - Number(query[index - 1].valueOut)
+                : null,
+            valueCurrent: row.valueCurrent
+                ? index === 0
+                    ? 0
+                    : Number(row.valueCurrent) - Number(query[index - 1].valueCurrent)
+                : null,
+            timestamp: row.timestamp,
         }));
     }
 
@@ -75,12 +83,14 @@ export async function getEnergyForSensorInRange(
             throw new Error(`Unsupported aggregation type: ${aggregation}`);
     }
 
-    const formattedTimestamp = sql`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
+    const formattedTimestamp = sql<string>`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
 
     const query = await db
         .select({
             sensorId: sensorData.sensorId,
-            value: sql`AVG(${sensorData.value})`,
+            value: sql<number>`AVG(${sensorData.value})`,
+            valueOut: sql<number | null>`AVG(${sensorData.valueOut})`,
+            valueCurrent: sql<number | null>`AVG(${sensorData.valueCurrent})`,
             timestamp: formattedTimestamp,
         })
         .from(sensorData)
@@ -92,10 +102,16 @@ export async function getEnergyForSensorInRange(
         ...row,
         id: index.toString(),
         value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-        timestamp: String(row.timestamp),
+        valueOut: row.valueOut ? (index === 0 ? 0 : Number(row.valueOut) - Number(query[index - 1].valueOut)) : null,
+        valueCurrent: row.valueCurrent
+            ? index === 0
+                ? 0
+                : Number(row.valueCurrent) - Number(query[index - 1].valueCurrent)
+            : null,
+        timestamp: new Date(row.timestamp),
     }));
 
-    return results.slice(1) as EnergyData[];
+    return results.slice(1);
 }
 
 export async function getEnergyLastEntry(sensorId: string) {
@@ -373,7 +389,7 @@ export async function insertSensorData(data: SensorDataInput) {
         // in an hour this would be 24 kwh
         // this is a very high value and should never be reached
         // but is hopefully a good protection against faulty sensors
-        const timeDiff = new Date(new Date().toUTCString()).getTime() - lastEntry.timestamp.getTime() / 1000 / 60;
+        const timeDiff = new Date().getTime() - lastEntry.timestamp.getTime() / 1000 / 60;
         if (newValue - lastEntry.value > timeDiff * 0.4) {
             throw new Error("value/too-high");
         }
@@ -582,7 +598,7 @@ export async function getSensorIdFromSensorToken(code: string) {
         }
 
         // check if token is older than 1 hour
-        const now = new Date(new Date().toUTCString());
+        const now = new Date();
         if (now.getTime() - tokenDate.getTime() > 3600000) {
             await trx.delete(sensorToken).where(eq(sensorToken.sensorId, token.sensorId));
             return {
@@ -732,16 +748,12 @@ export async function calculateAnomaly(id: string, start: Date, end: Date) {
         })
         .from(sensorData)
         .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
-        .groupBy(sensorData.sensorId)
+        .where(and(eq(sensor.userId, id), gt(sensorData.timestamp, start), lt(sensorData.timestamp, end)))
         .having(
-            and(
-                eq(sensor.userId, id),
-                gt(sensorData.timestamp, start),
-                lt(sensorData.timestamp, end),
-                gt(
-                    sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value}))`,
-                    sql<number>`2 * STD(${sensorData.value})`,
-                ),
+            gt(
+                sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value}))`,
+                sql<number>`2 * STD(${sensorData.value})`,
             ),
-        );
+        )
+        .groupBy(sensorData.sensorId);
 }

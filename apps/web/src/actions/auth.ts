@@ -1,8 +1,9 @@
 "use server";
+
 import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
-import { getUserDataCookieStore, isDemoUser } from "@/lib/demo/demo";
+import { getUserDataCookieStoreDefaults, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
 import { genId } from "@energyleaf/db";
 import {
@@ -12,8 +13,8 @@ import {
     getUserByMail,
     logError,
     trackAction,
+    updateMailSettings as updateMailSettingsDb,
     updatePassword,
-    updateReportConfig,
 } from "@energyleaf/db/query";
 import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
@@ -30,7 +31,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
-import type { reportSettingsSchema } from "@/lib/schema/profile";
+import type { mailSettingsSchema } from "@/lib/schema/profile";
 import type { userData } from "@energyleaf/db/schema";
 import { waitUntil } from "@vercel/functions";
 import type { z } from "zod";
@@ -50,17 +51,37 @@ export async function createAccount(data: FormData) {
     const password = data.get("password") as string;
     const passwordRepeat = data.get("passwordRepeat") as string;
     const username = data.get("username") as string;
-    const file = data.get("file") as File | undefined;
+    const file = data.get("file") as File;
     const tos = (data.get("tos") as string) === "true";
+    const pin = (data.get("pin") as string) === "true";
     const electricityMeterType = data.get(
         "electricityMeterType",
     ) as (typeof userData.electricityMeterType.enumValues)[number];
+    const electricityMeterNumber = data.get("electricityMeterNumber") as string;
+    const participation = (data.get("participation") as string) === "true";
+    const prolific = (data.get("prolific") as string) === "true";
 
     if (!tos) {
         waitUntil(trackAction("privacy-policy/not-accepted", "create-account", "web", { mail }));
         return {
             success: false,
             message: "Sie müssen den Datenschutzbestimmungen zustimmen.",
+        };
+    }
+
+    if (file && !file.type.startsWith("image/")) {
+        waitUntil(trackAction("image-upload/wrong-format", "create-account", "web", { mail, fileType: file.type }));
+        return {
+            success: false,
+            message: "Bitte laden Sie ein Bild hoch.",
+        };
+    }
+
+    if (!pin) {
+        waitUntil(trackAction("smart-meter-pin/not-accepted", "create-account", "web", { mail }));
+        return {
+            success: false,
+            message: "Sie müssen der PIN-Beantragung zustimmen...",
         };
     }
 
@@ -114,12 +135,25 @@ export async function createAccount(data: FormData) {
     const hash = await new Argon2id().hash(password);
 
     let url: string | undefined = undefined;
-    if (file && env.BLOB_READ_WRITE_TOKEN) {
+    if (env.BLOB_READ_WRITE_TOKEN) {
         try {
+            const imageMimeToExtensionMap = {
+                "image/jpeg": "jpg",
+                "image/png": "png",
+                "image/gif": "gif",
+                "image/bmp": "bmp",
+                "image/webp": "webp",
+                "image/tiff": "tiff",
+                "image/svg+xml": "svg",
+                "image/heic": "heic",
+                "image/heif": "heif",
+            };
             const id = genId(25);
-            const type = file.name.split(".").pop();
-            const res = await put(`electricitiy_meter/${id}.${type}`, file, {
+            const type = file.type;
+            const ext = imageMimeToExtensionMap[type] || type.split("/")[1];
+            const res = await put(`electricitiy_meter/${id}.${ext}`, file, {
                 access: "public",
+                contentType: type,
             });
             url = res.url;
         } catch (err) {
@@ -141,25 +175,38 @@ export async function createAccount(data: FormData) {
             username,
             electricityMeterType,
             meterImgUrl: url,
+            electricityMeterNumber,
+            participation,
+            prolific,
         } satisfies CreateUserType);
         waitUntil(trackAction("user-account/created", "create-account", "web", { mail }));
-        await sendAccountCreatedEmail({
-            to: mail,
-            name: `${firstname} ${lastname}`,
-            apiKey: env.RESEND_API_KEY,
-            from: env.RESEND_API_MAIL,
-        });
-        waitUntil(trackAction("account-created-mail/sent", "create-account", "web", { mail }));
-        await sendAdminNewAccountCreatedEmail({
-            email: mail,
-            name: username,
-            meter: userDataElectricityMeterTypeEnums[electricityMeterType],
-            img: url,
-            to: env.ADMIN_MAIL,
-            from: env.RESEND_API_MAIL,
-            apiKey: env.RESEND_API_KEY,
-        });
-        waitUntil(trackAction("admin-new-account-created-mail/sent", "create-account", "web", { mail, username }));
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendAccountCreatedEmail({
+                to: mail,
+                name: `${firstname} ${lastname}`,
+                apiKey: env.RESEND_API_KEY,
+                from: env.RESEND_API_MAIL,
+            });
+            waitUntil(trackAction("account-created-mail/sent", "create-account", "web", { mail }));
+            if (env.ADMIN_MAIL) {
+                await sendAdminNewAccountCreatedEmail({
+                    email: mail,
+                    name: username,
+                    meter: userDataElectricityMeterTypeEnums[electricityMeterType],
+                    meterNumber: electricityMeterNumber,
+                    hasWifi,
+                    hasPower,
+                    participates: participation,
+                    prolific,
+                    to: env.ADMIN_MAIL,
+                    from: env.RESEND_API_MAIL,
+                    apiKey: env.RESEND_API_KEY,
+                });
+                waitUntil(
+                    trackAction("admin-new-account-created-mail/sent", "create-account", "web", { mail, username }),
+                );
+            }
+        }
     } catch (err) {
         waitUntil(logError("error-creating-user", "create-account", "web", { mail }, err));
         return {
@@ -190,18 +237,22 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         };
     }
 
-    const token = await getResetPasswordToken({ userId: user.id, secret: env.NEXTAUTH_SECRET });
+    const token = await getResetPasswordToken({ userId: user.id, secret: env.HASH_SECRET });
     const resetUrl = buildResetPasswordUrl({ baseUrl: getUrl(env), token });
 
     try {
-        await sendPasswordResetEmail({
-            from: env.RESEND_API_MAIL,
-            to: mail,
-            name: user.username,
-            link: resetUrl,
-            apiKey: env.RESEND_API_KEY,
-        });
-        waitUntil(trackAction("reset-mail/sent", "forgot-password", "web", { mail, userId: user.id, token, resetUrl }));
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendPasswordResetEmail({
+                from: env.RESEND_API_MAIL,
+                to: mail,
+                name: user.username,
+                link: resetUrl,
+                apiKey: env.RESEND_API_KEY,
+            });
+            waitUntil(
+                trackAction("reset-mail/sent", "forgot-password", "web", { mail, userId: user.id, token, resetUrl }),
+            );
+        }
     } catch (err) {
         console.error(err);
         waitUntil(
@@ -251,7 +302,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     try {
-        await jose.jwtVerify(resetToken, Buffer.from(env.NEXTAUTH_SECRET, "hex"), {
+        await jose.jwtVerify(resetToken, Buffer.from(env.HASH_SECRET, "hex"), {
             audience: "energyleaf",
             issuer: "energyleaf",
             algorithms: ["HS256"],
@@ -277,13 +328,15 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     try {
-        await sendPasswordChangedEmail({
-            from: env.RESEND_API_MAIL,
-            to: user.email,
-            name: user.username,
-            apiKey: env.RESEND_API_KEY,
-        });
-        waitUntil(trackAction("password-changed-mail/sent", "reset-password", "web", { resetToken, userId: sub }));
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendPasswordChangedEmail({
+                from: env.RESEND_API_MAIL,
+                to: user.email,
+                name: user.username,
+                apiKey: env.RESEND_API_KEY,
+            });
+            waitUntil(trackAction("password-changed-mail/sent", "reset-password", "web", { resetToken, userId: sub }));
+        }
     } catch (err) {
         waitUntil(
             logError("password-changed-mail/error-sending", "reset-password", "web", { resetToken, userId: sub }, err),
@@ -386,7 +439,7 @@ export async function signInDemoAction() {
     const cookieStore = cookies();
 
     cookieStore.set("demo_mode", "true");
-    cookieStore.set("demo_data", JSON.stringify(getUserDataCookieStore()));
+    cookieStore.set("demo_data", JSON.stringify(getUserDataCookieStoreDefaults()));
     waitUntil(trackAction("demo-user-signed-in", "sign-in-demo", "web", {}));
     redirect("/dashboard");
 }
@@ -420,7 +473,7 @@ export async function signOutDemoAction() {
     redirect("/");
 }
 
-export async function updateReportConfigSettings(data: z.infer<typeof reportSettingsSchema>, userId: string | null) {
+export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema>, userId: string | null) {
     let id = userId;
     const { user, session } = await getActionSession();
     if (!id) {
@@ -446,11 +499,16 @@ export async function updateReportConfigSettings(data: z.infer<typeof reportSett
 
     try {
         waitUntil(trackAction("report-config-updated", "update-report-config", "web", { data, session }));
-        await updateReportConfig(
+        await updateMailSettingsDb(
             {
-                receiveMails: data.receiveMails,
-                interval: data.interval,
-                time: data.time,
+                reportConfig: {
+                    receiveMails: data.receiveReportMails,
+                    interval: data.interval,
+                    time: data.time,
+                },
+                anomalyConfig: {
+                    receiveMails: data.receiveAnomalyMails,
+                },
             },
             id,
         );

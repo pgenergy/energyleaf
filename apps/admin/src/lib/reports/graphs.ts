@@ -1,5 +1,5 @@
 import { type DailyConsumption, type DailyGoalProgress, formatDate, formatNumber } from "@energyleaf/lib";
-import { renderChart } from "@energyleaf/ui/tools";
+import { renderChart } from "@energyleaf/lib/utils/chart-to-png";
 import type { ChartConfiguration, ChartOptions } from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 

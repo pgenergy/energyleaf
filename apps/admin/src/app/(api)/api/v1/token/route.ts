@@ -4,6 +4,8 @@ import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 const { TokenRequest, TokenResponse } = energyleaf;
 
+const { TokenRequest, TokenResponse } = energyleaf;
+
 export const POST = async (req: NextRequest) => {
     const body = req.body;
 

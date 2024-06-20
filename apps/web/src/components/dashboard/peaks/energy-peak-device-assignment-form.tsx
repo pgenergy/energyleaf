@@ -1,19 +1,9 @@
-"use client";
-
 import { getDevicesByPeak, getDevicesByUser, updateDevicesForPeak } from "@/actions/peak";
-import { type deviceSchema, peakSchema } from "@/lib/schema/peak";
+import { peakSchema } from "@/lib/schema/peak";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import {
-    Button,
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-    MultiSelect,
-    type Option,
-} from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
+import { MultiSelect } from "@energyleaf/ui/multi-select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -27,23 +17,15 @@ interface Props {
     onInteract: () => void;
 }
 
-const deviceSchemaToOption = (devices: z.infer<typeof deviceSchema>[]): Option[] =>
-    devices.map((device) => ({
-        value: device.id.toString(),
-        label: device.name,
-    }));
-
-const optionToDeviceSchema = (option: Option): z.infer<typeof deviceSchema> => ({
-    id: Number(option.value),
-    name: option.label,
-});
-
 export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInteract }: Props) {
     const queryClient = useQueryClient();
-    const queryKey = ["selectedDevices"];
-    const { data, isLoading } = useQuery({
-        queryKey: queryKey,
+    const { data: selectedDevices, isLoading: selectedDevicesLoading } = useQuery({
+        queryKey: ["selectedDevices"],
         queryFn: () => getDevicesByPeak(sensorDataId),
+    });
+    const { data: devices, isLoading: devicesLoading } = useQuery({
+        queryKey: ["devices"],
+        queryFn: () => getDevicesByUser(userId),
     });
 
     const form = useForm<z.infer<typeof peakSchema>>({
@@ -54,17 +36,17 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
     });
 
     useEffect(() => {
-        if (data) {
-            form.setValue("device", data);
+        if (selectedDevices) {
+            form.setValue("device", selectedDevices);
         }
-    }, [data, form]);
+    }, [selectedDevices, form]);
 
     async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>) {
         let res: DefaultActionReturn = undefined;
 
         try {
             res = await updateDevicesForPeak(data, sensorDataId);
-            await queryClient.invalidateQueries({ queryKey: queryKey });
+            await queryClient.invalidateQueries({ queryKey: ["selectedDevices"] });
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
@@ -88,14 +70,6 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
         onInteract();
     }
 
-    async function loadOptions(search: string) {
-        const devices = await getDevicesByUser(userId, search);
-        return devices.map((device) => ({
-            label: device.name,
-            value: device.id.toString(),
-        }));
-    }
-
     return (
         <Form {...form}>
             <form className="flex flex-col gap-4" onAbortCapture={onAbort} onSubmit={form.handleSubmit(onSubmit)}>
@@ -108,12 +82,20 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
                                 <FormLabel>Gerät</FormLabel>
                                 <FormControl>
                                     <MultiSelect
-                                        loadOptions={loadOptions}
-                                        onSelected={(values) => {
-                                            field.onChange(values.map(optionToDeviceSchema));
-                                        }}
-                                        values={deviceSchemaToOption(field.value)}
-                                        isLoading={isLoading}
+                                        options={devices?.map((device) => ({
+                                            id: device.id,
+                                            name: device.name,
+                                            label: device.name,
+                                            value: device.id.toString(),
+                                        }))}
+                                        loading={devicesLoading || selectedDevicesLoading}
+                                        initialSelected={selectedDevices?.map((device) => ({
+                                            ...device,
+                                            label: device.name,
+                                            value: device.id.toString(),
+                                        }))}
+                                        onSelectedChange={field.onChange}
+                                        placeholder="Geräte auswählen..."
                                     />
                                 </FormControl>
                                 <FormMessage />

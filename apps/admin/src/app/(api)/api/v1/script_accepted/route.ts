@@ -5,6 +5,8 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 const { ScriptAcceptedRequest, ScriptAcceptedResponse } = energyleaf;
 
+const { ScriptAcceptedRequest, ScriptAcceptedResponse } = energyleaf;
+
 export const POST = async (req: NextRequest) => {
     const body = req.body;
     if (!body) {

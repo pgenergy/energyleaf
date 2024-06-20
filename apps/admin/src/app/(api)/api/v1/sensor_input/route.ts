@@ -4,6 +4,8 @@ import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 const { SensorDataRequest, SensorDataResponse, SensorType } = energyleaf;
 
+const { SensorDataRequest, SensorDataResponse, SensorType } = energyleaf;
+
 export const POST = async (req: NextRequest) => {
     const body = req.body;
     if (!body) {

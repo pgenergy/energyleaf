@@ -2,6 +2,7 @@
 
 import { resetSensorValues } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -11,13 +12,26 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/alert-dialog";
 import { type MouseEvent, useTransition } from "react";
 import { toast } from "sonner";
 
 export default function SensorResetAlert() {
     const sensorContext = useSensorContext();
     const [pending, startTransition] = useTransition();
+
+    async function resetSensorValuesCallback(clientId: string) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await resetSensorValues(clientId);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
 
     function onReset(e: MouseEvent<HTMLButtonElement>) {
         e.preventDefault();
@@ -27,14 +41,14 @@ export default function SensorResetAlert() {
         }
 
         startTransition(() => {
-            toast.promise(resetSensorValues(sensor.clientId), {
+            toast.promise(resetSensorValuesCallback(sensor.clientId), {
                 loading: "Sensor wird zurückgesetzt...",
                 success: () => {
                     sensorContext.setSensorResetDialogOpen(false);
                     sensorContext.setSensor(undefined);
                     return "Sensor wurde zurückgesetzt";
                 },
-                error: "Fehler beim Zurücksetzen des Sensors",
+                error: (err: Error) => err.message,
             });
         });
     }

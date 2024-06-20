@@ -31,6 +31,6 @@ export function buildResetPasswordUrl({ baseUrl, token }: ResetPasswordEmailPara
     return `https://${baseUrl}/reset?token=${token}`;
 }
 
-export function buildUnsubscribeReportsUrl({ baseUrl, token }: EmailAuthParams) {
+export function buildUnsubscribeUrl({ baseUrl, token }: EmailAuthParams) {
     return `https://${baseUrl}/unsubscribe?token=${token}`;
 }

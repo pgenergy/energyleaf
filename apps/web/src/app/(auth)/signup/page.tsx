@@ -1,5 +1,5 @@
 import SignUpForm from "@/components/auth/signup-form";
-import { CardContent } from "@energyleaf/ui";
+import { CardContent } from "@energyleaf/ui/card";
 
 export const metadata = {
     title: "Konto erstellen | Energyleaf",

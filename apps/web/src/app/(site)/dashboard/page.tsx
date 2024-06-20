@@ -13,8 +13,8 @@ import GoalsCard from "@/components/dashboard/goals/goals-card";
 import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { Skeleton } from "@energyleaf/ui";
 import { ErrorBoundary } from "@energyleaf/ui/error";
+import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -34,15 +34,15 @@ export default async function DashboardPage({
     const startDateString = searchParams.start;
     const endDateString = searchParams.end;
     const aggregationType = searchParams.aggregation;
-    const startDate = startDateString ? new Date(new Date(startDateString).toUTCString()) : new Date();
-    const endDate = endDateString ? new Date(new Date(endDateString).toUTCString()) : new Date();
+    const startDate = startDateString ? new Date(startDateString) : new Date();
+    const endDate = endDateString ? new Date(endDateString) : new Date();
 
     if (!startDateString) {
-        startDate.setUTCHours(0, 0, 0, 0);
+        startDate.setHours(0, 0, 0, 0);
     }
 
     if (!endDateString) {
-        endDate.setUTCHours(23, 59, 59, 999);
+        endDate.setHours(23, 59, 59, 999);
     }
 
     return (
