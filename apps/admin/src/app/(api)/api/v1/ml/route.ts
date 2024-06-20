@@ -1,8 +1,8 @@
-import { energyleaf_ml, parseReadableStream } from "@energyleaf/proto";
-import { type NextRequest, NextResponse } from "next/server";
 import { env } from "@/env.mjs";
 import { log } from "@energyleaf/db/query";
+import { energyleaf_ml, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
+import { type NextRequest, NextResponse } from "next/server";
 
 const { DeviceClassificationRequest, DeviceClassificationResponse } = energyleaf_ml;
 
