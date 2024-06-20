@@ -43,7 +43,7 @@ export const POST = async (req: NextRequest) => {
                     from: env.RESEND_API_MAIL,
                     apiKey: env.RESEND_API_KEY,
                     unsubscribeLink: unsubscribeLink,
-                    link: getUrl(env),
+                    link: link,
                 });
                 waitUntil(
                     trackAction("mail-sent", "anomaly-check", "api", {

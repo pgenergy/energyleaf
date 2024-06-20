@@ -34,9 +34,9 @@ export default async function Page({ searchParams }: UnsubscribeFormProps) {
             <CardHeader>
                 <CardTitle>E-Mail Einstellungen aktualisieren</CardTitle>
                 <CardDescription>
-                    Hier können Sie einstellen, ob und in welchem Intervall die für Sie erstellen Berichte über Ihren
-                    Verbrauch erstellt werden sollen. Sie können sich hierbei von den E-Mail Benachrichtigungen
-                    abmelden.
+                    Hier können Sie ihre E-Mail Einstellungen aktualisieren. Dabei können Sie die Einstellungen für die
+                    einzelnen E-Mail Arten konfigurieren. Bei den zyklischen Berichten können Sie auch Sendezeitpunkt
+                    sowie Intervall festlegen
                 </CardDescription>
             </CardHeader>
             <CardContent>

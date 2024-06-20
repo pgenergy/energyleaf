@@ -72,9 +72,11 @@ export default function MailSettingsFormFields({ form, disabled }: Props) {
                 render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between">
                         <div className="flex flex-col gap-2">
-                            <FormLabel>Senden der Anomalien als E-Mails</FormLabel>
+                            <FormLabel>
+                                Senden von Benachrichtigungen über ungewöhnliche Verbräuche als E-Mails
+                            </FormLabel>
                             <FormDescription>
-                                Erhalten Sie E-Mails, wenn Anomalien in Ihrem Verbrauch festgestellt werden.
+                                Erhalten Sie E-Mails, wenn ungewöhnliche Verbräuche festgestellt werden.
                             </FormDescription>
                         </div>
                         <FormControl>
