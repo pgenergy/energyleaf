@@ -1,10 +1,11 @@
+"use client";
+
 import ErrorCard from "@/components/error/error-card";
 import UserConsumptionAggregationOption from "@/components/users/details/consumption/user-consumption-aggregation-option";
 import UserConsumptionCardContent from "@/components/users/details/consumption/user-consumption-card-content";
 import UserConsumptionDateRange from "@/components/users/details/consumption/user-consumption-date-range";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import React from "react";
-import type { FallbackProps } from "react-error-boundary";
 import ConsumptionChartZoomReset from "./consumption-chart-zoom-reset";
 
 interface Props {
@@ -34,6 +35,6 @@ export default function UserConsumptionCard({ userId }: Props) {
     );
 }
 
-export function UserConsumptionCardError({ resetErrorBoundary }: FallbackProps) {
-    return <ErrorCard resetErrorBoundary={resetErrorBoundary} title={cardTitle} />;
+export function UserConsumptionCardError() {
+    return <ErrorCard title={cardTitle} />;
 }
