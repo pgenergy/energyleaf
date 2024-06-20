@@ -1,7 +1,5 @@
-"use client";
-
 import { RotateCwIcon } from "lucide-react";
-import { Button } from "../ui";
+import { Button } from "../ui/button";
 
 interface Props {
     resetErrorBoundary: () => void;

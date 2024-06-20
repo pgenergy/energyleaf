@@ -1,7 +1,7 @@
 "use client";
 
 import type { AggregationType, ConsumptionData } from "@energyleaf/lib";
-import { EnergyConsumptionChart } from "@energyleaf/ui/components/charts";
+import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy-consumption-chart";
 import { formatISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";

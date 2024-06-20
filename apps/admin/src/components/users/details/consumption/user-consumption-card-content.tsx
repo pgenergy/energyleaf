@@ -3,7 +3,7 @@
 import { getConsumptionBySensor, getElectricitySensorByUser } from "@/actions/sensors";
 import { useUserContext } from "@/hooks/user-hook";
 import { AggregationType } from "@energyleaf/lib";
-import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/components/charts";
+import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/charts/energy-consumption-chart";
 import { useEffect, useState } from "react";
 
 interface Props {

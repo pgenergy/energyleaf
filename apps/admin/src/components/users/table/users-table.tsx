@@ -1,6 +1,6 @@
 import { usersTableColumns } from "@/components/users/table/users-table-columns";
 import { getAllUsers } from "@/query/user";
-import { Button, DataTable } from "@energyleaf/ui";
+import { DataTable } from "@energyleaf/ui/data-table";
 import UserCsvExportButton from "./user-csv-export-button";
 
 export default async function UsersTable() {

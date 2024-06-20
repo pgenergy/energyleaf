@@ -1,8 +1,6 @@
 import UnsubscribeForm from "@/components/auth/unsubscribe-form";
-import { reportSettingsSchema } from "@/lib/schema/profile";
 import { getUserData, getUserIdByToken } from "@/query/user";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
-import { useSearchParams } from "next/navigation";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export const metadata = {
     title: "Report Einstellungen bearbeiten | Energyleaf",

@@ -1,4 +1,5 @@
 "use server";
+
 import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
@@ -179,27 +180,33 @@ export async function createAccount(data: FormData) {
             prolific,
         } satisfies CreateUserType);
         waitUntil(trackAction("user-account/created", "create-account", "web", { mail }));
-        await sendAccountCreatedEmail({
-            to: mail,
-            name: `${firstname} ${lastname}`,
-            apiKey: env.RESEND_API_KEY,
-            from: env.RESEND_API_MAIL,
-        });
-        waitUntil(trackAction("account-created-mail/sent", "create-account", "web", { mail }));
-        await sendAdminNewAccountCreatedEmail({
-            email: mail,
-            name: username,
-            meter: userDataElectricityMeterTypeEnums[electricityMeterType],
-            meterNumber: electricityMeterNumber,
-            hasWifi,
-            hasPower,
-            participates: participation,
-            prolific,
-            to: env.ADMIN_MAIL,
-            from: env.RESEND_API_MAIL,
-            apiKey: env.RESEND_API_KEY,
-        });
-        waitUntil(trackAction("admin-new-account-created-mail/sent", "create-account", "web", { mail, username }));
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendAccountCreatedEmail({
+                to: mail,
+                name: `${firstname} ${lastname}`,
+                apiKey: env.RESEND_API_KEY,
+                from: env.RESEND_API_MAIL,
+            });
+            waitUntil(trackAction("account-created-mail/sent", "create-account", "web", { mail }));
+            if (env.ADMIN_MAIL) {
+                await sendAdminNewAccountCreatedEmail({
+                    email: mail,
+                    name: username,
+                    meter: userDataElectricityMeterTypeEnums[electricityMeterType],
+                    meterNumber: electricityMeterNumber,
+                    hasWifi,
+                    hasPower,
+                    participates: participation,
+                    prolific,
+                    to: env.ADMIN_MAIL,
+                    from: env.RESEND_API_MAIL,
+                    apiKey: env.RESEND_API_KEY,
+                });
+                waitUntil(
+                    trackAction("admin-new-account-created-mail/sent", "create-account", "web", { mail, username }),
+                );
+            }
+        }
     } catch (err) {
         waitUntil(logError("error-creating-user", "create-account", "web", { mail }, err));
         return {
@@ -230,18 +237,22 @@ export async function forgotPassword(data: z.infer<typeof forgotSchema>) {
         };
     }
 
-    const token = await getResetPasswordToken({ userId: user.id, secret: env.NEXTAUTH_SECRET });
+    const token = await getResetPasswordToken({ userId: user.id, secret: env.HASH_SECRET });
     const resetUrl = buildResetPasswordUrl({ baseUrl: getUrl(env), token });
 
     try {
-        await sendPasswordResetEmail({
-            from: env.RESEND_API_MAIL,
-            to: mail,
-            name: user.username,
-            link: resetUrl,
-            apiKey: env.RESEND_API_KEY,
-        });
-        waitUntil(trackAction("reset-mail/sent", "forgot-password", "web", { mail, userId: user.id, token, resetUrl }));
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendPasswordResetEmail({
+                from: env.RESEND_API_MAIL,
+                to: mail,
+                name: user.username,
+                link: resetUrl,
+                apiKey: env.RESEND_API_KEY,
+            });
+            waitUntil(
+                trackAction("reset-mail/sent", "forgot-password", "web", { mail, userId: user.id, token, resetUrl }),
+            );
+        }
     } catch (err) {
         console.error(err);
         waitUntil(
@@ -291,7 +302,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     try {
-        await jose.jwtVerify(resetToken, Buffer.from(env.NEXTAUTH_SECRET, "hex"), {
+        await jose.jwtVerify(resetToken, Buffer.from(env.HASH_SECRET, "hex"), {
             audience: "energyleaf",
             issuer: "energyleaf",
             algorithms: ["HS256"],
@@ -317,13 +328,15 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     try {
-        await sendPasswordChangedEmail({
-            from: env.RESEND_API_MAIL,
-            to: user.email,
-            name: user.username,
-            apiKey: env.RESEND_API_KEY,
-        });
-        waitUntil(trackAction("password-changed-mail/sent", "reset-password", "web", { resetToken, userId: sub }));
+        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+            await sendPasswordChangedEmail({
+                from: env.RESEND_API_MAIL,
+                to: user.email,
+                name: user.username,
+                apiKey: env.RESEND_API_KEY,
+            });
+            waitUntil(trackAction("password-changed-mail/sent", "reset-password", "web", { resetToken, userId: sub }));
+        }
     } catch (err) {
         waitUntil(
             logError("password-changed-mail/error-sending", "reset-password", "web", { resetToken, userId: sub }, err),

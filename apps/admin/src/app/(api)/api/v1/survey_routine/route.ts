@@ -10,6 +10,9 @@ const sendMails = async (
     surveyId: string,
     surveyNumber: number,
 ) => {
+    if (!env.RESEND_API_KEY || !env.RESEND_API_MAIL) {
+        return;
+    }
     const firstSurveyUsers = await getUsersWhoRecieveSurveyMail(date);
     for (const firstSurveyUser of firstSurveyUsers) {
         const { user } = firstSurveyUser;
@@ -71,6 +74,10 @@ export const POST = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
     if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== cronSecret) {
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
+    }
+
+    if (!env.RESEND_API_MAIL || !env.RESEND_API_KEY) {
+        return NextResponse.json({ status: 200, statusMessage: "Mail not configured" });
     }
 
     const checkDate = new Date();

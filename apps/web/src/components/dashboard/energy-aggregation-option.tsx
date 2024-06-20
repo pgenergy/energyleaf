@@ -1,9 +1,9 @@
 "use client";
 
+import { calculateAggregationOptions } from "@energyleaf/lib/utils/use-aggregation-options";
+import { AggregationOption } from "@energyleaf/ui/utils/aggregation-option";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useMemo } from "react";
-
-import { AggregationOption, calculateAggregationOptions } from "@energyleaf/ui/components/utils";
 
 export default function EnergyAggregation({ selected }) {
     const router = useRouter();

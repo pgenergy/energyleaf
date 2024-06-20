@@ -28,22 +28,24 @@ export const POST = async (req: NextRequest) => {
 
             const link = getUrl(env);
             const unsubscribeLink = "";
-            await sendAnomalyEmail({
-                to: user.email,
-                name: user.username,
-                from: env.RESEND_API_MAIL,
-                apiKey: env.RESEND_API_KEY,
-                unsubscribeLink: unsubscribeLink,
-                link: link,
-            });
-            waitUntil(
-                trackAction("mail-sent", "anomaly-check", "api", {
-                    userId: user.id,
-                    email: user.email,
-                    link,
-                    unsubscribeLink,
-                }),
-            );
+            if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
+                await sendAnomalyEmail({
+                    to: user.email,
+                    name: user.username,
+                    from: env.RESEND_API_MAIL,
+                    apiKey: env.RESEND_API_KEY,
+                    unsubscribeLink: unsubscribeLink,
+                    link: link,
+                });
+                waitUntil(
+                    trackAction("mail-sent", "anomaly-check", "api", {
+                        userId: user.id,
+                        email: user.email,
+                        link,
+                        unsubscribeLink,
+                    }),
+                );
+            }
         }
 
         return NextResponse.json({ status: 200, statusMessage: "Anomaly mails created and sent" });

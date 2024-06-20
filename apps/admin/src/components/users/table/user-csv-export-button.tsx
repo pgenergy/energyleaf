@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Spinner } from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
