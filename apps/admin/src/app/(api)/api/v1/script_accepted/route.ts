@@ -3,7 +3,6 @@ import { energyleaf, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-const { ScriptAcceptedRequest, ScriptAcceptedResponse } = energyleaf;
 
 const { ScriptAcceptedRequest, ScriptAcceptedResponse } = energyleaf;
 

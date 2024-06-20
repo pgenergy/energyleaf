@@ -2,7 +2,6 @@ import { createSensorToken, getSensorDataByClientId, log, logError } from "@ener
 import { energyleaf, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
-const { TokenRequest, TokenResponse } = energyleaf;
 
 const { TokenRequest, TokenResponse } = energyleaf;
 

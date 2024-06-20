@@ -2,17 +2,21 @@ import { energyleaf_ml, parseReadableStream } from "@energyleaf/proto";
 import { type NextRequest, NextResponse } from "next/server";
 const { DeviceClassificationRequest, DeviceClassificationResponse } = energyleaf_ml;
 import { env } from "@/env.mjs";
+import { log } from "@energyleaf/db/query";
+import { waitUntil } from "@vercel/functions";
 
 export const POST = async (req: NextRequest) => {
     const mlApiKey = env.ML_API_KEY;
     if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== mlApiKey) {
-        return NextResponse.json({}, { status: 401 });
+        waitUntil(log("request-unauthorized/missing-key", "error", "ml-communication", "api", req));
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
 
     if (!body) {
-        return NextResponse.json({}, { status: 400 });
+        waitUntil(log("request-unauthorized/missing-body", "error", "ml-communication", "api", req));
+        return NextResponse.json({ error: "Bad Request" }, { status: 400 });
     }
 
     try {
@@ -27,7 +31,8 @@ export const POST = async (req: NextRequest) => {
         });
 
         if (!ml_res.body) {
-            return NextResponse.error();
+            waitUntil(log("ml-api/missing-body", "error", "ml-communication", "api", req));
+            return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
         }
 
         const binaryData = await parseReadableStream(ml_res.body);
@@ -35,6 +40,7 @@ export const POST = async (req: NextRequest) => {
 
         return NextResponse.json(data);
     } catch (e) {
-        return NextResponse.error();
+        waitUntil(log("ml-api/unhandled-exception", "error", "ml-communication", "api", req));
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 };
