@@ -1,6 +1,8 @@
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { type NextRequest, NextResponse } from "next/server";
 import { getActionSession } from "./lib/auth/auth.action";
+import {waitUntil} from "@vercel/functions";
+import {trackAction} from "@energyleaf/db/query";
 
 const publicRoutes = ["/legal", "/privacy"];
 const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created", "/unsubscribe", "/unsubscribed"];
@@ -14,7 +16,7 @@ const appVersionSpecificRoutes: AppVersionSpecificRoute = {
 };
 
 export default async function middleware(req: NextRequest) {
-    const { user } = await getActionSession();
+    const { user, session } = await getActionSession();
     const loggedIn = Boolean(user);
     const path = req.nextUrl.pathname;
     const onboardingCompleted = user?.onboardingCompleted ?? false;
@@ -43,6 +45,7 @@ export default async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL("/", req.url));
     }
 
+    waitUntil(trackAction("middleware/next", "middleware", "web", { path, session }))
     return NextResponse.next();
 }
 
