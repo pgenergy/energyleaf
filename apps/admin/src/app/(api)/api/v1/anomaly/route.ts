@@ -22,6 +22,10 @@ export const POST = async (req: NextRequest) => {
         waitUntil(trackAction("all-users/start-anomalies-check", "anomaly-check", "api", { start, end }));
         const users = await getAllUsers();
         for (const user of users) {
+            if (!user.receiveAnomalyMails) {
+                continue;
+            }
+
             const anomaliesListForUser = await getAnomaliesByUser(user.id, start, end);
 
             if (anomaliesListForUser.length === 0) {
@@ -29,7 +33,6 @@ export const POST = async (req: NextRequest) => {
             }
 
             const link = getUrl(env);
-            const unsubscribeLink = "";
             if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
                 const unsubscribeToken = await createToken(user.id);
                 const unsubscribeLink = buildUnsubscribeUrl({ baseUrl: getUrl(env), token: unsubscribeToken });
