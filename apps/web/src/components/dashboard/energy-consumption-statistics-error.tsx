@@ -1,15 +1,16 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { TryAgainErrorHint } from "@energyleaf/ui/error";
-import type { FallbackProps } from "react-error-boundary";
 
-export default function EnergyConsumptionStatisticsError({ resetErrorBoundary }: FallbackProps) {
+export default function EnergyConsumptionStatisticsError() {
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Verbrauchsstatistiken</CardTitle>
             </CardHeader>
             <CardContent>
-                <TryAgainErrorHint resetErrorBoundary={resetErrorBoundary} />
+                <TryAgainErrorHint />
             </CardContent>
         </Card>
     );
