@@ -195,7 +195,7 @@ export async function sendAnomalyEmail({ from, to, apiKey, name, link, unsubscri
     const resp = await resend.emails.send({
         to,
         from,
-        subject: "Anomalie erkannt.",
+        subject: "Ungewöhnlicher Verbrauch erkannt",
         react: AnomalyDetectedTemplate({ name, link, unsubscribeLink }),
     });
 

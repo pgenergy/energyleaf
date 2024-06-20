@@ -11,8 +11,8 @@ import {
     trackAction,
     updateLastReportTimestamp,
 } from "@energyleaf/db/query";
-import { TokenType, type UserDataSelectType } from "@energyleaf/db/types";
-import { buildUnsubscribeReportsUrl } from "@energyleaf/lib";
+import type { UserDataSelectType } from "@energyleaf/db/types";
+import { buildUnsubscribeUrl } from "@energyleaf/lib";
 import type { DailyConsumption, DailyGoalProgress, DailyGoalStatistic, ReportProps } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { sendReport } from "@energyleaf/mail";
@@ -43,8 +43,8 @@ export async function createReportsAndSendMails() {
         let unsubscribeLink = "";
         try {
             reportProps = await createReportData(userWithDueReport);
-            const unsubscribeToken = await createToken(userWithDueReport.userId, TokenType.Report);
-            unsubscribeLink = buildUnsubscribeReportsUrl({ baseUrl: getUrl(env), token: unsubscribeToken });
+            const unsubscribeToken = await createToken(userWithDueReport.userId);
+            unsubscribeLink = buildUnsubscribeUrl({ baseUrl: getUrl(env), token: unsubscribeToken });
         } catch (e) {
             waitUntil(
                 logError(
