@@ -12,7 +12,7 @@ export const POST = async (req: NextRequest) => {
     const reportApiKey = env.CRON_SECRET;
     if (!req.headers.has("authorization") || req.headers.get("authorization") !== `Bearer ${reportApiKey}`) {
         waitUntil(log("request-unauthorized/missing-key", "error", "anomaly-check", "api", req));
-        return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
+        return NextResponse.json({ statusMessage: "Unauthorized" }, { status: 401 });
     }
 
     const start = new Date(new Date().setHours(0, 0, 0, 0));
@@ -56,9 +56,9 @@ export const POST = async (req: NextRequest) => {
             }
         }
 
-        return NextResponse.json({ status: 200, statusMessage: "Anomaly mails created and sent" });
+        return NextResponse.json({ statusMessage: "Anomaly mails created and sent" });
     } catch (e) {
         waitUntil(logError("unhandled-crash/failed-in-process-not-finished", "anomaly-check", "api", req, e));
-        return NextResponse.json({ status: 500, statusMessage: "Internal Server Error" });
+        return NextResponse.json({ statusMessage: "Internal Server Error" }, { status: 500 });
     }
 };
