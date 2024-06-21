@@ -22,6 +22,9 @@ export const env = createEnv({
         ADMIN_MAIL: z.string().email().optional(),
 
         BLOB_READ_WRITE_TOKEN: z.string().optional(),
+
+        ML_API_URL: z.string(),
+        ML_API_KEY: z.string(),
     },
     client: {},
     experimental__runtimeEnv: {},

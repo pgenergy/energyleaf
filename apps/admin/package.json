@@ -14,7 +14,7 @@
 		"@energyleaf/db": "workspace:^",
 		"@energyleaf/lib": "workspace:^",
 		"@energyleaf/mail": "workspace:*",
-		"@energyleaf/proto": "^0.2.1",
+		"@energyleaf/proto": "^0.2.2",
 		"@energyleaf/tailwindcss": "workspace:*",
 		"@energyleaf/ui": "workspace:*",
 		"@hookform/resolvers": "^3.6.0",

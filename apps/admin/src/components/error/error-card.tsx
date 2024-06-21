@@ -3,17 +3,16 @@ import { TryAgainErrorHint } from "@energyleaf/ui/error";
 
 interface Props {
     title: string;
-    resetErrorBoundary: () => void;
 }
 
-export default function ErrorCard({ title, resetErrorBoundary }: Props) {
+export default function ErrorCard({ title }: Props) {
     return (
         <Card>
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
             </CardHeader>
             <CardContent>
-                <TryAgainErrorHint resetErrorBoundary={resetErrorBoundary} />
+                <TryAgainErrorHint />
             </CardContent>
         </Card>
     );
