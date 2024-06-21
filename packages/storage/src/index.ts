@@ -36,6 +36,9 @@ export async function put(props: PutProps) {
 
     let fileName = props.name;
     const fileType = props.body.type;
+    if (!fileType || fileType === "") {
+        throw new Error("File type is required");
+    }
     if (!fileName) {
         const nanoid = customAlphabet(urlAlphabet, 30);
         const ext = mime.extension(fileType);
@@ -50,6 +53,7 @@ export async function put(props: PutProps) {
     const command = new PutObjectCommand({
         Bucket: props.bucket,
         Body: props.body,
+        ContentType: fileType,
         Key: key,
     });
 
