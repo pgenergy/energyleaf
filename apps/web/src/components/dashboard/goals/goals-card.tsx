@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser } from "@/query/energy";
 import { getGoalStatus } from "@/query/goals";
 import type { GoalStatus } from "@/types/goals";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";

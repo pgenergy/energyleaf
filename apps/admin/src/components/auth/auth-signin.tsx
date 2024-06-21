@@ -2,7 +2,11 @@
 
 import { signInAction } from "@/actions/auth";
 import { signInSchema } from "@/lib/schema/auth";
-import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Spinner } from "@energyleaf/ui";
+import type { DefaultActionReturn } from "@energyleaf/lib";
+import { Button } from "@energyleaf/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
+import { Spinner } from "@energyleaf/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -20,16 +24,28 @@ export default function AuthForm() {
         },
     });
 
+    async function signInActionCallback(data: z.infer<typeof signInSchema>) {
+        let res: DefaultActionReturn = undefined;
+        try {
+            res = await signInAction(data);
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res && !res?.success) {
+            throw new Error(res?.message);
+        }
+    }
+
     const onSubmit = (data: z.infer<typeof signInSchema>) => {
         setError(null);
         startTransition(() => {
-            toast.promise(signInAction(data), {
+            toast.promise(signInActionCallback(data), {
                 loading: "Anmelden...",
                 success: "Erfolgreich angemeldet",
-                error: (err) => {
-                    const errMessage = err as unknown as Error;
-                    setError(errMessage.message);
-                    return errMessage.message;
+                error: (err: Error) => {
+                    setError(err.message);
+                    return err.message;
                 },
             });
         });

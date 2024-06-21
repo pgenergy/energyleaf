@@ -8,7 +8,7 @@ export const passwordSchema = z.object({
 });
 
 export const mailSettingsSchema = z.object({
-    receiveMails: z.boolean().default(true),
+    receiveReportMails: z.boolean().default(true),
     interval: z.coerce
         .number()
         .int()
@@ -18,9 +18,10 @@ export const mailSettingsSchema = z.object({
     time: z.coerce
         .number()
         .int()
-        .positive({ message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an." })
+        .min(0, { message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an." })
         .max(23, { message: "Bitte geben Sie eine gültige Stunde (0-23 Uhr) an." })
         .default(6),
+    receiveAnomalyMails: z.boolean().default(true),
 });
 
 export const userDataSchema = z.object({
@@ -45,8 +46,5 @@ export const deleteAccountSchema = z.object({
 });
 
 export const userGoalSchema = z.object({
-    goalValue: z.coerce
-        .number()
-        .int({ message: "Bitte geben Sie eine Zahl ohne Kommawerte ein." })
-        .positive({ message: "Bitte geben Sie einen gültigen Wert an." }),
+    goalValue: z.number().positive({ message: "Bitte geben Sie einen gültigen Wert an." }),
 });

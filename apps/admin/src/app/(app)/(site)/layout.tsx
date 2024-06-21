@@ -1,7 +1,8 @@
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
 import { getSession } from "@/lib/auth/auth.server";
-import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
+import { Navbar } from "@energyleaf/ui/nav/navbar";
+import { Sidebar } from "@energyleaf/ui/nav/sidebar";
 import { CpuIcon, HomeIcon, Users2Icon } from "lucide-react";
 import { redirect } from "next/navigation";
 

@@ -3,13 +3,11 @@ import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
 import calculatePeaks from "@/lib/consumption/peak-calculation";
-import { getDevicesByUser } from "@/query/device";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import type { PeakAssignment } from "@/types/consumption/peak";
 import type { ConsumptionData } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import CSVExportButton from "./csv-export-button";
 import DashboardZoomReset from "./dashboard-zoom-reset";
@@ -56,20 +54,21 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     const data: ConsumptionData[] = energyData.map((entry, index) => ({
         sensorId: entry.sensorId || 0,
         energy: entry.value,
-        timestamp: (entry.timestamp as Date).toString(),
+        timestamp: entry.timestamp.toString(),
+        sensorDataId: entry.id,
         classification: index % 500 === 0 ? "dryer" : undefined
-    }));
+    }));    
 
-    const devices = !hasAggregation ? await getDevicesByUser(userId) : [];
-    const peakAssignments: PeakAssignment[] =
-        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
-            ? await calculatePeaks(data, startDate, endDate, sensorId)
-            : [];
+    const peaks: ConsumptionData[] =
+        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection) ? calculatePeaks(data) : [];
 
     const csvExportData = {
         userId: user.id,
-        userHash: createHash("sha256").update(`${user.id}${env.NEXTAUTH_SECRET}`).digest("hex"),
-        endpoint: env.VERCEL_PROJECT_PRODUCTION_URL ? `https://admin.${env.VERCEL_PROJECT_PRODUCTION_URL}/api/v1/csv` : "http://localhost:3001/api/v1/csv",
+        userHash: createHash("sha256").update(`${user.id}${env.HASH_SECRET}`).digest("hex"),
+        endpoint:
+            env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
+                ? `https://${env.ADMIN_URL}/api/v1/csv`
+                : `http://${env.ADMIN_URL}/api/v1/csv`,
     };
 
     return (
@@ -107,9 +106,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     ) : (
                         <EnergyConsumptionCardChart
                             data={data}
-                            devices={devices}
-                            peaks={hasAggregation ? undefined : peakAssignments}
+                            peaks={hasAggregation ? undefined : peaks}
                             aggregation={aggregation}
+                            userId={userId}
                         />
                     )}
                 </div>

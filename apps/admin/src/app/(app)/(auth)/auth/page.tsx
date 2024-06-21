@@ -1,5 +1,5 @@
 import AuthForm from "@/components/auth/auth-signin";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import Image from "next/image";
 import logo from "../../../../../public/image/logo/logo.png";
 

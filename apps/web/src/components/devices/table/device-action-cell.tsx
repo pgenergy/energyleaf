@@ -2,15 +2,15 @@
 
 import { useDeviceContext } from "@/hooks/device-hook";
 import type { DeviceSelectType } from "@energyleaf/db/types";
+import { Button } from "@energyleaf/ui/button";
 import {
-    Button,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@energyleaf/ui";
+} from "@energyleaf/ui/dropdown-menu";
 import { EditIcon, MoreVerticalIcon, TrashIcon } from "lucide-react";
 
 interface Props {

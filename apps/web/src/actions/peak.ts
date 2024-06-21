@@ -2,23 +2,37 @@
 
 import { getActionSession } from "@/lib/auth/auth.action";
 import type { peakSchema } from "@/lib/schema/peak";
-import { addOrUpdatePeak as addOrUpdatePeakDb } from "@energyleaf/db/query";
+import {
+    getDevicesByPeak as getDevicesByPeakDb,
+    log,
+    logError,
+    trackAction,
+    updateDevicesForPeak as updateDevicesForPeakDb,
+} from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import "server-only";
+import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
+import { waitUntil } from "@vercel/functions";
+import type { Session } from "lucia";
 import type { z } from "zod";
 
-export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
+export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sensorDataId: string) {
+    let session: Session | null = null;
     try {
-        const { session } = await getActionSession();
+        session = (await getActionSession())?.session;
 
         if (!session) {
+            waitUntil(log("user/not-logged-in", "error", "update-devices-for-peak", "web", { data }));
             throw new UserNotLoggedInError();
         }
 
+        const devices = data.device.map((device) => device.id);
         try {
-            await addOrUpdatePeakDb(sensorId, new Date(timestamp), Number(data.deviceId));
+            await updateDevicesForPeakDb(sensorDataId, devices);
+            waitUntil(trackAction("peak/update-devices", "update-devices-for-peak", "web", { data, session }));
         } catch (e) {
+            waitUntil(logError("peak/error-updating-devices", "update-devices-for-peak", "web", { data, session }, e));
             return {
                 success: false,
                 message: "Es gab einen Fehler mit den Peaks.",
@@ -26,16 +40,31 @@ export async function addOrUpdatePeak(data: z.infer<typeof peakSchema>, sensorId
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
+            waitUntil(logError("user/not-logged-in", "update-devices-for-peak", "web", { data }, err));
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein um die Peaks zu bearbeiten.",
+                message: "Sie müssen angemeldet sein, um die Peaks zu bearbeiten.",
             };
         }
-
+        waitUntil(logError("peak/error", "update-devices-for-peak", "web", { data, session }, err));
         return {
             success: false,
             message: "Es ist ein Fehler aufgetreten.",
         };
     }
     revalidatePath("/dashboard");
+}
+
+export async function getDevicesByUser(userId: string, search?: string) {
+    const session = (await getActionSession())?.session;
+    const devices = getDbDevicesByUser(userId, search);
+    waitUntil(trackAction("devices/get", "get-devices-by-user", "web", { search, session }));
+    return devices;
+}
+
+export async function getDevicesByPeak(sensorDataId: string) {
+    const session = await getActionSession();
+    const devices = getDevicesByPeakDb(sensorDataId);
+    waitUntil(trackAction("devices/get", "get-devices-by-peak", "web", { sensorDataId, session }));
+    return devices;
 }

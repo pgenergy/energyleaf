@@ -2,8 +2,9 @@ import { calculateCosts, getCalculatedPayment, getPredictedCost } from "@/compon
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
+import { formatNumber } from "@energyleaf/lib";
 import { cn } from "@energyleaf/tailwindcss/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
@@ -59,15 +60,9 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     const parsedCost = Number.parseFloat(cost);
     const parsedCalculatedPayment = Number.parseFloat(calculatedPayment || "0");
 
-    const formattedCost = parsedCost.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const formattedCalculatedPayment = parsedCalculatedPayment.toLocaleString("de-DE", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
-    const formattedPredictedCost = predictedCost.toLocaleString("de-DE", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
+    const formattedCost = formatNumber(parsedCost);
+    const formattedCalculatedPayment = formatNumber(parsedCalculatedPayment);
+    const formattedPredictedCost = formatNumber(predictedCost);
     const forecastMonth = format(new Date(), "MMMM yyyy", { locale: de });
 
     return (

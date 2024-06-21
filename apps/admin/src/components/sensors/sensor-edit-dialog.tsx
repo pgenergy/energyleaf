@@ -2,7 +2,7 @@
 
 import SensorDetailsForm from "@/components/sensors/sensor-details-form";
 import { useSensorContext } from "@/hooks/sensor-hook";
-import { Dialog, DialogContent, DialogHeader } from "@energyleaf/ui";
+import { Dialog, DialogContent, DialogHeader } from "@energyleaf/ui/dialog";
 
 export default function SensorEditDialog() {
     const sensorContext = useSensorContext();

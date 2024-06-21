@@ -1,20 +1,20 @@
-"use client";
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
 import * as React from "react";
 
 interface Props {
     value: number;
     onChange: (value: number) => void;
+    disabled?: boolean;
 }
 
-export default function IntervalSelector({ value, onChange }: Props) {
+export default function IntervalSelector({ value, onChange, disabled }: Props) {
     return (
         <Select
             defaultValue={value.toString()}
             onValueChange={(x) => {
                 onChange(Number(x));
             }}
+            disabled={disabled}
         >
             <SelectTrigger>
                 <SelectValue placeholder="Intervall auswählen" />

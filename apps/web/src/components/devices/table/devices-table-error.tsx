@@ -1,16 +1,16 @@
 "use client";
 
-import { Button, Input } from "@energyleaf/ui";
-import type { FallbackProps } from "react-error-boundary";
+import { TryAgainErrorHint } from "@energyleaf/ui/error";
+import { Input } from "@energyleaf/ui/input";
 
-export default function DevicesTableError({ resetErrorBoundary }: FallbackProps) {
+export default function DevicesTableError() {
     return (
         <div className="flex flex-col gap-4">
             <div className="max-w-sm">
                 <Input disabled placeholder="Gerät suchen" />
             </div>
             <div className="flex flex-row justify-center rounded-md border px-8 py-4">
-                <Button onClick={resetErrorBoundary}>Erneut versuchen</Button>
+                <TryAgainErrorHint />
             </div>
         </div>
     );

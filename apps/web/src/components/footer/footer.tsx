@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { cn } from "@energyleaf/tailwindcss/utils";
-import { buttonVariants } from "@energyleaf/ui";
+import { buttonVariants } from "@energyleaf/ui/button";
 import Link from "next/link";
 
 export default async function Footer() {

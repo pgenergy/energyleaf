@@ -1,7 +1,7 @@
 "use client";
 
 import { useUserContext } from "@/hooks/user-hook";
-import { DateRangePicker } from "@energyleaf/ui/components/utils";
+import { DateRangePicker } from "@energyleaf/ui/utils/date-range-picker";
 import React from "react";
 import type { DateRange } from "react-day-picker";
 

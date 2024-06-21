@@ -1,26 +1,61 @@
 {
-	"$schema": "https://turbo.build/schema.json",
-	"globalDependencies": ["**/.env.*local"],
-	"globalEnv": [".env", "NEXTAUTH_URL"],
-	"pipeline": {
-		"build": {
-			"dotEnv": [".env"],
-			"dependsOn": ["^build"],
-			"outputs": [".next/**", "!.next/cache/**"]
-		},
-		"clean": {
-			"cache": false,
-			"persistent": false
-		},
-		"start": {
-			"dotEnv": [".env"],
-			"cache": false,
-			"persistent": false
-		},
-		"dev": {
-			"dotEnv": [".env"],
-			"cache": false,
-			"persistent": true
-		}
-	}
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "**/.env",
+    ".env"
+  ],
+  "globalEnv": [
+    "HASH_SECRET",
+    "DATABASE_HOST",
+    "DATABASE_USERNAME",
+    "DATABASE_PASSWORD",
+    "DATABASE_NAME",
+    "DATABASE_LOCAL_URL",
+    "DATABASE_PUSH_URL",
+    "RESEND_API_MAIL",
+    "RESEND_API_KEY",
+    "ADMIN_MAIL",
+    "BLOB_READ_WRITE_TOKEN",
+    "REPORTS_API_KEY",
+    "APP_URL",
+    "CRON_SECRET",
+    "ADMIN_URL",
+    "ML_API_KEY",
+    "ML_API_URL"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env"
+      ]
+    },
+    "clean": {
+      "cache": false,
+      "persistent": false
+    },
+    "start": {
+      "cache": false,
+      "persistent": false,
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env"
+      ]
+    }
+  }
 }
