@@ -49,10 +49,11 @@ export async function put(props: PutProps) {
         fileName = `${random}.${ext}`;
     }
     const key = `${props.path}/${fileName}`;
+    const buffer = Buffer.from(await props.body.arrayBuffer());
 
     const command = new PutObjectCommand({
         Bucket: props.bucket,
-        Body: props.body,
+        Body: buffer,
         ContentType: fileType,
         Key: key,
     });
