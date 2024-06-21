@@ -1,6 +1,5 @@
-import UserConsumptionCard, {
-    UserConsumptionCardError,
-} from "@/components/users/details/consumption/user-consumption-card";
+import UserConsumptionCard from "@/components/users/details/consumption/user-consumption-card";
+import { UserConsumptionCardError } from "@/components/users/details/consumption/user-consumption-card-error";
 import UserActionsCard from "@/components/users/details/user-actions-card";
 import UserDangerActionsCard from "@/components/users/details/user-danger-actions";
 import UserDetailsDeleteDialog from "@/components/users/details/user-details-delete-dialog";
