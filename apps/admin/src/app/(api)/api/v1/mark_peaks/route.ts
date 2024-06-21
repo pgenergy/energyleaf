@@ -1,5 +1,6 @@
 import { env } from "@/env.mjs";
-import { findAndMarkPeaks, getAllSensors } from "@energyleaf/db/query";
+import { findAndMarkPeaks, getAllSensors, logError } from "@energyleaf/db/query";
+import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
@@ -9,9 +10,9 @@ export const POST = async (req: NextRequest) => {
     }
 
     const startDate = new Date();
-    startDate.setHours(startDate.getHours() - 2, 0, 0, 0);
+    startDate.setHours(startDate.getHours() - 1, 0, 0, 0);
     const endDate = new Date();
-    endDate.setHours(endDate.getHours() - 2, 59, 59, 999);
+    endDate.setHours(endDate.getHours() - 1, 59, 59, 999);
 
     try {
         const sensors = await getAllSensors(true);
@@ -31,8 +32,36 @@ export const POST = async (req: NextRequest) => {
         }
 
         // use allSettled so we dont abort if one fails
-        await Promise.allSettled(promises);
+        const results = await Promise.allSettled(promises);
+        for (let i = 0; i < results.length; i++) {
+            const result = results[i];
+            const sensorId = sensorIds[i];
+            if (result.status === "rejected") {
+                waitUntil(
+                    logError(
+                        "mark-peaks/user-error",
+                        "mark-peaks",
+                        "api",
+                        {
+                            sensorId,
+                            start: startDate.toISOString(),
+                            end: endDate.toISOString(),
+                        },
+                        new Error(result.reason),
+                    ),
+                );
+            }
+        }
     } catch (err) {
+        waitUntil(
+            logError(
+                "mark-peaks/all-error",
+                "mark-peaks",
+                "api",
+                {}, // empty body - dont know what to log because whole route fails
+                err,
+            ),
+        );
         return;
     }
 };
