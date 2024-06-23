@@ -24,7 +24,7 @@ export const env = createEnv({
         AWS_ENDPOINT_URL_S3: z.string().optional(),
         AWS_REGION: z.string().optional(),
         BUCKET_NAME: z.string().optional(),
-        FILE_URL: z.string().url().optional(),
+        FILE_URL: z.string().optional(),
     },
     client: {},
     experimental__runtimeEnv: {},
