@@ -11,24 +11,85 @@ export default function FaqPage() {
             <CardHeader>
                 <CardTitle>Häufig gestellte Fragen</CardTitle>
                 <CardDescription>
-                    Hier ist eine Auswahl von häufig gestellten Fragen und deren Antworten. Auf die Frage klicken, um
-                    die Antwort angezeigt zu bekommen.
+                    Hier finden Sie eine Auswahl von häufig gestellten Fragen und deren Antworten. Klicken Sie einfach
+                    auf die Frage, um die Antwort angezeigt zu bekommen.
                 </CardDescription>
                 <CardContent>
                     <Accordion collapsible type="single">
                         <AccordionItem value="item-1">
-                            <AccordionTrigger>Was bringt mir die Nutzung der Energyleaf-App?</AccordionTrigger>
+                            <AccordionTrigger>Was bringt mir die Nutzung von Energyleaf?</AccordionTrigger>
                             <AccordionContent>
-                                In der App wird Ihr ganz persönliches Verbrauchsverhalten dargestellt. Dies ermöglicht
-                                es Ihnen, den Überblick über Ihren Stromverbrauch zu behalten.
+                                Energyleaf hilft Ihnen, Ihren Energieverbrauch zu überwachen und zu optimieren. Sie
+                                erhalten detaillierte Einblicke in Ihr Verbrauchsverhalten und können so Stromkosten
+                                sparen und umweltbewusster leben.
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="item-2">
                             <AccordionTrigger>
-                                Wo kann ich als Geringverdiener weitere Stromsparhilfen erhalten?
+                                Wie kann ich meinen aktuellen Energieverbrauch in Echtzeit überwachen?
                             </AccordionTrigger>
                             <AccordionContent>
-                                Zum Beispiel beim Stromsparcheck:{" "}
+                                Unter „Übersicht“ sehen Sie Ihren aktuellen Energieverbrauch in Kilowattstunden. Das
+                                Liniendiagramm zeigt den Verlauf Ihres Verbrauchs, und Sie können die Daten auch im
+                                CSV-Format exportieren. Spitzenverbrauch wird mit roten Punkten markiert.
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-3">
+                            <AccordionTrigger>
+                                Wie kann ich meine Profilinformationen in Energyleaf aktualisieren?
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                Sie können Ihre Profilinformationen aktualisieren, indem Sie auf Ihr Profilbild oben
+                                rechts klicken. Dort können Sie Ihre persönlichen Daten, Tarifinformationen und
+                                Maileinstellungen anpassen.
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-4">
+                            <AccordionTrigger>
+                                Kann ich regelmäßig Berichte über meinen Energieverbrauch erhalten?
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                Ja, unter „Berichte“ können Sie eine Zusammenfassung Ihres Energieverbrauchs ansehen.
+                                Sie können im Profil auch einstellen, dass Sie die regelmäßigen Berichte per E-Mail
+                                erhalten, indem Sie im Profil das Intervall und die Uhrzeit der Zusendung konfigurieren.
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-5">
+                            <AccordionTrigger>
+                                Wie erhalte ich Benachrichtigungen bei hohem Energieverbrauch?
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                Energyleaf sendet Ihnen bei aktivierter Einstellung automatisch eine Benachrichtigung
+                                per E-Mail, wenn Ihr aktueller Verbrauch stark von Ihrem normalen Verbrauch abweicht und
+                                ungewöhnlich hoch ist. Sollten die Einstellung aktivieren wollen, können Sie dies oben
+                                rechts in Ihrem Profil tun.
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-6">
+                            <AccordionTrigger>
+                                Wie kann ich mein Energieverbrauchsziel festlegen und überwachen?
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                Sie können in Ihrem Profil ein tägliches Energieverbrauchsziel in kWh oder ein tägliches
+                                Energiebudget in Euro festlegen. Energyleaf zeigt Ihnen dann auf der Übersichtseite
+                                sowie in den Berichten, wie gut Sie Ihr Ziel erreichen, und warnt Sie, wenn Sie es
+                                überschreiten.
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-7">
+                            <AccordionTrigger>
+                                Wie kann ich mein Energieverbrauchsziel festlegen und überwachen?
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                Unter „Geräte“ können Sie über die Schaltfläche „Gerät hinzufügen“ neue elektrische
+                                Geräte anlegen. Sie müssen jedem Gerät einen Namen und eine Kategorie zuweisen. Über das
+                                Aktionsmenü können Sie Geräte auch bearbeiten oder löschen.
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-8">
+                            <AccordionTrigger>Wo finde ich weitere Stromsparhilfen?</AccordionTrigger>
+                            <AccordionContent>
+                                Weitere Stromsparhilfen finden Sie zum Beispiel beim Stromsparcheck:{" "}
                                 <a
                                     className="text-primary hover:underline"
                                     href="https://www.stromspar-check.de"
@@ -39,27 +100,13 @@ export default function FaqPage() {
                                 </a>
                             </AccordionContent>
                         </AccordionItem>
-                        <AccordionItem value="item-3">
-                            <AccordionTrigger>Welche Entlastungspakete gibt es seitens der Regierung?</AccordionTrigger>
-                            <AccordionContent>
-                                Dazu gibt es auf der Internetseite der Bundesregierung Informationen:{" "}
-                                <a
-                                    className="text-primary hover:underline"
-                                    href="https://www.bundesregierung.de/breg-de/themen/entlastung-fuer-deutschland"
-                                    rel="noopener noreferrer"
-                                    target="_blank"
-                                >
-                                    https://www.bundesregierung.de/breg-de/themen/entlastung-fuer-deutschland
-                                </a>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="item-4">
+                        <AccordionItem value="item-9">
                             <AccordionTrigger>
-                                Wo kann ich sehen, zu welchen Zeiten heute und morgen in Deutschland voraussichtlich
-                                viel Wind- und Sonnenenergie zur Verfügung steht?
+                                Wo kann ich sehen, zu welchen Zeiten viel Wind- und Sonnenenergie zur Verfügung steht?
                             </AccordionTrigger>
                             <AccordionContent>
-                                Zum Beispiel bei aWATTar:{" "}
+                                nformationen zur Verfügbarkeit von Wind- und Sonnenenergie finden Sie beispielsweise bei
+                                aWATTar:{" "}
                                 <a
                                     className="text-primary hover:underline"
                                     href="https://www.awattar.de"
@@ -67,23 +114,8 @@ export default function FaqPage() {
                                     target="_blank"
                                 >
                                     https://www.awattar.de
-                                </a>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="item-5">
-                            <AccordionTrigger>
-                                Wo erfahre ich mehr über die momentane Auslastung des Stromnetzes in Ba-Wü?
-                            </AccordionTrigger>
-                            <AccordionContent>
-                                Zum Beispiel mit der App StromGedacht:{" "}
-                                <a
-                                    className="text-primary hover:underline"
-                                    href="https://www.stromgedacht.de"
-                                    rel="noreferrer noopener"
-                                    target="_blank"
-                                >
-                                    https://www.stromgedacht.de
-                                </a>
+                                </a>{" "}
+                                Dies könnte bei einem flexiblen Stromtarif von Vorteil sein.
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
