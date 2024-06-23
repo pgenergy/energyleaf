@@ -1,11 +1,19 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@energyleaf/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import {fulfills, Versions} from "@energyleaf/lib/versioning";
+import {getActionSession} from "@/lib/auth/auth.action";
 
 export const metadata = {
     title: "FAQ | Energyleaf",
 };
 
-export default function FaqPage() {
+export default async function FaqPage() {
+    const { user } = await getActionSession();
+
+    if (!user) {
+        return null;
+    }
+
     return (
         <Card className="w-full">
             <CardHeader>
@@ -54,6 +62,8 @@ export default function FaqPage() {
                                 erhalten, indem Sie im Profil das Intervall und die Uhrzeit der Zusendung konfigurieren.
                             </AccordionContent>
                         </AccordionItem>
+                        {fulfills(user.appVersion, Versions.self_reflection) && (
+                            <div>
                         <AccordionItem value="item-5">
                             <AccordionTrigger>
                                 Wie erhalte ich Benachrichtigungen bei hohem Energieverbrauch?
@@ -86,6 +96,8 @@ export default function FaqPage() {
                                 Aktionsmenü können Sie Geräte auch bearbeiten oder löschen.
                             </AccordionContent>
                         </AccordionItem>
+                            </div>
+                            )}
                         <AccordionItem value="item-8">
                             <AccordionTrigger>Wo finde ich weitere Stromsparhilfen?</AccordionTrigger>
                             <AccordionContent>
@@ -105,7 +117,7 @@ export default function FaqPage() {
                                 Wo kann ich sehen, zu welchen Zeiten viel Wind- und Sonnenenergie zur Verfügung steht?
                             </AccordionTrigger>
                             <AccordionContent>
-                                nformationen zur Verfügbarkeit von Wind- und Sonnenenergie finden Sie beispielsweise bei
+                                Informationen zur Verfügbarkeit von Wind- und Sonnenenergie finden Sie beispielsweise bei
                                 aWATTar:{" "}
                                 <a
                                     className="text-primary hover:underline"
