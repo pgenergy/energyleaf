@@ -36,7 +36,7 @@ interface FindAndMarkPeaksProps {
     end: Date;
 }
 
-function findSequence(energyData: SensorDataSelectType[]) {
+function calculateThreshold(energyData: SensorDataSelectType[]) {
     // using mad median absolute deviation with 1.4826 which is a scaling factor of a normal distributed set
     // maybe ajust even further with another scaling factor
     const values = energyData.map((d) => d.value);
@@ -44,7 +44,14 @@ function findSequence(energyData: SensorDataSelectType[]) {
     const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
     const threshold = median + 1.4826 * mad;
 
+    return threshold;
+}
+
+function findSequence(energyData: SensorDataSelectType[], before?: SensorDataSelectType) {
+    const threshold = calculateThreshold(energyData);
+
     const peaks: SensorDataSelectType[] = [];
+    const inSequence: SensorDataSelectType[] = [];
     let i = 0;
 
     while (i < energyData.length) {
@@ -58,21 +65,29 @@ function findSequence(energyData: SensorDataSelectType[]) {
             }
 
             const sequenceLength = sequenceEnd - i;
-            // only mark as peak if longer then 2.5min
-            if (sequenceLength > 10) {
-                peaks.push(entry);
+            // only mark as peak if longer then 2min
+            if (sequenceLength > 8) {
+                // if first entry is a marker, dont mark it as peak because it is part of a previous sequence
+                if (!(before?.isInSequence && i !== 0)) {
+                    peaks.push(entry);
+                }
             }
             // find more peaks in the sequence if the sequence is longer then 10min
             if (sequenceLength > 40) {
-                peaks.push(...findSequence(energyData.slice(i, sequenceEnd)));
+                const sequence = findSequence(energyData.slice(i, sequenceEnd));
+                peaks.push(...sequence.peaks);
             }
+            inSequence.push(...energyData.slice(i, sequenceEnd));
             i = sequenceEnd;
         } else {
             i++;
         }
     }
 
-    return peaks;
+    return {
+        peaks,
+        inSequence,
+    };
 }
 
 export async function findAndMarkPeaks(props: FindAndMarkPeaksProps) {
@@ -80,6 +95,15 @@ export async function findAndMarkPeaks(props: FindAndMarkPeaksProps) {
 
     try {
         await db.transaction(async (trx) => {
+            const valuesBeforeStart = await trx
+                .select()
+                .from(sensorData)
+                .where(and(eq(sensorData.sensorId, sensorId), lt(sensorData.timestamp, start)))
+                .orderBy(desc(sensorData.timestamp))
+                .limit(1);
+
+            const valueBeforeStart = valuesBeforeStart.length > 0 ? valuesBeforeStart[0] : undefined;
+
             const energyData = await trx
                 .select()
                 .from(sensorData)
@@ -89,17 +113,32 @@ export async function findAndMarkPeaks(props: FindAndMarkPeaksProps) {
                 return;
             }
 
-            const peaks = findSequence(energyData);
+            const { peaks, inSequence } = findSequence(energyData, valueBeforeStart);
             if (peaks.length === 0) {
                 await trx
                     .update(sensorData)
                     .set({
                         isPeak: true,
+                        isInSequence: true,
                     })
                     .where(
                         inArray(
                             sensorData.id,
                             peaks.map((d) => d.id),
+                        ),
+                    );
+            }
+
+            if (inSequence.length > 0) {
+                await trx
+                    .update(sensorData)
+                    .set({
+                        isInSequence: true,
+                    })
+                    .where(
+                        inArray(
+                            sensorData.id,
+                            inSequence.map((d) => d.id),
                         ),
                     );
             }
@@ -197,6 +236,7 @@ export async function getEnergyForSensorInRange(
             : null,
         timestamp: new Date(row.timestamp),
         isPeak: false,
+        isInSequence: false,
     }));
 
     return results.slice(1);

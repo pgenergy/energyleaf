@@ -81,6 +81,7 @@ export const sensorData = mysqlTable(
         valueCurrent: decimalType("value_current"),
         timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
         isPeak: boolean("is_peak").notNull().default(false),
+        isInSequence: boolean("is_in_sequence").notNull().default(false),
     },
     (table) => {
         return {
