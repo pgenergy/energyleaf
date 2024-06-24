@@ -8,7 +8,10 @@ interface ClientEventProps {
 
 export async function trackClientEvent(props: ClientEventProps) {
     try {
-        await fetch(props.url, {
+        const url = props.url.startsWith("localhost")
+            ? `http://${props.url}/api/v1/logs`
+            : `https://${props.url}/api/v1/logs`;
+        await fetch(url, {
             method: "POST",
             credentials: "include",
             headers: {
