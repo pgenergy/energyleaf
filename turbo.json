@@ -17,11 +17,12 @@
     "ADMIN_MAIL",
     "BLOB_READ_WRITE_TOKEN",
     "REPORTS_API_KEY",
-    "APP_URL",
     "CRON_SECRET",
     "ADMIN_URL",
     "ML_API_KEY",
-    "ML_API_URL"
+    "ML_API_URL",
+    "NEXT_PUBLIC_ADMIN_URL",
+    "NEXT_PUBLIC_APP_URL"
   ],
   "tasks": {
     "build": {

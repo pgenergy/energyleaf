@@ -1,8 +1,8 @@
+import { trackAction } from "@energyleaf/db/query";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 import { getActionSession } from "./lib/auth/auth.action";
-import {waitUntil} from "@vercel/functions";
-import {trackAction} from "@energyleaf/db/query";
 
 const publicRoutes = ["/legal", "/privacy"];
 const unprotectedRoutes = ["/", "/signup", "/forgot", "/reset", "/created", "/unsubscribe", "/unsubscribed"];
@@ -45,7 +45,6 @@ export default async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL("/", req.url));
     }
 
-    waitUntil(trackAction("middleware/next", "middleware", "web", { path, session }))
     return NextResponse.next();
 }
 

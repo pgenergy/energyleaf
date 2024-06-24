@@ -1,29 +1,68 @@
-import { log, logError } from "@energyleaf/db/query";
+import { env } from "@/env.mjs";
+import { getActionSession } from "@/lib/auth/auth.action";
+import { logError, trackAction } from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
-import {env} from "@/env.mjs";
-import {getActionSession} from "@/lib/auth/auth.action";
-
-async function addLogToDb(body: ReadableStream<Uint8Array>) {
-    log("log", "info", "log", "api", body);
-}
 
 export const POST = async (req: NextRequest) => {
     const apiKey = env.CRON_SECRET;
-    const {session} = await getActionSession();
+    const { session, user } = await getActionSession();
 
     if (!session || !req.headers.has("authorization") || req.headers.get("authorization") !== `Bearer ${apiKey}`) {
-        waitUntil(log("request-unauthorized/missing-key", "error", "report-creation", "api", req));
+        waitUntil(
+            logError(
+                "request-unauthorized/missing-authorization-header",
+                "logs-route",
+                "api",
+                {
+                    session,
+                    user,
+                    apiKey,
+                },
+                new Error("Missing authorization header"),
+            ),
+        );
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 
     if (!req.body) {
-        waitUntil(log("request-unauthorized/missing-body", "error", "log", "api", req));
+        waitUntil(
+            logError(
+                "request-invalid/missing-body",
+                "logs-route",
+                "api",
+                { user, session, apiKey },
+                new Error("No body"),
+            ),
+        );
         return NextResponse.json({ status: 400, statusMessage: "No body" });
     }
 
     try {
-        await addLogToDb(req.body);
+        const data = (await req.json()) as {
+            title?: string;
+            appFunction?: string;
+            appComponent?: "web" | "admin";
+            details?: object;
+        };
+
+        if (!data.title || !data.appFunction || !data.appComponent || !data.details) {
+            waitUntil(
+                logError(
+                    "request-invalid/invalid-body",
+                    "logs-route",
+                    "api",
+                    { data, user, session, apiKey },
+                    new Error("No body"),
+                ),
+            );
+            return NextResponse.json({ status: 400, statusMessage: "Invalid body" });
+        }
+        data.details = {
+            ...data.details,
+            userId: user.id,
+        };
+        waitUntil(trackAction(data.title, data.appFunction, data.appComponent, data.details));
         return NextResponse.json({ status: 200, statusMessage: "log" });
     } catch (e) {
         waitUntil(logError("unhandled-crash/failed-in-process-not-finished", "report-creation", "api", req, e));

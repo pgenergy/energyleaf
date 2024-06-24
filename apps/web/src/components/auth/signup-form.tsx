@@ -376,9 +376,9 @@ export default function SignUpForm() {
                                 <FormDescription>
                                     Es ist uns rechtlich nur möglich Geld für die Umfragen auszuzahlen, wenn Sie sich
                                     über Prolific für unsere Umfragen registrieren. Diese Anmeldung ist mit etwas
-                                    Aufwand verbunden, da eine Verifizierung stattfinden muss. Eine Anleitung finden sie {" "}
+                                    Aufwand verbunden, da eine Verifizierung stattfinden muss. Eine Anleitung finden sie{" "}
                                     <Link
-                                        className="underline hover:no-underline text-primary-foreground"
+                                        className="text-primary-foreground underline hover:no-underline"
                                         href="https://jbh9hx6nwkx1up9t.public.blob.vercel-storage.com/downloads/prolific_anleitung.pdf"
                                         target="_blank"
                                     >
@@ -426,12 +426,13 @@ export default function SignUpForm() {
                                         <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                                     </FormControl>
                                     <FormLabel className="text-sm">
-                                        Ich bin damit einverstanden, dass der Freischaltungs-PIN meines Stormzählers in meinem Namen beantragt wird.
+                                        Ich bin damit einverstanden, dass der Freischaltungs-PIN meines Stormzählers in
+                                        meinem Namen beantragt wird.
                                     </FormLabel>
                                 </div>
                                 <FormDescription>
-                                    Der PIN wird von Ihrem Stromanbieter zur Verfügung gestellt. Dieser wird dafür benötigt, dass
-                                    die genauen Daten ihres Zählers ausgelesen werden können.
+                                    Der PIN wird von Ihrem Stromanbieter zur Verfügung gestellt. Dieser wird dafür
+                                    benötigt, dass die genauen Daten ihres Zählers ausgelesen werden können.
                                 </FormDescription>
                             </FormItem>
                         )}

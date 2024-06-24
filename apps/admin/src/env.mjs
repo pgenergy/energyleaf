@@ -4,7 +4,6 @@ import { z } from "zod";
 
 export const env = createEnv({
     server: {
-        APP_URL: z.string(),
         HASH_SECRET: z.string(),
 
         VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
@@ -26,8 +25,12 @@ export const env = createEnv({
         ML_API_URL: z.string(),
         ML_API_KEY: z.string(),
     },
-    client: {},
-    experimental__runtimeEnv: {},
+    client: {
+        NEXT_PUBLIC_APP_URL: z.string(),
+    },
+    experimental__runtimeEnv: {
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    },
     extends: [vercel()],
 });
 

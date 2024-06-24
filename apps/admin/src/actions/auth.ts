@@ -108,7 +108,7 @@ export async function resetUserPassword(userId: string) {
             secret: env.HASH_SECRET,
         });
 
-        const resetUrl = buildResetPasswordUrl({ baseUrl: env.APP_URL, token });
+        const resetUrl = buildResetPasswordUrl({ baseUrl: env.NEXT_PUBLIC_APP_URL, token });
 
         try {
             if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {

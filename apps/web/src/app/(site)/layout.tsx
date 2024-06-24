@@ -2,6 +2,7 @@ import DemoBanner from "@/components/footer/demo-banner";
 import Footer from "@/components/footer/footer";
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
+import PageView from "@/components/tracking/page-view";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
@@ -70,6 +71,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                 titleLink="/dashboard"
             />
             <Sidebar links={filteredNavLinks} />
+            <PageView />
             <main className="mt-14 ml-0 px-8 py-8 md:ml-[13%]">{children}</main>
             <Footer />
             {isDemo ? <DemoBanner /> : null}
