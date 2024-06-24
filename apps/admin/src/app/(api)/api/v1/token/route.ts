@@ -40,20 +40,23 @@ export const POST = async (req: NextRequest) => {
             }
 
             if ((sensorData.needsScript || data.needScript) && sensorData.script) {
-                const additionalData: {
-                    script: string | undefined;
-                    analogRotationPerKwh: number | undefined;
-                } = {
-                    script: undefined,
-                    analogRotationPerKwh: undefined,
+                let additionalData: {
+                    script?: string;
+                    analogRotationPerKwh?: number;
                 };
                 if (sensorData.script.split("\n").length === 1 && sensorData.script.match(/^\d+$/)) {
                     const perRotation = Number.parseInt(sensorData.script);
-                    additionalData.analogRotationPerKwh = perRotation;
+                    additionalData = {
+                        analogRotationPerKwh: perRotation,
+                    };
                 } else {
-                    additionalData.script = sensorData.script;
+                    additionalData = {
+                        script: sensorData.script,
+                    };
                 }
-                waitUntil(log("sensor/sent-script", "info", "sensor-token", "api", { sensorData, data }));
+                waitUntil(
+                    log("sensor/sent-script", "info", "sensor-token", "api", { sensorData, data, additionalData }),
+                );
                 return new NextResponse(
                     TokenResponse.toBinary({
                         status: 200,
