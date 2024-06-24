@@ -24,5 +24,7 @@ export async function trackClientEvent(props: ClientEventProps) {
                 details: props.details,
             }),
         });
-    } catch (err) {}
+    } catch {
+        // ignore because we cant send events
+    }
 }
