@@ -40,7 +40,6 @@ export const POST = async (req: NextRequest) => {
             }
 
             if ((sensorData.needsScript || data.needScript) && sensorData.script) {
-                let perRotation: number | undefined = undefined;
                 const additionalData: {
                     script: string | undefined;
                     analogRotationPerKwh: number | undefined;
@@ -49,7 +48,7 @@ export const POST = async (req: NextRequest) => {
                     analogRotationPerKwh: undefined,
                 };
                 if (sensorData.script.split("\n").length === 1 && sensorData.script.match(/^\d+$/)) {
-                    perRotation = Number.parseInt(sensorData.script);
+                    const perRotation = Number.parseInt(sensorData.script);
                     additionalData.analogRotationPerKwh = perRotation;
                 } else {
                     additionalData.script = sensorData.script;
