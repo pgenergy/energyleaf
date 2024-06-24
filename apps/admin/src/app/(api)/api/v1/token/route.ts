@@ -40,6 +40,10 @@ export const POST = async (req: NextRequest) => {
             }
 
             if ((sensorData.needsScript || data.needScript) && sensorData.script) {
+                let perRotation: number | undefined = undefined;
+                if (sensorData.script.split("\n").length === 1 && sensorData.script.match(/^\d+$/)) {
+                    perRotation = Number.parseInt(sensorData.script);
+                }
                 waitUntil(log("sensor/sent-script", "info", "sensor-token", "api", { sensorData, data }));
                 return new NextResponse(
                     TokenResponse.toBinary({
@@ -47,6 +51,7 @@ export const POST = async (req: NextRequest) => {
                         accessToken: code,
                         expiresIn: 3600,
                         script: sensorData.script,
+                        analogRotationPerKwh: perRotation,
                     }),
                     {
                         status: 200,
