@@ -18,7 +18,12 @@ export const env = createEnv({
 
         ADMIN_MAIL: z.string().email().optional(),
 
-        BLOB_READ_WRITE_TOKEN: z.string().optional(),
+        AWS_ACCESS_KEY_ID: z.string().optional(),
+        AWS_SECRET_ACCESS_KEY: z.string().optional(),
+        AWS_ENDPOINT_URL_S3: z.string().optional(),
+        AWS_REGION: z.string().optional(),
+        BUCKET_NAME: z.string().optional(),
+        FILE_URL: z.string().url().optional(),
     },
     client: {
         NEXT_PUBLIC_ADMIN_URL: z.string(),

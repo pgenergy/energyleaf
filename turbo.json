@@ -15,14 +15,18 @@
     "RESEND_API_MAIL",
     "RESEND_API_KEY",
     "ADMIN_MAIL",
-    "BLOB_READ_WRITE_TOKEN",
     "REPORTS_API_KEY",
     "CRON_SECRET",
-    "ADMIN_URL",
     "ML_API_KEY",
     "ML_API_URL",
     "NEXT_PUBLIC_ADMIN_URL",
-    "NEXT_PUBLIC_APP_URL"
+    "NEXT_PUBLIC_APP_URL",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_REGION",
+    "AWS_ENDPOINT_URL_S3",
+    "BUCKET_NAME",
+    "FILE_URL"
   ],
   "tasks": {
     "build": {
