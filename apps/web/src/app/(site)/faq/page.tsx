@@ -1,7 +1,7 @@
+import { getActionSession } from "@/lib/auth/auth.action";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@energyleaf/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import {fulfills, Versions} from "@energyleaf/lib/versioning";
-import {getActionSession} from "@/lib/auth/auth.action";
 
 export const metadata = {
     title: "FAQ | Energyleaf",
@@ -64,40 +64,41 @@ export default async function FaqPage() {
                         </AccordionItem>
                         {fulfills(user.appVersion, Versions.self_reflection) && (
                             <div>
-                        <AccordionItem value="item-5">
-                            <AccordionTrigger>
-                                Wie erhalte ich Benachrichtigungen bei hohem Energieverbrauch?
-                            </AccordionTrigger>
-                            <AccordionContent>
-                                Energyleaf sendet Ihnen bei aktivierter Einstellung automatisch eine Benachrichtigung
-                                per E-Mail, wenn Ihr aktueller Verbrauch stark von Ihrem normalen Verbrauch abweicht und
-                                ungewöhnlich hoch ist. Sollten die Einstellung aktivieren wollen, können Sie dies oben
-                                rechts in Ihrem Profil tun.
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="item-6">
-                            <AccordionTrigger>
-                                Wie kann ich mein Energieverbrauchsziel festlegen und überwachen?
-                            </AccordionTrigger>
-                            <AccordionContent>
-                                Sie können in Ihrem Profil ein tägliches Energieverbrauchsziel in kWh oder ein tägliches
-                                Energiebudget in Euro festlegen. Energyleaf zeigt Ihnen dann auf der Übersichtseite
-                                sowie in den Berichten, wie gut Sie Ihr Ziel erreichen, und warnt Sie, wenn Sie es
-                                überschreiten.
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="item-7">
-                            <AccordionTrigger>
-                                Wie kann ich mein Energieverbrauchsziel festlegen und überwachen?
-                            </AccordionTrigger>
-                            <AccordionContent>
-                                Unter „Geräte“ können Sie über die Schaltfläche „Gerät hinzufügen“ neue elektrische
-                                Geräte anlegen. Sie müssen jedem Gerät einen Namen und eine Kategorie zuweisen. Über das
-                                Aktionsmenü können Sie Geräte auch bearbeiten oder löschen.
-                            </AccordionContent>
-                        </AccordionItem>
+                                <AccordionItem value="item-5">
+                                    <AccordionTrigger>
+                                        Wie erhalte ich Benachrichtigungen bei hohem Energieverbrauch?
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                        Energyleaf sendet Ihnen bei aktivierter Einstellung automatisch eine
+                                        Benachrichtigung per E-Mail, wenn Ihr aktueller Verbrauch stark von Ihrem
+                                        normalen Verbrauch abweicht und ungewöhnlich hoch ist. Sollten die Einstellung
+                                        aktivieren wollen, können Sie dies oben rechts in Ihrem Profil tun.
+                                    </AccordionContent>
+                                </AccordionItem>
+                                <AccordionItem value="item-6">
+                                    <AccordionTrigger>
+                                        Wie kann ich mein Energieverbrauchsziel festlegen und überwachen?
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                        Sie können in Ihrem Profil ein tägliches Energieverbrauchsziel in kWh oder ein
+                                        tägliches Energiebudget in Euro festlegen. Energyleaf zeigt Ihnen dann auf der
+                                        Übersichtseite sowie in den Berichten, wie gut Sie Ihr Ziel erreichen, und warnt
+                                        Sie, wenn Sie es überschreiten.
+                                    </AccordionContent>
+                                </AccordionItem>
+                                <AccordionItem value="item-7">
+                                    <AccordionTrigger>
+                                        Wie kann ich mein Energieverbrauchsziel festlegen und überwachen?
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                        Unter „Geräte“ können Sie über die Schaltfläche „Gerät hinzufügen“ neue
+                                        elektrische Geräte anlegen. Sie müssen jedem Gerät einen Namen und eine
+                                        Kategorie zuweisen. Über das Aktionsmenü können Sie Geräte auch bearbeiten oder
+                                        löschen.
+                                    </AccordionContent>
+                                </AccordionItem>
                             </div>
-                            )}
+                        )}
                         <AccordionItem value="item-8">
                             <AccordionTrigger>Wo finde ich weitere Stromsparhilfen?</AccordionTrigger>
                             <AccordionContent>
@@ -117,8 +118,8 @@ export default async function FaqPage() {
                                 Wo kann ich sehen, zu welchen Zeiten viel Wind- und Sonnenenergie zur Verfügung steht?
                             </AccordionTrigger>
                             <AccordionContent>
-                                Informationen zur Verfügbarkeit von Wind- und Sonnenenergie finden Sie beispielsweise bei
-                                aWATTar:{" "}
+                                Informationen zur Verfügbarkeit von Wind- und Sonnenenergie finden Sie beispielsweise
+                                bei aWATTar:{" "}
                                 <a
                                     className="text-primary hover:underline"
                                     href="https://www.awattar.de"
