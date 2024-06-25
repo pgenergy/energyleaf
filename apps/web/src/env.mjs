@@ -4,7 +4,6 @@ import { z } from "zod";
 
 export const env = createEnv({
     server: {
-        ADMIN_URL: z.string(),
         HASH_SECRET: z.string(),
 
         VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
@@ -26,8 +25,12 @@ export const env = createEnv({
         BUCKET_NAME: z.string().optional(),
         FILE_URL: z.string().optional(),
     },
-    client: {},
-    experimental__runtimeEnv: {},
+    client: {
+        NEXT_PUBLIC_ADMIN_URL: z.string(),
+    },
+    experimental__runtimeEnv: {
+        NEXT_PUBLIC_ADMIN_URL: process.env.NEXT_PUBLIC_ADMIN_URL,
+    },
     extends: [vercel()],
 });
 
