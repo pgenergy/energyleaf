@@ -236,7 +236,6 @@ export default function SignUpForm() {
                                     <Input
                                         type="file"
                                         accept="image/*"
-                                        capture={true}
                                         onChange={(e) => {
                                             field.onChange(e.target.files ? e.target.files[0] : null);
                                         }}
