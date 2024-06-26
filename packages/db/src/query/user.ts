@@ -4,7 +4,6 @@ import {
     historyReportConfig,
     historyUser,
     historyUserData,
-    historyUserExperimentData,
     reportConfig,
     sensor,
     sensorHistory,
@@ -93,6 +92,20 @@ export async function getUsersWhoRecieveSurveyMail(date: Date) {
                 eq(userExperimentData.getsPaid, false),
             ),
         );
+}
+
+/**
+ * Gets the history of user data from the database
+ */
+export async function getUserDataHistory(id: string) {
+    return await db.transaction(async (trx) => {
+        return trx
+            .select()
+            .from(historyUserData)
+            .where(eq(historyUserData.userId, id))
+            .union(trx.select().from(userData).where(eq(userData.userId, id)))
+            .orderBy(historyUserData.timestamp);
+    });
 }
 
 /**
@@ -205,20 +218,6 @@ export async function getUserData(id: string): Promise<UserDataSelectType | null
 }
 
 /**
- * Gets the history of user data from the database
- */
-export async function getUserDataHistory(id: string) {
-    return await db.transaction(async (trx) => {
-        return trx
-            .select()
-            .from(historyUserData)
-            .where(eq(historyUserData.userId, id))
-            .union(trx.select().from(userData).where(eq(userData.userId, id)))
-            .orderBy(historyUserData.timestamp);
-    });
-}
-
-/**
  * Update the user data in the database
  */
 export async function updateUser(data: Partial<UserSelectType>, id: string) {
@@ -293,18 +292,6 @@ export async function deleteUser(id: string) {
             password: "",
         });
         await trx.delete(user).where(eq(user.id, id));
-
-        // delete user data
-        await trx.insert(historyUserData).values({
-            ...data.user_data,
-        });
-        await trx.delete(userData).where(eq(userData.id, data.user_data.id));
-
-        // delete experiment data
-        await trx.insert(historyUserExperimentData).values({
-            ...data.user_experiment_data,
-        });
-        await trx.delete(userExperimentData).where(eq(userExperimentData.userId, data.user_experiment_data.userId));
 
         // delete reports
         await trx.insert(historyReportConfig).values({

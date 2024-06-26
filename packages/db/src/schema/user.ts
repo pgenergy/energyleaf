@@ -44,7 +44,7 @@ export const historyUser = mysqlTable("history_user", {
     ...userFields,
 });
 
-const userExperimentDataFields = {
+export const userExperimentData = mysqlTable("user_experiment_data", {
     userId: varchar("user_id", { length: 30 }).notNull().primaryKey(),
     experimentStatus: mysqlEnum("experiment_status", [
         "registered",
@@ -65,14 +65,6 @@ const userExperimentDataFields = {
     deinstallationDate: timestamp("deinstallation_date"),
     experimentNumber: int("experiment_number"),
     getsPaid: boolean("gets_paid").default(false).notNull(),
-};
-
-export const userExperimentData = mysqlTable("user_experiment_data", {
-    ...userExperimentDataFields,
-});
-
-export const historyUserExperimentData = mysqlTable("history_user_experiment_data", {
-    ...userExperimentDataFields,
 });
 
 const userDataFields = {
