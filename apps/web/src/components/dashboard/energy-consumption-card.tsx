@@ -55,10 +55,13 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         timestamp: entry.timestamp.toString(),
         sensorDataId: entry.id,
         isPeak: entry.isPeak,
+        isAnomaly: entry.isAnomaly,
     }));
 
     const peaks =
-        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection) ? data.filter((d) => d.isPeak) : [];
+        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
+            ? data.filter((d) => d.isPeak || d.isAnomaly)
+            : [];
 
     const csvExportData = {
         userId: user.id,

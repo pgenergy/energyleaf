@@ -10,7 +10,7 @@
         },
         {
             "path": "/api/v1/mark_peaks",
-            "schedule": "0 * * * *"
+            "schedule": "0,30 * * * *"
         },
         {
             "path": "/api/v1/anomaly",

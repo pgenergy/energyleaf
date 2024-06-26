@@ -11,9 +11,16 @@ export const GET = async (req: NextRequest) => {
     }
 
     const startDate = new Date();
-    startDate.setHours(startDate.getHours() - 2, 0, 0, 0);
     const endDate = new Date();
-    endDate.setHours(endDate.getHours() - 2, 59, 59, 999);
+
+    // shift date back by half an hour to not mark and perform on newest values
+    if (startDate.getMinutes() >= 30) {
+        startDate.setHours(startDate.getHours(), 0, 0, 0);
+        endDate.setHours(endDate.getHours(), 30, 59, 999);
+    } else {
+        startDate.setHours(startDate.getHours() - 1, 30, 0, 0);
+        endDate.setHours(endDate.getHours(), 0, 0, 0);
+    }
 
     try {
         const sensors = await getAllSensors(true);
@@ -60,7 +67,11 @@ export const GET = async (req: NextRequest) => {
                 "mark-peaks/all-error",
                 "mark-peaks",
                 "api",
-                {}, // empty body - dont know what to log because whole route fails
+                {
+                    startDate,
+                    endDate,
+                    req,
+                },
                 err,
             ),
         );

@@ -4,4 +4,5 @@ export interface ConsumptionData {
     timestamp: string;
     sensorDataId: string;
     isPeak?: boolean;
+    isAnomaly?: boolean;
 }

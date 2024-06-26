@@ -102,16 +102,25 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
 
     try {
         return await db.transaction(async (trx) => {
-            const calcData = await trx
+            const calcDbData = await trx
                 .select()
                 .from(sensorData)
                 .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)))
                 .orderBy(desc(sensorData.timestamp));
 
             // make sure we have at least 3 hours of reference data
-            if (calcData.length === 0 || calcData.length < 720) {
+            if (calcDbData.length === 0 || calcDbData.length < 720) {
                 return [];
             }
+
+            const calcData = calcDbData
+                .map((d, i) => {
+                    return {
+                        ...d,
+                        value: i === 0 ? 0 : Number(d.value) - Number(calcDbData[i - 1].value),
+                    };
+                })
+                .slice(1);
 
             const energyData = calcData.filter((d) => {
                 return d.timestamp.getTime() >= start.getTime();
@@ -126,7 +135,18 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                     peaks = peaks.filter((d) => d.timestamp.getTime() - lastPeak.timestamp.getTime() > 30 * 60 * 1000);
                 }
             }
-            if (peaks.length === 0) {
+            if (peaks.length !== 0) {
+                // check before value if this peak is part of another peak sequence
+                // if so we dont mark it as peak
+                if (peaks[0].id === energyData[0].id) {
+                    const beforeIndex = calcData.findIndex((d) => d.id === peaks[0].id);
+                    if (beforeIndex > 0) {
+                        const beforeValue = calcData[beforeIndex - 1].value;
+                        if (beforeValue > threshold) {
+                            peaks.shift();
+                        }
+                    }
+                }
                 await trx
                     .update(sensorData)
                     .set({

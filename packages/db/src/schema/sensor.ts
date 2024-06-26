@@ -87,6 +87,7 @@ export const sensorData = mysqlTable(
         return {
             uniqueIdx: uniqueIndex("sensor_data_sensor_id_timestamp").on(table.sensorId, table.timestamp),
             peakIdx: index("sensor_data_peak_idx").on(table.isPeak),
+            anomalyIdx: index("sensor_data_anomaly_idx").on(table.isAnomaly),
         };
     },
 );
