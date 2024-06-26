@@ -27,10 +27,11 @@ import type { baseInformationSchema } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { Argon2id } from "oslo/password";
+import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
+import { redirect } from "next/navigation";
 import type { z } from "zod";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
@@ -365,7 +366,16 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
             throw new UserNotFoundError();
         }
 
-        const match = await new Argon2id().verify(dbuser.password, data.password);
+        let match = false;
+        try {
+            match = await new Argon2id().verify(dbuser.password, data.password);
+        } catch (err) {
+            try {
+                match = await new Bcrypt().verify(dbuser.password, data.password);
+            } catch (err) {
+                waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, userId }));
+            }
+        }
         if (!match) {
             waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, userId }));
             throw new PasswordsDoNotMatchError();
@@ -374,10 +384,8 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
         try {
             await deleteUser(session.userId);
             await deleteSessionsOfUser(userId);
-            waitUntil(trackAction("user/deleted-account", "delete-account", "web", { session, userId: userId }));
             cookies().delete(lucia.sessionCookieName);
-            revalidatePath("/profile");
-            revalidatePath("/dashboard");
+            waitUntil(trackAction("user/deleted-account", "delete-account", "web", { session, userId: userId }));
         } catch (e) {
             waitUntil(logError("user/error-deleting", "delete-account", "web", { session }, e));
             return {
@@ -393,12 +401,20 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
                 message: "Sie müssen angemeldet sein, um Ihren Account zu löschen.",
             };
         }
-        waitUntil(logError("user/error", "delete-account", "web", {}, err));
+
+        if (err instanceof PasswordsDoNotMatchError) {
+            return {
+                success: false,
+                message: "Das von Ihnen eingegebene Passwort stimmt nicht mit dem Passwort Ihres Accounts überein.",
+            };
+        }
+
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten",
         };
     }
+    redirect("/");
 }
 
 function revalidateUserDataPaths() {
