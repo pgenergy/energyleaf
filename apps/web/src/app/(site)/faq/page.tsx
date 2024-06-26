@@ -81,8 +81,7 @@ export default async function FaqPage() {
                                 Kann ich regelmäßig Berichte über meinen Energieverbrauch erhalten?
                             </AccordionTrigger>
                             <AccordionContent>
-                                Ja, unter „Berichte“ können Sie eine Zusammenfassung Ihres Energieverbrauchs ansehen.
-                                Sie können im Profil auch einstellen, dass Sie die regelmäßigen Berichte per E-Mail
+                                Ja, sie können im Profil einstellen, dass Sie regelmäßige Berichte per E-Mail
                                 erhalten, indem Sie im Profil das Intervall und die Uhrzeit der Zusendung konfigurieren.
                             </AccordionContent>
                         </AccordionItem>
