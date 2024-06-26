@@ -49,14 +49,27 @@ function findSequence(energyData: SensorDataSelectType[], threshold: number) {
         const entry = energyData[i];
 
         if (entry.value > threshold) {
+            if (entry.isAnomaly) {
+                continue;
+            }
             let sequenceEnd = i + 1;
             let highestValue = entry;
+            let containsAnomaly = false;
 
             while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
+                if (energyData[sequenceEnd].isAnomaly) {
+                    containsAnomaly = true;
+                }
                 if (energyData[sequenceEnd].value > highestValue.value) {
                     highestValue = energyData[sequenceEnd];
                 }
                 sequenceEnd++;
+            }
+
+            // if there is a anomaly marked in the sequence skip whole sequence and not mark as peak
+            if (containsAnomaly) {
+                i = sequenceEnd;
+                continue;
             }
 
             const sequenceLength = sequenceEnd - i;
@@ -92,7 +105,8 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
             const calcData = await trx
                 .select()
                 .from(sensorData)
-                .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)));
+                .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)))
+                .orderBy(desc(sensorData.timestamp));
 
             // make sure we have at least 3 hours of reference data
             if (calcData.length === 0 || calcData.length < 720) {
@@ -104,7 +118,14 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
             });
             const threshold = calculateThreshold(calcData, multiplier);
 
-            const peaks = findSequence(energyData, threshold);
+            let peaks = findSequence(energyData, threshold);
+            if (props.type === "anomaly") {
+                // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
+                const lastPeak = calcData.find((d) => d.isAnomaly);
+                if (lastPeak) {
+                    peaks = peaks.filter((d) => d.timestamp.getTime() - lastPeak.timestamp.getTime() > 30 * 60 * 1000);
+                }
+            }
             if (peaks.length === 0) {
                 await trx
                     .update(sensorData)
