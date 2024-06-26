@@ -81,8 +81,8 @@ export default async function FaqPage() {
                                 Kann ich regelmäßig Berichte über meinen Energieverbrauch erhalten?
                             </AccordionTrigger>
                             <AccordionContent>
-                                Ja, sie können im Profil einstellen, dass Sie regelmäßige Berichte per E-Mail
-                                erhalten, indem Sie im Profil das Intervall und die Uhrzeit der Zusendung konfigurieren.
+                                Ja, sie können im Profil einstellen, dass Sie regelmäßige Berichte per E-Mail erhalten,
+                                indem Sie im Profil das Intervall und die Uhrzeit der Zusendung konfigurieren.
                             </AccordionContent>
                         </AccordionItem>
                         {fulfills(user.appVersion, Versions.self_reflection) && (
