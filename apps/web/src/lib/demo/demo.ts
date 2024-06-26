@@ -117,7 +117,7 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
             valueOut: null,
             valueCurrent: null,
             isPeak: false,
-            isInSequence: false,
+            isAnomaly: false,
         };
     });
 

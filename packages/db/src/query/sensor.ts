@@ -1,6 +1,6 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, between, desc, eq, gt, gte, inArray, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, gte, inArray, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
@@ -30,28 +30,19 @@ export async function getAllSensors(active?: boolean) {
     return db.select().from(sensor);
 }
 
-interface FindAndMarkPeaksProps {
-    sensorId: string;
-    start: Date;
-    end: Date;
-}
-
-function calculateThreshold(energyData: SensorDataSelectType[]) {
+function calculateThreshold(energyData: SensorDataSelectType[], multiplier = 1) {
     // using mad median absolute deviation with 1.4826 which is a scaling factor of a normal distributed set
     // maybe ajust even further with another scaling factor
     const values = energyData.map((d) => d.value);
     const median = values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
     const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
-    const threshold = median + 1.4826 * mad;
+    const threshold = median + 1.4826 * mad * multiplier;
 
     return threshold;
 }
 
-function findSequence(energyData: SensorDataSelectType[], before?: SensorDataSelectType) {
-    const threshold = calculateThreshold(energyData);
-
+function findSequence(energyData: SensorDataSelectType[], threshold: number) {
     const peaks: SensorDataSelectType[] = [];
-    const inSequence: SensorDataSelectType[] = [];
     let i = 0;
 
     while (i < energyData.length) {
@@ -59,67 +50,66 @@ function findSequence(energyData: SensorDataSelectType[], before?: SensorDataSel
 
         if (entry.value > threshold) {
             let sequenceEnd = i + 1;
+            let highestValue = entry;
 
             while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
+                if (energyData[sequenceEnd].value > highestValue.value) {
+                    highestValue = energyData[sequenceEnd];
+                }
                 sequenceEnd++;
             }
 
             const sequenceLength = sequenceEnd - i;
-            // only mark as peak if longer then 2min
-            if (sequenceLength > 8) {
-                // if first entry is a marker, dont mark it as peak because it is part of a previous sequence
-                if (!(before?.isInSequence && i !== 0)) {
-                    peaks.push(entry);
-                }
+            // only mark as peak if longer then 2min and not marked as anomly yet
+            if (sequenceLength > 8 && !highestValue.isAnomaly) {
+                peaks.push(highestValue);
             }
-            // find more peaks in the sequence if the sequence is longer then 10min
-            if (sequenceLength > 40) {
-                const sequence = findSequence(energyData.slice(i, sequenceEnd));
-                peaks.push(...sequence.peaks);
-            }
-            inSequence.push(...energyData.slice(i, sequenceEnd));
             i = sequenceEnd;
         } else {
             i++;
         }
     }
 
-    return {
-        peaks,
-        inSequence,
-    };
+    return peaks;
 }
 
-export async function findAndMarkPeaks(props: FindAndMarkPeaksProps) {
+interface FindAndMarkPeaksProps {
+    sensorId: string;
+    start: Date;
+    end: Date;
+    type: "peak" | "anomaly";
+}
+
+export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) {
     const { sensorId, start, end } = props;
 
+    // we shift the start 12 hours back, so we have a bigger sample for the threshold
+    const sequenceStart = new Date(start);
+    sequenceStart.setHours(sequenceStart.getHours() - 12, 0, 0, 0);
+
     try {
-        await db.transaction(async (trx) => {
-            const valuesBeforeStart = await trx
+        return await db.transaction(async (trx) => {
+            const calcData = await trx
                 .select()
                 .from(sensorData)
-                .where(and(eq(sensorData.sensorId, sensorId), lt(sensorData.timestamp, start)))
-                .orderBy(desc(sensorData.timestamp))
-                .limit(1);
+                .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)));
 
-            const valueBeforeStart = valuesBeforeStart.length > 0 ? valuesBeforeStart[0] : undefined;
-
-            const energyData = await trx
-                .select()
-                .from(sensorData)
-                .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, start, end)));
-
-            if (energyData.length === 0) {
-                return;
+            // make sure we have at least 3 hours of reference data
+            if (calcData.length === 0 || calcData.length < 720) {
+                return [];
             }
 
-            const { peaks, inSequence } = findSequence(energyData, valueBeforeStart);
+            const energyData = calcData.filter((d) => {
+                return d.timestamp.getTime() >= start.getTime();
+            });
+            const threshold = calculateThreshold(calcData, multiplier);
+
+            const peaks = findSequence(energyData, threshold);
             if (peaks.length === 0) {
                 await trx
                     .update(sensorData)
                     .set({
-                        isPeak: true,
-                        isInSequence: true,
+                        ...(props.type === "peak" ? { isPeak: true } : { isAnomaly: true }),
                     })
                     .where(
                         inArray(
@@ -129,22 +119,10 @@ export async function findAndMarkPeaks(props: FindAndMarkPeaksProps) {
                     );
             }
 
-            if (inSequence.length > 0) {
-                await trx
-                    .update(sensorData)
-                    .set({
-                        isInSequence: true,
-                    })
-                    .where(
-                        inArray(
-                            sensorData.id,
-                            inSequence.map((d) => d.id),
-                        ),
-                    );
-            }
+            return peaks;
         });
     } catch (err) {
-        return;
+        return [];
     }
 }
 
@@ -236,7 +214,7 @@ export async function getEnergyForSensorInRange(
             : null,
         timestamp: new Date(row.timestamp),
         isPeak: false,
-        isInSequence: false,
+        isAnomaly: false,
     }));
 
     return results.slice(1);
@@ -865,23 +843,4 @@ export async function updateNeedsScript(sensorId: string, needsScript: boolean) 
             needsScript,
         })
         .where(eq(sensor.id, sensorId));
-}
-
-export async function calculateAnomaly(id: string, start: Date, end: Date) {
-    return db
-        .select({
-            avg: sql<number>`AVG(${sensorData.value})`,
-            std: sql<number>`STD(${sensorData.value})`,
-            sensorId: sensorData.sensorId,
-        })
-        .from(sensorData)
-        .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
-        .where(and(eq(sensor.userId, id), gt(sensorData.timestamp, start), lt(sensorData.timestamp, end)))
-        .having(
-            gt(
-                sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value}))`,
-                sql<number>`2 * STD(${sensorData.value})`,
-            ),
-        )
-        .groupBy(sensorData.sensorId);
 }
