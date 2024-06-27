@@ -31,12 +31,15 @@ export const GET = async (req: NextRequest) => {
             const sensorId = sensorIds[i];
 
             promises.push(
-                findAndMark({
-                    sensorId,
-                    start: startDate,
-                    end: endDate,
-                    type: "peak",
-                }),
+                findAndMark(
+                    {
+                        sensorId,
+                        start: startDate,
+                        end: endDate,
+                        type: "peak",
+                    },
+                    2,
+                ),
             );
         }
 
