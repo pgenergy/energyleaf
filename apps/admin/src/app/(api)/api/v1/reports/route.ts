@@ -4,7 +4,7 @@ import { log, logError } from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
+export const GET = async (req: NextRequest) => {
     const reportApiKey = env.CRON_SECRET;
     if (!req.headers.has("authorization") || req.headers.get("authorization") !== `Bearer ${reportApiKey}`) {
         waitUntil(log("request-unauthorized/missing-key", "error", "report-creation", "api", req));

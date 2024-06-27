@@ -25,7 +25,7 @@ export default async function CurrentMeterPowerCard() {
                 <CardTitle>Aktuelle Leistung</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-                <p className="font-medium">{value.valueCurrent.toFixed(6)} W</p>
+                <p className="font-medium">{value.valueCurrent.toFixed(4)} W</p>
             </CardContent>
         </Card>
     );

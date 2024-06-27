@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, date, float, int, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, float, int, mysqlTable, timestamp, varchar } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
 
 export const reportConfig = mysqlTable("report_config", {

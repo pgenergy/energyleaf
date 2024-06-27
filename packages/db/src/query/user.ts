@@ -1,6 +1,6 @@
 import { and, desc, eq, gte } from "drizzle-orm";
 import db, { genId } from "../";
-import { historyUserData, reportConfig, session, token, user, userData, userExperimentData } from "../schema";
+import { historyUserData, reportConfig, sensor, session, token, user, userData, userExperimentData } from "../schema";
 import type { UserDataSelectType, UserSelectType } from "../types/types";
 
 /**
@@ -80,6 +80,17 @@ export async function getUsersWhoRecieveSurveyMail(date: Date) {
                 eq(userExperimentData.getsPaid, false),
             ),
         );
+}
+
+/**
+ * Get all users who recive anomaly mails
+ */
+export async function getUsersWhoRecieveAnomalyMail() {
+    return await db
+        .select()
+        .from(user)
+        .innerJoin(sensor, eq(sensor.userId, user.id))
+        .where(eq(user.receiveAnomalyMails, true));
 }
 
 /**
