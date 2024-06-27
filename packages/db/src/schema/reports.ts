@@ -64,3 +64,16 @@ export const reports_legacy = mysqlTable("reports", {
     timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
     createdTimestamp: timestamp("created_timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
+
+/**
+ * Do not use this table! It is only for legacy purposes.
+ */
+export const historyReports_legacy = mysqlTable("history_reports", {
+    id: int("id").autoincrement().primaryKey().notNull(),
+    userId: varchar("user_id", { length: 30 }).notNull(),
+    receiveMails: boolean("receive_mails").default(true).notNull(),
+    interval: int("interval").default(3).notNull(),
+    time: int("time").default(6).notNull(),
+    timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
+    createdTimestamp: timestamp("created_timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
