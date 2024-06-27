@@ -117,10 +117,10 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                 .map((d, i) => {
                     return {
                         ...d,
-                        value: i === 0 ? 0 : Number(d.value) - Number(calcDbData[i - 1].value),
+                        value: i === calcDbData.length - 1 ? 0 : Number(d.value) - Number(calcDbData[i + 1].value),
                     };
                 })
-                .slice(1);
+                .slice(0, -1);
 
             const energyData = calcData.filter((d) => {
                 return d.timestamp.getTime() >= start.getTime();
