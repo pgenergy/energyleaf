@@ -1,4 +1,4 @@
-import { Skeleton } from "@energyleaf/ui/skeleton";
+import { Skeleton } from "@energyleaf/ui";
 
 export default function ProfileLoading() {
     return (

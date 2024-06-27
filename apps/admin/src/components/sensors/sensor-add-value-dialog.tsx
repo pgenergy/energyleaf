@@ -3,11 +3,21 @@
 import { insertSensorValue } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
 import { addSensorValueSchema } from "@/lib/schema/sensor";
-import type { DefaultActionReturn } from "@energyleaf/lib";
-import { Button } from "@energyleaf/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
-import { Input } from "@energyleaf/ui/input";
+import {
+    Button,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+    Input,
+} from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -22,19 +32,6 @@ export default function SensorAddValueDialog() {
         },
     });
 
-    async function insertRawSensorValueCallback(sensorId: string, value: number) {
-        let res: DefaultActionReturn = undefined;
-        try {
-            res = await insertSensorValue(sensorId, value);
-        } catch (err) {
-            throw new Error("Ein Fehler ist aufgetreten.");
-        }
-
-        if (res && !res?.success) {
-            throw new Error(res?.message);
-        }
-    }
-
     function onSubmit(data: z.infer<typeof addSensorValueSchema>) {
         if (data.value <= 0) {
             return;
@@ -44,7 +41,7 @@ export default function SensorAddValueDialog() {
             return;
         }
 
-        toast.promise(insertRawSensorValueCallback(sensorContext.sensor.id, data.value), {
+        toast.promise(insertSensorValue(sensorContext.sensor.id, data.value), {
             loading: "Wert wird hinzugefügt...",
             success: (_) => {
                 form.reset();
@@ -52,7 +49,7 @@ export default function SensorAddValueDialog() {
                 sensorContext.setSensor(undefined);
                 return "Wert wurde hinzugefügt";
             },
-            error: (err: Error) => err.message,
+            error: "Fehler beim Hinzufügen des Wertes",
         });
     }
 

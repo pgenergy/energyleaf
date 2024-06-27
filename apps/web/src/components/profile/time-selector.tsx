@@ -1,20 +1,20 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
+"use client";
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui";
 import * as React from "react";
 
 interface Props {
     value: number;
     onChange: (value: number) => void;
-    disabled?: boolean;
 }
 
-export default function TimeSelector({ value, onChange, disabled }: Props) {
+export default function TimeSelector({ value, onChange }: Props) {
     return (
         <Select
             defaultValue={value.toString()}
             onValueChange={(x) => {
                 onChange(Number(x));
             }}
-            disabled={disabled}
         >
             <SelectTrigger>
                 <SelectValue placeholder="Uhrzeit auswählen" />

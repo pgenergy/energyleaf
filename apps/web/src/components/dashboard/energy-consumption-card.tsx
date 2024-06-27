@@ -2,11 +2,14 @@ import { createHash } from "node:crypto";
 import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
+import calculatePeaks from "@/lib/consumption/peak-calculation";
+import { getDevicesByUser } from "@/query/device";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
+import type { PeakAssignment } from "@/types/consumption/peak";
 import type { ConsumptionData } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { redirect } from "next/navigation";
 import CSVExportButton from "./csv-export-button";
 import DashboardZoomReset from "./dashboard-zoom-reset";
@@ -52,24 +55,19 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     const data: ConsumptionData[] = energyData.map((entry) => ({
         sensorId: entry.sensorId || 0,
         energy: entry.value,
-        timestamp: entry.timestamp.toString(),
-        sensorDataId: entry.id,
-        isPeak: entry.isPeak,
-        isAnomaly: entry.isAnomaly,
+        timestamp: (entry.timestamp as Date).toString(),
     }));
 
-    const peaks =
+    const devices = !hasAggregation ? await getDevicesByUser(userId) : [];
+    const peakAssignments: PeakAssignment[] =
         !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
-            ? data.filter((d) => d.isPeak || d.isAnomaly)
+            ? await calculatePeaks(data, startDate, endDate, sensorId)
             : [];
 
     const csvExportData = {
         userId: user.id,
-        userHash: createHash("sha256").update(`${user.id}${env.HASH_SECRET}`).digest("hex"),
-        endpoint:
-            env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
-                ? `https://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/csv`
-                : `http://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/csv`,
+        userHash: createHash("sha256").update(`${user.id}${env.NEXTAUTH_SECRET}`).digest("hex"),
+        endpoint: env.VERCEL_PROJECT_PRODUCTION_URL ? `https://admin.${env.VERCEL_PROJECT_PRODUCTION_URL}/api/v1/csv` : "http://localhost:3001/api/v1/csv",
     };
 
     return (
@@ -107,9 +105,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     ) : (
                         <EnergyConsumptionCardChart
                             data={data}
-                            peaks={hasAggregation ? undefined : peaks}
+                            devices={devices}
+                            peaks={hasAggregation ? undefined : peakAssignments}
                             aggregation={aggregation}
-                            userId={userId}
                         />
                     )}
                 </div>

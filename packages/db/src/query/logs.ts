@@ -1,47 +1,14 @@
 import db from "../index";
-import { logs } from "../schema/logs";
+import {logs} from "../schema/logs";
 
-export async function log(
-    title: string,
-    logType: (typeof logs.logType.enumValues)[number],
-    appFunction: string,
-    appComponent: (typeof logs.appComponent.enumValues)[number],
-    details: object,
-) {
+export type LogType = {
+    logType:  (typeof logs.logType.enumValues)[number];
+    content: string;
+};
+
+export async function insertLog(data: LogType) {
     await db.insert(logs).values({
-        title: title,
-        logType: logType,
-        appFunction: appFunction,
-        appComponent: appComponent,
-        details: details,
+        logType: data.logType,
+        content: data.content
     });
-}
-
-export async function logError(
-    title: string,
-    appFunction: string,
-    appComponent: (typeof logs.appComponent.enumValues)[number],
-    details: object,
-    error: Error,
-) {
-    const detailsObj = {
-        ...details,
-        error: {
-            name: error.name,
-            message: error.message,
-            stack: error.stack?.split("\n").slice(1, 5).join("\n"),
-        },
-    };
-    console.error(error);
-    await log(title, "error", appFunction, appComponent, detailsObj);
-}
-
-export async function trackAction(
-    title: string,
-    appFunction: string,
-    appComponent: (typeof logs.appComponent.enumValues)[number],
-    details: object,
-) {
-    console.info(title, appFunction, appComponent, details);
-    await log(title, "action", appFunction, appComponent, details);
 }

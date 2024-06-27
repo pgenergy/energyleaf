@@ -14,11 +14,8 @@ import {
     deleteSessionsOfUser,
     deleteUser,
     getUserById,
-    log,
-    logError,
-    trackAction,
-    updateMailSettings,
     updatePassword,
+    updateReportSettings,
     updateUser,
     updateUserData,
 } from "@energyleaf/db/query";
@@ -27,26 +24,19 @@ import type { baseInformationSchema } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { Argon2id, Bcrypt } from "oslo/password";
+import { Argon2id } from "oslo/password";
 import "server-only";
-import { waitUntil } from "@vercel/functions";
-import type { Session } from "lucia";
-import { redirect } from "next/navigation";
 import type { z } from "zod";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
-    let session: Session | null = null;
-    const userDataToLog = "private";
     try {
-        session = (await getActionSession())?.session;
+        const { user, session } = await getActionSession();
         if (!session) {
-            waitUntil(log("user/not-logged-in", "error", "update-base-information", "web", data));
             throw new UserNotLoggedInError();
         }
 
-        const dbuser = await getUserById(session.userId);
+        const dbuser = await getUserById(user.id);
         if (!dbuser) {
-            waitUntil(log("user/not-found", "error", "update-base-information", "web", { data, session }));
             throw new UserNotFoundError();
         }
 
@@ -60,18 +50,11 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
                     username: data.username,
                     email: data.email,
                 },
-                session.userId,
-            );
-            waitUntil(
-                trackAction("user/update-base-information", "update-base-information", "web", {
-                    userDataToLog,
-                    session,
-                }),
+                user.id,
             );
             revalidatePath("/profile");
             revalidatePath("/dashboard");
         } catch (e) {
-            waitUntil(logError("user/not-updated", "update-base-information", "web", { userDataToLog, session }, e));
             return {
                 success: false,
                 message: "Es gab einen Fehler beim Speichern.",
@@ -79,15 +62,12 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(
-                logError("user/not-logged-in", "update-base-information", "web", { userDataToLog, session }, err),
-            );
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihr Profil zu bearbeiten.",
             };
         }
-        waitUntil(logError("profile/error", "update-base-information", "web", { userDataToLog, session }, err));
+
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -96,23 +76,19 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
 }
 
 export async function updateBaseInformationPassword(data: z.infer<typeof passwordSchema>) {
-    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
+        const { user, session } = await getActionSession();
 
         if (!session) {
-            waitUntil(log("user/not-logged-in", "error", "update-password", "web", data));
             throw new UserNotLoggedInError();
         }
 
-        const dbuser = await getUserById(session.userId);
+        const dbuser = await getUserById(user.id);
         if (!dbuser) {
-            waitUntil(log("user/not-found", "error", "update-password", "web", { data, session }));
             throw new UserNotFoundError();
         }
         const match = await new Argon2id().verify(dbuser.password, data.oldPassword);
         if (!match) {
-            waitUntil(log("user/password-not-match", "error", "update-password", "web", { data, session }));
             throw new PasswordsDoNotMatchError();
         }
 
@@ -122,13 +98,11 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
                 {
                     password: hash,
                 },
-                session.userId,
+                user.id,
             );
-            waitUntil(trackAction("user/update-password", "update-password", "web", { session }));
             revalidatePath("/profile");
             revalidatePath("/dashboard");
         } catch (e) {
-            waitUntil(logError("user/not-updated", "update-password", "web", { session }, e));
             return {
                 success: false,
                 message: "Fehler beim aktualisieren ihres Passworts.",
@@ -136,13 +110,12 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(logError("user/not-logged-in", "update-password", "web", {}, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihr Passwort zu ändern.",
             };
         }
-        waitUntil(logError("profile/error", "update-password", "web", {}, err));
+
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -151,50 +124,30 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
 }
 
 export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>) {
-    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
+        const { user, session } = await getActionSession();
 
         if (!session) {
-            waitUntil(log("user/not-logged-in", "error", "update-mail-information", "web", data));
             throw new UserNotLoggedInError();
         }
 
-        const dbuser = await getUserById(session.userId);
+        const dbuser = await getUserById(user.id);
         if (!dbuser) {
-            waitUntil(log("user/not-found", "error", "update-mail-information", "web", { data, session }));
             throw new UserNotFoundError();
         }
 
         try {
-            await updateMailSettings(
+            await updateReportSettings(
                 {
-                    anomalyConfig: {
-                        receiveMails: data.receiveAnomalyMails,
-                    },
-                    reportConfig: {
-                        receiveMails: data.receiveReportMails,
-                        interval: data.interval,
-                        time: data.time,
-                    },
+                    receiveMails: data.receiveMails,
+                    interval: data.interval,
+                    time: data.time,
                 },
-                session.userId,
-            );
-            waitUntil(
-                trackAction("user/updated-mail-information", "update-mail-information", "web", { data, session }),
+                user.id,
             );
             revalidatePath("/profile");
             revalidatePath("/dashboard");
         } catch (e) {
-            waitUntil(
-                logError(
-                    "user/error-updating-mail-information",
-                    "update-mail-information",
-                    "web",
-                    { data, session },
-                    e,
-                ),
-            );
             return {
                 success: false,
                 message: "Es ist ein Fehler beim Ändern der E-Mail Einstellung aufgetreten.",
@@ -202,13 +155,12 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(logError("user/not-logged-in", "update-mail-information", "web", { data, session }, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihre E-Mail Einstellungen zu ändern.",
             };
         }
-        waitUntil(logError("profile/error", "update-mail-information", "web", { data, session }, err));
+
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -217,12 +169,10 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
 }
 
 export async function updateUserDataInformation(data: z.infer<typeof userDataSchema>) {
-    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
+        const { user, session } = await getActionSession();
 
         if (!session) {
-            waitUntil(log("user/not-logged-in", "error", "update-user-data", "web", data));
             throw new UserNotLoggedInError();
         }
 
@@ -239,13 +189,11 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
                     property: data.houseType,
                 },
             } as Partial<UserDataType>);
-            waitUntil(trackAction("user/update-data-demo ", "update-user-data", "web", { session }));
             return;
         }
 
-        const dbuser = await getUserById(session.userId);
+        const dbuser = await getUserById(user.id);
         if (!dbuser) {
-            waitUntil(log("user/not-found", "error", "update-user-data", "web", data));
             throw new UserNotFoundError();
         }
 
@@ -262,12 +210,10 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
                     workingPrice: data.workingPrice,
                     monthlyPayment: data.monthlyPayment,
                 },
-                session.userId,
+                user.id,
             );
-            waitUntil(trackAction("user/updated-data", "update-user-data", "web", { data, session }));
             revalidateUserDataPaths();
         } catch (e) {
-            waitUntil(logError("user/error-updating-data", "update-user-data", "web", { data, session }, e));
             return {
                 success: false,
                 message: "Ein Fehler beim Ändern ihrer Daten ist aufgetreten.",
@@ -275,13 +221,12 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(logError("user/not-logged-in", "update-user-data", "web", { data, session }, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihre Daten zu ändern.",
             };
         }
-        waitUntil(logError("profile/error", "update-user-data", "web", { data, session }, err));
+
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -290,12 +235,10 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
 }
 
 export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
-    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
+        const { user, session } = await getActionSession();
 
         if (!session) {
-            waitUntil(log("user/not-logged-in", "error", "update-user-goals", "web", data));
             throw new UserNotLoggedInError();
         }
 
@@ -306,14 +249,12 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
                     consumptionGoal: data.goalValue,
                 },
             } as Partial<UserDataType>);
-            waitUntil(trackAction("user/update-goals-demo", "update-user-goals", "web", { data, session }));
             revalidateUserDataPaths();
             return;
         }
 
-        const dbuser = await getUserById(session.userId);
+        const dbuser = await getUserById(user.id);
         if (!dbuser) {
-            waitUntil(log("user/not-found", "error", "update-user-goals", "web", data));
             throw new UserNotFoundError();
         }
 
@@ -323,12 +264,10 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
                     timestamp: new Date(),
                     consumptionGoal: data.goalValue,
                 },
-                session.userId,
+                user.id,
             );
-            waitUntil(trackAction("user/updated-goals", "update-user-goals", "web", { data, session }));
             revalidateUserDataPaths();
         } catch (e) {
-            waitUntil(logError("user/error-updating-goals", "update-user-goals", "web", { data, session }, e));
             return {
                 success: false,
                 message: "Ein Fehler beim Speichern Ihrer Ziele ist aufgetreten.",
@@ -336,13 +275,12 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(logError("user/not-logged-in", "update-user-goals", "web", {}, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihre Ziele zu aktualisieren.",
             };
         }
-        waitUntil(logError("profile/error", "update-user-goals", "web", {}, err));
+
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten",
@@ -351,61 +289,40 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
 }
 
 export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
-    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
+        const { user, session } = await getActionSession();
+
         if (!session) {
-            waitUntil(log("user/not-logged-in", "error", "delete-account", "web", data));
             throw new UserNotLoggedInError();
         }
 
-        const userId = session.userId;
-        const dbuser = await getUserById(userId);
+        const dbuser = await getUserById(user.id);
         if (!dbuser) {
-            waitUntil(log("user/not-found", "error", "delete-account", "web", { session, userId }));
             throw new UserNotFoundError();
         }
 
-        let match = false;
-        try {
-            match = await new Argon2id().verify(dbuser.password, data.password);
-        } catch (err) {
-            try {
-                match = await new Bcrypt().verify(dbuser.password, data.password);
-            } catch (err) {
-                waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, err }));
-            }
-        }
+        const match = await new Argon2id().verify(dbuser.password, data.password);
         if (!match) {
-            waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, userId }));
             throw new PasswordsDoNotMatchError();
         }
 
         try {
-            await deleteUser(session.userId);
-            await deleteSessionsOfUser(userId);
+            await deleteUser(user.id);
+            await deleteSessionsOfUser(user.id);
             cookies().delete(lucia.sessionCookieName);
-            waitUntil(trackAction("user/deleted-account", "delete-account", "web", { session, userId: userId }));
+            revalidatePath("/profile");
+            revalidatePath("/dashboard");
         } catch (e) {
-            waitUntil(logError("user/error-deleting", "delete-account", "web", { session }, e));
             return {
                 success: false,
                 message: "Ein Fehler beim löschen Ihrers Accounts ist aufgetreten.",
             };
         }
     } catch (err) {
-        waitUntil(logError("user/error", "delete-account", "web", {}, err));
         if (err instanceof UserNotLoggedInError) {
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um Ihren Account zu löschen.",
-            };
-        }
-
-        if (err instanceof PasswordsDoNotMatchError) {
-            return {
-                success: false,
-                message: "Das von Ihnen eingegebene Passwort stimmt nicht mit dem Passwort Ihres Accounts überein.",
             };
         }
 
@@ -414,7 +331,6 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
             message: "Ein Fehler ist aufgetreten",
         };
     }
-    redirect("/");
 }
 
 function revalidateUserDataPaths() {

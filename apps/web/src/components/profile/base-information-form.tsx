@@ -2,8 +2,9 @@
 
 import { updateBaseInformationUsername } from "@/actions/profile";
 import type { DefaultActionReturn, baseInformationSchema } from "@energyleaf/lib";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { UserBaseInformationForm } from "@energyleaf/ui/forms/user-base-information-form";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { UserBaseInformationForm } from "@energyleaf/ui/components/forms";
+import { track } from "@vercel/analytics";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -41,6 +42,7 @@ export default function BaseInformationForm({ username, email, firstname, lastna
         }
 
         startTransition(() => {
+            track("updateBaseInformation()");
             if (data.email !== email) {
                 return;
             }

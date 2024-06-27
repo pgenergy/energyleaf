@@ -6,7 +6,7 @@ import { cache } from "react";
 
 export const getGoalStatus = cache(async (userId: string, sensorId: string) => {
     const dateNow = new Date();
-    const userData = await getUserData(userId);
+    const userData = (await getUserData(userId))?.user_data;
     if (!userData) {
         throw new Error("User data not found");
     }

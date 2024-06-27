@@ -1,8 +1,7 @@
 "use client";
 
 import { useUserContext } from "@/hooks/user-hook";
-import { calculateAggregationOptions } from "@energyleaf/lib/utils/use-aggregation-options";
-import { AggregationOption } from "@energyleaf/ui/utils/aggregation-option";
+import { AggregationOption, calculateAggregationOptions } from "@energyleaf/ui/components/utils";
 import React, { useMemo } from "react";
 
 export default function UserConsumptionAggregationOption() {

@@ -1,6 +1,6 @@
 import { getUserDataById } from "@/query/user";
 import { userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 interface Props {
     userId: string;
@@ -14,8 +14,7 @@ export default async function UserOnboardingCard({ userId }: Props) {
         (data.wifiAtElectricityMeter === null &&
             data.powerAtElectricityMeter === null &&
             !data.electricityMeterImgUrl &&
-            !data.electricityMeterType &&
-            !data.electricityMeterNumber)
+            !data.electricityMeterType)
     ) {
         return null;
     }
@@ -27,12 +26,6 @@ export default async function UserOnboardingCard({ userId }: Props) {
                 <CardDescription>Hier stehen einige Informationen über den Zähler der Person</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
-                {data.electricityMeterNumber ? (
-                    <div className="flex flex-row justify-between">
-                        <p>Zählernummer</p>
-                        <p>{data.electricityMeterNumber}</p>
-                    </div>
-                ) : null}
                 {data.electricityMeterType ? (
                     <div className="flex flex-row justify-between">
                         <p>Zählerart</p>
@@ -42,12 +35,7 @@ export default async function UserOnboardingCard({ userId }: Props) {
                 {data.electricityMeterImgUrl ? (
                     <div className="flex flex-row justify-between">
                         <p>Foto vom Zähler</p>
-                        <a
-                            href={data.electricityMeterImgUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-primary underline hover:no-underline"
-                        >
+                        <a href={data.electricityMeterImgUrl} target="_blank" rel="noreferrer">
                             Anzeigen
                         </a>
                     </div>

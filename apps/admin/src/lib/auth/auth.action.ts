@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import "server-only";
-import { redirect } from "next/navigation";
 import { lucia } from "./auth.config";
+import { redirect } from "next/navigation";
 
 export const getActionSession = async () => {
     const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
@@ -28,10 +28,9 @@ export const getActionSession = async () => {
         }
         return result;
     } catch {
-        // ignore
+        cookies().delete(lucia.sessionCookieName);
+        redirect("/");
     }
-    cookies().delete(lucia.sessionCookieName);
-    redirect("/");
 };
 
 export const checkIfAdmin = async () => {

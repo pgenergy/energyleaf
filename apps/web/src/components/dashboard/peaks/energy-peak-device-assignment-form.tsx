@@ -1,52 +1,50 @@
-import { getDevicesByPeak, getDevicesByUser, updateDevicesForPeak } from "@/actions/peak";
+"use client";
+
+import { addOrUpdatePeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
+import type { DeviceSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import { Button } from "@energyleaf/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
-import { MultiSelect } from "@energyleaf/ui/multi-select";
+import {
+    Button,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { track } from "@vercel/analytics";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
 interface Props {
-    userId: string;
-    sensorDataId: string;
+    devices: DeviceSelectType[];
+    initialValues: z.infer<typeof peakSchema>;
+    sensorId: string;
+    timestamp: string;
     onInteract: () => void;
 }
 
-export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInteract }: Props) {
-    const queryClient = useQueryClient();
-    const { data: selectedDevices, isLoading: selectedDevicesLoading } = useQuery({
-        queryKey: ["selectedDevices"],
-        queryFn: () => getDevicesByPeak(sensorDataId),
-    });
-    const { data: devices, isLoading: devicesLoading } = useQuery({
-        queryKey: ["devices"],
-        queryFn: () => getDevicesByUser(userId),
-    });
-
+export function EnergyPeakDeviceAssignmentForm({ devices, initialValues, sensorId, timestamp, onInteract }: Props) {
     const form = useForm<z.infer<typeof peakSchema>>({
         resolver: zodResolver(peakSchema),
         defaultValues: {
-            device: [],
+            ...initialValues,
         },
     });
 
-    useEffect(() => {
-        if (selectedDevices) {
-            form.setValue("device", selectedDevices);
-        }
-    }, [selectedDevices, form]);
-
-    async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>) {
+    async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>, sensorId: string, timestamp: string) {
         let res: DefaultActionReturn = undefined;
 
         try {
-            res = await updateDevicesForPeak(data, sensorDataId);
-            await queryClient.invalidateQueries({ queryKey: ["selectedDevices"] });
+            res = await addOrUpdatePeak(data, sensorId, timestamp);
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
@@ -57,7 +55,8 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
     }
 
     function onSubmit(data: z.infer<typeof peakSchema>) {
-        toast.promise(addOrUpdatePeakCallback(data), {
+        track("assignEnergyPeakToDevice()");
+        toast.promise(addOrUpdatePeakCallback(data, sensorId, timestamp), {
             loading: "Peak zuweisen...",
             success: "Erfolgreich zugewiesen",
             error: (err: Error) => err.message,
@@ -75,33 +74,27 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
             <form className="flex flex-col gap-4" onAbortCapture={onAbort} onSubmit={form.handleSubmit(onSubmit)}>
                 <FormField
                     control={form.control}
-                    name="device"
-                    render={({ field }) => {
-                        return (
-                            <FormItem>
-                                <FormLabel>Gerät</FormLabel>
-                                <FormControl>
-                                    <MultiSelect
-                                        options={devices?.map((device) => ({
-                                            id: device.id,
-                                            name: device.name,
-                                            label: device.name,
-                                            value: device.id.toString(),
-                                        }))}
-                                        loading={devicesLoading || selectedDevicesLoading}
-                                        initialSelected={selectedDevices?.map((device) => ({
-                                            ...device,
-                                            label: device.name,
-                                            value: device.id.toString(),
-                                        }))}
-                                        onSelectedChange={field.onChange}
-                                        placeholder="Geräte auswählen..."
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        );
-                    }}
+                    name="deviceId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Gerät</FormLabel>
+                            <FormControl>
+                                <Select defaultValue={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Gerät wählen" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {devices.map((device) => (
+                                            <SelectItem key={device.id} value={device.id.toString()}>
+                                                {device.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
                 />
 
                 <div className="flex flex-row justify-end">

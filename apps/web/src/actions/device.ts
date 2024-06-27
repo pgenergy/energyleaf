@@ -6,44 +6,33 @@ import {
     createDevice as createDeviceDb,
     deleteDevice as deleteDeviceDb,
     getUserById,
-    log,
-    logError,
-    trackAction,
     updateDevice as updateDeviceDb,
 } from "@energyleaf/db/query";
 import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import "server-only";
-import { waitUntil } from "@vercel/functions";
-import type { Session } from "lucia";
 import type { z } from "zod";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
-    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
-
+        const { user, session } = await getActionSession();
         if (!session) {
-            waitUntil(log("user/not-logged-in", "error", "create-device", "web", { data }));
             throw new UserNotLoggedInError();
         }
 
-        const id = session.userId;
-        const dbUser = await getUserById(id);
-        if (!dbUser) {
-            waitUntil(log("user/not-found", "error", "create-device", "web", { data, session }));
+        const id = user.id;
+        const dbuser = await getUserById(id);
+        if (!dbuser) {
             throw new UserNotFoundError();
         }
 
         try {
             await createDeviceDb({
                 name: data.deviceName,
-                userId: session.userId,
+                userId: user.id,
                 category: data.category,
             });
-            waitUntil(trackAction("device/create", "create-device", "web", { data, session }));
-        } catch (error) {
-            waitUntil(logError("device/not-created", "create-device", "web", { data, session }, error));
+        } catch (error: unknown) {
             return {
                 success: false,
                 message: "Fehler beim Erstellen des Gerätes.",
@@ -51,7 +40,6 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         }
     } catch (err) {
         if (err instanceof UserNotFoundError) {
-            waitUntil(logError("user/not-found", "create-device", "web", { data, session }, err));
             return {
                 success: false,
                 message: "Das Gerät konnte nicht gespeichert werden.",
@@ -59,14 +47,12 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         }
 
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(logError("user/not-logged-in", "create-device", "web", { data, session }, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um ein Gerät zu ändern.",
             };
         }
 
-        waitUntil(logError("device/error-creating", "create-device", "web", { data, session }, err));
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -76,31 +62,25 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
 }
 
 export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId: number) {
-    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
-
+        const { user, session } = await getActionSession();
         if (!session) {
-            waitUntil(log("user/not-logged-in", "error", "update-device", "web", { data }));
             throw new UserNotLoggedInError();
         }
 
-        const userId = session.userId;
-        const dbUser = await getUserById(userId);
-        if (!dbUser) {
-            waitUntil(log("user/not-found", "error", "update-device", "web", { data, deviceId, session }));
+        const userId = user.id;
+        const dbuser = await getUserById(userId);
+        if (!dbuser) {
             throw new UserNotFoundError();
         }
 
         try {
             await updateDeviceDb(deviceId, {
                 name: data.deviceName,
-                userId: userId,
+                userId: user.id,
                 category: data.category,
             });
-            waitUntil(trackAction("device/update", "update-device", "web", { data, deviceId, session }));
-        } catch (error) {
-            waitUntil(logError("device/error-updating", "update-device", "web", { data, deviceId, session }, error));
+        } catch (error: unknown) {
             return {
                 success: false,
                 message: "Fehler beim Speichern des Gerätes.",
@@ -108,7 +88,6 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         }
     } catch (err) {
         if (err instanceof UserNotFoundError) {
-            waitUntil(logError("user/not-found", "update-device", "web", { data, deviceId, session }, err));
             return {
                 success: false,
                 message: "Es konnte kein Gerät erstellt werden.",
@@ -116,13 +95,12 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         }
 
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(logError("user/not-logged-in", "update-device", "web", { data, deviceId, session }, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um ein Gerät zu erstellen.",
             };
         }
-        waitUntil(logError("device/error-updating", "update-device", "web", { data, deviceId, session }, err));
+
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",
@@ -132,21 +110,16 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
 }
 
 export async function deleteDevice(deviceId: number) {
-    let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
-
+        const { user, session } = await getActionSession();
         if (!session) {
-            waitUntil(log("user/not-logged-in", "error", "delete-device", "web", { deviceId }));
             throw new UserNotLoggedInError();
         }
 
-        const userId = session.userId;
+        const userId = user.id;
         try {
             await deleteDeviceDb(deviceId, userId);
-            waitUntil(trackAction("device/delete", "delete-device", "web", { deviceId, session }));
         } catch (error) {
-            waitUntil(logError("device/error-deleting", "delete-device", "web", { deviceId, session }, error));
             return {
                 success: false,
                 message: "Fehler beim Löschen des Geräts",
@@ -154,13 +127,12 @@ export async function deleteDevice(deviceId: number) {
         }
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
-            waitUntil(logError("user/not-logged-in", "delete-device", "web", { deviceId, session }, err));
             return {
                 success: false,
                 message: "Sie müssen angemeldet sein, um ein Gerät zu löschen.",
             };
         }
-        waitUntil(logError("device/error-deleting", "delete-device", "web", { deviceId, session }, err));
+
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten.",

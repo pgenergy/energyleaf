@@ -2,12 +2,10 @@ import DemoBanner from "@/components/footer/demo-banner";
 import Footer from "@/components/footer/footer";
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
-import PageView from "@/components/tracking/page-view";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { Navbar } from "@energyleaf/ui/nav/navbar";
-import { Sidebar } from "@energyleaf/ui/nav/sidebar";
+import { Navbar, Sidebar } from "@energyleaf/ui/components/nav";
 import { AreaChartIcon, HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import type React from "react";
@@ -35,7 +33,6 @@ const navLinks = [
         title: "Berichte",
         path: "/report",
         icon: <AreaChartIcon className="mr-2 h-4 w-4" />,
-        appVersion: Versions.support, // TODO: Remove this line when the page is ready (PGE-101)
     },
     {
         slug: "devices",
@@ -71,7 +68,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                 titleLink="/dashboard"
             />
             <Sidebar links={filteredNavLinks} />
-            <PageView />
             <main className="mt-14 ml-0 px-8 py-8 md:ml-[13%]">{children}</main>
             <Footer />
             {isDemo ? <DemoBanner /> : null}

@@ -5,12 +5,19 @@ import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
 import { userGoalSchema } from "@/lib/schema/profile";
 import type { UserDataSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import { Button } from "@energyleaf/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { Form } from "@energyleaf/ui/form";
-import { Label } from "@energyleaf/ui/label";
-import { Spinner } from "@energyleaf/ui/spinner";
+import {
+    Button,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    Form,
+    Label,
+    Spinner,
+} from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -27,6 +34,7 @@ export default function UserGoalsForm({ userData }: Props) {
         defaultValues: {
             goalValue: userData?.consumptionGoal || 0,
         },
+        mode: "onChange",
     });
 
     async function updateUserGoalsCallback(data: z.infer<typeof userGoalSchema>) {
@@ -45,6 +53,7 @@ export default function UserGoalsForm({ userData }: Props) {
 
     function onSubmit(data: z.infer<typeof userGoalSchema>) {
         startTransition(() => {
+            track("updateUserGoals()");
             toast.promise(updateUserGoalsCallback(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",
@@ -62,7 +71,7 @@ export default function UserGoalsForm({ userData }: Props) {
             <CardContent>
                 <Form {...form}>
                     <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-                        <UserGoalsFormFields form={form} workingPrice={userData?.workingPrice} />
+                        <UserGoalsFormFields form={form} />
                         <div className="flex flex-row justify-end">
                             <Button disabled={isPending} type="submit">
                                 {isPending ? <Spinner className="mr-2 h-4 w-4" /> : null}
@@ -71,6 +80,13 @@ export default function UserGoalsForm({ userData }: Props) {
                         </div>
                     </form>
                 </Form>
+                <Label>Budget</Label>
+                <p className="text-[0.8rem] text-muted-foreground">
+                    Mit dem Zielverbrauch haben Sie gemäß Ihres Strompreises folgende Kosten pro Tag.
+                </p>
+                <h1 className="text-center font-bold text-2xl text-primary">
+                    {(form.getValues().goalValue * (userData?.workingPrice || 0)).toFixed(2)} €
+                </h1>
             </CardContent>
         </Card>
     );

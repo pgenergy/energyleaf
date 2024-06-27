@@ -1,15 +1,27 @@
 "use client";
 
-import { updateBaseInformationPassword } from "@/actions/profile";
+import { updateBaseInformationPassword, updateBaseInformationUsername } from "@/actions/profile";
 import { passwordSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError } from "@energyleaf/lib/errors/auth";
-import { Button } from "@energyleaf/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
-import { Input } from "@energyleaf/ui/input";
-import { Spinner } from "@energyleaf/ui/spinner";
+import {
+    Button,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+    Input,
+    Spinner,
+} from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { track } from "@vercel/analytics";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -56,6 +68,7 @@ export default function ChangePasswordForm({ disabled }: Props) {
         }
 
         startTransition(() => {
+            track("changePassword()");
             toast.promise(updateBaseInformationPasswordCallback(data), {
                 loading: "Speichere...",
                 success: "Erfolgreich aktualisiert",

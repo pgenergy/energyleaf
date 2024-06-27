@@ -1,4 +1,4 @@
-import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import React from "react";
 
 export const metadata = {

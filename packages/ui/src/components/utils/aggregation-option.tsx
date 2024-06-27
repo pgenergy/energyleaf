@@ -1,6 +1,6 @@
 import { AggregationType, aggregationLabels } from "@energyleaf/lib";
 import React from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui";
 
 interface Props {
     selected?: AggregationType;

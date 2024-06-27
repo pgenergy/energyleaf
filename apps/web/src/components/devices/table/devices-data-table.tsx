@@ -1,7 +1,6 @@
 "use client";
 
-import { Input } from "@energyleaf/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@energyleaf/ui/table";
+import { Input, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@energyleaf/ui";
 import type { ColumnFiltersState, SortingState } from "@tanstack/react-table";
 import {
     type ColumnDef,

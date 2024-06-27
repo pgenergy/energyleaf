@@ -1,7 +1,6 @@
 "use client";
 
-import { Button } from "@energyleaf/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 interface Props {
     error: Error & { digest?: string };

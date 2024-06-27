@@ -1,7 +1,7 @@
 "use client";
 
 import { signOutDemoAction } from "@/actions/auth";
-import { Button } from "@energyleaf/ui/button";
+import { Button } from "@energyleaf/ui";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";

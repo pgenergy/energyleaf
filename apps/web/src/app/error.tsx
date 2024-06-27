@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@energyleaf/ui/button";
+import { Button } from "@energyleaf/ui";
+import { track } from "@vercel/analytics";
 import { RotateCwIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,6 +27,7 @@ export default function ErrorPage({ reset }: Props) {
             <h1 className="text-lg">Ein Fehler ist aufgetreten</h1>
             <Button
                 onClick={() => {
+                    track("ErrorPage.refresh()");
                     refresh;
                 }}
                 type="button"

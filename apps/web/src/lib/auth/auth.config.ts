@@ -24,7 +24,6 @@ export const lucia = new Lucia(adapter, {
             isAdmin: attributes.isAdmin,
             isActive: attributes.isActive,
             appVersion: attributes.appVersion,
-            onboardingCompleted: attributes.onboardingCompleted,
         };
     },
 });

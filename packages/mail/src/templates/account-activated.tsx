@@ -1,5 +1,5 @@
 import { Container, Head, Html, Preview, Text } from "@react-email/components";
-import { CustomButton, Footer, Header, Main } from "../components";
+import { Footer, Header, Main } from "../components";
 
 interface Props {
     name: string;
@@ -16,25 +16,11 @@ export default function AccountActivatedTemplate({ name }: Props) {
                     <Text>
                         Hallo {name}, <br />
                         <br />
-                        wir freuen uns, Ihnen mitteilen zu können, dass Ihr Energyleaf-Konto erfolgreich freigeschaltet
-                        wurde. Sie können sich nun mit Ihren Zugangsdaten auf unserer Plattform anmelden und alle
-                        Funktionen und Dienste nutzen:
+                        Ihr Konto wurde erfolgreich aktiviert. Sie können sich jetzt mit Ihren Zugangsdaten einloggen.
                     </Text>
                 </Container>
-                <CustomButton href="https://energyleaf.de">Zur App</CustomButton>
-                <Container>
-                    <Text>
-                        In einer Woche erhalten Sie die Einladung zur Durchführung der zweiten Umfrage. Falls Sie Fragen
-                        zur Nutzung der Plattform haben oder Unterstützung benötigen, stehen wir Ihnen
-                        selbstverständlich jederzeit gerne zur Verfügung.
-                    </Text>
-                </Container>
-                <Container className="px-4">
-                    <Text>
-                        Mit freundlichen Grüßen
-                        <br />
-                        Jessy und Vanessa von Energyleaf
-                    </Text>
+                <Container className="px-4 text-muted-foreground">
+                    <Text>Sollten Sie kein Konto erstellt haben, kontaktieren Sie uns bitte.</Text>
                 </Container>
                 <Footer />
             </Main>

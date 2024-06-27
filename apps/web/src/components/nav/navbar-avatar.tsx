@@ -2,15 +2,15 @@
 
 import { signOutAction, signOutDemoAction } from "@/actions/auth";
 import { Avatar as BAvatar } from "@boringer-avatars/react";
-import { Avatar } from "@energyleaf/ui/avatar";
 import {
+    Avatar,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@energyleaf/ui/dropdown-menu";
+} from "@energyleaf/ui";
 import type { User } from "lucia";
 import { LightbulbIcon, LogOutIcon, User2Icon } from "lucide-react";
 import Link from "next/link";

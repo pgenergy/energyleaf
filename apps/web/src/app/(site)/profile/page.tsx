@@ -2,12 +2,15 @@ import AccountDeletionForm from "@/components/profile/account-deletion-form";
 import BaseInformationForm from "@/components/profile/base-information-form";
 import ChangePasswordForm from "@/components/profile/change-password-form";
 import UserDataForm from "@/components/profile/data-form";
-import MailConfigCard from "@/components/profile/mail-config-card";
+import MailSettingsForm from "@/components/profile/mail-settings-form";
 import UserGoalsForm from "@/components/profile/user-goals-form";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
-import { createMailSettingsSchema, createUserDataSchemaFromUserDataSelectType } from "@/lib/schema/conversion/profile";
-import { getUserData, getUserMailConfig } from "@/query/user";
+import {
+    createMailSettingsSchemaFromUserDataType,
+    createUserDataSchemaFromUserDataType,
+} from "@/lib/schema/conversion/profile";
+import { getUserData } from "@/query/user";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { redirect } from "next/navigation";
 
@@ -25,10 +28,9 @@ export default async function ProfilePage() {
     const isDemo = await isDemoUser();
 
     const userData = await getUserData(user.id);
-    const data = createUserDataSchemaFromUserDataSelectType(userData);
+    const data = createUserDataSchemaFromUserDataType(userData);
 
-    const mailConfig = await getUserMailConfig(user.id);
-    const mailConfigInitial = createMailSettingsSchema(mailConfig);
+    const reportConfig = createMailSettingsSchemaFromUserDataType(userData);
 
     return (
         <div className="flex flex-col gap-4">
@@ -42,9 +44,9 @@ export default async function ProfilePage() {
                 address={user.address}
             />
             <ChangePasswordForm disabled={isDemo} />
-            <MailConfigCard disabled={isDemo} initialData={mailConfigInitial} />
+            <MailSettingsForm disabled={isDemo} initialValues={reportConfig} />
             <UserDataForm initialData={data} />
-            {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData ?? undefined} />}
+            {fulfills(user.appVersion, Versions.self_reflection) && <UserGoalsForm userData={userData?.user_data} />}
             <AccountDeletionForm disabled={isDemo} />
         </div>
     );

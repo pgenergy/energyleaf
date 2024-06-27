@@ -1,7 +1,6 @@
 import { usersTableColumns } from "@/components/users/table/users-table-columns";
 import { getAllUsers } from "@/query/user";
-import { DataTable } from "@energyleaf/ui/data-table";
-import UserCsvExportButton from "./user-csv-export-button";
+import { DataTable } from "@energyleaf/ui";
 
 export default async function UsersTable() {
     const users = await getAllUsers();
@@ -12,18 +11,5 @@ export default async function UsersTable() {
         };
     });
 
-    return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <div className="flex flex-col gap-2">
-                    <p className="font-medium">Nutzer exportieren</p>
-                    <p className="text-muted-foreground text-sm">
-                        Damit werden alle für das Experiment relevanten Nutzer als CSV exportiert.
-                    </p>
-                </div>
-                <UserCsvExportButton />
-            </div>
-            <DataTable columns={usersTableColumns} data={data} />
-        </div>
-    );
+    return <DataTable columns={usersTableColumns} data={data} />;
 }

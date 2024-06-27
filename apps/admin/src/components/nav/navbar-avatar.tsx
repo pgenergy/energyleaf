@@ -2,16 +2,15 @@
 
 import { signOutAction } from "@/actions/auth";
 import { Avatar as BAvatar } from "@boringer-avatars/react";
-import type { DefaultActionReturn } from "@energyleaf/lib";
-import { Avatar } from "@energyleaf/ui/avatar";
 import {
+    Avatar,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@energyleaf/ui/dropdown-menu";
+} from "@energyleaf/ui";
 import type { User } from "lucia";
 import { LogOutIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -26,28 +25,15 @@ export default function NavbarAvatar({ user }: Props) {
     const [_isPending, startTransition] = useTransition();
     const router = useRouter();
 
-    async function signOutActionCallback() {
-        let res: DefaultActionReturn = undefined;
-        try {
-            res = await signOutAction();
-        } catch (err) {
-            throw new Error("Ein Fehler ist aufgetreten.");
-        }
-
-        if (res && !res?.success) {
-            throw new Error(res?.message);
-        }
-    }
-
     function onSignOut() {
         startTransition(() => {
-            toast.promise(signOutActionCallback, {
+            toast.promise(signOutAction, {
                 loading: "Abmelden...",
                 success: () => {
                     router.push("/");
                     return "Erfolgreich abgemeldet.";
                 },
-                error: (err: Error) => err.message,
+                error: "Fehler beim Abmelden.",
             });
         });
     }

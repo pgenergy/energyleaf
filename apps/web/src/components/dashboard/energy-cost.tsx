@@ -24,9 +24,9 @@ export function energyDataJoinUserData(
 export function calculateCosts(userData: UserDataSelectType[], sensorData: SensorDataSelectType[]): number {
     const joinedData = energyDataJoinUserData(sensorData, userData);
     return joinedData.reduce((acc, cur) => {
-        const consumptionInKWh = cur.energyData.value;
-        return acc + consumptionInKWh * (cur.userData?.workingPrice ?? 0);
-    }, joinedData[0].userData?.basePrice ?? 0);
+        const consumptionInKWh = cur.energyData.value / 1000;
+        return acc + consumptionInKWh * (cur.userData?.basePrice ?? 0);
+    }, 0);
 }
 
 export function getCalculatedPayment(

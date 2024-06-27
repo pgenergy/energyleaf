@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@vercel/analytics";
 import type { FallbackProps } from "react-error-boundary";
 import { ErrorBoundary as Eb } from "react-error-boundary";
 
@@ -11,6 +12,9 @@ function ErrorBoundary({ children, fallback }: Props) {
     return (
         <Eb
             FallbackComponent={fallback}
+            onError={(error: Error) => {
+                track(`${fallback.name}: ${error.name}("${error.message}")`);
+            }}
             onReset={() => {
                 window.location.reload();
             }}

@@ -12,8 +12,9 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@energyleaf/ui/alert-dialog";
-import { buttonVariants } from "@energyleaf/ui/button";
+    buttonVariants,
+} from "@energyleaf/ui";
+import { track } from "@vercel/analytics";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
@@ -46,6 +47,7 @@ export function DeviceDeleteDialog() {
 
     function deleteDeviceAction() {
         startTransition(() => {
+            track("deleteDevice()");
             if (!deviceContext.device) {
                 return;
             }

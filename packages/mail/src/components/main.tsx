@@ -15,7 +15,7 @@ export function Main({ children }: Props) {
             }}
         >
             <Body className="bg-background font-sans text-foreground">
-                <Container className="mx-auto max-w-xl gap-4 px-8 py-4">{children}</Container>
+                <Container className="mx-auto flex max-w-lg flex-col gap-4 px-8 py-4">{children}</Container>
             </Body>
         </Tailwind>
     );

@@ -3,10 +3,8 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
 import { baseInformationSchema } from "@energyleaf/lib";
-import { Button } from "../../ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
-import { Input } from "../../ui/input";
-import { Spinner } from "../../ui/spinner";
+
+import { Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Input, Spinner } from "../../ui";
 
 interface Props {
     firstname: string;

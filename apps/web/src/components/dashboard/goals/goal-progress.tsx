@@ -1,8 +1,8 @@
 import { GoalState, type GoalStatus } from "@/types/goals";
-import { formatNumber } from "@energyleaf/lib";
 import { cn } from "@energyleaf/tailwindcss/utils";
-import { CircularProgress } from "@energyleaf/ui/circular-progress";
+import { CircularProgress } from "@energyleaf/ui";
 import { CheckCircleIcon, CircleAlertIcon, XCircleIcon } from "lucide-react";
+import { formatNumber } from "@/lib/consumption/number-format";
 
 interface Props {
     goal: GoalStatus;

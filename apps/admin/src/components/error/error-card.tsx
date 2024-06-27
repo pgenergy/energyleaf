@@ -1,20 +1,19 @@
-"use client";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui";
 import { TryAgainErrorHint } from "@energyleaf/ui/error";
 
 interface Props {
     title: string;
+    resetErrorBoundary: () => void;
 }
 
-export default function ErrorCard({ title }: Props) {
+export default function ErrorCard({ title, resetErrorBoundary }: Props) {
     return (
         <Card>
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
             </CardHeader>
             <CardContent>
-                <TryAgainErrorHint />
+                <TryAgainErrorHint resetErrorBoundary={resetErrorBoundary} />
             </CardContent>
         </Card>
     );

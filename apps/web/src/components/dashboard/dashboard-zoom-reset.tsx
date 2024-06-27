@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@energyleaf/ui/button";
+import { Button } from "@energyleaf/ui";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { MouseEvent } from "react";
 

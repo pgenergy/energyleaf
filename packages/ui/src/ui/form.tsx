@@ -43,6 +43,7 @@ const useFormField = () => {
 
     const fieldState = getFieldState(fieldContext.name, formState);
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- this is necessary
     if (!fieldContext) {
         throw new Error("useFormField should be used within <FormField>");
     }

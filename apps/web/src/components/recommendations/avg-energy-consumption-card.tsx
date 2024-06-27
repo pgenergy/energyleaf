@@ -1,8 +1,8 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getAvgEnergyConsumptionForSensor, getElectricitySensorIdForUser } from "@/query/energy";
-import { formatNumber } from "@energyleaf/lib";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 import { redirect } from "next/navigation";
+import { formatNumber } from "@/lib/consumption/number-format";
 
 export default async function AvgEnergyConsumptionCard() {
     const { session, user } = await getSession();
@@ -34,9 +34,7 @@ export default async function AvgEnergyConsumptionCard() {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Durchschnittlicher Energieverbrauch</CardTitle>
-                <CardDescription>
-                    Hier sehen Sie Ihren durchschnittlichen Energieverbrauch über die gesamte Zeit
-                </CardDescription>
+                <CardDescription>Hier sehen Sie Ihren durchschnittlichen Energieverbrauch über die gesamte Zeit</CardDescription>
             </CardHeader>
             <CardContent>
                 {avg ? (

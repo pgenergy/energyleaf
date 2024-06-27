@@ -4,9 +4,9 @@ import SensorUserAssignmentForm from "@/components/sensors/sensor-user-assignmen
 import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
 import type { SensorSelectTypeWithUser } from "@energyleaf/db/types";
 import { SensorTypeMap } from "@energyleaf/db/types";
-import { Button } from "@energyleaf/ui/button";
+import { Button } from "@energyleaf/ui";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import React from "react";
 
 export const sensorsColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
@@ -23,10 +23,8 @@ export const sensorsColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
                     MAC-Adresse
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
-                    ) : column.getIsSorted() === "desc" ? (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     ) : (
-                        <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );
@@ -49,10 +47,8 @@ export const sensorsColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
                     Typ
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
-                    ) : column.getIsSorted() === "desc" ? (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     ) : (
-                        <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );
@@ -83,10 +79,8 @@ export const sensorsOverviewColumns: ColumnDef<SensorSelectTypeWithUser>[] = [
                     Benutzer
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
-                    ) : column.getIsSorted() === "desc" ? (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     ) : (
-                        <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );

@@ -5,13 +5,14 @@ import { updateMailInformation, updateUserDataInformation, updateUserGoals } fro
 import DataFormFields from "@/components/profile/data-form-fields";
 import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
 import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
-import { createMailSettingsSchema, createUserDataSchemaFromUserDataSelectType } from "@/lib/schema/conversion/profile";
+import {
+    createMailSettingsSchemaFromReportSelectType,
+    createUserDataSchemaFromUserDataSelectType,
+} from "@/lib/schema/conversion/profile";
 import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
-import type { MailConfig, UserDataSelectType } from "@energyleaf/db/types";
+import type { ReportSelectType, UserDataSelectType, UserDataType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import { Button } from "@energyleaf/ui/button";
-import { Form } from "@energyleaf/ui/form";
-import { Wizard, WizardPage, useWizard } from "@energyleaf/ui/wizard";
+import { Button, Form, Wizard, WizardPage, useWizard } from "@energyleaf/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRightIcon } from "lucide-react";
 import React, { useCallback, useMemo } from "react";
@@ -20,12 +21,11 @@ import { toast } from "sonner";
 import type { z } from "zod";
 
 interface Props {
-    userData: UserDataSelectType;
-    mailConfig: MailConfig;
+    userData: UserDataType;
     showGoals: boolean;
 }
 
-export default function OnboardingWizard({ userData, mailConfig, showGoals }: Props) {
+export default function OnboardingWizard({ userData, showGoals }: Props) {
     async function completeOnboardingCallback() {
         let res: DefaultActionReturn = undefined;
 
@@ -51,9 +51,9 @@ export default function OnboardingWizard({ userData, mailConfig, showGoals }: Pr
     return (
         <Wizard finishHandler={finishHandler}>
             <InformationStep />
-            <UserDataStep userData={userData} />
-            {Boolean(showGoals) && <GoalStep userData={userData} />}
-            <MailSettingsStep mailConfig={mailConfig} />
+            <UserDataStep userData={userData.user_data} />
+            {Boolean(showGoals) && <GoalStep userData={userData.user_data} />}
+            <MailSettingsStep reports={userData.reports} />
             <ThankYouStep />
         </Wizard>
     );
@@ -169,11 +169,7 @@ function GoalStep({ userData }: UserDataStepProps) {
         <WizardPage title="Ziel">
             <Form {...form}>
                 <form className="flex flex-col gap-4">
-                    <UserGoalsFormFields
-                        form={form}
-                        goalIsCalculated={goalCalculated}
-                        workingPrice={userData.workingPrice}
-                    />
+                    <UserGoalsFormFields form={form} goalIsCalculated={goalCalculated} />
                 </form>
             </Form>
         </WizardPage>
@@ -181,13 +177,13 @@ function GoalStep({ userData }: UserDataStepProps) {
 }
 
 interface MailSettingsStepProps {
-    mailConfig: MailConfig;
+    reports: ReportSelectType;
 }
 
-function MailSettingsStep({ mailConfig }: MailSettingsStepProps) {
+function MailSettingsStep({ reports }: MailSettingsStepProps) {
     const form = useForm<z.infer<typeof mailSettingsSchema>>({
         resolver: zodResolver(mailSettingsSchema),
-        defaultValues: createMailSettingsSchema(mailConfig),
+        defaultValues: createMailSettingsSchemaFromReportSelectType(reports),
     });
 
     const { handleNextClick, handleStep } = useWizard();

@@ -1,6 +1,5 @@
 import ForgotForm from "@/components/auth/forgot-form";
-import { CardContent } from "@energyleaf/ui/card";
-import { Separator } from "@energyleaf/ui/separator";
+import { CardContent, Separator } from "@energyleaf/ui";
 import Link from "next/link";
 
 export const metadata = {

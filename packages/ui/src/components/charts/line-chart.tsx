@@ -44,7 +44,6 @@ interface Props {
 export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoints, zoomCallback }: Props) {
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
-    const [mouseDown, setMouseDown] = useState(false);
     const dynamicTickFormatter = useMemo(() => {
         if (!xAxes?.dataKey) {
             return;
@@ -133,18 +132,14 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 onMouseDown={(e) => {
                     if (!zoomCallback) return;
 
-                    setMouseDown(true);
                     setLeftValue(e);
                 }}
                 onMouseMove={(e) => {
-                    if (!leftValue || !zoomCallback || !mouseDown) return;
+                    if (!leftValue || !zoomCallback) return;
 
                     setRightValue(e);
                 }}
-                onMouseUp={() => {
-                    setMouseDown(false);
-                    handleZoom();
-                }}
+                onMouseUp={handleZoom}
             >
                 <defs>
                     <linearGradient id="color" x1="0" x2="0" y1="0" y2="1">
@@ -201,15 +196,6 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                                   referencePoints.yKeyName
                               ]?.toString()}`}
                               onClick={() => referencePoints?.callback?.(value)}
-                              onMouseDown={(_, e) => {
-                                  e.stopPropagation();
-                              }}
-                              onMouseMove={(_, e) => {
-                                  e.stopPropagation();
-                              }}
-                              onMouseUp={(_, e) => {
-                                  e.stopPropagation();
-                              }}
                               r={10}
                               stroke="hsl(var(--destructive))"
                               x={value[referencePoints.xKeyName]}

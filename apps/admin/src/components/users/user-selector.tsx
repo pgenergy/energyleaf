@@ -1,12 +1,24 @@
 import { getAllUsersAction } from "@/actions/user";
 import { cn } from "@energyleaf/tailwindcss/utils";
-import { Button } from "@energyleaf/ui/button";
-import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@energyleaf/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
-import { Spinner } from "@energyleaf/ui/spinner";
-import { useQuery } from "@tanstack/react-query";
+import {
+    Button,
+    Command,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    Spinner,
+} from "@energyleaf/ui";
 import { CheckIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+
+interface User {
+    id: string;
+    name: string;
+}
 
 interface Props {
     selectedUserName?: string | null;
@@ -15,10 +27,8 @@ interface Props {
 }
 
 export default function UserSelector({ selectedUserId, onUserSelected, selectedUserName }: Props) {
-    const { data: users, isLoading } = useQuery({
-        queryKey: ["users"],
-        queryFn: () => getAllUsersAction(),
-    });
+    const [isLoading, startLoadTransition] = useTransition();
+    const [users, setUsers] = useState<User[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -28,12 +38,25 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
         }
     }, [isOpen]);
 
-    useEffect(() => {
-        console.log(users);
-    }, [users]);
+    function loadUsers(isOpened: boolean) {
+        setIsOpen(isOpened);
+        if (!isOpened) {
+            setUsers([]);
+            return;
+        }
+
+        startLoadTransition(async () => {
+            const allUsers = (await getAllUsersAction()).map((user) => ({
+                id: user.id,
+                name: user.username,
+            }));
+
+            setUsers(allUsers);
+        });
+    }
 
     return (
-        <Popover onOpenChange={setIsOpen} open={isOpen}>
+        <Popover onOpenChange={loadUsers} open={isOpen}>
             <PopoverTrigger asChild>
                 <Button aria-expanded={isOpen} role="combobox" size="sm" variant="ghost">
                     {selectedUserName || "Nicht zugeordnet"}
@@ -58,7 +81,7 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
                         </CommandGroup>
                         <CommandGroup heading="Nutzer">
                             {!isLoading ? (
-                                users?.map((user) => (
+                                users.map((user) => (
                                     <CommandItem
                                         key={user.id}
                                         onSelect={() => {
@@ -67,7 +90,7 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
                                             }
                                             setIsOpen(false);
                                         }}
-                                        value={user.username}
+                                        value={user.name}
                                     >
                                         <CheckIcon
                                             className={cn(
@@ -75,7 +98,7 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
                                                 selectedUserId === user.id ? "opacity-100" : "opacity-0",
                                             )}
                                         />
-                                        {user.username}
+                                        {user.name}
                                     </CommandItem>
                                 ))
                             ) : (

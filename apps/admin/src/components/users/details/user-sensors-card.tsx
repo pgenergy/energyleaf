@@ -1,5 +1,5 @@
 import UserSensorsTable from "@/components/users/details/user-sensors-table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
 
 interface Props {
     userId: string;

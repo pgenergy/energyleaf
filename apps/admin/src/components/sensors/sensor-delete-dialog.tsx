@@ -2,7 +2,6 @@
 
 import { deleteSensor } from "@/actions/sensors";
 import { useSensorContext } from "@/hooks/sensor-hook";
-import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -12,8 +11,8 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@energyleaf/ui/alert-dialog";
-import { buttonVariants } from "@energyleaf/ui/button";
+    buttonVariants,
+} from "@energyleaf/ui";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
@@ -30,32 +29,19 @@ export function SensorDeleteDialog() {
         sensorContext.setSensor(undefined);
     }
 
-    async function deleteSensorCallback(sensorId: string) {
-        let res: DefaultActionReturn = undefined;
-        try {
-            res = await deleteSensor(sensorId);
-        } catch (err) {
-            throw new Error("Ein Fehler ist aufgetreten.");
-        }
-
-        if (res && !res?.success) {
-            throw new Error(res?.message);
-        }
-    }
-
     function deleteSensorAction() {
         startTransition(() => {
             if (!sensorContext.sensor) {
                 return;
             }
-            toast.promise(deleteSensorCallback(sensorContext.sensor.id), {
+            toast.promise(deleteSensor(sensorContext.sensor.id), {
                 loading: "Sensor wird gelöscht...",
                 success: () => {
                     sensorContext.setDeleteDialogOpen(false);
                     sensorContext.setSensor(undefined);
                     return "Sensor wurde erfolgreich gelöscht.";
                 },
-                error: (err: Error) => err.message,
+                error: "Beim Löschen des Sensors ist ein Fehler aufgetreten.",
             });
         });
     }

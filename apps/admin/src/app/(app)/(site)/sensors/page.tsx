@@ -1,5 +1,5 @@
 import SensorsOverviewCard from "@/components/sensors/sensors-overview-card";
-import { Skeleton } from "@energyleaf/ui/skeleton";
+import { Skeleton } from "@energyleaf/ui";
 import { Suspense } from "react";
 
 export const metadata = {

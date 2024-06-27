@@ -1,10 +1,12 @@
 "use client";
 
 import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
-import { Button } from "@energyleaf/ui/button";
+import { Button } from "@energyleaf/ui";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon } from "lucide-react";
+import { track } from "@vercel/analytics";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import DeviceActionCell from "./device-action-cell";
+import { formatNumber } from "@/lib/consumption/number-format";
 
 export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
     {
@@ -13,6 +15,7 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
             return (
                 <Button
                     onClick={() => {
+                        track("toggleSortAfterDeviceName()");
                         column.toggleSorting(column.getIsSorted() === "asc");
                     }}
                     variant="ghost"
@@ -20,10 +23,8 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
                     Name
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
-                    ) : column.getIsSorted() === "desc" ? (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     ) : (
-                        <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );
@@ -38,6 +39,7 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
             return (
                 <Button
                     onClick={() => {
+                        track("toggleSortAfterDateOfCreation()");
                         column.toggleSorting(column.getIsSorted() === "asc");
                     }}
                     variant="ghost"
@@ -45,10 +47,8 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
                     Erstellt
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
-                    ) : column.getIsSorted() === "desc" ? (
-                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     ) : (
-                        <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
                     )}
                 </Button>
             );
@@ -62,11 +62,26 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
         },
     },
     {
+        accessorKey: "averageConsumption",
+        header: () => "Durchschn. Leistung",
+        cell: ({ row }) => {
+            const consumptionValue = row.getValue("averageConsumption");
+            const consumption = typeof consumptionValue === "number" ? consumptionValue.toString() : consumptionValue;
+
+            if (consumption) {
+                const formattedConsumption = `${formatNumber(Number(consumption))} Watt`;
+                return <span>{formattedConsumption}</span>;
+            }
+            return <span>N/A</span>;
+        },
+    },
+    {
         accessorKey: "category",
         header: "Kategorie",
         cell: ({ row }) => {
             const categoryKey = row.getValue("category");
-            return DeviceCategory[categoryKey as keyof typeof DeviceCategory];
+            const categoryValue = DeviceCategory[categoryKey as keyof typeof DeviceCategory];
+            return categoryValue;
         },
     },
     {

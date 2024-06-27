@@ -19,5 +19,4 @@ interface DatabaseUserAttributes {
     isAdmin: boolean;
     isActive: boolean;
     appVersion: number;
-    onboardingCompleted: boolean;
 }

@@ -17,11 +17,6 @@ export async function getResetPasswordToken({ userId, secret }: ResetPasswordTok
         .sign(Buffer.from(secret, "hex"));
 }
 
-interface EmailAuthParams {
-    baseUrl: string;
-    token: string;
-}
-
 interface ResetPasswordEmailParams {
     baseUrl: string;
     token: string;
@@ -29,8 +24,4 @@ interface ResetPasswordEmailParams {
 
 export function buildResetPasswordUrl({ baseUrl, token }: ResetPasswordEmailParams) {
     return `https://${baseUrl}/reset?token=${token}`;
-}
-
-export function buildUnsubscribeUrl({ baseUrl, token }: EmailAuthParams) {
-    return `https://${baseUrl}/unsubscribe?token=${token}`;
 }

@@ -1,8 +1,8 @@
 import { Versions } from "@energyleaf/lib/versioning";
 import { cookies } from "next/headers";
 import "server-only";
-import { redirect } from "next/navigation";
 import { lucia } from "./auth.config";
+import { redirect } from "next/navigation";
 
 export const getActionSession = async () => {
     const demoMode = cookies().get("demo_mode")?.value === "true";
@@ -14,13 +14,12 @@ export const getActionSession = async () => {
                 firstname: "Demo",
                 lastname: "Nutzer",
                 email: "demo@energyleaf.de",
-                phone: null,
+                phone: undefined,
                 address: "Demo Adresse",
                 created: new Date().toISOString(),
                 isAdmin: false,
                 isActive: true,
                 appVersion: Versions.transparency as number,
-                onboardingCompleted: true,
             },
             session: {
                 id: "demo",
@@ -54,8 +53,7 @@ export const getActionSession = async () => {
         }
         return result;
     } catch {
-        // ignore
+        cookies().delete(lucia.sessionCookieName);
+        redirect("/");
     }
-    cookies().delete(lucia.sessionCookieName);
-    redirect("/");
 };

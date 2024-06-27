@@ -1,13 +1,12 @@
-import { getDemoUserData } from "@/lib/demo/demo";
+import { getUserDataCookieStore } from "@/lib/demo/demo";
 import {
-    getMailSettings as getDbMailSettings,
     getUserById as getDbUserById,
     getUserData as getDbUserDataById,
     getUserDataHistory as getDbUserDataHistoryById,
-    getUserIdByToken as getDbUserIdByToken,
 } from "@energyleaf/db/query";
-import type { UserDataSelectType } from "@energyleaf/db/types";
+import type { UserDataSelectType, UserDataType } from "@energyleaf/db/types";
 import { Versions } from "@energyleaf/lib/versioning";
+import { cookies } from "next/headers";
 import { cache } from "react";
 import "server-only";
 
@@ -36,19 +35,16 @@ export const getUserById = cache(async (id: string) => {
  */
 export const getUserData = cache(async (id: string) => {
     if (id === "demo") {
-        return getDemoUserData().user_data;
-    }
-    return await getDbUserDataById(id);
-});
+        const data = cookies().get("demo_data")?.value;
+        if (!data) {
+            return getUserDataCookieStore();
+        }
 
-/**
- * Cached query to retrieve the mail configuration of the given user
- */
-export const getUserMailConfig = cache(async (id: string) => {
-    if (id === "demo") {
-        return getDemoUserData().mail_config;
+        const userData = JSON.parse(data) as UserDataType;
+        userData.user_data.timestamp = new Date(userData.user_data.timestamp);
+        return userData;
     }
-    return await getDbMailSettings(id);
+    return getDbUserDataById(id);
 });
 
 /**
@@ -57,11 +53,7 @@ export const getUserMailConfig = cache(async (id: string) => {
 export const getUserDataHistory = cache(async (id: string): Promise<UserDataSelectType[]> => {
     if (id === "demo") {
         const userData = await getUserData(id);
-        return userData ? [userData] : [];
+        return userData ? [userData.user_data] : [];
     }
     return await getDbUserDataHistoryById(id);
-});
-
-export const getUserIdByToken = cache(async (token: string) => {
-    return await getDbUserIdByToken(token);
 });
