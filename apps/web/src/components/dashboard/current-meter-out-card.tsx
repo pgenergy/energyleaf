@@ -25,7 +25,7 @@ export default async function CurrentMeterOutCard() {
                 <CardTitle>Eingespeiste Energie</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-                <p className="font-medium">{value.valueOut.toFixed(6)} kWh</p>
+                <p className="font-medium">{value.valueOut.toFixed(4)} kWh</p>
             </CardContent>
         </Card>
     );

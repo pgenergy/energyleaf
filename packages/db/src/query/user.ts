@@ -109,6 +109,17 @@ export async function getUserDataHistory(id: string) {
 }
 
 /**
+ * Get all users who recive anomaly mails
+ */
+export async function getUsersWhoRecieveAnomalyMail() {
+    return await db
+        .select()
+        .from(user)
+        .innerJoin(sensor, eq(sensor.userId, user.id))
+        .where(eq(user.receiveAnomalyMails, true));
+}
+
+/**
  * Return all users who are in the experiment and getting paid
  */
 export async function getAllExperimentUsers() {

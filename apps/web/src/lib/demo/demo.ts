@@ -116,6 +116,8 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
             value: index === 0 ? 0 : item.value - inputData[index - 1].value,
             valueOut: null,
             valueCurrent: null,
+            isPeak: false,
+            isAnomaly: false,
         };
     });
 

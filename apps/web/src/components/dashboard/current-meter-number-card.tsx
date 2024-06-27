@@ -25,7 +25,7 @@ export default async function CurrentMeterNumberCard() {
                 <CardTitle>Aktueller Zählerstand</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-                <p className="font-medium">{value.value.toFixed(6)} kWh</p>
+                <p className="font-medium">{value.value.toFixed(4)} kWh</p>
             </CardContent>
         </Card>
     );
