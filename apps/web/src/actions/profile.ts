@@ -373,7 +373,7 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
             try {
                 match = await new Bcrypt().verify(dbuser.password, data.password);
             } catch (err) {
-                waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, userId }));
+                waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, err }));
             }
         }
         if (!match) {
