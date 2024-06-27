@@ -15,11 +15,11 @@ export const GET = async (req: NextRequest) => {
 
     // shift date back by half an hour to not mark and perform on newest values
     if (startDate.getMinutes() >= 30) {
-        startDate.setHours(startDate.getHours(), 0, 0, 0);
-        endDate.setHours(endDate.getHours(), 30, 59, 999);
-    } else {
         startDate.setHours(startDate.getHours() - 1, 30, 0, 0);
-        endDate.setHours(endDate.getHours(), 0, 0, 0);
+        endDate.setHours(endDate.getHours() - 1, 59, 59, 999);
+    } else {
+        startDate.setHours(startDate.getHours() - 1, 0, 0, 0);
+        endDate.setHours(endDate.getHours() - 1, 30, 59, 59);
     }
 
     try {
@@ -38,7 +38,7 @@ export const GET = async (req: NextRequest) => {
                         end: endDate,
                         type: "peak",
                     },
-                    2,
+                    1.2,
                 ),
             );
         }
