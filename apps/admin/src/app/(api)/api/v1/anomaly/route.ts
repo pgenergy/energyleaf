@@ -17,11 +17,11 @@ export const GET = async (req: NextRequest) => {
     const end = new Date();
 
     if (start.getMinutes() >= 30) {
-        start.setHours(start.getHours(), 30, 0, 0);
-        end.setHours(end.getHours(), 59, 59, 999);
-    } else {
         start.setHours(start.getHours(), 0, 0, 0);
         end.setHours(end.getHours(), 30, 59, 999);
+    } else {
+        start.setHours(start.getHours() - 1, 30, 0, 0);
+        end.setHours(end.getHours() - 1, 59, 59, 999);
     }
 
     try {
