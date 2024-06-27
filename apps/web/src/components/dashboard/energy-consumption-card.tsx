@@ -2,7 +2,6 @@ import { createHash } from "node:crypto";
 import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
-import calculatePeaks from "@/lib/consumption/peak-calculation";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import type { ConsumptionData } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
@@ -55,18 +54,22 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
         sensorDataId: entry.id,
+        isPeak: entry.isPeak,
+        isAnomaly: entry.isAnomaly,
     }));
 
-    const peaks: ConsumptionData[] =
-        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection) ? calculatePeaks(data) : [];
+    const peaks =
+        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
+            ? data.filter((d) => d.isPeak || d.isAnomaly)
+            : [];
 
     const csvExportData = {
         userId: user.id,
         userHash: createHash("sha256").update(`${user.id}${env.HASH_SECRET}`).digest("hex"),
         endpoint:
             env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
-                ? `https://${env.ADMIN_URL}/api/v1/csv`
-                : `http://${env.ADMIN_URL}/api/v1/csv`,
+                ? `https://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/csv`
+                : `http://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/csv`,
     };
 
     return (

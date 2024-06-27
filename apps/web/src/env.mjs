@@ -4,7 +4,6 @@ import { z } from "zod";
 
 export const env = createEnv({
     server: {
-        ADMIN_URL: z.string(),
         HASH_SECRET: z.string(),
 
         VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
@@ -19,10 +18,19 @@ export const env = createEnv({
 
         ADMIN_MAIL: z.string().email().optional(),
 
-        BLOB_READ_WRITE_TOKEN: z.string().optional(),
+        AWS_ACCESS_KEY_ID: z.string().optional(),
+        AWS_SECRET_ACCESS_KEY: z.string().optional(),
+        AWS_ENDPOINT_URL_S3: z.string().optional(),
+        AWS_REGION: z.string().optional(),
+        BUCKET_NAME: z.string().optional(),
+        FILE_URL: z.string().optional(),
     },
-    client: {},
-    experimental__runtimeEnv: {},
+    client: {
+        NEXT_PUBLIC_ADMIN_URL: z.string(),
+    },
+    experimental__runtimeEnv: {
+        NEXT_PUBLIC_ADMIN_URL: process.env.NEXT_PUBLIC_ADMIN_URL,
+    },
     extends: [vercel()],
 });
 

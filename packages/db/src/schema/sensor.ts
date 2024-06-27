@@ -80,10 +80,14 @@ export const sensorData = mysqlTable(
         valueOut: decimalType("value_out"),
         valueCurrent: decimalType("value_current"),
         timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
+        isPeak: boolean("is_peak").notNull().default(false),
+        isAnomaly: boolean("is_anomaly").notNull().default(false),
     },
     (table) => {
         return {
             uniqueIdx: uniqueIndex("sensor_data_sensor_id_timestamp").on(table.sensorId, table.timestamp),
+            peakIdx: index("sensor_data_peak_idx").on(table.isPeak),
+            anomalyIdx: index("sensor_data_anomaly_idx").on(table.isAnomaly),
         };
     },
 );
