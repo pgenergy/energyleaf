@@ -4,9 +4,10 @@ import { signInAction, signInDemoAction } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { loginSchema } from "@/lib/schema/auth";
 import type { DefaultActionReturn } from "@energyleaf/lib";
-import { Button, Form, FormControl, FormField, FormItem, FormMessage, Input } from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@energyleaf/ui/form";
+import { Input } from "@energyleaf/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { track } from "@vercel/analytics";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -27,7 +28,6 @@ export default function LoginForm() {
 
     function onDemo() {
         setDemoPending(() => {
-            track("demo()");
             toast.promise(signInDemoAction, {
                 loading: "Starte Demo...",
                 success: "Demo gestartet",
@@ -52,7 +52,6 @@ export default function LoginForm() {
     function onSubmit(data: z.infer<typeof loginSchema>) {
         setError("");
         startTransition(() => {
-            track("signIn()");
             toast.promise(signInActionCallback(data.mail, data.password), {
                 loading: "Anmelden...",
                 success: "Erfolgreich angemeldet",

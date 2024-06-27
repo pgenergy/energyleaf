@@ -1,5 +1,4 @@
 import {
-    calculateAnomaly as getAnomaliesByUserDb,
     getSensorsByUser as getSensorsByUserDb,
     getSensorsWithUser as getSensorsWithUserDb,
 } from "@energyleaf/db/query";
@@ -12,8 +11,4 @@ export const getSensorsByUser = cache(async (id: string) => {
 
 export const getSensors: () => Promise<SensorSelectTypeWithUser[]> = cache(async () => {
     return getSensorsWithUserDb();
-});
-
-export const getAnomaliesByUser = cache(async (id: string, start: Date, end: Date) => {
-    return getAnomaliesByUserDb(id, start, end);
 });

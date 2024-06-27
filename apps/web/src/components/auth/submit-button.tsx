@@ -1,4 +1,5 @@
-import { Button, Spinner } from "@energyleaf/ui";
+import { Button } from "@energyleaf/ui/button";
+import { Spinner } from "@energyleaf/ui/spinner";
 
 interface Props {
     pending: boolean;

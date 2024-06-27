@@ -1,10 +1,10 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { formatNumber } from "@energyleaf/lib";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { redirect } from "next/navigation";
-import { formatNumber } from "@/lib/consumption/number-format";
 
 interface Props {
     startDate: Date;
@@ -53,9 +53,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <h1 className="text-center font-bold text-2xl text-primary">
-                    {formatNumber(absolut)} kWh
-                </h1>
+                <h1 className="text-center font-bold text-2xl text-primary">{formatNumber(absolut)} kWh</h1>
             </CardContent>
         </Card>
     );

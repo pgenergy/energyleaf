@@ -1,13 +1,20 @@
-import { type ExtractTablesWithRelations, eq } from "drizzle-orm";
+import { type ExtractTablesWithRelations, type SQLWrapper, and, eq, ilike, like, sql } from "drizzle-orm";
 import type { MySqlTransaction } from "drizzle-orm/mysql-core";
 import type { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
 import db from "../";
 import { device, deviceHistory } from "../schema";
 
-export async function getDevicesByUser(userId: string) {
-    const query = db.select().from(device).where(eq(device.userId, userId));
+export async function getDevicesByUser(userId: string, search?: string) {
+    const conditions: SQLWrapper[] = [eq(device.userId, userId)];
+    if (search) {
+        const searchText = `%${search.toLowerCase()}%`;
+        conditions.push(sql`lower(${device.name}) LIKE ${searchText}`);
+    }
 
-    return await query;
+    return db
+        .select()
+        .from(device)
+        .where(and(...conditions));
 }
 
 export type CreateDeviceType = {

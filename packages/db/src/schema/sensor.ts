@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
     boolean,
+    index,
     int,
     mysqlEnum,
     mysqlTable,
@@ -50,14 +51,22 @@ export const sensorHistory = mysqlTable(
     },
 );
 
-export const sensorToken = mysqlTable("sensor_token", {
-    code: varchar("code", { length: 30 })
-        .notNull()
-        .primaryKey()
-        .$defaultFn(() => nanoid(30)),
-    sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-    timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`),
-});
+export const sensorToken = mysqlTable(
+    "sensor_token",
+    {
+        code: varchar("code", { length: 30 })
+            .notNull()
+            .primaryKey()
+            .$defaultFn(() => nanoid(30)),
+        sensorId: varchar("sensor_id", { length: 30 }).notNull(),
+        timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`),
+    },
+    (table) => {
+        return {
+            sensorIdIdx: index("sensor_id_idx_sensor_token").on(table.sensorId),
+        };
+    },
+);
 
 export const sensorData = mysqlTable(
     "sensor_data",
@@ -68,18 +77,17 @@ export const sensorData = mysqlTable(
             .$defaultFn(() => nanoid(35)),
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
         value: decimalType("value").notNull(),
+        valueOut: decimalType("value_out"),
+        valueCurrent: decimalType("value_current"),
         timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
+        isPeak: boolean("is_peak").notNull().default(false),
+        isAnomaly: boolean("is_anomaly").notNull().default(false),
     },
     (table) => {
         return {
             uniqueIdx: uniqueIndex("sensor_data_sensor_id_timestamp").on(table.sensorId, table.timestamp),
+            peakIdx: index("sensor_data_peak_idx").on(table.isPeak),
+            anomalyIdx: index("sensor_data_anomaly_idx").on(table.isAnomaly),
         };
     },
 );
-
-export const peaks = mysqlTable("peaks", {
-    id: int("id").autoincrement().primaryKey().notNull(),
-    sensorId: varchar("sensor_id", { length: 30 }).notNull(),
-    deviceId: int("device_id").notNull(),
-    timestamp: timestamp("timestamp"),
-});
