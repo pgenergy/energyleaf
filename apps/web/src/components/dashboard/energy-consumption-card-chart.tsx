@@ -1,6 +1,6 @@
 "use client";
 
-import type { AggregationType, ConsumptionData } from "@energyleaf/lib";
+import type { AggregationType, ConsumptionData, DeviceClassification } from "@energyleaf/lib";
 import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy-consumption-chart";
 import { formatISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -10,7 +10,8 @@ import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-ass
 interface Props {
     data: ConsumptionData[];
     peaks?: ConsumptionData[];
-    aggregation?: AggregationType;
+    deviceClassifications?: DeviceClassification[]; // Fügen Sie diese Zeile hinzu
+    aggregation: AggregationType;
     userId: string;
 }
 

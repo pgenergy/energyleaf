@@ -195,14 +195,19 @@ export async function getUserData(id: string): Promise<UserDataSelectType | null
  * Gets the history of user data from the database
  */
 export async function getUserDataHistory(id: string) {
-    return await db.transaction(async (trx) => {
-        return trx
-            .select()
-            .from(historyUserData)
-            .where(eq(historyUserData.userId, id))
-            .union(trx.select().from(userData).where(eq(userData.userId, id)))
-            .orderBy(historyUserData.timestamp);
-    });
+    try {
+        return await db.transaction(async (trx) => {
+            return trx
+                .select()
+                .from(historyUserData)
+                .where(eq(historyUserData.userId, id))
+                .union(trx.select().from(userData).where(eq(userData.userId, id)))
+                .orderBy(historyUserData.timestamp);
+        });
+    } catch (error) {
+        console.error("Failed to fetch user data history:", error);
+        throw new Error("Database operation failed");
+    }
 }
 
 /**

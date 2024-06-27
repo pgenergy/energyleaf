@@ -14,6 +14,9 @@ export const env = createEnv({
         DATABASE_PASSWORD: z.string(),
         DATABASE_NAME: z.string(),
 
+        ML_API_URL: z.string(),
+        ML_API_KEY: z.string(),
+
         RESEND_API_KEY: z.string().optional(),
         RESEND_API_MAIL: z.string().email().optional(),
 

@@ -6,3 +6,4 @@ export * from "./utils/util";
 export * from "./types";
 export * from "./types/aggregation-labels";
 export * from "./types/consumption/consumption-data";
+export * from "./types/consumption/device-classification";

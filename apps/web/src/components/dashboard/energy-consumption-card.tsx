@@ -4,7 +4,7 @@ import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
 import calculatePeaks from "@/lib/consumption/peak-calculation";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import type { ConsumptionData } from "@energyleaf/lib";
+import type { ConsumptionData, DeviceClassification } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
@@ -49,8 +49,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         aggregation = AggregationType[aggregationType.toUpperCase() as keyof typeof AggregationType];
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
-    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
-    const data: ConsumptionData[] = energyData.map((entry) => ({
+    const { data, classifications } = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
+
+    const consumptionData: ConsumptionData[] = data.map(entry => ({
         sensorId: entry.sensorId || 0,
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
@@ -58,7 +59,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }));
 
     const peaks: ConsumptionData[] =
-        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection) ? calculatePeaks(data) : [];
+        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection) ? calculatePeaks(consumptionData) : [];
 
     const csvExportData = {
         userId: user.id,
@@ -97,14 +98,15 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
             </CardHeader>
             <CardContent>
                 <div className="h-96 w-full">
-                    {data.length === 0 ? (
+                    {consumptionData.length === 0 ? (
                         <div className="flex h-full flex-col items-center justify-center">
                             <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                         </div>
                     ) : (
                         <EnergyConsumptionCardChart
-                            data={data}
+                            data={consumptionData}
                             peaks={hasAggregation ? undefined : peaks}
+                            deviceClassifications={classifications}
                             aggregation={aggregation}
                             userId={userId}
                         />

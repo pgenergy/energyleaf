@@ -8,14 +8,37 @@ import {
 } from "@energyleaf/db/query";
 import { AggregationType } from "@energyleaf/lib";
 import { cache } from "react";
+import { env } from "@/env.mjs";
+import { energyleaf_ml, parseReadableStream } from "@energyleaf/proto";
+const { DeviceClassificationRequest, DeviceClassificationResponse } = energyleaf_ml;
 import "server-only";
+
+interface DeviceClassification {
+    timestamp: string;
+    power: number;
+    dominantClassification: string;
+    classification: Record<string, number>;
+}
 
 export const getEnergyDataForSensor = cache(
     async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) => {
         if (sensorId === "demo_sensor") {
-            return getDemoSensorData(start, end);
+            return { data: getDemoSensorData(start, end), classifications: [] };
         }
-        return getDbEnergyForSensorInRange(start, end, sensorId, aggregation);
+        const energyData = await getDbEnergyForSensorInRange(start, end, sensorId, aggregation);
+        let classifications: DeviceClassification[] = [];
+
+        if (energyData && energyData.length > 0) {
+            const apiUrl = env.ML_API_URL;
+            const apiKey = env.ML_API_KEY;
+            try {
+                classifications = await classifyDeviceUsage(energyData, apiUrl, apiKey);
+            } catch (error) {
+                console.error("Error in device classification: ", error);
+            }
+        }        
+
+        return { data: energyData, classifications };
     },
 );
 
@@ -54,3 +77,39 @@ export const getEnergyLastEntry = cache(async (sensorId: string) => {
 
     return getDbEnergyLastEntry(sensorId);
 });
+
+export const classifyDeviceUsage = async (sensorData, apiUrl, apiKey) => {
+    const deviceRequest = DeviceClassificationRequest.create({
+        electricity: sensorData.map(data => ({
+            timestamp: data.timestamp,
+            power: data.value
+        }))
+    });
+
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-protobuf',
+            'x-api-key': apiKey
+        },
+        body: DeviceClassificationRequest.toBinary(deviceRequest)
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to classify devices');
+    }
+
+    if (response.body === null) {
+        throw new Error('Response body is null');
+    }
+
+    const binaryData = await parseReadableStream(response.body);
+    const classificationResponse = DeviceClassificationResponse.fromBinary(binaryData);
+
+    return classificationResponse.electricity.map(entry => ({
+        timestamp: entry.timestamp,
+        power: entry.power,
+        dominantClassification: entry.dominantClassification,
+        classification: entry.classification
+    }));
+};

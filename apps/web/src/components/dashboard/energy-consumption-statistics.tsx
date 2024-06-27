@@ -39,13 +39,13 @@ export default async function EnergyConsumptionStatisticCard({ startDate, endDat
         );
     }
 
-    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
+    const { data: energyData } = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const energyValues = energyData.map((entry) => entry.value);
-
+    
     const maxConsumptionEntry: EnergyDataItem = energyData.reduce(
         (prev, current) => (prev.value > current.value ? prev : current),
-        { value: 0 },
-    );
+        { value: 0 }
+    );    
     const maxConsumption = maxConsumptionEntry.value || 0;
 
     const sumConsumption = energyValues.reduce((acc, cur) => acc + cur, 0);
