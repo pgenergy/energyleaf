@@ -2,14 +2,14 @@ import { calculateCosts, getCalculatedPayment, getPredictedCost } from "@/compon
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
+import { formatNumber } from "@energyleaf/lib";
 import { cn } from "@energyleaf/tailwindcss/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { formatNumber } from "@/lib/consumption/number-format";
 
 interface Props {
     startDate: Date;

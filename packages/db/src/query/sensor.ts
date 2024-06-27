@@ -1,15 +1,170 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, between, desc, eq, gt, gte, lt, lte, ne, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, gte, inArray, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
-import { device, peaks, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
-import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
+import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
+import {
+    type SensorDataSelectType,
+    type SensorInsertType,
+    type SensorSelectTypeWithUser,
+    SensorType,
+} from "../types/types";
 
-interface EnergyData {
+export async function insertRawEnergyValues(
+    data: {
+        id: string;
+        value: number;
+        timestamp: Date;
+        sensorId: string;
+    }[],
+) {
+    await db.insert(sensorData).values(data);
+}
+
+export async function getAllSensors(active?: boolean) {
+    if (active) {
+        return db.select().from(sensor).where(isNotNull(sensor.userId));
+    }
+
+    return db.select().from(sensor);
+}
+
+function calculateThreshold(energyData: SensorDataSelectType[], multiplier = 1) {
+    // using mad median absolute deviation with 1.4826 which is a scaling factor of a normal distributed set
+    // maybe ajust even further with another scaling factor
+    const values = energyData.map((d) => d.value);
+    const median = values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
+    const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
+    const threshold = median + 1.4826 * mad * multiplier;
+
+    return threshold;
+}
+
+function findSequence(energyData: SensorDataSelectType[], threshold: number) {
+    const peaks: SensorDataSelectType[] = [];
+    let i = 0;
+
+    while (i < energyData.length) {
+        const entry = energyData[i];
+
+        if (entry.value > threshold) {
+            if (entry.isAnomaly) {
+                continue;
+            }
+            let sequenceEnd = i + 1;
+            let highestValue = entry;
+            let containsAnomaly = false;
+
+            while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
+                if (energyData[sequenceEnd].isAnomaly) {
+                    containsAnomaly = true;
+                }
+                if (energyData[sequenceEnd].value > highestValue.value) {
+                    highestValue = energyData[sequenceEnd];
+                }
+                sequenceEnd++;
+            }
+
+            // if there is a anomaly marked in the sequence skip whole sequence and not mark as peak
+            if (containsAnomaly) {
+                i = sequenceEnd;
+                continue;
+            }
+
+            const sequenceLength = sequenceEnd - i;
+            // only mark as peak if longer then 2min and not marked as anomly yet
+            if (sequenceLength > 8 && !highestValue.isAnomaly) {
+                peaks.push(highestValue);
+            }
+            i = sequenceEnd;
+        } else {
+            i++;
+        }
+    }
+
+    return peaks;
+}
+
+interface FindAndMarkPeaksProps {
     sensorId: string;
-    value: number;
-    timestamp: string;
+    start: Date;
+    end: Date;
+    type: "peak" | "anomaly";
+}
+
+export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) {
+    const { sensorId, start, end } = props;
+
+    // we shift the start 12 hours back, so we have a bigger sample for the threshold
+    const sequenceStart = new Date(start);
+    sequenceStart.setHours(sequenceStart.getHours() - 12, 0, 0, 0);
+
+    try {
+        return await db.transaction(async (trx) => {
+            const calcDbData = await trx
+                .select()
+                .from(sensorData)
+                .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)))
+                .orderBy(desc(sensorData.timestamp));
+
+            // make sure we have at least 3 hours of reference data
+            if (calcDbData.length === 0 || calcDbData.length < 720) {
+                return [];
+            }
+
+            const calcData = calcDbData
+                .map((d, i) => {
+                    return {
+                        ...d,
+                        value: i === 0 ? 0 : Number(d.value) - Number(calcDbData[i - 1].value),
+                    };
+                })
+                .slice(1);
+
+            const energyData = calcData.filter((d) => {
+                return d.timestamp.getTime() >= start.getTime();
+            });
+            const threshold = calculateThreshold(calcData, multiplier);
+
+            let peaks = findSequence(energyData, threshold);
+            if (props.type === "anomaly") {
+                // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
+                const lastPeak = calcData.find((d) => d.isAnomaly);
+                if (lastPeak) {
+                    peaks = peaks.filter((d) => d.timestamp.getTime() - lastPeak.timestamp.getTime() > 30 * 60 * 1000);
+                }
+            }
+            if (peaks.length !== 0) {
+                // check before value if this peak is part of another peak sequence
+                // if so we dont mark it as peak
+                if (peaks[0].id === energyData[0].id) {
+                    const beforeIndex = calcData.findIndex((d) => d.id === peaks[0].id);
+                    if (beforeIndex > 0) {
+                        const beforeValue = calcData[beforeIndex - 1].value;
+                        if (beforeValue > threshold) {
+                            peaks.shift();
+                        }
+                    }
+                }
+                await trx
+                    .update(sensorData)
+                    .set({
+                        ...(props.type === "peak" ? { isPeak: true } : { isAnomaly: true }),
+                    })
+                    .where(
+                        inArray(
+                            sensorData.id,
+                            peaks.map((d) => d.id),
+                        ),
+                    );
+            }
+
+            return peaks;
+        });
+    } catch (err) {
+        return [];
+    }
 }
 
 export async function getEnergyForSensorInRange(
@@ -17,7 +172,7 @@ export async function getEnergyForSensorInRange(
     end: Date,
     sensorId: string,
     aggregation = AggregationType.RAW,
-): Promise<EnergyData[]> {
+): Promise<SensorDataSelectType[]> {
     if (aggregation === AggregationType.RAW) {
         const query = await db
             .select()
@@ -38,7 +193,17 @@ export async function getEnergyForSensorInRange(
             ...row,
             id: row.id,
             value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-            timestamp: (row.timestamp as Date).toISOString(),
+            valueOut: row.valueOut
+                ? index === 0
+                    ? 0
+                    : Number(row.valueOut) - Number(query[index - 1].valueOut)
+                : null,
+            valueCurrent: row.valueCurrent
+                ? index === 0
+                    ? 0
+                    : Number(row.valueCurrent) - Number(query[index - 1].valueCurrent)
+                : null,
+            timestamp: row.timestamp,
         }));
     }
 
@@ -63,12 +228,14 @@ export async function getEnergyForSensorInRange(
             throw new Error(`Unsupported aggregation type: ${aggregation}`);
     }
 
-    const formattedTimestamp = sql`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
+    const formattedTimestamp = sql<string>`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
 
     const query = await db
         .select({
             sensorId: sensorData.sensorId,
-            value: sql`AVG(${sensorData.value})`,
+            value: sql<number>`AVG(${sensorData.value})`,
+            valueOut: sql<number | null>`AVG(${sensorData.valueOut})`,
+            valueCurrent: sql<number | null>`AVG(${sensorData.valueCurrent})`,
             timestamp: formattedTimestamp,
         })
         .from(sensorData)
@@ -80,16 +247,26 @@ export async function getEnergyForSensorInRange(
         ...row,
         id: index.toString(),
         value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-        timestamp: String(row.timestamp),
+        valueOut: row.valueOut ? (index === 0 ? 0 : Number(row.valueOut) - Number(query[index - 1].valueOut)) : null,
+        valueCurrent: row.valueCurrent
+            ? index === 0
+                ? 0
+                : Number(row.valueCurrent) - Number(query[index - 1].valueCurrent)
+            : null,
+        timestamp: new Date(row.timestamp),
+        isPeak: false,
+        isAnomaly: false,
     }));
 
-    return results.slice(1) as EnergyData[];
+    return results.slice(1);
 }
 
 export async function getEnergyLastEntry(sensorId: string) {
     const query = await db
         .select({
             value: sensorData.value,
+            valueOut: sensorData.valueOut,
+            valueCurrent: sensorData.valueCurrent,
         })
         .from(sensorData)
         .where(eq(sensorData.sensorId, sensorId))
@@ -119,7 +296,13 @@ export async function getEnergySumForSensorInRange(start: Date, end: Date, senso
             const firstSensorEntry = await trx
                 .select({ value: sensorData.value })
                 .from(sensorData)
-                .where(and(eq(sensorData.sensorId, sensorId), gte(sensorData.timestamp, start)))
+                .where(
+                    and(
+                        eq(sensorData.sensorId, sensorId),
+                        gte(sensorData.timestamp, start),
+                        lte(sensorData.timestamp, end),
+                    ),
+                )
                 .orderBy(sensorData.timestamp)
                 .limit(1);
             valueBeforeStart = firstSensorEntry.length > 0 ? firstSensorEntry[0].value : 0;
@@ -159,7 +342,7 @@ export async function getAvgEnergyConsumptionForSensor(sensorId: string) {
         if (index === 0) {
             return 0;
         }
-        
+
         const difference = Number(entry.value) - Number(previousValue);
         previousValue = entry.value;
         return difference;
@@ -211,7 +394,7 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
 
         const sensorDifferences: Record<string, number[]> = {};
 
-        sensorQuery.forEach((entry, index) => {
+        sensorQuery.forEach((entry, _) => {
             if (!sensorDifferences[entry.sensorId]) {
                 sensorDifferences[entry.sensorId] = [];
             }
@@ -248,47 +431,28 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
 /**
  *  adds or updates a peak in the database
  */
-export async function addOrUpdatePeak(sensorId: string, timestamp: Date, deviceId: number) {
+export async function updateDevicesForPeak(sensorDataId: string, deviceIds: number[]) {
     return db.transaction(async (trx) => {
-        const data = await trx
-            .select()
-            .from(peaks)
-            .where(and(eq(peaks.sensorId, sensorId), eq(peaks.timestamp, timestamp)));
+        await trx.delete(deviceToPeak).where(eq(deviceToPeak.sensorDataId, sensorDataId));
 
-        if (data.length === 0) {
-            return trx.insert(peaks).values({
-                sensorId,
+        for (const deviceId of deviceIds) {
+            await trx.insert(deviceToPeak).values({
                 deviceId,
-                timestamp,
+                sensorDataId,
             });
         }
-
-        return trx
-            .update(peaks)
-            .set({
-                deviceId,
-            })
-            .where(and(eq(peaks.sensorId, sensorId), eq(peaks.timestamp, timestamp)));
     });
 }
 
-/**
- *  gets all peaks for a given device
- */
-export async function getPeaksBySensor(start: Date, end: Date, sensorId: string) {
+export async function getDevicesByPeak(sensorDataId: string) {
     return db
-        .select()
-        .from(peaks)
-        .leftJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
-        .where(and(eq(sensorData.sensorId, sensorId), sensorDataTimeFilter(start, end)));
-}
-
-function sensorDataTimeFilter(start: Date, end: Date) {
-    return or(
-        between(sensorData.timestamp, start, end),
-        eq(sensorData.timestamp, start),
-        eq(sensorData.timestamp, end),
-    );
+        .select({
+            id: deviceToPeak.deviceId,
+            name: device.name,
+        })
+        .from(deviceToPeak)
+        .innerJoin(device, eq(device.id, deviceToPeak.deviceId))
+        .where(eq(deviceToPeak.sensorDataId, sensorDataId));
 }
 
 /**
@@ -318,10 +482,19 @@ export async function getElectricitySensorIdForUser(userId: string) {
     });
 }
 
+interface SensorDataInput {
+    sensorId: string;
+    value: number;
+    valueOut?: number;
+    valueCurrent?: number;
+    sum: boolean;
+    timestamp: Date;
+}
+
 /**
  * Insert sensor data
  */
-export async function insertSensorData(data: { sensorId: string; value: number; sum: boolean }) {
+export async function insertSensorData(data: SensorDataInput) {
     await db.transaction(async (trx) => {
         const dbSensors = await trx.select().from(sensor).where(eq(sensor.id, data.sensorId));
 
@@ -333,7 +506,7 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
         const lastEntries = await trx
             .select()
             .from(sensorData)
-            .where(eq(sensorData.sensorId, dbSensor.id))
+            .where(and(eq(sensorData.sensorId, dbSensor.id), lt(sensorData.timestamp, data.timestamp)))
             .orderBy(desc(sensorData.timestamp))
             .limit(1);
 
@@ -345,7 +518,9 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
             await trx.insert(sensorData).values({
                 sensorId: dbSensor.id,
                 value: newValue,
-                timestamp: sql<Date>`NOW()`,
+                valueOut: data.valueOut,
+                valueCurrent: data.valueCurrent,
+                timestamp: data.timestamp,
             });
             return;
         }
@@ -361,7 +536,7 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
         // in an hour this would be 24 kwh
         // this is a very high value and should never be reached
         // but is hopefully a good protection against faulty sensors
-        const timeDiff = new Date(new Date().toUTCString()).getTime() - lastEntry.timestamp.getTime() / 1000 / 60;
+        const timeDiff = new Date().getTime() - lastEntry.timestamp.getTime() / 1000 / 60;
         if (newValue - lastEntry.value > timeDiff * 0.4) {
             throw new Error("value/too-high");
         }
@@ -369,7 +544,9 @@ export async function insertSensorData(data: { sensorId: string; value: number; 
         await trx.insert(sensorData).values({
             sensorId: dbSensor.id,
             value: newValue,
-            timestamp: sql<Date>`NOW()`,
+            valueOut: data.valueOut,
+            valueCurrent: data.valueCurrent,
+            timestamp: data.timestamp,
         });
     });
 }
@@ -568,7 +745,7 @@ export async function getSensorIdFromSensorToken(code: string) {
         }
 
         // check if token is older than 1 hour
-        const now = new Date(new Date().toUTCString());
+        const now = new Date();
         if (now.getTime() - tokenDate.getTime() > 3600000) {
             await trx.delete(sensorToken).where(eq(sensorToken.sensorId, token.sensorId));
             return {
@@ -698,93 +875,6 @@ export async function resetSensorValues(clientId: string) {
 }
 
 /**
- * Get the average power consumption in watts per device
- */
-export async function getAverageConsumptionPerDevice(userId: string) {
-    return await db.transaction(async (trx) => {
-        const peaksQuery = await trx
-            .select({
-                peakSensorId: peaks.sensorId,
-                deviceId: peaks.deviceId,
-                peakTimestamp: peaks.timestamp,
-                peakValue: sensorData.value,
-            })
-            .from(peaks)
-            .innerJoin(sensorData, and(eq(peaks.sensorId, sensorData.sensorId), eq(peaks.timestamp, sensorData.timestamp)))
-            .innerJoin(device, eq(peaks.deviceId, device.id))
-            .where(eq(device.userId, userId))
-            .orderBy(peaks.sensorId, peaks.timestamp);
-
-        if (peaksQuery.length === 0) {
-            return null;
-        }
-
-        const deviceConsumption: Record<string, number[]> = {};
-
-        for (const current of peaksQuery) {
-            if (!current.peakTimestamp) {
-                continue;
-            }
-
-            const currentTimestamp = new Date(current.peakTimestamp);
-            
-            const lastSensorDataQuery = await trx
-                .select({
-                    lastTimestamp: sensorData.timestamp,
-                    lastValue: sensorData.value,
-                })
-                .from(sensorData)
-                .where(and(
-                    eq(sensorData.sensorId, current.peakSensorId),
-                    lt(sensorData.timestamp, currentTimestamp)
-                ))
-                .orderBy(desc(sensorData.timestamp))
-                .limit(1);
-
-            if (lastSensorDataQuery.length === 0) {
-                continue;
-            }
-
-            const lastSensorData = lastSensorDataQuery[0];
-            const previousTimestamp = new Date(lastSensorData.lastTimestamp);
-            const previousValue = Number(lastSensorData.lastValue);
-
-            const timeDiffMinutes = (currentTimestamp.getTime() - previousTimestamp.getTime()) / (1000 * 60);
-
-            if (timeDiffMinutes <= 0 || timeDiffMinutes > 1) {
-                continue;
-            }
-
-            const energyDiffKwh = Number(current.peakValue) - previousValue;
-            if (energyDiffKwh < 0) {
-                continue;
-            }
-
-            const powerWatt = (energyDiffKwh / (timeDiffMinutes / 60)) * 1000;
-
-            if (!deviceConsumption[current.deviceId.toString()]) {
-                deviceConsumption[current.deviceId.toString()] = [];
-            }
-
-            deviceConsumption[current.deviceId.toString()].push(powerWatt);
-        }
-
-        const result = Object.keys(deviceConsumption).map(deviceId => {
-            const consumptions = deviceConsumption[deviceId];
-            const sum = consumptions.reduce((acc: number, value: number) => acc + value, 0);
-            const average = sum / consumptions.length;
-
-            return {
-                deviceId: Number(deviceId),
-                averageConsumption: average,
-            };
-        });
-
-        return result;
-    });
-}
-
-/**
  * Update the needsScript for a sensor
  */
 export async function updateNeedsScript(sensorId: string, needsScript: boolean) {
@@ -794,27 +884,4 @@ export async function updateNeedsScript(sensorId: string, needsScript: boolean) 
             needsScript,
         })
         .where(eq(sensor.id, sensorId));
-}
-
-export async function calculateAnomaly(id: string, start: Date, end: Date) {
-    return db
-        .select({
-            avg: sql<number>`AVG(${sensorData.value})`,
-            std: sql<number>`STD(${sensorData.value})`,
-            sensorId: sensorData.sensorId,
-        })
-        .from(sensorData)
-        .innerJoin(sensor, eq(sensor.id, sensorData.sensorId))
-        .groupBy(sensorData.sensorId)
-        .having(
-            and(
-                eq(sensor.userId, id),
-                gt(sensorData.timestamp, start),
-                lt(sensorData.timestamp, end),
-                gt(
-                    sql<number>`ABS(AVG(${sensorData.value}) - STD(${sensorData.value}))`,
-                    sql<number>`2 * STD(${sensorData.value})`,
-                ),
-            ),
-        );
 }
