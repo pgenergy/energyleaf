@@ -5,13 +5,14 @@ import { trackClientEvent } from "@energyleaf/lib/tracking/track-client";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
-export default function PostHogPageView() {
+export default function PageView() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
     useEffect(() => {
         // Track pageviews
         if (pathname) {
+            console.log(pathname);
             let url = window.origin + pathname;
             if (searchParams.toString()) {
                 url = `${url}?${searchParams.toString()}`;

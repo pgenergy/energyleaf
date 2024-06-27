@@ -23,20 +23,20 @@ const navLinks = [
         path: "/dashboard",
         icon: <HomeIcon className="mr-2 h-4 w-4" />,
     },
-    {
-        slug: "recommendations",
-        title: "Empfehlungen",
-        path: "/recommendations",
-        icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
-        appVersion: Versions.support,
-    },
-    {
-        slug: "report",
-        title: "Berichte",
-        path: "/report",
-        icon: <AreaChartIcon className="mr-2 h-4 w-4" />,
-        appVersion: Versions.support, // TODO: Remove this line when the page is ready (PGE-101)
-    },
+    // {
+    //     slug: "recommendations",
+    //     title: "Empfehlungen",
+    //     path: "/recommendations",
+    //     icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
+    //     appVersion: Versions.support,
+    // },
+    // {
+    //     slug: "report",
+    //     title: "Berichte",
+    //     path: "/report",
+    //     icon: <AreaChartIcon className="mr-2 h-4 w-4" />,
+    //     appVersion: Versions.support, // TODO: Remove this line when the page is ready (PGE-101)
+    // },
     {
         slug: "devices",
         title: "Geräte",
