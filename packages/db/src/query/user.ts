@@ -1,6 +1,18 @@
 import { and, desc, eq, gte } from "drizzle-orm";
 import db, { genId } from "../";
-import { historyUserData, reportConfig, sensor, session, token, user, userData, userExperimentData } from "../schema";
+import {
+    historyReportConfig,
+    historyUser,
+    historyUserData,
+    reportConfig,
+    sensor,
+    sensorHistory,
+    session,
+    token,
+    user,
+    userData,
+    userExperimentData,
+} from "../schema";
 import type { UserDataSelectType, UserSelectType } from "../types/types";
 
 /**
@@ -80,6 +92,20 @@ export async function getUsersWhoRecieveSurveyMail(date: Date) {
                 eq(userExperimentData.getsPaid, false),
             ),
         );
+}
+
+/**
+ * Gets the history of user data from the database
+ */
+export async function getUserDataHistory(id: string) {
+    return await db.transaction(async (trx) => {
+        return trx
+            .select()
+            .from(historyUserData)
+            .where(eq(historyUserData.userId, id))
+            .union(trx.select().from(userData).where(eq(userData.userId, id)))
+            .orderBy(historyUserData.timestamp);
+    });
 }
 
 /**
@@ -203,20 +229,6 @@ export async function getUserData(id: string): Promise<UserDataSelectType | null
 }
 
 /**
- * Gets the history of user data from the database
- */
-export async function getUserDataHistory(id: string) {
-    return await db.transaction(async (trx) => {
-        return trx
-            .select()
-            .from(historyUserData)
-            .where(eq(historyUserData.userId, id))
-            .union(trx.select().from(userData).where(eq(userData.userId, id)))
-            .orderBy(historyUserData.timestamp);
-    });
-}
-
-/**
  * Update the user data in the database
  */
 export async function updateUser(data: Partial<UserSelectType>, id: string) {
@@ -266,7 +278,58 @@ export async function getUserDataByUserId(id: string) {
 }
 
 export async function deleteUser(id: string) {
-    return db.delete(user).where(eq(user.id, id));
+    return db.transaction(async (trx) => {
+        const currentData = await trx
+            .select()
+            .from(user)
+            .innerJoin(userData, eq(userData.userId, user.id))
+            .innerJoin(userExperimentData, eq(userExperimentData.userId, user.id))
+            .innerJoin(reportConfig, eq(reportConfig.userId, user.id))
+            .where(eq(user.id, id));
+        if (currentData.length <= 0) {
+            return;
+        }
+        const data = currentData[0];
+
+        // delete user and remove private data
+        await trx.insert(historyUser).values({
+            ...data.user,
+            firstname: "",
+            lastName: "",
+            phone: "",
+            address: "",
+            username: "",
+            email: "",
+            password: "",
+        });
+        await trx.delete(user).where(eq(user.id, id));
+
+        // delete reports
+        await trx.insert(historyReportConfig).values({
+            ...data.report_config,
+        });
+        await trx.delete(reportConfig).where(eq(reportConfig.userId, data.report_config.userId));
+
+        // sensor actions
+        const sensorDb = await trx.select().from(sensor).where(eq(sensor.userId, data.user.id));
+
+        if (sensorDb.length <= 0) {
+            return;
+        }
+
+        // remove user id from sensor and give new id
+        await trx.update(sensor).set({
+            id: genId(30),
+            userId: null,
+        });
+
+        await trx.insert(sensorHistory).values({
+            userId: data.user.id,
+            sensorType: sensorDb[0].sensorType,
+            sensorId: sensorDb[0].id,
+            clientId: sensorDb[0].clientId,
+        });
+    });
 }
 
 export async function getAllUsers() {
