@@ -23,10 +23,22 @@ export function energyDataJoinUserData(
 
 export function calculateCosts(userData: UserDataSelectType[], sensorData: SensorDataSelectType[]): number {
     const joinedData = energyDataJoinUserData(sensorData, userData);
-    return joinedData.reduce((acc, cur) => {
-        const consumptionInKWh = cur.energyData.value;
-        return acc + consumptionInKWh * (cur.userData?.workingPrice ?? 0);
-    }, joinedData[0].userData?.basePrice ?? 0);
+
+    const timestamps = sensorData.map((data) => new Date(data.timestamp));
+    const minDate = new Date(Math.min.apply(null, timestamps));
+    const maxDate = new Date(Math.max.apply(null, timestamps));
+
+    const timeDifference = maxDate.getTime() - minDate.getTime();
+    const numDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24)) + 1;
+
+    const totalWorkingCost = joinedData.reduce((acc, cur) => {
+        const workingPrice = cur.userData?.workingPrice ?? 0;
+        return acc + cur.energyData.value * workingPrice;
+    }, 0);
+
+    const totalBasePrice = joinedData.length > 0 ? ((joinedData[0].userData?.basePrice ?? 0) / 30) * numDays : 0;
+    const totalCost = totalWorkingCost + totalBasePrice;
+    return totalCost;
 }
 
 export function getCalculatedPayment(
@@ -105,7 +117,7 @@ export function getPredictedCost(userData: UserDataSelectType[], energyData: Sen
     const monthlyUsage: number = (totalConsumptionCurrentMonth / daysPassed) * lastDayOfMonth.getDate();
 
     const predictedConsumption: number = monthlyUsage - totalConsumptionCurrentMonth;
-    return Number.parseFloat((predictedConsumption * (price / 1000)).toFixed(2));
+    return Number.parseFloat((predictedConsumption * price).toFixed(2));
 }
 
 function getLatestUserData(userData: UserDataSelectType[]): UserDataSelectType {
