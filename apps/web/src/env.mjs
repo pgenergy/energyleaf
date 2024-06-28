@@ -5,6 +5,7 @@ import { z } from "zod";
 export const env = createEnv({
     server: {
         HASH_SECRET: z.string(),
+        CRON_SECRET: z.string().optional(),
 
         VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
 
