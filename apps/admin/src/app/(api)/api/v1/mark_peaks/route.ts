@@ -5,8 +5,9 @@ import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
-    const reportApiKey = env.CRON_SECRET;
-    if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== reportApiKey) {
+    const cronSecret = env.CRON_SECRET;
+    if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== `Bearer ${cronSecret}`) {
+        waitUntil(log("request-unauthorized/missing-key", "error", "mark-peaks", "api", req));
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 
