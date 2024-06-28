@@ -144,7 +144,7 @@ export async function createAccount(data: FormData) {
         env.FILE_URL
     ) {
         try {
-            const key = await put({
+            const res = await put({
                 keyId: env.AWS_ACCESS_KEY_ID,
                 secret: env.AWS_SECRET_ACCESS_KEY,
                 region: env.AWS_REGION,
@@ -153,7 +153,7 @@ export async function createAccount(data: FormData) {
                 path: "electricitiy_meter",
                 body: file,
             });
-            url = `${env.FILE_URL}/${key}`;
+            url = `${env.FILE_URL}/${res.key}`;
         } catch (err) {
             await logError("electricity-meter/error-uploading-image", "create-account", "web", { mail }, err);
         }

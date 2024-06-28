@@ -27,7 +27,7 @@ async function uploadImage(base64: string) {
         console.warn("S3 credentials missing");
         return base64;
     }
-    const key = await put({
+    const res = await put({
         bucket: env.BUCKET_NAME,
         path: "reports",
         keyId: env.AWS_ACCESS_KEY_ID,
@@ -36,7 +36,7 @@ async function uploadImage(base64: string) {
         region: env.AWS_REGION,
         body: blob,
     });
-    return `${env.FILE_URL}/${key}`;
+    return `${env.FILE_URL}/${res.key}`;
 }
 
 const b64toBlob = (base64: string) => fetch(base64).then((res) => res.blob());
