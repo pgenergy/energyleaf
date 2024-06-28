@@ -1,7 +1,6 @@
 "use client";
 
-import { env } from "@/env.mjs";
-import { trackClientEvent } from "@energyleaf/lib/tracking/track-client";
+import { clientTracking } from "@/actions/tracking";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -10,26 +9,24 @@ export default function PageView() {
     const searchParams = useSearchParams();
 
     useEffect(() => {
-        // Track pageviews
-        if (pathname) {
-            console.log(pathname);
-            let url = window.origin + pathname;
-            if (searchParams.toString()) {
-                url = `${url}?${searchParams.toString()}`;
-            }
+        const track = async () => {
+            // Track pageviews
+            if (pathname) {
+                console.log(pathname);
+                let url = window.origin + pathname;
+                if (searchParams.toString()) {
+                    url = `${url}?${searchParams.toString()}`;
+                }
 
-            trackClientEvent({
-                url: env.NEXT_PUBLIC_ADMIN_URL,
-                title: "page/view",
-                appComponent: "web",
-                appFunction: "page-view",
-                details: {
-                    url,
+                await clientTracking({
                     path: pathname,
                     search: searchParams.toString(),
-                },
-            });
-        }
+                    url: url,
+                });
+            }
+        };
+
+        track();
     }, [pathname, searchParams]);
 
     return null;
