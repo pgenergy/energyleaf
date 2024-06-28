@@ -1,6 +1,6 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, between, desc, eq, gte, inArray, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
+import { and, asc, between, desc, eq, gte, inArray, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
@@ -42,7 +42,7 @@ function calculateThreshold(energyData: SensorDataSelectType[], multiplier = 1) 
 }
 
 function findSequence(energyData: SensorDataSelectType[], threshold: number) {
-    const peaks: SensorDataSelectType[] = [];
+    const peaks: (SensorDataSelectType & { isStart: boolean })[] = [];
     let i = 0;
 
     while (i < energyData.length) {
@@ -55,6 +55,7 @@ function findSequence(energyData: SensorDataSelectType[], threshold: number) {
             let sequenceEnd = i + 1;
             let highestValue = entry;
             let containsAnomaly = false;
+            const isStart = i === 0;
 
             while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
                 if (energyData[sequenceEnd].isAnomaly) {
@@ -75,7 +76,10 @@ function findSequence(energyData: SensorDataSelectType[], threshold: number) {
             const sequenceLength = sequenceEnd - i;
             // only mark as peak if longer then 2min and not marked as anomly yet
             if (sequenceLength > 8 && !highestValue.isAnomaly) {
-                peaks.push(highestValue);
+                peaks.push({
+                    ...highestValue,
+                    isStart,
+                });
             }
             i = sequenceEnd;
         } else {
@@ -106,7 +110,7 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                 .select()
                 .from(sensorData)
                 .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)))
-                .orderBy(desc(sensorData.timestamp));
+                .orderBy(asc(sensorData.timestamp));
 
             // make sure we have at least 3 hours of reference data
             if (calcDbData.length === 0 || calcDbData.length < 720) {
@@ -117,10 +121,10 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                 .map((d, i) => {
                     return {
                         ...d,
-                        value: i === calcDbData.length - 1 ? 0 : Number(d.value) - Number(calcDbData[i + 1].value),
+                        value: i === 0 ? 0 : Number(d.value) - Number(calcDbData[i - 1].value),
                     };
                 })
-                .slice(0, -1);
+                .slice(1);
 
             const energyData = calcData.filter((d) => {
                 return d.timestamp.getTime() >= start.getTime();
@@ -138,8 +142,8 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
             if (peaks.length !== 0) {
                 // check before value if this peak is part of another peak sequence
                 // if so we dont mark it as peak
-                if (peaks[0].id === energyData[0].id) {
-                    const beforeIndex = calcData.findIndex((d) => d.id === peaks[0].id);
+                if (peaks[0].isStart) {
+                    const beforeIndex = calcData.findIndex((d) => d.id === energyData[0].id);
                     if (beforeIndex > 0) {
                         const beforeValue = calcData[beforeIndex - 1].value;
                         if (beforeValue > threshold) {
