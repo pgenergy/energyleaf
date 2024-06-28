@@ -1,5 +1,5 @@
 import { env } from "@/env.mjs";
-import { findAndMark, getAllSensors, logError } from "@energyleaf/db/query";
+import { findAndMark, getAllSensors, log, logError } from "@energyleaf/db/query";
 import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
@@ -27,6 +27,11 @@ export const GET = async (req: NextRequest) => {
         const sensorIds = sensors.map((d) => d.id);
 
         const promises: Promise<SensorDataSelectType[]>[] = [];
+        waitUntil(
+            log("mark-peaks/length", "info", "mark-peaks", "api", {
+                length: sensorIds.length,
+            }),
+        );
         for (let i = 0; i < sensorIds.length; i++) {
             const sensorId = sensorIds[i];
 
