@@ -41,21 +41,14 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     }
 
     const energyDataRaw = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const energyData = energyDataRaw.map((data) => ({
-        ...data,
-        timestamp:
-            typeof data.timestamp === "string" || typeof data.timestamp === "number"
-                ? new Date(data.timestamp)
-                : new Date(),
-    }));
 
     const userData = await getUserDataHistory(userId);
 
-    const rawCosts = calculateCosts(userData, energyData);
+    const rawCosts = calculateCosts(userData, energyDataRaw);
     const cost = rawCosts.toFixed(2);
 
     const calculatedPayment = getCalculatedPayment(userData, startDate, endDate);
-    const predictedCost = getPredictedCost(userData, energyData);
+    const predictedCost = getPredictedCost(userData, energyDataRaw);
 
     const parsedCost = Number.parseFloat(cost);
     const parsedCalculatedPayment = Number.parseFloat(calculatedPayment || "0");
