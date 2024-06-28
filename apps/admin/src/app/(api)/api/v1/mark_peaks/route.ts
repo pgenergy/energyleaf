@@ -38,7 +38,7 @@ export const GET = async (req: NextRequest) => {
                         end: endDate,
                         type: "peak",
                     },
-                    20,
+                    10,
                 ),
             );
         }
