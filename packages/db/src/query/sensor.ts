@@ -41,7 +41,7 @@ function calculateThreshold(energyData: SensorDataSelectType[], multiplier = 1) 
     return threshold;
 }
 
-function findSequence(energyData: SensorDataSelectType[], threshold: number) {
+function findSequence(energyData: SensorDataSelectType[], threshold: number, length = 8) {
     const peaks: (SensorDataSelectType & { isStart: boolean })[] = [];
     let i = 0;
 
@@ -75,7 +75,7 @@ function findSequence(energyData: SensorDataSelectType[], threshold: number) {
 
             const sequenceLength = sequenceEnd - i;
             // only mark as peak if longer then 2min and not marked as anomly yet
-            if (sequenceLength > 8 && !highestValue.isAnomaly) {
+            if (sequenceLength > length && !highestValue.isAnomaly) {
                 peaks.push({
                     ...highestValue,
                     isStart,
@@ -102,7 +102,7 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
 
     // we shift the start 12 hours back, so we have a bigger sample for the threshold
     const sequenceStart = new Date(start);
-    sequenceStart.setHours(sequenceStart.getHours() - 12, 0, 0, 0);
+    sequenceStart.setHours(sequenceStart.getHours() - 24, 0, 0, 0);
 
     try {
         return await db.transaction(async (trx) => {
@@ -126,12 +126,23 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                 })
                 .slice(1);
 
+            // check if all values are integers if so we know that the sensor has no pin
+            if (calcData.every((d) => Number.isInteger(d.value))) {
+                return [];
+            }
+
             const energyData = calcData.filter((d) => {
                 return d.timestamp.getTime() >= start.getTime();
             });
-            const threshold = calculateThreshold(calcData, multiplier);
 
-            let peaks = findSequence(energyData, threshold);
+            // to calculate threshold remove all values that are 0 or less because they can happen if the led of the
+            // meter is to low, and manipulate the threshold
+            const threshold = calculateThreshold(
+                calcData.filter((d) => d.value > 0),
+                multiplier,
+            );
+
+            let peaks = findSequence(energyData, threshold, props.type === "anomaly" ? 12 : 8);
             if (props.type === "anomaly") {
                 // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
                 const lastPeak = calcData.find((d) => d.isAnomaly);
@@ -162,6 +173,15 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                             peaks.map((d) => d.id),
                         ),
                     );
+            }
+
+            // if there is an anomaly in the last 24 hours return nothing to avoid sending another mail
+            if (props.type === "anomaly") {
+                if (peaks.length !== 0) {
+                    if (calcData.some((d) => d.isAnomaly)) {
+                        return [];
+                    }
+                }
             }
 
             return peaks;
