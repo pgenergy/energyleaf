@@ -1,3 +1,5 @@
+"use client";
+
 import { useUserContext } from "@/hooks/user-hook";
 import { Button } from "@energyleaf/ui/button";
 import type { MouseEvent } from "react";

@@ -11,7 +11,7 @@ import EnergyCostCard from "@/components/dashboard/energy-cost-card";
 import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
 import GoalsCard from "@/components/dashboard/goals/goals-card";
 import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
-import { getActionSession } from "@/lib/auth/auth.action";
+import { getSession } from "@/lib/auth/auth.server";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
@@ -26,7 +26,7 @@ export default async function DashboardPage({
 }: {
     searchParams: { start?: string; end?: string; aggregation?: string };
 }) {
-    const { user } = await getActionSession();
+    const { user } = await getSession();
     if (!user) {
         return null;
     }

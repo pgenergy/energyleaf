@@ -1,4 +1,4 @@
-import { getActionSession } from "@/lib/auth/auth.action";
+import { getSession } from "@/lib/auth/auth.server";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@energyleaf/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default async function FaqPage() {
-    const { user } = await getActionSession();
+    const { user } = await getSession();
 
     if (!user) {
         return null;
