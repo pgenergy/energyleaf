@@ -48,14 +48,13 @@ export async function getAllUsersAction() {
 
 export async function setUserActive(id: string, active: boolean) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         const activationDate = new Date();
         activationDate.setHours(0, 0, 0, 0);
         await setUserActiveDb(id, active, activationDate);
@@ -95,15 +94,13 @@ export async function setUserActive(id: string, active: boolean) {
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await setUserAdminDb(id, isAdmin);
         revalidatePath("/users");
     } catch (e) {
@@ -116,15 +113,13 @@ export async function setUserAdmin(id: string, isAdmin: boolean) {
 
 export async function deleteUser(id: string) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await deleteUserDb(id);
         await deleteSessionsOfUser(id);
         revalidatePath("/users");
@@ -138,15 +133,13 @@ export async function deleteUser(id: string) {
 
 export async function updateUser(data: z.infer<typeof baseInformationSchema>, id: string) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await updateUserDb(
             {
                 firstname: data.firstname,
@@ -173,15 +166,13 @@ export async function updateUserOnboardingData(
     fileData: FormData,
 ) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         const file = fileData.get("file") as File | undefined;
         let fileUrl: string | null = null;
 
@@ -228,15 +219,10 @@ export async function updateUserOnboardingData(
 
 export async function updateUserState(data: z.infer<typeof userStateSchema>, id: string) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            throw new Error("Keine Berechtigung.");
+        }
         const userData = await getUserById(id);
         if (!userData) {
             throw new Error("Nutzer nicht gefunden.");
