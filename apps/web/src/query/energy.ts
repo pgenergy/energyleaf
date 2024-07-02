@@ -29,7 +29,7 @@ export const getEnergyDataForSensor = cache(
         let classifications: DeviceClassification[] = [];
 
         if (energyData && energyData.length > 0) {
-            const apiUrl = env.ML_API_URL;
+            const apiUrl = 'https://ml.energyleaf.de/v3/classify_devices';
             const apiKey = env.ML_API_KEY;
             try {
                 classifications = await classifyDeviceUsage(energyData, apiUrl, apiKey);
@@ -86,30 +86,35 @@ export const classifyDeviceUsage = async (sensorData, apiUrl, apiKey) => {
         }))
     });
 
-    const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-protobuf',
-            'x-api-key': apiKey
-        },
-        body: DeviceClassificationRequest.toBinary(deviceRequest)
-    });
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-protobuf',
+                'x-api-key': apiKey
+            },
+            body: DeviceClassificationRequest.toBinary(deviceRequest)
+        });
 
-    if (!response.ok) {
-        throw new Error('Failed to classify devices');
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to classify devices, status code: ${response.status}, error: ${errorText}`);
+        }
+
+        if (response.body === null) {
+            throw new Error('Response body is null');
+        }
+
+        const binaryData = await parseReadableStream(response.body);
+        const classificationResponse = DeviceClassificationResponse.fromBinary(binaryData);
+        return classificationResponse.electricity.map(entry => ({
+            timestamp: entry.timestamp,
+            power: entry.power,
+            dominantClassification: entry.dominantClassification,
+            classification: entry.classification
+        }));
+    } catch (error) {
+        console.error("Error in device classification: ", error);
+        throw new Error(`Error in device classification: ${error.message || error.toString()}`);
     }
-
-    if (response.body === null) {
-        throw new Error('Response body is null');
-    }
-
-    const binaryData = await parseReadableStream(response.body);
-    const classificationResponse = DeviceClassificationResponse.fromBinary(binaryData);
-
-    return classificationResponse.electricity.map(entry => ({
-        timestamp: entry.timestamp,
-        power: entry.power,
-        dominantClassification: entry.dominantClassification,
-        classification: entry.classification
-    }));
 };

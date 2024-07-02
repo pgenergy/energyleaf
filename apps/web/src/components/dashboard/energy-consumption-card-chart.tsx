@@ -10,7 +10,7 @@ import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-ass
 interface Props {
     data: ConsumptionData[];
     peaks?: ConsumptionData[];
-    deviceClassifications?: DeviceClassification[]; // Fügen Sie diese Zeile hinzu
+    deviceClassifications?: DeviceClassification[];
     aggregation: AggregationType;
     userId: string;
 }
