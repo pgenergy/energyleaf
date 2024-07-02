@@ -24,14 +24,13 @@ import type { z } from "zod";
  */
 export async function createSensor(macAddress: string, sensorType: SensorType, script?: string) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await createSensorDb({
             macAddress,
             sensorType,
@@ -50,18 +49,17 @@ export async function createSensor(macAddress: string, sensorType: SensorType, s
  * Update an existing sensor.
  */
 export async function updateSensor(sensorId: string, data: Partial<SensorInsertType>) {
-    try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
     if (data.script === "") {
         data.script = null;
     }
     try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await updateSensorDb(sensorId, data);
     } catch (e) {
         throw new Error("Error while updating sensor");
@@ -103,14 +101,13 @@ export async function getConsumptionBySensor(
 
 export async function deleteSensor(sensorId: string) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await deleteSensorDb(sensorId);
         revalidatePath("/sensors");
     } catch (err) {
@@ -123,14 +120,13 @@ export async function deleteSensor(sensorId: string) {
 
 export async function assignUserToSensor(data: z.infer<typeof assignUserToSensorSchema>, clientId: string) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         const newId = await assignSensorToUserDb(clientId, data.userId);
         revalidatePath("/sensors");
 
@@ -155,15 +151,13 @@ export async function assignUserToSensor(data: z.infer<typeof assignUserToSensor
 
 export async function resetSensorValues(clientId: string) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await dbResetSensorValues(clientId);
         revalidatePath("/sensors");
     } catch (err) {
@@ -176,15 +170,13 @@ export async function resetSensorValues(clientId: string) {
 
 export async function insertSensorValue(sensorId: string, value: number) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await insertRawSensorValue(sensorId, value);
     } catch (err) {
         return {

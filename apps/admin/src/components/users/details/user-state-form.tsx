@@ -2,7 +2,7 @@
 
 import { updateUserState } from "@/actions/user";
 import { userStateSchema } from "@/lib/schema/user";
-import { userDataExperimentStatusEnum } from "@energyleaf/db/types";
+import { ExperimentNumberEnum, userDataExperimentStatusEnum } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Versions, stringify } from "@energyleaf/lib/versioning";
 import { cn } from "@energyleaf/tailwindcss/utils";
@@ -144,6 +144,35 @@ export default function UserStateForm({ initialValues, id }: Props) {
                 />
                 {form.getValues().isParticipant ? (
                     <>
+                        <FormField
+                            control={form.control}
+                            name="experimentNumber"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Experimentnummer</FormLabel>
+                                    <FormControl>
+                                        <Select
+                                            onValueChange={(value) => {
+                                                field.onChange(value);
+                                            }}
+                                            value={ExperimentNumberEnum[field.value ?? -1] || undefined}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Experimentnummer wählen" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {Object.keys(ExperimentNumberEnum).map((num) => (
+                                                    <SelectItem key={num} value={ExperimentNumberEnum[num]}>
+                                                        {num}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                             control={form.control}
                             name="getsPaid"

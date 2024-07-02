@@ -1,4 +1,4 @@
-import { userExperimentData } from "@energyleaf/db/schema";
+import { userData, userExperimentData } from "@energyleaf/db/schema";
 import { Versions } from "@energyleaf/lib/versioning";
 import { z } from "zod";
 
@@ -12,6 +12,7 @@ export const userStateSchema = z
         installationDate: z.date().optional(),
         deinstallationDate: z.date().optional(),
         getsPaid: z.boolean().default(false),
+        experimentNumber: z.coerce.number().optional(),
     })
     .superRefine((data, ctx) => {
         if (data.experimentStatus === "installation" && !data.installationDate) {
@@ -30,3 +31,16 @@ export const userStateSchema = z
             });
         }
     });
+
+export const userOnboardingFormSchema = z.object({
+    meterNumber: z.string().min(1, { message: "Bitte geben Sie die Zählernummer an." }),
+    file: z
+        .instanceof(File)
+        .refine((file) => file.size < 1024 * 1024 * 4, { message: "Die Datei darf maximal 4 MB groß sein." })
+        .optional(),
+    hasWifi: z.boolean().default(false),
+    hasPower: z.boolean().default(false),
+    meterType: z.enum([...userData.electricityMeterType.enumValues], {
+        message: "Bitte wählen Sie die Art ihres Zählers aus.",
+    }),
+});

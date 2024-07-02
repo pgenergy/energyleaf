@@ -242,20 +242,7 @@ export async function updatePassword(data: Partial<CreateUserType>, id: string) 
     return db.update(user).set(data).where(eq(user.id, id));
 }
 
-type UpdateUserData = {
-    tariff: (typeof userData.tariff.enumValues)[number];
-    property: (typeof userData.property.enumValues)[number];
-    livingSpace: number;
-    hotWater: (typeof userData.hotWater.enumValues)[number];
-    household: number;
-    basePrice: number;
-    workingPrice: number;
-    timestamp: Date;
-    monthlyPayment: number;
-    consumptionGoal: number;
-};
-
-export async function updateUserData(data: Partial<UpdateUserData>, id: string) {
+export async function updateUserData(data: Partial<typeof userData.$inferInsert>, id: string) {
     return db.transaction(async (trx) => {
         const oldUserData = await getUserDataByUserId(id);
         if (!oldUserData) {
