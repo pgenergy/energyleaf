@@ -104,3 +104,8 @@ export enum DeviceCategory {
     Lighting = "Beleuchtung",
     Care = "Pflege",
 }
+
+export enum ExperimentNumberEnum {
+    "Erster Durchlauf" = 0,
+    "Zweiter Durchlauf" = 1,
+}

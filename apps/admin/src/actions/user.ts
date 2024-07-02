@@ -2,7 +2,7 @@
 
 import { env } from "@/env.mjs";
 import { checkIfAdmin } from "@/lib/auth/auth.action";
-import type { userStateSchema } from "@/lib/schema/user";
+import type { userOnboardingFormSchema, userStateSchema } from "@/lib/schema/user";
 import {
     createExperimentDataForUser,
     deleteExperimentDataForUser,
@@ -16,6 +16,7 @@ import {
     setUserAdmin as setUserAdminDb,
     updateExperimentDataForUser,
     updateLastReportTimestamp,
+    updateUserData,
     updateUser as updateUserDb,
 } from "@energyleaf/db/query";
 import type { baseInformationSchema } from "@energyleaf/lib";
@@ -25,6 +26,7 @@ import {
     sendExperimentRemovedEmail,
     sendSurveyInviteEmail,
 } from "@energyleaf/mail";
+import { put } from "@energyleaf/storage";
 import { waitUntil } from "@vercel/functions";
 import { revalidatePath } from "next/cache";
 import "server-only";
@@ -165,6 +167,65 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
     }
 }
 
+export async function updateUserOnboardingData(
+    data: z.infer<typeof userOnboardingFormSchema>,
+    id: string,
+    fileData: FormData,
+) {
+    try {
+        await checkIfAdmin();
+    } catch (err) {
+        return {
+            success: false,
+            message: "Keine Berechtigung.",
+        };
+    }
+
+    try {
+        const file = fileData.get("file") as File | undefined;
+        let fileUrl: string | null = null;
+
+        if (
+            file &&
+            env.AWS_REGION &&
+            env.AWS_ACCESS_KEY_ID &&
+            env.AWS_ENDPOINT_URL_S3 &&
+            env.AWS_SECRET_ACCESS_KEY &&
+            env.BUCKET_NAME &&
+            env.FILE_URL
+        ) {
+            try {
+                const res = await put({
+                    keyId: env.AWS_ACCESS_KEY_ID,
+                    secret: env.AWS_SECRET_ACCESS_KEY,
+                    region: env.AWS_REGION,
+                    endpoint: env.AWS_ENDPOINT_URL_S3,
+                    bucket: env.BUCKET_NAME,
+                    path: "electricitiy_meter",
+                    body: file,
+                });
+                fileUrl = `${env.FILE_URL}/${res.key}`;
+            } catch {}
+        }
+
+        await updateUserData(
+            {
+                electricityMeterType: data.meterType,
+                electricityMeterNumber: data.meterNumber,
+                powerAtElectricityMeter: data.hasPower,
+                wifiAtElectricityMeter: data.hasWifi,
+                electricityMeterImgUrl: fileUrl,
+            },
+            id,
+        );
+    } catch (err) {
+        return {
+            success: false,
+            message: "Es ist ein Fehler aufgetreten.",
+        };
+    }
+}
+
 export async function updateUserState(data: z.infer<typeof userStateSchema>, id: string) {
     try {
         await checkIfAdmin();
@@ -259,6 +320,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                     installationDate: data.installationDate || null,
                     deinstallationDate: data.deinstallationDate || null,
                     getsPaid: data.getsPaid,
+                    experimentNumber: data.experimentNumber || null,
                 });
             } catch (err) {
                 throw new Error("Fehler beim Erstellen der Experimentdaten.");
@@ -271,6 +333,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                         installationDate: data.installationDate || null,
                         deinstallationDate: data.deinstallationDate || null,
                         getsPaid: data.getsPaid,
+                        experimentNumber: data.experimentNumber || null,
                     },
                     id,
                 );
