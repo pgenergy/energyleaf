@@ -39,7 +39,7 @@ export const GET = async (req: NextRequest) => {
                             end,
                             type: "anomaly",
                         },
-                        1000, // set the multiplier to 1000 that must be enough so it wont trigger on normal peaks
+                        5000, // set the multiplier to 5000 that must be enough so it wont trigger on normal peaks
                     );
                     if (anomalies.length > 0) {
                         const link = env.NEXT_PUBLIC_APP_URL.startsWith("localhost")
