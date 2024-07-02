@@ -45,6 +45,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
     const [mouseDown, setMouseDown] = useState(false);
+
     const dynamicTickFormatter = useMemo(() => {
         if (!xAxes?.dataKey) {
             return;
@@ -125,10 +126,10 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 className="select-none"
                 data={data}
                 margin={{
-                    top: 0,
-                    right: 0,
-                    left: 0,
-                    bottom: 0,
+                    top: 16,
+                    right: 10,
+                    left: 10,
+                    bottom: 16,
                 }}
                 onMouseDown={(e) => {
                     if (!zoomCallback) return;
@@ -157,11 +158,12 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     stroke="hsl(var(--muted-foreground))"
                     tickFormatter={dynamicTickFormatter}
                     tickLine={false}
+                    interval={1}
                 >
                     {xAxes?.name ? (
                         <Label
                             offset={0}
-                            position="insideBottom"
+                            position="bottom"
                             style={{
                                 color: "hsl(var(--muted-foreground))",
                             }}
@@ -173,8 +175,8 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     {yAxes?.name ? (
                         <Label
                             angle={270}
-                            offset={10}
-                            position="insideLeft"
+                            offset={0}
+                            position="left"
                             style={{
                                 color: "hsl(var(--muted-foreground))",
                                 textAnchor: "middle",
