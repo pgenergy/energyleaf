@@ -106,6 +106,11 @@ export enum DeviceCategory {
 }
 
 export enum ExperimentNumberEnum {
-    "Erster Durchlauf" = 0,
-    "Zweiter Durchlauf" = 1,
+    FIRST = 0,
+    SECOND = 1,
 }
+
+export const ExperimentNumberEnumMap: Record<ExperimentNumberEnum, string> = {
+    [ExperimentNumberEnum.FIRST]: "Erster Durchlauf",
+    [ExperimentNumberEnum.SECOND]: "Zweiter Durchlauf",
+};

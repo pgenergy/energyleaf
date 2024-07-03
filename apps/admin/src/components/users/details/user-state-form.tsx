@@ -2,7 +2,7 @@
 
 import { updateUserState } from "@/actions/user";
 import { userStateSchema } from "@/lib/schema/user";
-import { ExperimentNumberEnum, userDataExperimentStatusEnum } from "@energyleaf/db/types";
+import { ExperimentNumberEnum, ExperimentNumberEnumMap, userDataExperimentStatusEnum } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Versions, stringify } from "@energyleaf/lib/versioning";
 import { cn } from "@energyleaf/tailwindcss/utils";
@@ -153,19 +153,26 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                     <FormControl>
                                         <Select
                                             onValueChange={(value) => {
-                                                field.onChange(value);
+                                                field.onChange(Number(value));
                                             }}
-                                            value={ExperimentNumberEnum[field.value ?? -1] || undefined}
+                                            value={field.value?.toString() || undefined}
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Experimentnummer wählen" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {Object.keys(ExperimentNumberEnum).map((num) => (
-                                                    <SelectItem key={num} value={ExperimentNumberEnum[num]}>
-                                                        {num}
-                                                    </SelectItem>
-                                                ))}
+                                                {Object.keys(ExperimentNumberEnum)
+                                                    .filter((key) => Number.isNaN(Number(key)))
+                                                    .map((key) => {
+                                                        const expNumber = ExperimentNumberEnum[
+                                                            key
+                                                        ] as ExperimentNumberEnum;
+                                                        return (
+                                                            <SelectItem key={key} value={expNumber.toString()}>
+                                                                {ExperimentNumberEnumMap[expNumber]}
+                                                            </SelectItem>
+                                                        );
+                                                    })}
                                             </SelectContent>
                                         </Select>
                                     </FormControl>
