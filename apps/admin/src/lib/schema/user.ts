@@ -1,4 +1,5 @@
 import { userData, userExperimentData } from "@energyleaf/db/schema";
+import { ExperimentNumberEnum } from "@energyleaf/db/types";
 import { Versions } from "@energyleaf/lib/versioning";
 import { z } from "zod";
 
@@ -12,7 +13,7 @@ export const userStateSchema = z
         installationDate: z.date().optional(),
         deinstallationDate: z.date().optional(),
         getsPaid: z.boolean().default(false),
-        experimentNumber: z.coerce.number().optional(),
+        experimentNumber: z.nativeEnum(ExperimentNumberEnum).optional(),
     })
     .superRefine((data, ctx) => {
         if (data.experimentStatus === "installation" && !data.installationDate) {
