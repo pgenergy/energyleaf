@@ -33,8 +33,8 @@ export function UserContextProvider({ children }: Props) {
     const [passwordResetDialogOpen, setPasswordResetDialogOpen] = useState(false);
     const [user, setUser] = useState<UserSelectType | undefined>(undefined);
     const [aggregationType, setAggregationType] = useState<AggregationType | undefined>(undefined);
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const [startDate, setStartDate] = useState(new Date(new Date().setHours(0, 0, 0, 0)));
+    const [endDate, setEndDate] = useState(new Date(new Date().setHours(23, 59, 59, 999)));
     const [zoomed, setZoomed] = useState(false);
 
     return (

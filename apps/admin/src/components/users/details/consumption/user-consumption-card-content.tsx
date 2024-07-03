@@ -54,10 +54,7 @@ function useConsumptionData(userId: string) {
             return energyData.map((entry) => ({
                 sensorId: entry.sensorId || 0,
                 energy: entry.value,
-                timestamp:
-                    typeof entry.timestamp === "string" || typeof entry.timestamp === "number"
-                        ? new Date(entry.timestamp).toISOString()
-                        : "",
+                timestamp: entry.timestamp.toISOString(),
                 sensorDataId: entry.id,
             }));
         };
