@@ -1,4 +1,4 @@
-import { type ReportProps, formatDate } from "@energyleaf/lib";
+import { DismissedReasonEnum, type ReportProps, formatDate } from "@energyleaf/lib";
 import type * as React from "react";
 import { Resend } from "resend";
 import AccountActivatedTemplate from "../templates/account-activated";
@@ -7,6 +7,8 @@ import AdminNewAccountCreatedTemplate from "../templates/admin-new-account";
 import AnomalyDetectedTemplate from "../templates/anomaly-detected";
 import ExperimentDoneTemplate from "../templates/experiment-done";
 import ExperimentRemovedTemplate from "../templates/experiment-remove";
+import ExperimentRemovedAttentionTemplate from "../templates/experiment-remove-attention";
+import ExperimentRemovedWrongMeterTemplate from "../templates/experiment-remove-wrong-meter";
 import PasswordChangedTemplate from "../templates/password-changed";
 import PasswordResetTemplate from "../templates/password-reset";
 import PasswordResetByAdminTemplate from "../templates/password-reset-by-admin";
@@ -270,6 +272,7 @@ export async function sendReport(options: ReportMailOptions) {
 
 type ExperimentRemovedMail = MailOptions & {
     name: string;
+    reason?: DismissedReasonEnum;
 };
 
 export async function sendExperimentRemovedEmail(props: ExperimentRemovedMail) {
@@ -279,20 +282,51 @@ export async function sendExperimentRemovedEmail(props: ExperimentRemovedMail) {
 
     const resend = createResend(props.apiKey);
 
-    const resp = await resend.emails.send({
-        to: props.to,
-        from: props.from,
-        subject: "Teilnahme nicht möglich",
-        react: ExperimentRemovedTemplate({
-            name: props.name,
-        }),
-    });
+    if (!props.reason) {
+        const resp = await resend.emails.send({
+            to: props.to,
+            from: props.from,
+            subject: "Teilnahme nicht möglich",
+            react: ExperimentRemovedTemplate({
+                name: props.name,
+            }),
+        });
+        if (resp.error) {
+            throw new Error(resp.error.message);
+        }
 
-    if (resp.error) {
-        throw new Error(resp.error.message);
+        return resp.data?.id;
     }
+    if (props.reason === DismissedReasonEnum.ATTENTION_CHECK) {
+        const resp = await resend.emails.send({
+            to: props.to,
+            from: props.from,
+            subject: "Teilnahme nicht möglich",
+            react: ExperimentRemovedAttentionTemplate({
+                name: props.name,
+            }),
+        });
+        if (resp.error) {
+            throw new Error(resp.error.message);
+        }
 
-    return resp.data?.id;
+        return resp.data?.id;
+    }
+    if (props.reason === DismissedReasonEnum.WRONG_METER) {
+        const resp = await resend.emails.send({
+            to: props.to,
+            from: props.from,
+            subject: "Teilnahme nicht möglich",
+            react: ExperimentRemovedWrongMeterTemplate({
+                name: props.name,
+            }),
+        });
+        if (resp.error) {
+            throw new Error(resp.error.message);
+        }
+
+        return resp.data?.id;
+    }
 }
 
 type SurveyInviteMailOptions = MailOptions & {

@@ -28,10 +28,6 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
         }
     }, [isOpen]);
 
-    useEffect(() => {
-        console.log(users);
-    }, [users]);
-
     return (
         <Popover onOpenChange={setIsOpen} open={isOpen}>
             <PopoverTrigger asChild>

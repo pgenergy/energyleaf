@@ -12,7 +12,6 @@ export default function PageView() {
         const track = async () => {
             // Track pageviews
             if (pathname) {
-                console.log(pathname);
                 let url = window.origin + pathname;
                 if (searchParams.toString()) {
                     url = `${url}?${searchParams.toString()}`;
