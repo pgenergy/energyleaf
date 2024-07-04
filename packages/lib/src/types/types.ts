@@ -18,3 +18,13 @@ export interface IDefaultActionReturnPayload<T> extends IDefaultActionReturn {
 
 export type DefaultActionReturn = IDefaultActionReturn | undefined;
 export type DefaultActionReturnPayload<T> = IDefaultActionReturnPayload<T> | undefined;
+
+export enum DismissedReasonEnum {
+    WRONG_METER = 0,
+    ATTENTION_CHECK = 1,
+}
+
+export const DismissedReasonEnumMap: Record<DismissedReasonEnum, string> = {
+    [DismissedReasonEnum.WRONG_METER]: "Falscher Zähler",
+    [DismissedReasonEnum.ATTENTION_CHECK]: "Aufmerksamkeitsprüfung",
+};

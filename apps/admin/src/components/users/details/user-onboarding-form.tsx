@@ -124,7 +124,7 @@ export default function UserOnboardingForm(props: Props) {
                                     Es gibt bereits ein Foto, dieses kann Überschrieben werden
                                 </FormDescription>
                             ) : null}
-                            <FormControl className="flex flex-row gap-2">
+                            <FormControl className="flex flex-row items-center gap-4">
                                 {editFile ? (
                                     <>
                                         <Input
