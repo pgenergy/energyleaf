@@ -42,9 +42,10 @@ export const GET = async (req: NextRequest) => {
                         5000, // set the multiplier to 5000 that must be enough so it wont trigger on normal peaks
                     );
                     if (anomalies.length > 0) {
-                        const link = env.NEXT_PUBLIC_APP_URL.startsWith("localhost")
-                            ? `http://${env.NEXT_PUBLIC_APP_URL}`
-                            : `https://${env.NEXT_PUBLIC_APP_URL}`;
+                        const link =
+                            env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
+                                ? `https://${env.NEXT_PUBLIC_APP_URL}`
+                                : `http://${env.NEXT_PUBLIC_APP_URL}`;
                         if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
                             const unsubscribeToken = await createToken(user.id);
                             const unsubscribeLink = buildUnsubscribeUrl({
