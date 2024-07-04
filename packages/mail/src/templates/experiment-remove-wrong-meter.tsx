@@ -21,7 +21,7 @@ export default function ExperimentRemovedWrongMeterTemplate({ name }: Props) {
                         wir danken Ihnen sehr herzlich für Ihr Interesse an unserem Projekt und Ihre Bereitschaft zur
                         Teilnahme. Leider sind unsere Sensoren mit Ihrem Zählermodell nicht kompatibel. Sollten Sie
                         dennoch am Projekt teilnehmen wollen, melden Sie sich bitte nochmals bei uns. Es ist unter
-                        Umständen möglich mit Ihrem Messstellenbetreiber (der Firma, die Ihren Zähler managt) über einen
+                        Umständen möglich mit Ihrem Messstellenbetreiber (der Firma, die Ihren Zähler verwaltet) über einen
                         für Sie kostenlosen Zähleraustausch zu sprechen.
                     </Text>
                 </Container>
