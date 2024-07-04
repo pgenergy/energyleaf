@@ -20,8 +20,8 @@ export type DefaultActionReturn = IDefaultActionReturn | undefined;
 export type DefaultActionReturnPayload<T> = IDefaultActionReturnPayload<T> | undefined;
 
 export enum DismissedReasonEnum {
-    WRONG_METER = "WRONG_METER",
-    ATTENTION_CHECK = "ATTENTION_CHECK",
+    WRONG_METER = 0,
+    ATTENTION_CHECK = 1,
 }
 
 export const DismissedReasonEnumMap: Record<DismissedReasonEnum, string> = {
