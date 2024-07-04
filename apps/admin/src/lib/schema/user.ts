@@ -1,5 +1,6 @@
 import { userData, userExperimentData } from "@energyleaf/db/schema";
 import { ExperimentNumberEnum } from "@energyleaf/db/types";
+import { DismissedReasonEnum } from "@energyleaf/lib";
 import { Versions } from "@energyleaf/lib/versioning";
 import { z } from "zod";
 
@@ -10,6 +11,7 @@ export const userStateSchema = z
         isParticipant: z.boolean().default(false),
         appVersion: z.nativeEnum(Versions),
         experimentStatus: z.enum(userExperimentData.experimentStatus.enumValues).optional(),
+        dismissedReason: z.nativeEnum(DismissedReasonEnum).optional(),
         installationDate: z.date().optional(),
         deinstallationDate: z.date().optional(),
         getsPaid: z.boolean().default(false),
@@ -29,6 +31,14 @@ export const userStateSchema = z
                 code: "custom",
                 message: "Deinstallationsdatum muss angegeben werden",
                 path: ["deinstallationDate"],
+            });
+        }
+
+        if (data.experimentStatus === "dismissed" && !data.dismissedReason) {
+            ctx.addIssue({
+                code: "custom",
+                message: "Ablehnungsgrund muss angegeben werden",
+                path: ["dismissedReason"],
             });
         }
     });

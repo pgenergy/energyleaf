@@ -345,6 +345,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                     from: env.RESEND_API_MAIL,
                     apiKey: env.RESEND_API_KEY,
                     name,
+                    reason: data.dismissedReason,
                 });
             } catch (err) {
                 waitUntil(
@@ -355,6 +356,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                         {
                             userId: userData.id,
                             data: data,
+                            reason: data.dismissedReason,
                         },
                         err,
                     ),
