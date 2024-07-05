@@ -14,7 +14,7 @@ import { Form } from "@energyleaf/ui/form";
 import { Wizard, WizardPage, useWizard } from "@energyleaf/ui/wizard";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRightIcon } from "lucide-react";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -125,7 +125,7 @@ function UserDataStep({ userData }: UserDataStepProps) {
 function GoalStep({ userData }: UserDataStepProps) {
     const goalCalculated = useMemo(() => {
         return !userData.consumptionGoal;
-    }, [userData]);
+    }, [userData.consumptionGoal]);
 
     const calculateGoal = useCallback(() => {
         if (!userData.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
@@ -137,7 +137,7 @@ function GoalStep({ userData }: UserDataStepProps) {
         const monthlyVariableCosts = variableCosts / 12;
         const consumptionGoal = monthlyVariableCosts / userData.workingPrice;
         return Math.round(consumptionGoal);
-    }, [userData]);
+    }, [userData.monthlyPayment, userData.basePrice, userData.workingPrice]);
 
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
@@ -148,9 +148,12 @@ function GoalStep({ userData }: UserDataStepProps) {
 
     // Sometimes, the goal value is calculated with outdated data and not updated. To fix this issue, update the goal
     // value manually.
-    if (!form.formState.isDirty) {
-        form.setValue("goalValue", calculateGoal());
-    }
+    // biome-ignore lint/correctness/useExhaustiveDependencies: we only care about isDirty
+    useEffect(() => {
+        if (!form.formState.isDirty) {
+            form.setValue("goalValue", calculateGoal());
+        }
+    }, [form.formState.isDirty]);
 
     const { handleNextClick, handleStep } = useWizard();
 
