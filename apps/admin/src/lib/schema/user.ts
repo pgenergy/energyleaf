@@ -34,7 +34,10 @@ export const userStateSchema = z
             });
         }
 
-        if (data.experimentStatus === "dismissed" && !data.dismissedReason) {
+        if (
+            data.experimentStatus === "dismissed" &&
+            (data.dismissedReason === null || data.dismissedReason === undefined)
+        ) {
             ctx.addIssue({
                 code: "custom",
                 message: "Ablehnungsgrund muss angegeben werden",
