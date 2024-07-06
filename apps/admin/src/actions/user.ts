@@ -306,7 +306,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                     installationDate: data.installationDate || null,
                     deinstallationDate: data.deinstallationDate || null,
                     getsPaid: data.getsPaid,
-                    experimentNumber: data.experimentNumber || null,
+                    experimentNumber: data.experimentNumber ?? null,
                 });
             } catch (err) {
                 throw new Error("Fehler beim Erstellen der Experimentdaten.");
