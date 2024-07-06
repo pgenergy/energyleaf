@@ -131,7 +131,7 @@ export async function getAllExperimentUsers() {
             and(
                 eq(user.isParticipant, true),
                 eq(userExperimentData.experimentStatus, "approved"),
-                gte(userExperimentData.experimentNumber, 1),
+                gte(userExperimentData.experimentNumber, 0),
             ),
         );
 }
