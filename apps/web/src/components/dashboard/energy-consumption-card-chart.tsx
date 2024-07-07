@@ -39,27 +39,18 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation, u
         [],
     );
 
-    const convertDateFormat = useCallback((dateStr: string) => {
-        const cleanedDateStr = dateStr.replace(/\(.+\)$/, "").trim();
-        const parsedDate = new Date(cleanedDateStr);
-        if (!Number.isNaN(parsedDate.getTime())) {
-            return formatISO(parsedDate);
-        }
-        return dateStr;
-    }, []);
-
     const convertToAxesValue = useCallback(
         (peak: ConsumptionData): Record<string, string | number | undefined> => {
             const sensorData = data.find((x) => x.sensorId === peak.sensorId && x.timestamp === peak.timestamp);
 
             return {
                 sensorId: sensorData?.sensorId ?? "",
-                timestamp: sensorData?.timestamp ? convertDateFormat(sensorData.timestamp) : "",
+                timestamp: sensorData?.timestamp ? sensorData.timestamp : "",
                 energy: sensorData?.energy ?? 0,
                 sensorDataId: sensorData?.sensorDataId ?? "",
             };
         },
-        [data, convertDateFormat],
+        [data],
     );
 
     function handleZoom(left: Date, right: Date) {
@@ -84,7 +75,7 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation, u
                 aggregation={aggregation}
                 data={data.map((d) => ({
                     ...d,
-                    timestamp: d.timestamp ? convertDateFormat(d.timestamp) : "",
+                    timestamp: d.timestamp ? d.timestamp : "",
                 }))}
                 referencePoints={
                     peaks

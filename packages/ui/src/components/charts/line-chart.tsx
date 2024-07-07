@@ -1,7 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
-import { differenceInCalendarDays, format, isValid, max, min, parseISO } from "date-fns";
+import { formatDate } from "date-fns";
 import { useMemo, useState } from "react";
 import {
     Area,
@@ -46,59 +46,23 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
     const [mouseDown, setMouseDown] = useState(false);
 
-    const dynamicTickFormatter = useMemo(() => {
-        if (!xAxes?.dataKey) {
-            return;
+    const sameDay = useMemo(() => {
+        if (data.length === 0 || !xAxes?.dataKey) return false;
+
+        const firstDate = new Date(data[0][xAxes?.dataKey] as string);
+        return data.every((value) => {
+            const date = new Date(value[xAxes?.dataKey] as string);
+            return date.getDate() === firstDate.getDate();
+        });
+    }, [data, xAxes?.dataKey]);
+
+    const dynamicTickFormatter = (value: string) => {
+        if (sameDay) {
+            return formatDate(new Date(value), "HH:00");
         }
-        const dates = data
-            .map((d) => {
-                const dateString = d[xAxes.dataKey] as string;
-                return parseISO(dateString);
-            })
-            .filter(isValid);
 
-        if (dates.length === 0) {
-            return (value: string) => value;
-        }
-        const minDate = min(dates);
-        const maxDate = max(dates);
-        const diffDays = differenceInCalendarDays(maxDate, minDate);
-
-        let lastSeenHour = "";
-        let lastSeenDate = "";
-        // Ensures the interval between displayed dates in the chart is at least 1 and adapts dynamically to span 20 intervals across the date range
-        const dateInterval = Math.max(1, Math.ceil(diffDays / 20));
-
-        const lastDateStr = format(maxDate, "dd.MM");
-        const lastHourStr = `${format(maxDate, "HH")}:00`;
-
-        return (value: string) => {
-            if (!isValid(parseISO(value))) {
-                return value;
-            }
-            const date = parseISO(value);
-            const dateStr = format(date, "dd.MM");
-            const hourStr = `${format(date, "HH")}:00`;
-            const currentDateDiff = differenceInCalendarDays(date, minDate);
-
-            if (diffDays <= 1) {
-                if (dateStr === lastDateStr && hourStr === lastHourStr) {
-                    return "";
-                }
-                if (lastSeenHour !== hourStr) {
-                    lastSeenHour = hourStr;
-                    return hourStr;
-                }
-                return "";
-            }
-
-            if (currentDateDiff % dateInterval === 0 && lastSeenDate !== dateStr) {
-                lastSeenDate = dateStr;
-                return dateStr;
-            }
-            return "";
-        };
-    }, [data, xAxes]);
+        return formatDate(new Date(value), "dd.MM HH:00");
+    };
 
     const handleZoom = () => {
         if (!leftValue || !rightValue || !zoomCallback) return;
@@ -148,9 +112,10 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 }}
             >
                 <defs>
-                    <linearGradient id="color" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    <linearGradient id="fillColor" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.99} />
+                        <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity={0.7} />
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.1} />
                     </linearGradient>
                 </defs>
                 <XAxis
@@ -158,7 +123,7 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                     stroke="hsl(var(--muted-foreground))"
                     tickFormatter={dynamicTickFormatter}
                     tickLine={false}
-                    interval={1}
+                    interval="equidistantPreserveStart"
                 >
                     {xAxes?.name ? (
                         <Label
@@ -188,10 +153,10 @@ export function LineChart({ keyName, data, xAxes, yAxes, tooltip, referencePoint
                 {tooltip ? <Tooltip content={tooltip.content} /> : null}
                 <Area
                     dataKey={keyName}
-                    fill="url(#color)"
-                    fillOpacity={1}
+                    fill="url(#fillColor)"
+                    fillOpacity={0.4}
                     stroke="hsl(var(--primary))"
-                    type="monotone"
+                    type="natural"
                 />
                 {referencePoints
                     ? referencePoints.data.map((value) => (
