@@ -106,7 +106,8 @@ export function getPredictedCost(userData: UserDataSelectType[], energyData: Sen
         return 0;
     }
 
-    const price = getLatestUserData(userData).basePrice ?? 0;
+    const workingPrice = getLatestUserData(userData).workingPrice ?? 0;
+    const basePrice = getLatestUserData(userData).basePrice ?? 0;
 
     const today: Date = new Date();
     const firstDayOfMonth: Date = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -116,8 +117,7 @@ export function getPredictedCost(userData: UserDataSelectType[], energyData: Sen
     const totalConsumptionCurrentMonth = getCalculatedTotalConsumptionCurrentMonth(energyData);
     const monthlyUsage: number = (totalConsumptionCurrentMonth / daysPassed) * lastDayOfMonth.getDate();
 
-    const predictedConsumption: number = monthlyUsage - totalConsumptionCurrentMonth;
-    return Number.parseFloat((predictedConsumption * price).toFixed(2));
+    return Number.parseFloat((monthlyUsage * workingPrice + basePrice).toFixed(2));
 }
 
 function getLatestUserData(userData: UserDataSelectType[]): UserDataSelectType {
