@@ -33,7 +33,6 @@ export function EnergyConsumptionChart({ data, referencePoints, aggregation, zoo
             keyName="energy"
             referencePoints={referencePoints}
             tooltip={{
-                // eslint-disable-next-line react/no-unstable-nested-components -- needs to be a function
                 content: (props: TooltipProps<ValueType, NameType>) => {
                     return (
                         <EnergyConsumptionTooltip
