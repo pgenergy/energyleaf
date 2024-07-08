@@ -33,7 +33,7 @@ export const GET = async () => {
     try {
         const users = await getAllExperimentUsers();
         const parsedData = users.map((user) => {
-            const parsedId = user.user.id.replace(/-_/g, "");
+            const parsedId = user.user.id.replace(/[-_]/g, "");
             const mail = user.user.email;
             const firstname = user.user.firstname.replace(/,/g, " ");
             const lastname = user.user.lastName.replace(/,/g, " ");
