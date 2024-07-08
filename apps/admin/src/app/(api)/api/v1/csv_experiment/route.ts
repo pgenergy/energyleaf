@@ -1,5 +1,11 @@
 import { getActionSession } from "@/lib/auth/auth.action";
-import { getAllExperimentUsers, log, logError, trackAction } from "@energyleaf/db/query";
+import {
+    getAllExperimentUsers,
+    log,
+    logError,
+    trackAction,
+    updateExperimentDataForUser,
+} from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
 import * as csv from "csv/sync";
 import { NextResponse } from "next/server";
@@ -35,7 +41,36 @@ export const GET = async () => {
             return [firstname, lastname, mail, parsedId];
         });
 
-        const csvData = csv.stringify([["Vorname", "Nachname", "Email", "ID"], ...parsedData]);
+        const promises: Promise<unknown>[] = [];
+        for (let i = 0; i < users.length; i++) {
+            const user = users[i];
+            promises.push(
+                updateExperimentDataForUser(
+                    {
+                        experimentStatus: "exported",
+                    },
+                    user.user.id,
+                ),
+            );
+        }
+        try {
+            await Promise.all(promises);
+        } catch (err) {
+            waitUntil(
+                logError("csv-export-user/update-failed", "csv-export-user", "api", { details, session, users }, err),
+            );
+            return NextResponse.json(
+                {
+                    error: "Ein Fehler ist aufgetreten.",
+                    status: 500,
+                },
+                {
+                    status: 500,
+                },
+            );
+        }
+
+        const csvData = csv.stringify([["firstname", "lastname", "email", "token"], ...parsedData]);
         waitUntil(trackAction("csv-export-user/success", "csv-export-user", "api", { details, session }));
         return new NextResponse(csvData, {
             status: 200,
