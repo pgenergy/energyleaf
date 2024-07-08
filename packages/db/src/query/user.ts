@@ -269,9 +269,7 @@ export async function deleteUser(id: string) {
         const currentData = await trx
             .select()
             .from(user)
-            .innerJoin(userData, eq(userData.userId, user.id))
-            .innerJoin(userExperimentData, eq(userExperimentData.userId, user.id))
-            .innerJoin(reportConfig, eq(reportConfig.userId, user.id))
+            .leftJoin(reportConfig, eq(reportConfig.userId, user.id))
             .where(eq(user.id, id));
         if (currentData.length <= 0) {
             return;
@@ -291,11 +289,13 @@ export async function deleteUser(id: string) {
         });
         await trx.delete(user).where(eq(user.id, id));
 
-        // delete reports
-        await trx.insert(historyReportConfig).values({
-            ...data.report_config,
-        });
-        await trx.delete(reportConfig).where(eq(reportConfig.userId, data.report_config.userId));
+        if (data.report_config) {
+            // delete reports
+            await trx.insert(historyReportConfig).values({
+                ...data.report_config,
+            });
+            await trx.delete(reportConfig).where(eq(reportConfig.userId, data.report_config.userId));
+        }
 
         // sensor actions
         const sensorDb = await trx.select().from(sensor).where(eq(sensor.userId, data.user.id));
