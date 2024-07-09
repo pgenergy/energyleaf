@@ -36,9 +36,7 @@ function calculateThreshold(energyData: SensorDataSelectType[], multiplier = 1) 
     const values = energyData.map((d) => d.value);
     const median = values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
     const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
-    const threshold = median + 1.4826 * mad * multiplier;
-
-    return threshold;
+    return median + 1.4826 * mad * multiplier;
 }
 
 function findSequence(energyData: SensorDataSelectType[], threshold: number, length = 8) {
@@ -50,6 +48,7 @@ function findSequence(energyData: SensorDataSelectType[], threshold: number, len
 
         if (entry.value > threshold) {
             if (entry.isAnomaly) {
+                // TODO: Wie damit umgehen, wenn sich Peaks und Annomalien überschneiden?
                 continue;
             }
             let sequenceEnd = i + 1;
@@ -58,7 +57,7 @@ function findSequence(energyData: SensorDataSelectType[], threshold: number, len
             const isStart = i === 0;
 
             while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
-                if (energyData[sequenceEnd].isAnomaly) {
+                if (energyData[sequenceEnd].isAnomaly) { // TODO: Hier bräuchte man einen Check, ob sich Anomalien und Peaks überschneiden
                     containsAnomaly = true;
                 }
                 if (energyData[sequenceEnd].value > highestValue.value) {
