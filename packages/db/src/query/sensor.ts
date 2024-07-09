@@ -731,18 +731,6 @@ export async function getSensorDataByClientId(clientId: string) {
 }
 
 /**
- * Get the sensor data from a client id
- */
-export async function getSensorByClientId(clientId: string) {
-    const query = await db.select().from(sensor).where(eq(sensor.clientId, clientId));
-    if (query.length === 0) {
-        return null;
-    }
-
-    return query[0];
-}
-
-/**
  * Get the sensor id from a sensor token
  * This also validates the token and deletes it if it is older than 1 hour
  */
