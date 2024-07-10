@@ -70,6 +70,15 @@ export const GET = async (req: NextRequest) => {
                 );
             }
         }
+        // FIXME: Fix Return response
+        return new NextResponse(null, {
+            status: 200,
+            headers: {
+                "Content-Type": "application/json",
+                "Content-Disposition": `attachment; filename=export_experiment_${new Date().getTime()}.csv`,
+                "Access-Control-Allow-Origin": "*",
+            },
+        });
     } catch (err) {
         waitUntil(
             logError(

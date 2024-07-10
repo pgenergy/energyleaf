@@ -3,7 +3,17 @@ import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 import { and, asc, between, desc, eq, gte, inArray, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
-import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
+import {
+    device,
+    deviceToPeak,
+    sensor,
+    sensorData,
+    sensorDataSequence,
+    sensorHistory,
+    sensorToken,
+    user,
+    userData,
+} from "../schema";
 import {
     type SensorDataSelectType,
     type SensorInsertType,
@@ -47,34 +57,20 @@ function findSequence(energyData: SensorDataSelectType[], threshold: number, len
         const entry = energyData[i];
 
         if (entry.value > threshold) {
-            if (entry.isAnomaly) {
-                // TODO: Wie damit umgehen, wenn sich Peaks und Annomalien überschneiden?
-                continue;
-            }
             let sequenceEnd = i + 1;
             let highestValue = entry;
-            let containsAnomaly = false;
             const isStart = i === 0;
 
             while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
-                if (energyData[sequenceEnd].isAnomaly) { // TODO: Hier bräuchte man einen Check, ob sich Anomalien und Peaks überschneiden
-                    containsAnomaly = true;
-                }
                 if (energyData[sequenceEnd].value > highestValue.value) {
                     highestValue = energyData[sequenceEnd];
                 }
                 sequenceEnd++;
             }
 
-            // if there is a anomaly marked in the sequence skip whole sequence and not mark as peak
-            if (containsAnomaly) {
-                i = sequenceEnd;
-                continue;
-            }
-
             const sequenceLength = sequenceEnd - i;
-            // only mark as peak if longer then 2min and not marked as anomly yet
-            if (sequenceLength > length && !highestValue.isAnomaly) {
+            // only mark as peak if longer then 2min and not marked as anomaly yet
+            if (sequenceLength > length) {
                 peaks.push({
                     ...highestValue,
                     isStart,
@@ -125,6 +121,11 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                 })
                 .slice(1);
 
+            const sequences = await trx
+                .select()
+                .from(sensorDataSequence)
+                .where(and(eq(sensorDataSequence.sensorId, sensorId), between(sensorDataSequence.start, start, end)));
+
             // check if all values are integers if so we know that the sensor has no pin
             if (calcData.every((d) => Number.isInteger(d.value))) {
                 return [];
@@ -133,25 +134,26 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
             const energyData = calcData.filter((d) => {
                 return d.timestamp.getTime() >= start.getTime();
             });
-
             // to calculate threshold remove all values that are 0 or less because they can happen if the led of the
             // meter is to low, and manipulate the threshold
             const threshold = calculateThreshold(
                 calcData.filter((d) => d.value > 0),
                 multiplier,
             );
-
             let peaks = findSequence(energyData, threshold, props.type === "anomaly" ? 12 : 8);
+
+            console.log(peaks);
+
             if (props.type === "anomaly") {
                 // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
-                const lastPeak = calcData.find((d) => d.isAnomaly);
+                const lastPeak = sequences.find((d) => d.type === "anomaly");
                 if (lastPeak) {
-                    peaks = peaks.filter((d) => d.timestamp.getTime() - lastPeak.timestamp.getTime() > 30 * 60 * 1000);
+                    peaks = peaks.filter((d) => d.timestamp.getTime() - lastPeak.end.getTime() > 30 * 60 * 1000);
                 }
             }
             if (peaks.length !== 0) {
                 // check before value if this peak is part of another peak sequence
-                // if so we dont mark it as peak
+                // if so we don't mark it as peak
                 if (peaks[0].isStart) {
                     const beforeIndex = calcData.findIndex((d) => d.id === energyData[0].id);
                     if (beforeIndex > 0) {
@@ -161,23 +163,24 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                         }
                     }
                 }
-                await trx
-                    .update(sensorData)
-                    .set({
-                        ...(props.type === "peak" ? { isPeak: true } : { isAnomaly: true }),
-                    })
-                    .where(
-                        inArray(
-                            sensorData.id,
-                            peaks.map((d) => d.id),
-                        ),
-                    );
+                // TODO: Correctly save sequence
+                // await trx
+                //     .update(sensorData)
+                //     .set({
+                //         ...(props.type === "peak" ? { isPeak: true } : { isAnomaly: true }),
+                //     })
+                //     .where(
+                //         inArray(
+                //             sensorData.id,
+                //             peaks.map((d) => d.id),
+                //         ),
+                //     );
             }
 
             // if there is an anomaly in the last 24 hours return nothing to avoid sending another mail
             if (props.type === "anomaly") {
                 if (peaks.length !== 0) {
-                    if (calcData.some((d) => d.isAnomaly)) {
+                    if (sequences.some((d) => d.type === "anomaly")) {
                         return [];
                     }
                 }
