@@ -22,14 +22,14 @@ export const GET = async (req: NextRequest) => {
         endDate.setHours(endDate.getHours() - 1, 59, 59, 999);
     } else {
         startDate.setHours(startDate.getHours() - 1, 0, 0, 0);
-        endDate.setHours(endDate.getHours() - 1, 30, 59, 59);
+        endDate.setHours(endDate.getHours() - 1, 29, 59, 59);
     }
 
     try {
         const sensors = await getAllSensors(true);
         const sensorIds = sensors.map((d) => d.id);
 
-        const promises: Promise<SensorDataSelectType[]>[] = [];
+        const promises: Promise<SensorDataSequenceType[]>[] = [];
         waitUntil(
             log("mark-peaks/length", "info", "mark-peaks", "api", {
                 length: sensorIds.length,

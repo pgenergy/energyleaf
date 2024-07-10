@@ -156,33 +156,32 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                 // check before value if this peak is part of another peak sequence
                 // if so we don't mark it as peak
                 if (peaks[0].isStart) {
+                    const lastSequenceOfSensorQuery = await trx
+                        .select()
+                        .from(sensorDataSequence)
+                        .where(and(eq(sensorDataSequence.sensorId, sensorId), lt(sensorDataSequence.end, start)))
+                        .orderBy(desc(sensorDataSequence.end))
+                        .limit(1);
+                    const lastSequenceOfSensor =
+                        lastSequenceOfSensorQuery.length > 0 ? lastSequenceOfSensorQuery[0] : null;
+
                     const beforeIndex = calcData.findIndex((d) => d.id === energyData[0].id);
-                    if (beforeIndex > 0) {
-                        const beforeValue = calcData[beforeIndex - 1].value;
-                        if (beforeValue > threshold) {
-                            peaks.shift();
-                        }
+                    const lastEntryBeforeInterval = calcData[beforeIndex - 1];
+
+                    if (
+                        lastSequenceOfSensor &&
+                        lastSequenceOfSensor.end.getTime() >= lastEntryBeforeInterval.timestamp.getTime()
+                    ) {
+                        await trx
+                            .update(sensorDataSequence)
+                            .set({ end: peaks[0].end })
+                            .where(eq(sensorDataSequence.id, lastSequenceOfSensor.id));
+                    } else {
+                        await trx.insert(sensorDataSequence).values(peaks);
                     }
-                }
-
-                try {
+                } else {
                     await trx.insert(sensorDataSequence).values(peaks);
-                } catch (err) {
-                    console.log(err);
                 }
-
-                // TODO: Correctly save sequence
-                // await trx
-                //     .update(sensorData)
-                //     .set({
-                //         ...(props.type === "peak" ? { isPeak: true } : { isAnomaly: true }),
-                //     })
-                //     .where(
-                //         inArray(
-                //             sensorData.id,
-                //             peaks.map((d) => d.id),
-                //         ),
-                //     );
             }
 
             // if there is an anomaly in the last 24 hours return nothing to avoid sending another mail
