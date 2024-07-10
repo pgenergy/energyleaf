@@ -50,6 +50,27 @@ function calculateThreshold(energyData: SensorDataSelectType[], multiplier = 1) 
     return median + 1.4826 * mad * multiplier;
 }
 
+/**
+ * Returns average power in Watt.
+ */
+function calculateAveragePower(sensorData: SensorDataSelectType[]){
+    if (sensorData.length < 2) {
+        throw new Error("Cant calculate average power for one or no entry.")
+        //Won't happen, because our peaks have to be at least 8 data points long
+    }
+
+    const powerSum = sensorData.reduce((acc, curr, index) => {
+        if (index === 0) {
+            return curr.value;
+        }
+
+        const timeDiff = (curr.timestamp.getTime() - sensorData[index - 1].timestamp.getTime()) / 1000 / 60 / 60;
+        return acc + (curr.value - sensorData[index - 1].value) / timeDiff;
+    }, 0);
+
+    return powerSum / (sensorData.length - 1) / 1000;
+}
+
 function findSequence(energyData: SensorDataSelectType[], threshold: number, type: "peak" | "anomaly", length = 8) {
     const sequences: (SensorDataSequenceType & { isStart: boolean })[] = [];
     let i = 0;
