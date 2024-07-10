@@ -94,7 +94,7 @@ interface FindAndMarkPeaksProps {
 }
 
 export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) {
-    const { sensorId, start, end } = props;
+    const { sensorId, start, end, type } = props;
 
     // we shift the start 12 hours back, so we have a bigger sample for the threshold
     const sequenceStart = new Date(start);
@@ -159,7 +159,13 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                     const lastSequenceOfSensorQuery = await trx
                         .select()
                         .from(sensorDataSequence)
-                        .where(and(eq(sensorDataSequence.sensorId, sensorId), lt(sensorDataSequence.end, start)))
+                        .where(
+                            and(
+                                eq(sensorDataSequence.sensorId, sensorId),
+                                lt(sensorDataSequence.end, start),
+                                eq(sensorDataSequence.type, type),
+                            ),
+                        )
                         .orderBy(desc(sensorDataSequence.end))
                         .limit(1);
                     const lastSequenceOfSensor =

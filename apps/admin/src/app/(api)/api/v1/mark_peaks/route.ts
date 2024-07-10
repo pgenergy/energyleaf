@@ -1,6 +1,6 @@
 import { env } from "@/env.mjs";
 import { findAndMark, getAllSensors, log, logError } from "@energyleaf/db/query";
-import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -14,7 +14,7 @@ export const GET = async (req: NextRequest) => {
     const startDate = new Date(2024, 6, 11, 18);
     const endDate = new Date(2024, 6, 11, 18);
 
-    //TODO : Safe last end date in db and load it again as start date here
+    //TODO PGE-218: Safe last end date in db and load it again as start date here
 
     // shift date back by half an hour to not mark and perform on newest values
     if (startDate.getMinutes() >= 30) {
@@ -72,15 +72,7 @@ export const GET = async (req: NextRequest) => {
                 );
             }
         }
-        // FIXME: Fix Return response
-        return new NextResponse(null, {
-            status: 200,
-            headers: {
-                "Content-Type": "application/json",
-                "Content-Disposition": `attachment; filename=export_experiment_${new Date().getTime()}.csv`,
-                "Access-Control-Allow-Origin": "*",
-            },
-        });
+        return NextResponse.json({ statusMessage: "Peaks successfully marked." });
     } catch (err) {
         waitUntil(
             logError(
@@ -95,6 +87,6 @@ export const GET = async (req: NextRequest) => {
                 err,
             ),
         );
-        return;
+        return NextResponse.json({ statusMessage: "Internal Server Error" }, { status: 500 });
     }
 };
