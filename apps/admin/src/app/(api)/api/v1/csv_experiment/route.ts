@@ -1,11 +1,5 @@
 import { getActionSession } from "@/lib/auth/auth.action";
-import {
-    getAllExperimentUsers,
-    log,
-    logError,
-    trackAction,
-    updateExperimentDataForUser,
-} from "@energyleaf/db/query";
+import { getAllExperimentUsers, log, logError, trackAction, updateExperimentDataForUser } from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
 import * as csv from "csv/sync";
 import { NextResponse } from "next/server";
