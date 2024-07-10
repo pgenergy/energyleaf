@@ -16,6 +16,7 @@ import {
 } from "../schema";
 import {
     type SensorDataSelectType,
+    type SensorDataSequenceType,
     type SensorInsertType,
     type SensorSelectTypeWithUser,
     SensorType,
@@ -49,8 +50,8 @@ function calculateThreshold(energyData: SensorDataSelectType[], multiplier = 1) 
     return median + 1.4826 * mad * multiplier;
 }
 
-function findSequence(energyData: SensorDataSelectType[], threshold: number, length = 8) {
-    const peaks: (SensorDataSelectType & { isStart: boolean })[] = [];
+function findSequence(energyData: SensorDataSelectType[], threshold: number, type: "peak" | "anomaly", length = 8) {
+    const sequences: (SensorDataSequenceType & { isStart: boolean })[] = [];
     let i = 0;
 
     while (i < energyData.length) {
@@ -58,21 +59,21 @@ function findSequence(energyData: SensorDataSelectType[], threshold: number, len
 
         if (entry.value > threshold) {
             let sequenceEnd = i + 1;
-            let highestValue = entry;
             const isStart = i === 0;
 
             while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
-                if (energyData[sequenceEnd].value > highestValue.value) {
-                    highestValue = energyData[sequenceEnd];
-                }
                 sequenceEnd++;
             }
 
             const sequenceLength = sequenceEnd - i;
             // only mark as peak if longer then 2min and not marked as anomaly yet
             if (sequenceLength > length) {
-                peaks.push({
-                    ...highestValue,
+                sequences.push({
+                    id: nanoid(30),
+                    sensorId: entry.sensorId,
+                    start: entry.timestamp,
+                    end: energyData[sequenceEnd - 1].timestamp,
+                    type: type,
                     isStart,
                 });
             }
@@ -82,7 +83,7 @@ function findSequence(energyData: SensorDataSelectType[], threshold: number, len
         }
     }
 
-    return peaks;
+    return sequences;
 }
 
 interface FindAndMarkPeaksProps {
@@ -140,15 +141,15 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                 calcData.filter((d) => d.value > 0),
                 multiplier,
             );
-            let peaks = findSequence(energyData, threshold, props.type === "anomaly" ? 12 : 8);
+            let peaks = findSequence(energyData, threshold, props.type, props.type === "anomaly" ? 12 : 8);
 
             console.log(peaks);
 
             if (props.type === "anomaly") {
                 // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
-                const lastPeak = sequences.find((d) => d.type === "anomaly");
-                if (lastPeak) {
-                    peaks = peaks.filter((d) => d.timestamp.getTime() - lastPeak.end.getTime() > 30 * 60 * 1000);
+                const lastAnomaly = sequences.find((d) => d.type === "anomaly");
+                if (lastAnomaly) {
+                    peaks = peaks.filter((d) => d.start.getTime() - lastAnomaly.end.getTime() > 30 * 60 * 1000);
                 }
             }
             if (peaks.length !== 0) {
@@ -163,6 +164,13 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                         }
                     }
                 }
+
+                try {
+                    await trx.insert(sensorDataSequence).values(peaks);
+                } catch (err) {
+                    console.log(err);
+                }
+
                 // TODO: Correctly save sequence
                 // await trx
                 //     .update(sensorData)

@@ -91,28 +91,20 @@ export const sensorData = mysqlTable(
 export const sensorDataSequence = mysqlTable(
     "sensor_data_sequence",
     {
-        id: varchar("id", { length: 30 }).primaryKey().notNull().$defaultFn(() => nanoid(30)),
+        id: varchar("id", { length: 30 })
+            .primaryKey()
+            .notNull()
+            .$defaultFn(() => nanoid(30)),
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
         start: timestamp("start").notNull(),
         end: timestamp("end").notNull(),
         type: mysqlEnum("type", ["peak", "anomaly"]).notNull(),
-        averageEnergyConsumption: decimalType("average_energy_consumption").notNull(),
     },
     (table) => {
         return {
-            uniqueIdxStart: uniqueIndex("senor_data_sequence_sensor_id_start").on(
-                table.sensorId,
-                table.start,
-            ),
-            uniqueIdxEnd: uniqueIndex("senor_data_sequence_sensor_id_end").on(
-                table.sensorId,
-                table.end
-            ),
-            index: index("senor_data_sequence_sensor_id").on(
-                table.sensorId,
-                table.start,
-                table.end
-            )
+            uniqueIdxStart: uniqueIndex("senor_data_sequence_sensor_id_start").on(table.sensorId, table.start),
+            uniqueIdxEnd: uniqueIndex("senor_data_sequence_sensor_id_end").on(table.sensorId, table.end),
+            index: index("senor_data_sequence_sensor_id").on(table.sensorId, table.start, table.end),
         };
     },
 );
