@@ -80,11 +80,21 @@ export const getEnergyLastEntry = cache(async (sensorId: string) => {
 
 export const classifyDeviceUsage = async (sensorData, apiUrl, apiKey) => {
     const deviceRequest = DeviceClassificationRequest.create({
-        electricity: sensorData.map(data => ({
-            timestamp: data.timestamp,
-            power: data.value
-        }))
+            electricity: [
+        {
+            "timestamp": "2024-05-10T12:30:00.000Z",
+            "power": 10.0
+        }
+        ]
     });
+
+    const binaryRequest = DeviceClassificationRequest.toBinary(deviceRequest);
+
+    console.log("Device request: ", JSON.stringify(deviceRequest, null, 2));
+
+    const hexString = binaryRequest.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+    console.log(hexString);
+
 
     try {
         const response = await fetch(apiUrl, {
@@ -98,12 +108,11 @@ export const classifyDeviceUsage = async (sensorData, apiUrl, apiKey) => {
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Failed to classify devices, status code: ${response.status}, error: ${errorText}`);
+            console.error(`API Error: Failed to classify devices, status code: ${response.status}, error: ${errorText}`);
+            throw new Error(`API Error: Failed to classify devices, status code: ${response.status}, error: ${errorText}`);
         }
 
-        if (response.body === null) {
-            throw new Error('Response body is null');
-        }
+        console.log("Device request: ", deviceRequest);
 
         const binaryData = await parseReadableStream(response.body);
         const classificationResponse = DeviceClassificationResponse.fromBinary(binaryData);
@@ -115,6 +124,6 @@ export const classifyDeviceUsage = async (sensorData, apiUrl, apiKey) => {
         }));
     } catch (error) {
         console.error("Error in device classification: ", error);
-        throw new Error(`Error in device classification: ${error.message || error.toString()}`);
+        throw error;
     }
 };
