@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/auth/auth.server";
-import { getEnergyLastEntry } from "@/query/energy";
-import { getElectricitySensorIdForUser } from "@energyleaf/db/query";
+import { getElectricitySensorIdForUser, getEnergyLastEntry } from "@/query/energy";
+import { cn } from "@energyleaf/tailwindcss/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default async function CurrentMeterPowerCard() {
@@ -23,7 +23,14 @@ export default async function CurrentMeterPowerCard() {
                 <CardDescription>Unabhängig vom Zeitraum</CardDescription>
             </CardHeader>
             <CardContent className="text-center">
-                <p className="font-medium">{value?.valueCurrent?.toFixed(0) || 0} W</p>
+                <p
+                    className={cn({
+                        "font-medium": value?.valueCurrent,
+                        "text-muted-foreground": !value?.valueCurrent,
+                    })}
+                >
+                    {!value?.valueCurrent ? "Keine Sensor Daten" : `${value.valueCurrent.toFixed(0)} W`}
+                </p>
             </CardContent>
         </Card>
     );

@@ -69,12 +69,10 @@ export default async function DashboardPage({
                 </Suspense>
                 <div className="col-span-1 mt-8 flex flex-col gap-4 md:col-span-3 md:mt-16">
                     <h1 className="font-bold text-2xl">Werte im Zeitraum</h1>
-                    {user.id !== "demo" ? (
-                        <div className="flex flex-col gap-2 md:flex-row">
-                            <DashboardDateRange endDate={endDate} startDate={startDate} />
-                            <DashboardTimeRange startDate={startDate} endDate={endDate} />
-                        </div>
-                    ) : null}
+                    <div className="flex flex-col gap-2 md:flex-row">
+                        {user.id !== "demo" ? <DashboardDateRange endDate={endDate} startDate={startDate} /> : null}
+                        <DashboardTimeRange startDate={startDate} endDate={endDate} />
+                    </div>
                 </div>
                 <ErrorBoundary fallback={AbsolutEnergyConsumptionError}>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>

@@ -1,5 +1,4 @@
 import { createHash } from "node:crypto";
-import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
@@ -8,7 +7,6 @@ import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import CSVExportButton from "./csv-export-button";
-import DashboardZoomReset from "./dashboard-zoom-reset";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
