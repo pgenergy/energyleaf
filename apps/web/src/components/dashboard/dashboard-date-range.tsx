@@ -22,7 +22,9 @@ export default function DashboardDateRange({ startDate, endDate }: Props) {
             });
             search.set("start", value.from.toISOString());
             search.set("end", value.to.toISOString());
-            router.push(`${pathname}?${search.toString()}`);
+            router.push(`${pathname}?${search.toString()}`, {
+                scroll: false,
+            });
         }
     }
 

@@ -19,7 +19,7 @@ export default async function GoalsCard() {
     const sensorId = await getElectricitySensorIdForUser(userId);
     if (!sensorId) {
         return (
-            <Card className="w-full">
+            <Card className="col-span-1 w-full md:col-span-3">
                 <CardHeader>
                     <CardTitle>Ziele</CardTitle>
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
@@ -34,7 +34,7 @@ export default async function GoalsCard() {
     const goals = await getGoalStatus(userId, sensorId);
 
     return (
-        <Card className="w-full">
+        <Card className="col-span-1 w-full md:col-span-3">
             <CardHeader>
                 <CardTitle>Ziele</CardTitle>
                 <CardDescription>Hier sehen Sie Ihr aktuelles Verbrauchsziel.</CardDescription>

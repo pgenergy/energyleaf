@@ -65,7 +65,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 <div className="flex flex-row justify-between gap-2">
                     <div className="flex flex-col gap-2">
                         <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
-                        <CardDescription>Im Zeitraum</CardDescription>
+                        <CardDescription>Im ausgewähltem Zeitraum</CardDescription>
                     </div>
                     {user.id !== "demo" ? (
                         <CSVExportButton
@@ -75,15 +75,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                         />
                     ) : null}
                 </div>
-                <div className="flex flex-row gap-4">
-                    <DashboardZoomReset />
-                    {user.id !== "demo" ? (
-                        <>
-                            <DashboardDateRange endDate={endDate} startDate={startDate} />
-                            <DashboardEnergyAggregation selected={aggregation} />
-                        </>
-                    ) : null}
-                </div>
+                {user.id !== "demo" ? (
+                    <div className="flex flex-row gap-4">
+                        <DashboardEnergyAggregation selected={aggregation} />
+                    </div>
+                ) : null}
             </CardHeader>
             <CardContent>
                 <div className="w-full">

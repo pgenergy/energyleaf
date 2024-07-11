@@ -33,7 +33,6 @@ export default function EnergyConsumptionCardChart({ data, aggregation, userId, 
         });
         search.set("start", left.toISOString());
         search.set("end", right.toISOString());
-        search.set("zoomed", "true");
         router.push(`${pathname}?${search.toString()}`, {
             scroll: false,
         });

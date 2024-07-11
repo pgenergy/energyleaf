@@ -50,7 +50,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Energiekosten</CardTitle>
-                <CardDescription>Im Zeitraum</CardDescription>
+                <CardDescription>Im ausgewähltem Zeitraum</CardDescription>
             </CardHeader>
             <CardContent>
                 {parsedCost > 0 ? (
