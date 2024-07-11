@@ -63,7 +63,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 <div className="flex flex-row justify-between gap-2">
                     <div className="flex flex-col gap-2">
                         <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
-                        <CardDescription>Im ausgewähltem Zeitraum</CardDescription>
+                        <CardDescription>Im ausgewählten Zeitraum</CardDescription>
                     </div>
                     {user.id !== "demo" ? (
                         <CSVExportButton

@@ -42,7 +42,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Absoluter Energieverbrauch</CardTitle>
-                <CardDescription>Im ausgewähltem Zeitraum</CardDescription>
+                <CardDescription>Im ausgewählten Zeitraum</CardDescription>
             </CardHeader>
             <CardContent>
                 <h1 className="text-center font-bold text-2xl text-primary">{formatNumber(absolut)} kWh</h1>
