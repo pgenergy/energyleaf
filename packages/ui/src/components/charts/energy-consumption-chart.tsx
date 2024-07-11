@@ -12,6 +12,7 @@ import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
 interface Props {
     data: SensorDataSelectType[];
+    cost?: number;
     showPeaks?: boolean;
     aggregation?: AggregationType;
     peaksCallback?: (value: SensorDataSelectType) => void;
@@ -31,9 +32,13 @@ const chartConfig = {
         label: "Leistung (W)",
         color: "hsl(var(--chart-4))",
     },
+    cost: {
+        label: "Kosten (€)",
+        color: "hsl(var(--chart-5))",
+    },
 } satisfies ChartConfig;
 
-export function EnergyConsumptionChart({ data, showPeaks, aggregation, zoomCallback, peaksCallback }: Props) {
+export function EnergyConsumptionChart({ data, showPeaks, aggregation, cost, zoomCallback, peaksCallback }: Props) {
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
     const [mouseDown, setMouseDown] = useState(false);
@@ -48,8 +53,9 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, zoomCallb
         return data.map((d) => ({
             ...d,
             timestamp: d.timestamp.toISOString(),
+            ...(cost ? { cost: d.value * cost } : {}),
         }));
-    }, [data]);
+    }, [data, cost]);
 
     const hasOutValues = useMemo(() => {
         return data.some((d) => d.valueOut);
@@ -59,18 +65,25 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, zoomCallb
         return data.some((d) => d.valueCurrent);
     }, [data]);
 
+    const hasCost = useMemo(() => {
+        return preparedData.some((d) => d.cost);
+    }, [preparedData]);
+
     const displayedItems = useMemo(() => {
         const values: string[] = ["value"];
-        if (hasOutValues) {
-            values.push("valueOut");
-        }
-
         if (hasCurrentValues) {
             values.push("valueCurrent");
         }
 
+        if (hasOutValues) {
+            values.push("valueOut");
+        }
+
+        if (hasCost) {
+            values.push("cost");
+        }
         return values;
-    }, [hasOutValues, hasCurrentValues]);
+    }, [hasOutValues, hasCurrentValues, hasCost]);
 
     const sameDay = useMemo(() => {
         if (data.length === 0) return false;
@@ -165,6 +178,11 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, zoomCallb
                         <stop offset="50%" stopColor="var(--color-valueCurrent)" stopOpacity={0.7} />
                         <stop offset="95%" stopColor="var(--color-valueCurrent)" stopOpacity={0.1} />
                     </linearGradient>
+                    <linearGradient id="costColor" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-cost)" stopOpacity={0.99} />
+                        <stop offset="50%" stopColor="var(--color-cost)" stopOpacity={0.7} />
+                        <stop offset="95%" stopColor="var(--color-cost)" stopOpacity={0.1} />
+                    </linearGradient>
                 </defs>
                 <ChartLegend
                     content={
@@ -215,6 +233,15 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, zoomCallb
                         fill="url(#valueCurrentColor)"
                         fillOpacity={1}
                         stroke="var(--color-valueCurrent)"
+                        type="linear"
+                    />
+                ) : null}
+                {activeChart === "cost" ? (
+                    <Area
+                        dataKey="cost"
+                        fill="url(#costColor)"
+                        fillOpacity={1}
+                        stroke="var(--color-cost)"
                         type="linear"
                     />
                 ) : null}

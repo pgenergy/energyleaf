@@ -17,7 +17,7 @@ interface Props {
 export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps }: Props) {
     const { config } = useChart();
     const payload = tooltipProps.payload;
-    const data = payload?.[0]?.payload as SensorDataSelectType;
+    const data = payload?.[0]?.payload as SensorDataSelectType & { cost?: number };
 
     const formattedTimestamp = useMemo(() => {
         if (!data?.timestamp) return "Datum fehlt";
@@ -85,6 +85,21 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                     />
                     <p className="text-sm">
                         <span className="font-bold">Leistung:</span> {data.valueCurrent.toFixed(4)} W
+                    </p>
+                </div>
+            ) : null}
+            {data.cost ? (
+                <div className="flex flex-row items-center gap-1">
+                    <div
+                        className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
+                        style={
+                            {
+                                "--color-bg": config.cost.color,
+                            } as React.CSSProperties
+                        }
+                    />
+                    <p className="text-sm">
+                        <span className="font-bold">Kosten:</span> {data.cost.toFixed(4)} €
                     </p>
                 </div>
             ) : null}
