@@ -56,32 +56,32 @@ export default async function DashboardPage({
             )}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <ErrorBoundary fallback={AbsolutEnergyConsumptionError}>
-                    <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <AbsolutEnergyConsumptionCard endDate={endDate} startDate={startDate} />
                     </Suspense>
                 </ErrorBoundary>
                 <ErrorBoundary fallback={EnergyConsumptionStatisticsError}>
-                    <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyConsumptionStatisticCard endDate={endDate} startDate={startDate} />
                     </Suspense>
                 </ErrorBoundary>
                 <ErrorBoundary fallback={EnergyCostError}>
-                    <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostCard endDate={endDate} startDate={startDate} />
                     </Suspense>
                 </ErrorBoundary>
-                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                     <CurrentMeterNumberCard />
                 </Suspense>
-                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                     <CurrentMeterOutCard />
                 </Suspense>
-                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                     <CurrentMeterPowerCard />
                 </Suspense>
             </div>
             <ErrorBoundary fallback={EnergyConsumptionError}>
-                <Suspense fallback={<Skeleton className="h-72 w-full" />}>
+                <Suspense fallback={<Skeleton className="h-96 w-full" />}>
                     <EnergyConsumptionCard aggregationType={aggregationType} endDate={endDate} startDate={startDate} />
                 </Suspense>
             </ErrorBoundary>

@@ -32,7 +32,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         return (
             <Card className="w-full">
                 <CardHeader>
-                    <CardTitle>Verbrauch</CardTitle>
+                    <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -64,8 +64,8 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
             <CardHeader className="flex flex-col justify-start">
                 <div className="flex flex-row justify-between gap-2">
                     <div className="flex flex-col gap-2">
-                        <CardTitle>Verbrauch</CardTitle>
-                        <CardDescription>Übersicht Ihres Verbrauchs im Zeitraum.</CardDescription>
+                        <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
+                        <CardDescription>Im Zeitraum</CardDescription>
                     </div>
                     {user.id !== "demo" ? (
                         <CSVExportButton
