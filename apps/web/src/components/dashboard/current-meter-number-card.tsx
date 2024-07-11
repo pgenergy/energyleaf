@@ -25,8 +25,8 @@ export default async function CurrentMeterNumberCard() {
             <CardContent className="text-center">
                 <p
                     className={cn({
-                        "font-medium": value,
-                        "text-muted-foreground": !value,
+                        "font-medium": value !== undefined && value !== null,
+                        "text-muted-foreground": value === undefined || value === null,
                     })}
                 >
                     {!value ? "Keine Sensor Daten" : `${value.value.toFixed(0)} kWh`}

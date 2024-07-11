@@ -25,8 +25,8 @@ export default async function CurrentMeterPowerCard() {
             <CardContent className="text-center">
                 <p
                     className={cn({
-                        "font-medium": value?.valueCurrent,
-                        "text-muted-foreground": !value?.valueCurrent,
+                        "font-medium": value?.valueCurrent !== null && value?.valueCurrent !== undefined,
+                        "text-muted-foreground": value?.valueCurrent === null || value?.valueCurrent === undefined,
                     })}
                 >
                     {!value?.valueCurrent ? "Keine Sensor Daten" : `${value.valueCurrent.toFixed(0)} W`}
