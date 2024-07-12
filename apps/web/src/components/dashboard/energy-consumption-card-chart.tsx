@@ -12,9 +12,10 @@ interface Props {
     aggregation?: AggregationType;
     showPeaks: boolean;
     userId: string;
+    cost?: number;
 }
 
-export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks }: Props) {
+export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<SensorDataSelectType | null>(null);
     const router = useRouter();
@@ -47,6 +48,7 @@ export default function EnergyConsumptionCardChart({ data, aggregation, userId, 
                 aggregation={aggregation}
                 data={data}
                 showPeaks={showPeaks}
+                cost={cost}
                 peaksCallback={clickCallback}
                 zoomCallback={handleZoom}
             />
