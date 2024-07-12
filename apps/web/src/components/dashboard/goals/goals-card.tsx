@@ -49,9 +49,9 @@ export default async function GoalsCard() {
                 ) : (
                     <Link
                         className="flex flex-row items-center justify-center gap-2 text-muted-foreground text-sm"
-                        href="/profile"
+                        href="/settings/goals"
                     >
-                        Ziel im Profil festlegen
+                        Ziel in den Einstellungen festlegen
                         <ArrowRightIcon className="h-4 w-4" />
                     </Link>
                 )}

@@ -1,5 +1,5 @@
-import IntervalSelector from "@/components/profile/interval-selector";
-import TimeSelector from "@/components/profile/time-selector";
+import IntervalSelector from "@/components/settings/interval-selector";
+import TimeSelector from "@/components/settings/time-selector";
 import type { mailSettingsSchema } from "@/lib/schema/profile";
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from "@energyleaf/ui/form";
 import { Switch } from "@energyleaf/ui/switch";

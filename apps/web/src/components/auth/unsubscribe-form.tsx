@@ -7,7 +7,7 @@ import { updateMailSettings } from "@/actions/auth";
 import type { mailSettingsSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { useRouter } from "next/navigation";
-import MailConfigForm from "../profile/mail-config-form";
+import MailConfigForm from "../settings/mail-config-form";
 
 interface Props {
     mailConfig: z.infer<typeof mailSettingsSchema>;

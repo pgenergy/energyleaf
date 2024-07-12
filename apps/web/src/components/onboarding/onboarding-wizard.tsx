@@ -2,9 +2,9 @@
 
 import { completeOnboarding } from "@/actions/onboarding";
 import { updateMailInformation, updateUserDataInformation, updateUserGoals } from "@/actions/profile";
-import DataFormFields from "@/components/profile/data-form-fields";
-import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
-import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
+import DataFormFields from "@/components/settings/data-form-fields";
+import MailSettingsFormFields from "@/components/settings/mail-settings-form-fields";
+import UserGoalsFormFields from "@/components/settings/user-goals-form-fields";
 import { createMailSettingsSchema, createUserDataSchemaFromUserDataSelectType } from "@/lib/schema/conversion/profile";
 import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
 import type { MailConfig, UserDataSelectType } from "@energyleaf/db/types";
@@ -72,7 +72,7 @@ function InformationStep() {
         <WizardPage title="Onboarding">
             <p className="text-sm">
                 Um die App in vollem Umfang nutzen zu können, sollten Sie die in den folgenden Schritten geforderten
-                Daten angeben. Sie können diese Angaben und Einstellungen später in Ihrem Profil aktualisieren.
+                Daten angeben. Sie können diese Angaben und Einstellungen später in den Einstellungen aktualisieren.
             </p>
             <div className="flex w-full justify-center pt-3">
                 <Button

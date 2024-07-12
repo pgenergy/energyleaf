@@ -57,10 +57,10 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                     <p className="text-center font-bold text-2xl text-primary">{formattedCost} €</p>
                 ) : (
                     <Link
-                        href="/profile"
+                        href="/settings"
                         className="flex flex-row items-center justify-center gap-2 text-muted-foreground text-sm"
                     >
-                        Preis im Profil festlegen <ArrowRightIcon className="h-4 w-4" />
+                        Preis in den Einstellungen festlegen <ArrowRightIcon className="h-4 w-4" />
                     </Link>
                 )}
             </CardContent>
