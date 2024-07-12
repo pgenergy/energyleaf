@@ -41,61 +41,51 @@ export async function getAllSensors(active?: boolean) {
     return db.select().from(sensor);
 }
 
-function calculateThreshold(energyData: SensorDataSelectType[], multiplier = 1) {
-    // using mad median absolute deviation with 1.4826 which is a scaling factor of a normal distributed set
-    // maybe ajust even further with another scaling factor
-    const values = energyData.map((d) => d.value);
-    const median = values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
-    const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
-    return median + 1.4826 * mad * multiplier;
+function calculateMedian(values: SensorDataSelectType[]) {
+    const sorted = [...values].sort((a, b) => a.value - b.value);
+    const middle = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[middle].value : (sorted[middle - 1].value + sorted[middle].value) / 2;
 }
 
-/**
- * Returns average power in Watt.
- */
-function calculateAveragePower(sensorData: SensorDataSelectType[]){
-    if (sensorData.length < 2) {
-        throw new Error("Cant calculate average power for one or no entry.")
-        //Won't happen, because our peaks have to be at least 8 data points long
+function calculateMAD(values: SensorDataSelectType[], scale = 1.4826, medValue?: number) {
+    let medianValue: number | undefined = medValue;
+    if (!medianValue) {
+        medianValue = calculateMedian(values);
     }
-
-    const powerSum = sensorData.reduce((acc, curr, index) => {
-        if (index === 0) {
-            return curr.value;
-        }
-
-        const timeDiff = (curr.timestamp.getTime() - sensorData[index - 1].timestamp.getTime()) / 1000 / 60 / 60;
-        return acc + (curr.value - sensorData[index - 1].value) / timeDiff;
-    }, 0);
-
-    return powerSum / (sensorData.length - 1) / 1000;
+    const deviations = values.map((value) => ({
+        ...value,
+        value: Math.abs(value.value - medianValue),
+    }));
+    return scale * calculateMedian(deviations);
 }
 
-function findSequence(energyData: SensorDataSelectType[], threshold: number, type: "peak" | "anomaly", length = 8) {
-    const sequences: (SensorDataSequenceType & { isStart: boolean })[] = [];
+function findSequences(values: SensorDataSelectType[], threshold: number) {
+    const sequences: (SensorDataSequenceType & { isAtStart: boolean })[] = [];
     let i = 0;
 
-    while (i < energyData.length) {
-        const entry = energyData[i];
+    while (i < values.length) {
+        const entry = values[i];
 
         if (entry.value > threshold) {
-            let sequenceEnd = i + 1;
             const isStart = i === 0;
+            let sequenceEnd = i + 1;
 
-            while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
+            while (sequenceEnd < values.length && values[sequenceEnd].value > threshold) {
                 sequenceEnd++;
             }
 
             const sequenceLength = sequenceEnd - i;
+
             // only mark as peak if longer then 2min and not marked as anomaly yet
-            if (sequenceLength > length) {
+            if (sequenceLength > 5) {
                 sequences.push({
                     id: nanoid(30),
                     sensorId: entry.sensorId,
                     start: entry.timestamp,
-                    end: energyData[sequenceEnd - 1].timestamp,
-                    type: type,
-                    isStart,
+                    end: values[sequenceEnd - 1].timestamp,
+                    type: "peak",
+                    isAtStart: isStart,
+                    averagePeakPower: 0, // TODO
                 });
             }
             i = sequenceEnd;
@@ -107,6 +97,28 @@ function findSequence(energyData: SensorDataSelectType[], threshold: number, typ
     return sequences;
 }
 
+/**
+ * Finds peaks in a given set of values
+ * for peaks 5 is the default threshold, for anomalies 1000 is a good fit
+ */
+export function findPeaks(
+    thresholdValues: SensorDataSelectType[],
+    consideredValues: SensorDataSelectType[],
+    threshold = 5,
+    medianValue?: number,
+) {
+    let median: number | undefined = medianValue;
+    if (!median) {
+        median = calculateMedian(thresholdValues);
+    }
+    const madValue = calculateMAD(thresholdValues, 1.4826, median);
+    const processedValues = consideredValues.map((value) => ({
+        ...value,
+        value: Math.abs(value.value - median),
+    }));
+    return findSequences(processedValues, madValue * threshold);
+}
+
 interface FindAndMarkPeaksProps {
     sensorId: string;
     start: Date;
@@ -114,7 +126,7 @@ interface FindAndMarkPeaksProps {
     type: "peak" | "anomaly";
 }
 
-export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) {
+export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
     const { sensorId, start, end, type } = props;
 
     // we shift the start 12 hours back, so we have a bigger sample for the threshold
@@ -143,11 +155,6 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
                 })
                 .slice(1);
 
-            const sequences = await trx
-                .select()
-                .from(sensorDataSequence)
-                .where(and(eq(sensorDataSequence.sensorId, sensorId), between(sensorDataSequence.start, start, end)));
-
             // check if all values are integers if so we know that the sensor has no pin
             if (calcData.every((d) => Number.isInteger(d.value))) {
                 return [];
@@ -156,15 +163,15 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
             const energyData = calcData.filter((d) => {
                 return d.timestamp.getTime() >= start.getTime();
             });
-            // to calculate threshold remove all values that are 0 or less because they can happen if the led of the
-            // meter is to low, and manipulate the threshold
-            const threshold = calculateThreshold(
-                calcData.filter((d) => d.value > 0),
-                multiplier,
-            );
-            let peaks = findSequence(energyData, threshold, props.type, props.type === "anomaly" ? 12 : 8);
 
-            console.log(peaks);
+            let peaks = findPeaks(calcData, energyData, threshold);
+
+            console.log(start, end, peaks);
+
+            const sequences = await trx
+                .select()
+                .from(sensorDataSequence)
+                .where(and(eq(sensorDataSequence.sensorId, sensorId), between(sensorDataSequence.start, start, end)));
 
             if (props.type === "anomaly") {
                 // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
@@ -176,7 +183,7 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
             if (peaks.length !== 0) {
                 // check before value if this peak is part of another peak sequence
                 // if so we don't mark it as peak
-                if (peaks[0].isStart) {
+                if (peaks[0].isAtStart) {
                     const lastSequenceOfSensorQuery = await trx
                         .select()
                         .from(sensorDataSequence)
