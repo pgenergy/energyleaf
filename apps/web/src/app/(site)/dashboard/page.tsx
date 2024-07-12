@@ -15,6 +15,7 @@ import { getSession } from "@/lib/auth/auth.server";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
+import { getTimezoneOffset, toZonedTime } from "date-fns-tz";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -34,16 +35,17 @@ export default async function DashboardPage({
     const startDateString = searchParams.start;
     const endDateString = searchParams.end;
     const aggregationType = searchParams.aggregation;
-    const startDate = startDateString ? new Date(startDateString) : new Date();
-    const endDate = endDateString ? new Date(endDateString) : new Date();
 
-    if (!startDateString) {
-        startDate.setUTCHours(0, 0, 0, 0);
-    }
+    const offset = getTimezoneOffset("Europe/Berlin", new Date());
+    const serverStart = new Date();
+    serverStart.setHours(0, 0, 0, 0);
+    const serverEnd = new Date();
+    serverEnd.setHours(23, 59, 59, 999);
 
-    if (!endDateString) {
-        endDate.setUTCHours(23, 59, 59, 999);
-    }
+    const startDate = startDateString ? new Date(startDateString) : new Date(serverStart.getTime() - offset);
+    const endDate = endDateString ? new Date(endDateString) : new Date(serverEnd.getTime() - offset);
+
+    console.log(startDate, endDate);
 
     return (
         <div className="flex flex-col gap-4">
