@@ -11,7 +11,7 @@ interface DatabaseUserAttributes {
     id: string;
     username: string;
     firstname: string;
-    lastname: string;
+    lastName: string;
     email: string;
     phone: string | null;
     address: string;
