@@ -1,8 +1,7 @@
+import SettingsLink from "@/components/settings/settings-link";
 import { getSession } from "@/lib/auth/auth.server";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { buttonVariants } from "@energyleaf/ui/button";
 import { GoalIcon, LockKeyholeIcon, MailboxIcon, User2Icon, WrenchIcon } from "lucide-react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export const metadata = {
@@ -47,18 +46,5 @@ export default async function SettingsPage({ children }: Props) {
             </div>
             <div className="flex flex-col gap-4">{children}</div>
         </div>
-    );
-}
-
-interface SettingsLinkProps {
-    href: string;
-    children: React.ReactNode;
-}
-
-function SettingsLink(props: SettingsLinkProps) {
-    return (
-        <Link href={props.href} className={buttonVariants({ variant: "ghost" })}>
-            {props.children}
-        </Link>
     );
 }
