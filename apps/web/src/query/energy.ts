@@ -1,3 +1,4 @@
+import { env } from "@/env.mjs";
 import { getDemoSensorData } from "@/lib/demo/demo";
 import {
     getAvgEnergyConsumptionForSensor as getDbAvgEnergyConsumptionForSensor,
@@ -8,9 +9,6 @@ import {
 } from "@energyleaf/db/query";
 import { AggregationType } from "@energyleaf/lib";
 import { cache } from "react";
-import { env } from "@/env.mjs";
-import { energyleaf_ml, parseReadableStream } from "@energyleaf/proto";
-const { DeviceClassificationRequest, DeviceClassificationResponse } = energyleaf_ml;
 import "server-only";
 
 interface DeviceClassification {
@@ -29,14 +27,12 @@ export const getEnergyDataForSensor = cache(
         let classifications: DeviceClassification[] = [];
 
         if (energyData && energyData.length > 0) {
-            const apiUrl = 'https://ml.energyleaf.de/v3/classify_devices';
-            const apiKey = env.ML_API_KEY;
             try {
-                classifications = await classifyDeviceUsage(energyData, apiUrl, apiKey);
+                classifications = await classifyDeviceUsage(energyData);
             } catch (error) {
                 console.error("Error in device classification: ", error);
             }
-        }        
+        }
 
         return { data: energyData, classifications };
     },
@@ -78,50 +74,33 @@ export const getEnergyLastEntry = cache(async (sensorId: string) => {
     return getDbEnergyLastEntry(sensorId);
 });
 
-export const classifyDeviceUsage = async (sensorData, apiUrl, apiKey) => {
-    const deviceRequest = DeviceClassificationRequest.create({
-            electricity: [
-        {
-            "timestamp": "2024-05-10T12:30:00.000Z",
-            "power": 10.0
-        }
-        ]
-    });
-
-    const binaryRequest = DeviceClassificationRequest.toBinary(deviceRequest);
-
-    console.log("Device request: ", JSON.stringify(deviceRequest, null, 2));
-
-    const hexString = binaryRequest.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
-    console.log(hexString);
-
+export const classifyDeviceUsage = async (sensorData) => {
+    const req_data = {
+        electricity: sensorData.map((data) => ({
+            timestamp: data.timestamp,
+            power: data.value,
+        })),
+    };
 
     try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
+        const response = await fetch(`http://${env.ADMIN_URL}/api/v1/ml`, {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/x-protobuf',
-                'x-api-key': apiKey
+                Authorization: env.ML_API_KEY,
             },
-            body: DeviceClassificationRequest.toBinary(deviceRequest)
+            body: JSON.stringify(req_data),
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
+        /*if (!response.ok) {
+
             console.error(`API Error: Failed to classify devices, status code: ${response.status}, error: ${errorText}`);
             throw new Error(`API Error: Failed to classify devices, status code: ${response.status}, error: ${errorText}`);
-        }
+        }*/
 
-        console.log("Device request: ", deviceRequest);
+        const errorText = await response.text();
+        console.log(errorText);
 
-        const binaryData = await parseReadableStream(response.body);
-        const classificationResponse = DeviceClassificationResponse.fromBinary(binaryData);
-        return classificationResponse.electricity.map(entry => ({
-            timestamp: entry.timestamp,
-            power: entry.power,
-            dominantClassification: entry.dominantClassification,
-            classification: entry.classification
-        }));
+        return JSON.parse(errorText).electricity;
     } catch (error) {
         console.error("Error in device classification: ", error);
         throw error;
