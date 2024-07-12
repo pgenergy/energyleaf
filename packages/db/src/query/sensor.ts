@@ -59,6 +59,27 @@ function calculateMAD(values: SensorDataSelectType[], scale = 1.4826, medValue?:
     return scale * calculateMedian(deviations);
 }
 
+/**
+ * Returns average power in Watt.
+ */
+function calculateAveragePower(sensorData: SensorDataSelectType[]) {
+    if (sensorData.length < 2) {
+        throw new Error("Cant calculate average power for one or no entry.");
+        //Won't happen, because our peaks have a minimum length
+    }
+
+    const powerSum = sensorData.reduce((acc, curr, index) => {
+        if (index === 0) {
+            return acc;
+        }
+
+        const timeDiffInHours = (curr.timestamp.getTime() - sensorData[index - 1].timestamp.getTime()) / 1000 / 60 / 60;
+        return acc + (curr.value / timeDiffInHours) * 1000; // Add power in Watt
+    }, 0);
+
+    return powerSum / sensorData.length;
+}
+
 function findSequences(values: SensorDataSelectType[], threshold: number) {
     const sequences: (SensorDataSequenceType & { isAtStart: boolean })[] = [];
     let i = 0;
@@ -78,6 +99,9 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
 
             // only mark as peak if longer then 2min and not marked as anomaly yet
             if (sequenceLength > 5) {
+                const avgPeakPower = calculateAveragePower(values.slice(i, sequenceEnd));
+                // TODO: Subtract Grundlast
+
                 sequences.push({
                     id: nanoid(30),
                     sensorId: entry.sensorId,
@@ -85,7 +109,7 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
                     end: values[sequenceEnd - 1].timestamp,
                     type: "peak",
                     isAtStart: isStart,
-                    averagePeakPower: 0, // TODO
+                    averagePeakPower: avgPeakPower,
                 });
             }
             i = sequenceEnd;
