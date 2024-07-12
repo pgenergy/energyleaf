@@ -1,11 +1,5 @@
 import { getActionSession } from "@/lib/auth/auth.action";
-import {
-    getAllExperimentUsers,
-    log,
-    logError,
-    trackAction,
-    updateExperimentDataForUser,
-} from "@energyleaf/db/query";
+import { getAllExperimentUsers, log, logError, trackAction, updateExperimentDataForUser } from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
 import * as csv from "csv/sync";
 import { NextResponse } from "next/server";
@@ -36,7 +30,7 @@ export const GET = async () => {
             const parsedId = user.user.id.replace(/[-_]/g, "");
             const mail = user.user.email;
             const firstname = user.user.firstname.replace(/,/g, " ");
-            const lastname = user.user.lastName.replace(/,/g, " ");
+            const lastname = user.user.lastname.replace(/,/g, " ");
 
             return [firstname, lastname, mail, parsedId];
         });

@@ -62,7 +62,7 @@ export const usersTableColumns: ColumnDef<UserSelectType>[] = [
         },
         cell: ({ row }) => {
             const firstname = row.original.firstname;
-            const lastname = row.original.lastName;
+            const lastname = row.original.lastname;
 
             return (
                 <span>

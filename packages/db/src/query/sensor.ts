@@ -222,11 +222,7 @@ export async function getEnergyForSensorInRange(
                     ? 0
                     : Number(row.valueOut) - Number(query[index - 1].valueOut)
                 : null,
-            valueCurrent: row.valueCurrent
-                ? index === 0
-                    ? 0
-                    : Number(row.valueCurrent) - Number(query[index - 1].valueCurrent)
-                : null,
+            valueCurrent: row.valueCurrent,
             timestamp: row.timestamp,
         }));
     }
@@ -272,11 +268,7 @@ export async function getEnergyForSensorInRange(
         id: index.toString(),
         value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
         valueOut: row.valueOut ? (index === 0 ? 0 : Number(row.valueOut) - Number(query[index - 1].valueOut)) : null,
-        valueCurrent: row.valueCurrent
-            ? index === 0
-                ? 0
-                : Number(row.valueCurrent) - Number(query[index - 1].valueCurrent)
-            : null,
+        valueCurrent: row.valueCurrent,
         timestamp: new Date(row.timestamp),
         isPeak: false,
         isAnomaly: false,

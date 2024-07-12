@@ -1,57 +1,31 @@
 "use client";
 
-import type { AggregationType, ConsumptionData } from "@energyleaf/lib";
+import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { AggregationType } from "@energyleaf/lib";
 import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy-consumption-chart";
-import { formatISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
 
 interface Props {
-    data: ConsumptionData[];
-    peaks?: ConsumptionData[];
+    data: SensorDataSelectType[];
     aggregation?: AggregationType;
+    showPeaks: boolean;
     userId: string;
+    cost?: number;
 }
 
-export default function EnergyConsumptionCardChart({ data, peaks, aggregation, userId }: Props) {
+export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost }: Props) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<ConsumptionData | null>(null);
+    const [value, setValue] = useState<SensorDataSelectType | null>(null);
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const clickCallback = useCallback(
-        (callbackData: {
-            sensorId: string;
-            energy: number;
-            timestamp: string | number | undefined;
-            sensorDataId: string;
-        }) => {
-            setValue({
-                sensorId: callbackData.sensorId,
-                energy: Number(callbackData.energy),
-                timestamp: callbackData.timestamp?.toString() || "",
-                sensorDataId: callbackData.sensorDataId,
-            });
-            setOpen(true);
-        },
-        [],
-    );
-
-    const convertToAxesValue = useCallback(
-        (peak: ConsumptionData): Record<string, string | number | undefined> => {
-            const sensorData = data.find((x) => x.sensorId === peak.sensorId && x.timestamp === peak.timestamp);
-
-            return {
-                sensorId: sensorData?.sensorId ?? "",
-                timestamp: sensorData?.timestamp ? sensorData.timestamp : "",
-                energy: sensorData?.energy ?? 0,
-                sensorDataId: sensorData?.sensorDataId ?? "",
-            };
-        },
-        [data],
-    );
+    const clickCallback = useCallback((callbackData: SensorDataSelectType) => {
+        setValue(callbackData);
+        setOpen(true);
+    }, []);
 
     function handleZoom(left: Date, right: Date) {
         const search = new URLSearchParams();
@@ -60,7 +34,6 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation, u
         });
         search.set("start", left.toISOString());
         search.set("end", right.toISOString());
-        search.set("zoomed", "true");
         router.push(`${pathname}?${search.toString()}`, {
             scroll: false,
         });
@@ -73,20 +46,10 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation, u
             ) : null}
             <EnergyConsumptionChart
                 aggregation={aggregation}
-                data={data.map((d) => ({
-                    ...d,
-                    timestamp: d.timestamp ? d.timestamp : "",
-                }))}
-                referencePoints={
-                    peaks
-                        ? {
-                              data: peaks.map(convertToAxesValue),
-                              xKeyName: "timestamp",
-                              yKeyName: "energy",
-                              callback: clickCallback,
-                          }
-                        : undefined
-                }
+                data={data}
+                showPeaks={showPeaks}
+                cost={cost}
+                peaksCallback={clickCallback}
                 zoomCallback={handleZoom}
             />
         </>

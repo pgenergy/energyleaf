@@ -184,7 +184,7 @@ export async function createUser(data: CreateUserType) {
         await trx.insert(user).values({
             id: userId,
             firstname: data.firstname,
-            lastName: data.lastname,
+            lastname: data.lastname,
             address: data.address,
             phone: data.phone,
             username: data.username,
@@ -280,7 +280,7 @@ export async function deleteUser(id: string) {
         await trx.insert(historyUser).values({
             ...data.user,
             firstname: "",
-            lastName: "",
+            lastname: "",
             phone: "",
             address: "",
             username: "",

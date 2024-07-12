@@ -24,7 +24,7 @@ const userFields = {
     phone: varchar("phone", { length: 40 }),
     address: text("address").notNull().default(""),
     firstname: varchar("firstname", { length: 30 }).notNull().default(""),
-    lastName: varchar("lastname", { length: 30 }).notNull().default(""),
+    lastname: varchar("lastname", { length: 30 }).notNull().default(""),
     username: varchar("username", { length: 30 }).notNull(),
     password: varchar("password", { length: 256 }).notNull(),
     isAdmin: boolean("is_admin").default(false).notNull(),
