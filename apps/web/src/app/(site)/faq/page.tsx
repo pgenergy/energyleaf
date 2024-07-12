@@ -72,7 +72,7 @@ export default async function FaqPage() {
                             </AccordionTrigger>
                             <AccordionContent>
                                 Sie können Ihre Profilinformationen aktualisieren, indem Sie auf Ihr Profilbild oben
-                                rechts klicken. Dort unter Einstellungen, können Sie Ihre persönlichen Daten,
+                                rechts klicken. Dort können Sie unter Einstellungen Ihre persönlichen Daten,
                                 Tarifinformationen und Maileinstellungen anpassen.
                             </AccordionContent>
                         </AccordionItem>
