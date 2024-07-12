@@ -8,7 +8,7 @@ interface Props {
     reset: () => void;
 }
 
-export default function ProfileErrorPage({ reset }: Props) {
+export default function SettingsErrorPage({ reset }: Props) {
     return (
         <div className="flex flex-col gap-4">
             <Card>

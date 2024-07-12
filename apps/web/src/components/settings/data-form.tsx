@@ -1,7 +1,7 @@
 "use client";
 
 import { updateUserDataInformation } from "@/actions/profile";
-import DataFormFields from "@/components/profile/data-form-fields";
+import DataFormFields from "@/components/settings/data-form-fields";
 import { userDataSchema } from "@/lib/schema/profile";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";

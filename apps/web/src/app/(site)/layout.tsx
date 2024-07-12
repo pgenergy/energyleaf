@@ -8,7 +8,7 @@ import { isDemoUser } from "@/lib/demo/demo";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Navbar } from "@energyleaf/ui/nav/navbar";
 import { Sidebar } from "@energyleaf/ui/nav/sidebar";
-import { AreaChartIcon, HomeIcon, LightbulbIcon, MicrowaveIcon } from "lucide-react";
+import { HomeIcon, MicrowaveIcon, SettingsIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import type React from "react";
 
@@ -43,6 +43,12 @@ const navLinks = [
         path: "/devices",
         icon: <MicrowaveIcon className="mr-2 h-4 w-4" />,
         appVersion: Versions.self_reflection,
+    },
+    {
+        slug: "settings",
+        title: "Einstellungen",
+        path: "/settings",
+        icon: <SettingsIcon className="mr-2 h-4 w-4" />,
     },
 ];
 
