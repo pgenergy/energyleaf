@@ -2,8 +2,8 @@
 
 import { updateUserState } from "@/actions/user";
 import { userStateSchema } from "@/lib/schema/user";
-import { userDataExperimentStatusEnum } from "@energyleaf/db/types";
-import type { DefaultActionReturn } from "@energyleaf/lib";
+import { ExperimentNumberEnum, ExperimentNumberEnumMap, userDataExperimentStatusEnum } from "@energyleaf/db/types";
+import { type DefaultActionReturn, DismissedReasonEnum, DismissedReasonEnumMap } from "@energyleaf/lib";
 import { Versions, stringify } from "@energyleaf/lib/versioning";
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { Button } from "@energyleaf/ui/button";
@@ -146,6 +146,42 @@ export default function UserStateForm({ initialValues, id }: Props) {
                     <>
                         <FormField
                             control={form.control}
+                            name="experimentNumber"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Experimentnummer</FormLabel>
+                                    <FormControl>
+                                        <Select
+                                            onValueChange={(value) => {
+                                                field.onChange(Number(value));
+                                            }}
+                                            value={field.value?.toString() || undefined}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Experimentnummer wählen" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {Object.keys(ExperimentNumberEnum)
+                                                    .filter((key) => Number.isNaN(Number(key)))
+                                                    .map((key) => {
+                                                        const expNumber = ExperimentNumberEnum[
+                                                            key
+                                                        ] as ExperimentNumberEnum;
+                                                        return (
+                                                            <SelectItem key={key} value={expNumber.toString()}>
+                                                                {ExperimentNumberEnumMap[expNumber]}
+                                                            </SelectItem>
+                                                        );
+                                                    })}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
                             name="getsPaid"
                             render={({ field }) => (
                                 <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
@@ -191,6 +227,47 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                 </FormItem>
                             )}
                         />
+                        {form.getValues().experimentStatus === "dismissed" ? (
+                            <FormField
+                                name="dismissedReason"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Ablehnungsgrund</FormLabel>
+                                        <FormControl>
+                                            <Select
+                                                onValueChange={(value) => {
+                                                    field.onChange(Number(value));
+                                                }}
+                                                value={field.value?.toString() || undefined}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Grund wählen" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {Object.keys(DismissedReasonEnum)
+                                                        .filter((key) => Number.isNaN(Number(key)))
+                                                        .map((key) => {
+                                                            const dismissedReason = DismissedReasonEnum[
+                                                                key
+                                                            ] as DismissedReasonEnum;
+                                                            return (
+                                                                <SelectItem
+                                                                    key={key}
+                                                                    value={dismissedReason.toString()}
+                                                                >
+                                                                    {DismissedReasonEnumMap[dismissedReason]}
+                                                                </SelectItem>
+                                                            );
+                                                        })}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        ) : null}
                         <FormField
                             control={form.control}
                             name="installationDate"

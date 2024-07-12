@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth/auth.server";
-import { getEnergyLastEntry } from "@/query/energy";
-import { getElectricitySensorIdForUser } from "@energyleaf/db/query";
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { getElectricitySensorIdForUser, getEnergyLastEntry } from "@/query/energy";
+import { cn } from "@energyleaf/tailwindcss/utils";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default async function CurrentMeterNumberCard() {
     const { user } = await getSession();
@@ -15,17 +15,22 @@ export default async function CurrentMeterNumberCard() {
     }
 
     const value = await getEnergyLastEntry(sensorId);
-    if (!value) {
-        return null;
-    }
 
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Aktueller Zählerstand</CardTitle>
+                <CardDescription>Unabhängig vom Zeitraum</CardDescription>
             </CardHeader>
             <CardContent className="text-center">
-                <p className="font-medium">{value.value.toFixed(6)} kWh</p>
+                <p
+                    className={cn({
+                        "font-medium": value !== undefined && value !== null,
+                        "text-muted-foreground": value === undefined || value === null,
+                    })}
+                >
+                    {!value ? "Keine Sensor Daten" : `${value.value.toFixed(0)} kWh`}
+                </p>
             </CardContent>
         </Card>
     );

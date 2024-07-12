@@ -2,8 +2,9 @@
 
 import { getConsumptionBySensor, getElectricitySensorByUser } from "@/actions/sensors";
 import { useUserContext } from "@/hooks/user-hook";
+import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
-import { EnergyConsumptionChart, type EnergyData } from "@energyleaf/ui/charts/energy-consumption-chart";
+import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy-consumption-chart";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -27,7 +28,12 @@ export default function UserConsumptionCardContent({ userId }: Props) {
                     <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
                 </div>
             ) : (
-                <EnergyConsumptionChart aggregation={context.aggregationType} data={data} zoomCallback={handleZoom} />
+                <EnergyConsumptionChart
+                    aggregation={context.aggregationType}
+                    data={data}
+                    zoomCallback={handleZoom}
+                    showPeaks={false}
+                />
             )}
         </div>
     );
@@ -35,7 +41,7 @@ export default function UserConsumptionCardContent({ userId }: Props) {
 
 function useConsumptionData(userId: string) {
     const context = useUserContext();
-    const [data, setData] = useState<EnergyData[]>([]);
+    const [data, setData] = useState<SensorDataSelectType[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -51,15 +57,7 @@ function useConsumptionData(userId: string) {
                 context.aggregationType || AggregationType.RAW,
             );
 
-            return energyData.map((entry) => ({
-                sensorId: entry.sensorId || 0,
-                energy: entry.value,
-                timestamp:
-                    typeof entry.timestamp === "string" || typeof entry.timestamp === "number"
-                        ? new Date(entry.timestamp).toISOString()
-                        : "",
-                sensorDataId: entry.id,
-            }));
+            return energyData;
         };
 
         fetchData()

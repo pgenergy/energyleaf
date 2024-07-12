@@ -42,8 +42,6 @@ export async function trackAction(
     appComponent: (typeof logs.appComponent.enumValues)[number],
     details: object,
 ) {
-    // todo for pge-180 -> Integrate postHog custom events?
-
     console.info(title, appFunction, appComponent, details);
     await log(title, "action", appFunction, appComponent, details);
 }

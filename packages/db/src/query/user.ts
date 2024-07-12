@@ -1,6 +1,18 @@
 import { and, desc, eq, gte } from "drizzle-orm";
 import db, { genId } from "../";
-import { historyUserData, reportConfig, session, token, user, userData, userExperimentData } from "../schema";
+import {
+    historyReportConfig,
+    historyUser,
+    historyUserData,
+    reportConfig,
+    sensor,
+    sensorHistory,
+    session,
+    token,
+    user,
+    userData,
+    userExperimentData,
+} from "../schema";
 import type { UserDataSelectType, UserSelectType } from "../types/types";
 
 /**
@@ -83,6 +95,31 @@ export async function getUsersWhoRecieveSurveyMail(date: Date) {
 }
 
 /**
+ * Gets the history of user data from the database
+ */
+export async function getUserDataHistory(id: string) {
+    return await db.transaction(async (trx) => {
+        return trx
+            .select()
+            .from(historyUserData)
+            .where(eq(historyUserData.userId, id))
+            .union(trx.select().from(userData).where(eq(userData.userId, id)))
+            .orderBy(historyUserData.timestamp);
+    });
+}
+
+/**
+ * Get all users who recive anomaly mails
+ */
+export async function getUsersWhoRecieveAnomalyMail() {
+    return await db
+        .select()
+        .from(user)
+        .innerJoin(sensor, eq(sensor.userId, user.id))
+        .where(eq(user.receiveAnomalyMails, true));
+}
+
+/**
  * Return all users who are in the experiment and getting paid
  */
 export async function getAllExperimentUsers() {
@@ -94,7 +131,7 @@ export async function getAllExperimentUsers() {
             and(
                 eq(user.isParticipant, true),
                 eq(userExperimentData.experimentStatus, "approved"),
-                gte(userExperimentData.experimentNumber, 1),
+                gte(userExperimentData.experimentNumber, 0),
             ),
         );
 }
@@ -192,20 +229,6 @@ export async function getUserData(id: string): Promise<UserDataSelectType | null
 }
 
 /**
- * Gets the history of user data from the database
- */
-export async function getUserDataHistory(id: string) {
-    return await db.transaction(async (trx) => {
-        return trx
-            .select()
-            .from(historyUserData)
-            .where(eq(historyUserData.userId, id))
-            .union(trx.select().from(userData).where(eq(userData.userId, id)))
-            .orderBy(historyUserData.timestamp);
-    });
-}
-
-/**
  * Update the user data in the database
  */
 export async function updateUser(data: Partial<UserSelectType>, id: string) {
@@ -219,20 +242,7 @@ export async function updatePassword(data: Partial<CreateUserType>, id: string) 
     return db.update(user).set(data).where(eq(user.id, id));
 }
 
-type UpdateUserData = {
-    tariff: (typeof userData.tariff.enumValues)[number];
-    property: (typeof userData.property.enumValues)[number];
-    livingSpace: number;
-    hotWater: (typeof userData.hotWater.enumValues)[number];
-    household: number;
-    basePrice: number;
-    workingPrice: number;
-    timestamp: Date;
-    monthlyPayment: number;
-    consumptionGoal: number;
-};
-
-export async function updateUserData(data: Partial<UpdateUserData>, id: string) {
+export async function updateUserData(data: Partial<typeof userData.$inferInsert>, id: string) {
     return db.transaction(async (trx) => {
         const oldUserData = await getUserDataByUserId(id);
         if (!oldUserData) {
@@ -255,7 +265,58 @@ export async function getUserDataByUserId(id: string) {
 }
 
 export async function deleteUser(id: string) {
-    return db.delete(user).where(eq(user.id, id));
+    return db.transaction(async (trx) => {
+        const currentData = await trx
+            .select()
+            .from(user)
+            .leftJoin(reportConfig, eq(reportConfig.userId, user.id))
+            .where(eq(user.id, id));
+        if (currentData.length <= 0) {
+            return;
+        }
+        const data = currentData[0];
+
+        // delete user and remove private data
+        await trx.insert(historyUser).values({
+            ...data.user,
+            firstname: "",
+            lastName: "",
+            phone: "",
+            address: "",
+            username: "",
+            email: "",
+            password: "",
+        });
+        await trx.delete(user).where(eq(user.id, id));
+
+        if (data.report_config) {
+            // delete reports
+            await trx.insert(historyReportConfig).values({
+                ...data.report_config,
+            });
+            await trx.delete(reportConfig).where(eq(reportConfig.userId, data.report_config.userId));
+        }
+
+        // sensor actions
+        const sensorDb = await trx.select().from(sensor).where(eq(sensor.userId, data.user.id));
+
+        if (sensorDb.length <= 0) {
+            return;
+        }
+
+        // remove user id from sensor and give new id
+        await trx.update(sensor).set({
+            id: genId(30),
+            userId: null,
+        });
+
+        await trx.insert(sensorHistory).values({
+            userId: data.user.id,
+            sensorType: sensorDb[0].sensorType,
+            sensorId: sensorDb[0].id,
+            clientId: sensorDb[0].clientId,
+        });
+    });
 }
 
 export async function getAllUsers() {

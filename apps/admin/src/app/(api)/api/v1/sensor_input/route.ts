@@ -3,7 +3,7 @@ import { energyleaf, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
-const { SensorDataRequest, SensorDataResponse, SensorType } = energyleaf;
+const { SensorDataRequestV2, SensorDataRequest, SensorDataResponse, SensorType } = energyleaf;
 
 export const POST = async (req: NextRequest) => {
     const body = req.body;
@@ -18,7 +18,35 @@ export const POST = async (req: NextRequest) => {
     }
     try {
         const binaryData = await parseReadableStream(body);
-        const data = SensorDataRequest.fromBinary(binaryData);
+        let data: {
+            type: number;
+            accessToken: string;
+            value: number;
+            valueOut?: number;
+            valueCurrent?: number;
+            timestamp?: bigint;
+        };
+        try {
+            data = SensorDataRequestV2.fromBinary(binaryData);
+        } catch (err) {
+            try {
+                const parsedData = SensorDataRequest.fromBinary(binaryData);
+                data = {
+                    ...parsedData,
+                    valueOut: undefined,
+                    valueCurrent: undefined,
+                    timestamp: undefined,
+                };
+            } catch (err) {
+                waitUntil(logError("sensor-input/invalid-data", "sensor-input", "api", req, err));
+                return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "Invalid data" }), {
+                    status: 400,
+                    headers: {
+                        "Content-Type": "application/x-protobuf",
+                    },
+                });
+            }
+        }
 
         console.info(data);
 
@@ -26,6 +54,19 @@ export const POST = async (req: NextRequest) => {
             waitUntil(log("sensor/value-zero", "error", "sensor-input", "api", { req, data }));
             return new NextResponse(
                 SensorDataResponse.toBinary({ status: 400, statusMessage: "Value is equal to or less than zero" }),
+                {
+                    status: 400,
+                    headers: {
+                        "Content-Type": "application/x-protobuf",
+                    },
+                },
+            );
+        }
+
+        if (data.timestamp && (data.timestamp > Number.MAX_SAFE_INTEGER || data.timestamp < 0)) {
+            waitUntil(log("sensor/timestamp-out-of-range", "error", "sensor-input", "api", { req, data }));
+            return new NextResponse(
+                SensorDataResponse.toBinary({ status: 400, statusMessage: "Timestamp out of range" }),
                 {
                     status: 400,
                     headers: {
@@ -44,7 +85,7 @@ export const POST = async (req: NextRequest) => {
                 valueOut: data.valueOut,
                 valueCurrent: data.valueCurrent,
                 sum: needsSum,
-                timestamp: data.timestamp ? new Date(Number(data.timestamp)) : new Date(Date.now()),
+                timestamp: data.timestamp ? new Date(Number(data.timestamp)) : new Date(),
             };
 
             try {

@@ -14,7 +14,7 @@ import {
 } from "drizzle-orm/mysql-core";
 import { nanoid } from "nanoid";
 
-export const user = mysqlTable("user", {
+const userFields = {
     id: varchar("id", { length: 30 })
         .primaryKey()
         .notNull()
@@ -34,6 +34,14 @@ export const user = mysqlTable("user", {
     appVersion: smallint("app_version").default(Versions.transparency).notNull(),
     receiveAnomalyMails: boolean("receive_anomaly_mails").default(true).notNull(),
     activationDate: timestamp("activation_date"),
+};
+
+export const user = mysqlTable("user", {
+    ...userFields,
+});
+
+export const historyUser = mysqlTable("history_user", {
+    ...userFields,
 });
 
 export const userExperimentData = mysqlTable("user_experiment_data", {
@@ -59,7 +67,7 @@ export const userExperimentData = mysqlTable("user_experiment_data", {
     getsPaid: boolean("gets_paid").default(false).notNull(),
 });
 
-export const userData = mysqlTable("user_data", {
+const userDataFields = {
     id: int("id").autoincrement().primaryKey().notNull(),
     userId: varchar("user_id", { length: 30 }).notNull(),
     timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
@@ -78,6 +86,14 @@ export const userData = mysqlTable("user_data", {
     powerAtElectricityMeter: boolean("power_at_electricity_meter").default(false),
     wifiAtElectricityMeter: boolean("wifi_at_electricity_meter").default(false),
     installationComment: text("installation_comment"),
+};
+
+export const userData = mysqlTable("user_data", {
+    ...userDataFields,
+});
+
+export const historyUserData = mysqlTable("history_user_data", {
+    ...userDataFields,
 });
 
 export const session = mysqlTable("session", {
@@ -86,41 +102,10 @@ export const session = mysqlTable("session", {
     expiresAt: datetime("expires_at").notNull(),
 });
 
-export const historyUserData = mysqlTable("history_user_data", {
-    id: int("id").autoincrement().primaryKey().notNull(),
-    userId: varchar("user_id", { length: 30 }).notNull(),
-    timestamp: timestamp("timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
-    basePrice: float("base_price"),
-    workingPrice: float("working_price"),
-    tariff: mysqlEnum("tariff", ["basic", "eco"]).default("basic"),
-    household: int("household"),
-    property: mysqlEnum("property", ["house", "apartment"]),
-    livingSpace: int("living_space"),
-    hotWater: mysqlEnum("hot_water", ["electric", "not_electric"]),
-    monthlyPayment: int("advance_payment_electricity"),
-    consumptionGoal: float("consumption_goal"),
-    electricityMeterNumber: varchar("electricity_meter_number", { length: 256 }),
-    electricityMeterType: mysqlEnum("electricity_meter_type", ["digital", "analog"]),
-    electricityMeterImgUrl: text("electricity_meter_img_url"),
-    powerAtElectricityMeter: boolean("power_at_electricity_meter").default(false),
-    wifiAtElectricityMeter: boolean("wifi_at_electricity_meter").default(false),
-    installationComment: text("installation_comment"),
-});
-
 export const token = mysqlTable("token", {
     token: varchar("id", { length: 30 })
         .primaryKey()
         .$defaultFn(() => nanoid(30)),
     userId: varchar("user_id", { length: 30 }).notNull(),
-    createdTimestamp: timestamp("created_timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
-});
-
-export const historyReports = mysqlTable("history_reports", {
-    id: int("id").autoincrement().primaryKey().notNull(),
-    userId: varchar("user_id", { length: 30 }).notNull(),
-    receiveMails: boolean("receive_mails").default(true).notNull(),
-    interval: int("interval").default(3).notNull(),
-    time: int("time").default(6).notNull(),
-    timestampLast: timestamp("timestamp_last").default(sql`'2020-01-01 00:00:00'`).notNull(),
     createdTimestamp: timestamp("created_timestamp").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });

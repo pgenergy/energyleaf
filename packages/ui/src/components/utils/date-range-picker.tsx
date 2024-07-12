@@ -21,6 +21,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
         };
     }, [initStartDate, initEndDate]);
     const [range, setRange] = useState<DateRange | undefined>(initRange);
+    const [open, setOpen] = useState(false);
 
     const calFooter = useMemo(() => {
         return range?.from && range.to ? null : <p>Bitte geben Sie einen Zeitraum an.</p>;
@@ -45,6 +46,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
 
         if (value?.from && value?.to) {
             onChange(value);
+            setOpen(false);
         }
     }
 
@@ -87,6 +89,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
 
         if (from && to) {
             onChange({ from, to });
+            setOpen(false);
         }
     }
 
@@ -96,7 +99,9 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
         const weekEnd = weekStart + 6;
 
         const firstDay = new Date(date.setDate(weekStart));
+        firstDay.setHours(0, 0, 0, 0);
         const lastDay = new Date(date.setDate(weekEnd));
+        lastDay.setHours(23, 59, 59, 999);
 
         return { from: firstDay, to: lastDay };
     }, []);
@@ -104,7 +109,9 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
     const getMonth = useMemo(() => {
         const date = new Date();
         const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+        monthStart.setHours(0, 0, 0, 0);
         const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        monthEnd.setHours(23, 59, 59, 999);
 
         return { from: monthStart, to: monthEnd };
     }, []);
@@ -119,10 +126,13 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
     return (
         <div className="flex flex-row justify-end gap-4">
             <Popover
+                open={open}
                 onOpenChange={(isOpen) => {
                     if (!isOpen) {
                         setRange(initRange);
                     }
+
+                    setOpen(isOpen);
                 }}
             >
                 <PopoverTrigger asChild>

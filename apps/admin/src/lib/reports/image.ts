@@ -1,6 +1,5 @@
 import { env } from "@/env.mjs";
-import { genId } from "@energyleaf/db";
-import { put } from "@vercel/blob";
+import { put } from "@energyleaf/storage";
 
 /**
  * Renders an image. If possible, the image is uploaded to a blob storage and the download URL is returned.
@@ -12,26 +11,32 @@ import { put } from "@vercel/blob";
  */
 export async function renderImage(renderGraph: () => string) {
     const base64 = renderGraph();
-    if (!env.BLOB_READ_WRITE_TOKEN) {
-        // Return base64 string if no token is set. This is considered a fallback for development.
-        console.warn(
-            "No BLOB_READ_WRITE_TOKEN set. Returning base64 string. Consider using a token because base64 images may not be supported in all email clients.",
-        );
-        return base64;
-    }
-
     return uploadImage(base64);
 }
 
 async function uploadImage(base64: string) {
-    const id = genId(35);
-    const fileName = `${id}.png`;
     const blob = await b64toBlob(base64);
-    const res = await put(`reports/${fileName}`, blob, {
-        access: "public",
-        contentType: "image/png",
+    if (
+        !env.AWS_REGION ||
+        !env.BUCKET_NAME ||
+        !env.AWS_ACCESS_KEY_ID ||
+        !env.AWS_SECRET_ACCESS_KEY ||
+        !env.AWS_ENDPOINT_URL_S3 ||
+        !env.FILE_URL
+    ) {
+        console.warn("S3 credentials missing");
+        return base64;
+    }
+    const res = await put({
+        bucket: env.BUCKET_NAME,
+        path: "reports",
+        keyId: env.AWS_ACCESS_KEY_ID,
+        secret: env.AWS_SECRET_ACCESS_KEY,
+        endpoint: env.AWS_ENDPOINT_URL_S3,
+        region: env.AWS_REGION,
+        body: blob,
     });
-    return res.url;
+    return `${env.FILE_URL}/${res.key}`;
 }
 
 const b64toBlob = (base64: string) => fetch(base64).then((res) => res.blob());

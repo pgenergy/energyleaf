@@ -7,6 +7,14 @@
         {
             "path": "/api/v1/survey_routine",
             "schedule": "0 0 * * *"
+        },
+        {
+            "path": "/api/v1/mark_peaks",
+            "schedule": "0,30 * * * *"
+        },
+        {
+            "path": "/api/v1/anomaly",
+            "schedule": "0,30 * * * *"
         }
     ]
 }

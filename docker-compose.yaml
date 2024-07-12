@@ -23,6 +23,7 @@ services:
         "-listen-port=3900",
         "-mysql-dbname=energyleaf",
         "-mysql-addr=ps-mysql",
+        "-mysql-max-rows=10000000"
       ]
     depends_on:
       - ps-mysql
