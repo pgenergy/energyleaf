@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"@boringer-avatars/react": "^0.2.1",
+		"@date-fns/utc": "^1.2.0",
 		"@energyleaf/db": "workspace:^",
 		"@energyleaf/lib": "workspace:^",
 		"@energyleaf/mail": "workspace:*",
