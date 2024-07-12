@@ -26,6 +26,7 @@
         "typescript": "^5.4.5"
     },
     "dependencies": {
+        "@date-fns/utc": "^1.2.0",
         "@energyleaf/db": "workspace:^",
         "@energyleaf/lib": "workspace:^",
         "@energyleaf/tailwindcss": "workspace:^",

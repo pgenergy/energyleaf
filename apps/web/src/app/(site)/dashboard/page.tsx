@@ -12,6 +12,7 @@ import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
 import GoalsCard from "@/components/dashboard/goals/goals-card";
 import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
 import { getSession } from "@/lib/auth/auth.server";
+import { UTCDate } from "@date-fns/utc";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
@@ -34,8 +35,8 @@ export default async function DashboardPage({
     const startDateString = searchParams.start;
     const endDateString = searchParams.end;
     const aggregationType = searchParams.aggregation;
-    const startDate = startDateString ? new Date(startDateString) : new Date();
-    const endDate = endDateString ? new Date(endDateString) : new Date();
+    const startDate = startDateString ? new Date(startDateString) : new UTCDate();
+    const endDate = endDateString ? new Date(endDateString) : new UTCDate();
 
     if (!startDateString) {
         startDate.setHours(0, 0, 0, 0);
