@@ -54,7 +54,7 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
             await updateUser(
                 {
                     firstname: data.firstname,
-                    lastName: data.lastname,
+                    lastname: data.lastname,
                     phone: data.phone,
                     address: data.address,
                     username: data.username,

@@ -30,7 +30,7 @@ export const GET = async () => {
             const parsedId = user.user.id.replace(/[-_]/g, "");
             const mail = user.user.email;
             const firstname = user.user.firstname.replace(/,/g, " ");
-            const lastname = user.user.lastName.replace(/,/g, " ");
+            const lastname = user.user.lastname.replace(/,/g, " ");
 
             return [firstname, lastname, mail, parsedId];
         });
