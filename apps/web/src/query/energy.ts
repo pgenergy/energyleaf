@@ -5,6 +5,7 @@ import {
     getElectricitySensorIdForUser as getDbElectricitySensorIdForUser,
     getEnergyForSensorInRange as getDbEnergyForSensorInRange,
     getEnergyLastEntry as getDbEnergyLastEntry,
+    getSequencesBySensor,
 } from "@energyleaf/db/query";
 import { AggregationType } from "@energyleaf/lib";
 import { cache } from "react";
@@ -53,4 +54,12 @@ export const getEnergyLastEntry = cache(async (sensorId: string) => {
     }
 
     return getDbEnergyLastEntry(sensorId);
+});
+
+export const getSensorDataSequences = cache(async (sensorId: string) => {
+    if (sensorId === "demo_sensor") {
+        return []; // TODO: Peaks in demo?
+    }
+
+    return getSequencesBySensor(sensorId);
 });

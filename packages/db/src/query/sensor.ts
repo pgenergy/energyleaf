@@ -1,6 +1,7 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
 import { and, asc, between, desc, eq, gte, inArray, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
+import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import { nanoid } from "nanoid";
 import db from "../";
 import {
@@ -522,17 +523,109 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
 /**
  *  adds or updates a peak in the database
  */
-export async function updateDevicesForPeak(sensorDataId: string, deviceIds: number[]) {
+export async function updateDevicesForPeak(sensorDataSequenceId: string, deviceIds: number[]) {
     return db.transaction(async (trx) => {
-        await trx.delete(deviceToPeak).where(eq(deviceToPeak.sensorDataId, sensorDataId));
+        await trx.delete(deviceToPeak).where(eq(deviceToPeak.sensorDataSequenceId, sensorDataSequenceId));
 
         for (const deviceId of deviceIds) {
             await trx.insert(deviceToPeak).values({
                 deviceId,
-                sensorDataId,
+                sensorDataSequenceId,
             });
         }
     });
+}
+
+export async function updatePowerOfDevices(userId: string) {
+    return db.transaction(async (trx) => {
+        const devicesWithPeaks = await trx
+            .select()
+            .from(device)
+            .leftJoin(deviceToPeak, eq(deviceToPeak.deviceId, device.id))
+            .leftJoin(sensorDataSequence, eq(sensorDataSequence.id, deviceToPeak.sensorDataSequenceId))
+            .where(eq(device.userId, userId));
+
+        const devices = Array.from(new Set(devicesWithPeaks.map((device) => device.device.id)));
+        const flattenPeak = devicesWithPeaks
+            .filter((x) => x.device_to_peak && x.sensor_data_sequence)
+            .map((device) => ({
+                sequenceId: device.sensor_data_sequence?.id ?? "",
+                power: device.sensor_data_sequence?.averagePeakPower ?? 0,
+                device: device.device_to_peak?.deviceId ?? 0,
+            }));
+
+        const peaks = Object.values(
+            flattenPeak.reduce(
+                (acc, obj) => {
+                    if (!acc[obj.sequenceId]) {
+                        acc[obj.sequenceId] = { sequence: obj.sequenceId, devices: [] };
+                    }
+                    acc[obj.sequenceId].devices.push(obj.device);
+                    return acc;
+                },
+                {} as { [key: string]: { sequence: string; devices: number[] } },
+            ),
+        );
+
+        // Create a mathjs instance
+        const math = create(all, {});
+
+        // Extract matrices
+        const A = math.matrix(
+            peaks.map((dp) => {
+                const row = devices.map((device) => (dp.devices.includes(device) ? 1 : 0));
+                return row;
+            }),
+        );
+        const b = math.matrix(flattenPeak.map((dp) => [dp.power]));
+
+        // Solve the least squares problem: (A^T A) x = A^T b
+        const At = math.transpose(A);
+        const AtA = math.multiply(At, A);
+        const Atb = math.multiply(At, b);
+        const solution = math.lusolve(AtA, Atb);
+
+        // Calculate R^2
+        const residuals = math.subtract(b, math.multiply(A, solution));
+        const subtraction = math.subtract(b, math.mean(b)) as Matrix;
+        const SST = math.sum(math.map(subtraction, math.square));
+        const SSR = math.sum(math.map(residuals, math.square));
+        const rSquared = math.subtract(1, math.divide(SSR, SST)) as number;
+
+        // Evaluate if the solution is good, mediocre or bad => enum
+        const rSquaredThresholds = {
+            // TODO: Add good thresholds.
+            good: 0.9,
+            mediocre: 0.8,
+        };
+        let rSquaredCategory = "bad";
+        if (rSquared >= rSquaredThresholds.good) {
+            rSquaredCategory = "good";
+        } else if (rSquared >= rSquaredThresholds.mediocre) {
+            rSquaredCategory = "mediocre";
+        }
+        console.log(`R^2 = ${rSquared} (${rSquaredCategory})`);
+
+        // Extract the solution values
+        const result = solution
+            .toArray()
+            .map((value, index) => ({ [devices[index]]: (value as MathNumericType[])[0] }));
+
+        console.log("Test", solution, result, devices);
+
+        // Update devices in database
+        for (const deviceId of devices) {
+            // Get device in result
+            const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
+            const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
+            console.log(deviceId, powerEstimation);
+            await trx.update(device).set({ power_estimation: powerEstimation }).where(eq(device.id, deviceId));
+        }
+    });
+}
+
+export async function getSequencesBySensor(sensorId: string) {
+    return db.select().from(sensorDataSequence).where(eq(sensorDataSequence.sensorId, sensorId));
 }
 
 export async function getDevicesByPeak(sensorDataId: string) {
@@ -543,7 +636,7 @@ export async function getDevicesByPeak(sensorDataId: string) {
         })
         .from(deviceToPeak)
         .innerJoin(device, eq(device.id, deviceToPeak.deviceId))
-        .where(eq(deviceToPeak.sensorDataId, sensorDataId));
+        .where(eq(deviceToPeak.sensorDataSequenceId, sensorDataId));
 }
 
 /**

@@ -1,17 +1,20 @@
 import { createHash } from "node:crypto";
+import { updateDevicesForPeak } from "@/actions/peak";
 import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
-import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences } from "@/query/energy";
 import type { ConsumptionData } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import { Button } from "@energyleaf/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import CSVExportButton from "./csv-export-button";
 import DashboardZoomReset from "./dashboard-zoom-reset";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
+import PeakButton from "./peaks/peak-button";
 
 interface Props {
     startDate: Date;
@@ -54,9 +57,12 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
         sensorDataId: entry.id,
-        isPeak: entry.isPeak,
-        isAnomaly: entry.isAnomaly,
+        isPeak: false, // TODO: remove.
+        isAnomaly: false, // TODO: remove.
     }));
+
+    const betterPeaks = await getSensorDataSequences(sensorId);
+    console.log(betterPeaks);
 
     const peaks =
         !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
@@ -76,6 +82,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         <Card className="w-full">
             <CardHeader className="flex flex-col justify-start">
                 <div className="flex flex-row justify-between gap-2">
+                    <div>
+                        {betterPeaks.map((peak) => (
+                            <PeakButton key={peak.id} peakId={peak.id} end={peak.end} start={peak.start} />
+                        ))}
+                    </div>
                     <div className="flex flex-col gap-2">
                         <CardTitle>Verbrauch</CardTitle>
                         <CardDescription>Übersicht Ihres Verbrauchs im Zeitraum.</CardDescription>

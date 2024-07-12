@@ -1,6 +1,7 @@
 "use client";
 
 import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
+import { formatNumber } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon } from "lucide-react";
@@ -67,6 +68,35 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
         cell: ({ row }) => {
             const categoryKey = row.getValue("category");
             return DeviceCategory[categoryKey as keyof typeof DeviceCategory];
+        },
+    },
+    {
+        accessorKey: "power_estimation",
+        header: ({ column }) => {
+            return (
+                <Button
+                    onClick={() => {
+                        column.toggleSorting(column.getIsSorted() === "asc");
+                    }}
+                    variant="ghost"
+                >
+                    Geschätzte Leistung
+                    {column.getIsSorted() === "asc" ? (
+                        <ChevronUpIcon className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDownIcon className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDownIcon className="ml-2 h-4 w-4" />
+                    )}
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            const powerValue = row.getValue("power_estimation");
+            if (!powerValue) {
+                return "N/A"; // TODO: Hier besseren shit.
+            }
+            return `${formatNumber(Number(powerValue))} Watt`; // TODO: Besser alignen, irgendwie nach rechts, ohne dass es kacke aussieht
         },
     },
     {

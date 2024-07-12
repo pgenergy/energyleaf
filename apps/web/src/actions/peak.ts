@@ -8,6 +8,7 @@ import {
     logError,
     trackAction,
     updateDevicesForPeak as updateDevicesForPeakDb,
+    updatePowerOfDevices,
 } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
@@ -30,6 +31,7 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         const devices = data.device.map((device) => device.id);
         try {
             await updateDevicesForPeakDb(sensorDataId, devices);
+            await updatePowerOfDevices(session.userId);
             waitUntil(trackAction("peak/update-devices", "update-devices-for-peak", "web", { data, session }));
         } catch (e) {
             waitUntil(logError("peak/error-updating-devices", "update-devices-for-peak", "web", { data, session }, e));

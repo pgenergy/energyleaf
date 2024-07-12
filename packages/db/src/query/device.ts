@@ -81,13 +81,23 @@ async function copyToHistoryTable(
         Record<string, never>,
         ExtractTablesWithRelations<Record<string, never>>
     >,
-    device: { id: number; userId: string; name: string; created: Date | null; timestamp: Date },
+    device: {
+        id: number;
+        userId: string;
+        name: string;
+        created: Date | null;
+        timestamp: Date;
+        category: string;
+        power_estimation: number | null;
+    },
 ) {
     await trx.insert(deviceHistory).values({
-        deviceId: device.id,
+        id: device.id,
         userId: device.userId,
         name: device.name,
         created: device.created,
         timestamp: device.timestamp,
+        category: device.category,
+        power_estimation: device.power_estimation,
     });
 }
