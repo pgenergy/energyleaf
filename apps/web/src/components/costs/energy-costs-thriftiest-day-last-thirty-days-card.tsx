@@ -1,8 +1,8 @@
-import { findMostEconomicalDays } from "@/components/costs/thriftiest-costs-calculation";
+import { findMostEconomicalDay } from "@/components/costs/thriftiest-costs-calculation";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default function EnergyCostsThriftiestDayLastSevenDays({ userData, energyData }) {
-    const mostEconomicalDay = findMostEconomicalDays(energyData, userData, 30);
+    const mostEconomicalDay = findMostEconomicalDay(energyData, userData, 30);
 
     return (
         <Card>

@@ -39,10 +39,6 @@ export default async function CostsPage() {
     const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
 
-    if (!sensorId) {
-        throw new Error("Sensor ID not found for the user.");
-    }
-
     const now = new Date();
     let year = now.getFullYear();
     let month = now.getMonth() - 2;

@@ -1,3 +1,5 @@
+import { computeDailyCosts } from "@/components/costs/average-costs-calculation";
+
 interface EnergyData {
     timestamp: string;
     value: number;
@@ -7,37 +9,6 @@ interface UserData {
     basePrice: number;
     workingPrice: number;
 }
-
-const formatDate = (date: Date): string => date.toISOString().split("T")[0];
-
-const calculateDailyCosts = (energyData: EnergyData[], userData: UserData[]): Record<string, number> => {
-    if (
-        !energyData ||
-        energyData.length === 0 ||
-        !userData ||
-        userData.length < 2 ||
-        typeof userData[1].basePrice !== "number" ||
-        typeof userData[1].workingPrice !== "number"
-    ) {
-        return {};
-    }
-
-    const dailyCosts: Record<string, number> = {};
-
-    for (const { timestamp, value } of energyData) {
-        const date = new Date(timestamp);
-        const day = formatDate(date);
-
-        const cost = value * userData[1].workingPrice;
-        if (!dailyCosts[day]) {
-            dailyCosts[day] = 0;
-        }
-
-        dailyCosts[day] += cost;
-    }
-
-    return dailyCosts;
-};
 
 export const findMostEconomicalDay = (
     energyData: EnergyData[],
@@ -53,7 +24,7 @@ export const findMostEconomicalDay = (
         return date >= startDate && date <= now;
     });
 
-    const dailyCosts = calculateDailyCosts(filteredEnergyData, userData);
+    const dailyCosts = computeDailyCosts(filteredEnergyData, userData);
 
     if (Object.keys(dailyCosts).length === 0) {
         return null;

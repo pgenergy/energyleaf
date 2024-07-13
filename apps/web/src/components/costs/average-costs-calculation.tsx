@@ -11,35 +11,17 @@ interface UserData {
 const formatDate = (date: Date): string => date.toISOString().split("T")[0];
 
 export function calculateAverageCostsPerDay(energyData: EnergyData[], userData: UserData[]): number {
-    if (
-        !energyData ||
-        energyData.length === 0 ||
-        !userData ||
-        userData.length < 2 ||
-        typeof userData[1].basePrice !== "number" ||
-        typeof userData[1].workingPrice !== "number"
-    ) {
-        return 0;
-    }
-
-    const dailyCosts: Record<string, number> = {};
-
-    for (const { timestamp, value } of energyData) {
-        const date = new Date(timestamp);
-        const day = formatDate(date);
-
-        const cost = value * userData[1].workingPrice;
-        if (!dailyCosts[day]) {
-            dailyCosts[day] = 0;
-        }
-
-        dailyCosts[day] += cost;
-    }
+    const dailyCosts = computeDailyCosts(energyData, userData);
 
     const totalDays = Object.keys(dailyCosts).length;
     const totalCosts = Object.values(dailyCosts).reduce((sum, cost) => sum + cost, 0);
 
-    const dailyBasePrice = userData[1].basePrice / 30;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const dailyBasePrice = userData[1].basePrice / daysInMonth;
     return totalDays === 0 ? 0 : (totalCosts + dailyBasePrice * totalDays) / totalDays;
 }
 
@@ -61,7 +43,7 @@ export function calculateAverageCostsPerWeek(energyData: EnergyData[], userData:
         const date = new Date(timestamp);
         const year = date.getFullYear();
         const weekNumber = getWeekNumber(date);
-        const yearWeek = `${year}-W${weekNumber}`;
+        const yearWeek = `${year}-KW${weekNumber}`;
 
         const cost = value * userData[1].workingPrice;
         if (!weeklyCosts[yearWeek]) {
@@ -114,4 +96,33 @@ function getWeekNumber(date: Date): number {
     const tempDate = new Date(date.getFullYear(), 0, 1);
     const dayOfYear = (date.getTime() - tempDate.getTime()) / (24 * 60 * 60 * 1000) + 1;
     return Math.ceil(dayOfYear / 7);
+}
+
+export function computeDailyCosts(energyData: EnergyData[], userData: UserData[]): Record<string, number> {
+    if (
+        !energyData ||
+        energyData.length === 0 ||
+        !userData ||
+        userData.length < 2 ||
+        typeof userData[1].basePrice !== "number" ||
+        typeof userData[1].workingPrice !== "number"
+    ) {
+        return {};
+    }
+
+    const dailyCosts: Record<string, number> = {};
+
+    for (const { timestamp, value } of energyData) {
+        const date = new Date(timestamp);
+        const day = formatDate(date);
+
+        const cost = value * userData[1].workingPrice;
+        if (!dailyCosts[day]) {
+            dailyCosts[day] = 0;
+        }
+
+        dailyCosts[day] += cost;
+    }
+
+    return dailyCosts;
 }
