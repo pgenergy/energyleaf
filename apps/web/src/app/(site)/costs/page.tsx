@@ -41,7 +41,6 @@ export default async function CostsPage() {
     if (!sensorId) {
         redirect("/");
     }
-    
 
     const now = new Date();
     let year = now.getFullYear();
