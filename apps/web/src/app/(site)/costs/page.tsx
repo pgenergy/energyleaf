@@ -24,12 +24,42 @@ import EnergyCostsYesterdayError from "@/components/costs/errors/energy-costs-ye
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import React, { Suspense } from "react";
+import { getSession } from "@/lib/auth/auth.server";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
+import { getUserDataHistory } from "@/query/user";
+import { redirect } from "next/navigation";
 
 export const metadata = {
     title: "Kosten | Energyleaf",
 };
 
-export default function CostsPage() {
+export default async function CostsPage() {
+    const { session, user } = await getSession();
+
+    if (!session) {
+        redirect("/");
+    }
+
+    const userId = user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
+    if (!sensorId) {
+        redirect("/");
+    }
+
+    const now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth() - 2;
+    if (month < 0) {
+        month += 12;
+        year -= 1;
+    }
+
+    const startDate = new Date(year, month, 1);
+    const endDate = now;
+
+    const energyDataRaw = await getEnergyDataForSensor(startDate, endDate, sensorId);
+    const userData = await getUserDataHistory(userId);
+
     return (
         <div className="flex flex-col gap-4">
             <h1 className="font-bold text-2xl">Kosten-Übersichten</h1>
@@ -40,22 +70,22 @@ export default function CostsPage() {
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
                     <ErrorBoundary fallback={EnergyCostsTodayError}>
                         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                            <EnergyCostsToday />
+                            <EnergyCostsToday userData={userData} energyDataRaw={energyDataRaw} />
                         </Suspense>
                     </ErrorBoundary>
                     <ErrorBoundary fallback={EnergyCostsYesterdayError}>
                         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                            <EnergyCostsYesterday />
+                            <EnergyCostsYesterday userData={userData} energyDataRaw={energyDataRaw} />
                         </Suspense>
                     </ErrorBoundary>
                     <ErrorBoundary fallback={EnergyCostsLastSevenDaysError}>
                         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                            <EnergyCostsLastSevenDays />
+                            <EnergyCostsLastSevenDays userData={userData} energyDataRaw={energyDataRaw} />
                         </Suspense>
                     </ErrorBoundary>
                     <ErrorBoundary fallback={EnergyCostsLastThirtyDaysError}>
                         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                            <EnergyCostsLastThirtyDays />
+                            <EnergyCostsLastThirtyDays userData={userData} energyDataRaw={energyDataRaw} />
                         </Suspense>
                     </ErrorBoundary>
                 </div>

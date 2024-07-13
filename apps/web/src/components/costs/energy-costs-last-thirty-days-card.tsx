@@ -1,44 +1,30 @@
 import { calculateCosts } from "@/components/dashboard/energy-cost";
-import { getSession } from "@/lib/auth/auth.server";
-import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import { getUserDataHistory } from "@/query/user";
 import { formatNumber } from "@energyleaf/lib";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { redirect } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
-export default async function EnergyCostsLastThirtyDays() {
-    const { session, user } = await getSession();
-
-    if (!session) {
-        redirect("/");
-        return;
-    }
-
-    const userId = user.id;
-    const sensorId = await getElectricitySensorIdForUser(userId);
-
-    if (!sensorId) {
+function EnergyCostsLastThirtyDays({ userData, energyDataRaw }) {
+    if (!energyDataRaw || !userData) {
         return (
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Energiekosten letzte 30 Tage</CardTitle>
-                    <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
+                    <h1 className="text-center font-bold text-2xl text-primary">Daten nicht verfügbar</h1>
                 </CardContent>
             </Card>
         );
     }
 
     const today = new Date();
-    const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-    const startDate = new Date(endDate);
-    startDate.setDate(endDate.getDate() - 29);
+    const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
 
-    const energyDataRaw = await getEnergyDataForSensor(startDate, endDate, sensorId);
-    const userData = await getUserDataHistory(userId);
-    const rawCosts = calculateCosts(userData, energyDataRaw);
+    const lastThirtyDaysData = energyDataRaw.filter(data => {
+        const timestamp = new Date(data.timestamp);
+        return timestamp >= thirtyDaysAgo && timestamp < today;
+    });
+
+    const rawCosts = calculateCosts(userData, lastThirtyDaysData);
     const cost = rawCosts.toFixed(2);
     const parsedCost = Number.parseFloat(cost);
     const formattedCost = formatNumber(parsedCost);
@@ -54,3 +40,5 @@ export default async function EnergyCostsLastThirtyDays() {
         </Card>
     );
 }
+
+export default EnergyCostsLastThirtyDays;
