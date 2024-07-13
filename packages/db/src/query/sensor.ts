@@ -628,7 +628,7 @@ export async function getSequencesBySensor(sensorId: string) {
     return db.select().from(sensorDataSequence).where(eq(sensorDataSequence.sensorId, sensorId));
 }
 
-export async function getDevicesByPeak(sensorDataId: string) {
+export async function getDevicesByPeak(sensorDataSequenceId: string) {
     return db
         .select({
             id: deviceToPeak.deviceId,
@@ -636,7 +636,7 @@ export async function getDevicesByPeak(sensorDataId: string) {
         })
         .from(deviceToPeak)
         .innerJoin(device, eq(device.id, deviceToPeak.deviceId))
-        .where(eq(deviceToPeak.sensorDataSequenceId, sensorDataId));
+        .where(eq(deviceToPeak.sensorDataSequenceId, sensorDataSequenceId));
 }
 
 /**

@@ -1,11 +1,11 @@
-import type { ConsumptionData } from "@energyleaf/lib";
+import type { ConsumptionData, Peak } from "@energyleaf/lib";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
 
 interface Props {
     open: boolean;
     setOpen: (open: boolean) => void;
-    value: ConsumptionData;
+    value: Peak;
     userId: string;
 }
 
@@ -19,13 +19,13 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId 
                         Wählen Sie die Geräte aus, die diesen Verbrauch verursacht haben.
                     </DialogDescription>
                 </DialogHeader>
-                <p>Verbrauch: {value.energy}</p>
+                <p>Leistung: {value.averagePeakPower} Watt</p>
                 <EnergyPeakDeviceAssignmentForm
                     userId={userId}
                     onInteract={() => {
                         setOpen(false);
                     }}
-                    sensorDataId={value.sensorDataId}
+                    sensorDataSequenceId={value.id}
                 />
             </DialogContent>
         </Dialog>

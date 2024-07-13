@@ -13,15 +13,15 @@ import type { z } from "zod";
 
 interface Props {
     userId: string;
-    sensorDataId: string;
+    sensorDataSequenceId: string;
     onInteract: () => void;
 }
 
-export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInteract }: Props) {
+export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, onInteract }: Props) {
     const queryClient = useQueryClient();
     const { data: selectedDevices, isLoading: selectedDevicesLoading } = useQuery({
         queryKey: ["selectedDevices"],
-        queryFn: () => getDevicesByPeak(sensorDataId),
+        queryFn: () => getDevicesByPeak(sensorDataSequenceId),
     });
     const { data: devices, isLoading: devicesLoading } = useQuery({
         queryKey: ["devices"],
@@ -45,7 +45,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
         let res: DefaultActionReturn = undefined;
 
         try {
-            res = await updateDevicesForPeak(data, sensorDataId);
+            res = await updateDevicesForPeak(data, sensorDataSequenceId);
             await queryClient.invalidateQueries({ queryKey: ["selectedDevices"] });
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");

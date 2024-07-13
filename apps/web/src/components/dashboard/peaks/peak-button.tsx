@@ -1,23 +1,26 @@
 "use client";
 
 import { updateDevicesForPeak } from "@/actions/peak";
+import type { Peak } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
+import { useState } from "react";
+import { EnergyPeakDeviceAssignmentDialog } from "./energy-peak-device-assignment-dialog";
 
 interface Props {
-    peakId: string;
-    start: Date;
-    end: Date;
+    peak: Peak;
+    userId: string;
 }
 
 // TODO: Remove this when peaks are shown in diagram.
-export default function PeakButton({ peakId, start, end }: Props) {
+export default function PeakButton({ peak, userId }: Props) {
+    const [open, setOpen] = useState(false);
+
     return (
-        <Button
-            onClick={async () => {
-                await updateDevicesForPeak({ device: [{ id: 2, name: "idc" }] }, peakId);
-            }}
-        >
-            {start.toLocaleTimeString()} - {end.toLocaleTimeString()}
-        </Button>
+        <>
+            <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={peak} userId={userId} />
+            <Button onClick={() => setOpen(true)}>
+                {peak.start.toLocaleTimeString()} - {peak.end.toLocaleTimeString()}
+            </Button>
+        </>
     );
 }

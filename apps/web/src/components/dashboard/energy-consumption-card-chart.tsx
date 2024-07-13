@@ -1,6 +1,6 @@
 "use client";
 
-import type { AggregationType, ConsumptionData } from "@energyleaf/lib";
+import type { AggregationType, ConsumptionData, Peak } from "@energyleaf/lib";
 import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy-consumption-chart";
 import { formatISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -9,14 +9,14 @@ import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-ass
 
 interface Props {
     data: ConsumptionData[];
-    peaks?: ConsumptionData[];
+    peaks?: Peak[];
     aggregation?: AggregationType;
     userId: string;
 }
 
 export default function EnergyConsumptionCardChart({ data, peaks, aggregation, userId }: Props) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<ConsumptionData | null>(null);
+    const [value, setValue] = useState<Peak | null>(null);
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -28,12 +28,13 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation, u
             timestamp: string | number | undefined;
             sensorDataId: string;
         }) => {
-            setValue({
-                sensorId: callbackData.sensorId,
-                energy: Number(callbackData.energy),
-                timestamp: callbackData.timestamp?.toString() || "",
-                sensorDataId: callbackData.sensorDataId,
-            });
+            // TODO: Assign peak to value
+            // setValue({
+            //     sensorId: callbackData.sensorId,
+            //     energy: Number(callbackData.energy),
+            //     timestamp: callbackData.timestamp?.toString() || "",
+            //     sensorDataId: callbackData.sensorDataId,
+            // });
             setOpen(true);
         },
         [],
@@ -77,16 +78,17 @@ export default function EnergyConsumptionCardChart({ data, peaks, aggregation, u
                     ...d,
                     timestamp: d.timestamp ? d.timestamp : "",
                 }))}
-                referencePoints={
-                    peaks
-                        ? {
-                              data: peaks.map(convertToAxesValue),
-                              xKeyName: "timestamp",
-                              yKeyName: "energy",
-                              callback: clickCallback,
-                          }
-                        : undefined
-                }
+                // TODO: Add peaks to chart
+                // referencePoints={
+                //     peaks
+                //         ? {
+                //               data: peaks.map(convertToAxesValue),
+                //               xKeyName: "timestamp",
+                //               yKeyName: "energy",
+                //               callback: clickCallback,
+                //           }
+                //         : undefined
+                // }
                 zoomCallback={handleZoom}
             />
         </>

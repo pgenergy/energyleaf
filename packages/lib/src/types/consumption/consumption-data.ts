@@ -3,6 +3,11 @@ export interface ConsumptionData {
     energy: number;
     timestamp: string;
     sensorDataId: string;
-    isPeak?: boolean;
-    isAnomaly?: boolean;
+}
+
+export interface Peak {
+    id: string;
+    averagePeakPower: number;
+    start: Date;
+    end: Date;
 }

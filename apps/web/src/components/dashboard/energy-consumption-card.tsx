@@ -4,7 +4,7 @@ import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences } from "@/query/energy";
-import type { ConsumptionData } from "@energyleaf/lib";
+import type { ConsumptionData, Peak } from "@energyleaf/lib";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Button } from "@energyleaf/ui/button";
@@ -57,16 +57,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         energy: entry.value,
         timestamp: entry.timestamp.toString(),
         sensorDataId: entry.id,
-        isPeak: false, // TODO: remove.
-        isAnomaly: false, // TODO: remove.
     }));
 
-    const betterPeaks = await getSensorDataSequences(sensorId);
-    console.log(betterPeaks);
-
-    const peaks =
+    const peaks: Peak[] =
         !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
-            ? data.filter((d) => d.isPeak || d.isAnomaly)
+            ? await getSensorDataSequences(sensorId)
             : [];
 
     const csvExportData = {
@@ -83,8 +78,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
             <CardHeader className="flex flex-col justify-start">
                 <div className="flex flex-row justify-between gap-2">
                     <div>
-                        {betterPeaks.map((peak) => (
-                            <PeakButton key={peak.id} peakId={peak.id} end={peak.end} start={peak.start} />
+                        {/* TODO: Remove this piece of shit. */}
+                        {peaks.map((peak) => (
+                            <PeakButton key={peak.id} peak={peak} userId={userId} />
                         ))}
                     </div>
                     <div className="flex flex-col gap-2">
