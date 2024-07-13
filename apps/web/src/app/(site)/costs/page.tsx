@@ -21,13 +21,13 @@ import EnergyCostsLastSevenDaysError from "@/components/costs/errors/energy-cost
 import EnergyCostsLastThirtyDaysError from "@/components/costs/errors/energy-costs-last-thirty-days-card-error";
 import EnergyCostsTodayError from "@/components/costs/errors/energy-costs-today-card-error";
 import EnergyCostsYesterdayError from "@/components/costs/errors/energy-costs-yesterday-card-error";
-import { ErrorBoundary } from "@energyleaf/ui/error";
-import { Skeleton } from "@energyleaf/ui/skeleton";
-import React, { Suspense } from "react";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
+import { ErrorBoundary } from "@energyleaf/ui/error";
+import { Skeleton } from "@energyleaf/ui/skeleton";
 import { redirect } from "next/navigation";
+import React, { Suspense } from "react";
 
 export const metadata = {
     title: "Kosten | Energyleaf",

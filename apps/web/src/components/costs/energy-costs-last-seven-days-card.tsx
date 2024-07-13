@@ -19,7 +19,7 @@ function EnergyCostsLastSevenDays({ userData, energyDataRaw }) {
     const today = new Date();
     const sevenDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
 
-    const lastSevenDaysData = energyDataRaw.filter(data => {
+    const lastSevenDaysData = energyDataRaw.filter((data) => {
         const timestamp = new Date(data.timestamp);
         return timestamp >= sevenDaysAgo && timestamp < today;
     });

@@ -19,7 +19,7 @@ function EnergyCostsLastThirtyDays({ userData, energyDataRaw }) {
     const today = new Date();
     const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
 
-    const lastThirtyDaysData = energyDataRaw.filter(data => {
+    const lastThirtyDaysData = energyDataRaw.filter((data) => {
         const timestamp = new Date(data.timestamp);
         return timestamp >= thirtyDaysAgo && timestamp < today;
     });

@@ -21,7 +21,7 @@ function EnergyCostsYesterday({ userData, energyDataRaw }) {
     const startOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
     const endOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1);
 
-    const yesterdaysData = energyDataRaw.filter(data => {
+    const yesterdaysData = energyDataRaw.filter((data) => {
         const timestamp = new Date(data.timestamp);
         return timestamp >= startOfYesterday && timestamp < endOfYesterday;
     });
