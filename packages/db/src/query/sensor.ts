@@ -558,12 +558,12 @@ export async function updatePowerOfDevices(userId: string) {
             flattenPeak.reduce(
                 (acc, obj) => {
                     if (!acc[obj.sequenceId]) {
-                        acc[obj.sequenceId] = { sequence: obj.sequenceId, devices: [] };
+                        acc[obj.sequenceId] = { sequence: obj.sequenceId, devices: [], power: obj.power };
                     }
                     acc[obj.sequenceId].devices.push(obj.device);
                     return acc;
                 },
-                {} as { [key: string]: { sequence: string; devices: number[] } },
+                {} as { [key: string]: { sequence: string; devices: number[]; power: number } },
             ),
         );
 
@@ -577,7 +577,7 @@ export async function updatePowerOfDevices(userId: string) {
                 return row;
             }),
         );
-        const b = math.matrix(flattenPeak.map((dp) => [dp.power]));
+        const b = math.matrix(peaks.map((dp) => [dp.power]));
 
         // Solve the least squares problem: (A^T A) x = A^T b
         const At = math.transpose(A);
