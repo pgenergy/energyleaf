@@ -64,9 +64,9 @@ export async function getDevicesByUser(userId: string, search?: string) {
     return devices;
 }
 
-export async function getDevicesByPeak(sensorDataId: string) {
+export async function getDevicesByPeak(sensorDataSequenceId: string) {
     const session = await getActionSession();
-    const devices = getDevicesByPeakDb(sensorDataId);
-    waitUntil(trackAction("devices/get", "get-devices-by-peak", "web", { sensorDataId, session }));
+    const devices = getDevicesByPeakDb(sensorDataSequenceId);
+    waitUntil(trackAction("devices/get", "get-devices-by-peak", "web", { sensorDataSequenceId, session }));
     return devices;
 }
