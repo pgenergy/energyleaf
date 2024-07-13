@@ -1,6 +1,6 @@
 import { findMostEconomicalDay } from "@/components/costs/thriftiest-costs-calculation";
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { formatNumber } from "@energyleaf/lib";
+import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default function EnergyCostsThriftiestDayLastSevenDays({ userData, energyData }) {
     const mostEconomicalDay = findMostEconomicalDay(energyData, userData, 30);
@@ -8,10 +8,10 @@ export default function EnergyCostsThriftiestDayLastSevenDays({ userData, energy
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString('de-DE', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
+        return date.toLocaleDateString("de-DE", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
         });
     };
 

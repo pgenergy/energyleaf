@@ -1,6 +1,6 @@
 import { calculateAverageCostsPerMonth } from "@/components/costs/average-costs-calculation";
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { formatNumber } from "@energyleaf/lib";
+import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default function AverageEnergyCostsMonth({ userData, energyData }) {
     const averageCostsPerMonth = calculateAverageCostsPerMonth(energyData, userData);
