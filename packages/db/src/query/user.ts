@@ -165,7 +165,6 @@ export type CreateUserType = {
     electricityMeterType: (typeof userData.electricityMeterType.enumValues)[number];
     electricityMeterNumber: string;
     participation: boolean;
-    prolific: boolean;
     meterImgUrl?: string;
 };
 
@@ -206,7 +205,7 @@ export async function createUser(data: CreateUserType) {
             timestampLast: new Date(),
         });
 
-        if (data.participation || data.prolific) {
+        if (data.participation) {
             await trx.insert(userExperimentData).values({
                 userId,
                 getsPaid: true,

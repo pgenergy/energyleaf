@@ -174,7 +174,6 @@ export async function createAccount(data: FormData) {
             meterImgUrl: url,
             electricityMeterNumber,
             participation,
-            prolific: false,
         } satisfies CreateUserType);
         waitUntil(trackAction("user-account/created", "create-account", "web", { mail }));
         if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
@@ -194,7 +193,6 @@ export async function createAccount(data: FormData) {
                     hasWifi,
                     hasPower,
                     participates: participation,
-                    prolific: false,
                     to: env.ADMIN_MAIL,
                     from: env.RESEND_API_MAIL,
                     apiKey: env.RESEND_API_KEY,
