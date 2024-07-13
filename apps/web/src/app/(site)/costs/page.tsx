@@ -1,24 +1,24 @@
-import React, { Suspense } from 'react';
-import { Skeleton } from '@energyleaf/ui/skeleton';
-import EnergyCostsToday from '@/components/costs/energy-costs-today-card';
-import EnergyCostsYesterday from '@/components/costs/energy-costs-yesterday-card';
-import EnergyCostsLastSevenDays from '@/components/costs/energy-costs-last-seven-days-card';
-import EnergyCostsLastThirtyDays from '@/components/costs/energy-costs-last-thirty-days-card';
-import AverageEnergyCostsWeek from '@/components/costs/average-energy-costs-week-card';
-import AverageEnergyCostsDay from '@/components/costs/average-energy-costs-day-card';
-import AverageEnergyCostsMonth from '@/components/costs/average-energy-costs-month-card';
-import EnergyCostsThriftiestDayLastSevenDays from '@/components/costs/energy-costs-thriftiest-day-last-seven-days-card';
-import EnergyCostsThriftiestDayLastThirtyDays from '@/components/costs/energy-costs-thriftiest-day-last-thirty-days-card';
-import EnergyCostsChangeLastSevenDays from '@/components/costs/energy-costs-change-last-seven-days-card';
-import EnergyCostsChangeLastThirtyDays from '@/components/costs/energy-costs-change-last-thirty-days-card';
-import EnergyCostsChangeLastSevenDaysNationalAverage from '@/components/costs/energy-costs-change-last-seven-days-national-average-card';
-import EnergyCostsChangeLastThirtyDaysNationalAverage from '@/components/costs/energy-costs-change-last-thirty-days-national-average-card';
-import EnergyCostsProjectionDay from '@/components/costs/energy-costs-projection-today-card';
-import EnergyCostsProjectionWeek from '@/components/costs/energy-costs-projection-this-week-card';
-import EnergyCostsProjectionMonth from '@/components/costs/energy-costs-projection-this-month-card';
-import EnergyCostsComparativeProjectionDay from '@/components/costs/energy-costs-comparative-projection-day-card';
-import EnergyCostsComparativeProjectionWeek from '@/components/costs/energy-costs-comparative-projection-week-card';
-import EnergyCostsComparativeProjectionMonth from '@/components/costs/energy-costs-comparative-projection-month-card';
+import AverageEnergyCostsDay from "@/components/costs/average-energy-costs-day-card";
+import AverageEnergyCostsMonth from "@/components/costs/average-energy-costs-month-card";
+import AverageEnergyCostsWeek from "@/components/costs/average-energy-costs-week-card";
+import EnergyCostsChangeLastSevenDays from "@/components/costs/energy-costs-change-last-seven-days-card";
+import EnergyCostsChangeLastSevenDaysNationalAverage from "@/components/costs/energy-costs-change-last-seven-days-national-average-card";
+import EnergyCostsChangeLastThirtyDays from "@/components/costs/energy-costs-change-last-thirty-days-card";
+import EnergyCostsChangeLastThirtyDaysNationalAverage from "@/components/costs/energy-costs-change-last-thirty-days-national-average-card";
+import EnergyCostsComparativeProjectionDay from "@/components/costs/energy-costs-comparative-projection-day-card";
+import EnergyCostsComparativeProjectionMonth from "@/components/costs/energy-costs-comparative-projection-month-card";
+import EnergyCostsComparativeProjectionWeek from "@/components/costs/energy-costs-comparative-projection-week-card";
+import EnergyCostsLastSevenDays from "@/components/costs/energy-costs-last-seven-days-card";
+import EnergyCostsLastThirtyDays from "@/components/costs/energy-costs-last-thirty-days-card";
+import EnergyCostsProjectionMonth from "@/components/costs/energy-costs-projection-this-month-card";
+import EnergyCostsProjectionWeek from "@/components/costs/energy-costs-projection-this-week-card";
+import EnergyCostsProjectionDay from "@/components/costs/energy-costs-projection-today-card";
+import EnergyCostsThriftiestDayLastSevenDays from "@/components/costs/energy-costs-thriftiest-day-last-seven-days-card";
+import EnergyCostsThriftiestDayLastThirtyDays from "@/components/costs/energy-costs-thriftiest-day-last-thirty-days-card";
+import EnergyCostsToday from "@/components/costs/energy-costs-today-card";
+import EnergyCostsYesterday from "@/components/costs/energy-costs-yesterday-card";
+import { Skeleton } from "@energyleaf/ui/skeleton";
+import React, { Suspense } from "react";
 
 export const metadata = {
     title: "Kosten | Energyleaf",
@@ -31,8 +31,8 @@ export default function CostsPage() {
 
             {/* Absolute Energiekosten */}
             <section>
-                <h2 className="font-bold text-xl mb-4">Absolute Energiekosten</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <h2 className="mb-4 font-bold text-xl">Absolute Energiekosten</h2>
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostsToday />
                     </Suspense>
@@ -50,8 +50,8 @@ export default function CostsPage() {
 
             {/* Durchschnittliche Energiekosten */}
             <section>
-                <h2 className="font-bold text-xl mb-4">Durchschnittliche Energiekosten</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <h2 className="mb-4 font-bold text-xl">Durchschnittliche Energiekosten</h2>
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <AverageEnergyCostsDay />
                     </Suspense>
@@ -66,8 +66,8 @@ export default function CostsPage() {
 
             {/* Sparsamkeitsübersicht */}
             <section>
-                <h2 className="font-bold text-xl mb-4">Sparsamkeitsübersicht</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 className="mb-4 font-bold text-xl">Sparsamkeitsübersicht</h2>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostsThriftiestDayLastSevenDays />
                     </Suspense>
@@ -79,8 +79,8 @@ export default function CostsPage() {
 
             {/* Energiekosten Vergleiche */}
             <section>
-                <h2 className="font-bold text-xl mb-4">Energiekosten Vergleiche</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <h2 className="mb-4 font-bold text-xl">Energiekosten Vergleiche</h2>
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostsChangeLastSevenDays />
                     </Suspense>
@@ -98,8 +98,8 @@ export default function CostsPage() {
 
             {/* Hochrechnungen */}
             <section>
-                <h2 className="font-bold text-xl mb-4">Hochrechnungen</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <h2 className="mb-4 font-bold text-xl">Hochrechnungen</h2>
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostsProjectionDay />
                     </Suspense>
