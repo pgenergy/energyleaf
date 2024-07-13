@@ -24,7 +24,6 @@ import { getSession } from "@/lib/auth/auth.server";
 import { redirect } from "next/navigation";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
-import { calculateCosts } from "@/components/dashboard/energy-cost";
 
 export const metadata = {
     title: "Kosten | Energyleaf",
@@ -102,10 +101,10 @@ export default async function CostsPage() {
                 <h2 className="mb-4 font-bold text-xl">Sparsamkeitsübersicht</h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsThriftiestDayLastSevenDays />
+                        <EnergyCostsThriftiestDayLastSevenDays userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsThriftiestDayLastThirtyDays />
+                        <EnergyCostsThriftiestDayLastThirtyDays userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                 </div>
             </section>
