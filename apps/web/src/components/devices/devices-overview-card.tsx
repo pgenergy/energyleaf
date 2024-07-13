@@ -19,8 +19,8 @@ export default async function DevicesOverviewCard() {
     }
 
     const userData = await getUserData(user.id);
-    const estimationRSquared = userData?.devicePowerEstimationRSquared;
-    const showEstimationBadge = estimationRSquared && estimationRSquared < 0.8;
+    const estimationRSquared = userData?.devicePowerEstimationRSquared ?? null;
+    const showEstimationBadge = estimationRSquared !== null && estimationRSquared < 0.8;
 
     return (
         <DeviceContextProvider>
