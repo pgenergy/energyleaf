@@ -38,6 +38,10 @@ export default async function CostsPage() {
 
     const userId = user.id;
     const sensorId = await getElectricitySensorIdForUser(userId);
+    if (!sensorId) {
+        redirect("/");
+    }
+    
 
     const now = new Date();
     let year = now.getFullYear();
@@ -46,6 +50,7 @@ export default async function CostsPage() {
         month += 12;
         year -= 1;
     }
+
     const startDate = new Date(year, month, 1);
     const endDate = now;
 
