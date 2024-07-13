@@ -57,7 +57,6 @@ export default async function CostsPage() {
 
     const energyDataRaw = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const userData = await getUserDataHistory(userId);
-    const rawCosts = calculateCosts(userData, energyDataRaw);
     
     return (
         <div className="flex flex-col gap-4">
@@ -87,13 +86,13 @@ export default async function CostsPage() {
                 <h2 className="mb-4 font-bold text-xl">Durchschnittliche Energiekosten</h2>
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <AverageEnergyCostsDay />
+                        <AverageEnergyCostsDay userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <AverageEnergyCostsWeek />
+                        <AverageEnergyCostsWeek userData={userData} energyData={energyDataRaw}/>
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <AverageEnergyCostsMonth />
+                        <AverageEnergyCostsMonth userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                 </div>
             </section>
