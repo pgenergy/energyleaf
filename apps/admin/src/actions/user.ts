@@ -143,7 +143,7 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
         await updateUserDb(
             {
                 firstname: data.firstname,
-                lastName: data.lastname,
+                lastname: data.lastname,
                 username: data.username,
                 email: data.email,
                 phone: data.phone,
@@ -334,8 +334,8 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
 
         // Send user mails based on expent status
         let name = userData.username;
-        if (userData.firstname && userData.lastName && userData.firstname !== "" && userData.lastName !== "") {
-            name = `${userData.firstname} ${userData.lastName}`;
+        if (userData.firstname && userData.lastname && userData.firstname !== "" && userData.lastname !== "") {
+            name = `${userData.firstname} ${userData.lastname}`;
         }
 
         if (data.experimentStatus === "dismissed") {

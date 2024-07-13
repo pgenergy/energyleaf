@@ -1,17 +1,14 @@
 import { createHash } from "node:crypto";
-import { updateDevicesForPeak } from "@/actions/peak";
-import DashboardDateRange from "@/components/dashboard/dashboard-date-range";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences } from "@/query/energy";
-import type { ConsumptionData, Peak } from "@energyleaf/lib";
+import { getUserData } from "@/query/user";
+import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { Button } from "@energyleaf/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import CSVExportButton from "./csv-export-button";
-import DashboardZoomReset from "./dashboard-zoom-reset";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 import PeakButton from "./peaks/peak-button";
@@ -36,7 +33,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         return (
             <Card className="w-full">
                 <CardHeader>
-                    <CardTitle>Verbrauch</CardTitle>
+                    <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -51,15 +48,18 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         aggregation = AggregationType[aggregationType.toUpperCase() as keyof typeof AggregationType];
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
-    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
-    const data: ConsumptionData[] = energyData.map((entry) => ({
-        sensorId: entry.sensorId || 0,
-        energy: entry.value,
-        timestamp: entry.timestamp.toString(),
-        sensorDataId: entry.id,
-    }));
 
-    const peaks: Peak[] =
+    const data = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
+    const showPeaks = fulfills(user.appVersion, Versions.self_reflection) || hasAggregation;
+
+    const userData = await getUserData(user.id);
+    const workingPrice = hasAggregation ? undefined : userData?.workingPrice ?? undefined;
+    const cost =
+        workingPrice && userData?.basePrice
+            ? (userData.basePrice / (30 * 24 * 60 * 60)) * 15 + workingPrice
+            : workingPrice;
+
+    const peaks: SensorDataSequenceType[] =
         !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
             ? await getSensorDataSequences(sensorId)
             : [];
@@ -84,8 +84,8 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                         ))}
                     </div>
                     <div className="flex flex-col gap-2">
-                        <CardTitle>Verbrauch</CardTitle>
-                        <CardDescription>Übersicht Ihres Verbrauchs im Zeitraum.</CardDescription>
+                        <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
+                        <CardDescription>Im ausgewählten Zeitraum</CardDescription>
                     </div>
                     {user.id !== "demo" ? (
                         <CSVExportButton
@@ -95,18 +95,14 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                         />
                     ) : null}
                 </div>
-                <div className="flex flex-row gap-4">
-                    <DashboardZoomReset />
-                    {user.id !== "demo" ? (
-                        <>
-                            <DashboardDateRange endDate={endDate} startDate={startDate} />
-                            <DashboardEnergyAggregation selected={aggregation} />
-                        </>
-                    ) : null}
-                </div>
+                {user.id !== "demo" ? (
+                    <div className="flex flex-row gap-4">
+                        <DashboardEnergyAggregation selected={aggregation} />
+                    </div>
+                ) : null}
             </CardHeader>
             <CardContent>
-                <div className="h-96 w-full">
+                <div className="w-full">
                     {data.length === 0 ? (
                         <div className="flex h-full flex-col items-center justify-center">
                             <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>
@@ -114,9 +110,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     ) : (
                         <EnergyConsumptionCardChart
                             data={data}
-                            peaks={hasAggregation ? undefined : peaks}
                             aggregation={aggregation}
                             userId={userId}
+                            cost={cost}
+                            showPeaks={showPeaks}
+                            peaks={peaks}
                         />
                     )}
                 </div>

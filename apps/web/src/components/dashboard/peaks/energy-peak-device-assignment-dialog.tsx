@@ -1,11 +1,11 @@
-import type { ConsumptionData, Peak } from "@energyleaf/lib";
+import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
 
 interface Props {
     open: boolean;
     setOpen: (open: boolean) => void;
-    value: Peak;
+    value: SensorDataSequenceType;
     userId: string;
 }
 

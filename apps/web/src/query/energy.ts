@@ -51,6 +51,14 @@ export const getElectricitySensorIdForUser = cache(async (userId: string) => {
 
 export const getEnergyLastEntry = cache(async (sensorId: string) => {
     if (sensorId === "demo_sensor") {
+        const start = new Date(new Date().setHours(0, 0, 0, 0));
+        const end = new Date(new Date().setHours(23, 59, 59, 999));
+        const data = getDemoSensorData(start, end);
+        const sum = data.reduce((acc, cur) => acc + cur.value, 0);
+        const last = data[data.length - 1];
+        last.value = sum * 12.32334;
+
+        return last;
     }
 
     return getDbEnergyLastEntry(sensorId);
