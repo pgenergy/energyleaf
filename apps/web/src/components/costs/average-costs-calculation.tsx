@@ -24,11 +24,7 @@ export function calculateAverageCostsPerDay(energyData: EnergyData[], userData: 
 
     const dailyCosts: Record<string, number> = {};
 
-    energyData.forEach(({ timestamp, value }) => {
-        if (typeof value !== "number" || Number.isNaN(value)) {
-            return;
-        }
-
+    for (const { timestamp, value } of energyData) {
         const date = new Date(timestamp);
         const day = formatDate(date);
 
@@ -38,7 +34,7 @@ export function calculateAverageCostsPerDay(energyData: EnergyData[], userData: 
         }
 
         dailyCosts[day] += cost;
-    });
+    }
 
     const totalDays = Object.keys(dailyCosts).length;
     const totalCosts = Object.values(dailyCosts).reduce((sum, cost) => sum + cost, 0);
@@ -61,11 +57,7 @@ export function calculateAverageCostsPerWeek(energyData: EnergyData[], userData:
 
     const weeklyCosts: Record<string, number> = {};
 
-    energyData.forEach(({ timestamp, value }) => {
-        if (typeof value !== "number" || Number.isNaN(value)) {
-            return;
-        }
-
+    for (const { timestamp, value } of energyData) {
         const date = new Date(timestamp);
         const year = date.getFullYear();
         const weekNumber = getWeekNumber(date);
@@ -77,7 +69,7 @@ export function calculateAverageCostsPerWeek(energyData: EnergyData[], userData:
         }
 
         weeklyCosts[yearWeek] += cost;
-    });
+    }
 
     const totalWeeks = Object.keys(weeklyCosts).length;
     const totalCosts = Object.values(weeklyCosts).reduce((sum, cost) => sum + cost, 0);
@@ -100,11 +92,7 @@ export function calculateAverageCostsPerMonth(energyData: EnergyData[], userData
 
     const monthlyCosts: Record<string, number> = {};
 
-    energyData.forEach(({ timestamp, value }) => {
-        if (typeof value !== "number" || Number.isNaN(value)) {
-            return;
-        }
-
+    for (const { timestamp, value } of energyData) {
         const date = new Date(timestamp);
         const monthYear = `${date.getFullYear()}-${date.getMonth() + 1}`;
 
@@ -114,7 +102,7 @@ export function calculateAverageCostsPerMonth(energyData: EnergyData[], userData
         }
 
         monthlyCosts[monthYear] += cost;
-    });
+    }
 
     const totalMonths = Object.keys(monthlyCosts).length;
     const totalCosts = Object.values(monthlyCosts).reduce((sum, cost) => sum + cost, 0);

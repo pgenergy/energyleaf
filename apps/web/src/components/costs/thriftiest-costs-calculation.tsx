@@ -24,11 +24,7 @@ const calculateDailyCosts = (energyData: EnergyData[], userData: UserData[]): Re
 
     const dailyCosts: Record<string, number> = {};
 
-    energyData.forEach(({ timestamp, value }) => {
-        if (typeof value !== "number" || Number.isNaN(value)) {
-            return;
-        }
-
+    for (const { timestamp, value } of energyData) {
         const date = new Date(timestamp);
         const day = formatDate(date);
 
@@ -38,7 +34,7 @@ const calculateDailyCosts = (energyData: EnergyData[], userData: UserData[]): Re
         }
 
         dailyCosts[day] += cost;
-    });
+    }
 
     return dailyCosts;
 };
