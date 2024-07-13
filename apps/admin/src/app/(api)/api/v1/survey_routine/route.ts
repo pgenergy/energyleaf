@@ -41,7 +41,7 @@ const sendMails = async (
         if (user.firstname && user.lastname && user.firstname !== "" && user.lastname !== "") {
             name = `${user.firstname} ${user.lastname}`;
         }
-        const surveyToken = user.id.replace(/-_/g, "");
+        const surveyToken = user.id.replace(/[-_]/g, "");
         const surveyLink = `https://umfragen.uni-oldenburg.de/index.php?r=survey/index&token=${surveyToken}&sid=${surveyId}&lang=de`;
 
         const details = {

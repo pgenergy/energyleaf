@@ -190,7 +190,7 @@ export async function createUser(data: CreateUserType) {
             username: data.username,
             email: data.email,
             password: data.password,
-            isParticipant: data.participation || data.prolific,
+            isParticipant: data.participation,
         });
         await trx.insert(userData).values({
             userId,
@@ -209,7 +209,7 @@ export async function createUser(data: CreateUserType) {
         if (data.participation || data.prolific) {
             await trx.insert(userExperimentData).values({
                 userId,
-                getsPaid: data.prolific,
+                getsPaid: true,
             });
         }
     });
