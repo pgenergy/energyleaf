@@ -17,10 +17,10 @@ import EnergyCostsThriftiestDayLastSevenDays from "@/components/costs/energy-cos
 import EnergyCostsThriftiestDayLastThirtyDays from "@/components/costs/energy-costs-thriftiest-day-last-thirty-days-card";
 import EnergyCostsToday from "@/components/costs/energy-costs-today-card";
 import EnergyCostsYesterday from "@/components/costs/energy-costs-yesterday-card";
-import EnergyCostsTodayError from "@/components/costs/errors/energy-costs-today-card-error";
-import EnergyCostsYesterdayError from "@/components/costs/errors/energy-costs-yesterday-card-error";
 import EnergyCostsLastSevenDaysError from "@/components/costs/errors/energy-costs-last-seven-days-card-error";
 import EnergyCostsLastThirtyDaysError from "@/components/costs/errors/energy-costs-last-thirty-days-card-error";
+import EnergyCostsTodayError from "@/components/costs/errors/energy-costs-today-card-error";
+import EnergyCostsYesterdayError from "@/components/costs/errors/energy-costs-yesterday-card-error";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import React, { Suspense } from "react";
