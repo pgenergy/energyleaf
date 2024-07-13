@@ -1,6 +1,6 @@
 interface EnergyData {
-    timestamp: string; 
-    value: number;    
+    timestamp: string;
+    value: number;
 }
 
 interface UserData {
@@ -8,17 +8,24 @@ interface UserData {
     workingPrice: number;
 }
 
-const formatDate = (date: Date): string => date.toISOString().split('T')[0];
+const formatDate = (date: Date): string => date.toISOString().split("T")[0];
 
 const calculateDailyCosts = (energyData: EnergyData[], userData: UserData[]): Record<string, number> => {
-    if (!energyData || energyData.length === 0 || !userData || userData.length < 2 || typeof userData[1].basePrice !== 'number' || typeof userData[1].workingPrice !== 'number') {
+    if (
+        !energyData ||
+        energyData.length === 0 ||
+        !userData ||
+        userData.length < 2 ||
+        typeof userData[1].basePrice !== "number" ||
+        typeof userData[1].workingPrice !== "number"
+    ) {
         return {};
     }
 
     const dailyCosts: Record<string, number> = {};
 
     energyData.forEach(({ timestamp, value }) => {
-        if (typeof value !== 'number' || isNaN(value)) {
+        if (typeof value !== "number" || Number.isNaN(value)) {
             return;
         }
 
@@ -36,7 +43,11 @@ const calculateDailyCosts = (energyData: EnergyData[], userData: UserData[]): Re
     return dailyCosts;
 };
 
-export const findMostEconomicalDay = (energyData: EnergyData[], userData: UserData[], days: number): { date: string; cost: number } | null => {
+export const findMostEconomicalDay = (
+    energyData: EnergyData[],
+    userData: UserData[],
+    days: number,
+): { date: string; cost: number } | null => {
     const now = new Date();
     const startDate = new Date();
     startDate.setDate(now.getDate() - days);
@@ -57,8 +68,6 @@ export const findMostEconomicalDay = (energyData: EnergyData[], userData: UserDa
     return { date: sortedDates[0][0], cost: sortedDates[0][1] };
 };
 
-
 export const findMostEconomicalDays = (energyData: EnergyData[], userData: UserData[], days: number) => {
     return findMostEconomicalDay(energyData, userData, days);
 };
-

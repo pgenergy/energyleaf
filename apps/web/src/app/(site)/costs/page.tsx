@@ -21,16 +21,15 @@ import { Skeleton } from "@energyleaf/ui/skeleton";
 import React, { Suspense } from "react";
 
 import { getSession } from "@/lib/auth/auth.server";
-import { redirect } from "next/navigation";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
+import { redirect } from "next/navigation";
 
 export const metadata = {
     title: "Kosten | Energyleaf",
 };
 
 export default async function CostsPage() {
-    
     const { session, user } = await getSession();
 
     if (!session) {
@@ -56,7 +55,7 @@ export default async function CostsPage() {
 
     const energyDataRaw = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const userData = await getUserDataHistory(userId);
-    
+
     return (
         <div className="flex flex-col gap-4">
             <h1 className="font-bold text-2xl">Kosten-Übersichten</h1>
@@ -64,7 +63,7 @@ export default async function CostsPage() {
             {/* Absolute Energiekosten */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Absolute Energiekosten</h2>
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostsToday />
                     </Suspense>
@@ -83,12 +82,12 @@ export default async function CostsPage() {
             {/* Durchschnittliche Energiekosten */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Durchschnittliche Energiekosten</h2>
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <AverageEnergyCostsDay userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <AverageEnergyCostsWeek userData={userData} energyData={energyDataRaw}/>
+                        <AverageEnergyCostsWeek userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <AverageEnergyCostsMonth userData={userData} energyData={energyDataRaw} />
@@ -112,7 +111,7 @@ export default async function CostsPage() {
             {/* Energiekosten Vergleiche */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Energiekosten Vergleiche</h2>
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostsChangeLastSevenDays />
                     </Suspense>
@@ -131,7 +130,7 @@ export default async function CostsPage() {
             {/* Hochrechnungen */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Hochrechnungen</h2>
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostsProjectionDay />
                     </Suspense>

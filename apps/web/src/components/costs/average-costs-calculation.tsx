@@ -1,24 +1,31 @@
 interface EnergyData {
-    timestamp: string; 
-    value: number; 
+    timestamp: string;
+    value: number;
 }
 
 interface UserData {
-    basePrice: number;   
+    basePrice: number;
     workingPrice: number;
 }
 
-const formatDate = (date: Date): string => date.toISOString().split('T')[0];
+const formatDate = (date: Date): string => date.toISOString().split("T")[0];
 
 export function calculateAverageCostsPerDay(energyData: EnergyData[], userData: UserData[]): number {
-    if (!energyData || energyData.length === 0 || !userData || userData.length < 2 || typeof userData[1].basePrice !== 'number' || typeof userData[1].workingPrice !== 'number') {
+    if (
+        !energyData ||
+        energyData.length === 0 ||
+        !userData ||
+        userData.length < 2 ||
+        typeof userData[1].basePrice !== "number" ||
+        typeof userData[1].workingPrice !== "number"
+    ) {
         return 0;
     }
 
     const dailyCosts: Record<string, number> = {};
 
     energyData.forEach(({ timestamp, value }) => {
-        if (typeof value !== 'number' || isNaN(value)) {
+        if (typeof value !== "number" || Number.isNaN(value)) {
             return;
         }
 
@@ -36,19 +43,26 @@ export function calculateAverageCostsPerDay(energyData: EnergyData[], userData: 
     const totalDays = Object.keys(dailyCosts).length;
     const totalCosts = Object.values(dailyCosts).reduce((sum, cost) => sum + cost, 0);
 
-    const dailyBasePrice = userData[1].basePrice / 30; 
-    return totalDays === 0 ? 0 : (totalCosts + (dailyBasePrice * totalDays)) / totalDays;
+    const dailyBasePrice = userData[1].basePrice / 30;
+    return totalDays === 0 ? 0 : (totalCosts + dailyBasePrice * totalDays) / totalDays;
 }
 
 export function calculateAverageCostsPerWeek(energyData: EnergyData[], userData: UserData[]): number {
-    if (!energyData || energyData.length === 0 || !userData || userData.length < 2 || typeof userData[1].basePrice !== 'number' || typeof userData[1].workingPrice !== 'number') {
+    if (
+        !energyData ||
+        energyData.length === 0 ||
+        !userData ||
+        userData.length < 2 ||
+        typeof userData[1].basePrice !== "number" ||
+        typeof userData[1].workingPrice !== "number"
+    ) {
         return 0;
     }
 
     const weeklyCosts: Record<string, number> = {};
 
     energyData.forEach(({ timestamp, value }) => {
-        if (typeof value !== 'number' || isNaN(value)) {
+        if (typeof value !== "number" || Number.isNaN(value)) {
             return;
         }
 
@@ -69,18 +83,25 @@ export function calculateAverageCostsPerWeek(energyData: EnergyData[], userData:
     const totalCosts = Object.values(weeklyCosts).reduce((sum, cost) => sum + cost, 0);
 
     const weeklyBasePrice = userData[1].basePrice / 4;
-    return totalWeeks === 0 ? 0 : (totalCosts + (weeklyBasePrice * totalWeeks)) / totalWeeks;
+    return totalWeeks === 0 ? 0 : (totalCosts + weeklyBasePrice * totalWeeks) / totalWeeks;
 }
 
 export function calculateAverageCostsPerMonth(energyData: EnergyData[], userData: UserData[]): number {
-    if (!energyData || energyData.length === 0 || !userData || userData.length < 2 || typeof userData[1].basePrice !== 'number' || typeof userData[1].workingPrice !== 'number') {
+    if (
+        !energyData ||
+        energyData.length === 0 ||
+        !userData ||
+        userData.length < 2 ||
+        typeof userData[1].basePrice !== "number" ||
+        typeof userData[1].workingPrice !== "number"
+    ) {
         return 0;
     }
 
     const monthlyCosts: Record<string, number> = {};
 
     energyData.forEach(({ timestamp, value }) => {
-        if (typeof value !== 'number' || isNaN(value)) {
+        if (typeof value !== "number" || Number.isNaN(value)) {
             return;
         }
 
@@ -103,6 +124,6 @@ export function calculateAverageCostsPerMonth(energyData: EnergyData[], userData
 
 function getWeekNumber(date: Date): number {
     const tempDate = new Date(date.getFullYear(), 0, 1);
-    const dayOfYear = ((date.getTime() - tempDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+    const dayOfYear = (date.getTime() - tempDate.getTime()) / (24 * 60 * 60 * 1000) + 1;
     return Math.ceil(dayOfYear / 7);
 }

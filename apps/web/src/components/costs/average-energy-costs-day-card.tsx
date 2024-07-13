@@ -1,8 +1,7 @@
+import { calculateAverageCostsPerDay } from "@/components/costs/average-costs-calculation";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { calculateAverageCostsPerDay } from '@/components/costs/average-costs-calculation'; 
 
 export default function AverageEnergyCostsDay({ userData, energyData }) {
-
     const averageCostsPerDay = calculateAverageCostsPerDay(energyData, userData);
 
     return (
