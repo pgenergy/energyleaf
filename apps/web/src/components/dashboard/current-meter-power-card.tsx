@@ -3,7 +3,11 @@ import { getElectricitySensorIdForUser, getEnergyLastEntry } from "@/query/energ
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
-export default async function CurrentMeterPowerCard() {
+interface Props {
+    showDescription?: boolean;
+};
+
+export default async function CurrentMeterPowerCard(props: Props) {
     const { user } = await getSession();
     if (!user) {
         return null;
@@ -20,7 +24,7 @@ export default async function CurrentMeterPowerCard() {
         <Card>
             <CardHeader>
                 <CardTitle>Aktuelle Leistung</CardTitle>
-                <CardDescription>Unabhängig vom Zeitraum</CardDescription>
+                {props.showDescription ? <CardDescription>Unabhängig vom Zeitraum</CardDescription> : null}
             </CardHeader>
             <CardContent className="text-center">
                 <p
