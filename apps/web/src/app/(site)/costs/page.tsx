@@ -17,6 +17,11 @@ import EnergyCostsThriftiestDayLastSevenDays from "@/components/costs/energy-cos
 import EnergyCostsThriftiestDayLastThirtyDays from "@/components/costs/energy-costs-thriftiest-day-last-thirty-days-card";
 import EnergyCostsToday from "@/components/costs/energy-costs-today-card";
 import EnergyCostsYesterday from "@/components/costs/energy-costs-yesterday-card";
+import EnergyCostsTodayError from "@/components/costs/errors/energy-costs-today-card-error";
+import EnergyCostsYesterdayError from "@/components/costs/errors/energy-costs-yesterday-card-error";
+import EnergyCostsLastSevenDaysError from "@/components/costs/errors/energy-costs-last-seven-days-card-error";
+import EnergyCostsLastThirtyDaysError from "@/components/costs/errors/energy-costs-last-thirty-days-card-error";
+import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import React, { Suspense } from "react";
 
@@ -33,18 +38,26 @@ export default function CostsPage() {
             <section>
                 <h2 className="mb-4 font-bold text-xl">Absolute Energiekosten</h2>
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsToday />
-                    </Suspense>
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsYesterday />
-                    </Suspense>
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsLastSevenDays />
-                    </Suspense>
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsLastThirtyDays />
-                    </Suspense>
+                    <ErrorBoundary fallback={EnergyCostsTodayError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsToday />
+                        </Suspense>
+                    </ErrorBoundary>
+                    <ErrorBoundary fallback={EnergyCostsYesterdayError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsYesterday />
+                        </Suspense>
+                    </ErrorBoundary>
+                    <ErrorBoundary fallback={EnergyCostsLastSevenDaysError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsLastSevenDays />
+                        </Suspense>
+                    </ErrorBoundary>
+                    <ErrorBoundary fallback={EnergyCostsLastThirtyDaysError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsLastThirtyDays />
+                        </Suspense>
+                    </ErrorBoundary>
                 </div>
             </section>
 
