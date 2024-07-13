@@ -161,14 +161,20 @@ export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
             const sequencesBeforeConsideredPeriod = await trx
                 .select()
                 .from(sensorDataSequence)
-                .where(and(eq(sensorDataSequence.sensorId, sensorId), between(sensorDataSequence.start, start, end)));
+                .where(
+                    and(
+                        eq(sensorDataSequence.sensorId, sensorId),
+                        between(sensorDataSequence.start, sequenceStart, end),
+                    ),
+                );
 
             const peaksInDay = sequencesInConsideredPeriod
                 .map((d) => ({ start: d.start, end: d.end }))
-                .concat(sequencesBeforeConsideredPeriod.map((d) => d));
+                .concat(sequencesBeforeConsideredPeriod);
             const calcDataWithoutPeaks = calcData.filter(
                 (d) => !peaksInDay.some((peak) => d.timestamp >= peak.start && d.timestamp <= peak.end),
             );
+
             const baseLoad = calculateAveragePower(calcDataWithoutPeaks);
             let peaks: (SensorDataSequenceType & { isAtStart: boolean })[] = sequencesInConsideredPeriod.map((d) => ({
                 ...d,
@@ -242,7 +248,6 @@ async function saveSequences(
                 .set({ end: peaks[0].end })
                 .where(eq(sensorDataSequence.id, lastSequenceOfSensor.id));
             peaks.shift();
-            console.log(peaks);
         }
     }
 
