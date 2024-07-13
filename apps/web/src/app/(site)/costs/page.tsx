@@ -20,11 +20,45 @@ import EnergyCostsYesterday from "@/components/costs/energy-costs-yesterday-card
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import React, { Suspense } from "react";
 
+import { getSession } from "@/lib/auth/auth.server";
+import { redirect } from "next/navigation";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
+import { getUserDataHistory } from "@/query/user";
+import { calculateCosts } from "@/components/dashboard/energy-cost";
+
 export const metadata = {
     title: "Kosten | Energyleaf",
 };
 
-export default function CostsPage() {
+export default async function CostsPage() {
+    
+    const { session, user } = await getSession();
+
+    if (!session) {
+        redirect("/");
+    }
+
+    const userId = user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
+
+    if (!sensorId) {
+        throw new Error("Sensor ID not found for the user.");
+    }
+
+    const now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth() - 2;
+    if (month < 0) {
+        month += 12;
+        year -= 1;
+    }
+    const startDate = new Date(year, month, 1);
+    const endDate = now;
+
+    const energyDataRaw = await getEnergyDataForSensor(startDate, endDate, sensorId);
+    const userData = await getUserDataHistory(userId);
+    const rawCosts = calculateCosts(userData, energyDataRaw);
+    
     return (
         <div className="flex flex-col gap-4">
             <h1 className="font-bold text-2xl">Kosten-Übersichten</h1>

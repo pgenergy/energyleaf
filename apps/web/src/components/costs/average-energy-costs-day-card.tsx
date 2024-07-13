@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
-export default function AverageEnergyCostsDay() {
+export default async function AverageEnergyCostsDay() {
+    
+    
     return (
         <Card>
             <CardHeader>
