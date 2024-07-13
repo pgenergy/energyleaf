@@ -41,7 +41,6 @@ export default function SignUpForm() {
             tos: false,
             pin: false,
             participation: false,
-            prolific: false,
         },
     });
 
@@ -348,42 +347,6 @@ export default function SignUpForm() {
                                     Durch die Teilnahme an der Umfrage tragen Sie dazu bei, Forschungen im Bereich
                                     Energie vorranzutreiben. Teilnehmer, die an einer Umfrage teilnehmen, werden von uns
                                     priorisiert an das System angeschlossen.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="prolific"
-                        render={({ field }) => (
-                            <FormItem>
-                                <div className="flex flex-row items-center justify-between">
-                                    <FormLabel>Ich möchte an Prolific teilnehmen (optional)</FormLabel>
-                                    <FormControl>
-                                        <Switch
-                                            checked={field.value}
-                                            onCheckedChange={(value) => {
-                                                field.onChange(value);
-                                                if (value && !form.getValues().participation) {
-                                                    form.setValue("participation", true);
-                                                }
-                                            }}
-                                        />
-                                    </FormControl>
-                                </div>
-                                <FormDescription>
-                                    Es ist uns rechtlich nur möglich Geld für die Umfragen auszuzahlen, wenn Sie sich
-                                    über Prolific für unsere Umfragen registrieren. Diese Anmeldung ist mit etwas
-                                    Aufwand verbunden, da eine Verifizierung stattfinden muss. Eine Anleitung finden sie{" "}
-                                    <Link
-                                        className="text-primary-foreground underline hover:no-underline"
-                                        href="https://jbh9hx6nwkx1up9t.public.blob.vercel-storage.com/downloads/prolific_anleitung.pdf"
-                                        target="_blank"
-                                    >
-                                        hier
-                                    </Link>
-                                    .
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
