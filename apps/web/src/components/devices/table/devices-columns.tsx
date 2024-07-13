@@ -104,7 +104,7 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
                     </div>
                 );
             }
-            return `${formatNumber(Number(powerValue))} Watt`; // TODO: Besser alignen, irgendwie nach rechts, ohne dass es kacke aussieht
+            return `${formatNumber(Number(powerValue))} Watt`;
         },
     },
     {

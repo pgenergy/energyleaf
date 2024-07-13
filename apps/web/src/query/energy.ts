@@ -66,7 +66,7 @@ export const getEnergyLastEntry = cache(async (sensorId: string) => {
 
 export const getSensorDataSequences = cache(async (sensorId: string) => {
     if (sensorId === "demo_sensor") {
-        return []; // TODO: Peaks in demo?
+        return []; // Does not exist in demo version.
     }
 
     return getSequencesBySensor(sensorId);

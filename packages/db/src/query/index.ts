@@ -4,3 +4,4 @@ export * from "./device";
 export * from "./reports";
 export * from "./logs";
 export * from "./mails";
+export * from "./peaks";
