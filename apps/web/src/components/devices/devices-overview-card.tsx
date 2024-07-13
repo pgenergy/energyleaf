@@ -1,4 +1,6 @@
 import { DeviceContextProvider } from "@/hooks/device-hook";
+import { getActionSession } from "@/lib/auth/auth.action";
+import { getUserData } from "@/query/user";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
@@ -6,10 +8,20 @@ import { Suspense } from "react";
 import DeviceAddButton from "./device-add-button";
 import { DeviceDeleteDialog } from "./device-delete-dialog";
 import DeviceEditDialog from "./device-edit-dialog";
+import DevicesBadPowerEstimationHint from "./devices-bad-power-estimation-hint";
 import DevicesTable from "./devices-table";
 import DevicesTableError from "./table/devices-table-error";
 
-export default function DevicesOverviewCard() {
+export default async function DevicesOverviewCard() {
+    const { user } = await getActionSession();
+    if (!user) {
+        return null;
+    }
+
+    const userData = await getUserData(user.id);
+    const estimationRSquared = userData?.devicePowerEstimationRSquared;
+    const showEstimationBadge = estimationRSquared && estimationRSquared < 0.8;
+
     return (
         <DeviceContextProvider>
             <DeviceEditDialog />
@@ -25,6 +37,7 @@ export default function DevicesOverviewCard() {
                 <CardContent>
                     <ErrorBoundary fallback={DevicesTableError}>
                         <Suspense fallback={<Skeleton className="h-96" />}>
+                            {showEstimationBadge && <DevicesBadPowerEstimationHint />}
                             <DevicesTable />
                         </Suspense>
                     </ErrorBoundary>

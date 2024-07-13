@@ -88,7 +88,7 @@ async function copyToHistoryTable(
         created: Date | null;
         timestamp: Date;
         category: string;
-        power_estimation: number | null;
+        powerEstimation: number | null;
     },
 ) {
     await trx.insert(deviceHistory).values({
@@ -98,6 +98,6 @@ async function copyToHistoryTable(
         created: device.created,
         timestamp: device.timestamp,
         category: device.category,
-        power_estimation: device.power_estimation,
+        powerEstimation: device.powerEstimation,
     });
 }

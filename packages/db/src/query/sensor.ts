@@ -567,7 +567,6 @@ export async function updatePowerOfDevices(userId: string) {
             ),
         );
 
-        // Create a mathjs instance
         const math = create(all, {});
 
         // Extract matrices
@@ -585,42 +584,29 @@ export async function updatePowerOfDevices(userId: string) {
         const Atb = math.multiply(At, b);
         const solution = math.lusolve(AtA, Atb);
 
+        // Extract the solution values and save them to the database
+        const result = solution
+            .toArray()
+            .map((value, index) => ({ [devices[index]]: (value as MathNumericType[])[0] }));
+        for (const deviceId of devices) {
+            const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
+            const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
+            const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
+            await trx.update(device).set({ powerEstimation: correctedPowerEstimation }).where(eq(device.id, deviceId));
+        }
+
         // Calculate R^2
         const residuals = math.subtract(b, math.multiply(A, solution));
         const subtraction = math.subtract(b, math.mean(b)) as Matrix;
         const SST = math.sum(math.map(subtraction, math.square));
         const SSR = math.sum(math.map(residuals, math.square));
-        const rSquared = math.subtract(1, math.divide(SSR, SST)) as number;
-
-        // Evaluate if the solution is good, mediocre or bad => enum
-        const rSquaredThresholds = {
-            // TODO: Add good thresholds.
-            good: 0.9,
-            mediocre: 0.8,
-        };
-        let rSquaredCategory = "bad";
-        if (rSquared >= rSquaredThresholds.good) {
-            rSquaredCategory = "good";
-        } else if (rSquared >= rSquaredThresholds.mediocre) {
-            rSquaredCategory = "mediocre";
+        let rSquared: number;
+        if (SST === 0) {
+            rSquared = SSR === 0 ? 1 : 0;
+        } else {
+            rSquared = math.subtract(1, math.divide(SSR, SST)) as number;
         }
-        console.log(`R^2 = ${rSquared} (${rSquaredCategory})`);
-
-        // Extract the solution values
-        const result = solution
-            .toArray()
-            .map((value, index) => ({ [devices[index]]: (value as MathNumericType[])[0] }));
-
-        console.log("Test", solution, result, devices);
-
-        // Update devices in database
-        for (const deviceId of devices) {
-            // Get device in result
-            const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
-            const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
-            console.log(deviceId, powerEstimation);
-            await trx.update(device).set({ power_estimation: powerEstimation }).where(eq(device.id, deviceId));
-        }
+        await trx.update(userData).set({ devicePowerEstimationRSquared: rSquared }).where(eq(userData.userId, userId));
     });
 }
 

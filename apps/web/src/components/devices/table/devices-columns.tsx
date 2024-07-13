@@ -4,7 +4,7 @@ import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
 import { formatNumber } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon, CircleAlert } from "lucide-react";
 import DeviceActionCell from "./device-action-cell";
 
 export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
@@ -71,7 +71,7 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
         },
     },
     {
-        accessorKey: "power_estimation",
+        accessorKey: "powerEstimation",
         header: ({ column }) => {
             return (
                 <Button
@@ -92,9 +92,17 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
             );
         },
         cell: ({ row }) => {
-            const powerValue = row.getValue("power_estimation");
+            const powerValue = row.getValue("powerEstimation");
             if (!powerValue) {
-                return "N/A"; // TODO: Hier besseren shit.
+                return (
+                    <div
+                        className="flex flex-row items-center"
+                        title="Die Leistung dieses Gerätes kann noch nicht geschätzt werden. Bitte markieren Sie weitere Peaks, um eine Schätzung zu erhalten."
+                    >
+                        <CircleAlert className="mr-2 h-5 w-5 text-warning" />
+                        Nicht verfügbar
+                    </div>
+                );
             }
             return `${formatNumber(Number(powerValue))} Watt`; // TODO: Besser alignen, irgendwie nach rechts, ohne dass es kacke aussieht
         },

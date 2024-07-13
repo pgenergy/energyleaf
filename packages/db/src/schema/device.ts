@@ -9,7 +9,7 @@ const deviceFields = {
     category: varchar("category", { length: 50 }).notNull(),
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
     timestamp: timestamp("timestamp").defaultNow().onUpdateNow().notNull(),
-    power_estimation: decimalType("power_estimation"),
+    powerEstimation: decimalType("power_estimation"),
 };
 
 export const device = mysqlTable("device", {
