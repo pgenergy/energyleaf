@@ -103,7 +103,6 @@ export function computeDailyCosts(energyData: EnergyData[], userData: UserData[]
         !energyData ||
         energyData.length === 0 ||
         !userData ||
-        userData.length < 2 ||
         typeof userData[1].basePrice !== "number" ||
         typeof userData[1].workingPrice !== "number"
     ) {
