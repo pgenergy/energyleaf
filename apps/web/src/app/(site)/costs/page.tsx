@@ -125,16 +125,16 @@ export default async function CostsPage() {
                 <h2 className="mb-4 font-bold text-xl">Energiekosten Vergleiche</h2>
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsChangeLastSevenDays />
+                        <EnergyCostsChangeLastSevenDays userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsChangeLastThirtyDays />
+                        <EnergyCostsChangeLastThirtyDays userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsChangeLastSevenDaysNationalAverage />
+                        <EnergyCostsChangeLastSevenDaysNationalAverage userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsChangeLastThirtyDaysNationalAverage />
+                        <EnergyCostsChangeLastThirtyDaysNationalAverage userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                 </div>
             </section>

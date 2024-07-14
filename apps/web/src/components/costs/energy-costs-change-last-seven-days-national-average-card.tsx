@@ -1,12 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
-export default function EnergyCostsChangeLastSevenDaysNationalAverage() {
+export default function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData }) {
     return (
         <Card>
             <CardHeader>
                 <CardTitle>
-                    Energieverbrauch der letzten 7 Tage im Vergleich zum durchschnittlichen Deutschen (absolut und
-                    relativ)
+                    Energieverbrauch: Letzte 7 Tage vs. Deutscher Durchschnitt
                 </CardTitle>
             </CardHeader>
         </Card>
