@@ -134,7 +134,10 @@ export default async function CostsPage() {
                         <EnergyCostsChangeLastSevenDaysNationalAverage userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsChangeLastThirtyDaysNationalAverage userData={userData} energyData={energyDataRaw} />
+                        <EnergyCostsChangeLastThirtyDaysNationalAverage
+                            userData={userData}
+                            energyData={energyDataRaw}
+                        />
                     </Suspense>
                 </div>
             </section>

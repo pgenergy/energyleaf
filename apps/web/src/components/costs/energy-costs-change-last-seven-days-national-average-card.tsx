@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData }) {
     const now = new Date();
     const lastSevenDays = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-    
-    const thisWeekData = energyData.filter(data => {
+
+    const thisWeekData = energyData.filter((data) => {
         const date = new Date(data.timestamp);
         return date >= lastSevenDays && date < now;
     });
@@ -18,7 +18,9 @@ function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData })
                     <CardTitle>Energieverbrauch: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-center font-bold text-xl text-primary">Es sind noch nicht genug Daten vorhanden</p>
+                    <p className="text-center font-bold text-primary text-xl">
+                        Es sind noch nicht genug Daten vorhanden
+                    </p>
                 </CardContent>
             </Card>
         );
@@ -32,7 +34,9 @@ function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData })
                     <CardTitle>Energieverbrauch: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-center font-bold text-xl text-primary">Es sind keine Daten für den Vergleich verfügbar</p>
+                    <p className="text-center font-bold text-primary text-xl">
+                        Es sind keine Daten für den Vergleich verfügbar
+                    </p>
                 </CardContent>
             </Card>
         );
@@ -51,23 +55,27 @@ function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData })
                 <CardTitle>Energieverbrauch: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={`text-center font-bold text-2xl ${color}`}>{sign}{formatNumber(costDifference)} € ({sign}{formatNumber(percentageChange)}%)</p>
+                <p className={`text-center font-bold text-2xl ${color}`}>
+                    {sign}
+                    {formatNumber(costDifference)} € ({sign}
+                    {formatNumber(percentageChange)}%)
+                </p>
             </CardContent>
         </Card>
     );
 }
 function getNationalAverageCost(userData, days) {
-    const { people, houseType = 'apartment', hotWater = 'not_electric' } = userData;
+    const { people, houseType = "apartment", hotWater = "not_electric" } = userData;
 
     const yearlyCosts = {
         house: {
             regular: [1015, 1265, 1520, 1690, 2110],
-            withHotWater: [1140, 1480, 1900, 2155, 2660]
+            withHotWater: [1140, 1480, 1900, 2155, 2660],
         },
         apartment: {
             regular: [590, 845, 1100, 1225, 1265],
-            withHotWater: [720, 1180, 1520, 1775, 1900]
-        }
+            withHotWater: [720, 1180, 1520, 1775, 1900],
+        },
     };
 
     if (people > 5) return null;

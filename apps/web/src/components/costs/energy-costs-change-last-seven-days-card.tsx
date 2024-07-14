@@ -7,11 +7,11 @@ function EnergyCostsChangeLastSevenDays({ userData, energyData }) {
     const lastSevenDays = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
     const fourteenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14);
 
-    const lastWeekData = energyData.filter(data => {
+    const lastWeekData = energyData.filter((data) => {
         const date = new Date(data.timestamp);
         return date >= fourteenDaysAgo && date < lastSevenDays;
     });
-    const thisWeekData = energyData.filter(data => {
+    const thisWeekData = energyData.filter((data) => {
         const date = new Date(data.timestamp);
         return date >= lastSevenDays && date < now;
     });
@@ -23,7 +23,9 @@ function EnergyCostsChangeLastSevenDays({ userData, energyData }) {
                     <CardTitle>Energiekosten: Letzte 7 Tage vs. Vorwoche</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-center font-bold text-xl text-primary">Es sind noch nicht genug Daten vorhanden</p>
+                    <p className="text-center font-bold text-primary text-xl">
+                        Es sind noch nicht genug Daten vorhanden
+                    </p>
                 </CardContent>
             </Card>
         );
@@ -43,7 +45,11 @@ function EnergyCostsChangeLastSevenDays({ userData, energyData }) {
                 <CardTitle>Energiekosten: Letzte 7 Tage vs. Vorwoche</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={`text-center font-bold text-2xl ${color}`}>{sign}{formatNumber(costDifference)} € ({sign}{formatNumber(percentageChange)}%)</p>
+                <p className={`text-center font-bold text-2xl ${color}`}>
+                    {sign}
+                    {formatNumber(costDifference)} € ({sign}
+                    {formatNumber(percentageChange)}%)
+                </p>
             </CardContent>
         </Card>
     );

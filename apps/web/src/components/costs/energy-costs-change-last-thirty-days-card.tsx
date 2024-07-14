@@ -7,8 +7,12 @@ function EnergyCostsChangeLastThirtyDays({ userData, energyData }) {
     const lastThirtyDays = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
     const sixtyDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 60);
 
-    const lastMonthData = energyData.filter(data => new Date(data.timestamp) >= sixtyDaysAgo && new Date(data.timestamp) < lastThirtyDays);
-    const thisMonthData = energyData.filter(data => new Date(data.timestamp) >= lastThirtyDays && new Date(data.timestamp) < now);
+    const lastMonthData = energyData.filter(
+        (data) => new Date(data.timestamp) >= sixtyDaysAgo && new Date(data.timestamp) < lastThirtyDays,
+    );
+    const thisMonthData = energyData.filter(
+        (data) => new Date(data.timestamp) >= lastThirtyDays && new Date(data.timestamp) < now,
+    );
 
     if (lastMonthData.length < 30 || thisMonthData.length < 30) {
         return (
@@ -17,7 +21,9 @@ function EnergyCostsChangeLastThirtyDays({ userData, energyData }) {
                     <CardTitle>Energiekosten: Letzte 30 Tage vs. Vormonat</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-center font-bold text-xl text-primary">Es sind noch nicht genug Daten vorhanden</p>
+                    <p className="text-center font-bold text-primary text-xl">
+                        Es sind noch nicht genug Daten vorhanden
+                    </p>
                 </CardContent>
             </Card>
         );
@@ -37,7 +43,11 @@ function EnergyCostsChangeLastThirtyDays({ userData, energyData }) {
                 <CardTitle>Energiekosten: Letzte 30 Tage vs. Vormonat</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={`text-center font-bold text-2xl ${color}`}>{sign}{formatNumber(costDifference)} € ({sign}{formatNumber(percentageChange)}%)</p>
+                <p className={`text-center font-bold text-2xl ${color}`}>
+                    {sign}
+                    {formatNumber(costDifference)} € ({sign}
+                    {formatNumber(percentageChange)}%)
+                </p>
             </CardContent>
         </Card>
     );
