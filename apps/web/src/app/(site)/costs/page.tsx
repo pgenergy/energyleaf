@@ -65,11 +65,6 @@ export default async function CostsPage() {
     const energyDataRaw = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const userData = await getUserDataHistory(userId);
 
-    interface ErrorBoundaryProps {
-        children: React.ReactNode;
-        fallback: React.ReactElement;
-    }
-
     return (
         <div className="flex flex-col gap-4">
             <h1 className="font-bold text-2xl">Kosten-Übersichten</h1>
