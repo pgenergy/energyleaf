@@ -15,7 +15,7 @@ function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData })
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energieverbrauch: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
+                    <CardTitle>Energiekosten: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -31,7 +31,7 @@ function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData })
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energieverbrauch: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
+                    <CardTitle>Energiekosten: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -52,7 +52,7 @@ function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData })
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Energieverbrauch: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
+                <CardTitle>Energiekosten: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className={`text-center font-bold text-2xl ${color}`}>

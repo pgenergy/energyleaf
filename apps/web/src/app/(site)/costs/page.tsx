@@ -21,6 +21,10 @@ import EnergyCostsLastSevenDaysError from "@/components/costs/errors/energy-cost
 import EnergyCostsLastThirtyDaysError from "@/components/costs/errors/energy-costs-last-thirty-days-card-error";
 import EnergyCostsTodayError from "@/components/costs/errors/energy-costs-today-card-error";
 import EnergyCostsYesterdayError from "@/components/costs/errors/energy-costs-yesterday-card-error";
+import EnergyCostsChangeLastSevenDaysError from "@/components/costs/errors/energy-costs-change-last-seven-days-card-error";
+import EnergyCostsChangeLastThirtyDaysError from "@/components/costs/errors/energy-costs-change-last-thirty-days-card-error";
+import EnergyCostsChangeLastSevenDaysNationalAverageError from "@/components/costs/errors/energy-costs-change-last-seven-days-national-average-card-error";
+import EnergyCostsChangeLastThirtyDaysNationalAverageError from "@/components/costs/errors/energy-costs-change-last-thirty-days-national-average-card-error";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
@@ -59,6 +63,11 @@ export default async function CostsPage() {
 
     const energyDataRaw = await getEnergyDataForSensor(startDate, endDate, sensorId);
     const userData = await getUserDataHistory(userId);
+
+    interface ErrorBoundaryProps {
+        children: React.ReactNode;
+        fallback: React.ReactElement;
+    }      
 
     return (
         <div className="flex flex-col gap-4">
@@ -124,21 +133,26 @@ export default async function CostsPage() {
             <section>
                 <h2 className="mb-4 font-bold text-xl">Energiekosten Vergleiche</h2>
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsChangeLastSevenDays userData={userData} energyData={energyDataRaw} />
-                    </Suspense>
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsChangeLastThirtyDays userData={userData} energyData={energyDataRaw} />
-                    </Suspense>
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsChangeLastSevenDaysNationalAverage userData={userData} energyData={energyDataRaw} />
-                    </Suspense>
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsChangeLastThirtyDaysNationalAverage
-                            userData={userData}
-                            energyData={energyDataRaw}
-                        />
-                    </Suspense>
+                <ErrorBoundary fallback={EnergyCostsChangeLastSevenDaysError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsChangeLastSevenDays userData={userData} energyData={energyDataRaw} />
+                        </Suspense>
+                    </ErrorBoundary>
+                    <ErrorBoundary fallback={EnergyCostsChangeLastThirtyDaysError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsChangeLastThirtyDays userData={userData} energyData={energyDataRaw} />
+                        </Suspense>
+                    </ErrorBoundary>
+                    <ErrorBoundary fallback={EnergyCostsChangeLastSevenDaysNationalAverageError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsChangeLastSevenDaysNationalAverage userData={userData} energyData={energyDataRaw} />
+                        </Suspense>
+                    </ErrorBoundary>
+                    <ErrorBoundary fallback={EnergyCostsChangeLastThirtyDaysNationalAverageError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsChangeLastThirtyDaysNationalAverage userData={userData} energyData={energyDataRaw} />
+                        </Suspense>
+                    </ErrorBoundary>
                 </div>
             </section>
 
