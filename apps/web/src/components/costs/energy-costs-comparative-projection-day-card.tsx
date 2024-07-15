@@ -4,15 +4,15 @@ import { getDayComparison } from "@/components/costs/energy-projection-calculati
 export default function EnergyCostsComparativeProjectionDay({ userData, energyData }) {
 
     const predictedCost = getDayComparison(energyData, userData);
-
+    const color = predictedCost.absoluteDifference <= 0 ? "text-red-500" : "text-green-500";
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Vergleich des hochgerechneten Tag zu letztem Tag (absolut und relativ)</CardTitle>
+                <CardTitle>Vergleich zu gestern</CardTitle>
             </CardHeader>
             <CardContent>
                 {predictedCost ? (
-                    <p className="text-center font-bold text-2xl text-primary">
+                    <p className={`text-center font-bold text-2xl ${color}`}>
                         {predictedCost.absoluteDifference} € <br></br>
                         {predictedCost.relativeDifference} %
                     </p>

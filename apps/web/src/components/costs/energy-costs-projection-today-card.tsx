@@ -3,17 +3,17 @@ import { getPredictedCostForDay } from "@/components/costs/energy-projection-cal
 
 export default function EnergyCostsProjectionDay({ userData, energyData }) {
     
-    const predictedCost = getPredictedCostForDay(energyData, userData);
+    const predictedCosts = getPredictedCostForDay(energyData, userData);
     
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Hochrechnung des aktuellen Tages</CardTitle>
+                <CardTitle>Aktueller Tag</CardTitle>
             </CardHeader>
             <CardContent>
-                {predictedCost ? (
+                {predictedCosts ? (
                     <p className="text-center font-bold text-2xl text-primary">
-                        {predictedCost} €
+                        {predictedCosts} €
                     </p>
                 ) : (
                     <p>Keine Daten verfügbar.</p>

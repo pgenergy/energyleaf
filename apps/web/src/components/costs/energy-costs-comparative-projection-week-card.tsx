@@ -4,15 +4,15 @@ import { getWeekComparison } from "@/components/costs/energy-projection-calculat
 export default function EnergyCostsComparativeProjectionWeek({ userData, energyData }) {
 
     const predictedCost = getWeekComparison(energyData, userData);
-
+    const color = predictedCost.absoluteDifference <= 0 ? "text-red-500" : "text-green-500";
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Vergleich der hochgerechneten Woche zu letzter Woche (absolut und relativ)</CardTitle>
+                <CardTitle>Vergleich letzte Woche</CardTitle>
             </CardHeader>
             <CardContent>
                 {predictedCost ? (
-                    <p className="text-center font-bold text-2xl text-primary">
+                    <p className={`text-center font-bold text-2xl ${color}`}>
                         {predictedCost.absoluteDifference} € <br></br>
                         {predictedCost.relativeDifference} %
                     </p>

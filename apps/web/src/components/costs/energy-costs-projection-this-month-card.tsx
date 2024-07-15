@@ -7,7 +7,7 @@ export default function EnergyCostsProjectionMonth({ userData, energyData }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Hochrechnung des aktuellen Monats</CardTitle>
+                <CardTitle>Aktueller Monat</CardTitle>
             </CardHeader>
             <CardContent>
                 {predictedCosts ? (
