@@ -29,11 +29,14 @@ export function getCalculatedTotalConsumptionCurrentMonth(data: SensorDataSelect
 }
 
 export function getCalculatedTotalConsumptionCurrentWeek(data: SensorDataSelectType[]): number {
-    
     const currentDate = new Date();
     const dayOfWeek = currentDate.getDay(); // 0 (Sunday) to 6 (Saturday)
     const firstDayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    const firstDayOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + firstDayOffset);
+    const firstDayOfWeek = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate() + firstDayOffset,
+    );
 
     const currentWeekConsumptions = data.filter((entry) => {
         const entryDate = new Date(entry.timestamp);
@@ -81,8 +84,8 @@ export function getPredictedCostForWeek(energyData: EnergyData[], userData: User
 
     const totalConsumptionCurrentWeek = getCalculatedTotalConsumptionCurrentWeek(energyData);
     const weeklyUsage: number = (totalConsumptionCurrentWeek / daysPassed) * 7;
-    
-    const weekBasePrice = user.basePrice / 4
+
+    const weekBasePrice = user.basePrice / 4;
     return Number.parseFloat((weeklyUsage * user.workingPrice + weekBasePrice).toFixed(2));
 }
 
@@ -94,24 +97,25 @@ export function getPredictedCostForDay(energyData: EnergyData[], userData: UserD
     const user = userData[1];
     const totalConsumptionCurrentDay = getCalculatedTotalConsumptionCurrentDay(energyData);
     const currentTime = new Date();
-    const hoursPassed = currentTime.getHours() + (currentTime.getMinutes() / 60);
+    const hoursPassed = currentTime.getHours() + currentTime.getMinutes() / 60;
     const projectedDailyConsumption = (totalConsumptionCurrentDay / hoursPassed) * 24;
     const daysInMonth = new Date(currentTime.getFullYear(), currentTime.getMonth() + 1, 0).getDate();
     const dailyBasePrice = user.basePrice / daysInMonth;
-    const predictedCost = Number.parseFloat((projectedDailyConsumption * user.workingPrice + dailyBasePrice).toFixed(2));
-    
+    const predictedCost = Number.parseFloat(
+        (projectedDailyConsumption * user.workingPrice + dailyBasePrice).toFixed(2),
+    );
+
     return predictedCost;
 }
-
 
 // Vergleich zu anderem Tag/Woche/Monat
 
 function calculateComparison(current: number, previous: number) {
     const absoluteDifference = current - previous;
-    const relativeDifference = (previous !== 0) ? (absoluteDifference / previous) * 100 : 0;
+    const relativeDifference = previous !== 0 ? (absoluteDifference / previous) * 100 : 0;
     return {
         absoluteDifference: Number.parseFloat(absoluteDifference.toFixed(2)),
-        relativeDifference: Number.parseFloat(relativeDifference.toFixed(2))
+        relativeDifference: Number.parseFloat(relativeDifference.toFixed(2)),
     };
 }
 
@@ -129,8 +133,16 @@ function getCalculatedTotalConsumptionPreviousWeek(data: SensorDataSelectType[])
     const currentDate = new Date();
     const dayOfWeek = currentDate.getDay(); // 0 (Sunday) to 6 (Saturday)
     const firstDayOffset = dayOfWeek === 0 ? -13 : -6 - dayOfWeek;
-    const firstDayOfPreviousWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + firstDayOffset);
-    const lastDayOfPreviousWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - dayOfWeek);
+    const firstDayOfPreviousWeek = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate() + firstDayOffset,
+    );
+    const lastDayOfPreviousWeek = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        currentDate.getDate() - dayOfWeek,
+    );
 
     const previousWeekConsumptions = data.filter((entry) => {
         const entryDate = new Date(entry.timestamp);
@@ -156,7 +168,9 @@ export function getDayComparison(energyData: EnergyData[], userData: UserData[])
     const predictedCostToday = getPredictedCostForDay(energyData, userData);
     const totalConsumptionPreviousDay = getCalculatedTotalConsumptionPreviousDay(energyData);
     const user = userData[1];
-    const previousDayCost = Number.parseFloat((totalConsumptionPreviousDay * user.workingPrice + (user.basePrice / new Date().getDate())).toFixed(2));
+    const previousDayCost = Number.parseFloat(
+        (totalConsumptionPreviousDay * user.workingPrice + user.basePrice / new Date().getDate()).toFixed(2),
+    );
 
     return calculateComparison(predictedCostToday, previousDayCost);
 }
@@ -165,7 +179,9 @@ export function getWeekComparison(energyData: EnergyData[], userData: UserData[]
     const predictedCostThisWeek = getPredictedCostForWeek(energyData, userData);
     const totalConsumptionPreviousWeek = getCalculatedTotalConsumptionPreviousWeek(energyData);
     const user = userData[1];
-    const previousWeekCost = Number.parseFloat((totalConsumptionPreviousWeek * user.workingPrice + (user.basePrice / 4)).toFixed(2));
+    const previousWeekCost = Number.parseFloat(
+        (totalConsumptionPreviousWeek * user.workingPrice + user.basePrice / 4).toFixed(2),
+    );
 
     return calculateComparison(predictedCostThisWeek, previousWeekCost);
 }
@@ -174,7 +190,9 @@ export function getMonthComparison(energyData: EnergyData[], userData: UserData[
     const predictedCostThisMonth = getPredictedCostForMonth(energyData, userData);
     const totalConsumptionPreviousMonth = getCalculatedTotalConsumptionPreviousMonth(energyData);
     const user = userData[1];
-    const previousMonthCost = Number.parseFloat((totalConsumptionPreviousMonth * user.workingPrice + user.basePrice).toFixed(2));
+    const previousMonthCost = Number.parseFloat(
+        (totalConsumptionPreviousMonth * user.workingPrice + user.basePrice).toFixed(2),
+    );
 
     return calculateComparison(predictedCostThisMonth, previousMonthCost);
 }
