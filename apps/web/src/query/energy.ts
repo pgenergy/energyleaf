@@ -64,10 +64,15 @@ export const getEnergyLastEntry = cache(async (sensorId: string) => {
     return getDbEnergyLastEntry(sensorId);
 });
 
-export const getSensorDataSequences = cache(async (sensorId: string) => {
+type ExtraSequencesProps = {
+    start: Date;
+    end: Date;
+};
+
+export const getSensorDataSequences = cache(async (sensorId: string, extra?: ExtraSequencesProps) => {
     if (sensorId === "demo_sensor") {
         return []; // Does not exist in demo version.
     }
 
-    return getSequencesBySensor(sensorId);
+    return getSequencesBySensor(sensorId, extra);
 });

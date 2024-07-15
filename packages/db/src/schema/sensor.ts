@@ -99,7 +99,7 @@ export const sensorDataSequence = mysqlTable(
         start: timestamp("start").notNull(),
         end: timestamp("end").notNull(),
         type: mysqlEnum("type", ["peak", "anomaly"]).notNull(),
-        averagePeakPower: decimalType("average_peak_power").notNull()
+        averagePeakPower: decimalType("average_peak_power").notNull(),
     },
     (table) => {
         return {

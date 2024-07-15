@@ -1,4 +1,4 @@
-import { type ExtractTablesWithRelations, and, asc, between, desc, eq, lt } from "drizzle-orm";
+import { type ExtractTablesWithRelations, and, asc, between, desc, eq, gt, lt, or } from "drizzle-orm";
 import type { MySqlTransaction } from "drizzle-orm/mysql-core";
 import type { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
 import { nanoid } from "nanoid";
@@ -272,7 +272,33 @@ export async function updateDevicesForPeak(sensorDataSequenceId: string, deviceI
     });
 }
 
-export async function getSequencesBySensor(sensorId: string) {
+interface ExtraQuerySequencesBySensorProps {
+    start: Date;
+    end: Date;
+}
+
+export async function getSequencesBySensor(sensorId: string, extra?: ExtraQuerySequencesBySensorProps) {
+    if (extra) {
+        return db
+            .select()
+            .from(sensorDataSequence)
+            .where(
+                and(
+                    eq(sensorDataSequence.sensorId, sensorId),
+                    or(
+                        // start and end are inside range
+                        between(sensorDataSequence.start, extra.start, extra.end),
+                        // whole range is peak
+                        and(gt(sensorDataSequence.start, extra.start), lt(sensorDataSequence.end, extra.end)),
+                        // start is outside range end is inside
+                        and(gt(sensorDataSequence.start, extra.start), gt(sensorDataSequence.end, extra.end)),
+                        // start is inside range end is outside
+                        and(lt(sensorDataSequence.start, extra.start), lt(sensorDataSequence.end, extra.end)),
+                    ),
+                ),
+            );
+    }
+
     return db.select().from(sensorDataSequence).where(eq(sensorDataSequence.sensorId, sensorId));
 }
 

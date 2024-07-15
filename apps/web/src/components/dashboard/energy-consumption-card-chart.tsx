@@ -8,24 +8,23 @@ import { useCallback, useState } from "react";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
 
 interface Props {
-    peaks?: SensorDataSequenceType[];
     data: SensorDataSelectType[];
+    peaks?: SensorDataSequenceType[];
     aggregation?: AggregationType;
     showPeaks: boolean;
     userId: string;
     cost?: number;
 }
 
-export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost }: Props) {
+export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost, peaks }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<SensorDataSequenceType | null>(null);
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const clickCallback = useCallback((callbackData: SensorDataSelectType) => {
-        // TODO: Set value when peaks are clickable again
-        // setValue(callbackData);
+    const clickCallback = useCallback((callbackData: SensorDataSequenceType) => {
+        setValue(callbackData);
         setOpen(true);
     }, []);
 
@@ -47,8 +46,9 @@ export default function EnergyConsumptionCardChart({ data, aggregation, userId, 
                 <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} userId={userId} />
             ) : null}
             <EnergyConsumptionChart
-                aggregation={aggregation}
                 data={data}
+                peaks={peaks}
+                aggregation={aggregation}
                 showPeaks={showPeaks}
                 cost={cost}
                 peaksCallback={clickCallback}

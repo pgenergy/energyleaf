@@ -11,7 +11,6 @@ import { redirect } from "next/navigation";
 import CSVExportButton from "./csv-export-button";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
-import PeakButton from "./peaks/peak-button";
 
 interface Props {
     startDate: Date;
@@ -48,9 +47,8 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         aggregation = AggregationType[aggregationType.toUpperCase() as keyof typeof AggregationType];
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
-
     const data = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
-    const showPeaks = fulfills(user.appVersion, Versions.self_reflection) || hasAggregation;
+    const showPeaks = fulfills(user.appVersion, Versions.self_reflection) && !hasAggregation;
 
     const userData = await getUserData(user.id);
     const workingPrice = hasAggregation ? undefined : userData?.workingPrice ?? undefined;
@@ -58,11 +56,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         workingPrice && userData?.basePrice
             ? (userData.basePrice / (30 * 24 * 60 * 60)) * 15 + workingPrice
             : workingPrice;
-
-    const peaks: SensorDataSequenceType[] =
-        !hasAggregation && fulfills(user.appVersion, Versions.self_reflection)
-            ? await getSensorDataSequences(sensorId)
-            : [];
+    const peaks: SensorDataSequenceType[] = showPeaks
+        ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
+        : [];
 
     const csvExportData = {
         userId: user.id,
@@ -77,12 +73,6 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         <Card className="w-full">
             <CardHeader className="flex flex-col justify-start">
                 <div className="flex flex-row justify-between gap-2">
-                    <div>
-                        {/* TODO: Remove this piece of shit. */}
-                        {peaks.map((peak) => (
-                            <PeakButton key={peak.id} peak={peak} userId={userId} />
-                        ))}
-                    </div>
                     <div className="flex flex-col gap-2">
                         <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
                         <CardDescription>Im ausgewählten Zeitraum</CardDescription>
@@ -110,11 +100,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     ) : (
                         <EnergyConsumptionCardChart
                             data={data}
+                            peaks={peaks}
                             aggregation={aggregation}
                             userId={userId}
                             cost={cost}
                             showPeaks={showPeaks}
-                            peaks={peaks}
                         />
                     )}
                 </div>

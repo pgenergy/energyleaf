@@ -1,21 +1,22 @@
 "use client";
 
-import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
 import clsx from "clsx";
 import { formatDate } from "date-fns";
 import { useMemo, useState } from "react";
-import { Area, AreaChart, ReferenceArea, ReferenceDot, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, ReferenceArea, Tooltip, XAxis, YAxis } from "recharts";
 import type { CategoricalChartState } from "recharts/types/chart/types";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "../../ui/chart";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
 interface Props {
     data: SensorDataSelectType[];
+    peaks?: SensorDataSequenceType[];
     cost?: number;
     showPeaks?: boolean;
     aggregation?: AggregationType;
-    peaksCallback?: (value: SensorDataSelectType) => void;
+    peaksCallback?: (value: SensorDataSequenceType) => void;
     zoomCallback?: (left: Date, right: Date) => void;
 }
 
@@ -38,17 +39,19 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-export function EnergyConsumptionChart({ data, showPeaks, aggregation, cost, zoomCallback, peaksCallback }: Props) {
+export function EnergyConsumptionChart({
+    data,
+    peaks,
+    showPeaks,
+    aggregation,
+    cost,
+    zoomCallback,
+    peaksCallback,
+}: Props) {
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
     const [mouseDown, setMouseDown] = useState(false);
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
-
-    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-    const peaks: SensorDataSelectType[] = useMemo(() => {
-        if (!showPeaks) return [];
-        return []; // FIXME: data.filter((d) => d.isPeak || d.isAnomaly);
-    }, [data, showPeaks]);
 
     const preparedData = useMemo(() => {
         return data.map((d) => ({
@@ -135,6 +138,34 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, cost, zoo
         setLeftValue(null);
         setRightValue(null);
     };
+
+    function getPeakXValues(peak: SensorDataSequenceType) {
+        const result = {
+            start: "",
+            end: "",
+        };
+        if (preparedData.length === 0) return result;
+
+        const first = preparedData[0];
+        const last = preparedData[preparedData.length - 1];
+
+        const refStart = new Date(first.timestamp);
+        const refEnd = new Date(last.timestamp);
+
+        if (refStart.getTime() > peak.start.getTime()) {
+            result.start = dynamicTickFormatter(first.timestamp);
+        } else {
+            result.start = dynamicTickFormatter(peak.start.toISOString());
+        }
+
+        if (refEnd.getTime() < peak.end.getTime()) {
+            result.end = dynamicTickFormatter(last.timestamp);
+        } else {
+            result.end = dynamicTickFormatter(peak.end.toISOString());
+        }
+
+        return result;
+    }
 
     return (
         <ChartContainer className="min-h-52 w-full" config={chartConfig}>
@@ -246,29 +277,24 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, cost, zoo
                         type="linear"
                     />
                 ) : null}
-                {showPeaks
-                    ? peaks.map((peak) => (
-                          <ReferenceDot
-                              className={clsx(peaksCallback ? "cursor-pointer" : "cursor-default")}
-                              fill="hsl(var(--destructive))"
-                              isFront
-                              key={peak.id}
-                              onClick={() => peaksCallback?.(peak)}
-                              onMouseDown={(_, e) => {
-                                  e.stopPropagation();
-                              }}
-                              onMouseMove={(_, e) => {
-                                  e.stopPropagation();
-                              }}
-                              onMouseUp={(_, e) => {
-                                  e.stopPropagation();
-                              }}
-                              r={10}
-                              stroke="hsl(var(--destructive))"
-                              x={peak.timestamp.toISOString()}
-                              y={peak.value}
-                          />
-                      ))
+                {showPeaks && peaks
+                    ? peaks.map((peak) => {
+                          const xValues = getPeakXValues(peak);
+                          return (
+                              <ReferenceArea
+                                  className={clsx(peaksCallback ? "cursor-pointer" : "cursor-default")}
+                                  fill="hsl(var(--destructive))"
+                                  fillOpacity={0.2}
+                                  stroke="hsl(var(--destructive))"
+                                  strokeOpacity={0.3}
+                                  isFront
+                                  key={peak.id}
+                                  onClick={() => peaksCallback?.(peak)}
+                                  x1={xValues.start}
+                                  x2={xValues.end}
+                              />
+                          );
+                      })
                     : null}
                 {leftValue && rightValue && zoomCallback ? (
                     <ReferenceArea
