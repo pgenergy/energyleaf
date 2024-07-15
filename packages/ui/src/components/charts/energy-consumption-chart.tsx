@@ -139,34 +139,6 @@ export function EnergyConsumptionChart({
         setRightValue(null);
     };
 
-    function getPeakXValues(peak: SensorDataSequenceType) {
-        const result = {
-            start: "",
-            end: "",
-        };
-        if (preparedData.length === 0) return result;
-
-        const first = preparedData[0];
-        const last = preparedData[preparedData.length - 1];
-
-        const refStart = new Date(first.timestamp);
-        const refEnd = new Date(last.timestamp);
-
-        if (refStart.getTime() > peak.start.getTime()) {
-            result.start = dynamicTickFormatter(first.timestamp);
-        } else {
-            result.start = dynamicTickFormatter(peak.start.toISOString());
-        }
-
-        if (refEnd.getTime() < peak.end.getTime()) {
-            result.end = dynamicTickFormatter(last.timestamp);
-        } else {
-            result.end = dynamicTickFormatter(peak.end.toISOString());
-        }
-
-        return result;
-    }
-
     return (
         <ChartContainer className="min-h-52 w-full" config={chartConfig}>
             <AreaChart
@@ -236,11 +208,12 @@ export function EnergyConsumptionChart({
                 <XAxis
                     dataKey="timestamp"
                     tickFormatter={dynamicTickFormatter}
+                    type="category"
                     tickLine={false}
                     interval="equidistantPreserveStart"
                     axisLine={false}
                 />
-                <YAxis dataKey={activeChart} tickLine={false} interval="equidistantPreserveStart" />
+                <YAxis dataKey={activeChart} tickLine={false} interval="equidistantPreserveStart" type="number" />
                 {activeChart === "value" ? (
                     <Area
                         dataKey="value"
@@ -279,7 +252,6 @@ export function EnergyConsumptionChart({
                 ) : null}
                 {showPeaks && peaks
                     ? peaks.map((peak) => {
-                          const xValues = getPeakXValues(peak);
                           return (
                               <ReferenceArea
                                   className={clsx(peaksCallback ? "cursor-pointer" : "cursor-default")}
@@ -290,8 +262,8 @@ export function EnergyConsumptionChart({
                                   isFront
                                   key={peak.id}
                                   onClick={() => peaksCallback?.(peak)}
-                                  x1={xValues.start}
-                                  x2={xValues.end}
+                                  x1={peak.start.toISOString()}
+                                  x2={peak.end.toISOString()}
                               />
                           );
                       })
