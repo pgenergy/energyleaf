@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 import CSVExportButton from "./csv-export-button";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
+import { cn } from "@energyleaf/tailwindcss/utils";
 
 interface Props {
     startDate: Date;
@@ -17,7 +18,11 @@ interface Props {
     aggregationType: string | undefined;
 }
 
-export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
+export default async function EnergyConsumptionCard({
+    startDate,
+    endDate,
+    aggregationType,
+}: Props) {
     const { user } = await getSession();
 
     if (!user) {

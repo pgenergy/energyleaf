@@ -1,6 +1,7 @@
 "use client";
 
 import { type EnergyRangeOptionType, energyRangeOptionKeys, energyRangeOptions } from "@/types/energy";
+import { Button } from "@energyleaf/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@energyleaf/ui/dropdown-menu";
 import { ChevronDownIcon, CircleIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -29,10 +30,10 @@ export default function EnergyPageRangeSelector(props: Props) {
         <div className="col-span-1 flex flex-row md:col-span-3">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button type="button" className="flex flex-row items-center gap-2 font-bold text-xl">
+                    <Button variant="ghost" type="button" className="flex flex-row items-center gap-2 font-bold text-xl">
                         {energyRangeOptions[selectedRange]}
                         <ChevronDownIcon className="h-4 w-4" />
-                    </button>
+                    </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
                     {energyRangeOptionKeys.map((range) => (

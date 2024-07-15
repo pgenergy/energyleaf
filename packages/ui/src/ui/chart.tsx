@@ -208,7 +208,7 @@ const ChartTooltipContent = React.forwardRef<
                                                 nestLabel ? "items-end" : "items-center",
                                             )}
                                         >
-                                            <div className="grid gap-1.5">
+                                            <div className="mr-1 grid gap-1.5">
                                                 {nestLabel ? tooltipLabel : null}
                                                 <span className="text-muted-foreground">
                                                     {itemConfig?.label || item.name}

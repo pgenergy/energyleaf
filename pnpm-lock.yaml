@@ -282,6 +282,9 @@ importers:
       react-hook-form:
         specifier: ^7.52.1
         version: 7.52.1(react@18.3.1)
+      recharts:
+        specifier: ^2.12.7
+        version: 2.12.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
@@ -632,7 +635,7 @@ importers:
         version: link:../tsconfig
       '@turbo/gen':
         specifier: ^2.0.6
-        version: 2.0.6(@swc/core@1.7.0-nightly-20240713.1)(@types/node@20.14.10)(typescript@5.5.3)
+        version: 2.0.6(@swc/core@1.3.101)(@types/node@20.14.10)(typescript@5.5.3)
       '@types/node':
         specifier: ^20.14.10
         version: 20.14.10
@@ -3125,20 +3128,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@swc/core-darwin-arm64@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-6yTOfKdk20Qv/tVOPgB9+hJHVYrcGhykZvP8zCNrVCOHhbd9WZsSSXTyoUUa4SzX7jSE0/mLVM/6DRq/8dURJQ==}
-    engines: {node: '>=10'}
-    cpu: [arm64]
-    os: [darwin]
-
   '@swc/core-darwin-x64@1.3.101':
     resolution: {integrity: sha512-B085j8XOx73Fg15KsHvzYWG262bRweGr3JooO1aW5ec5pYbz5Ew9VS5JKYS03w2UBSxf2maWdbPz2UFAxg0whw==}
-    engines: {node: '>=10'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@swc/core-darwin-x64@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-S/7PFi3b+7t62gqfEsA9DxU9ADQ2KMruWJeivqAlzRSWq1/jfVBJuPTePcVLEPoaWTJQHHbyOYqNaH7oxjBj5Q==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [darwin]
@@ -3149,20 +3140,8 @@ packages:
     cpu: [arm]
     os: [linux]
 
-  '@swc/core-linux-arm-gnueabihf@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-LOypUZnE/z3ETx0eT5dzQX7lHkrcp+oIKzf/Cg9mP5kXl11xwXryyicynEFtxi05zItb/J7bTt0otGcOpY4uHA==}
-    engines: {node: '>=10'}
-    cpu: [arm]
-    os: [linux]
-
   '@swc/core-linux-arm64-gnu@1.3.101':
     resolution: {integrity: sha512-oE+r1lo7g/vs96Weh2R5l971dt+ZLuhaUX+n3BfDdPxNHfObXgKMjO7E+QS5RbGjv/AwiPCxQmbdCp/xN5ICJA==}
-    engines: {node: '>=10'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@swc/core-linux-arm64-gnu@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-W4mGkf65SLl7+h2J0uWnyK2vGMSl9tZkXkWmvf8LFRhCLKL6GTQJJbGaG6k+VgapCc0hJxX33xrclW5OrLcP6A==}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
@@ -3173,20 +3152,8 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@swc/core-linux-arm64-musl@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-aDDPvPy8VLEu48+yklo90VJnRmpwETSsbEGcM0RbcwPKoSZClnUmGp4FNCw/FPzFB6I2LCGJG/DiclOV3K8U7A==}
-    engines: {node: '>=10'}
-    cpu: [arm64]
-    os: [linux]
-
   '@swc/core-linux-x64-gnu@1.3.101':
     resolution: {integrity: sha512-/kBMcoF12PRO/lwa8Z7w4YyiKDcXQEiLvM+S3G9EvkoKYGgkkz4Q6PSNhF5rwg/E3+Hq5/9D2R+6nrkF287ihg==}
-    engines: {node: '>=10'}
-    cpu: [x64]
-    os: [linux]
-
-  '@swc/core-linux-x64-gnu@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-wfNXW4DuHKOzipWP1lbMc+gUBuzl2SQYHk/Tmrw6/eTc7Ms4cFRVr9y5aSW++z4OZAXOpSrN6QhjRr3eegBQkw==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
@@ -3197,20 +3164,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@swc/core-linux-x64-musl@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-+ljaemq8+mVAdT4u1gdBr93lk6CFf1N2mB+ahLHYY6hwjGAqcMPHEwrfPNLQIJl00wAn4/BBVgEhcK4ZPKdtEA==}
-    engines: {node: '>=10'}
-    cpu: [x64]
-    os: [linux]
-
   '@swc/core-win32-arm64-msvc@1.3.101':
     resolution: {integrity: sha512-9Wn8TTLWwJKw63K/S+jjrZb9yoJfJwCE2RV5vPCCWmlMf3U1AXj5XuWOLUX+Rp2sGKau7wZKsvywhheWm+qndQ==}
-    engines: {node: '>=10'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@swc/core-win32-arm64-msvc@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-ZXWVmSQAJ74rS/v+GftG3n2HieX3NXLIhE7f/CujHPi5fjno8jlbZfNfDiqAbJzshl89oORcM9xbLbdDVLjTlg==}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [win32]
@@ -3221,20 +3176,8 @@ packages:
     cpu: [ia32]
     os: [win32]
 
-  '@swc/core-win32-ia32-msvc@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-SYPXur5CvqvQUSq4xH1WuSaNou+3vBoQyzYNTLtIZybNLeeIcnGALQzZ3AyXtbFpaW9DpJTStDNB0f5HpmZ70g==}
-    engines: {node: '>=10'}
-    cpu: [ia32]
-    os: [win32]
-
   '@swc/core-win32-x64-msvc@1.3.101':
     resolution: {integrity: sha512-T3GeJtNQV00YmiVw/88/nxJ/H43CJvFnpvBHCVn17xbahiVUOPOduh3rc9LgAkKiNt/aV8vU3OJR+6PhfMR7UQ==}
-    engines: {node: '>=10'}
-    cpu: [x64]
-    os: [win32]
-
-  '@swc/core-win32-x64-msvc@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-EZnO+QbYii/+bGnDLLduUI0zXRKhK/qSARNdpjWyozE8SMcda1fiPNSGNM+fJIf/30Xs3HbTGYjgax5nq/FaNQ==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [win32]
@@ -3244,15 +3187,6 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       '@swc/helpers': ^0.5.0
-    peerDependenciesMeta:
-      '@swc/helpers':
-        optional: true
-
-  '@swc/core@1.7.0-nightly-20240713.1':
-    resolution: {integrity: sha512-PWwTWepyCw61fvVWsB7WvoOCsqFibRIPEDLNdBUPe6cEvaUqyMhKrI2qyy4dWLG5j64iQIAMnSc+Eaxy+Xu2EQ==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      '@swc/helpers': '*'
     peerDependenciesMeta:
       '@swc/helpers':
         optional: true
@@ -8982,61 +8916,31 @@ snapshots:
   '@swc/core-darwin-arm64@1.3.101':
     optional: true
 
-  '@swc/core-darwin-arm64@1.7.0-nightly-20240713.1':
-    optional: true
-
   '@swc/core-darwin-x64@1.3.101':
-    optional: true
-
-  '@swc/core-darwin-x64@1.7.0-nightly-20240713.1':
     optional: true
 
   '@swc/core-linux-arm-gnueabihf@1.3.101':
     optional: true
 
-  '@swc/core-linux-arm-gnueabihf@1.7.0-nightly-20240713.1':
-    optional: true
-
   '@swc/core-linux-arm64-gnu@1.3.101':
-    optional: true
-
-  '@swc/core-linux-arm64-gnu@1.7.0-nightly-20240713.1':
     optional: true
 
   '@swc/core-linux-arm64-musl@1.3.101':
     optional: true
 
-  '@swc/core-linux-arm64-musl@1.7.0-nightly-20240713.1':
-    optional: true
-
   '@swc/core-linux-x64-gnu@1.3.101':
-    optional: true
-
-  '@swc/core-linux-x64-gnu@1.7.0-nightly-20240713.1':
     optional: true
 
   '@swc/core-linux-x64-musl@1.3.101':
     optional: true
 
-  '@swc/core-linux-x64-musl@1.7.0-nightly-20240713.1':
-    optional: true
-
   '@swc/core-win32-arm64-msvc@1.3.101':
-    optional: true
-
-  '@swc/core-win32-arm64-msvc@1.7.0-nightly-20240713.1':
     optional: true
 
   '@swc/core-win32-ia32-msvc@1.3.101':
     optional: true
 
-  '@swc/core-win32-ia32-msvc@1.7.0-nightly-20240713.1':
-    optional: true
-
   '@swc/core-win32-x64-msvc@1.3.101':
-    optional: true
-
-  '@swc/core-win32-x64-msvc@1.7.0-nightly-20240713.1':
     optional: true
 
   '@swc/core@1.3.101(@swc/helpers@0.5.12)':
@@ -9055,23 +8959,6 @@ snapshots:
       '@swc/core-win32-ia32-msvc': 1.3.101
       '@swc/core-win32-x64-msvc': 1.3.101
       '@swc/helpers': 0.5.12
-
-  '@swc/core@1.7.0-nightly-20240713.1':
-    dependencies:
-      '@swc/counter': 0.1.3
-      '@swc/types': 0.1.9
-    optionalDependencies:
-      '@swc/core-darwin-arm64': 1.7.0-nightly-20240713.1
-      '@swc/core-darwin-x64': 1.7.0-nightly-20240713.1
-      '@swc/core-linux-arm-gnueabihf': 1.7.0-nightly-20240713.1
-      '@swc/core-linux-arm64-gnu': 1.7.0-nightly-20240713.1
-      '@swc/core-linux-arm64-musl': 1.7.0-nightly-20240713.1
-      '@swc/core-linux-x64-gnu': 1.7.0-nightly-20240713.1
-      '@swc/core-linux-x64-musl': 1.7.0-nightly-20240713.1
-      '@swc/core-win32-arm64-msvc': 1.7.0-nightly-20240713.1
-      '@swc/core-win32-ia32-msvc': 1.7.0-nightly-20240713.1
-      '@swc/core-win32-x64-msvc': 1.7.0-nightly-20240713.1
-    optional: true
 
   '@swc/counter@0.1.3': {}
 
@@ -9133,7 +9020,7 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@turbo/gen@2.0.6(@swc/core@1.7.0-nightly-20240713.1)(@types/node@20.14.10)(typescript@5.5.3)':
+  '@turbo/gen@2.0.6(@swc/core@1.3.101)(@types/node@20.14.10)(typescript@5.5.3)':
     dependencies:
       '@turbo/workspaces': 2.0.6
       chalk: 2.4.2
@@ -9143,7 +9030,7 @@ snapshots:
       minimatch: 9.0.5
       node-plop: 0.26.3
       proxy-agent: 6.4.0
-      ts-node: 10.9.2(@swc/core@1.7.0-nightly-20240713.1)(@types/node@20.14.10)(typescript@5.5.3)
+      ts-node: 10.9.2(@swc/core@1.3.101)(@types/node@20.14.10)(typescript@5.5.3)
       update-check: 1.5.4
       validate-npm-package-name: 5.0.1
     transitivePeerDependencies:
@@ -11172,7 +11059,7 @@ snapshots:
       yaml: 2.4.3
     optionalDependencies:
       postcss: 8.4.38
-      ts-node: 10.9.2(@swc/core@1.7.0-nightly-20240713.1)(@types/node@20.14.10)(typescript@5.5.3)
+      ts-node: 10.9.2(@swc/core@1.3.101)(@types/node@20.14.10)(typescript@5.5.3)
 
   postcss-load-config@4.0.2(postcss@8.4.39)(ts-node@10.9.2(@types/node@20.14.10)(typescript@5.5.3)):
     dependencies:
@@ -11180,7 +11067,7 @@ snapshots:
       yaml: 2.4.3
     optionalDependencies:
       postcss: 8.4.39
-      ts-node: 10.9.2(@swc/core@1.7.0-nightly-20240713.1)(@types/node@20.14.10)(typescript@5.5.3)
+      ts-node: 10.9.2(@swc/core@1.3.101)(@types/node@20.14.10)(typescript@5.5.3)
 
   postcss-nested@6.0.1(postcss@8.4.38):
     dependencies:
@@ -11904,7 +11791,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-node@10.9.2(@swc/core@1.7.0-nightly-20240713.1)(@types/node@20.14.10)(typescript@5.5.3):
+  ts-node@10.9.2(@swc/core@1.3.101)(@types/node@20.14.10)(typescript@5.5.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -11922,7 +11809,7 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     optionalDependencies:
-      '@swc/core': 1.7.0-nightly-20240713.1
+      '@swc/core': 1.3.101(@swc/helpers@0.5.12)
 
   tslib@1.14.1: {}
 

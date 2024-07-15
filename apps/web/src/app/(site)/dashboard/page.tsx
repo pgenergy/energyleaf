@@ -37,13 +37,22 @@ export default async function DashboardPage({
     const aggregationType = searchParams.aggregation;
 
     const offset = getTimezoneOffset("Europe/Berlin", new Date());
+    const localOffset = Math.abs(new Date().getTimezoneOffset() * 60 * 1000);
     const serverStart = new Date();
     serverStart.setHours(0, 0, 0, 0);
     const serverEnd = new Date();
     serverEnd.setHours(23, 59, 59, 999);
 
-    const startDate = startDateString ? new Date(startDateString) : new Date(serverStart.getTime() - offset);
-    const endDate = endDateString ? new Date(endDateString) : new Date(serverEnd.getTime() - offset);
+    const startDate = startDateString
+        ? new Date(startDateString)
+        : offset === localOffset
+          ? serverStart
+          : new Date(serverStart.getTime() - offset);
+    const endDate = endDateString
+        ? new Date(endDateString)
+        : offset === localOffset
+          ? serverEnd
+          : new Date(serverEnd.getTime() - offset);
 
     console.log(startDate, endDate);
 
