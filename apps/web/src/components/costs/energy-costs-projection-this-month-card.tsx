@@ -1,9 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { getPredictedCostForMonth } from "@/components/costs/energy-projection-calculation";
+import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default function EnergyCostsProjectionMonth({ userData, energyData }) {
-    
-    const predictedCosts = getPredictedCostForMonth(energyData, userData)
+    const predictedCosts = getPredictedCostForMonth(energyData, userData);
     return (
         <Card>
             <CardHeader>
@@ -11,9 +10,7 @@ export default function EnergyCostsProjectionMonth({ userData, energyData }) {
             </CardHeader>
             <CardContent>
                 {predictedCosts ? (
-                    <p className="text-center font-bold text-2xl text-primary">
-                        {predictedCosts} €
-                    </p>
+                    <p className="text-center font-bold text-2xl text-primary">{predictedCosts} €</p>
                 ) : (
                     <p>Keine Daten verfügbar.</p>
                 )}

@@ -1,8 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { getMonthComparison } from "@/components/costs/energy-projection-calculation";
+import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default function EnergyCostsComparativeProjectionMonth({ userData, energyData }) {
-    
     const predictedCost = getMonthComparison(energyData, userData);
     const color = predictedCost.absoluteDifference <= 0 ? "text-red-500" : "text-green-500";
     return (
@@ -13,7 +12,8 @@ export default function EnergyCostsComparativeProjectionMonth({ userData, energy
             <CardContent>
                 {predictedCost ? (
                     <p className={`text-center font-bold text-2xl ${color}`}>
-                        {predictedCost.absoluteDifference} € <br></br>
+                        {predictedCost.absoluteDifference} €
+                        <br />
                         {predictedCost.relativeDifference} %
                     </p>
                 ) : (
