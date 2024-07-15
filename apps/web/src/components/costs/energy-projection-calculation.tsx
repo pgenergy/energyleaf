@@ -168,8 +168,11 @@ export function getDayComparison(energyData: EnergyData[], userData: UserData[])
     const predictedCostToday = getPredictedCostForDay(energyData, userData);
     const totalConsumptionPreviousDay = getCalculatedTotalConsumptionPreviousDay(energyData);
     const user = userData[1];
+    const currentTime = new Date();
+    const daysInMonth = new Date(currentTime.getFullYear(), currentTime.getMonth() + 1, 0).getDate();
+    const dailyBasePrice = user.basePrice / daysInMonth;
     const previousDayCost = Number.parseFloat(
-        (totalConsumptionPreviousDay * user.workingPrice + user.basePrice / new Date().getDate()).toFixed(2),
+        (totalConsumptionPreviousDay * user.workingPrice + dailyBasePrice).toFixed(2),
     );
 
     return calculateComparison(predictedCostToday, previousDayCost);

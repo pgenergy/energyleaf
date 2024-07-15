@@ -7,7 +7,7 @@ export default function EnergyCostsComparativeProjectionWeek({ userData, energyD
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Vergleich letzte Woche</CardTitle>
+                <CardTitle>Unterschied letzte Woche</CardTitle>
             </CardHeader>
             <CardContent>
                 {predictedCost ? (
