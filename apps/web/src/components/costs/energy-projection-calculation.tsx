@@ -66,7 +66,6 @@ export function getPredictedCostForMonth(energyData: EnergyData[], userData: Use
     const daysInMonth: number = lastDayOfMonth.getDate();
     const user = userData[userData.length - 1];
 
-
     const totalConsumptionCurrentMonth = getCalculatedTotalConsumptionCurrentMonth(energyData);
 
     const monthlyUsage: number = (totalConsumptionCurrentMonth / daysPassed) * daysInMonth;
