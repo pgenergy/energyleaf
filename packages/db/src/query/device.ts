@@ -167,7 +167,7 @@ async function copyToHistoryTable(
     },
 ) {
     await trx.insert(deviceHistory).values({
-        id: device.id,
+        deviceId: device.id,
         userId: device.userId,
         name: device.name,
         created: device.created,

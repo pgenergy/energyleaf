@@ -18,6 +18,7 @@ export const device = mysqlTable("device", {
 
 export const deviceHistory = mysqlTable("history_device", {
     ...deviceFields,
+    deviceId: int("device_id").notNull(),
 });
 
 /**

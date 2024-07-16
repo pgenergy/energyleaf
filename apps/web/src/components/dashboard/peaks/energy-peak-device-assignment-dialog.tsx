@@ -1,4 +1,5 @@
 import type { SensorDataSequenceType } from "@energyleaf/db/types";
+import { formatNumber } from "@energyleaf/lib";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
 
@@ -19,7 +20,7 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId 
                         Wählen Sie die Geräte aus, die diesen Verbrauch verursacht haben.
                     </DialogDescription>
                 </DialogHeader>
-                <p>Leistung: {value.averagePeakPower} Watt</p>
+                <p>Leistung: {formatNumber(value.averagePeakPower)} Watt</p>
                 <EnergyPeakDeviceAssignmentForm
                     userId={userId}
                     onInteract={() => {
