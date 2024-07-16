@@ -278,10 +278,11 @@ export async function getEnergyForSensorInRange(
                     "sub_value_out",
                 ),
             valueCurrent: sql<number | null>`${sensorData.valueCurrent}`.as("sub_value_current"),
-            timestamp: sql<Date>`${sensorData.timestamp}`.as("sub_timestamp"),
+            timestamp: sql<string>`${sensorData.timestamp}`.as("sub_timestamp"),
         })
         .from(sensorData)
         .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, start, end)))
+        .orderBy(sensorData.timestamp)
         .as("subQuery");
 
     const grouperSql =
@@ -297,7 +298,11 @@ export async function getEnergyForSensorInRange(
             valueCurrent: sum
                 ? sql<number | null>`SUM(${subQuery.valueCurrent})`
                 : sql<number | null>`AVG(${subQuery.valueCurrent})`,
-            timestamp: sql<string>`MIN(${subQuery.timestamp})`,
+            timestamp: sql`MIN(${subQuery.timestamp})`.mapWith({
+                mapFromDriverValue: (value: unknown) => {
+                    return new Date(`${value}+0000`);
+                }
+            }),
             grouper: grouperSql,
         })
         .from(subQuery)
@@ -312,11 +317,14 @@ export async function getEnergyForSensorInRange(
             value: Number(row.value),
             valueOut: Number(row.valueOut),
             valueCurrent: Number(row.valueCurrent),
-            timestamp: new Date(`${row.timestamp.split(".")[0]}+0000`),
+            timestamp: row.timestamp,
             isPeak: false,
             isAnomaly: false,
         }))
-        .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+
+    if (aggregation === AggregationType.HOUR) {
+        return results.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    }
 
     return results;
 }
