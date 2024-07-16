@@ -117,6 +117,33 @@ export enum DeviceCategory {
     Care = "Pflege",
 }
 
+export enum DeviceCategoryNew {
+    Stove = "Herd",
+    Oven = "Backofen",
+    Fridge = "Kühlschrank",
+    Freezer = "Gefrierschrank",
+    WashingMachine = "Waschmaschine",
+    Microwave = "Mikrowelle",
+    Dryer = "Wäschetrockner",
+    Dishwasher = "Geschirrspüler",
+    VacuumCleaner = "Staubsauger",
+    EntertainmentAndComputers = "Unterhaltungselektronik und Computer",
+    Kettle = "Wasserkocher",
+    Toaster = "Toaster",
+    Iron = "Bügeleisen",
+    HairDryer = "Föhn",
+    CoffeeMachine = "Kaffeemaschine",
+    AirConditioning = "Klimaanlage",
+    HeaterFan = "Heizlüfter",
+    ElectricHeater = "Elektroheizung",
+    HeatPump = "Wärmepumpe",
+    SmallKitchenAppliances = "Kleingeräte Küche",
+    Lighting = "Beleuchtung",
+    Care = "Pflege",
+    EMobility = "Elektromobilität",
+    Further = "Weiteres",
+}
+
 export enum ExperimentNumberEnum {
     FIRST = 0,
     SECOND = 1,
