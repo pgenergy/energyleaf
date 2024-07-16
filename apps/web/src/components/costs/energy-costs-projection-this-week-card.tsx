@@ -12,7 +12,7 @@ export default function EnergyCostsProjectionWeek({ userData, energyData }) {
             <CardContent>
                 {predictedCosts ? (
                     <p className="text-center font-bold text-2xl text-primary">
-                        {predictedCosts} <br />
+                        {predictedCosts} € <br />
                     </p>
                 ) : (
                     <p>Keine Daten verfügbar.</p>
