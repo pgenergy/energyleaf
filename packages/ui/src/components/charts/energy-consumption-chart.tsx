@@ -4,6 +4,7 @@ import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
 import clsx from "clsx";
 import { format } from "date-fns";
+import { de } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { Area, AreaChart, ReferenceArea, ReferenceDot, Tooltip, XAxis, YAxis } from "recharts";
 import type { CategoricalChartState } from "recharts/types/chart/types";
@@ -121,7 +122,7 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, cost, zoo
         }
 
         if (aggregation === AggregationType.DAY) {
-            return format(new Date(value), "dddd", { local: de });
+            return format(new Date(value), "dddd", { locale: de });
         }
 
         if (aggregation === AggregationType.WEEK) {
