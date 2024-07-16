@@ -32,7 +32,7 @@ export const GET = async (req: NextRequest) => {
         const promises: Promise<SensorDataSequenceType[]>[] = [];
         waitUntil(
             log("mark-peaks/length", "info", "mark-peaks", "api", {
-                length: sensorIds.length,
+                numberOfSensors: sensorIds.length,
             }),
         );
         for (let i = 0; i < sensorIds.length; i++) {
