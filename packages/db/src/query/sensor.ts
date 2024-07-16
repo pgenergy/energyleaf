@@ -1,6 +1,21 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, asc, between, desc, eq, gte, inArray, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
+import {
+    and,
+    asc,
+    between,
+    desc,
+    eq,
+    getTableColumns,
+    gte,
+    inArray,
+    isNotNull,
+    lt,
+    lte,
+    ne,
+    or,
+    sql,
+} from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
@@ -196,10 +211,21 @@ export async function getEnergyForSensorInRange(
     end: Date,
     sensorId: string,
     aggregation = AggregationType.RAW,
+    sum = false,
 ): Promise<SensorDataSelectType[]> {
     if (aggregation === AggregationType.RAW) {
+        const { value, valueOut, ...rest } = getTableColumns(sensorData);
         const query = await db
-            .select()
+            .select({
+                ...rest,
+                value: sql<number>`${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`.as(
+                    "value",
+                ),
+                valueOut:
+                    sql<number>`${sensorData.valueOut} - LAG(${sensorData.valueOut}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`.as(
+                        "value_out",
+                    ),
+            })
             .from(sensorData)
             .where(
                 and(
@@ -213,68 +239,86 @@ export async function getEnergyForSensorInRange(
             )
             .orderBy(sensorData.timestamp);
 
-        return query.map((row, index) => ({
+        return query.map((row) => ({
             ...row,
-            id: row.id,
-            value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-            valueOut: row.valueOut
-                ? index === 0
-                    ? 0
-                    : Number(row.valueOut) - Number(query[index - 1].valueOut)
-                : null,
-            valueCurrent: row.valueCurrent,
-            timestamp: row.timestamp,
+            value: Number(row.value),
+            valueOut: Number(row.valueOut),
         }));
     }
 
-    let dateFormat: string;
+    let groupValue: string;
     switch (aggregation) {
         case AggregationType.HOUR:
-            dateFormat = "%Y-%m-%dT%H:00:00Z";
+            groupValue = "%H";
             break;
         case AggregationType.DAY:
-            dateFormat = "%Y-%m-%dT00:00:00Z";
+            groupValue = "WEEKDAY";
             break;
         case AggregationType.WEEK:
-            dateFormat = "%X-W%V";
+            groupValue = "%X-W%V";
             break;
         case AggregationType.MONTH:
-            dateFormat = "%Y-%m-01T00:00:00Z";
+            groupValue = "%m";
             break;
         case AggregationType.YEAR:
-            dateFormat = "%Y-01-01T00:00:00Z";
+            groupValue = "%Y";
             break;
         default:
             throw new Error(`Unsupported aggregation type: ${aggregation}`);
     }
 
-    const formattedTimestamp = sql<string>`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
-
-    const query = await db
+    const subQuery = db
         .select({
             sensorId: sensorData.sensorId,
-            value: sql<number>`AVG(${sensorData.value})`,
-            valueOut: sql<number | null>`AVG(${sensorData.valueOut})`,
-            valueCurrent: sql<number | null>`AVG(${sensorData.valueCurrent})`,
-            timestamp: formattedTimestamp,
+            value: sql<number>`${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`.as(
+                "sub_value",
+            ),
+            valueOut:
+                sql<number>`${sensorData.valueOut} - LAG(${sensorData.valueOut}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`.as(
+                    "sub_value_out",
+                ),
+            valueCurrent: sql<number | null>`${sensorData.valueCurrent}`.as("sub_value_current"),
+            timestamp: sql<Date>`${sensorData.timestamp}`.as("sub_timestamp"),
         })
         .from(sensorData)
         .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, start, end)))
-        .groupBy(formattedTimestamp)
-        .orderBy(formattedTimestamp);
+        .as("subQuery");
 
-    const results = query.map((row, index) => ({
-        ...row,
-        id: index.toString(),
-        value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-        valueOut: row.valueOut ? (index === 0 ? 0 : Number(row.valueOut) - Number(query[index - 1].valueOut)) : null,
-        valueCurrent: row.valueCurrent,
-        timestamp: new Date(row.timestamp),
-        isPeak: false,
-        isAnomaly: false,
-    }));
+    const grouperSql =
+        groupValue !== "WEEKDAY"
+            ? sql<string>`DATE_FORMAT(${subQuery.timestamp}, ${groupValue})`
+            : sql<string>`WEEKDAY(${subQuery.timestamp})`;
 
-    return results.slice(1);
+    const query = await db
+        .select({
+            sensorId: subQuery.sensorId,
+            value: sum ? sql<number>`SUM(${subQuery.value})` : sql<number>`AVG(${subQuery.value})`,
+            valueOut: sum ? sql<number>`SUM(${subQuery.valueOut})` : sql<number>`AVG(${subQuery.valueOut})`,
+            valueCurrent: sum
+                ? sql<number | null>`SUM(${subQuery.valueCurrent})`
+                : sql<number | null>`AVG(${subQuery.valueCurrent})`,
+            timestamp: sql<string>`MIN(${subQuery.timestamp})`,
+            grouper: grouperSql,
+        })
+        .from(subQuery)
+        .where(and(eq(subQuery.sensorId, sensorId), between(subQuery.timestamp, start, end)))
+        .groupBy(grouperSql)
+        .orderBy(grouperSql);
+
+    const results = query
+        .map((row, index) => ({
+            ...row,
+            id: index.toString(),
+            value: Number(row.value),
+            valueOut: Number(row.valueOut),
+            valueCurrent: Number(row.valueCurrent),
+            timestamp: new Date(`${row.timestamp.split(".")[0]}+0000`),
+            isPeak: false,
+            isAnomaly: false,
+        }))
+        .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+
+    return results;
 }
 
 export async function getEnergyLastEntry(sensorId: string) {

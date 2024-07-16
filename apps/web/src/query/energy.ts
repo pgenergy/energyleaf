@@ -11,11 +11,11 @@ import { cache } from "react";
 import "server-only";
 
 export const getEnergyDataForSensor = cache(
-    async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) => {
+    async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW, sum = false) => {
         if (sensorId === "demo_sensor") {
             return getDemoSensorData(start, end);
         }
-        return getDbEnergyForSensorInRange(start, end, sensorId, aggregation);
+        return getDbEnergyForSensorInRange(start, end, sensorId, aggregation, sum);
     },
 );
 

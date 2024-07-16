@@ -2,7 +2,7 @@
 
 import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
-import { format, getISOWeek } from "date-fns";
+import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
 import type { TooltipProps } from "recharts";
@@ -28,12 +28,12 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
         const formatOptions = {
             [AggregationType.RAW]: "dd.MM.yyyy HH:mm:ss",
             [AggregationType.HOUR]: "HH 'Uhr'",
-            [AggregationType.DAY]: "dd. MMMM yyyy",
-            [AggregationType.MONTH]: "MMMM yyyy",
+            [AggregationType.DAY]: "dddd",
+            [AggregationType.MONTH]: "MMMM",
             [AggregationType.YEAR]: "yyyy",
-            [AggregationType.WEEK]: `'KW' ${getISOWeek(date)} yyyy`,
+            [AggregationType.WEEK]: `'KW' WW`,
         };
-        return format(date, formatOptions[aggregationType] || "dd.MM.yyyy", { locale: de });
+        return format(date, formatOptions[aggregationType] || "dd.MM.yyyy HH:mm:ss", { locale: de });
     }, [data?.timestamp, aggregationType]);
 
     if (!data?.value) {

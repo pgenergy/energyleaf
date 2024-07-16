@@ -2,6 +2,7 @@ import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { getTimezoneOffset } from "date-fns-tz";
 import { Suspense } from "react";
+import AbsoluteChartView from "../charts/absolute-chart-view";
 import HourChartView from "../charts/hour-chart-view";
 
 export default async function EnergyPageTodayView() {
@@ -21,7 +22,7 @@ export default async function EnergyPageTodayView() {
     return (
         <div className="col-span-1 grid grid-cols-1 gap-4 md:col-span-3 md:grid-cols-3">
             <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                <AbsolutEnergyConsumptionCard startDate={startDate} endDate={endDate} showDescription={false} />
+                <AbsoluteChartView startDate={startDate} endDate={endDate} />
             </Suspense>
             <Suspense fallback={<Skeleton className="col-span-1 h-96 w-full md:col-span-3" />}>
                 <HourChartView startDate={startDate} endDate={endDate} />

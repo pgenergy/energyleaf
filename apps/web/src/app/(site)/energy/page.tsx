@@ -5,10 +5,9 @@ import EnergyPageRangeSelector from "@/components/dashboard/energy/range-selecto
 import EnergyPageMonthView from "@/components/energy/views/month-view";
 import EnergyPageTodayView from "@/components/energy/views/today-view";
 import EnergyPageWeekView from "@/components/energy/views/week-view";
-import EnergyPageYesterdayView from "@/components/energy/views/yesterday-view";
 import { getSession } from "@/lib/auth/auth.server";
 import type { EnergyRangeOptionType } from "@/types/energy";
-import { fulfills, Versions } from "@energyleaf/lib/versioning";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -42,7 +41,6 @@ export default async function EnergyPage(props: Props) {
                 </Suspense>
                 <EnergyPageRangeSelector range={props.searchParams.range || "today"} />
                 {props.searchParams.range === "today" || !props.searchParams.range ? <EnergyPageTodayView /> : null}
-                {props.searchParams.range === "yesterday" ? <EnergyPageYesterdayView /> : null}
                 {props.searchParams.range === "week" ? <EnergyPageWeekView /> : null}
                 {props.searchParams.range === "month" ? <EnergyPageMonthView /> : null}
                 <h2 className="col-span-1 font-bold text-xl md:col-span-3">Tage vergleichen</h2>

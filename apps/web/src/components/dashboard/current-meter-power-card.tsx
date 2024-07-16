@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 
 interface Props {
     showDescription?: boolean;
-};
+}
 
 export default async function CurrentMeterPowerCard(props: Props) {
     const { user } = await getSession();
@@ -33,7 +33,7 @@ export default async function CurrentMeterPowerCard(props: Props) {
                         "text-muted-foreground": value?.valueCurrent === null || value?.valueCurrent === undefined,
                     })}
                 >
-                    {!value?.valueCurrent ? "Keine Sensor Daten" : `${value.valueCurrent.toFixed(0)} W`}
+                    {!value?.valueCurrent ? "Keine Sensordaten vorhanden" : `${value.valueCurrent.toFixed(0)} W`}
                 </p>
             </CardContent>
         </Card>

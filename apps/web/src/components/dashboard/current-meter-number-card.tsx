@@ -33,7 +33,7 @@ export default async function CurrentMeterNumberCard(props: Props) {
                         "text-muted-foreground": value === undefined || value === null,
                     })}
                 >
-                    {!value ? "Keine Sensor Daten" : `${value.value.toFixed(0)} kWh`}
+                    {!value ? "Keine Sensordaten vorhanden" : `${value.value.toFixed(0)} kWh`}
                 </p>
             </CardContent>
         </Card>

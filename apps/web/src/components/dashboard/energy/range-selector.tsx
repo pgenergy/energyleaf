@@ -30,7 +30,11 @@ export default function EnergyPageRangeSelector(props: Props) {
         <div className="col-span-1 flex flex-row md:col-span-3">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" type="button" className="flex flex-row items-center gap-2 font-bold text-xl">
+                    <Button
+                        variant="ghost"
+                        type="button"
+                        className="flex flex-row items-center gap-2 font-bold text-xl"
+                    >
                         {energyRangeOptions[selectedRange]}
                         <ChevronDownIcon className="h-4 w-4" />
                     </Button>

@@ -8,7 +8,7 @@ import { isDemoUser } from "@/lib/demo/demo";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Navbar } from "@energyleaf/ui/nav/navbar";
 import { Sidebar } from "@energyleaf/ui/nav/sidebar";
-import { HomeIcon, MicrowaveIcon, SettingsIcon, HousePlugIcon, DollarSignIcon } from "lucide-react";
+import { DollarSignIcon, HomeIcon, HousePlugIcon, MicrowaveIcon, SettingsIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import type React from "react";
 

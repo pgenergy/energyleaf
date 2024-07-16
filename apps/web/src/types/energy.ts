@@ -1,6 +1,5 @@
 export const energyRangeOptions = {
     today: "Heute",
-    yesterday: "Gestern",
     week: "Diese Woche",
     month: "Diesen Monat",
 };

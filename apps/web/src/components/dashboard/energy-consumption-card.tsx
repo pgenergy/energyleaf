@@ -5,12 +5,12 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import { getUserData } from "@/query/user";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import { cn } from "@energyleaf/tailwindcss/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import CSVExportButton from "./csv-export-button";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
-import { cn } from "@energyleaf/tailwindcss/utils";
 
 interface Props {
     startDate: Date;
@@ -18,11 +18,7 @@ interface Props {
     aggregationType: string | undefined;
 }
 
-export default async function EnergyConsumptionCard({
-    startDate,
-    endDate,
-    aggregationType,
-}: Props) {
+export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
     const { user } = await getSession();
 
     if (!user) {
@@ -55,7 +51,7 @@ export default async function EnergyConsumptionCard({
     const showPeaks = fulfills(user.appVersion, Versions.self_reflection) || hasAggregation;
 
     const userData = await getUserData(user.id);
-    const workingPrice = hasAggregation ? undefined : userData?.workingPrice ?? undefined;
+    const workingPrice = userData?.workingPrice ?? undefined;
     const cost =
         workingPrice && userData?.basePrice
             ? (userData.basePrice / (30 * 24 * 60 * 60)) * 15 + workingPrice

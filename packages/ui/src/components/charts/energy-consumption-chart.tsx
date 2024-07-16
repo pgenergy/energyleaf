@@ -3,7 +3,7 @@
 import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
 import clsx from "clsx";
-import { formatDate } from "date-fns";
+import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { Area, AreaChart, ReferenceArea, ReferenceDot, Tooltip, XAxis, YAxis } from "recharts";
 import type { CategoricalChartState } from "recharts/types/chart/types";
@@ -105,14 +105,38 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, cost, zoo
     }, [data]);
 
     const dynamicTickFormatter = (value: string) => {
-        if (sameDay) {
-            if (showSeconds) {
-                return formatDate(new Date(value), "HH:mm:ss");
+        if (aggregation === AggregationType.RAW) {
+            if (sameDay) {
+                if (showSeconds) {
+                    return format(new Date(value), "HH:mm:ss");
+                }
+                return format(new Date(value), "HH:mm");
             }
-            return formatDate(new Date(value), "HH:mm");
+
+            return format(new Date(value), "dd.MM: HH:mm");
         }
 
-        return formatDate(new Date(value), "dd.MM: HH:mm");
+        if (aggregation === AggregationType.HOUR) {
+            return format(new Date(value), "HH:00");
+        }
+
+        if (aggregation === AggregationType.DAY) {
+            return format(new Date(value), "dddd", { local: de });
+        }
+
+        if (aggregation === AggregationType.WEEK) {
+            return format(new Date(value), "'KW' WW", { locale: de });
+        }
+
+        if (aggregation === AggregationType.MONTH) {
+            return format(new Date(value), "MMMM", { locale: de });
+        }
+
+        if (aggregation === AggregationType.YEAR) {
+            return format(new Date(value), "yyyy", { locale: de });
+        }
+
+        return format(new Date(value), "dd.MM: HH:mm:ss");
     };
 
     const handleZoom = () => {

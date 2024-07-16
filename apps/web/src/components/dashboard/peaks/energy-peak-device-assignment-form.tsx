@@ -19,7 +19,11 @@ interface Props {
 
 export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInteract }: Props) {
     const queryClient = useQueryClient();
-    const { data: selectedDevices, isLoading: selectedDevicesLoading } = useQuery({
+    const {
+        data: selectedDevices,
+        isLoading: selectedDevicesLoading,
+        isRefetching: selectedDevicesRefetching,
+    } = useQuery({
         queryKey: ["selectedDevices"],
         queryFn: () => getDevicesByPeak(sensorDataId),
     });
@@ -89,6 +93,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
                                             value: device.id.toString(),
                                         }))}
                                         loading={devicesLoading || selectedDevicesLoading}
+                                        refetching={selectedDevicesRefetching}
                                         initialSelected={selectedDevices?.map((device) => ({
                                             ...device,
                                             label: device.name,

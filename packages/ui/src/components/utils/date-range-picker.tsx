@@ -168,7 +168,14 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
                             Monat
                         </Button>
                     </div>
-                    <Calendar initialFocus mode="range" onDayClick={onDayClick} selected={range} footer={calFooter} />
+                    <Calendar
+                        locale={de}
+                        initialFocus
+                        mode="range"
+                        onDayClick={onDayClick}
+                        selected={range}
+                        footer={calFooter}
+                    />
                 </PopoverContent>
             </Popover>
         </div>

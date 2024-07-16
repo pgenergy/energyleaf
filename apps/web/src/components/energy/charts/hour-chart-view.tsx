@@ -2,8 +2,8 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import HourChart from "./hour-chart";
 import { getTimezoneOffset } from "date-fns-tz";
+import HourChart from "./hour-chart";
 
 interface Props {
     startDate: Date;
@@ -24,9 +24,6 @@ export default async function HourChartView(props: Props) {
     }
 
     const rawData = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId);
-    // if (!rawData || rawData.length === 0) {
-    //     return <NoDataView />;
-    // }
 
     const fillArray = () => {
         const result: SensorDataSelectType[] = [];
@@ -81,7 +78,7 @@ export default async function HourChartView(props: Props) {
     return (
         <Card className="col-span-1 md:col-span-3">
             <CardHeader>
-                <CardTitle>Pro Stunde</CardTitle>
+                <CardTitle>Übersicht in Stunden</CardTitle>
                 <CardDescription>Hier sehen Sie ihre Daten pro Stunde</CardDescription>
             </CardHeader>
             <CardContent>
@@ -95,7 +92,7 @@ function NoDataView() {
     return (
         <Card className="col-span-1 md:col-span-3">
             <CardHeader>
-                <CardTitle>Pro Stunde</CardTitle>
+                <CardTitle>Übersicht in Stunden</CardTitle>
                 <CardDescription>Hier sehen Sie ihre Daten pro Stunde</CardDescription>
             </CardHeader>
             <CardContent>
