@@ -124,60 +124,58 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
     }, []);
 
     return (
-        <div className="flex flex-row justify-end gap-4">
-            <Popover
-                open={open}
-                onOpenChange={(isOpen) => {
-                    if (!isOpen) {
-                        setRange(initRange);
-                    }
+        <Popover
+            open={open}
+            onOpenChange={(isOpen) => {
+                if (!isOpen) {
+                    setRange(initRange);
+                }
 
-                    setOpen(isOpen);
-                }}
-            >
-                <PopoverTrigger asChild>
-                    <Button className="justify-start text-left font-normal" variant="outline">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateString()}
+                setOpen(isOpen);
+            }}
+        >
+            <PopoverTrigger asChild>
+                <Button className="text-center" variant="outline">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateString()}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="flex w-auto flex-col items-center gap-2">
+                <div className="flex flex-row flex-wrap gap-2">
+                    <Button
+                        onClick={() => {
+                            onChangeInternal(getToday);
+                        }}
+                        variant="outline"
+                    >
+                        Heute
                     </Button>
-                </PopoverTrigger>
-                <PopoverContent className="flex w-auto flex-col items-center gap-2">
-                    <div className="flex flex-row flex-wrap gap-2">
-                        <Button
-                            onClick={() => {
-                                onChangeInternal(getToday);
-                            }}
-                            variant="outline"
-                        >
-                            Heute
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                onChangeInternal(getWeek);
-                            }}
-                            variant="outline"
-                        >
-                            Woche
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                onChangeInternal(getMonth);
-                            }}
-                            variant="outline"
-                        >
-                            Monat
-                        </Button>
-                    </div>
-                    <Calendar
-                        locale={de}
-                        initialFocus
-                        mode="range"
-                        onDayClick={onDayClick}
-                        selected={range}
-                        footer={calFooter}
-                    />
-                </PopoverContent>
-            </Popover>
-        </div>
+                    <Button
+                        onClick={() => {
+                            onChangeInternal(getWeek);
+                        }}
+                        variant="outline"
+                    >
+                        Woche
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            onChangeInternal(getMonth);
+                        }}
+                        variant="outline"
+                    >
+                        Monat
+                    </Button>
+                </div>
+                <Calendar
+                    locale={de}
+                    initialFocus
+                    mode="range"
+                    onDayClick={onDayClick}
+                    selected={range}
+                    footer={calFooter}
+                />
+            </PopoverContent>
+        </Popover>
     );
 }

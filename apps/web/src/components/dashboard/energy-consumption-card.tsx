@@ -57,31 +57,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
             ? (userData.basePrice / (30 * 24 * 60 * 60)) * 15 + workingPrice
             : workingPrice;
 
-    const csvExportData = {
-        userId: user.id,
-        userHash: createHash("sha256").update(`${user.id}${env.HASH_SECRET}`).digest("hex"),
-        endpoint:
-            env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
-                ? `https://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/csv_energy`
-                : `http://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/csv_energy`,
-    };
-
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-col justify-start">
-                <div className="flex flex-row justify-between gap-2">
-                    <div className="flex flex-col gap-2">
-                        <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
-                        <CardDescription>Im ausgewählten Zeitraum</CardDescription>
-                    </div>
-                    {user.id !== "demo" ? (
-                        <CSVExportButton
-                            userId={csvExportData.userId}
-                            userHash={csvExportData.userHash}
-                            endpoint={csvExportData.endpoint}
-                        />
-                    ) : null}
-                </div>
+                <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
+                <CardDescription>Im ausgewählten Zeitraum</CardDescription>
                 {user.id !== "demo" ? (
                     <div className="flex flex-row gap-4">
                         <DashboardEnergyAggregation selected={aggregation} />

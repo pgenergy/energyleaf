@@ -29,7 +29,7 @@ export default async function CurrentMeterOutCard(props: Props) {
             <CardContent className="text-center">
                 <p
                     className={cn({
-                        "font-medium": value?.valueOut !== null && value?.valueOut !== undefined,
+                        "font-bold font-mono": value?.valueOut !== null && value?.valueOut !== undefined,
                         "text-muted-foreground": value?.valueOut === null || value?.valueOut === undefined,
                     })}
                 >

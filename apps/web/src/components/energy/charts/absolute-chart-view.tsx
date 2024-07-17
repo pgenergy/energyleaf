@@ -1,6 +1,5 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import AbsoluteMiniChart from "./absolute-mini-chart";
@@ -29,6 +28,18 @@ export default async function AbsoluteChartView(props: Props) {
     }
 
     const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, true);
+    const hasValues = data.length > 0;
+
+    if (!hasValues) {
+        return (
+            <>
+                <NotFound title="Absoluter Verbrauch" />
+                <NotFound title="Absolut Eingespeist" />
+                <NotFound title="Durchschnittliche Leistung" />
+            </>
+        );
+    }
+
     const total = data.reduce((acc, cur) => acc + cur.value, 0);
 
     const hasOutValues = data.some((d) => d.valueOut);
@@ -45,7 +56,7 @@ export default async function AbsoluteChartView(props: Props) {
                     <CardTitle>Absoluter Verbrauch</CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2">
-                    <p className="font-bold">{total.toFixed(2)} kWh</p>
+                    <p className="font-bold font-mono">{total.toFixed(2)} kWh</p>
                     <AbsoluteMiniChart data={data} display="value" />
                 </CardContent>
             </Card>
@@ -55,7 +66,7 @@ export default async function AbsoluteChartView(props: Props) {
                         <CardTitle>Absolut Eingespeist</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2">
-                        <p className="font-bold">{totalOut.toFixed(2)} kWh</p>
+                        <p className="font-bold font-mono">{totalOut.toFixed(2)} kWh</p>
                         <AbsoluteMiniChart data={data} display="valueOut" />
                     </CardContent>
                 </Card>
@@ -68,7 +79,7 @@ export default async function AbsoluteChartView(props: Props) {
                         <CardTitle>Durchschnittliche Leistung</CardTitle>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2">
-                        <p className="font-bold">{averagePower.toFixed(2)} W</p>
+                        <p className="font-bold font-mono">{averagePower.toFixed(2)} W</p>
                         <AbsoluteMiniChart data={data} display="valueCurrent" />
                     </CardContent>
                 </Card>

@@ -301,7 +301,7 @@ export async function getEnergyForSensorInRange(
             timestamp: sql`MIN(${subQuery.timestamp})`.mapWith({
                 mapFromDriverValue: (value: unknown) => {
                     return new Date(`${value}+0000`);
-                }
+                },
             }),
             grouper: grouperSql,
         })
@@ -310,17 +310,16 @@ export async function getEnergyForSensorInRange(
         .groupBy(grouperSql)
         .orderBy(grouperSql);
 
-    const results = query
-        .map((row, index) => ({
-            ...row,
-            id: index.toString(),
-            value: Number(row.value),
-            valueOut: Number(row.valueOut),
-            valueCurrent: Number(row.valueCurrent),
-            timestamp: row.timestamp,
-            isPeak: false,
-            isAnomaly: false,
-        }))
+    const results = query.map((row, index) => ({
+        ...row,
+        id: index.toString(),
+        value: Number(row.value),
+        valueOut: Number(row.valueOut),
+        valueCurrent: Number(row.valueCurrent),
+        timestamp: row.timestamp,
+        isPeak: false,
+        isAnomaly: false,
+    }));
 
     if (aggregation === AggregationType.HOUR) {
         return results.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());

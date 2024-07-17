@@ -29,7 +29,7 @@ export default async function CurrentMeterPowerCard(props: Props) {
             <CardContent className="text-center">
                 <p
                     className={cn({
-                        "font-medium": value?.valueCurrent !== null && value?.valueCurrent !== undefined,
+                        "font-bold font-mono": value?.valueCurrent !== null && value?.valueCurrent !== undefined,
                         "text-muted-foreground": value?.valueCurrent === null || value?.valueCurrent === undefined,
                     })}
                 >

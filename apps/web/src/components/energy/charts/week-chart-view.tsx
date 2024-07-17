@@ -11,7 +11,7 @@ interface Props {
     endDate: Date;
 }
 
-export default async function HourChartView(props: Props) {
+export default async function WeekChartView(props: Props) {
     const { user } = await getSession();
 
     if (!user) {
@@ -24,7 +24,7 @@ export default async function HourChartView(props: Props) {
         return <NoDataView />;
     }
 
-    const rawData = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, true);
+    const rawData = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.DAY, true);
     if (!rawData || rawData.length === 0) {
         return <NoDataView />;
     }
@@ -33,10 +33,11 @@ export default async function HourChartView(props: Props) {
         const result: SensorDataSelectType[] = [];
         const offset = getTimezoneOffset("Europe/Berlin", new Date());
         const localOffset = Math.abs(new Date().getTimezoneOffset() * 60 * 1000);
-        const date = new Date();
 
-        for (let i = 0; i < 24; i++) {
-            date.setHours(i, 0, 0, 0);
+        for (let i = 0; i < 6; i++) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            date.setHours(0, 0, 0, 0);
             const calcDate = offset === localOffset ? new Date(date) : new Date(date.getTime() - offset);
 
             result.push({

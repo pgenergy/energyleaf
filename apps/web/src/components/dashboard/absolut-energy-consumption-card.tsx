@@ -28,7 +28,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate,
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
+                    <h1 className="text-center text-muted-foreground">Keine Sensordaten vorhanden</h1>
                 </CardContent>
             </Card>
         );
@@ -44,7 +44,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate,
                 {showDescription ? <CardDescription>Im ausgewählten Zeitraum</CardDescription> : null}
             </CardHeader>
             <CardContent>
-                <h1 className="text-center font-bold text-2xl text-primary">{formatNumber(absolut)} kWh</h1>
+                <h1 className="text-center font-bold font-mono">{formatNumber(absolut)} kWh</h1>
             </CardContent>
         </Card>
     );
