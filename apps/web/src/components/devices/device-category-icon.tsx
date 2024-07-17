@@ -24,6 +24,7 @@ import {
     Tv,
     WashingMachine,
 } from "lucide-react";
+import Fryer from "./icons/fryer";
 import HeatPump from "./icons/heat-pump";
 import HeatingCoil from "./icons/heating-coil";
 import LaundryDryer from "./icons/laundy-dryer";
@@ -40,6 +41,8 @@ export default function DeviceCategoryIcon({ category }: Props) {
             return <Heater />;
         case DeviceCategory.Oven:
             return <Oven />;
+        case DeviceCategory.AirFryer:
+            return <Fryer />;
         case DeviceCategory.Fridge:
             return <Refrigerator />;
         case DeviceCategory.Freezer:
@@ -87,6 +90,6 @@ export default function DeviceCategoryIcon({ category }: Props) {
         case DeviceCategory.Further:
             return <Ellipsis />;
         default:
-            throw new Error("No icon for device category.");
+            return null;
     }
 }
