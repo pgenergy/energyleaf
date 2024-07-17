@@ -168,11 +168,13 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
                             <div>
                                 Ein Gerät dieser Kategorie hat eine typische Leistung von {formatNumber(minimumPower)}{" "}
                                 bis {formatNumber(maximumPower)} Watt.
-                                <span className="inline-flex items-center">
-                                    <a href={linkToSource} className="ml-1 flex items-center">
-                                        <ExternalLink className="h-4 w-4" />
-                                    </a>
-                                </span>
+                                {linkToSource && linkToSource.length > 0 && (
+                                    <span className="inline-flex items-center">
+                                        <a href={linkToSource} className="ml-1 flex items-center">
+                                            <ExternalLink className="h-4 w-4" />
+                                        </a>
+                                    </span>
+                                )}
                             </div>
                             {stateDeterminationDescription}
                         </PopoverContent>
