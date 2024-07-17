@@ -23,7 +23,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
         resolver: zodResolver(deviceSchema),
         defaultValues: {
             deviceName: device?.name ?? "",
-            category: device?.category ? (device.category as keyof typeof DeviceCategory) : "",
+            category: device?.category ?? "",
         },
     });
 
@@ -93,7 +93,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {Object.entries(DeviceCategory).map(([key, value]) => (
-                                            <SelectItem key={key} value={key} className="m-3">
+                                            <SelectItem key={key} value={value} className="m-3">
                                                 <div className="flex flex-row items-center gap-3">
                                                     <DeviceCategoryIcon category={value} />
                                                     {DeviceCategoryTitles[value]}
