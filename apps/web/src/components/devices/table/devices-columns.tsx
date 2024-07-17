@@ -5,6 +5,7 @@ import { formatNumber } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon, CircleAlert } from "lucide-react";
+import DeviceCategoryIcon from "../device-category-icon";
 import DeviceActionCell from "./device-action-cell";
 
 export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
@@ -67,7 +68,13 @@ export const devicesColumns: ColumnDef<DeviceSelectType>[] = [
         header: "Kategorie",
         cell: ({ row }) => {
             const categoryKey = row.getValue("category");
-            return DeviceCategory[categoryKey as keyof typeof DeviceCategory];
+            const category = DeviceCategory[categoryKey as keyof typeof DeviceCategory];
+            return (
+                <div className="flex flex-row items-center gap-2">
+                    <DeviceCategoryIcon category={category} />
+                    {category}
+                </div>
+            );
         },
     },
     {
