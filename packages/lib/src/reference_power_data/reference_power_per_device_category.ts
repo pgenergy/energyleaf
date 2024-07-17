@@ -178,7 +178,8 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
                 averagePower: 1500,
                 minimumPower: 750,
                 maximumPower: 2500,
-                linkToSource: "https://www.schwaebisch-hall.de/ratgeber/heizen-und-baustoffe/heizungsarten/elektroheizung.html",
+                linkToSource:
+                    "https://www.schwaebisch-hall.de/ratgeber/heizen-und-baustoffe/heizungsarten/elektroheizung.html",
                 purchasePrice: 150,
             };
         case DeviceCategory.AirConditioning:
@@ -186,7 +187,8 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
                 averagePower: 2000,
                 minimumPower: 750,
                 maximumPower: 4000,
-                linkToSource: "https://www.inspirecleanenergy.com/blog/sustainable-living/how-much-electricity-does-air-conditioning-use",
+                linkToSource:
+                    "https://www.inspirecleanenergy.com/blog/sustainable-living/how-much-electricity-does-air-conditioning-use",
                 purchasePrice: 450,
             };
         case DeviceCategory.HeatPump:
@@ -202,7 +204,8 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
                 averagePower: 10,
                 minimumPower: 5,
                 maximumPower: 15,
-                linkToSource: "https://www.energysage.com/electricity/house-watts/how-many-watts-does-a-light-bulb-use/",
+                linkToSource:
+                    "https://www.energysage.com/electricity/house-watts/how-many-watts-does-a-light-bulb-use/",
                 purchasePrice: 20,
             };
         case DeviceCategory.ECar:
@@ -210,7 +213,8 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
                 averagePower: 7000,
                 minimumPower: 5000,
                 maximumPower: 9000,
-                linkToSource: "https://www.energysage.com/electricity/house-watts/how-many-watts-does-an-electric-car-charger-use/",
+                linkToSource:
+                    "https://www.energysage.com/electricity/house-watts/how-many-watts-does-an-electric-car-charger-use/",
                 purchasePrice: 30000,
             };
         case DeviceCategory.EMobility:
