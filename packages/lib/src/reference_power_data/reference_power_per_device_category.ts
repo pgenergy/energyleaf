@@ -153,56 +153,59 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
             return {
                 averagePower: 1800,
                 minimumPower: 1400,
-                maximumPower: 2200,
-                linkToSource: "https://example.com/hairdryer-info",
-                purchasePrice: 45,
+                maximumPower: 2500,
+                linkToSource: "https://www.canstarblue.com.au/electricity/hair-dryer-electricity-usage/",
+                purchasePrice: 50,
             };
         case DeviceCategory.BodyCare:
             return {
-                averagePower: 100,
+                averagePower: 40,
                 minimumPower: 20,
-                maximumPower: 200,
-                linkToSource: "https://example.com/bodycare-info",
-                purchasePrice: 60,
+                maximumPower: 100,
+                linkToSource: "https://www.slashplan.com/shaver-energy-calculator-cost-and-kwh-usage",
+                purchasePrice: 50,
             };
         case DeviceCategory.HeaterFan:
             return {
-                averagePower: 2000,
-                minimumPower: 1000,
+                averagePower: 1500,
+                minimumPower: 750,
                 maximumPower: 3000,
-                linkToSource: "https://example.com/heaterfan-info",
-                purchasePrice: 55,
+                linkToSource: "https://www.homebuilding.co.uk/advice/how-much-does-it-cost-to-run-a-fan-heater",
+                purchasePrice: 50,
             };
         case DeviceCategory.ElectricHeater:
             return {
                 averagePower: 1500,
                 minimumPower: 750,
                 maximumPower: 2500,
-                linkToSource: "https://example.com/electricheater-info",
-                purchasePrice: 80,
+                linkToSource:
+                    "https://www.schwaebisch-hall.de/ratgeber/heizen-und-baustoffe/heizungsarten/elektroheizung.html",
+                purchasePrice: 150,
             };
         case DeviceCategory.AirConditioning:
             return {
-                averagePower: 2500,
-                minimumPower: 1500,
-                maximumPower: 3500,
-                linkToSource: "https://example.com/airconditioning-info",
-                purchasePrice: 600,
+                averagePower: 2000,
+                minimumPower: 750,
+                maximumPower: 4000,
+                linkToSource:
+                    "https://www.inspirecleanenergy.com/blog/sustainable-living/how-much-electricity-does-air-conditioning-use",
+                purchasePrice: 450,
             };
         case DeviceCategory.HeatPump:
             return {
-                averagePower: 4000,
-                minimumPower: 2500,
-                maximumPower: 5500,
-                linkToSource: "https://example.com/heatpump-info",
-                purchasePrice: 2000,
+                averagePower: 5000,
+                minimumPower: 4000,
+                maximumPower: 10000,
+                linkToSource: "https://waermepumpe-bwp.de/waermepumpe-wieviel-kw-pro-m2/",
+                purchasePrice: 20000,
             };
         case DeviceCategory.Lighting:
             return {
                 averagePower: 10,
                 minimumPower: 5,
                 maximumPower: 15,
-                linkToSource: "https://example.com/lighting-info",
+                linkToSource:
+                    "https://www.energysage.com/electricity/house-watts/how-many-watts-does-a-light-bulb-use/",
                 purchasePrice: 20,
             };
         case DeviceCategory.ECar:
@@ -210,24 +213,25 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
                 averagePower: 7000,
                 minimumPower: 5000,
                 maximumPower: 9000,
-                linkToSource: "https://example.com/ecar-info",
+                linkToSource:
+                    "https://www.energysage.com/electricity/house-watts/how-many-watts-does-an-electric-car-charger-use/",
                 purchasePrice: 30000,
             };
         case DeviceCategory.EMobility:
             return {
                 averagePower: 250,
                 minimumPower: 100,
-                maximumPower: 400,
-                linkToSource: "https://example.com/emobility-info",
-                purchasePrice: 1500,
+                maximumPower: 700,
+                linkToSource: "https://rebeinlaw.com/how-much-does-it-cost-to-charge-an-electric-scooter",
+                purchasePrice: 400,
             };
         case DeviceCategory.Others:
             return {
                 averagePower: 50,
                 minimumPower: 10,
                 maximumPower: 100,
-                linkToSource: "https://example.com/further-info",
-                purchasePrice: 100,
+                linkToSource: "",
+                purchasePrice: 60,
             };
     }
 }
