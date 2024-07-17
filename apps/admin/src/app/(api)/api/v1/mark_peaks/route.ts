@@ -11,8 +11,8 @@ export const GET = async (req: NextRequest) => {
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 
-    const startDate = new Date(2024, 6, 11, 18);
-    const endDate = new Date(2024, 6, 11, 18);
+    const startDate = new Date();
+    const endDate = new Date();
 
     //TODO PGE-218: Safe last end date in db and load it again as start date here
 
