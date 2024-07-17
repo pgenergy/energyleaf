@@ -1,6 +1,11 @@
 "use client";
 
-import { DeviceCategory, DeviceCategoryPowerState, type DeviceSelectType } from "@energyleaf/db/types";
+import {
+    type DeviceCategory,
+    DeviceCategoryPowerState,
+    DeviceCategoryTitles,
+    type DeviceSelectType,
+} from "@energyleaf/db/types";
 import { type DeviceCategoryPower, formatNumber } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
@@ -91,12 +96,11 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
         accessorKey: "category",
         header: "Kategorie",
         cell: ({ row }) => {
-            const categoryKey = row.getValue("category");
-            const category = DeviceCategory[categoryKey as keyof typeof DeviceCategory];
+            const category = row.getValue<DeviceCategory>("category");
             return (
                 <div className="flex flex-row items-center gap-2">
                     <DeviceCategoryIcon category={category} />
-                    {category}
+                    {DeviceCategoryTitles[category]}
                 </div>
             );
         },

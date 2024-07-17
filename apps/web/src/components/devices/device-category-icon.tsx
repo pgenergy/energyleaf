@@ -90,7 +90,7 @@ export default function DeviceCategoryIcon({ category }: Props) {
             return <Car />;
         case DeviceCategory.EMobility:
             return <Bike />;
-        case DeviceCategory.Further:
+        case DeviceCategory.Others:
             return <Ellipsis />;
         default:
             return null;

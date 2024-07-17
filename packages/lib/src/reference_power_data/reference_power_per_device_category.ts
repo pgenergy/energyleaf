@@ -221,7 +221,7 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
                 linkToSource: "https://example.com/emobility-info",
                 purchasePrice: 1500,
             };
-        case DeviceCategory.Further:
+        case DeviceCategory.Others:
             return {
                 averagePower: 50,
                 minimumPower: 10,

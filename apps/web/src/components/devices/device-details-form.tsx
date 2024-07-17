@@ -1,6 +1,6 @@
 import { createDevice, updateDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
-import { DeviceCategory } from "@energyleaf/db/types";
+import { DeviceCategory, DeviceCategoryTitles } from "@energyleaf/db/types";
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
@@ -96,7 +96,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                                             <SelectItem key={key} value={key} className="m-3">
                                                 <div className="flex flex-row items-center gap-3">
                                                     <DeviceCategoryIcon category={value} />
-                                                    {value}
+                                                    {DeviceCategoryTitles[value]}
                                                 </div>
                                             </SelectItem>
                                         ))}
