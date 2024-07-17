@@ -146,7 +146,7 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
                 averagePower: 200,
                 minimumPower: 50,
                 maximumPower: 400,
-                linkToSource: "https://example.com/entertainmentandcomputers-info",
+                linkToSource: "https://www.energysage.com/electricity/house-watts/how-many-watts-does-a-computer-use/",
                 purchasePrice: 500,
             };
         case DeviceCategory.HairDryer:
