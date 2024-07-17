@@ -3,20 +3,26 @@ import { calculateCosts } from "@/components/dashboard/energy-cost";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
-function EnergyCostsChangeLastThirtyDaysNationalAverage({ userData, energyData }) {
+function getLastMonthDates() {
     const now = new Date();
-    const lastThirtyDays = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+    return { startOfLastMonth, endOfLastMonth };
+}
+
+function EnergyCostsChangeLastMonthNationalAverage({ userData, energyData }) {
+    const { startOfLastMonth, endOfLastMonth } = getLastMonthDates();
 
     const thisMonthData = energyData.filter((data) => {
         const date = new Date(data.timestamp);
-        return date >= lastThirtyDays && date < now;
+        return date >= startOfLastMonth && date <= endOfLastMonth;
     });
 
     if (thisMonthData.length < 30) {
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energiekosten: Letzte 30 Tage vs. Deutscher Durchschnitt</CardTitle>
+                    <CardTitle>Energiekosten: Letzter Monat vs. Deutscher Durchschnitt</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -32,7 +38,7 @@ function EnergyCostsChangeLastThirtyDaysNationalAverage({ userData, energyData }
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energiekosten: Letzte 30 Tage vs. Deutscher Durchschnitt</CardTitle>
+                    <CardTitle>Energiekosten: Letzter Monat vs. Deutscher Durchschnitt</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -53,9 +59,15 @@ function EnergyCostsChangeLastThirtyDaysNationalAverage({ userData, energyData }
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Energiekosten: Letzte 30 Tage vs. Deutscher Durchschnitt</CardTitle>
+                <CardTitle>Energiekosten: Letzter Monat vs. Deutscher Durchschnitt</CardTitle>
             </CardHeader>
             <CardContent>
+                <p className={"text-center font-bold text-xl"}>
+                    Kosten letzter Monat: {formatNumber(thisMonthCosts)} €
+                </p>
+                <p className={"text-center font-bold text-xl"}>
+                    Deutscher Durchschnitt: {formatNumber(nationalAverageCost)} €
+                </p>
                 <p className={`text-center font-bold text-2xl ${color}`}>
                     {sign}
                     {formatNumber(costDifference)} € ({sign}
@@ -66,4 +78,4 @@ function EnergyCostsChangeLastThirtyDaysNationalAverage({ userData, energyData }
     );
 }
 
-export default EnergyCostsChangeLastThirtyDaysNationalAverage;
+export default EnergyCostsChangeLastMonthNationalAverage;

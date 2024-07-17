@@ -2,23 +2,32 @@ import { calculateCosts } from "@/components/dashboard/energy-cost";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
-function EnergyCostsChangeLastThirtyDays({ userData, energyData }) {
+function getLastMonthDates() {
     const now = new Date();
-    const lastThirtyDays = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
-    const sixtyDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 60);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+    return { startOfLastMonth, endOfLastMonth };
+}
 
-    const lastMonthData = energyData.filter(
-        (data) => new Date(data.timestamp) >= sixtyDaysAgo && new Date(data.timestamp) < lastThirtyDays,
-    );
-    const thisMonthData = energyData.filter(
-        (data) => new Date(data.timestamp) >= lastThirtyDays && new Date(data.timestamp) < now,
-    );
+function EnergyCostsChangeLastMonth({ userData, energyData }) {
+    const { startOfLastMonth, endOfLastMonth } = getLastMonthDates();
+    const startOfPreviousMonth = new Date(startOfLastMonth.getFullYear(), startOfLastMonth.getMonth() - 1, 1);
+    const endOfPreviousMonth = new Date(startOfLastMonth.getFullYear(), startOfLastMonth.getMonth(), 0);
+
+    const lastMonthData = energyData.filter((data) => {
+        const date = new Date(data.timestamp);
+        return date >= startOfPreviousMonth && date <= endOfPreviousMonth;
+    });
+    const thisMonthData = energyData.filter((data) => {
+        const date = new Date(data.timestamp);
+        return date >= startOfLastMonth && date <= endOfLastMonth;
+    });
 
     if (lastMonthData.length < 30 || thisMonthData.length < 30) {
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energiekosten: Letzte 30 Tage vs. Vormonat</CardTitle>
+                    <CardTitle>Energiekosten: Letzter Monat vs. Vormonat</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -40,9 +49,12 @@ function EnergyCostsChangeLastThirtyDays({ userData, energyData }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Energiekosten: Letzte 30 Tage vs. Vormonat</CardTitle>
+                <CardTitle>Energiekosten: Letzter Monat vs. Vormonat</CardTitle>
             </CardHeader>
             <CardContent>
+                <p className={"text-center font-bold text-xl"}>
+                    Kosten letzter Monat: {formatNumber(thisMonthCosts)} €
+                </p>
                 <p className={`text-center font-bold text-2xl ${color}`}>
                     {sign}
                     {formatNumber(costDifference)} € ({sign}
@@ -53,4 +65,4 @@ function EnergyCostsChangeLastThirtyDays({ userData, energyData }) {
     );
 }
 
-export default EnergyCostsChangeLastThirtyDays;
+export default EnergyCostsChangeLastMonth;

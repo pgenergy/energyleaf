@@ -3,20 +3,31 @@ import { calculateCosts } from "@/components/dashboard/energy-cost";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
-function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData }) {
+function getPreviousWeekDates() {
     const now = new Date();
-    const lastSevenDays = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+    const dayOfWeek = now.getDay();
+    const endOfLastWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
+    const startOfLastWeek = new Date(
+        endOfLastWeek.getFullYear(),
+        endOfLastWeek.getMonth(),
+        endOfLastWeek.getDate() - 6,
+    );
+    return { startOfLastWeek, endOfLastWeek };
+}
+
+function EnergyCostsChangeLastWeekNationalAverage({ userData, energyData }) {
+    const { startOfLastWeek, endOfLastWeek } = getPreviousWeekDates();
 
     const thisWeekData = energyData.filter((data) => {
         const date = new Date(data.timestamp);
-        return date >= lastSevenDays && date < now;
+        return date >= startOfLastWeek && date < endOfLastWeek;
     });
 
     if (thisWeekData.length < 7) {
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energiekosten: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
+                    <CardTitle>Energiekosten: Letzte Woche vs. Deutscher Durchschnitt</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -32,7 +43,7 @@ function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData })
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energiekosten: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
+                    <CardTitle>Energiekosten: Letzte Woche vs. Deutscher Durchschnitt</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -53,9 +64,13 @@ function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData })
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Energiekosten: Letzte 7 Tage vs. Deutscher Durchschnitt</CardTitle>
+                <CardTitle>Energiekosten: Letzte Woche vs. Deutscher Durchschnitt</CardTitle>
             </CardHeader>
             <CardContent>
+                <p className={"text-center font-bold text-xl"}>Kosten letzte Woche: {formatNumber(thisWeekCosts)} €</p>
+                <p className={"text-center font-bold text-xl"}>
+                    Deutscher Durchschnitt: {formatNumber(nationalAverageCost)} €
+                </p>
                 <p className={`text-center font-bold text-2xl ${color}`}>
                     {sign}
                     {formatNumber(costDifference)} € ({sign}
@@ -66,4 +81,4 @@ function EnergyCostsChangeLastSevenDaysNationalAverage({ userData, energyData })
     );
 }
 
-export default EnergyCostsChangeLastSevenDaysNationalAverage;
+export default EnergyCostsChangeLastWeekNationalAverage;

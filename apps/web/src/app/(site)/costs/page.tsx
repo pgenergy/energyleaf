@@ -1,10 +1,10 @@
 import AverageEnergyCostsDay from "@/components/costs/average-energy-costs-day-card";
 import AverageEnergyCostsMonth from "@/components/costs/average-energy-costs-month-card";
 import AverageEnergyCostsWeek from "@/components/costs/average-energy-costs-week-card";
-import EnergyCostsChangeLastSevenDays from "@/components/costs/energy-costs-change-last-seven-days-card";
-import EnergyCostsChangeLastSevenDaysNationalAverage from "@/components/costs/energy-costs-change-last-seven-days-national-average-card";
-import EnergyCostsChangeLastThirtyDays from "@/components/costs/energy-costs-change-last-thirty-days-card";
-import EnergyCostsChangeLastThirtyDaysNationalAverage from "@/components/costs/energy-costs-change-last-thirty-days-national-average-card";
+import EnergyCostsChangeLastMonth from "@/components/costs/energy-costs-change-last-month-card";
+import EnergyCostsChangeLastMonthNationalAverage from "@/components/costs/energy-costs-change-last-month-national-average-card";
+import EnergyCostsChangeLastWeek from "@/components/costs/energy-costs-change-last-week-card";
+import EnergyCostsChangeLastWeekNationalAverage from "@/components/costs/energy-costs-change-last-week-national-average-card";
 import EnergyCostsComparativeProjectionDay from "@/components/costs/energy-costs-comparative-projection-day-card";
 import EnergyCostsComparativeProjectionMonth from "@/components/costs/energy-costs-comparative-projection-month-card";
 import EnergyCostsComparativeProjectionWeek from "@/components/costs/energy-costs-comparative-projection-week-card";
@@ -72,7 +72,7 @@ export default async function CostsPage() {
             {/* Absolute Energiekosten */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Absolute Energiekosten</h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
                     <ErrorBoundary fallback={EnergyCostsTodayError}>
                         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                             <EnergyCostsToday userData={userData} energyDataRaw={energyDataRaw} />
@@ -99,7 +99,7 @@ export default async function CostsPage() {
             {/* Durchschnittliche Energiekosten */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Durchschnittliche Energiekosten</h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <AverageEnergyCostsDay userData={userData} energyData={energyDataRaw} />
                     </Suspense>
@@ -131,28 +131,22 @@ export default async function CostsPage() {
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
                     <ErrorBoundary fallback={EnergyCostsChangeLastSevenDaysError}>
                         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                            <EnergyCostsChangeLastSevenDays userData={userData} energyData={energyDataRaw} />
+                            <EnergyCostsChangeLastWeek userData={userData} energyData={energyDataRaw} />
                         </Suspense>
                     </ErrorBoundary>
                     <ErrorBoundary fallback={EnergyCostsChangeLastThirtyDaysError}>
                         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                            <EnergyCostsChangeLastThirtyDays userData={userData} energyData={energyDataRaw} />
+                            <EnergyCostsChangeLastMonth userData={userData} energyData={energyDataRaw} />
                         </Suspense>
                     </ErrorBoundary>
                     <ErrorBoundary fallback={EnergyCostsChangeLastSevenDaysNationalAverageError}>
                         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                            <EnergyCostsChangeLastSevenDaysNationalAverage
-                                userData={userData}
-                                energyData={energyDataRaw}
-                            />
+                            <EnergyCostsChangeLastWeekNationalAverage userData={userData} energyData={energyDataRaw} />
                         </Suspense>
                     </ErrorBoundary>
                     <ErrorBoundary fallback={EnergyCostsChangeLastThirtyDaysNationalAverageError}>
                         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                            <EnergyCostsChangeLastThirtyDaysNationalAverage
-                                userData={userData}
-                                energyData={energyDataRaw}
-                            />
+                            <EnergyCostsChangeLastMonthNationalAverage userData={userData} energyData={energyDataRaw} />
                         </Suspense>
                     </ErrorBoundary>
                 </div>
@@ -161,7 +155,7 @@ export default async function CostsPage() {
             {/* Hochrechnungen */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Hochrechnungen</h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostsProjectionDay userData={userData} energyData={energyDataRaw} />
                     </Suspense>
