@@ -55,7 +55,7 @@ export default function DeviceCategoryIcon({ category }: Props) {
             return <Icon iconNode={toaster} />;
         case DeviceCategory.CoffeeMachine:
             return <Icon iconNode={coffeemaker} />;
-        case DeviceCategory.SmallKitchenAppliances:
+        case DeviceCategory.Blender:
             return <CookingPot />;
         case DeviceCategory.Dishwasher:
             return <Icon iconNode={dishwasher} />;
