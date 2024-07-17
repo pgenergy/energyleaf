@@ -1,3 +1,4 @@
+import InfoDialog from "@/components/costs/info-dialog-component";
 import { calculateCosts } from "@/components/dashboard/energy-cost";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
@@ -31,9 +32,12 @@ function EnergyCostsToday({ userData, energyDataRaw }) {
     const formattedCost = formatNumber(parsedCost);
 
     return (
-        <Card className="w-full">
+        <Card style={{ position: "relative" }}>
             <CardHeader>
                 <CardTitle>Energiekosten heute</CardTitle>
+                <div style={{ position: "absolute", top: "10px", right: "10px" }}>
+                    <InfoDialog description="Zeigt die bisherigen Stromkosten für den heutigen Tag, basierend auf der verbrauchten Strommenge sowie Ihrem Grundpreis und Verbrauchspreis." />
+                </div>
             </CardHeader>
             <CardContent>
                 <p className="text-center font-bold text-2xl text-primary">{formattedCost} €</p>
