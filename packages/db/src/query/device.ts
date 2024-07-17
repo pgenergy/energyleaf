@@ -91,7 +91,7 @@ export async function updatePowerOfDevices(userId: string) {
 
         const math = create(all, {});
 
-        // Extract matrices
+        // Extract matrices. A is a matrix of 0s and 1s, where each row corresponds to a peak and each column to a device. b is a matrix of power values for each peak.
         const A = math.matrix(
             peaks.map((dp) => {
                 const row = devices.map((device) => (dp.devices.includes(device) ? 1 : 0));
