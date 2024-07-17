@@ -36,7 +36,7 @@ interface Props {
 
 export default function DeviceCategoryIcon({ category }: Props) {
     switch (category) {
-        case DeviceCategory.Stove:
+        case DeviceCategory.Stovetop:
             return <Heater />;
         case DeviceCategory.Oven:
             return <Oven />;

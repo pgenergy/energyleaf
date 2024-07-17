@@ -107,7 +107,7 @@ export const userDataElectricityMeterTypeEnums: Record<
 };
 
 export enum DeviceCategory {
-    Stove = "Herd",
+    Stovetop = "Herd",
     Oven = "Backofen",
     Fridge = "Kühlschrank",
     Freezer = "Gefrierschrank",
@@ -115,6 +115,7 @@ export enum DeviceCategory {
     Kettle = "Wasserkocher",
     Toaster = "Toaster",
     CoffeeMachine = "Kaffeemaschine",
+    AirFryer = "Heißluftfritteuse",
     SmallKitchenAppliances = "Kleingeräte Küche",
     Dishwasher = "Geschirrspüler",
     WashingMachine = "Waschmaschine",
