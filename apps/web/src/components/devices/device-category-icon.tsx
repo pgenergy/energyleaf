@@ -19,6 +19,7 @@ import {
     Heater,
     Icon,
     Lamp,
+    Laptop,
     Microwave,
     Refrigerator,
     Tv,
@@ -67,8 +68,10 @@ export default function DeviceCategoryIcon({ category }: Props) {
             return <VacuumCleaner />;
         case DeviceCategory.Iron:
             return <Icon iconNode={iron} />;
-        case DeviceCategory.EntertainmentAndComputers:
+        case DeviceCategory.TVsAndMonitors:
             return <Tv />;
+        case DeviceCategory.EntertainmentAndComputers:
+            return <Laptop />;
         case DeviceCategory.HairDryer:
             return <Icon iconNode={hairdryer} />;
         case DeviceCategory.BodyCare:
