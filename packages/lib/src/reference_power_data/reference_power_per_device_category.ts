@@ -1,4 +1,4 @@
-import { DeviceCategory } from "@energyleaf/db/types";
+import { DeviceCategory, DeviceCategoryPowerState } from "@energyleaf/db/types";
 import type { DeviceCategoryPower } from "../types";
 
 /**
@@ -135,3 +135,39 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
             return { averagePower: 0, minimumPower: 0, maximumPower: 0, linkToSource: "Unknown category", purchasePrice: 0 };
     }
 }
+
+export default function getCategoryPowerState(
+    deviceCategoryPower: DeviceCategoryPower,
+    powerEstimationInWatts: number,
+) {
+    const { minimumPower, maximumPower } = deviceCategoryPower;
+    const oneThirdBound = minimumPower + (maximumPower - minimumPower) / 3;
+    const twoThirdBound = minimumPower + (2 * (maximumPower - minimumPower)) / 3;
+
+    if (powerEstimationInWatts < minimumPower) {
+        return DeviceCategoryPowerState.VERY_FRUGAL;
+    }
+    if (powerEstimationInWatts >= minimumPower && powerEstimationInWatts < oneThirdBound) {
+        return DeviceCategoryPowerState.FRUGAL;
+    }
+    if (powerEstimationInWatts >= oneThirdBound && powerEstimationInWatts < twoThirdBound) {
+        return DeviceCategoryPowerState.MEDIUM;
+    }
+    if (powerEstimationInWatts >= twoThirdBound && powerEstimationInWatts <= maximumPower) {
+        return DeviceCategoryPowerState.HIGH;
+    }
+    return DeviceCategoryPowerState.VERY_HIGH;
+}
+
+export const deviceCategoryPowerStateDescription: Record<DeviceCategoryPowerState, string> = {
+    [DeviceCategoryPowerState.VERY_FRUGAL]:
+        "Die Leistung Ihres Gerätes liegt unterhalb dieses Bereichs und ist damit sehr sparsam.",
+    [DeviceCategoryPowerState.FRUGAL]:
+        "Die Leistung Ihres Gerätes liegt im unteren Drittel dieses Bereichs und ist damit sparsam.",
+    [DeviceCategoryPowerState.MEDIUM]:
+        "Die Leistung Ihres Gerätes liegt im mittleren Drittel dieses Bereichs und ist damit durchschnittlich.",
+    [DeviceCategoryPowerState.HIGH]:
+        "Die Leistung Ihres Gerätes liegt im oberen Drittel dieses Bereichs und hat damit eine hohe Leistung.",
+    [DeviceCategoryPowerState.VERY_HIGH]:
+        "Die Leistung Ihres Gerätes liegt oberhalb dieses Bereichs und hat damit eine sehr hohe Leistung.",
+};

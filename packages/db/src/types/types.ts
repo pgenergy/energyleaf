@@ -134,6 +134,14 @@ export enum DeviceCategory {
     Further = "Sonstige Geräte",
 }
 
+export enum DeviceCategoryPowerState {
+    VERY_FRUGAL = "Sehr sparsam",
+    FRUGAL = "Sparsam",
+    MEDIUM = "Mittel",
+    HIGH = "Hoch",
+    VERY_HIGH = "Sehr hoch",
+}
+
 export enum ExperimentNumberEnum {
     FIRST = 0,
     SECOND = 1,
