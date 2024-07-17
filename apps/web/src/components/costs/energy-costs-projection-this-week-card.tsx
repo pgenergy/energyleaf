@@ -1,11 +1,23 @@
+import { getPredictedCostForWeek } from "@/components/costs/energy-projection-calculation";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
-export default function EnergyCostsProjectionWeek() {
+export default function EnergyCostsProjectionWeek({ userData, energyData }) {
+    const predictedCosts = getPredictedCostForWeek(energyData, userData);
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Hochrechnung der aktuellen Woche</CardTitle>
+                <CardTitle>Aktuelle Woche</CardTitle>
             </CardHeader>
+            <CardContent>
+                {predictedCosts ? (
+                    <p className="text-center font-bold text-2xl text-primary">
+                        {predictedCosts} € <br />
+                    </p>
+                ) : (
+                    <p>Keine Daten verfügbar.</p>
+                )}
+            </CardContent>
         </Card>
     );
 }
