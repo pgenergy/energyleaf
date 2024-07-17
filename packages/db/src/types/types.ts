@@ -169,9 +169,9 @@ export const DeviceCategoryTitles: Record<DeviceCategory, string> = {
 export enum DeviceCategoryPowerState {
     VERY_FRUGAL = "Sehr sparsam",
     FRUGAL = "Sparsam",
-    MEDIUM = "Mittel",
+    MEDIUM = "Durchschnittlich",
+    ABOVE_AVERAGE = "Überdurchschnittlich",
     HIGH = "Hoch",
-    VERY_HIGH = "Sehr hoch",
 }
 
 export enum ExperimentNumberEnum {

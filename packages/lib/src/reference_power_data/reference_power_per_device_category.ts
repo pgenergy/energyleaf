@@ -250,9 +250,9 @@ export default function getCategoryPowerState(
         return DeviceCategoryPowerState.MEDIUM;
     }
     if (powerEstimationInWatts >= twoThirdBound && powerEstimationInWatts <= maximumPower) {
-        return DeviceCategoryPowerState.HIGH;
+        return DeviceCategoryPowerState.ABOVE_AVERAGE;
     }
-    return DeviceCategoryPowerState.VERY_HIGH;
+    return DeviceCategoryPowerState.HIGH;
 }
 
 export const deviceCategoryPowerStateDescription: Record<DeviceCategoryPowerState, string> = {
@@ -262,8 +262,8 @@ export const deviceCategoryPowerStateDescription: Record<DeviceCategoryPowerStat
         "Die Leistung Ihres Gerätes liegt im unteren Drittel dieses Bereichs und ist damit sparsam.",
     [DeviceCategoryPowerState.MEDIUM]:
         "Die Leistung Ihres Gerätes liegt im mittleren Drittel dieses Bereichs und ist damit durchschnittlich.",
+    [DeviceCategoryPowerState.ABOVE_AVERAGE]:
+        "Die Leistung Ihres Gerätes liegt im oberen Drittel dieses Bereichs und hat damit eine überdurchschnittliche Leistung.",
     [DeviceCategoryPowerState.HIGH]:
-        "Die Leistung Ihres Gerätes liegt im oberen Drittel dieses Bereichs und hat damit eine hohe Leistung.",
-    [DeviceCategoryPowerState.VERY_HIGH]:
-        "Die Leistung Ihres Gerätes liegt oberhalb dieses Bereichs und hat damit eine sehr hohe Leistung.",
+        "Die Leistung Ihres Gerätes liegt oberhalb dieses Bereichs und hat damit eine hohe Leistung.",
 };
