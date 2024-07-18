@@ -30,6 +30,8 @@ const connection = getConnection();
 const db = drizzle(connection);
 export default db;
 
-export const genId = (lenght = 25) => {
-    return nanoid(lenght);
+export const genId = (length = 25) => {
+    return nanoid(length);
 };
+
+export type DB = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];

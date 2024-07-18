@@ -1,8 +1,6 @@
-import { type ExtractTablesWithRelations, and, asc, between, desc, eq, gt, gte, lt, lte, or } from "drizzle-orm";
-import type { MySqlTransaction } from "drizzle-orm/mysql-core";
-import type { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
+import { and, asc, between, desc, eq, getTableColumns, lt, lte, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import db from "..";
+import db, { type DB } from "..";
 import { device, deviceToPeak, sensorData, sensorDataSequence } from "../schema";
 import type { SensorDataSelectType, SensorDataSequenceType } from "../types/types";
 
@@ -127,25 +125,26 @@ export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
 
     try {
         return await db.transaction(async (trx) => {
-            const calcDbData = await trx
-                .select()
+            const { value, ...rest } = getTableColumns(sensorData);
+            const calcData = await db
+                .select({
+                    ...rest,
+                    value: sql<number>`${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`
+                        .mapWith({
+                            mapFromDriverValue: (value: string) => {
+                                return Number(value);
+                            },
+                        })
+                        .as("value"),
+                })
                 .from(sensorData)
                 .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)))
                 .orderBy(asc(sensorData.timestamp));
 
             // make sure we have at least 3 hours of reference data
-            if (calcDbData.length === 0 || calcDbData.length < 720) {
+            if (calcData.length < 720) {
                 return [];
             }
-
-            const calcData = calcDbData
-                .map((d, i) => {
-                    return {
-                        ...d,
-                        value: i === 0 ? 0 : Number(d.value) - Number(calcDbData[i - 1].value),
-                    };
-                })
-                .slice(1);
 
             // check if all values are integers if so we know that the sensor has no pin
             if (calcData.every((d) => Number.isInteger(d.value))) {
@@ -216,12 +215,7 @@ async function saveSequences(
     { start, sensorId, type }: FindAndMarkPeaksProps,
     consideredData: SensorDataSelectType[],
     dayData: SensorDataSelectType[],
-    trx: MySqlTransaction<
-        PlanetscaleQueryResultHKT,
-        PlanetScalePreparedQueryHKT,
-        Record<string, never>,
-        ExtractTablesWithRelations<Record<string, never>>
-    >,
+    trx: DB,
 ) {
     const firstSequenceMergeable = peaks[0].isAtStart;
     if (firstSequenceMergeable) {
@@ -231,7 +225,7 @@ async function saveSequences(
             .where(
                 and(
                     eq(sensorDataSequence.sensorId, sensorId),
-                    lt(sensorDataSequence.end, start),
+                    lte(sensorDataSequence.end, start),
                     eq(sensorDataSequence.type, type),
                 ),
             )

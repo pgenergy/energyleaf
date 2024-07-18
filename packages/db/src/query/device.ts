@@ -1,8 +1,6 @@
-import { type ExtractTablesWithRelations, type SQLWrapper, and, eq, ilike, like, sql } from "drizzle-orm";
-import type { MySqlTransaction } from "drizzle-orm/mysql-core";
-import type { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
+import { type SQLWrapper, and, eq, sql } from "drizzle-orm";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
-import db from "../";
+import db, { type DB } from "../";
 import { device, deviceHistory, deviceToPeak, sensorDataSequence, userData } from "../schema";
 
 export async function getDevicesByUser(userId: string, search?: string) {
@@ -132,15 +130,7 @@ export async function updatePowerOfDevices(userId: string) {
     });
 }
 
-async function getDeviceById(
-    trx: MySqlTransaction<
-        PlanetscaleQueryResultHKT,
-        PlanetScalePreparedQueryHKT,
-        Record<string, never>,
-        ExtractTablesWithRelations<Record<string, never>>
-    >,
-    id: number,
-) {
+async function getDeviceById(trx: DB, id: number) {
     const query = await trx.select().from(device).where(eq(device.id, id));
     if (query.length === 0) {
         throw new Error("Device not found");
@@ -150,12 +140,7 @@ async function getDeviceById(
 }
 
 async function copyToHistoryTable(
-    trx: MySqlTransaction<
-        PlanetscaleQueryResultHKT,
-        PlanetScalePreparedQueryHKT,
-        Record<string, never>,
-        ExtractTablesWithRelations<Record<string, never>>
-    >,
+    trx: DB,
     device: {
         id: number;
         userId: string;
