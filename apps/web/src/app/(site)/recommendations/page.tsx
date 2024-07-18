@@ -1,8 +1,8 @@
+import AmortizationCard from "@/components/recommendations/amortization-card";
 import AvgEnergyConsumptionCard from "@/components/recommendations/avg-energy-consumption-card";
 import AvgEnergyConsumptionError from "@/components/recommendations/avg-energy-consumption-card-error";
 import AvgEnergyConsumptionComparisonCard from "@/components/recommendations/avg-energy-consumption-comparison";
 import AvgEnergyConsumptionComparisonError from "@/components/recommendations/avg-energy-consumption-comparison-error";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";
@@ -30,17 +30,7 @@ export default function RecommendationsPage() {
                     </ErrorBoundary>
                 </div>
             </div>
-            <Card className="w-full">
-                <CardHeader>
-                    <CardTitle>Ihre Geräte</CardTitle>
-                    <CardDescription>Hier sehen Sie den Verbauch Ihrer Geräte</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex flex-row justify-center">
-                        <p className="text-muted-foreground">Noch keine Geräte vorhanden</p>
-                    </div>
-                </CardContent>
-            </Card>
+            <AmortizationCard />
         </div>
     );
 }
