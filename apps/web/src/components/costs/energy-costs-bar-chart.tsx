@@ -1,57 +1,85 @@
 "use client";
 
 import { calculateCosts } from "@/components/dashboard/energy-cost";
+import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/db/types";
+import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import {
+    ChartContainer,
+    ChartLegend,
+    ChartLegendContent,
+    ChartTooltip,
+    ChartTooltipContent,
+} from "@energyleaf/ui/chart";
 import React from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+interface EnergyData extends SensorDataSelectType {}
+interface UserData extends UserDataSelectType {}
+
 interface DailyCost {
     date: string;
-    Kosten: string;
+    cost: string;
 }
 
-const calculateDailyCosts = (energyData: any[], userData: any): DailyCost[] => {
-    const dailyDataMap = new Map<string, any[]>();
+const calculateDailyCosts = (energyData: EnergyData[], userData: UserData[]): DailyCost[] => {
+    const dailyDataMap = new Map<string, EnergyData[]>();
 
-    energyData.forEach((data) => {
+    for (const data of energyData) {
         const date = new Date(data.timestamp).toLocaleDateString();
         if (!dailyDataMap.has(date)) {
             dailyDataMap.set(date, []);
         }
         dailyDataMap.get(date)?.push(data);
-    });
+    }
 
     const dailyCosts = Array.from(dailyDataMap.entries()).map(([date, data]) => {
         const dailyCost = calculateCosts(userData, data);
         return {
             date,
-            Kosten: dailyCost.toFixed(2),
+            cost: dailyCost.toFixed(2),
         };
     });
 
     return dailyCosts;
 };
 
-const EnergyCostsBarChart = ({ energyData, userData }: { energyData: any[]; userData: any }) => {
+const chartConfig = {
+    cost: {
+        label: "Kosten (€)",
+        color: "#8884d8",
+    },
+};
+
+interface Props {
+    energyData: EnergyData[];
+    userData: UserData[];
+}
+
+const EnergyCostsBarChart = ({ energyData, userData }: Props) => {
     const data = calculateDailyCosts(energyData, userData);
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Tägliche Energiekosten der letzten 30 Tage in Euro</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={data}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="Kosten" fill="#8884d8" barSize={20} />
-                    </BarChart>
-                </ResponsiveContainer>
-            </CardContent>
-        </Card>
+        <ChartContainer config={chartConfig} className="max-h-96 min-h-52 w-full">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Tägliche Energiekosten der letzten 30 Tage</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={data}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <ChartLegend content={<ChartLegendContent />} />
+                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <XAxis dataKey="date" />
+                            <YAxis />
+                            <Tooltip />
+                            <Bar dataKey="cost" fill={chartConfig.cost.color} barSize={20} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </CardContent>
+            </Card>
+        </ChartContainer>
     );
 };
 
