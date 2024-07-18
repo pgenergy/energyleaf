@@ -1,4 +1,14 @@
-import type { device, reportConfig, reports, sensor, sensorData, user, userData, userExperimentData } from "../schema";
+import type {
+    device,
+    reportConfig,
+    reports,
+    sensor,
+    sensorData,
+    sensorDataSequence,
+    user,
+    userData,
+    userExperimentData,
+} from "../schema";
 
 export enum SortOrder {
     ASC = "ASC",
@@ -36,6 +46,8 @@ export type SensorSelectType = typeof sensor.$inferSelect;
 export type SensorInsertType = typeof sensor.$inferInsert;
 
 export type SensorDataSelectType = typeof sensorData.$inferSelect;
+
+export type SensorDataSequenceType = typeof sensorDataSequence.$inferSelect;
 
 export type SensorSelectTypeWithUser = {
     sensor: SensorSelectType;
@@ -95,14 +107,71 @@ export const userDataElectricityMeterTypeEnums: Record<
 };
 
 export enum DeviceCategory {
-    CoolingAndFreezing = "Kühl- und Gefriergeräte",
-    CookingAndBaking = "Koch- und Backgeräte",
-    CleaningAndLaundry = "Reinigungs- und Wäschegeräte",
-    EntertainmentAndComputers = "Unterhaltungselektronik und Computer",
-    SmallKitchenAppliances = "Kleingeräte Küche",
-    ClimateAndHeating = "Klima- und Heizgeräte",
-    Lighting = "Beleuchtung",
-    Care = "Pflege",
+    Stovetop = "stovetop",
+    Oven = "oven",
+    Fridge = "fridge",
+    Freezer = "freezer",
+    Microwave = "microwave",
+    Kettle = "kettle",
+    Toaster = "toaster",
+    CoffeeMachine = "coffeeMachine",
+    AirFryer = "airFryer",
+    Blender = "blender",
+    Dishwasher = "dishwasher",
+    WashingMachine = "washingMachine",
+    Dryer = "dryer",
+    VacuumCleaner = "vacuumCleaner",
+    Iron = "iron",
+    TVsAndMonitors = "tvsAndMonitors",
+    EntertainmentAndComputers = "entertainmentAndComputers",
+    HairDryer = "hairDryer",
+    BodyCare = "bodyCare",
+    HeaterFan = "heaterFan",
+    ElectricHeater = "electricHeater",
+    AirConditioning = "airConditioning",
+    HeatPump = "heatPump",
+    Lighting = "lighting",
+    ECar = "eCar",
+    EMobility = "eMobility",
+    Others = "others",
+}
+
+export const DeviceCategoryTitles: Record<DeviceCategory, string> = {
+    [DeviceCategory.Stovetop]: "Herd",
+    [DeviceCategory.Oven]: "Backofen",
+    [DeviceCategory.Fridge]: "Kühlschrank",
+    [DeviceCategory.Freezer]: "Gefrierschrank",
+    [DeviceCategory.Microwave]: "Mikrowelle",
+    [DeviceCategory.Kettle]: "Wasserkocher",
+    [DeviceCategory.Toaster]: "Toaster",
+    [DeviceCategory.CoffeeMachine]: "Kaffeemaschine",
+    [DeviceCategory.AirFryer]: "Heißluftfritteuse",
+    [DeviceCategory.Blender]: "Mixer",
+    [DeviceCategory.Dishwasher]: "Geschirrspüler",
+    [DeviceCategory.WashingMachine]: "Waschmaschine",
+    [DeviceCategory.Dryer]: "Wäschetrockner",
+    [DeviceCategory.VacuumCleaner]: "Staubsauger",
+    [DeviceCategory.Iron]: "Bügeleisen",
+    [DeviceCategory.TVsAndMonitors]: "Fernseher und Monitore",
+    [DeviceCategory.EntertainmentAndComputers]: "Unterhaltungselektronik und Computer",
+    [DeviceCategory.HairDryer]: "Föhn",
+    [DeviceCategory.BodyCare]: "Körperpflege",
+    [DeviceCategory.HeaterFan]: "Heizlüfter",
+    [DeviceCategory.ElectricHeater]: "Elektroheizung",
+    [DeviceCategory.AirConditioning]: "Klimaanlage",
+    [DeviceCategory.HeatPump]: "Wärmepumpe",
+    [DeviceCategory.Lighting]: "Beleuchtung",
+    [DeviceCategory.ECar]: "Elektroauto",
+    [DeviceCategory.EMobility]: "Weitere Elektromobilität (z. B. E-Bike)",
+    [DeviceCategory.Others]: "Sonstige Geräte",
+};
+
+export enum DeviceCategoryPowerState {
+    VERY_FRUGAL = "Sehr sparsam",
+    FRUGAL = "Sparsam",
+    MEDIUM = "Durchschnittlich",
+    ABOVE_AVERAGE = "Überdurchschnittlich",
+    HIGH = "Hoch",
 }
 
 export enum ExperimentNumberEnum {

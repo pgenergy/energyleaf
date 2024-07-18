@@ -46,6 +46,7 @@ export function getUserDataCookieStoreDefaults() {
             wifiAtElectricityMeter: true,
             powerAtElectricityMeter: true,
             installationComment: null,
+            devicePowerEstimationRSquared: null,
         },
         mail_config: {
             report_config: {

@@ -1,6 +1,6 @@
 import { env } from "@/env.mjs";
 import { findAndMark, getAllSensors, log, logError } from "@energyleaf/db/query";
-import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -14,23 +14,25 @@ export const GET = async (req: NextRequest) => {
     const startDate = new Date();
     const endDate = new Date();
 
+    //TODO PGE-218: Safe last end date in db and load it again as start date here
+
     // shift date back by half an hour to not mark and perform on newest values
     if (startDate.getMinutes() >= 30) {
         startDate.setHours(startDate.getHours() - 1, 30, 0, 0);
         endDate.setHours(endDate.getHours() - 1, 59, 59, 999);
     } else {
         startDate.setHours(startDate.getHours() - 1, 0, 0, 0);
-        endDate.setHours(endDate.getHours() - 1, 30, 59, 59);
+        endDate.setHours(endDate.getHours() - 1, 29, 59, 59);
     }
 
     try {
         const sensors = await getAllSensors(true);
         const sensorIds = sensors.map((d) => d.id);
 
-        const promises: Promise<SensorDataSelectType[]>[] = [];
+        const promises: Promise<SensorDataSequenceType[]>[] = [];
         waitUntil(
             log("mark-peaks/length", "info", "mark-peaks", "api", {
-                length: sensorIds.length,
+                numberOfSensors: sensorIds.length,
             }),
         );
         for (let i = 0; i < sensorIds.length; i++) {
@@ -70,6 +72,7 @@ export const GET = async (req: NextRequest) => {
                 );
             }
         }
+        return NextResponse.json({ statusMessage: "Peaks successfully marked." });
     } catch (err) {
         waitUntil(
             logError(
@@ -84,6 +87,6 @@ export const GET = async (req: NextRequest) => {
                 err,
             ),
         );
-        return;
+        return NextResponse.json({ statusMessage: "Internal Server Error" }, { status: 500 });
     }
 };

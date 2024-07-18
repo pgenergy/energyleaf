@@ -1,9 +1,9 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, asc, between, desc, eq, gte, inArray, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, gte, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
-import { device, deviceToPeak, sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
+import { sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import {
     type SensorDataSelectType,
     type SensorInsertType,
@@ -28,167 +28,6 @@ export async function getAllSensors(active?: boolean) {
     }
 
     return db.select().from(sensor);
-}
-
-function calculateThreshold(energyData: SensorDataSelectType[], multiplier = 1) {
-    // using mad median absolute deviation with 1.4826 which is a scaling factor of a normal distributed set
-    // maybe ajust even further with another scaling factor
-    const values = energyData.map((d) => d.value);
-    const median = values.sort((a, b) => a - b)[Math.floor(values.length / 2)];
-    const mad = values.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[Math.floor(values.length / 2)];
-    const threshold = median + 1.4826 * mad * multiplier;
-
-    return threshold;
-}
-
-function findSequence(energyData: SensorDataSelectType[], threshold: number, length = 8) {
-    const peaks: (SensorDataSelectType & { isStart: boolean })[] = [];
-    let i = 0;
-
-    while (i < energyData.length) {
-        const entry = energyData[i];
-
-        if (entry.value > threshold) {
-            if (entry.isAnomaly) {
-                continue;
-            }
-            let sequenceEnd = i + 1;
-            let highestValue = entry;
-            let containsAnomaly = false;
-            const isStart = i === 0;
-
-            while (sequenceEnd < energyData.length && energyData[sequenceEnd].value > threshold) {
-                if (energyData[sequenceEnd].isAnomaly) {
-                    containsAnomaly = true;
-                }
-                if (energyData[sequenceEnd].value > highestValue.value) {
-                    highestValue = energyData[sequenceEnd];
-                }
-                sequenceEnd++;
-            }
-
-            // if there is a anomaly marked in the sequence skip whole sequence and not mark as peak
-            if (containsAnomaly) {
-                i = sequenceEnd;
-                continue;
-            }
-
-            const sequenceLength = sequenceEnd - i;
-            // only mark as peak if longer then 2min and not marked as anomly yet
-            if (sequenceLength > length && !highestValue.isAnomaly) {
-                peaks.push({
-                    ...highestValue,
-                    isStart,
-                });
-            }
-            i = sequenceEnd;
-        } else {
-            i++;
-        }
-    }
-
-    return peaks;
-}
-
-interface FindAndMarkPeaksProps {
-    sensorId: string;
-    start: Date;
-    end: Date;
-    type: "peak" | "anomaly";
-}
-
-export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) {
-    const { sensorId, start, end } = props;
-
-    // we shift the start 12 hours back, so we have a bigger sample for the threshold
-    const sequenceStart = new Date(start);
-    sequenceStart.setHours(sequenceStart.getHours() - 24, 0, 0, 0);
-
-    try {
-        return await db.transaction(async (trx) => {
-            const calcDbData = await trx
-                .select()
-                .from(sensorData)
-                .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)))
-                .orderBy(asc(sensorData.timestamp));
-
-            // make sure we have at least 3 hours of reference data
-            if (calcDbData.length === 0 || calcDbData.length < 720) {
-                return [];
-            }
-
-            const calcData = calcDbData
-                .map((d, i) => {
-                    return {
-                        ...d,
-                        value: i === 0 ? 0 : Number(d.value) - Number(calcDbData[i - 1].value),
-                    };
-                })
-                .slice(1);
-
-            // check if all values are integers if so we know that the sensor has no pin
-            if (calcData.every((d) => Number.isInteger(d.value))) {
-                return [];
-            }
-
-            const energyData = calcData.filter((d) => {
-                return d.timestamp.getTime() >= start.getTime();
-            });
-
-            // to calculate threshold remove all values that are 0 or less because they can happen if the led of the
-            // meter is to low, and manipulate the threshold
-            const threshold = calculateThreshold(
-                calcData.filter((d) => d.value > 0),
-                multiplier,
-            );
-
-            let peaks = findSequence(energyData, threshold, props.type === "anomaly" ? 12 : 8);
-            if (props.type === "anomaly") {
-                // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
-                const lastPeak = calcData.find((d) => d.isAnomaly);
-                if (lastPeak) {
-                    peaks = peaks.filter((d) => d.timestamp.getTime() - lastPeak.timestamp.getTime() > 30 * 60 * 1000);
-                }
-            }
-            if (peaks.length !== 0) {
-                // check before value if this peak is part of another peak sequence
-                // if so we dont mark it as peak
-                if (peaks[0].isStart) {
-                    const beforeIndex = calcData.findIndex((d) => d.id === energyData[0].id);
-                    if (beforeIndex > 0) {
-                        const beforeValue = calcData[beforeIndex - 1].value;
-                        if (beforeValue > threshold) {
-                            peaks.shift();
-                        }
-                    }
-                }
-                await trx
-                    .update(sensorData)
-                    .set({
-                        ...(props.type === "peak" ? { isPeak: true } : { isAnomaly: true }),
-                    })
-                    .where(
-                        inArray(
-                            sensorData.id,
-                            peaks.map((d) => d.id),
-                        ),
-                    );
-            }
-
-            // if there is an anomaly in the last 24 hours return nothing to avoid sending another mail
-            if (props.type === "anomaly") {
-                if (peaks.length !== 0) {
-                    if (calcData.some((d) => d.isAnomaly)) {
-                        return [];
-                    }
-                }
-            }
-
-            return peaks;
-        });
-    } catch (err) {
-        return [];
-    }
 }
 
 export async function getEnergyForSensorInRange(
@@ -270,8 +109,6 @@ export async function getEnergyForSensorInRange(
         valueOut: row.valueOut ? (index === 0 ? 0 : Number(row.valueOut) - Number(query[index - 1].valueOut)) : null,
         valueCurrent: row.valueCurrent,
         timestamp: new Date(row.timestamp),
-        isPeak: false,
-        isAnomaly: false,
     }));
 
     return results.slice(1);
@@ -442,33 +279,6 @@ export async function getAvgEnergyConsumptionForUserInComparison(userId: string)
     });
 
     return query;
-}
-
-/**
- *  adds or updates a peak in the database
- */
-export async function updateDevicesForPeak(sensorDataId: string, deviceIds: number[]) {
-    return db.transaction(async (trx) => {
-        await trx.delete(deviceToPeak).where(eq(deviceToPeak.sensorDataId, sensorDataId));
-
-        for (const deviceId of deviceIds) {
-            await trx.insert(deviceToPeak).values({
-                deviceId,
-                sensorDataId,
-            });
-        }
-    });
-}
-
-export async function getDevicesByPeak(sensorDataId: string) {
-    return db
-        .select({
-            id: deviceToPeak.deviceId,
-            name: device.name,
-        })
-        .from(deviceToPeak)
-        .innerJoin(device, eq(device.id, deviceToPeak.deviceId))
-        .where(eq(deviceToPeak.sensorDataId, sensorDataId));
 }
 
 /**
@@ -715,18 +525,6 @@ export async function getSensorDataByClientId(clientId: string) {
         .where(eq(sensor.clientId, clientId))
         .limit(1);
 
-    if (query.length === 0) {
-        return null;
-    }
-
-    return query[0];
-}
-
-/**
- * Get the sensor data from a client id
- */
-export async function getSensorByClientId(clientId: string) {
-    const query = await db.select().from(sensor).where(eq(sensor.clientId, clientId));
     if (query.length === 0) {
         return null;
     }

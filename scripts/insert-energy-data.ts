@@ -10,7 +10,7 @@ export async function insertEnergyData(args: string[]) {
 
     const filePath = path.join(process.cwd(), "apps", "web", "src", "lib", "demo");
     const fileContent = fs.readFileSync(path.join(filePath, "demo.json"));
-    const day = new Date().getDate() + 1;
+    const day = new Date().getDate();
     const month = new Date().getMonth();
     const data = (
         JSON.parse(fileContent.toString()) as {
