@@ -25,7 +25,7 @@ export default async function WeekChartView(props: Props) {
         return <NoDataView />;
     }
 
-    const rawData = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.DAY, true);
+    const rawData = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.DAY, "sum");
     if (!rawData || rawData.length === 0) {
         return <NoDataView />;
     }

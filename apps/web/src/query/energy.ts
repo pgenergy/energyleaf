@@ -11,7 +11,13 @@ import { cache } from "react";
 import "server-only";
 
 export const getEnergyDataForSensor = cache(
-    async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW, sum = false) => {
+    async (
+        start: Date,
+        end: Date,
+        sensorId: string,
+        aggregation = AggregationType.RAW,
+        sum: "sum" | "average" = "average",
+    ) => {
         if (sensorId === "demo_sensor") {
             return getDemoSensorData(start, end);
         }

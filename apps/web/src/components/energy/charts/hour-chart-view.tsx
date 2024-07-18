@@ -24,7 +24,7 @@ export default async function HourChartView(props: Props) {
         return <NoDataView />;
     }
 
-    const rawData = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, true);
+    const rawData = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, "sum");
     if (!rawData || rawData.length === 0) {
         return <NoDataView />;
     }

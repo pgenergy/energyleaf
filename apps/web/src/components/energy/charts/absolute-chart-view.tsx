@@ -27,7 +27,7 @@ export default async function AbsoluteChartView(props: Props) {
         );
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, true);
+    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, "sum");
     const hasValues = data.length > 0;
 
     if (!hasValues) {
