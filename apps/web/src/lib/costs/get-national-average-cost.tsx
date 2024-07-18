@@ -19,7 +19,7 @@ export function getNationalAverageCost(userDatas, days) {
         return null;
     }
 
-    const userData = userDatas[1];
+    const userData = userDatas[userDatas.length - 1];
 
     try {
         validateInputs(userData, days);
