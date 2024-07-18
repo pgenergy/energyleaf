@@ -37,7 +37,7 @@ export default function AmortizationSelect({ devices, selected, onSelectedChange
                         <CheckIcon
                             className={cn(
                                 "mr-2 h-4 w-4",
-                                selected.filter(x => x.id == device.id).length > 0 ? "opacity-100" : "opacity-0",
+                                selected.filter((x) => x.id === device.id).length > 0 ? "opacity-100" : "opacity-0",
                             )}
                         />
                         <div className="flex w-full items-center justify-between">

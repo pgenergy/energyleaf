@@ -1,11 +1,11 @@
 "use client";
 
 import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
+import { formatNumber, getReferencePowerDataForDeviceCategory } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { AmortizationChart } from "@energyleaf/ui/charts/amortization-chart";
+import { useCallback, useEffect, useState } from "react";
 import AmortizationSelect from "./amortization-select";
-import {useEffect, useState} from "react";
-import {getReferencePowerDataForDeviceCategory} from "@energyleaf/lib";
 
 interface Props {
     workingPrice: number;
@@ -21,7 +21,7 @@ export default function AmortizationCard({ workingPrice }: Props) {
             powerEstimation: 2500,
             timestamp: new Date(),
             userId: "1",
-            weeklyUsageEstimation: 400,
+            weeklyUsageEstimation: 4.34,
         },
         {
             category: DeviceCategory.ECar,
@@ -31,7 +31,7 @@ export default function AmortizationCard({ workingPrice }: Props) {
             powerEstimation: 9000,
             timestamp: new Date(),
             userId: "1",
-            weeklyUsageEstimation: 40,
+            weeklyUsageEstimation: 20,
         },
         {
             category: DeviceCategory.HairDryer,
@@ -40,7 +40,7 @@ export default function AmortizationCard({ workingPrice }: Props) {
             created: new Date(),
             powerEstimation: 2000,
             timestamp: new Date(),
-            weeklyUsageEstimation: 3450,
+            weeklyUsageEstimation: 1,
             userId: "1",
         },
     ];
@@ -48,28 +48,60 @@ export default function AmortizationCard({ workingPrice }: Props) {
     const [acquisitionCost, setAcquisitionCost] = useState<number>(0);
     const [weeklyCostsAfter, setWeeklyCostsAfter] = useState<number>(0);
     const [weeklyCostsBefore, setWeeklyCostsBefore] = useState<number>(0);
-    
+    const [savingsPerKWh, setSavingsPerKWh] = useState<number>(0);
+    const [savingsPerYear, setSavingsPerYear] = useState<number>(0);
+    const [amortisationTimeInYears, setAmortisationTimeInYears] = useState<number>(0);
 
     function updateSelected(newSelected: DeviceSelectType[]) {
-        const referenceValuesOfSelected =  newSelected.map((device) => {
+        const referenceValuesOfSelected = newSelected.map((device) => {
             const referenceData = getReferencePowerDataForDeviceCategory(device.category as DeviceCategory);
             return {
-            ...device,
-            referencePower: referenceData.averagePower,
-            referencePurchasePrice: referenceData.purchasePrice
-        }});
-        setAcquisitionCost((referenceValuesOfSelected.reduce((acc, device) => acc + device.referencePurchasePrice, 0)));
+                ...device,
+                referencePower: referenceData.averagePower,
+                referencePurchasePrice: referenceData.purchasePrice,
+            };
+        });
+        const newAquisitionCost = referenceValuesOfSelected.reduce(
+            (acc, device) => acc + device.referencePurchasePrice,
+            0,
+        );
+        setAcquisitionCost(newAquisitionCost);
 
-        const weeklyConsumptionSelectedBefore = newSelected.reduce((acc, device) => acc + (device.powerEstimation ?? 0) * (device.weeklyUsageEstimation ?? 0), 0);
-        setWeeklyCostsBefore((weeklyConsumptionSelectedBefore / 1000) * workingPrice);
+        const weeklyConsumptionSelectedBefore = newSelected.reduce(
+            (acc, device) => acc + (device.powerEstimation ?? 0) * (device.weeklyUsageEstimation ?? 0),
+            0,
+        );
+        const weeklyCostsSelectedBefore = (weeklyConsumptionSelectedBefore / 1000) * workingPrice;
+        setWeeklyCostsBefore(weeklyCostsSelectedBefore);
 
-       const weeklyConsumptionSelectedAfter = referenceValuesOfSelected.reduce((acc, device) => acc + (device.referencePower ?? 0) * (device.weeklyUsageEstimation ?? 0), 0);
-        setWeeklyCostsAfter((weeklyConsumptionSelectedAfter / 1000) * workingPrice);
+        const weeklyConsumptionSelectedAfter = referenceValuesOfSelected.reduce(
+            (acc, device) => acc + (device.referencePower ?? 0) * (device.weeklyUsageEstimation ?? 0),
+            0,
+        );
+        const weeklyCostsSelectedAfter = (weeklyConsumptionSelectedAfter / 1000) * workingPrice;
+        setWeeklyCostsAfter(weeklyCostsSelectedAfter);
 
-        setSelected(newSelected)
+        const savedPowerConsumption = referenceValuesOfSelected.reduce(
+            (acc, device) => acc + (1 - device.referencePower / (device.powerEstimation ?? 0)),
+            0,
+        );
+        setSavingsPerKWh(savedPowerConsumption * workingPrice * 100);
 
-        console.log(acquisitionCost, weeklyCostsAfter, weeklyCostsBefore)
+        const savingsPerYear2 = 52.14 * (weeklyCostsSelectedBefore - weeklyCostsSelectedAfter);
+        setSavingsPerYear(savingsPerYear2);
+
+        setAmortisationTimeInYears(newAquisitionCost / savingsPerYear2);
+        setSelected(newSelected);
     }
+
+    const formatAmortisationTime = (test: number) => {
+        console.log(test);
+        if (test >= 1) {
+            return `${formatNumber(test)} Jahre`;
+        }
+
+        return `${formatNumber(test * 12)} Monate`;
+    };
 
     return (
         <Card className="w-full">
@@ -85,18 +117,22 @@ export default function AmortizationCard({ workingPrice }: Props) {
                     <div className="grid grid-cols-3 gap-4">
                         <div>
                             <h2 className="text-center font-semibold text-l text-primary">Eingesparte Cent pro kWh</h2>
-                            <p className="text-center">2 ct</p>
+                            <p className="text-center">{formatNumber(savingsPerKWh)} ct</p>
                         </div>
                         <div>
                             <h2 className="text-center font-semibold text-l text-primary">Eingesparte Euro pro Jahr</h2>
-                            <p className="text-center">3 €</p>
+                            <p className="text-center">{formatNumber(savingsPerYear)} €</p>
                         </div>
                         <div>
                             <h2 className="text-center font-semibold text-l text-primary">Amortisationszeit</h2>
-                            <p className="text-center">2 Jahre</p>
+                            <p className="text-center">{formatAmortisationTime(amortisationTimeInYears)}</p>
                         </div>
                     </div>
-                    <AmortizationChart weeklyCostsAfter={weeklyCostsAfter} initialCostsAfter={acquisitionCost} weeklyCostsBefore={weeklyCostsBefore} />
+                    <AmortizationChart
+                        weeklyCostsAfter={weeklyCostsAfter}
+                        initialCostsAfter={acquisitionCost}
+                        weeklyCostsBefore={weeklyCostsBefore}
+                    />
                 </div>
             </CardContent>
         </Card>

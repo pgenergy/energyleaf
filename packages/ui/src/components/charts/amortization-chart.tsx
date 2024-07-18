@@ -1,9 +1,9 @@
 "use client";
 
+import { fulfills } from "@energyleaf/lib/versioning";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "@energyleaf/ui/chart";
 import { Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 import AmortizationChartTooltip from "./amortization-chart-tooltip";
-import {fulfills} from "@energyleaf/lib/versioning";
 
 const chartConfig = {
     before: {

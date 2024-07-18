@@ -59,9 +59,9 @@ async function calculateAverageWeeklyUsageTimeInMinutes(deviceId: number) {
     // Extrapolate the estimated usage for the current week
     const lastWeek = weeklyGroupedPeaks[weeklyGroupedPeaks.length - 1];
     const now = new Date();
-    const totalMinutesInWeek = 7 * 24 * 60;
+    const totalHoursInWeek = 7 * 24;
     const minutesPassed = (now.getTime() - lastWeek.weekStart.getTime()) / 1000 / 60;
-    const percentageOfWeekPassed = minutesPassed / totalMinutesInWeek;
+    const percentageOfWeekPassed = minutesPassed / totalHoursInWeek;
 
     weeklyGroupedTimeInPeaks[weeklyGroupedTimeInPeaks.length - 1] =
         weeklyGroupedTimeInPeaks[weeklyGroupedTimeInPeaks.length - 1] / percentageOfWeekPassed;

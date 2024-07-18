@@ -1,9 +1,9 @@
 import AmortizationCard from "@/components/recommendations/amortization-card";
+import { getSession } from "@/lib/auth/auth.server";
+import { getUserData } from "@/query/user";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";
-import {getSession} from "@/lib/auth/auth.server";
-import {getUserData} from "@/query/user";
 
 export const metadata = {
     title: "Empfehlungen | Energyleaf",
