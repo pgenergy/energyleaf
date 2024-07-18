@@ -3,6 +3,7 @@
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "@energyleaf/ui/chart";
 import { Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 import AmortizationChartTooltip from "./amortization-chart-tooltip";
+import {fulfills} from "@energyleaf/lib/versioning";
 
 const chartConfig = {
     before: {
@@ -15,24 +16,22 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-export function AmortizationChart() {
-    const data = [
-        {
-            before: 0,
-            after: 150,
-            timestamp: 0,
-        },
-        {
-            before: 100,
-            after: 165,
-            timestamp: 1,
-        },
-        {
-            before: 200,
-            after: 180,
-            timestamp: 2,
-        },
-    ];
+interface Props {
+    weeklyCostsBefore: number;
+    weeklyCostsAfter: number;
+    initialCostsAfter: number;
+}
+
+export function AmortizationChart({ weeklyCostsBefore, weeklyCostsAfter, initialCostsAfter }: Props) {
+    // Generate data for the chart
+    const data = Array.from({ length: 52 }, (_, i) => {
+        const timestamp = i;
+        return {
+            timestamp,
+            before: weeklyCostsBefore * timestamp,
+            after: initialCostsAfter + weeklyCostsAfter * timestamp,
+        };
+    });
 
     return (
         <ChartContainer className="min-h-52 w-full" config={chartConfig}>

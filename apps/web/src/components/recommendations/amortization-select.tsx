@@ -9,11 +9,11 @@ import { useState } from "react";
 
 interface Props {
     devices: DeviceSelectType[];
+    selected: DeviceSelectType[];
+    onSelectedChange: (selected: DeviceSelectType[]) => void;
 }
 
-export default function AmortizationSelect({ devices }: Props) {
-    const [selectedDevices, setSelectedDevices] = useState<number[]>([]);
-
+export default function AmortizationSelect({ devices, selected, onSelectedChange }: Props) {
     return (
         <Command>
             <CommandList>
@@ -24,33 +24,36 @@ export default function AmortizationSelect({ devices }: Props) {
                         className="cursor-pointer border border-secondary"
                         onSelect={(value) => {
                             const id = Number(value);
-                            if (selectedDevices.includes(id)) {
-                                setSelectedDevices(selectedDevices.filter((d) => d !== id));
+                            if (selected.filter((d) => d.id === id).length > 0) {
+                                onSelectedChange(selected.filter((d) => d.id !== id));
                                 return;
                             }
-                            setSelectedDevices([...selectedDevices, id]);
+
+                            const device = devices.find((d) => d.id === id);
+                            if (!device) return;
+                            onSelectedChange([...selected, device]);
                         }}
                     >
                         <CheckIcon
                             className={cn(
                                 "mr-2 h-4 w-4",
-                                selectedDevices.includes(device.id) ? "opacity-100" : "opacity-0",
+                                selected.filter(x => x.id == device.id).length > 0 ? "opacity-100" : "opacity-0",
                             )}
                         />
                         <div className="flex w-full items-center justify-between">
                             <div className="mr-4 flex-grow overflow-hidden text-ellipsis whitespace-nowrap">
                                 {device.name}
                             </div>
-                            {/* <div className="w-48 flex-none text-left text-xs">
-                                Wöchentl. Nutzungsdauer:
-                                <Input
-                                    type="number"
-                                    className="w-full"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                    }}
-                                />
-                            </div> */}
+                            {/*<div className="w-48 flex-none text-left text-xs">*/}
+                            {/*    Wöchentl. Nutzungsdauer:*/}
+                            {/*    <Input*/}
+                            {/*        type="number"*/}
+                            {/*        className="w-full"*/}
+                            {/*        onClick={(e) => {*/}
+                            {/*            e.stopPropagation();*/}
+                            {/*        }}*/}
+                            {/*    />*/}
+                            {/*</div>*/}
                         </div>
                     </CommandItem>
                 ))}
