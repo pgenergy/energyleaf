@@ -11,6 +11,7 @@ const deviceFields = {
     created: timestamp("created").default(sql`CURRENT_TIMESTAMP`),
     timestamp: timestamp("timestamp").defaultNow().onUpdateNow().notNull(),
     powerEstimation: decimalType("power_estimation"),
+    weeklyUsageEstimation: decimalType("weekly_usage_estimation"),
 };
 
 export const device = mysqlTable("device", {
