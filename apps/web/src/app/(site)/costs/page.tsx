@@ -144,22 +144,22 @@ export default async function CostsPage() {
                 <h2 className="mb-4 font-bold text-xl">Hochrechnungen</h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsProjectionDay />
+                        <EnergyCostsProjectionDay userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsProjectionWeek />
+                        <EnergyCostsProjectionWeek userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsProjectionMonth />
+                        <EnergyCostsProjectionMonth userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsComparativeProjectionDay />
+                        <EnergyCostsComparativeProjectionDay userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsComparativeProjectionWeek />
+                        <EnergyCostsComparativeProjectionWeek userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsComparativeProjectionMonth />
+                        <EnergyCostsComparativeProjectionMonth userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                 </div>
             </section>
