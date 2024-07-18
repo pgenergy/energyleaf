@@ -8,7 +8,7 @@ import { isDemoUser } from "@/lib/demo/demo";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Navbar } from "@energyleaf/ui/nav/navbar";
 import { Sidebar } from "@energyleaf/ui/nav/sidebar";
-import { DollarSignIcon, HomeIcon, MicrowaveIcon, SettingsIcon } from "lucide-react";
+import { DollarSignIcon, HomeIcon, LightbulbIcon, MicrowaveIcon, SettingsIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import type React from "react";
 
@@ -23,13 +23,13 @@ const navLinks = [
         path: "/dashboard",
         icon: <HomeIcon className="mr-2 h-4 w-4" />,
     },
-    // {
-    //     slug: "recommendations",
-    //     title: "Empfehlungen",
-    //     path: "/recommendations",
-    //     icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
-    //     appVersion: Versions.support,
-    // },
+    {
+        slug: "recommendations",
+        title: "Empfehlungen",
+        path: "/recommendations",
+        icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
+        appVersion: Versions.support,
+    },
     // {
     //     slug: "report",
     //     title: "Berichte",
