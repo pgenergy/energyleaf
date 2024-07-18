@@ -206,6 +206,9 @@ export async function findAndMark(props: FindAndMarkPeaksProps, multiplier = 1) 
     }
 }
 
+/**
+ * Get the energy consumption values for a sensorid in given range
+ */
 export async function getRawEnergyForSensorInRange(
     start: Date,
     end: Date,
@@ -245,6 +248,9 @@ export async function getRawEnergyForSensorInRange(
         .orderBy(sensorData.timestamp);
 }
 
+/**
+ * Helper function to split the data into groups and aggregate the values
+ */
 async function aggregatedValues(
     start: Date,
     end: Date,
@@ -271,10 +277,14 @@ async function aggregatedValues(
         .orderBy(sensorData.timestamp)
         .as("subQuery");
 
-    const grouperSql =
-        groupValue === "WEEKDAY"
-            ? sql<string>`WEEKDAY(${subQuery.timestamp})`
-            : sql<string>`DATE_FORMAT(${subQuery.timestamp}, ${groupValue})`;
+    let grouperSql = sql`1`;
+    if (groupValue === "WEEKDAY") {
+        grouperSql = sql<string>`WEEKDAY(${subQuery.timestamp})`;
+    } else if (groupValue === "WEEK") {
+        grouperSql = sql<string>`CEIL((DAY(${subQuery.timestamp}) + WEEKDAY(DATE_SUB(${subQuery.timestamp}, INTERVAL DAY(${subQuery.timestamp}) - 1 DAY))) / 7)`;
+    } else {
+        grouperSql = sql<string>`DATE_FORMAT(${subQuery.timestamp}, ${groupValue})`;
+    }
 
     return db
         .select({
@@ -297,6 +307,9 @@ async function aggregatedValues(
         .orderBy(grouperSql);
 }
 
+/**
+ * Get the aggregation based on hour 0 -24
+ */
 export async function getHourEnergyForSensorInRange(
     start: Date,
     end: Date,
@@ -316,6 +329,9 @@ export async function getHourEnergyForSensorInRange(
     }));
 }
 
+/**
+ * Get the aggregation based on day weekday 0 - 7
+ */
 export async function getDayEnergyForSensorInRange(
     start: Date,
     end: Date,
@@ -335,13 +351,16 @@ export async function getDayEnergyForSensorInRange(
     }));
 }
 
+/**
+ * Get the aggregation based on week per month 0 - 4
+ */
 export async function getWeekEnergyForSensorInRange(
     start: Date,
     end: Date,
     sensorId: string,
     type: "sum" | "average" = "average",
 ): Promise<SensorDataSelectType[]> {
-    const query = await aggregatedValues(start, end, sensorId, "%X-W%V", type);
+    const query = await aggregatedValues(start, end, sensorId, "WEEK", type);
     return query.map((row, index) => ({
         ...row,
         id: index.toString(),
@@ -373,6 +392,9 @@ export async function getMonthEnergyForSensorInRange(
     }));
 }
 
+/**
+ * Get the aggregation based on year
+ */
 export async function getYearEnergyForSensorInRange(
     start: Date,
     end: Date,
@@ -392,6 +414,9 @@ export async function getYearEnergyForSensorInRange(
     }));
 }
 
+/**
+ * Base function to get the energy data for a sensor in a given range with a given aggregation
+ */
 export async function getEnergyForSensorInRange(
     start: Date,
     end: Date,
