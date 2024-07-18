@@ -24,6 +24,19 @@ const navLinks = [
         icon: <HomeIcon className="mr-2 h-4 w-4" />,
     },
     {
+        slug: "costs",
+        title: "Kosten",
+        path: "/costs",
+        icon: <DollarSignIcon className="mr-2 h-4 w-4" />,
+    },
+    {
+        slug: "devices",
+        title: "Geräte",
+        path: "/devices",
+        icon: <MicrowaveIcon className="mr-2 h-4 w-4" />,
+        appVersion: Versions.self_reflection,
+    },
+    {
         slug: "recommendations",
         title: "Empfehlungen",
         path: "/recommendations",
@@ -37,19 +50,6 @@ const navLinks = [
     //     icon: <AreaChartIcon className="mr-2 h-4 w-4" />,
     //     appVersion: Versions.support, // TODO: Remove this line when the page is ready (PGE-101)
     // },
-    {
-        slug: "devices",
-        title: "Geräte",
-        path: "/devices",
-        icon: <MicrowaveIcon className="mr-2 h-4 w-4" />,
-        appVersion: Versions.self_reflection,
-    },
-    {
-        slug: "costs",
-        title: "Kosten",
-        path: "/costs",
-        icon: <DollarSignIcon className="mr-2 h-4 w-4" />,
-    },
     {
         slug: "settings",
         title: "Einstellungen",
