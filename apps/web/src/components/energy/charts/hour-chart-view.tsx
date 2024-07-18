@@ -77,8 +77,8 @@ export default async function HourChartView(props: Props) {
     return (
         <Card className="col-span-1 md:col-span-3">
             <CardHeader>
-                <CardTitle>Übersicht in Stunden</CardTitle>
-                <CardDescription>Hier sehen Sie ihre Daten pro Stunde</CardDescription>
+                <CardTitle>Übersicht der Stunden</CardTitle>
+                <CardDescription>Hier sehen Sie Ihren absoluten Verbrauch über die Stunden</CardDescription>
             </CardHeader>
             <CardContent>
                 <HourChart data={data} />
@@ -91,8 +91,8 @@ function NoDataView() {
     return (
         <Card className="col-span-1 md:col-span-3">
             <CardHeader>
-                <CardTitle>Übersicht in Stunden</CardTitle>
-                <CardDescription>Hier sehen Sie ihre Daten pro Stunde</CardDescription>
+                <CardTitle>Übersicht der Stunden</CardTitle>
+                <CardDescription>Hier sehen Sie Ihren absoluten Verbrauch über die Stunden</CardDescription>
             </CardHeader>
             <CardContent>
                 <p className="text-center text-muted-foreground">Keine Sensordaten vorhanden</p>

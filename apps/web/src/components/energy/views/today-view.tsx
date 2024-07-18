@@ -1,4 +1,3 @@
-import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { getTimezoneOffset } from "date-fns-tz";
 import { Suspense } from "react";
@@ -17,11 +16,9 @@ export default async function EnergyPageTodayView() {
     const startDate = offset === localOffset ? serverStartDate : new Date(serverStartDate.getTime() - offset);
     const endDate = offset === localOffset ? serverEndDate : new Date(serverEndDate.getTime() - offset);
 
-    console.log(offset, localOffset, startDate, endDate);
-
     return (
         <div className="col-span-1 grid grid-cols-1 gap-4 md:col-span-3 md:grid-cols-3">
-            <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+            <Suspense fallback={<Skeleton className="col-span-1 h-40 w-full md:col-span-3" />}>
                 <AbsoluteChartView startDate={startDate} endDate={endDate} />
             </Suspense>
             <Suspense fallback={<Skeleton className="col-span-1 h-96 w-full md:col-span-3" />}>

@@ -8,6 +8,7 @@ import { de } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { Area, AreaChart, ReferenceArea, ReferenceDot, Tooltip, XAxis, YAxis } from "recharts";
 import type { CategoricalChartState } from "recharts/types/chart/types";
+import { Button } from "../../ui/button";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "../../ui/chart";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
@@ -69,22 +70,6 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, cost, zoo
     const hasCost = useMemo(() => {
         return preparedData.some((d) => d.cost);
     }, [preparedData]);
-
-    const displayedItems = useMemo(() => {
-        const values: string[] = ["value"];
-        if (hasCurrentValues) {
-            values.push("valueCurrent");
-        }
-
-        if (hasOutValues) {
-            values.push("valueOut");
-        }
-
-        if (hasCost) {
-            values.push("cost");
-        }
-        return values;
-    }, [hasOutValues, hasCurrentValues, hasCost]);
 
     const sameDay = useMemo(() => {
         if (data.length === 0) return false;
@@ -161,150 +146,182 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, cost, zoo
     };
 
     return (
-        <ChartContainer className="min-h-52 w-full" config={chartConfig}>
-            <AreaChart
-                className="select-none"
-                data={preparedData}
-                margin={{
-                    top: 16,
-                    right: 10,
-                    left: 10,
-                    bottom: 16,
-                }}
-                onMouseDown={(e) => {
-                    if (!zoomCallback) return;
+        <>
+            {hasOutValues || hasCurrentValues || hasCost ? (
+                <div className="flex flex-row items-center justify-end gap-2">
+                    <Button
+                        variant={activeChart === "value" ? "default" : "ghost"}
+                        size="sm"
+                        onClick={() => setActiveChart("value")}
+                    >
+                        Verbrauch
+                    </Button>
+                    {hasOutValues ? (
+                        <Button
+                            variant={activeChart === "valueOut" ? "default" : "ghost"}
+                            size="sm"
+                            onClick={() => setActiveChart("valueOut")}
+                        >
+                            Einspeisung
+                        </Button>
+                    ) : null}
+                    {hasCurrentValues ? (
+                        <Button
+                            variant={activeChart === "valueCurrent" ? "default" : "ghost"}
+                            size="sm"
+                            onClick={() => setActiveChart("valueCurrent")}
+                        >
+                            Leistung
+                        </Button>
+                    ) : null}
+                    {hasCost ? (
+                        <Button
+                            variant={activeChart === "cost" ? "default" : "ghost"}
+                            size="sm"
+                            onClick={() => setActiveChart("cost")}
+                        >
+                            Kosten
+                        </Button>
+                    ) : null}
+                </div>
+            ) : null}
+            <ChartContainer className="min-h-52 w-full" config={chartConfig}>
+                <AreaChart
+                    className="select-none"
+                    data={preparedData}
+                    margin={{
+                        top: 16,
+                        right: 10,
+                        left: 10,
+                        bottom: 16,
+                    }}
+                    onMouseDown={(e) => {
+                        if (!zoomCallback) return;
 
-                    setMouseDown(true);
-                    setLeftValue(e);
-                }}
-                onMouseMove={(e) => {
-                    if (!leftValue || !zoomCallback || !mouseDown) return;
+                        setMouseDown(true);
+                        setLeftValue(e);
+                    }}
+                    onMouseMove={(e) => {
+                        if (!leftValue || !zoomCallback || !mouseDown) return;
 
-                    setRightValue(e);
-                }}
-                onMouseUp={() => {
-                    setMouseDown(false);
-                    handleZoom();
-                }}
-            >
-                <defs>
-                    <linearGradient id="valueColor" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-value)" stopOpacity={0.99} />
-                        <stop offset="50%" stopColor="var(--color-value)" stopOpacity={0.7} />
-                        <stop offset="95%" stopColor="var(--color-value)" stopOpacity={0.1} />
-                    </linearGradient>
-                    <linearGradient id="valueOutColor" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-valueOut)" stopOpacity={0.99} />
-                        <stop offset="50%" stopColor="var(--color-valueOut)" stopOpacity={0.7} />
-                        <stop offset="95%" stopColor="var(--color-valueOut)" stopOpacity={0.1} />
-                    </linearGradient>
-                    <linearGradient id="valueCurrentColor" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-valueCurrent)" stopOpacity={0.99} />
-                        <stop offset="50%" stopColor="var(--color-valueCurrent)" stopOpacity={0.7} />
-                        <stop offset="95%" stopColor="var(--color-valueCurrent)" stopOpacity={0.1} />
-                    </linearGradient>
-                    <linearGradient id="costColor" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-cost)" stopOpacity={0.99} />
-                        <stop offset="50%" stopColor="var(--color-cost)" stopOpacity={0.7} />
-                        <stop offset="95%" stopColor="var(--color-cost)" stopOpacity={0.1} />
-                    </linearGradient>
-                </defs>
-                <ChartLegend
-                    content={
-                        <ChartLegendContent
-                            setActiveChart={setActiveChart}
-                            displayedItems={displayedItems}
-                            activeLabel={activeChart}
+                        setRightValue(e);
+                    }}
+                    onMouseUp={() => {
+                        setMouseDown(false);
+                        handleZoom();
+                    }}
+                >
+                    <defs>
+                        <linearGradient id="valueColor" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--color-value)" stopOpacity={0.99} />
+                            <stop offset="50%" stopColor="var(--color-value)" stopOpacity={0.7} />
+                            <stop offset="95%" stopColor="var(--color-value)" stopOpacity={0.1} />
+                        </linearGradient>
+                        <linearGradient id="valueOutColor" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--color-valueOut)" stopOpacity={0.99} />
+                            <stop offset="50%" stopColor="var(--color-valueOut)" stopOpacity={0.7} />
+                            <stop offset="95%" stopColor="var(--color-valueOut)" stopOpacity={0.1} />
+                        </linearGradient>
+                        <linearGradient id="valueCurrentColor" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--color-valueCurrent)" stopOpacity={0.99} />
+                            <stop offset="50%" stopColor="var(--color-valueCurrent)" stopOpacity={0.7} />
+                            <stop offset="95%" stopColor="var(--color-valueCurrent)" stopOpacity={0.1} />
+                        </linearGradient>
+                        <linearGradient id="costColor" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--color-cost)" stopOpacity={0.99} />
+                            <stop offset="50%" stopColor="var(--color-cost)" stopOpacity={0.7} />
+                            <stop offset="95%" stopColor="var(--color-cost)" stopOpacity={0.1} />
+                        </linearGradient>
+                    </defs>
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Tooltip
+                        content={(props) => (
+                            <EnergyConsumptionTooltip
+                                aggregationType={aggregation ?? AggregationType.RAW}
+                                tooltipProps={props}
+                            />
+                        )}
+                    />
+                    <XAxis
+                        dataKey="timestamp"
+                        tickFormatter={dynamicTickFormatter}
+                        tickLine={false}
+                        interval="equidistantPreserveStart"
+                        axisLine={false}
+                    />
+                    <YAxis dataKey={activeChart} tickLine={false} interval="equidistantPreserveStart" />
+                    {activeChart === "value" ? (
+                        <Area
+                            dataKey="value"
+                            fill="url(#valueColor)"
+                            fillOpacity={1}
+                            stroke="var(--color-value)"
+                            type="linear"
                         />
-                    }
-                />
-                <Tooltip
-                    content={(props) => (
-                        <EnergyConsumptionTooltip
-                            aggregationType={aggregation ?? AggregationType.RAW}
-                            tooltipProps={props}
+                    ) : null}
+                    {activeChart === "valueOut" ? (
+                        <Area
+                            dataKey="valueOut"
+                            fill="url(#valueOutColor)"
+                            fillOpacity={1}
+                            stroke="var(--color-valueOut)"
+                            type="linear"
                         />
-                    )}
-                />
-                <XAxis
-                    dataKey="timestamp"
-                    tickFormatter={dynamicTickFormatter}
-                    tickLine={false}
-                    interval="equidistantPreserveStart"
-                    axisLine={false}
-                />
-                <YAxis dataKey={activeChart} tickLine={false} interval="equidistantPreserveStart" />
-                {activeChart === "value" ? (
-                    <Area
-                        dataKey="value"
-                        fill="url(#valueColor)"
-                        fillOpacity={1}
-                        stroke="var(--color-value)"
-                        type="linear"
-                    />
-                ) : null}
-                {activeChart === "valueOut" ? (
-                    <Area
-                        dataKey="valueOut"
-                        fill="url(#valueOutColor)"
-                        fillOpacity={1}
-                        stroke="var(--color-valueOut)"
-                        type="linear"
-                    />
-                ) : null}
-                {activeChart === "valueCurrent" ? (
-                    <Area
-                        dataKey="valueCurrent"
-                        fill="url(#valueCurrentColor)"
-                        fillOpacity={1}
-                        stroke="var(--color-valueCurrent)"
-                        type="linear"
-                    />
-                ) : null}
-                {activeChart === "cost" ? (
-                    <Area
-                        dataKey="cost"
-                        fill="url(#costColor)"
-                        fillOpacity={1}
-                        stroke="var(--color-cost)"
-                        type="linear"
-                    />
-                ) : null}
-                {showPeaks
-                    ? peaks.map((peak) => (
-                          <ReferenceDot
-                              className={clsx(peaksCallback ? "cursor-pointer" : "cursor-default")}
-                              fill="hsl(var(--destructive))"
-                              isFront
-                              key={peak.id}
-                              onClick={() => peaksCallback?.(peak)}
-                              onMouseDown={(_, e) => {
-                                  e.stopPropagation();
-                              }}
-                              onMouseMove={(_, e) => {
-                                  e.stopPropagation();
-                              }}
-                              onMouseUp={(_, e) => {
-                                  e.stopPropagation();
-                              }}
-                              r={10}
-                              stroke="hsl(var(--destructive))"
-                              x={peak.timestamp.toISOString()}
-                              y={peak.value}
-                          />
-                      ))
-                    : null}
-                {leftValue && rightValue && zoomCallback ? (
-                    <ReferenceArea
-                        x1={leftValue.activeLabel}
-                        x2={rightValue.activeLabel}
-                        strokeOpacity={0.3}
-                        stroke="hsl(var(--primary))"
-                        fill="hsl(var(--primary))"
-                        fillOpacity={0.2}
-                    />
-                ) : null}
-            </AreaChart>
-        </ChartContainer>
+                    ) : null}
+                    {activeChart === "valueCurrent" ? (
+                        <Area
+                            dataKey="valueCurrent"
+                            fill="url(#valueCurrentColor)"
+                            fillOpacity={1}
+                            stroke="var(--color-valueCurrent)"
+                            type="linear"
+                        />
+                    ) : null}
+                    {activeChart === "cost" ? (
+                        <Area
+                            dataKey="cost"
+                            fill="url(#costColor)"
+                            fillOpacity={1}
+                            stroke="var(--color-cost)"
+                            type="linear"
+                        />
+                    ) : null}
+                    {showPeaks
+                        ? peaks.map((peak) => (
+                              <ReferenceDot
+                                  className={clsx(peaksCallback ? "cursor-pointer" : "cursor-default")}
+                                  fill="hsl(var(--destructive))"
+                                  isFront
+                                  key={peak.id}
+                                  onClick={() => peaksCallback?.(peak)}
+                                  onMouseDown={(_, e) => {
+                                      e.stopPropagation();
+                                  }}
+                                  onMouseMove={(_, e) => {
+                                      e.stopPropagation();
+                                  }}
+                                  onMouseUp={(_, e) => {
+                                      e.stopPropagation();
+                                  }}
+                                  r={10}
+                                  stroke="hsl(var(--destructive))"
+                                  x={peak.timestamp.toISOString()}
+                                  y={peak.value}
+                              />
+                          ))
+                        : null}
+                    {leftValue && rightValue && zoomCallback ? (
+                        <ReferenceArea
+                            x1={leftValue.activeLabel}
+                            x2={rightValue.activeLabel}
+                            strokeOpacity={0.3}
+                            stroke="hsl(var(--primary))"
+                            fill="hsl(var(--primary))"
+                            fillOpacity={0.2}
+                        />
+                    ) : null}
+                </AreaChart>
+            </ChartContainer>
+        </>
     );
 }

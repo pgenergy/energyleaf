@@ -11,6 +11,7 @@ import {
     ChartTooltipContent,
 } from "@energyleaf/ui/chart";
 import { format } from "date-fns";
+import { de } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
@@ -37,8 +38,8 @@ export default function HourChart(props: Props) {
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
 
     function tickFormatter(value: Date) {
-        const hour = format(value, "HH");
-        return `${hour} Uhr`;
+        const day = format(value, "EEEE", { locale: de });
+        return `${day}`;
     }
 
     const hasOutValues = useMemo(() => {

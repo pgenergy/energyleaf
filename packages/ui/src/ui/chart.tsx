@@ -240,113 +240,51 @@ const ChartLegendContent = React.forwardRef<
         Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
             hideIcon?: boolean;
             nameKey?: string;
-            setActiveChart?: (key: unknown) => void;
-            activeLabel?: string;
-            displayedItems?: string[];
         }
->(
-    (
-        {
-            className,
-            hideIcon = false,
-            payload,
-            verticalAlign = "bottom",
-            nameKey,
-            displayedItems,
-            setActiveChart,
-            activeLabel,
-        },
-        ref,
-    ) => {
-        const { config } = useChart();
+>(({ className, hideIcon = false, payload, verticalAlign = "bottom", nameKey }, ref) => {
+    const { config } = useChart();
 
-        if (!payload?.length) {
-            return null;
-        }
+    if (!payload?.length) {
+        return null;
+    }
 
-        if (setActiveChart && activeLabel && displayedItems && displayedItems.length > 1) {
-            return (
-                <div
-                    ref={ref}
-                    className={cn(
-                        "flex items-center justify-center gap-4",
-                        verticalAlign === "top" ? "pb-3" : "pt-3",
-                        className,
-                    )}
-                >
-                    {Object.keys(config)
-                        .filter((d) => (displayedItems ? displayedItems.includes(d) : true))
-                        .map((key) => {
-                            const itemConfig = config[key];
+    return (
+        <div
+            ref={ref}
+            className={cn(
+                "flex items-center justify-center gap-4",
+                verticalAlign === "top" ? "pb-3" : "pt-3",
+                className,
+            )}
+        >
+            {payload.map((item) => {
+                const key = `${nameKey || item.dataKey || "value"}`;
+                const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
-                            return (
-                                <button
-                                    type="button"
-                                    onClick={() => setActiveChart?.(key)}
-                                    key={key}
-                                    className={cn(
-                                        {
-                                            "opacity-50": activeLabel !== key,
-                                        },
-                                        "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
-                                    )}
-                                >
-                                    {itemConfig?.icon && !hideIcon ? (
-                                        <itemConfig.icon />
-                                    ) : (
-                                        <div
-                                            className="h-2 w-2 shrink-0 rounded-[2px]"
-                                            style={{
-                                                backgroundColor: itemConfig.color,
-                                            }}
-                                        />
-                                    )}
-                                    {itemConfig?.label}
-                                </button>
-                            );
-                        })}
-                </div>
-            );
-        }
-
-        return (
-            <div
-                ref={ref}
-                className={cn(
-                    "flex items-center justify-center gap-4",
-                    verticalAlign === "top" ? "pb-3" : "pt-3",
-                    className,
-                )}
-            >
-                {payload.map((item) => {
-                    const key = `${nameKey || item.dataKey || "value"}`;
-                    const itemConfig = getPayloadConfigFromPayload(config, item, key);
-
-                    return (
-                        <div
-                            key={item.value}
-                            className={cn(
-                                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
-                            )}
-                        >
-                            {itemConfig?.icon && !hideIcon ? (
-                                <itemConfig.icon />
-                            ) : (
-                                <div
-                                    className="h-2 w-2 shrink-0 rounded-[2px]"
-                                    style={{
-                                        backgroundColor: item.color,
-                                    }}
-                                />
-                            )}
-                            {itemConfig?.label}
-                        </div>
-                    );
-                })}
-            </div>
-        );
-    },
-);
+                return (
+                    <div
+                        key={item.value}
+                        className={cn(
+                            "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
+                        )}
+                    >
+                        {itemConfig?.icon && !hideIcon ? (
+                            <itemConfig.icon />
+                        ) : (
+                            <div
+                                className="h-2 w-2 shrink-0 rounded-[2px]"
+                                style={{
+                                    backgroundColor: item.color,
+                                }}
+                            />
+                        )}
+                        {itemConfig?.label}
+                    </div>
+                );
+            })}
+        </div>
+    );
+});
 ChartLegendContent.displayName = "ChartLegend";
 
 // Helper to extract item config from a payload.

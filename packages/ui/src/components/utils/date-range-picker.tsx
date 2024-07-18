@@ -171,6 +171,10 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
                     locale={de}
                     initialFocus
                     mode="range"
+                    disabled={(d) => {
+                        const currentDate = new Date();
+                        return currentDate.getTime() < d.getTime();
+                    }}
                     onDayClick={onDayClick}
                     selected={range}
                     footer={calFooter}
