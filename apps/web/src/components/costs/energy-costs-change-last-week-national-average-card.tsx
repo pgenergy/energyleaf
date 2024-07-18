@@ -1,5 +1,5 @@
-import { getNationalAverageCost } from "@/components/costs/get-national-average-cost";
 import { calculateCosts } from "@/components/dashboard/energy-cost";
+import { getNationalAverageCost } from "@/lib/costs/get-national-average-cost";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 

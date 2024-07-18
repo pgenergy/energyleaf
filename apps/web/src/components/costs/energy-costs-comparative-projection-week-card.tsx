@@ -1,4 +1,5 @@
-import { getWeekComparison } from "@/components/costs/energy-projection-calculation";
+import { getWeekComparison } from "@/lib/costs/energy-projection-calculation";
+import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default function EnergyCostsComparativeProjectionWeek({ userData, energyData }) {
@@ -12,9 +13,9 @@ export default function EnergyCostsComparativeProjectionWeek({ userData, energyD
             <CardContent>
                 {predictedCost ? (
                     <p className={`text-center font-bold text-2xl ${color}`}>
-                        {predictedCost.absoluteDifference} €
+                        {formatNumber(predictedCost.absoluteDifference)} €
                         <br />
-                        {predictedCost.relativeDifference} %
+                        {formatNumber(predictedCost.relativeDifference)} %
                     </p>
                 ) : (
                     <p>Keine Daten verfügbar.</p>
