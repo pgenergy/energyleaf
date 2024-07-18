@@ -63,7 +63,7 @@ const EnergyCostsBarChart = ({ energyData, userData }: Props) => {
         <ChartContainer config={chartConfig} className="max-h-96 min-h-52 w-full">
             <Card>
                 <CardHeader>
-                    <CardTitle>Tägliche Energiekosten der letzten 30 Tage</CardTitle>
+                    <CardTitle>Tägliche Energiekosten der letzten Tage</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
