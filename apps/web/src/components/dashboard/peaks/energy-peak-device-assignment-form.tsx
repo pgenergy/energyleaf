@@ -22,6 +22,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
     const {
         data: selectedDevices,
         isLoading: selectedDevicesLoading,
+        isRefetching: selectedDevicesRefetching,
         refetch,
     } = useQuery({
         queryKey: [`selectedDevices${sensorDataSequenceId}`],

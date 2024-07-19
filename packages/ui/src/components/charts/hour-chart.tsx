@@ -63,8 +63,6 @@ export default function HourChart(props: Props) {
                 value: 0,
                 valueOut: null,
                 valueCurrent: null,
-                isPeak: false,
-                isAnomaly: false,
             });
         }
 

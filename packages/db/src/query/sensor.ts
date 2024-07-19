@@ -160,8 +160,6 @@ export async function getHourEnergyForSensorInRange(
         valueOut: Number(row.valueOut),
         valueCurrent: Number(row.valueCurrent),
         timestamp: row.timestamp,
-        isPeak: false,
-        isAnomaly: false,
     }));
 }
 
@@ -182,8 +180,6 @@ export async function getDayEnergyForSensorInRange(
         valueOut: Number(row.valueOut),
         valueCurrent: Number(row.valueCurrent),
         timestamp: row.timestamp,
-        isPeak: false,
-        isAnomaly: false,
     }));
 }
 
@@ -204,8 +200,6 @@ export async function getWeekEnergyForSensorInRange(
         valueOut: Number(row.valueOut),
         valueCurrent: Number(row.valueCurrent),
         timestamp: row.timestamp,
-        isPeak: false,
-        isAnomaly: false,
     }));
 }
 
@@ -223,8 +217,6 @@ export async function getMonthEnergyForSensorInRange(
         valueOut: Number(row.valueOut),
         valueCurrent: Number(row.valueCurrent),
         timestamp: row.timestamp,
-        isPeak: false,
-        isAnomaly: false,
     }));
 }
 
@@ -245,8 +237,6 @@ export async function getYearEnergyForSensorInRange(
         valueOut: Number(row.valueOut),
         valueCurrent: Number(row.valueCurrent),
         timestamp: row.timestamp,
-        isPeak: false,
-        isAnomaly: false,
     }));
 }
 

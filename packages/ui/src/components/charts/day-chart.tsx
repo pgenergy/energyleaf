@@ -64,8 +64,6 @@ export default function DayChart(props: Props) {
                 value: 0,
                 valueOut: null,
                 valueCurrent: null,
-                isPeak: false,
-                isAnomaly: false,
             });
         }
 

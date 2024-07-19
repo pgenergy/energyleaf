@@ -222,6 +222,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^3.9.0
         version: 3.9.0(react-hook-form@7.52.1(react@18.3.1))
+      '@lucide/lab':
+        specifier: ^0.1.2
+        version: 0.1.2
       '@node-rs/argon2':
         specifier: ^1.8.3
         version: 1.8.3
@@ -352,6 +355,9 @@ importers:
       drizzle-orm:
         specifier: ^0.32.0
         version: 0.32.0(@planetscale/database@1.18.0)(@types/react@18.3.3)(mysql2@3.10.2)(react@18.3.1)
+      mathjs:
+        specifier: ^13.0.2
+        version: 13.0.2
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
@@ -4666,6 +4672,9 @@ packages:
 
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
+
+  javascript-natural-sort@0.7.1:
+    resolution: {integrity: sha512-nO6jcEfZWQXDhOiBtG2KvKyEptz7RVbpGP4vTD2hLBdmNQSsCiicO2Ioinv6UI4y9ukqnBpy+XZ9H6uLNgJTlw==}
 
   jest-worker@27.5.1:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
@@ -10603,6 +10612,8 @@ snapshots:
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
 
+  javascript-natural-sort@0.7.1: {}
+
   jest-worker@27.5.1:
     dependencies:
       '@types/node': 20.14.10
@@ -10757,7 +10768,7 @@ snapshots:
 
   mathjs@13.0.2:
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.24.8
       complex.js: 2.1.1
       decimal.js: 10.4.3
       escape-latex: 1.2.0

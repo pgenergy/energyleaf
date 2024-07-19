@@ -241,24 +241,25 @@ export function EnergyConsumptionChart({
                                 tooltipProps={props}
                             />
                         )}
-                />
-                <XAxis
-                    dataKey="timestamp"
-                    tickFormatter={dynamicTickFormatter}
-                    type="category"
-                    tickLine={false}
-                    interval="equidistantPreserveStart"
-                    axisLine={false}
-                />
-                <YAxis dataKey={activeChart} tickLine={false} interval="equidistantPreserveStart" type="number" />
-                {activeChart === "value" ? (
-                    <Area
-                        dataKey="value"
-                        fill="url(#valueColor)"
-                        fillOpacity={1}
-                        stroke="var(--color-value)"
-                        type="linear"
-                    />) : null}
+                    />
+                    <XAxis
+                        dataKey="timestamp"
+                        tickFormatter={dynamicTickFormatter}
+                        type="category"
+                        tickLine={false}
+                        interval="equidistantPreserveStart"
+                        axisLine={false}
+                    />
+                    <YAxis dataKey={activeChart} tickLine={false} interval="equidistantPreserveStart" type="number" />
+                    {activeChart === "value" ? (
+                        <Area
+                            dataKey="value"
+                            fill="url(#valueColor)"
+                            fillOpacity={1}
+                            stroke="var(--color-value)"
+                            type="linear"
+                        />
+                    ) : null}
                     {activeChart === "value" ? (
                         <Area
                             dataKey="value"
@@ -295,24 +296,24 @@ export function EnergyConsumptionChart({
                             type="linear"
                         />
                     ) : null}
-                {showPeaks && peaks
-                    ? peaks.map((peak) => {
-                          return (
-                              <ReferenceArea
-                                  className={clsx(peaksCallback ? "cursor-pointer" : "cursor-default")}
-                                  fill="hsl(var(--destructive))"
-                                  fillOpacity={0.2}
-                                  stroke="hsl(var(--destructive))"
-                                  strokeOpacity={0.3}
-                                  isFront
-                                  key={peak.id}
-                                  onClick={() => peaksCallback?.(peak)}
-                                  x1={peak.start.toISOString()}
-                                  x2={peak.end.toISOString()}
-                              />
-                          );
-                      })
-                    : null}
+                    {showPeaks && peaks
+                        ? peaks.map((peak) => {
+                              return (
+                                  <ReferenceArea
+                                      className={clsx(peaksCallback ? "cursor-pointer" : "cursor-default")}
+                                      fill="hsl(var(--destructive))"
+                                      fillOpacity={0.2}
+                                      stroke="hsl(var(--destructive))"
+                                      strokeOpacity={0.3}
+                                      isFront
+                                      key={peak.id}
+                                      onClick={() => peaksCallback?.(peak)}
+                                      x1={peak.start.toISOString()}
+                                      x2={peak.end.toISOString()}
+                                  />
+                              );
+                          })
+                        : null}
                     {leftValue && rightValue && zoomCallback ? (
                         <ReferenceArea
                             x1={leftValue.activeLabel}
