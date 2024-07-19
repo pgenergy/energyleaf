@@ -17,14 +17,49 @@ import EnergyCostsThriftiestDayLastSevenDays from "@/components/costs/energy-cos
 import EnergyCostsThriftiestDayLastThirtyDays from "@/components/costs/energy-costs-thriftiest-day-last-thirty-days-card";
 import EnergyCostsToday from "@/components/costs/energy-costs-today-card";
 import EnergyCostsYesterday from "@/components/costs/energy-costs-yesterday-card";
+import EnergyCostsLastSevenDaysError from "@/components/costs/errors/energy-costs-last-seven-days-card-error";
+import EnergyCostsLastThirtyDaysError from "@/components/costs/errors/energy-costs-last-thirty-days-card-error";
+import EnergyCostsTodayError from "@/components/costs/errors/energy-costs-today-card-error";
+import EnergyCostsYesterdayError from "@/components/costs/errors/energy-costs-yesterday-card-error";
+import { getSession } from "@/lib/auth/auth.server";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
+import { getUserDataHistory } from "@/query/user";
+import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
+import { redirect } from "next/navigation";
 import React, { Suspense } from "react";
 
 export const metadata = {
     title: "Kosten | Energyleaf",
 };
 
-export default function CostsPage() {
+export default async function CostsPage() {
+    const { session, user } = await getSession();
+
+    if (!session) {
+        redirect("/");
+    }
+
+    const userId = user.id;
+    const sensorId = await getElectricitySensorIdForUser(userId);
+    if (!sensorId) {
+        redirect("/");
+    }
+
+    const now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth() - 2;
+    if (month < 0) {
+        month += 12;
+        year -= 1;
+    }
+
+    const startDate = new Date(year, month, 1);
+    const endDate = now;
+
+    const energyDataRaw = await getEnergyDataForSensor(startDate, endDate, sensorId);
+    const userData = await getUserDataHistory(userId);
+
     return (
         <div className="flex flex-col gap-4">
             <h1 className="font-bold text-2xl">Kosten-Übersichten</h1>
@@ -32,34 +67,42 @@ export default function CostsPage() {
             {/* Absolute Energiekosten */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Absolute Energiekosten</h2>
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsToday />
-                    </Suspense>
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsYesterday />
-                    </Suspense>
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsLastSevenDays />
-                    </Suspense>
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsLastThirtyDays />
-                    </Suspense>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <ErrorBoundary fallback={EnergyCostsTodayError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsToday userData={userData} energyDataRaw={energyDataRaw} />
+                        </Suspense>
+                    </ErrorBoundary>
+                    <ErrorBoundary fallback={EnergyCostsYesterdayError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsYesterday userData={userData} energyDataRaw={energyDataRaw} />
+                        </Suspense>
+                    </ErrorBoundary>
+                    <ErrorBoundary fallback={EnergyCostsLastSevenDaysError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsLastSevenDays userData={userData} energyDataRaw={energyDataRaw} />
+                        </Suspense>
+                    </ErrorBoundary>
+                    <ErrorBoundary fallback={EnergyCostsLastThirtyDaysError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsLastThirtyDays userData={userData} energyDataRaw={energyDataRaw} />
+                        </Suspense>
+                    </ErrorBoundary>
                 </div>
             </section>
 
             {/* Durchschnittliche Energiekosten */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Durchschnittliche Energiekosten</h2>
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <AverageEnergyCostsDay />
+                        <AverageEnergyCostsDay userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <AverageEnergyCostsWeek />
+                        <AverageEnergyCostsWeek userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <AverageEnergyCostsMonth />
+                        <AverageEnergyCostsMonth userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                 </div>
             </section>
@@ -69,10 +112,10 @@ export default function CostsPage() {
                 <h2 className="mb-4 font-bold text-xl">Sparsamkeitsübersicht</h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsThriftiestDayLastSevenDays />
+                        <EnergyCostsThriftiestDayLastSevenDays userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsThriftiestDayLastThirtyDays />
+                        <EnergyCostsThriftiestDayLastThirtyDays userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                 </div>
             </section>
@@ -80,7 +123,7 @@ export default function CostsPage() {
             {/* Energiekosten Vergleiche */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Energiekosten Vergleiche</h2>
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostsChangeLastSevenDays />
                     </Suspense>
@@ -99,24 +142,24 @@ export default function CostsPage() {
             {/* Hochrechnungen */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Hochrechnungen</h2>
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsProjectionDay />
+                        <EnergyCostsProjectionDay userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsProjectionWeek />
+                        <EnergyCostsProjectionWeek userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsProjectionMonth />
+                        <EnergyCostsProjectionMonth userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsComparativeProjectionDay />
+                        <EnergyCostsComparativeProjectionDay userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsComparativeProjectionWeek />
+                        <EnergyCostsComparativeProjectionWeek userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsComparativeProjectionMonth />
+                        <EnergyCostsComparativeProjectionMonth userData={userData} energyData={energyDataRaw} />
                     </Suspense>
                 </div>
             </section>
