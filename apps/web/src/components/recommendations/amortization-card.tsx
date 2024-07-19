@@ -1,6 +1,6 @@
 "use client";
 
-import { DeviceCategory, type DeviceSelectType } from "@energyleaf/db/types";
+import type { DeviceCategory, DeviceSelectType } from "@energyleaf/db/types";
 import { formatNumber, getReferencePowerDataForDeviceCategory } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { AmortizationChart } from "@energyleaf/ui/charts/amortization-chart";
@@ -9,6 +9,7 @@ import AmortizationSelect from "./amortization-select";
 
 interface Props {
     workingPrice: number;
+    devices: DeviceItem[];
 }
 
 export interface DeviceItem {
@@ -20,33 +21,7 @@ export interface DeviceItem {
     weeklyUsage: number;
 }
 
-export default function AmortizationCard({ workingPrice }: Props) {
-    const devices: DeviceItem[] = [
-        {
-            category: DeviceCategory.AirConditioning,
-            id: 1,
-            name: "Klimaanlage",
-            powerEstimation: 2500,
-            weeklyUsageEstimation: 4.34,
-            weeklyUsage: 4.34,
-        },
-        {
-            category: DeviceCategory.ECar,
-            id: 2,
-            name: "E-Auto Ladestation",
-            powerEstimation: 9000,
-            weeklyUsageEstimation: 20,
-            weeklyUsage: 20,
-        },
-        {
-            category: DeviceCategory.HairDryer,
-            id: 3,
-            name: "Haartrockner",
-            powerEstimation: 2000,
-            weeklyUsageEstimation: 1,
-            weeklyUsage: 1,
-        },
-    ];
+export default function AmortizationCard({ workingPrice, devices }: Props) {
     const [selected, setSelected] = useState<DeviceItem[]>([]);
     const [acquisitionCost, setAcquisitionCost] = useState<number>(0);
     const [weeklyCostsAfter, setWeeklyCostsAfter] = useState<number>(0);
