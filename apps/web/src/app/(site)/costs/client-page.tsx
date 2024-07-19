@@ -3,6 +3,7 @@
 import AverageEnergyCostsDay from "@/components/costs/average-energy-costs-day-card";
 import AverageEnergyCostsMonth from "@/components/costs/average-energy-costs-month-card";
 import AverageEnergyCostsWeek from "@/components/costs/average-energy-costs-week-card";
+import EnergyCostsBarChart from "@/components/costs/energy-costs-bar-chart";
 import EnergyCostsChangeLastMonth from "@/components/costs/energy-costs-change-last-month-card";
 import EnergyCostsChangeLastMonthNationalAverage from "@/components/costs/energy-costs-change-last-month-national-average-card";
 import EnergyCostsChangeLastWeek from "@/components/costs/energy-costs-change-last-week-card";
@@ -27,7 +28,7 @@ import EnergyCostsLastSevenDaysError from "@/components/costs/errors/energy-cost
 import EnergyCostsLastThirtyDaysError from "@/components/costs/errors/energy-costs-last-thirty-days-card-error";
 import EnergyCostsTodayError from "@/components/costs/errors/energy-costs-today-card-error";
 import EnergyCostsYesterdayError from "@/components/costs/errors/energy-costs-yesterday-card-error";
-import EnergyCostsBarChart from "@/components/costs/energy-costs-bar-chart";
+import EnergyCostsBarChartError from "@/components/costs/errors/energy-costs-bar-chart-error";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import React, { Suspense } from "react";
@@ -149,9 +150,11 @@ const ClientSidePage = ({ userData, energyDataRaw, sensorId }) => {
             <section>
                 <h2 className="mb-4 font-bold text-xl">Tägliche Energiekosten</h2>
                 <div className="grid grid-cols-1 gap-4">
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <EnergyCostsBarChart energyData={energyDataRaw} userData={userData} />
-                    </Suspense>
+                    <ErrorBoundary fallback={EnergyCostsBarChartError}>
+                        <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                            <EnergyCostsBarChart energyData={energyDataRaw} userData={userData} />
+                        </Suspense>
+                    </ErrorBoundary>
                 </div>
             </section>
         </div>

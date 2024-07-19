@@ -2,7 +2,6 @@
 
 import { calculateCosts } from "@/components/dashboard/energy-cost";
 import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/db/types";
-import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import {
     ChartContainer,
@@ -58,6 +57,19 @@ interface Props {
 
 const EnergyCostsBarChart = ({ energyData, userData }: Props) => {
     const data = calculateDailyCosts(energyData, userData);
+
+    if (data.length === 0) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Tägliche Energiekosten der letzten Tage</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-center font-bold text-primary text-xl">Es sind keine Daten vorhanden</p>
+                </CardContent>
+            </Card>
+        );
+    }
 
     return (
         <ChartContainer config={chartConfig} className="max-h-96 min-h-52 w-full">
