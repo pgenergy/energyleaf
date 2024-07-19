@@ -23,6 +23,7 @@
         "@lucia-auth/adapter-drizzle": "^1.0.7",
         "@planetscale/database": "^1.18.0",
         "drizzle-orm": "^0.32.0",
+        "mathjs": "^13.0.2",
         "nanoid": "^5.0.7"
     },
     "devDependencies": {

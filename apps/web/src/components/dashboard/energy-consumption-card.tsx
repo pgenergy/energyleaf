@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
-import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences } from "@/query/energy";
 import { getUserData } from "@/query/user";
+import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { cn } from "@energyleaf/tailwindcss/utils";
@@ -48,7 +49,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
     const data = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
-    const showPeaks = fulfills(user.appVersion, Versions.self_reflection) || hasAggregation;
+    const showPeaks = fulfills(user.appVersion, Versions.self_reflection) && !hasAggregation;
 
     const userData = await getUserData(user.id);
     const workingPrice = userData?.workingPrice ?? undefined;
@@ -56,6 +57,9 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         workingPrice && userData?.basePrice
             ? (userData.basePrice / (30 * 24 * 60 * 60)) * 15 + workingPrice
             : workingPrice;
+    const peaks: SensorDataSequenceType[] = showPeaks
+        ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
+        : [];
 
     return (
         <Card className="w-full">
@@ -77,10 +81,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     ) : (
                         <EnergyConsumptionCardChart
                             data={data}
+                            peaks={peaks}
                             aggregation={aggregation}
                             userId={userId}
-                            showPeaks={showPeaks}
                             cost={cost}
+                            showPeaks={showPeaks}
                         />
                     )}
                 </div>

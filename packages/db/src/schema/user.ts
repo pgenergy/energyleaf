@@ -86,6 +86,7 @@ const userDataFields = {
     powerAtElectricityMeter: boolean("power_at_electricity_meter").default(false),
     wifiAtElectricityMeter: boolean("wifi_at_electricity_meter").default(false),
     installationComment: text("installation_comment"),
+    devicePowerEstimationRSquared: float("device_power_estimation_r_squared"),
 };
 
 export const userData = mysqlTable("user_data", {

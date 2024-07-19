@@ -8,6 +8,7 @@ import {
     logError,
     trackAction,
     updateDevicesForPeak as updateDevicesForPeakDb,
+    updatePowerOfDevices,
 } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
@@ -30,6 +31,7 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         const devices = data.device.map((device) => device.id);
         try {
             await updateDevicesForPeakDb(sensorDataId, devices);
+            await updatePowerOfDevices(session.userId);
             waitUntil(trackAction("peak/update-devices", "update-devices-for-peak", "web", { data, session }));
         } catch (e) {
             waitUntil(logError("peak/error-updating-devices", "update-devices-for-peak", "web", { data, session }, e));
@@ -58,13 +60,15 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
 export async function getDevicesByUser(userId: string, search?: string) {
     const session = (await getActionSession())?.session;
     const devices = getDbDevicesByUser(userId, search);
-    waitUntil(trackAction("devices/get", "get-devices-by-user", "web", { search, session }));
+    waitUntil(trackAction("peak/get-devices", "get-devices-by-user", "web", { search, devices, session }));
     return devices;
 }
 
-export async function getDevicesByPeak(sensorDataId: string) {
-    const session = await getActionSession();
-    const devices = getDevicesByPeakDb(sensorDataId);
-    waitUntil(trackAction("devices/get", "get-devices-by-peak", "web", { sensorDataId, session }));
+export async function getDevicesByPeak(sensorDataSequenceId: string) {
+    const { session } = await getActionSession();
+    const devices = getDevicesByPeakDb(sensorDataSequenceId);
+    waitUntil(
+        trackAction("peak/get-devices", "get-devices-by-peak", "web", { sensorDataSequenceId, devices, session }),
+    );
     return devices;
 }

@@ -1,4 +1,5 @@
-import { getMonthComparison } from "@/components/costs/energy-projection-calculation";
+import { getMonthComparison } from "@/lib/costs/energy-projection-calculation";
+import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default function EnergyCostsComparativeProjectionMonth({ userData, energyData }) {
@@ -12,9 +13,9 @@ export default function EnergyCostsComparativeProjectionMonth({ userData, energy
             <CardContent>
                 {predictedCost ? (
                     <p className={`text-center font-bold text-2xl ${color}`}>
-                        {predictedCost.absoluteDifference} €
+                        {formatNumber(predictedCost.absoluteDifference)} €
                         <br />
-                        {predictedCost.relativeDifference} %
+                        {formatNumber(predictedCost.relativeDifference)} %
                     </p>
                 ) : (
                     <p>Keine Daten verfügbar.</p>

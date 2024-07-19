@@ -28,3 +28,11 @@ export const DismissedReasonEnumMap: Record<DismissedReasonEnum, string> = {
     [DismissedReasonEnum.WRONG_METER]: "Falscher Zähler",
     [DismissedReasonEnum.ATTENTION_CHECK]: "Aufmerksamkeitsprüfung",
 };
+
+export interface DeviceCategoryPower {
+    averagePower: number;
+    minimumPower: number;
+    maximumPower: number;
+    linkToSource: string;
+    purchasePrice: number;
+}
