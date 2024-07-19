@@ -75,8 +75,11 @@ function generateData({ weeklyCostsBefore, weeklyCostsAfter, initialCostsAfter, 
         weeklyCostFactor = 4.33;
     }
 
+    const ceiledAmortizationDuration = Math.ceil(amortizationDuration);
+    const numberOfDataPoints = Number.isFinite(ceiledAmortizationDuration) ? (ceiledAmortizationDuration + 1) * 1.5 : 1;
+
     return {
-        data: Array.from({ length: amortizationDuration * 1.5 }, (_, i) => {
+        data: Array.from({ length: numberOfDataPoints }, (_, i) => {
             const timestamp = i;
             return {
                 timestamp,
