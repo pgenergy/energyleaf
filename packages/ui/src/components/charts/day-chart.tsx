@@ -1,7 +1,6 @@
 "use client";
 
 import type { SensorDataSelectType } from "@energyleaf/db/types";
-import { Button } from "@energyleaf/ui/button";
 import {
     type ChartConfig,
     ChartContainer,
@@ -10,7 +9,9 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@energyleaf/ui/chart";
-import { format } from "date-fns";
+import ChartSwitchButton from "@energyleaf/ui/charts/chart-switch-button";
+import { format, setDay } from "date-fns";
+import { de } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
@@ -33,12 +34,12 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-export default function HourChart(props: Props) {
+export default function DayChart(props: Props) {
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
 
     function tickFormatter(value: Date) {
-        const hour = format(value, "HH");
-        return `${hour} Uhr`;
+        const day = format(value, "EEEE", { locale: de });
+        return `${day}`;
     }
 
     const hasOutValues = useMemo(() => {
@@ -49,40 +50,85 @@ export default function HourChart(props: Props) {
         return props.data.some((d) => d.valueCurrent);
     }, [props.data]);
 
+    const fillArray = useMemo(() => {
+        const result: SensorDataSelectType[] = [];
+
+        for (let i = 1; i < 8; i++) {
+            const weekDay = i % 7;
+            const date = setDay(new Date(), weekDay);
+
+            result.push({
+                id: i.toString(),
+                sensorId: "",
+                timestamp: date,
+                value: 0,
+                valueOut: null,
+                valueCurrent: null,
+                isPeak: false,
+                isAnomaly: false,
+            });
+        }
+
+        return result;
+    }, []);
+
+    const processedData = useMemo(() => {
+        return props.data.reduce((acc, cur) => {
+            const index = acc.findIndex((item) => item.timestamp.getDay() === cur.timestamp.getDay());
+            if (index !== -1) {
+                const existing = acc[index];
+                existing.value = cur.value;
+                existing.sensorId = cur.sensorId;
+
+                if (cur.valueOut) {
+                    if (!existing.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                        existing.sensorId = cur.sensorId;
+                    }
+                }
+                if (cur.valueCurrent) {
+                    if (!existing.valueCurrent) {
+                        existing.valueCurrent = cur.valueCurrent;
+                        existing.sensorId = cur.sensorId;
+                    }
+                }
+            }
+
+            return acc;
+        }, fillArray);
+    }, [fillArray, props.data]);
+
     return (
         <>
             {hasOutValues || hasCurrentValues ? (
                 <div className="flex flex-row items-center justify-end gap-2">
-                    <Button
-                        variant={activeChart === "value" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => setActiveChart("value")}
-                    >
-                        Verbrauch
-                    </Button>
+                    <ChartSwitchButton
+                        active={activeChart === "value"}
+                        chart="value"
+                        onClick={setActiveChart}
+                        label="Verbrauch"
+                    />
                     {hasOutValues ? (
-                        <Button
-                            variant={activeChart === "valueOut" ? "default" : "ghost"}
-                            size="sm"
-                            onClick={() => setActiveChart("valueOut")}
-                        >
-                            Einspeisung
-                        </Button>
+                        <ChartSwitchButton
+                            active={activeChart === "valueOut"}
+                            chart="valueOut"
+                            onClick={setActiveChart}
+                            label="Einspeisung"
+                        />
                     ) : null}
                     {hasCurrentValues ? (
-                        <Button
-                            variant={activeChart === "valueCurrent" ? "default" : "ghost"}
-                            size="sm"
-                            onClick={() => setActiveChart("valueCurrent")}
-                        >
-                            Leistung
-                        </Button>
+                        <ChartSwitchButton
+                            active={activeChart === "valueCurrent"}
+                            chart="valueCurrent"
+                            onClick={setActiveChart}
+                            label="Leistung"
+                        />
                     ) : null}
                 </div>
             ) : null}
             <ChartContainer config={chartConfig} className="max-h-96 min-h-52 w-full">
                 <BarChart
-                    data={props.data}
+                    data={processedData}
                     accessibilityLayer
                     margin={{
                         top: 10,

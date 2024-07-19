@@ -1,15 +1,15 @@
 import { Skeleton } from "@energyleaf/ui/skeleton";
+import { endOfWeek, startOfWeek } from "date-fns";
 import { getTimezoneOffset } from "date-fns-tz";
 import { Suspense } from "react";
 import AbsoluteChartView from "../charts/absolute-chart-view";
-import WeekChartView from "../charts/week-chart-view";
+import DayChartView from "../charts/day-chart-view";
 
 export default async function EnergyPageWeekView() {
     const offset = getTimezoneOffset("Europe/Berlin", new Date());
-    const serverStartDate = new Date();
-    serverStartDate.setDate(serverStartDate.getDate() - serverStartDate.getDay());
+    const serverStartDate = startOfWeek(new Date());
     serverStartDate.setHours(0, 0, 0, 0);
-    const serverEndDate = new Date();
+    const serverEndDate = endOfWeek(new Date());
     serverEndDate.setHours(23, 59, 59, 999);
 
     const startDate = new Date(serverStartDate.getTime() - offset);
@@ -21,7 +21,7 @@ export default async function EnergyPageWeekView() {
                 <AbsoluteChartView startDate={startDate} endDate={endDate} />
             </Suspense>
             <Suspense fallback={<Skeleton className="col-span-1 h-96 w-full md:col-span-3" />}>
-                <WeekChartView startDate={startDate} endDate={endDate} />
+                <DayChartView startDate={startDate} endDate={endDate} />
             </Suspense>
         </div>
     );

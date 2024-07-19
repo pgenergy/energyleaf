@@ -10,6 +10,7 @@ import { Area, AreaChart, ReferenceArea, ReferenceDot, Tooltip, XAxis, YAxis } f
 import type { CategoricalChartState } from "recharts/types/chart/types";
 import { Button } from "../../ui/button";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "../../ui/chart";
+import ChartSwitchButton from "./chart-switch-button";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
 interface Props {
@@ -149,39 +150,35 @@ export function EnergyConsumptionChart({ data, showPeaks, aggregation, cost, zoo
         <>
             {hasOutValues || hasCurrentValues || hasCost ? (
                 <div className="flex flex-row items-center justify-end gap-2">
-                    <Button
-                        variant={activeChart === "value" ? "default" : "ghost"}
-                        size="sm"
-                        onClick={() => setActiveChart("value")}
-                    >
-                        Verbrauch
-                    </Button>
+                    <ChartSwitchButton
+                        active={activeChart === "value"}
+                        chart="value"
+                        onClick={setActiveChart}
+                        label="Verbrauch"
+                    />
                     {hasOutValues ? (
-                        <Button
-                            variant={activeChart === "valueOut" ? "default" : "ghost"}
-                            size="sm"
-                            onClick={() => setActiveChart("valueOut")}
-                        >
-                            Einspeisung
-                        </Button>
+                        <ChartSwitchButton
+                            active={activeChart === "valueOut"}
+                            chart="valueOut"
+                            onClick={setActiveChart}
+                            label="Einspeisung"
+                        />
                     ) : null}
                     {hasCurrentValues ? (
-                        <Button
-                            variant={activeChart === "valueCurrent" ? "default" : "ghost"}
-                            size="sm"
-                            onClick={() => setActiveChart("valueCurrent")}
-                        >
-                            Leistung
-                        </Button>
+                        <ChartSwitchButton
+                            active={activeChart === "valueCurrent"}
+                            chart="valueCurrent"
+                            onClick={setActiveChart}
+                            label="Leistung"
+                        />
                     ) : null}
                     {hasCost ? (
-                        <Button
-                            variant={activeChart === "cost" ? "default" : "ghost"}
-                            size="sm"
-                            onClick={() => setActiveChart("cost")}
-                        >
-                            Kosten
-                        </Button>
+                        <ChartSwitchButton
+                            active={activeChart === "cost"}
+                            chart="cost"
+                            onClick={setActiveChart}
+                            label="Kosten"
+                        />
                     ) : null}
                 </div>
             ) : null}
