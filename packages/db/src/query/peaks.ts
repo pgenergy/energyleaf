@@ -83,13 +83,13 @@ interface GroupedPeaks {
 
 async function getWeeklyGroupedPeaks(deviceId: number) {
     const peaksWithDevice = await getPeaksByDevice(deviceId);
-    if (!peaksWithDevice) {
+    if (!peaksWithDevice || peaksWithDevice.length === 0) {
         return [];
     }
 
     const timeOfEarliestPeak = peaksWithDevice[0].start;
     const groupedPeaks: GroupedPeaks[] = [];
-    const weekStart = timeOfEarliestPeak;
+    const weekStart = new Date(timeOfEarliestPeak);
 
     while (weekStart < new Date()) {
         let weekEnd = new Date(weekStart);
@@ -107,7 +107,7 @@ async function getWeeklyGroupedPeaks(deviceId: number) {
                 end: peak.end,
             }));
         groupedPeaks.push({
-            weekStart,
+            weekStart: new Date(weekStart),
             weekEnd,
             peaks: peaksInWeek,
         });
