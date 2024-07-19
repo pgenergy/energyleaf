@@ -1,4 +1,5 @@
-import { getPredictedCostForWeek } from "@/components/costs/energy-projection-calculation";
+import { getPredictedCostForWeek } from "@/lib/costs/energy-projection-calculation";
+import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default function EnergyCostsProjectionWeek({ userData, energyData }) {
@@ -12,7 +13,7 @@ export default function EnergyCostsProjectionWeek({ userData, energyData }) {
             <CardContent>
                 {predictedCosts ? (
                     <p className="text-center font-bold text-2xl text-primary">
-                        {predictedCosts} € <br />
+                        {formatNumber(predictedCosts)} € <br />
                     </p>
                 ) : (
                     <p>Keine Daten verfügbar.</p>

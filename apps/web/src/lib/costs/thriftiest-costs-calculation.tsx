@@ -1,4 +1,4 @@
-import { computeDailyCosts } from "@/components/costs/average-costs-calculation";
+import { computeDailyCosts } from "@/lib/costs/average-costs-calculation";
 
 interface EnergyData {
     timestamp: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
 import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy-consumption-chart";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -9,20 +9,21 @@ import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-ass
 
 interface Props {
     data: SensorDataSelectType[];
+    peaks?: SensorDataSequenceType[];
     aggregation?: AggregationType;
     showPeaks: boolean;
     userId: string;
     cost?: number;
 }
 
-export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost }: Props) {
+export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost, peaks }: Props) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<SensorDataSelectType | null>(null);
+    const [value, setValue] = useState<SensorDataSequenceType | null>(null);
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const clickCallback = useCallback((callbackData: SensorDataSelectType) => {
+    const clickCallback = useCallback((callbackData: SensorDataSequenceType) => {
         setValue(callbackData);
         setOpen(true);
     }, []);
@@ -45,8 +46,9 @@ export default function EnergyConsumptionCardChart({ data, aggregation, userId, 
                 <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} userId={userId} />
             ) : null}
             <EnergyConsumptionChart
-                aggregation={aggregation}
                 data={data}
+                peaks={peaks}
+                aggregation={aggregation}
                 showPeaks={showPeaks}
                 cost={cost}
                 peaksCallback={clickCallback}
