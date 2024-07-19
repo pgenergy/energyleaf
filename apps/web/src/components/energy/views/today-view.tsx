@@ -1,3 +1,4 @@
+import { AggregationType } from "@energyleaf/lib";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { getTimezoneOffset } from "date-fns-tz";
 import { Suspense } from "react";
@@ -20,12 +21,10 @@ export default async function EnergyPageTodayView(props: Props) {
     const startDate = offset === localOffset ? serverStartDate : new Date(serverStartDate.getTime() - offset);
     const endDate = offset === localOffset ? serverEndDate : new Date(serverEndDate.getTime() - offset);
 
-    console.log(startDate, endDate);
-
     return (
         <div className="col-span-1 grid grid-cols-1 gap-4 md:col-span-3 md:grid-cols-3">
             <Suspense fallback={<Skeleton className="col-span-1 h-40 w-full md:col-span-3" />}>
-                <AbsoluteChartView startDate={startDate} endDate={endDate} />
+                <AbsoluteChartView startDate={startDate} endDate={endDate} aggregation={AggregationType.HOUR} />
             </Suspense>
             <Suspense fallback={<Skeleton className="col-span-1 h-96 w-full md:col-span-3" />}>
                 <HourChartView startDate={startDate} endDate={endDate} />

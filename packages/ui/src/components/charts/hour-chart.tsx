@@ -28,7 +28,7 @@ const chartConfig = {
         color: "hsl(var(--chart-4))",
     },
     valueCurrent: {
-        label: "Aktuell (kWh)",
+        label: "Leistung (W)",
         color: "hsl(var(--chart-5))",
     },
 } satisfies ChartConfig;
@@ -151,6 +151,12 @@ export default function HourChart(props: Props) {
                         interval="equidistantPreserveStart"
                     />
                     {activeChart === "value" ? <Bar dataKey="value" fill="var(--color-value)" radius={4} /> : null}
+                    {activeChart === "valueOut" ? (
+                        <Bar dataKey="valueOut" fill="var(--color-valueOut)" radius={4} />
+                    ) : null}
+                    {activeChart === "valueCurrent" ? (
+                        <Bar dataKey="valueCurrent" fill="var(--color-valueCurrent)" radius={4} />
+                    ) : null}
                 </BarChart>
             </ChartContainer>
         </>

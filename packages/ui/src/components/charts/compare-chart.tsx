@@ -10,36 +10,48 @@ import {
     ChartTooltipContent,
 } from "@energyleaf/ui/chart";
 import ChartSwitchButton from "@energyleaf/ui/charts/chart-switch-button";
-import { format, setDay } from "date-fns";
-import { de } from "date-fns/locale";
+import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
 interface Props {
     data: SensorDataSelectType[];
+    compareData: SensorDataSelectType[];
 }
 
 const chartConfig = {
     value: {
-        label: "Verbrauch (kWh)",
+        label: "Erster - Verbrauch (kWh)",
         color: "hsl(var(--primary))",
     },
+    valueCompare: {
+        label: "Zweiter - Verbrauch (kWh)",
+        color: "hsl(var(--chart-3))",
+    },
     valueOut: {
-        label: "Eingespeist (kWh)",
+        label: "Erster - Eingespeist (kWh)",
         color: "hsl(var(--chart-4))",
     },
+    valueOutCompare: {
+        label: "Zweiter - Eingespeist (kWh)",
+        color: "hsl(var(--chart-3))",
+    },
     valueCurrent: {
-        label: "Leistung (W)",
+        label: "Erster - Leistung (W)",
         color: "hsl(var(--chart-5))",
+    },
+    valueCurrentCompare: {
+        label: "Zweiter - Leistung (W)",
+        color: "hsl(var(--chart-3))",
     },
 } satisfies ChartConfig;
 
-export default function DayChart(props: Props) {
+export default function CompareChart(props: Props) {
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
 
     function tickFormatter(value: Date) {
-        const day = format(value, "EEEE", { locale: de });
-        return `${day}`;
+        const hour = format(value, "HH");
+        return `${hour} Uhr`;
     }
 
     const hasOutValues = useMemo(() => {
@@ -53,9 +65,9 @@ export default function DayChart(props: Props) {
     const fillArray = useMemo(() => {
         const result: SensorDataSelectType[] = [];
 
-        for (let i = 1; i < 8; i++) {
-            const weekDay = i % 7;
-            const date = setDay(new Date(), weekDay);
+        for (let i = 0; i < 24; i++) {
+            const date = new Date();
+            date.setHours(i, 0, 0, 0);
 
             result.push({
                 id: i.toString(),
@@ -71,30 +83,67 @@ export default function DayChart(props: Props) {
     }, []);
 
     const processedData = useMemo(() => {
-        return props.data.reduce((acc, cur) => {
-            const index = acc.findIndex((item) => item.timestamp.getDay() === cur.timestamp.getDay());
-            if (index !== -1) {
-                const existing = acc[index];
-                existing.value = cur.value;
-                existing.sensorId = cur.sensorId;
+        const results: (SensorDataSelectType & {
+            valueCompare: number;
+            valueOutCompare: number | null;
+            valueCurrentCompare: number | null;
+        })[] = [];
+        for (let i = 0; i < fillArray.length; i++) {
+            const result: SensorDataSelectType & {
+                valueCompare: number;
+                valueOutCompare: number | null;
+                valueCurrentCompare: number | null;
+            } = {
+                id: "",
+                sensorId: "",
+                timestamp: new Date(),
+                value: 0,
+                valueCompare: 0,
+                valueOut: null,
+                valueOutCompare: null,
+                valueCurrent: null,
+                valueCurrentCompare: null,
+            };
+            const cur = fillArray[i];
+            const dataIndex = props.data.findIndex((item) => item.timestamp.getHours() === cur.timestamp.getHours());
+            const compareDataIndex = props.compareData.findIndex(
+                (item) => item.timestamp.getHours() === cur.timestamp.getHours(),
+            );
 
-                if (cur.valueOut) {
-                    if (!existing.valueOut) {
-                        existing.valueOut = cur.valueOut;
-                        existing.sensorId = cur.sensorId;
-                    }
+            if (dataIndex !== -1) {
+                const data = props.data[dataIndex];
+                result.id = data.id;
+                result.sensorId = data.sensorId;
+                result.value = data.value;
+                result.timestamp = data.timestamp;
+
+                if (data.valueOut) {
+                    result.valueOut = data.valueOut;
                 }
-                if (cur.valueCurrent) {
-                    if (!existing.valueCurrent) {
-                        existing.valueCurrent = cur.valueCurrent;
-                        existing.sensorId = cur.sensorId;
-                    }
+
+                if (data.valueCurrent) {
+                    result.valueCurrent = data.valueCurrent;
                 }
             }
 
-            return acc;
-        }, fillArray);
-    }, [fillArray, props.data]);
+            if (compareDataIndex !== -1) {
+                const compareData = props.compareData[compareDataIndex];
+                result.valueCompare = compareData.value;
+
+                if (compareData.valueOut) {
+                    result.valueOutCompare = compareData.valueOut;
+                }
+
+                if (compareData.valueCurrent) {
+                    result.valueCurrentCompare = compareData.valueCurrent;
+                }
+            }
+
+            results.push(result);
+        }
+
+        return results;
+    }, [fillArray, props.data, props.compareData]);
 
     return (
         <>
@@ -151,12 +200,23 @@ export default function DayChart(props: Props) {
                         tickLine={false}
                         interval="equidistantPreserveStart"
                     />
-                    {activeChart === "value" ? <Bar dataKey="value" fill="var(--color-value)" radius={4} /> : null}
+                    {activeChart === "value" ? (
+                        <>
+                            <Bar dataKey="value" fill="var(--color-value)" radius={4} />
+                            <Bar dataKey="valueCompare" fill="var(--color-valueCompare)" radius={4} />
+                        </>
+                    ) : null}
                     {activeChart === "valueOut" ? (
-                        <Bar dataKey="valueOut" fill="var(--color-valueOut)" radius={4} />
+                        <>
+                            <Bar dataKey="valueOut" fill="var(--color-valueOut)" radius={4} />
+                            <Bar dataKey="valueOutCompare" fill="var(--color-valueOutCompare)" radius={4} />
+                        </>
                     ) : null}
                     {activeChart === "valueCurrent" ? (
-                        <Bar dataKey="valueCurrent" fill="var(--color-valueCurrent)" radius={4} />
+                        <>
+                            <Bar dataKey="valueCurrent" fill="var(--color-valueCurrent)" radius={4} />
+                            <Bar dataKey="valueCurrentCompare" fill="var(--color-valueCurrentCompare)" radius={4} />
+                        </>
                     ) : null}
                 </BarChart>
             </ChartContainer>

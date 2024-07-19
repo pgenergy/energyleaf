@@ -1,12 +1,14 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import { AggregationType } from "@energyleaf/lib";
+import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import AbsoluteMiniChart from "./absolute-mini-chart";
 
 interface Props {
     startDate: Date;
     endDate: Date;
+    aggregation: AggregationType;
 }
 
 export default async function AbsoluteChartView(props: Props) {
@@ -27,8 +29,19 @@ export default async function AbsoluteChartView(props: Props) {
         );
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, "sum");
+    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, props.aggregation, "sum");
     const hasValues = data.length > 0;
+    if (data.length === 1) {
+        const newFirst = {
+            id: data[0].id,
+            sensorId: data[0].sensorId,
+            value: data[0].value,
+            valueOut: data[0].valueOut,
+            valueCurrent: data[0].valueCurrent,
+            timestamp: new Date(data[0].timestamp.getTime() - 10),
+        } satisfies SensorDataSelectType;
+        data.unshift(newFirst);
+    }
 
     if (!hasValues) {
         return (

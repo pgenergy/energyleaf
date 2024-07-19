@@ -91,20 +91,27 @@ async function aggregatedValues(
                     "sub_value_out",
                 ),
             valueCurrent: sql<number | null>`${sensorData.valueCurrent}`.as("sub_value_current"),
-            timestamp: sql<string>`${sensorData.timestamp}`.as("sub_timestamp"),
+            timestamp: sql`${sensorData.timestamp}`
+                .mapWith({
+                    mapFromDriverValue: (value: unknown) => {
+                        return new Date(`${value}+0000`);
+                    },
+                })
+                .as("sub_timestamp"),
         })
         .from(sensorData)
         .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, start, end)))
         .orderBy(sensorData.timestamp)
         .as("subQuery");
 
-    let grouperSql = sql`1`;
+    const convertTimeSql = sql`CONVERT_TZ(${subQuery.timestamp}, 'UTC', 'Europe/Berlin')`;
+    let grouperSql = sql``;
     if (groupValue === "WEEKDAY") {
-        grouperSql = sql<string>`WEEKDAY(${subQuery.timestamp})`;
+        grouperSql = sql<string>`WEEKDAY(${convertTimeSql})`;
     } else if (groupValue === "WEEK") {
-        grouperSql = sql<string>`CEIL((DAY(${subQuery.timestamp}) + WEEKDAY(DATE_SUB(${subQuery.timestamp}, INTERVAL DAY(${subQuery.timestamp}) - 1 DAY))) / 7)`;
+        grouperSql = sql<string>`CEIL((DAY(${convertTimeSql}) + WEEKDAY(DATE_SUB(${convertTimeSql}, INTERVAL DAY(${convertTimeSql}) - 1 DAY))) / 7)`;
     } else {
-        grouperSql = sql<string>`DATE_FORMAT(${subQuery.timestamp}, ${groupValue})`;
+        grouperSql = sql<string>`DATE_FORMAT(${convertTimeSql}, ${groupValue})`;
     }
 
     return db
@@ -112,9 +119,7 @@ async function aggregatedValues(
             sensorId: subQuery.sensorId,
             value: sum ? sql<number>`SUM(${subQuery.value})` : sql<number>`AVG(${subQuery.value})`,
             valueOut: sum ? sql<number>`SUM(${subQuery.valueOut})` : sql<number>`AVG(${subQuery.valueOut})`,
-            valueCurrent: sum
-                ? sql<number | null>`SUM(${subQuery.valueCurrent})`
-                : sql<number | null>`AVG(${subQuery.valueCurrent})`,
+            valueCurrent: sql<number | null>`AVG(${subQuery.valueCurrent})`,
             timestamp: sql`MIN(${subQuery.timestamp})`.mapWith({
                 mapFromDriverValue: (value: unknown) => {
                     return new Date(`${value}+0000`);
