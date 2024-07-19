@@ -2,6 +2,7 @@
 
 import { Calendar } from "@energyleaf/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
+import { de } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -20,6 +21,7 @@ export function EnergyDatePicker(props: Props) {
         router.push(`/energy/custom?${searchParams.toString()}`, {
             scroll: false,
         });
+        setOpen(false);
     }
 
     return (
@@ -31,6 +33,7 @@ export function EnergyDatePicker(props: Props) {
                     selected={props.date}
                     onSelect={handleClick}
                     initialFocus
+                    locale={de}
                     disabled={(d) => {
                         const currentDate = new Date();
                         return currentDate.getTime() < d.getTime();

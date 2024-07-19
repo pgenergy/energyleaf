@@ -51,9 +51,9 @@ export default function HourChart(props: Props) {
 
     const fillArray = useMemo(() => {
         const result: SensorDataSelectType[] = [];
-        const date = new Date();
 
         for (let i = 0; i < 24; i++) {
+            const date = new Date();
             date.setHours(i, 0, 0, 0);
 
             result.push({

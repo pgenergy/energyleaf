@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { genId } from "@energyleaf/db";
 import { insertRawEnergyValues } from "@energyleaf/db/query";
 
 export async function insertEnergyData(args: string[]) {
@@ -25,6 +26,7 @@ export async function insertEnergyData(args: string[]) {
         dataDate.setMonth(month);
         return {
             ...d,
+            id: genId(),
             sensorId,
             timestamp: dataDate,
         };
