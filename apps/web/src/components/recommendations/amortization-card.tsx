@@ -56,44 +56,46 @@ export default function AmortizationCard({ workingPrice }: Props) {
     const [amortizationTimeInYears, setAmortisationTimeInYears] = useState<number>(0);
 
     function updateData(newSelected: DeviceItem[]) {
-        const referenceValuesOfSelected = newSelected.map((device) => {
-            const referenceData = getReferencePowerDataForDeviceCategory(device.category as DeviceCategory);
-            return {
-                ...device,
-                referencePower: referenceData.averagePower,
-                referencePurchasePrice: referenceData.purchasePrice,
-            };
-        });
-        const newAcquisitionCost = referenceValuesOfSelected.reduce(
-            (acc, device) => acc + device.referencePurchasePrice,
-            0,
+        const {
+            totalAcquisitionCost,
+            totalWeeklyConsumptionBefore,
+            totalWeeklyConsumptionAfter,
+            totalSavedPowerConsumption,
+        } = newSelected.reduce(
+            (acc, device) => {
+                const referenceData = getReferencePowerDataForDeviceCategory(device.category as DeviceCategory);
+                const referencePower = referenceData.averagePower;
+                const referencePurchasePrice = referenceData.purchasePrice;
+                const weeklyUsage = device.weeklyUsage ?? 0;
+                const powerEstimation = device.powerEstimation ?? 0;
+
+                acc.totalAcquisitionCost += referencePurchasePrice;
+                acc.totalWeeklyConsumptionBefore += powerEstimation * weeklyUsage;
+                acc.totalWeeklyConsumptionAfter += referencePower * weeklyUsage;
+                if (powerEstimation !== 0) {
+                    acc.totalSavedPowerConsumption += 1 - referencePower / powerEstimation;
+                }
+
+                return acc;
+            },
+            {
+                totalAcquisitionCost: 0,
+                totalWeeklyConsumptionBefore: 0,
+                totalWeeklyConsumptionAfter: 0,
+                totalSavedPowerConsumption: 0,
+            },
         );
-        setAcquisitionCost(newAcquisitionCost);
 
-        const weeklyConsumptionSelectedBefore = newSelected.reduce(
-            (acc, device) => acc + (device.powerEstimation ?? 0) * (device.weeklyUsage ?? 0),
-            0,
-        );
-        const weeklyCostsSelectedBefore = (weeklyConsumptionSelectedBefore / 1000) * workingPrice;
-        setWeeklyCostsBefore(weeklyCostsSelectedBefore);
+        const weeklyCostsBefore = (totalWeeklyConsumptionBefore / 1000) * workingPrice;
+        const weeklyCostsAfter = (totalWeeklyConsumptionAfter / 1000) * workingPrice;
+        const savingsPerYear = 52.14 * (weeklyCostsBefore - weeklyCostsAfter);
 
-        const weeklyConsumptionSelectedAfter = referenceValuesOfSelected.reduce(
-            (acc, device) => acc + (device.referencePower ?? 0) * (device.weeklyUsage ?? 0),
-            0,
-        );
-        const weeklyCostsSelectedAfter = (weeklyConsumptionSelectedAfter / 1000) * workingPrice;
-        setWeeklyCostsAfter(weeklyCostsSelectedAfter);
-
-        const savedPowerConsumption = referenceValuesOfSelected.reduce(
-            (acc, device) => acc + (1 - device.referencePower / (device.powerEstimation ?? 0)),
-            0,
-        );
-        setSavingsPerKWh(savedPowerConsumption * workingPrice * 100);
-
-        const savingsPerYearSelected = 52.14 * (weeklyCostsSelectedBefore - weeklyCostsSelectedAfter);
-        setSavingsPerYear(savingsPerYearSelected);
-
-        setAmortisationTimeInYears(newAcquisitionCost / savingsPerYearSelected);
+        setAcquisitionCost(totalAcquisitionCost);
+        setWeeklyCostsBefore(weeklyCostsBefore);
+        setWeeklyCostsAfter(weeklyCostsAfter);
+        setSavingsPerKWh(totalSavedPowerConsumption * workingPrice * 100);
+        setSavingsPerYear(savingsPerYear);
+        setAmortisationTimeInYears(totalAcquisitionCost / savingsPerYear);
     }
 
     function onDeviceWeeklyUsageChange(device: DeviceItem, weeklyUsage: number) {

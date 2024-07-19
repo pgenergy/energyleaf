@@ -71,19 +71,9 @@ export default function AmortizationSelectItem({ device, isSelected, onClick, on
                                 }
                             }}
                         />
-                        <Popover>
-                            <PopoverTrigger
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                }}
-                            >
-                                <InfoIcon className="h-6 w-6" />
-                            </PopoverTrigger>
-                            <PopoverContent className="flex flex-col gap-2">
-                                Dieser Wert wurde anhand Ihrer Peaks geschätzt. Sie können ihn hier für die
-                                Amortisationsrechnung anpassen.
-                            </PopoverContent>
-                        </Popover>
+                        <div title="Dieser Wert wurde anhand Ihrer Peaks geschätzt. Sie können ihn hier für die Amortisationsrechnung anpassen.">
+                            <InfoIcon className="h-6 w-6" />
+                        </div>
                     </div>
                 </div>
             </div>
