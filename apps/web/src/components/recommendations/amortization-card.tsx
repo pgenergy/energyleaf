@@ -50,7 +50,7 @@ export default function AmortizationCard({ workingPrice }: Props) {
     const [weeklyCostsBefore, setWeeklyCostsBefore] = useState<number>(0);
     const [savingsPerKWh, setSavingsPerKWh] = useState<number>(0);
     const [savingsPerYear, setSavingsPerYear] = useState<number>(0);
-    const [amortisationTimeInYears, setAmortisationTimeInYears] = useState<number>(0);
+    const [amortizationTimeInYears, setAmortisationTimeInYears] = useState<number>(0);
 
     function updateSelected(newSelected: DeviceSelectType[]) {
         const referenceValuesOfSelected = newSelected.map((device) => {
@@ -61,11 +61,11 @@ export default function AmortizationCard({ workingPrice }: Props) {
                 referencePurchasePrice: referenceData.purchasePrice,
             };
         });
-        const newAquisitionCost = referenceValuesOfSelected.reduce(
+        const newAcquisitionCost = referenceValuesOfSelected.reduce(
             (acc, device) => acc + device.referencePurchasePrice,
             0,
         );
-        setAcquisitionCost(newAquisitionCost);
+        setAcquisitionCost(newAcquisitionCost);
 
         const weeklyConsumptionSelectedBefore = newSelected.reduce(
             (acc, device) => acc + (device.powerEstimation ?? 0) * (device.weeklyUsageEstimation ?? 0),
@@ -87,15 +87,14 @@ export default function AmortizationCard({ workingPrice }: Props) {
         );
         setSavingsPerKWh(savedPowerConsumption * workingPrice * 100);
 
-        const savingsPerYear2 = 52.14 * (weeklyCostsSelectedBefore - weeklyCostsSelectedAfter);
-        setSavingsPerYear(savingsPerYear2);
+        const savingsPerYearSelected = 52.14 * (weeklyCostsSelectedBefore - weeklyCostsSelectedAfter);
+        setSavingsPerYear(savingsPerYearSelected);
 
-        setAmortisationTimeInYears(newAquisitionCost / savingsPerYear2);
+        setAmortisationTimeInYears(newAcquisitionCost / savingsPerYearSelected);
         setSelected(newSelected);
     }
 
     const formatAmortisationTime = (test: number) => {
-        console.log(test);
         if (test >= 1) {
             return `${formatNumber(test)} Jahre`;
         }
@@ -113,27 +112,38 @@ export default function AmortizationCard({ workingPrice }: Props) {
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-2 md:grid-cols-3 md:grid-rows-1">
                 <AmortizationSelect devices={devices} selected={selected} onSelectedChange={updateSelected} />
-                <div className="flex flex-col gap-4 md:col-span-2">
-                    <div className="grid grid-cols-3 gap-4">
-                        <div>
-                            <h2 className="text-center font-semibold text-l text-primary">Eingesparte Cent pro kWh</h2>
-                            <p className="text-center">{formatNumber(savingsPerKWh)} ct</p>
+                {selected.length > 0 ? (
+                    <div className="flex flex-col gap-4 md:col-span-2">
+                        <div className="grid grid-cols-3 gap-4">
+                            <div>
+                                <h2 className="text-center font-semibold text-l text-primary">
+                                    Eingesparte Cent pro kWh
+                                </h2>
+                                <p className="text-center">{formatNumber(savingsPerKWh)} ct</p>
+                            </div>
+                            <div>
+                                <h2 className="text-center font-semibold text-l text-primary">
+                                    Eingesparte Euro pro Jahr
+                                </h2>
+                                <p className="text-center">{formatNumber(savingsPerYear)} €</p>
+                            </div>
+                            <div>
+                                <h2 className="text-center font-semibold text-l text-primary">Amortisationszeit</h2>
+                                <p className="text-center">{formatAmortisationTime(amortizationTimeInYears)}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-center font-semibold text-l text-primary">Eingesparte Euro pro Jahr</h2>
-                            <p className="text-center">{formatNumber(savingsPerYear)} €</p>
-                        </div>
-                        <div>
-                            <h2 className="text-center font-semibold text-l text-primary">Amortisationszeit</h2>
-                            <p className="text-center">{formatAmortisationTime(amortisationTimeInYears)}</p>
-                        </div>
+                        <AmortizationChart
+                            weeklyCostsAfter={weeklyCostsAfter}
+                            initialCostsAfter={acquisitionCost}
+                            weeklyCostsBefore={weeklyCostsBefore}
+                            amortizationTimeInYears={amortizationTimeInYears}
+                        />
                     </div>
-                    <AmortizationChart
-                        weeklyCostsAfter={weeklyCostsAfter}
-                        initialCostsAfter={acquisitionCost}
-                        weeklyCostsBefore={weeklyCostsBefore}
-                    />
-                </div>
+                ) : (
+                    <div className="flex w-full items-center justify-center text-muted-foreground md:col-span-2">
+                        Bitte wählen Sie ein Gerät aus, um die Amortisation zu berechnen.
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

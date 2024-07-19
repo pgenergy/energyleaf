@@ -2,17 +2,18 @@
 
 import { fulfills } from "@energyleaf/lib/versioning";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "@energyleaf/ui/chart";
-import { Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
+import { useMemo } from "react";
+import { Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from "recharts";
 import AmortizationChartTooltip from "./amortization-chart-tooltip";
 
 const chartConfig = {
     before: {
         label: "Bisher",
-        color: "hsl(var(--primary))",
+        color: "hsl(var(--chart-5))",
     },
     after: {
         label: "Nach Anschaffung neuer Geräte",
-        color: "hsl(var(--chart-3))",
+        color: "hsl(var(--primary))",
     },
 } satisfies ChartConfig;
 
@@ -20,34 +21,36 @@ interface Props {
     weeklyCostsBefore: number;
     weeklyCostsAfter: number;
     initialCostsAfter: number;
+    amortizationTimeInYears: number;
 }
 
-export function AmortizationChart({ weeklyCostsBefore, weeklyCostsAfter, initialCostsAfter }: Props) {
-    // Generate data for the chart
-    const data = Array.from({ length: 52 }, (_, i) => {
-        const timestamp = i;
-        return {
-            timestamp,
-            before: weeklyCostsBefore * timestamp,
-            after: initialCostsAfter + weeklyCostsAfter * timestamp,
-        };
-    });
+export function AmortizationChart(props: Props) {
+    const { data, unit, amortizationDuration } = useMemo(() => generateData(props), [props]);
+    const xAxisUnit = unit === "years" ? "Jahren" : "Monaten";
 
     return (
-        <ChartContainer className="min-h-52 w-full" config={chartConfig}>
+        <ChartContainer className="h-80 w-full" config={chartConfig}>
             <LineChart data={data}>
                 <XAxis
                     dataKey="timestamp"
-                    type="category"
-                    tickLine={false}
+                    type="number"
+                    tickLine={true}
                     interval="equidistantPreserveStart"
-                    axisLine={false}
-                    label="Zeit in Wochen"
+                    axisLine={true}
+                    tickCount={data.length}
+                    label={{ value: `Zeit in ${xAxisUnit}`, position: "insideBottom", offset: -4 }}
                 />
-                <YAxis tickLine={false} interval="equidistantPreserveStart" type="number" />
-                <Line type="monotone" dataKey="before" stroke="var(--color-before)" />
-                <Line type="monotone" dataKey="after" stroke="var(--color-after)" />
-                <Tooltip content={(props) => <AmortizationChartTooltip tooltipProps={props} />} />
+                <YAxis
+                    tickLine={true}
+                    interval="equidistantPreserveStart"
+                    type="number"
+                    tickCount={data.length / 3}
+                    label={{ value: "Kosten in €", angle: -90, position: "insideLeft", offset: 4 }}
+                />
+                <Line type="linear" dataKey="before" stroke="var(--color-before)" dot={false} />
+                <Line type="linear" dataKey="after" stroke="var(--color-after)" dot={false} />
+                <ReferenceLine x={amortizationDuration} label="Amortisation" />
+                <Tooltip content={(props) => <AmortizationChartTooltip tooltipProps={props} unit={unit} />} />
                 <ChartLegend
                     content={
                         <ChartLegendContent
@@ -60,4 +63,28 @@ export function AmortizationChart({ weeklyCostsBefore, weeklyCostsAfter, initial
             </LineChart>
         </ChartContainer>
     );
+}
+
+function generateData({ weeklyCostsBefore, weeklyCostsAfter, initialCostsAfter, amortizationTimeInYears }: Props) {
+    let amortizationDuration = amortizationTimeInYears;
+    let unit: "years" | "months" = "years";
+    let weeklyCostFactor = 52;
+    if (amortizationTimeInYears <= 3) {
+        amortizationDuration = amortizationTimeInYears * 12;
+        unit = "months";
+        weeklyCostFactor = 4.33;
+    }
+
+    return {
+        data: Array.from({ length: amortizationDuration * 1.5 }, (_, i) => {
+            const timestamp = i;
+            return {
+                timestamp,
+                before: weeklyCostsBefore * weeklyCostFactor * timestamp,
+                after: initialCostsAfter + weeklyCostsAfter * weeklyCostFactor * timestamp,
+            };
+        }),
+        unit,
+        amortizationDuration,
+    };
 }
