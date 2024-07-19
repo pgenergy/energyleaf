@@ -1,21 +1,6 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import {
-    and,
-    asc,
-    between,
-    desc,
-    eq,
-    getTableColumns,
-    gte,
-    inArray,
-    isNotNull,
-    lt,
-    lte,
-    ne,
-    or,
-    sql,
-} from "drizzle-orm";
+import { and, between, desc, eq, getTableColumns, gte, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";

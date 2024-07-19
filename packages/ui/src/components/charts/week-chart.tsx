@@ -10,8 +10,7 @@ import {
     ChartTooltipContent,
 } from "@energyleaf/ui/chart";
 import ChartSwitchButton from "@energyleaf/ui/charts/chart-switch-button";
-import { format, startOfMonth } from "date-fns";
-import { de } from "date-fns/locale";
+import { startOfMonth } from "date-fns";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 

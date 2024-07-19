@@ -1,4 +1,4 @@
-import { and, asc, between, desc, eq, getTableColumns, lt, lte, or, sql } from "drizzle-orm";
+import { and, asc, between, desc, eq, getTableColumns, lte, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db, { type DB } from "..";
 import { device, deviceToPeak, sensorData, sensorDataSequence } from "../schema";

@@ -18,7 +18,7 @@ import { getSession } from "@/lib/auth/auth.server";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
-import { getTimezoneOffset, toZonedTime } from "date-fns-tz";
+import { getTimezoneOffset } from "date-fns-tz";
 import { Suspense } from "react";
 
 export const metadata = {
