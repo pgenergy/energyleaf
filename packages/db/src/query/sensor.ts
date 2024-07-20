@@ -1,6 +1,6 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, between, desc, eq, gte, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, getTableColumns, gte, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
@@ -30,88 +30,232 @@ export async function getAllSensors(active?: boolean) {
     return db.select().from(sensor);
 }
 
+export async function getRawEnergyForSensorInRange(
+    start: Date,
+    end: Date,
+    sensorId: string,
+): Promise<SensorDataSelectType[]> {
+    const { value, valueOut, ...rest } = getTableColumns(sensorData);
+    return db
+        .select({
+            ...rest,
+            value: sql<number>`${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`
+                .mapWith({
+                    mapFromDriverValue: (value: unknown) => {
+                        return Number(value);
+                    },
+                })
+                .as("value"),
+            valueOut:
+                sql<number>`${sensorData.valueOut} - LAG(${sensorData.valueOut}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`
+                    .mapWith({
+                        mapFromDriverValue: (value: unknown) => {
+                            return Number(value);
+                        },
+                    })
+                    .as("value_out"),
+        })
+        .from(sensorData)
+        .where(
+            and(
+                eq(sensorData.sensorId, sensorId),
+                or(
+                    between(sensorData.timestamp, start, end),
+                    eq(sensorData.timestamp, start),
+                    eq(sensorData.timestamp, end),
+                ),
+            ),
+        )
+        .orderBy(sensorData.timestamp);
+}
+
+/**
+ * Helper function to split the data into groups and aggregate the values
+ */
+async function aggregatedValues(
+    start: Date,
+    end: Date,
+    sensorId: string,
+    groupValue: string,
+    type: "sum" | "average" = "average",
+) {
+    const sum = type === "sum";
+    const subQuery = db
+        .select({
+            sensorId: sensorData.sensorId,
+            value: sql<number>`${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`.as(
+                "sub_value",
+            ),
+            valueOut:
+                sql<number>`${sensorData.valueOut} - LAG(${sensorData.valueOut}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`.as(
+                    "sub_value_out",
+                ),
+            valueCurrent: sql<number | null>`${sensorData.valueCurrent}`.as("sub_value_current"),
+            timestamp: sql`${sensorData.timestamp}`
+                .mapWith({
+                    mapFromDriverValue: (value: unknown) => {
+                        return new Date(`${value}+0000`);
+                    },
+                })
+                .as("sub_timestamp"),
+        })
+        .from(sensorData)
+        .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, start, end)))
+        .orderBy(sensorData.timestamp)
+        .as("subQuery");
+
+    const convertTimeSql = sql`CONVERT_TZ(${subQuery.timestamp}, 'UTC', 'Europe/Berlin')`;
+    let grouperSql = sql``;
+    if (groupValue === "WEEKDAY") {
+        grouperSql = sql<string>`WEEKDAY(${convertTimeSql})`;
+    } else if (groupValue === "WEEK") {
+        grouperSql = sql<string>`CEIL((DAY(${convertTimeSql}) + WEEKDAY(DATE_SUB(${convertTimeSql}, INTERVAL DAY(${convertTimeSql}) - 1 DAY))) / 7)`;
+    } else {
+        grouperSql = sql<string>`DATE_FORMAT(${convertTimeSql}, ${groupValue})`;
+    }
+
+    return db
+        .select({
+            sensorId: subQuery.sensorId,
+            value: sum ? sql<number>`SUM(${subQuery.value})` : sql<number>`AVG(${subQuery.value})`,
+            valueOut: sum ? sql<number>`SUM(${subQuery.valueOut})` : sql<number>`AVG(${subQuery.valueOut})`,
+            valueCurrent: sql<number | null>`AVG(${subQuery.valueCurrent})`,
+            timestamp: sql`MIN(${subQuery.timestamp})`.mapWith({
+                mapFromDriverValue: (value: unknown) => {
+                    return new Date(`${value}+0000`);
+                },
+            }),
+            grouper: grouperSql,
+        })
+        .from(subQuery)
+        .where(and(eq(subQuery.sensorId, sensorId), between(subQuery.timestamp, start, end)))
+        .groupBy(grouperSql)
+        .orderBy(grouperSql);
+}
+
+/**
+ * Get the aggregation based on hour 0 - 24
+ */
+export async function getHourEnergyForSensorInRange(
+    start: Date,
+    end: Date,
+    sensorId: string,
+    type: "sum" | "average" = "average",
+): Promise<SensorDataSelectType[]> {
+    const query = await aggregatedValues(start, end, sensorId, "%H", type);
+    return query.map((row, index) => ({
+        ...row,
+        id: index.toString(),
+        value: Number(row.value),
+        valueOut: Number(row.valueOut),
+        valueCurrent: Number(row.valueCurrent),
+        timestamp: row.timestamp,
+    }));
+}
+
+/**
+ * Get the aggregation based on day weekday 0 - 7
+ */
+export async function getDayEnergyForSensorInRange(
+    start: Date,
+    end: Date,
+    sensorId: string,
+    type: "sum" | "average" = "average",
+): Promise<SensorDataSelectType[]> {
+    const query = await aggregatedValues(start, end, sensorId, "WEEKDAY", type);
+    return query.map((row, index) => ({
+        ...row,
+        id: index.toString(),
+        value: Number(row.value),
+        valueOut: Number(row.valueOut),
+        valueCurrent: Number(row.valueCurrent),
+        timestamp: row.timestamp,
+    }));
+}
+
+/**
+ * Get the aggregation based on week per month 0 - 4
+ */
+export async function getWeekEnergyForSensorInRange(
+    start: Date,
+    end: Date,
+    sensorId: string,
+    type: "sum" | "average" = "average",
+): Promise<SensorDataSelectType[]> {
+    const query = await aggregatedValues(start, end, sensorId, "WEEK", type);
+    return query.map((row, index) => ({
+        ...row,
+        id: index.toString(),
+        value: Number(row.value),
+        valueOut: Number(row.valueOut),
+        valueCurrent: Number(row.valueCurrent),
+        timestamp: row.timestamp,
+    }));
+}
+
+export async function getMonthEnergyForSensorInRange(
+    start: Date,
+    end: Date,
+    sensorId: string,
+    type: "sum" | "average" = "average",
+): Promise<SensorDataSelectType[]> {
+    const query = await aggregatedValues(start, end, sensorId, "%M", type);
+    return query.map((row, index) => ({
+        ...row,
+        id: index.toString(),
+        value: Number(row.value),
+        valueOut: Number(row.valueOut),
+        valueCurrent: Number(row.valueCurrent),
+        timestamp: row.timestamp,
+    }));
+}
+
+/**
+ * Get the aggregation based on year
+ */
+export async function getYearEnergyForSensorInRange(
+    start: Date,
+    end: Date,
+    sensorId: string,
+    type: "sum" | "average" = "average",
+): Promise<SensorDataSelectType[]> {
+    const query = await aggregatedValues(start, end, sensorId, "%Y", type);
+    return query.map((row, index) => ({
+        ...row,
+        id: index.toString(),
+        value: Number(row.value),
+        valueOut: Number(row.valueOut),
+        valueCurrent: Number(row.valueCurrent),
+        timestamp: row.timestamp,
+    }));
+}
+
+/**
+ * Base function to get the energy data for a sensor in a given range with a given aggregation
+ */
 export async function getEnergyForSensorInRange(
     start: Date,
     end: Date,
     sensorId: string,
     aggregation = AggregationType.RAW,
+    type: "sum" | "average" = "average",
 ): Promise<SensorDataSelectType[]> {
-    if (aggregation === AggregationType.RAW) {
-        const query = await db
-            .select()
-            .from(sensorData)
-            .where(
-                and(
-                    eq(sensorData.sensorId, sensorId),
-                    or(
-                        between(sensorData.timestamp, start, end),
-                        eq(sensorData.timestamp, start),
-                        eq(sensorData.timestamp, end),
-                    ),
-                ),
-            )
-            .orderBy(sensorData.timestamp);
-
-        return query.map((row, index) => ({
-            ...row,
-            id: row.id,
-            value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-            valueOut: row.valueOut
-                ? index === 0
-                    ? 0
-                    : Number(row.valueOut) - Number(query[index - 1].valueOut)
-                : null,
-            valueCurrent: row.valueCurrent,
-            timestamp: row.timestamp,
-        }));
-    }
-
-    let dateFormat: string;
     switch (aggregation) {
+        case AggregationType.RAW:
+            return getRawEnergyForSensorInRange(start, end, sensorId);
         case AggregationType.HOUR:
-            dateFormat = "%Y-%m-%dT%H:00:00Z";
-            break;
+            return getHourEnergyForSensorInRange(start, end, sensorId, type);
         case AggregationType.DAY:
-            dateFormat = "%Y-%m-%dT00:00:00Z";
-            break;
+            return getDayEnergyForSensorInRange(start, end, sensorId, type);
         case AggregationType.WEEK:
-            dateFormat = "%X-W%V";
-            break;
+            return getWeekEnergyForSensorInRange(start, end, sensorId, type);
         case AggregationType.MONTH:
-            dateFormat = "%Y-%m-01T00:00:00Z";
-            break;
+            return getMonthEnergyForSensorInRange(start, end, sensorId, type);
         case AggregationType.YEAR:
-            dateFormat = "%Y-01-01T00:00:00Z";
-            break;
+            return getYearEnergyForSensorInRange(start, end, sensorId, type);
         default:
             throw new Error(`Unsupported aggregation type: ${aggregation}`);
     }
-
-    const formattedTimestamp = sql<string>`DATE_FORMAT(${sensorData.timestamp}, ${dateFormat})`;
-
-    const query = await db
-        .select({
-            sensorId: sensorData.sensorId,
-            value: sql<number>`AVG(${sensorData.value})`,
-            valueOut: sql<number | null>`AVG(${sensorData.valueOut})`,
-            valueCurrent: sql<number | null>`AVG(${sensorData.valueCurrent})`,
-            timestamp: formattedTimestamp,
-        })
-        .from(sensorData)
-        .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, start, end)))
-        .groupBy(formattedTimestamp)
-        .orderBy(formattedTimestamp);
-
-    const results = query.map((row, index) => ({
-        ...row,
-        id: index.toString(),
-        value: index === 0 ? 0 : Number(row.value) - Number(query[index - 1].value),
-        valueOut: row.valueOut ? (index === 0 ? 0 : Number(row.valueOut) - Number(query[index - 1].valueOut)) : null,
-        valueCurrent: row.valueCurrent,
-        timestamp: new Date(row.timestamp),
-    }));
-
-    return results.slice(1);
 }
 
 export async function getEnergyLastEntry(sensorId: string) {
