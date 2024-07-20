@@ -22,7 +22,7 @@ export default function AmortizationSelectItem({ device, isSelected, onClick, on
 
     const onUsageChange = (newValue: number | null) => {
         setUsageValue(newValue);
-        if (newValue) {
+        if (newValue !== null) {
             onWeeklyUsageChange(newValue);
         }
     };

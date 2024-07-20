@@ -43,7 +43,7 @@ function calculateAveragePower(sensorData: SensorDataSelectType[]) {
     return powerSum / sensorData.length;
 }
 
-async function calculateAverageWeeklyUsageTimeInMinutes(deviceId: number) {
+async function calculateAverageWeeklyUsageTimeInHours(deviceId: number) {
     const weeklyGroupedPeaks = await getWeeklyGroupedPeaks(deviceId);
     if (weeklyGroupedPeaks.length === 0) {
         return 0;
@@ -51,7 +51,7 @@ async function calculateAverageWeeklyUsageTimeInMinutes(deviceId: number) {
 
     const weeklyGroupedTimeInPeaks = weeklyGroupedPeaks.map((week) => {
         return week.peaks.reduce((acc, peak) => {
-            const timeDiffInMinutes = (peak.end.getTime() - peak.start.getTime()) / 1000 / 60;
+            const timeDiffInMinutes = (peak.end.getTime() - peak.start.getTime()) / 1000 / 60 / 60;
             return acc + timeDiffInMinutes;
         }, 0);
     });
@@ -60,8 +60,8 @@ async function calculateAverageWeeklyUsageTimeInMinutes(deviceId: number) {
     const lastWeek = weeklyGroupedPeaks[weeklyGroupedPeaks.length - 1];
     const now = new Date();
     const totalHoursInWeek = 7 * 24;
-    const minutesPassed = (now.getTime() - lastWeek.weekStart.getTime()) / 1000 / 60;
-    const percentageOfWeekPassed = minutesPassed / totalHoursInWeek;
+    const hoursPassed = (now.getTime() - lastWeek.weekStart.getTime()) / 1000 / 60 / 60;
+    const percentageOfWeekPassed = hoursPassed / totalHoursInWeek;
 
     weeklyGroupedTimeInPeaks[weeklyGroupedTimeInPeaks.length - 1] =
         weeklyGroupedTimeInPeaks[weeklyGroupedTimeInPeaks.length - 1] / percentageOfWeekPassed;
@@ -336,7 +336,7 @@ export async function updateDevicesForPeak(sensorDataSequenceId: string, deviceI
                 sensorDataSequenceId,
             });
 
-            const newWeeklyUsageEstimation = await calculateAverageWeeklyUsageTimeInMinutes(deviceId);
+            const newWeeklyUsageEstimation = await calculateAverageWeeklyUsageTimeInHours(deviceId);
             await trx
                 .update(device)
                 .set({ weeklyUsageEstimation: newWeeklyUsageEstimation })

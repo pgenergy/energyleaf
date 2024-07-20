@@ -144,12 +144,18 @@ export default function AmortizationCardContent({ devices, workingPrice }: Props
                             <p className="text-center">{formatAmortisationTime(amortizationTimeInYears)}</p>
                         </div>
                     </div>
-                    <AmortizationChart
-                        weeklyCostsAfter={weeklyCostsAfter}
-                        initialCostsAfter={acquisitionCost}
-                        weeklyCostsBefore={weeklyCostsBefore}
-                        amortizationTimeInYears={amortizationTimeInYears}
-                    />
+                    {Number.isFinite(amortizationTimeInYears) ? (
+                        <AmortizationChart
+                            weeklyCostsAfter={weeklyCostsAfter}
+                            initialCostsAfter={acquisitionCost}
+                            weeklyCostsBefore={weeklyCostsBefore}
+                            amortizationTimeInYears={amortizationTimeInYears}
+                        />
+                    ) : (
+                        <div className="flex h-full w-full flex-col items-center justify-center text-muted-foreground text-sm">
+                            Die Amortisation wird nie stattfinden.
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="flex w-full items-center justify-center text-muted-foreground md:col-span-2">
