@@ -1,8 +1,8 @@
 "use client";
 
 import type { SensorDataSelectType } from "@energyleaf/db/types";
-import { type ChartConfig, ChartContainer } from "@energyleaf/ui/chart";
 import { Area, AreaChart, XAxis, YAxis } from "recharts";
+import { type ChartConfig, ChartContainer } from "../../ui/chart";
 
 interface Props {
     data: SensorDataSelectType[];
@@ -21,9 +21,9 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-export default function AbsoluteMiniChart(props: Props) {
+export default function MiniChart(props: Props) {
     return (
-        <ChartContainer className="hidden max-h-8 min-h-8 w-full md:block" config={chartConfig}>
+        <ChartContainer className="max-h-8 min-h-8 w-full" config={chartConfig}>
             <AreaChart data={props.data}>
                 <defs>
                     <linearGradient id="valueColor" x1="0" y1="0" x2="0" y2="1">

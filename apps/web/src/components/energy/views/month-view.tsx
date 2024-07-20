@@ -5,6 +5,7 @@ import { getTimezoneOffset } from "date-fns-tz";
 import { Suspense } from "react";
 import AbsoluteChartView from "../charts/absolute-chart-view";
 import WeekChartView from "../charts/week-chart-view";
+import PeaksView from "./peak-view";
 
 export default async function EnergyPageMonthView() {
     const offset = getTimezoneOffset("Europe/Berlin", new Date());
@@ -25,6 +26,9 @@ export default async function EnergyPageMonthView() {
             </Suspense>
             <Suspense fallback={<Skeleton className="col-span-1 h-96 w-full md:col-span-3" />}>
                 <WeekChartView startDate={startDate} endDate={endDate} />
+            </Suspense>
+            <Suspense fallback={<Skeleton className="col-span-1 h-52 w-full md:col-span-3" />}>
+                <PeaksView startDate={startDate} endDate={endDate} />
             </Suspense>
         </div>
     );

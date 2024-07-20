@@ -3,7 +3,6 @@ import CurrentMeterOutCard from "@/components/dashboard/current-meter-out-card";
 import CurrentMeterPowerCard from "@/components/dashboard/current-meter-power-card";
 import EnergyPageRangeSelector from "@/components/energy/ui/range-selector";
 import { getSession } from "@/lib/auth/auth.server";
-import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -35,9 +34,6 @@ export default async function EnergyPageLayout(props: Props) {
                 <h2 className="col-span-1 mt-8 font-bold text-xl md:col-span-3">Stromdaten Übersicht</h2>
                 <EnergyPageRangeSelector />
                 {props.children}
-                {fulfills(user.appVersion, Versions.self_reflection) ? (
-                    <h2 className="col-span-1 font-bold text-xl md:col-span-3">Was war an diesem Tag?</h2>
-                ) : null}
             </div>
         </>
     );

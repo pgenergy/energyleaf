@@ -4,6 +4,7 @@ import { getTimezoneOffset } from "date-fns-tz";
 import { Suspense } from "react";
 import AbsoluteChartView from "../charts/absolute-chart-view";
 import HourChartView from "../charts/hour-chart-view";
+import PeaksView from "./peak-view";
 
 interface Props {
     initialDate?: Date;
@@ -28,6 +29,9 @@ export default async function EnergyPageTodayView(props: Props) {
             </Suspense>
             <Suspense fallback={<Skeleton className="col-span-1 h-96 w-full md:col-span-3" />}>
                 <HourChartView startDate={startDate} endDate={endDate} />
+            </Suspense>
+            <Suspense fallback={<Skeleton className="col-span-1 h-52 w-full md:col-span-3" />}>
+                <PeaksView startDate={startDate} endDate={endDate} />
             </Suspense>
         </div>
     );

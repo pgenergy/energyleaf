@@ -23,14 +23,14 @@
         "@lucia-auth/adapter-drizzle": "^1.0.7",
         "@planetscale/database": "^1.18.0",
         "drizzle-orm": "^0.32.0",
-        "mathjs": "^13.0.2",
+        "mathjs": "^13.0.3",
         "nanoid": "^5.0.7"
     },
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:^",
-        "@types/node": "^20.14.10",
+        "@types/node": "^20.14.11",
         "drizzle-kit": "^0.23.0",
-        "mysql2": "^3.10.2",
+        "mysql2": "^3.10.3",
         "typescript": "^5.5.3"
     }
 }

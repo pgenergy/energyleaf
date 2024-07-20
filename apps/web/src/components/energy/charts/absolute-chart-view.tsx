@@ -3,7 +3,7 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import type { SensorDataSelectType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import AbsoluteMiniChart from "./absolute-mini-chart";
+import MiniChart from "@energyleaf/ui/charts/mini-chart";
 
 interface Props {
     startDate: Date;
@@ -70,7 +70,9 @@ export default async function AbsoluteChartView(props: Props) {
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2">
                     <p className="font-bold font-mono">{total.toFixed(2)} kWh</p>
-                    <AbsoluteMiniChart data={data} display="value" />
+                    <div className="hidden md:block">
+                        <MiniChart data={data} display="value" />
+                    </div>
                 </CardContent>
             </Card>
             {hasOutValues ? (
@@ -80,7 +82,9 @@ export default async function AbsoluteChartView(props: Props) {
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2">
                         <p className="font-bold font-mono">{totalOut.toFixed(2)} kWh</p>
-                        <AbsoluteMiniChart data={data} display="valueOut" />
+                        <div className="hidden md:block">
+                            <MiniChart data={data} display="valueOut" />
+                        </div>
                     </CardContent>
                 </Card>
             ) : (
@@ -93,7 +97,9 @@ export default async function AbsoluteChartView(props: Props) {
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2">
                         <p className="font-bold font-mono">{averagePower.toFixed(2)} W</p>
-                        <AbsoluteMiniChart data={data} display="valueCurrent" />
+                        <div className="hidden md:block">
+                            <MiniChart data={data} display="valueCurrent" />
+                        </div>
                     </CardContent>
                 </Card>
             ) : (
