@@ -50,15 +50,7 @@ export function AmortizationChart(props: Props) {
                 <Line type="linear" dataKey="after" stroke="var(--color-after)" dot={false} />
                 <ReferenceLine x={amortizationDuration} label="Amortisation" />
                 <Tooltip content={(props) => <AmortizationChartTooltip tooltipProps={props} unit={unit} />} />
-                <ChartLegend
-                    content={
-                        <ChartLegendContent
-                            setActiveChart={() => {}}
-                            displayedItems={["after", "before"]}
-                            activeLabel={undefined}
-                        />
-                    }
-                />
+                <ChartLegend content={<ChartLegendContent />} />
             </LineChart>
         </ChartContainer>
     );
