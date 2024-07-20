@@ -15,10 +15,10 @@ import GoalsCard from "@/components/dashboard/goals/goals-card";
 import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
+import { convertTZDate } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
-import { getTimezoneOffset } from "date-fns-tz";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -39,23 +39,13 @@ export default async function DashboardPage({
     const endDateString = searchParams.end;
     const aggregationType = searchParams.aggregation;
 
-    const offset = getTimezoneOffset("Europe/Berlin", new Date());
-    const localOffset = Math.abs(new Date().getTimezoneOffset() * 60 * 1000);
     const serverStart = new Date();
     serverStart.setHours(0, 0, 0, 0);
     const serverEnd = new Date();
     serverEnd.setHours(23, 59, 59, 999);
 
-    const startDate = startDateString
-        ? new Date(startDateString)
-        : offset === localOffset
-          ? serverStart
-          : new Date(serverStart.getTime() - offset);
-    const endDate = endDateString
-        ? new Date(endDateString)
-        : offset === localOffset
-          ? serverEnd
-          : new Date(serverEnd.getTime() - offset);
+    const startDate = startDateString ? new Date(startDateString) : convertTZDate(serverStart);
+    const endDate = endDateString ? new Date(endDateString) : convertTZDate(serverEnd);
 
     const csvExportData = {
         userId: user.id,

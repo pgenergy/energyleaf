@@ -1,3 +1,4 @@
+import { getTimezoneOffset } from "date-fns-tz";
 import { AggregationType } from "../types/types";
 
 export const computeTimestampLabel = (aggregationParam: AggregationType | undefined, withWh: boolean) => {
@@ -38,4 +39,14 @@ export const formatNumber = (number: number) =>
 export function getDayOfWeek(date: Date): string {
     const days = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
     return days[date.getDay()];
+}
+
+/**
+ * Convert a server date to berlin timezone before send to client
+ */
+export function convertTZDate(date: Date) {
+    const offset = getTimezoneOffset("Europe/Berlin", new Date());
+    const localOffset = Math.abs(new Date().getTimezoneOffset() * 60 * 1000);
+
+    return offset === localOffset ? date : new Date(date.getTime() - offset);
 }

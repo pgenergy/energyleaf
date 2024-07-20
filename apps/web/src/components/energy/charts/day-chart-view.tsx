@@ -31,9 +31,7 @@ export default async function DayChartView(props: Props) {
         <Card className="col-span-1 md:col-span-3">
             <CardHeader>
                 <CardTitle>Übersicht der Wochentage</CardTitle>
-                <CardDescription>
-                    Hier sehen Sie Ihren absoluten Verbrauch, an den gegebenen Wochentagen
-                </CardDescription>
+                <CardDescription>Hier sehen Sie Ihren absoluten Verbrauch an den gegebenen Wochentagen</CardDescription>
             </CardHeader>
             <CardContent>
                 <DayChart data={data} />
@@ -47,9 +45,7 @@ function NoDataView() {
         <Card className="col-span-1 md:col-span-3">
             <CardHeader>
                 <CardTitle>Übersicht der Wochentage</CardTitle>
-                <CardDescription>
-                    Hier sehen Sie Ihren absoluten Verbrauch, an den gegebenen Wochentagen
-                </CardDescription>
+                <CardDescription>Hier sehen Sie Ihren absoluten Verbrauch an den gegebenen Wochentagen</CardDescription>
             </CardHeader>
             <CardContent>
                 <p className="text-center text-muted-foreground">Keine Sensordaten vorhanden</p>
