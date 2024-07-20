@@ -1,5 +1,7 @@
 "use client";
 
+import DevicesBadPowerEstimationAlert from "@/components/devices/devices-bad-power-estimation-alert";
+import { evaluatePowerEstimation } from "@/lib/devices/power-estimation";
 import type { DeviceCategory } from "@energyleaf/db/types";
 import { formatNumber, getReferencePowerDataForDeviceCategory } from "@energyleaf/lib";
 import { AmortizationChart } from "@energyleaf/ui/charts/amortization-chart";
@@ -12,9 +14,10 @@ import AmortizationSelect from "./amortization-select";
 interface Props {
     devices: DeviceItem[];
     workingPrice: number | null;
+    powerEstimationRSquared: number | null;
 }
 
-export default function AmortizationCardContent({ devices, workingPrice }: Props) {
+export default function AmortizationCardContent({ devices, workingPrice, powerEstimationRSquared }: Props) {
     if (!workingPrice) {
         return (
             <div className="items-center">
@@ -29,7 +32,7 @@ export default function AmortizationCardContent({ devices, workingPrice }: Props
     }
     const workingPriceInEuroPerkWh = workingPrice ?? 0;
 
-    if (devices.length === 0) {
+    if (devices.length === 0 || powerEstimationRSquared === null) {
         return (
             <div className="flex w-full flex-col items-center justify-center gap-2 text-muted-foreground">
                 Keines Ihrer Geräte ist schlechter als ein Vergleichsgerät.
@@ -39,6 +42,16 @@ export default function AmortizationCardContent({ devices, workingPrice }: Props
                 >
                     Zur Geräte-Seite <ArrowRightIcon className="h-4 w-4" />
                 </Link>
+            </div>
+        );
+    }
+
+    const powerEstimationQuality = evaluatePowerEstimation(powerEstimationRSquared);
+    if (powerEstimationQuality === "insufficiently") {
+        return (
+            <div className="flex w-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
+                Die geschätzten Leistungen der Geräte sind zu ungenau für eine Amortisationsrechnung. Bitte weisen Sie
+                weitere Geräte zu Peaks zu, um die Amortisationsrechnung nutzen zu können.
             </div>
         );
     }
@@ -127,47 +140,54 @@ export default function AmortizationCardContent({ devices, workingPrice }: Props
     };
 
     return (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:grid-rows-1">
-            <AmortizationSelect
-                devices={devices}
-                selected={selected}
-                onSelectedChange={onSelectedChange}
-                onDeviceWeeklyUsageChange={onDeviceWeeklyUsageChange}
-            />
-            {selected.length > 0 ? (
-                <div className="flex flex-col gap-4 md:col-span-2">
-                    <div className="grid grid-cols-3 gap-4">
-                        <div>
-                            <h2 className="text-center font-semibold text-l text-primary">Eingesparte Cent pro kWh</h2>
-                            <p className="text-center">{formatNumber(savingsInCentPerKWh)} ct</p>
+        <div className="flex flex-col gap-3">
+            {powerEstimationQuality === "sufficiently" && <DevicesBadPowerEstimationAlert />}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:grid-rows-1">
+                <AmortizationSelect
+                    devices={devices}
+                    selected={selected}
+                    onSelectedChange={onSelectedChange}
+                    onDeviceWeeklyUsageChange={onDeviceWeeklyUsageChange}
+                />
+                {selected.length > 0 ? (
+                    <div className="flex flex-col gap-4 md:col-span-2">
+                        <div className="grid grid-cols-3 gap-4">
+                            <div>
+                                <h2 className="text-center font-semibold text-l text-primary">
+                                    Eingesparte Cent pro kWh
+                                </h2>
+                                <p className="text-center">{formatNumber(savingsInCentPerKWh)} ct</p>
+                            </div>
+                            <div>
+                                <h2 className="text-center font-semibold text-l text-primary">
+                                    Eingesparte Euro pro Jahr
+                                </h2>
+                                <p className="text-center">{formatNumber(savingsPerYear)} €</p>
+                            </div>
+                            <div>
+                                <h2 className="text-center font-semibold text-l text-primary">Amortisationszeit</h2>
+                                <p className="text-center">{formatAmortisationTime(amortizationTimeInYears)}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-center font-semibold text-l text-primary">Eingesparte Euro pro Jahr</h2>
-                            <p className="text-center">{formatNumber(savingsPerYear)} €</p>
-                        </div>
-                        <div>
-                            <h2 className="text-center font-semibold text-l text-primary">Amortisationszeit</h2>
-                            <p className="text-center">{formatAmortisationTime(amortizationTimeInYears)}</p>
-                        </div>
+                        {Number.isFinite(amortizationTimeInYears) ? (
+                            <AmortizationChart
+                                weeklyCostsAfter={weeklyCostsAfter}
+                                initialCostsAfter={acquisitionCost}
+                                weeklyCostsBefore={weeklyCostsBefore}
+                                amortizationTimeInYears={amortizationTimeInYears}
+                            />
+                        ) : (
+                            <div className="flex h-full w-full flex-col items-center justify-center text-muted-foreground text-sm">
+                                Die Amortisation wird nie stattfinden.
+                            </div>
+                        )}
                     </div>
-                    {Number.isFinite(amortizationTimeInYears) ? (
-                        <AmortizationChart
-                            weeklyCostsAfter={weeklyCostsAfter}
-                            initialCostsAfter={acquisitionCost}
-                            weeklyCostsBefore={weeklyCostsBefore}
-                            amortizationTimeInYears={amortizationTimeInYears}
-                        />
-                    ) : (
-                        <div className="flex h-full w-full flex-col items-center justify-center text-muted-foreground text-sm">
-                            Die Amortisation wird nie stattfinden.
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <div className="flex w-full items-center justify-center text-muted-foreground md:col-span-2">
-                    Bitte wählen Sie ein Gerät aus, um die Amortisation zu berechnen.
-                </div>
-            )}
+                ) : (
+                    <div className="flex w-full items-center justify-center text-muted-foreground md:col-span-2">
+                        Bitte wählen Sie ein Gerät aus, um die Amortisation zu berechnen.
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

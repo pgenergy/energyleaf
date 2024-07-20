@@ -22,6 +22,7 @@ export default async function AmortizationCard() {
 
     const userData = await getUserData(user.id);
     const workingPrice = userData?.workingPrice ?? null;
+    const devicePowerEstimationRSquared = userData?.devicePowerEstimationRSquared ?? null;
 
     const devices = await getDevicesByUser(user.id);
     const mappedDevices: DeviceItem[] = devices
@@ -50,7 +51,11 @@ export default async function AmortizationCard() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <AmortizationCardContent devices={mappedDevices} workingPrice={workingPrice} />
+                <AmortizationCardContent
+                    devices={mappedDevices}
+                    workingPrice={workingPrice}
+                    powerEstimationRSquared={devicePowerEstimationRSquared}
+                />
             </CardContent>
         </Card>
     );
