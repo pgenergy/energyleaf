@@ -118,7 +118,7 @@ function NotFound(props: NotFoundProps) {
                 <CardTitle>{props.title}</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-center text-muted-foreground">Keine Sensordaten Vorhanden</p>
+                <p className="text-center text-muted-foreground">Keine Sensordaten vorhanden</p>
             </CardContent>
         </Card>
     );

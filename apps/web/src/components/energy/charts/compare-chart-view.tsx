@@ -68,7 +68,7 @@ function NoDataView(props: NoDataProps) {
                 <p className="text-center text-muted-foreground">
                     {props.type === "normal"
                         ? "Keine Sensordaten vorhanden"
-                        : "Es stehen keine Sensordaten für beide Zeiten zur Vergleich zur Verfügung"}
+                        : "Es stehen keine Sensordaten zum Vergleich zur Verfügung"}
                 </p>
             </CardContent>
         </Card>

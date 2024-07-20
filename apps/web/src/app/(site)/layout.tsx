@@ -35,7 +35,7 @@ const navLinks = [
     //     title: "Berichte",
     //     path: "/report",
     //     icon: <AreaChartIcon className="mr-2 h-4 w-4" />,
-    //     appVersion: Versions.support, // TODO: Remove this line when the page is ready (PGE-101)
+    //     appVersion: Versions.support,
     // },
     {
         slug: "energy",
