@@ -7,7 +7,7 @@ import { Input } from "@energyleaf/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import { CheckIcon, ExternalLink, Info, InfoIcon, SendToBackIcon, Undo2, Undo2Icon, XIcon } from "lucide-react";
 import { useState } from "react";
-import DeviceCategoryIcon from "../devices/device-category-icon";
+import DeviceCategoryIcon from "../../devices/device-category-icon";
 import type { DeviceItem } from "./amortization-card";
 
 interface Props {
