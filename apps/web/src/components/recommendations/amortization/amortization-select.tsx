@@ -31,7 +31,7 @@ export default function AmortizationSelect({ devices, selected, onSelectedChange
                 </Popover>
             </div>
 
-            <div className="h-full overflow-auto">
+            <div className="flex h-full flex-col gap-1 overflow-auto p-1">
                 {devices.map((device) => {
                     return (
                         <AmortizationSelectItem
