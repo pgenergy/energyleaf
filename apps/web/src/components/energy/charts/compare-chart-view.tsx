@@ -26,7 +26,6 @@ export default async function CompareChartView(props: Props) {
 
     const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, "sum");
     if (!data || data.length === 0) {
-        console.log("HÄÄÄ");
         return <NoDataView type="compare" />;
     }
 
@@ -38,7 +37,6 @@ export default async function CompareChartView(props: Props) {
         "sum",
     );
     if (!compareData || compareData.length === 0) {
-        console.log("HÖÖÖÖ");
         return <NoDataView type="compare" />;
     }
 
