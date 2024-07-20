@@ -46,7 +46,7 @@ const ChartContainer = React.forwardRef<
                 data-chart={chartId}
                 ref={ref}
                 className={cn(
-                    "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-cartesian-grid_line]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-reference-line-line]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
+                    "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line-line]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
                     className,
                 )}
                 {...props}
@@ -208,7 +208,7 @@ const ChartTooltipContent = React.forwardRef<
                                                 nestLabel ? "items-end" : "items-center",
                                             )}
                                         >
-                                            <div className="grid gap-1.5">
+                                            <div className="mr-1 grid gap-1.5">
                                                 {nestLabel ? tooltipLabel : null}
                                                 <span className="text-muted-foreground">
                                                     {itemConfig?.label || item.name}
@@ -240,113 +240,51 @@ const ChartLegendContent = React.forwardRef<
         Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
             hideIcon?: boolean;
             nameKey?: string;
-            setActiveChart?: (key: unknown) => void;
-            activeLabel?: string;
-            displayedItems?: string[];
         }
->(
-    (
-        {
-            className,
-            hideIcon = false,
-            payload,
-            verticalAlign = "bottom",
-            nameKey,
-            displayedItems,
-            setActiveChart,
-            activeLabel,
-        },
-        ref,
-    ) => {
-        const { config } = useChart();
+>(({ className, hideIcon = false, payload, verticalAlign = "bottom", nameKey }, ref) => {
+    const { config } = useChart();
 
-        if (!payload?.length) {
-            return null;
-        }
+    if (!payload?.length) {
+        return null;
+    }
 
-        if (setActiveChart && activeLabel && displayedItems && displayedItems.length > 1) {
-            return (
-                <div
-                    ref={ref}
-                    className={cn(
-                        "flex items-center justify-center gap-4",
-                        verticalAlign === "top" ? "pb-3" : "pt-3",
-                        className,
-                    )}
-                >
-                    {Object.keys(config)
-                        .filter((d) => (displayedItems ? displayedItems.includes(d) : true))
-                        .map((key) => {
-                            const itemConfig = config[key];
+    return (
+        <div
+            ref={ref}
+            className={cn(
+                "flex items-center justify-center gap-4",
+                verticalAlign === "top" ? "pb-3" : "pt-3",
+                className,
+            )}
+        >
+            {payload.map((item) => {
+                const key = `${nameKey || item.dataKey || "value"}`;
+                const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
-                            return (
-                                <button
-                                    type="button"
-                                    onClick={() => setActiveChart?.(key)}
-                                    key={key}
-                                    className={cn(
-                                        {
-                                            "opacity-50": activeLabel !== key,
-                                        },
-                                        "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
-                                    )}
-                                >
-                                    {itemConfig?.icon && !hideIcon ? (
-                                        <itemConfig.icon />
-                                    ) : (
-                                        <div
-                                            className="h-2 w-2 shrink-0 rounded-[2px]"
-                                            style={{
-                                                backgroundColor: itemConfig.color,
-                                            }}
-                                        />
-                                    )}
-                                    {itemConfig?.label}
-                                </button>
-                            );
-                        })}
-                </div>
-            );
-        }
-
-        return (
-            <div
-                ref={ref}
-                className={cn(
-                    "flex items-center justify-center gap-4",
-                    verticalAlign === "top" ? "pb-3" : "pt-3",
-                    className,
-                )}
-            >
-                {payload.map((item) => {
-                    const key = `${nameKey || item.dataKey || "value"}`;
-                    const itemConfig = getPayloadConfigFromPayload(config, item, key);
-
-                    return (
-                        <div
-                            key={item.value}
-                            className={cn(
-                                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
-                            )}
-                        >
-                            {itemConfig?.icon && !hideIcon ? (
-                                <itemConfig.icon />
-                            ) : (
-                                <div
-                                    className="h-2 w-2 shrink-0 rounded-[2px]"
-                                    style={{
-                                        backgroundColor: item.color,
-                                    }}
-                                />
-                            )}
-                            {itemConfig?.label}
-                        </div>
-                    );
-                })}
-            </div>
-        );
-    },
-);
+                return (
+                    <div
+                        key={item.value}
+                        className={cn(
+                            "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
+                        )}
+                    >
+                        {itemConfig?.icon && !hideIcon ? (
+                            <itemConfig.icon />
+                        ) : (
+                            <div
+                                className="h-2 w-2 shrink-0 rounded-[2px]"
+                                style={{
+                                    backgroundColor: item.color,
+                                }}
+                            />
+                        )}
+                        {itemConfig?.label}
+                    </div>
+                );
+            })}
+        </div>
+    );
+});
 ChartLegendContent.displayName = "ChartLegend";
 
 // Helper to extract item config from a payload.

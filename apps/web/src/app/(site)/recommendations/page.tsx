@@ -33,7 +33,7 @@ export default function RecommendationsPage() {
             <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Ihre Geräte</CardTitle>
-                    <CardDescription>Hier sehen Sie den Verbauch Ihrer Geräte</CardDescription>
+                    <CardDescription>Hier sehen Sie den Verbrauch Ihrer Geräte</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-row justify-center">
