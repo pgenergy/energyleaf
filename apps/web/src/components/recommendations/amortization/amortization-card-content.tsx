@@ -5,7 +5,7 @@ import { formatNumber, getReferencePowerDataForDeviceCategory } from "@energylea
 import { AmortizationChart } from "@energyleaf/ui/charts/amortization-chart";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import React, { useState } from "react";
 import type { DeviceItem } from "./amortization-card";
 import AmortizationSelect from "./amortization-select";
 
@@ -44,19 +44,31 @@ export default function AmortizationCardContent({ devices, workingPrice }: Props
     }
 
     const [selected, setSelected] = useState<DeviceItem[]>([]);
-    const [acquisitionCost, setAcquisitionCost] = useState<number>(0);
-    const [weeklyCostsAfter, setWeeklyCostsAfter] = useState<number>(0);
-    const [weeklyCostsBefore, setWeeklyCostsBefore] = useState<number>(0);
-    const [savingsPerKWh, setSavingsPerKWh] = useState<number>(0);
-    const [savingsPerYear, setSavingsPerYear] = useState<number>(0);
-    const [amortizationTimeInYears, setAmortisationTimeInYears] = useState<number>(0);
+    const [
+        {
+            acquisitionCostInEuros: acquisitionCost,
+            weeklyCostsAfterInKWh: weeklyCostsAfter,
+            weeklyCostsBeforeInKWh: weeklyCostsBefore,
+            savingsInCentPerKWh,
+            savingsPerYearInEuros: savingsPerYear,
+            amortizationTimeInYears,
+        },
+        setAmortizationData,
+    ] = useState({
+        acquisitionCostInEuros: 0,
+        weeklyCostsAfterInKWh: 0,
+        weeklyCostsBeforeInKWh: 0,
+        savingsInCentPerKWh: 0,
+        savingsPerYearInEuros: 0,
+        amortizationTimeInYears: 0,
+    });
 
     function updateData(newSelected: DeviceItem[]) {
         const {
-            totalAcquisitionCost,
-            totalWeeklyConsumptionBefore,
-            totalWeeklyConsumptionAfter,
-            totalSavedPowerConsumption,
+            totalAcquisitionCostInEuros,
+            totalWeeklyConsumptionBeforeInWatt,
+            totalWeeklyConsumptionAfterInWatt,
+            totalSavedPowerConsumptionInKWh,
         } = newSelected.reduce(
             (acc, device) => {
                 const referenceData = getReferencePowerDataForDeviceCategory(device.category as DeviceCategory);
@@ -65,49 +77,43 @@ export default function AmortizationCardContent({ devices, workingPrice }: Props
                 const weeklyUsage = device.weeklyUsage ?? 0;
                 const powerEstimation = device.powerEstimation ?? 0;
 
-                acc.totalAcquisitionCost += referencePurchasePrice;
-                acc.totalWeeklyConsumptionBefore += powerEstimation * weeklyUsage;
-                acc.totalWeeklyConsumptionAfter += referencePower * weeklyUsage;
+                acc.totalAcquisitionCostInEuros += referencePurchasePrice;
+                acc.totalWeeklyConsumptionBeforeInWatt += powerEstimation * weeklyUsage;
+                acc.totalWeeklyConsumptionAfterInWatt += referencePower * weeklyUsage;
                 if (powerEstimation !== 0) {
-                    acc.totalSavedPowerConsumption += 1 - referencePower / powerEstimation;
+                    acc.totalSavedPowerConsumptionInKWh += 1 - referencePower / powerEstimation;
                 }
 
                 return acc;
             },
             {
-                totalAcquisitionCost: 0,
-                totalWeeklyConsumptionBefore: 0,
-                totalWeeklyConsumptionAfter: 0,
-                totalSavedPowerConsumption: 0,
+                totalAcquisitionCostInEuros: 0,
+                totalWeeklyConsumptionBeforeInWatt: 0,
+                totalWeeklyConsumptionAfterInWatt: 0,
+                totalSavedPowerConsumptionInKWh: 0,
             },
         );
 
-        const weeklyCostsBefore = (totalWeeklyConsumptionBefore / 1000) * workingPriceInEuroPerkWh;
-        const weeklyCostsAfter = (totalWeeklyConsumptionAfter / 1000) * workingPriceInEuroPerkWh;
-        const savingsPerYear = 52.14 * (weeklyCostsBefore - weeklyCostsAfter);
+        const weeklyCostsBefore = (totalWeeklyConsumptionBeforeInWatt / 1000) * workingPriceInEuroPerkWh;
+        const weeklyCostsAfter = (totalWeeklyConsumptionAfterInWatt / 1000) * workingPriceInEuroPerkWh;
+        const savingsPerYearInEuros = 52.14 * (weeklyCostsBefore - weeklyCostsAfter);
 
-        setAcquisitionCost(totalAcquisitionCost);
-        setWeeklyCostsBefore(weeklyCostsBefore);
-        setWeeklyCostsAfter(weeklyCostsAfter);
-        setSavingsPerKWh(totalSavedPowerConsumption * workingPriceInEuroPerkWh * 100);
-        setSavingsPerYear(savingsPerYear);
-        setAmortisationTimeInYears(totalAcquisitionCost / savingsPerYear);
+        setAmortizationData({
+            acquisitionCostInEuros: totalAcquisitionCostInEuros,
+            weeklyCostsAfterInKWh: weeklyCostsAfter,
+            weeklyCostsBeforeInKWh: weeklyCostsBefore,
+            savingsInCentPerKWh: totalSavedPowerConsumptionInKWh * workingPriceInEuroPerkWh * 100,
+            savingsPerYearInEuros: savingsPerYearInEuros,
+            amortizationTimeInYears: totalAcquisitionCostInEuros / savingsPerYearInEuros,
+        });
     }
 
     function onDeviceWeeklyUsageChange(device: DeviceItem, weeklyUsage: number) {
-        const newSelected = selected.map((d) => {
-            if (d.id === device.id) {
-                return {
-                    ...d,
-                    weeklyUsage,
-                };
-            }
-            return d;
-        });
-        updateData(newSelected);
+        device.weeklyUsage = weeklyUsage;
+        updateData(selected);
     }
 
-    function test(newSelected: DeviceItem[]) {
+    function onSelectedChange(newSelected: DeviceItem[]) {
         updateData(newSelected);
         setSelected(newSelected);
     }
@@ -125,7 +131,7 @@ export default function AmortizationCardContent({ devices, workingPrice }: Props
             <AmortizationSelect
                 devices={devices}
                 selected={selected}
-                onSelectedChange={test}
+                onSelectedChange={onSelectedChange}
                 onDeviceWeeklyUsageChange={onDeviceWeeklyUsageChange}
             />
             {selected.length > 0 ? (
@@ -133,7 +139,7 @@ export default function AmortizationCardContent({ devices, workingPrice }: Props
                     <div className="grid grid-cols-3 gap-4">
                         <div>
                             <h2 className="text-center font-semibold text-l text-primary">Eingesparte Cent pro kWh</h2>
-                            <p className="text-center">{formatNumber(savingsPerKWh)} ct</p>
+                            <p className="text-center">{formatNumber(savingsInCentPerKWh)} ct</p>
                         </div>
                         <div>
                             <h2 className="text-center font-semibold text-l text-primary">Eingesparte Euro pro Jahr</h2>

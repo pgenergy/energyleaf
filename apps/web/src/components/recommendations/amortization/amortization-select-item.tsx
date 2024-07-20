@@ -1,11 +1,9 @@
-import { device } from "@energyleaf/db/schema";
-import type { DeviceCategory, DeviceSelectType } from "@energyleaf/db/types";
+import type { DeviceCategory } from "@energyleaf/db/types";
 import { formatNumber } from "@energyleaf/lib";
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { Button } from "@energyleaf/ui/button";
 import { Input } from "@energyleaf/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
-import { CheckIcon, ExternalLink, Info, InfoIcon, SendToBackIcon, Undo2, Undo2Icon, XIcon } from "lucide-react";
+import { CheckIcon, InfoIcon } from "lucide-react";
 import { useState } from "react";
 import DeviceCategoryIcon from "../../devices/device-category-icon";
 import type { DeviceItem } from "./amortization-card";

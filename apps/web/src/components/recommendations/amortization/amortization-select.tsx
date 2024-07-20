@@ -1,9 +1,7 @@
 "use client";
 
-import type { DeviceSelectType } from "@energyleaf/db/types";
-import { formatNumber } from "@energyleaf/lib";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
-import { ExternalLink, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import type { DeviceItem } from "./amortization-card";
 import AmortizationSelectItem from "./amortization-select-item";
 

@@ -1,10 +1,5 @@
-import AmortizationCardError from "@/components/recommendations/amortization/ammortization-card-error";
-import AmortizationCard, { type DeviceItem } from "@/components/recommendations/amortization/amortization-card";
-import { getSession } from "@/lib/auth/auth.server";
-import { getUserData } from "@/query/user";
-import { getDevicesByUser } from "@energyleaf/db/query";
-import type { DeviceCategory } from "@energyleaf/db/types";
-import { getReferencePowerDataForDeviceCategory } from "@energyleaf/lib";
+import AmortizationCard from "@/components/recommendations/amortization/amortization-card";
+import AmortizationCardError from "@/components/recommendations/amortization/amortization-card-error";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";

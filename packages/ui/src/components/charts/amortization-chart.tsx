@@ -1,6 +1,5 @@
 "use client";
 
-import { fulfills } from "@energyleaf/lib/versioning";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "@energyleaf/ui/chart";
 import { useMemo } from "react";
 import { Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from "recharts";

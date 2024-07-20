@@ -1,14 +1,11 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getDevicesByUser, getUserData } from "@energyleaf/db/query";
-import type { DeviceCategory, DeviceSelectType } from "@energyleaf/db/types";
-import { formatNumber, getReferencePowerDataForDeviceCategory } from "@energyleaf/lib";
+import type { DeviceCategory } from "@energyleaf/db/types";
+import { getReferencePowerDataForDeviceCategory } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { AmortizationChart } from "@energyleaf/ui/charts/amortization-chart";
-import { useState } from "react";
 import AmortizationCardContent from "./amortization-card-content";
-import AmortizationSelect from "./amortization-select";
 
-export interface DeviceItem {
+export class DeviceItem {
     category: DeviceCategory;
     id: number;
     name: string;
