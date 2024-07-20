@@ -17,12 +17,12 @@ export const getEnergyDataForSensor = cache(
         end: Date,
         sensorId: string,
         aggregation = AggregationType.RAW,
-        sum: "sum" | "average" = "average",
+        aggType: "sum" | "average" = "average",
     ) => {
         if (sensorId === "demo_sensor") {
             return getDemoSensorData(start, end);
         }
-        return getDbEnergyForSensorInRange(start, end, sensorId, aggregation, sum);
+        return getDbEnergyForSensorInRange(start, end, sensorId, aggregation, aggType);
     },
 );
 

@@ -134,7 +134,7 @@ async function aggregatedValues(
 }
 
 /**
- * Get the aggregation based on hour 0 -24
+ * Get the aggregation based on hour 0 - 24
  */
 export async function getHourEnergyForSensorInRange(
     start: Date,

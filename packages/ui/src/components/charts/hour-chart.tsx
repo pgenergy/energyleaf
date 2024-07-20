@@ -77,17 +77,13 @@ export default function HourChart(props: Props) {
                 existing.value = cur.value;
                 existing.sensorId = cur.sensorId;
 
-                if (cur.valueOut) {
-                    if (!existing.valueOut) {
-                        existing.valueOut = cur.valueOut;
-                        existing.sensorId = cur.sensorId;
-                    }
+                if (cur.valueOut && !existing.valueOut) {
+                    existing.valueOut = cur.valueOut;
+                    existing.sensorId = cur.sensorId;
                 }
-                if (cur.valueCurrent) {
-                    if (!existing.valueCurrent) {
-                        existing.valueCurrent = cur.valueCurrent;
-                        existing.sensorId = cur.sensorId;
-                    }
+                if (cur.valueCurrent && !existing.valueCurrent) {
+                    existing.valueCurrent = cur.valueCurrent;
+                    existing.sensorId = cur.sensorId;
                 }
             }
 
