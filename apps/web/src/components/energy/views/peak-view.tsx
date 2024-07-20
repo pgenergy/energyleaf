@@ -1,5 +1,7 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getSensorDataSequences } from "@/query/energy";
+import { Skeleton } from "@energyleaf/ui/skeleton";
+import { Suspense } from "react";
 import PeakCard from "../ui/peak-card";
 
 interface Props {
@@ -30,7 +32,9 @@ export default async function PeaksView(props: Props) {
         <>
             <h2 className="col-span-1 font-bold text-xl md:col-span-3">Verbrauchsauschläge</h2>
             {sequences.map((peak) => (
-                <PeakCard key={peak.id} sequence={peak} />
+                <Suspense key={peak.id} fallback={<Skeleton className="h-52 w-full" />}>
+                    <PeakCard sequence={peak} />
+                </Suspense>
             ))}
         </>
     );

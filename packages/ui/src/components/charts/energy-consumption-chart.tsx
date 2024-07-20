@@ -233,7 +233,7 @@ export function EnergyConsumptionChart({
                             <stop offset="95%" stopColor="var(--color-cost)" stopOpacity={0.1} />
                         </linearGradient>
                     </defs>
-                    <ChartLegend content={<ChartLegendContent />} />
+                    <ChartLegend content={<ChartLegendContent displayedValue={activeChart} />} />
                     <Tooltip
                         content={(props) => (
                             <EnergyConsumptionTooltip
@@ -251,15 +251,6 @@ export function EnergyConsumptionChart({
                         axisLine={false}
                     />
                     <YAxis dataKey={activeChart} tickLine={false} interval="equidistantPreserveStart" type="number" />
-                    {activeChart === "value" ? (
-                        <Area
-                            dataKey="value"
-                            fill="url(#valueColor)"
-                            fillOpacity={1}
-                            stroke="var(--color-value)"
-                            type="linear"
-                        />
-                    ) : null}
                     {activeChart === "value" ? (
                         <Area
                             dataKey="value"

@@ -1,6 +1,6 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
-import { and, between, desc, eq, getTableColumns, gte, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, getTableColumns, gt, gte, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
 import { sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
@@ -36,37 +36,39 @@ export async function getRawEnergyForSensorInRange(
     sensorId: string,
 ): Promise<SensorDataSelectType[]> {
     const { value, valueOut, ...rest } = getTableColumns(sensorData);
-    return db
-        .select({
-            ...rest,
-            value: sql<number>`${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`
-                .mapWith({
-                    mapFromDriverValue: (value: unknown) => {
-                        return Number(value);
-                    },
-                })
-                .as("value"),
-            valueOut:
-                sql<number>`${sensorData.valueOut} - LAG(${sensorData.valueOut}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`
+    return (
+        await db
+            .select({
+                ...rest,
+                value: sql<number>`COALESCE(${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp}), 0)`
                     .mapWith({
                         mapFromDriverValue: (value: unknown) => {
                             return Number(value);
                         },
                     })
-                    .as("value_out"),
-        })
-        .from(sensorData)
-        .where(
-            and(
-                eq(sensorData.sensorId, sensorId),
-                or(
-                    between(sensorData.timestamp, start, end),
-                    eq(sensorData.timestamp, start),
-                    eq(sensorData.timestamp, end),
+                    .as("value"),
+                valueOut:
+                    sql<number>`COALESCE(${sensorData.valueOut} - LAG(${sensorData.valueOut}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp}), 0)`
+                        .mapWith({
+                            mapFromDriverValue: (value: unknown) => {
+                                return Number(value);
+                            },
+                        })
+                        .as("value_out"),
+            })
+            .from(sensorData)
+            .where(
+                and(
+                    eq(sensorData.sensorId, sensorId),
+                    or(
+                        between(sensorData.timestamp, start, end),
+                        eq(sensorData.timestamp, start),
+                        eq(sensorData.timestamp, end),
+                    ),
                 ),
-            ),
-        )
-        .orderBy(sensorData.timestamp);
+            )
+            .orderBy(sensorData.timestamp)
+    ).slice(1);
 }
 
 /**
@@ -83,11 +85,11 @@ async function aggregatedValues(
     const subQuery = db
         .select({
             sensorId: sensorData.sensorId,
-            value: sql<number>`${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`.as(
+            value: sql<number>`COALESCE(${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp}), 0)`.as(
                 "sub_value",
             ),
             valueOut:
-                sql<number>`${sensorData.valueOut} - LAG(${sensorData.valueOut}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`.as(
+                sql<number>`COALESCE(${sensorData.valueOut} - LAG(${sensorData.valueOut}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp}), 0)`.as(
                     "sub_value_out",
                 ),
             valueCurrent: sql<number | null>`${sensorData.valueCurrent}`.as("sub_value_current"),
@@ -98,6 +100,13 @@ async function aggregatedValues(
                     },
                 })
                 .as("sub_timestamp"),
+            rowNumber: sql`ROW_NUMBER() OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`
+                .mapWith({
+                    mapFromDriverValue: (value: unknown) => {
+                        return Number(value);
+                    },
+                })
+                .as("rn"),
         })
         .from(sensorData)
         .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, start, end)))
@@ -128,7 +137,7 @@ async function aggregatedValues(
             grouper: grouperSql,
         })
         .from(subQuery)
-        .where(and(eq(subQuery.sensorId, sensorId), between(subQuery.timestamp, start, end)))
+        .where(and(eq(subQuery.sensorId, sensorId), between(subQuery.timestamp, start, end), gt(subQuery.rowNumber, 1)))
         .groupBy(grouperSql)
         .orderBy(grouperSql);
 }

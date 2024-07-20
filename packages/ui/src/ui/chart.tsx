@@ -240,12 +240,47 @@ const ChartLegendContent = React.forwardRef<
         Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
             hideIcon?: boolean;
             nameKey?: string;
+            displayedValue?: string;
         }
->(({ className, hideIcon = false, payload, verticalAlign = "bottom", nameKey }, ref) => {
+>(({ className, hideIcon = false, payload, verticalAlign = "bottom", nameKey, displayedValue }, ref) => {
     const { config } = useChart();
 
     if (!payload?.length) {
         return null;
+    }
+
+    if (displayedValue) {
+        const item = payload.find((item) => item.dataKey === displayedValue);
+        if (!item) return null;
+        const itemConfig = getPayloadConfigFromPayload(config, item, displayedValue);
+
+        return (
+            <div
+                ref={ref}
+                className={cn(
+                    "flex items-center justify-center gap-4",
+                    verticalAlign === "top" ? "pb-3" : "pt-3",
+                    className,
+                )}
+            >
+                <div
+                    key={item.value}
+                    className={cn("flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground")}
+                >
+                    {itemConfig?.icon && !hideIcon ? (
+                        <itemConfig.icon />
+                    ) : (
+                        <div
+                            className="h-2 w-2 shrink-0 rounded-[2px]"
+                            style={{
+                                backgroundColor: item.color,
+                            }}
+                        />
+                    )}
+                    {itemConfig?.label}
+                </div>
+            </div>
+        );
     }
 
     return (
