@@ -43,6 +43,79 @@ function calculateAveragePower(sensorData: SensorDataSelectType[]) {
     return powerSum / sensorData.length;
 }
 
+async function calculateAverageWeeklyUsageTimeInHours(deviceId: number) {
+    const weeklyGroupedPeaks = await getWeeklyGroupedPeaks(deviceId);
+    if (weeklyGroupedPeaks.length === 0) {
+        return 0;
+    }
+
+    const weeklyGroupedTimeInPeaks = weeklyGroupedPeaks.map((week) => {
+        return week.peaks.reduce((acc, peak) => {
+            const timeDiffInMinutes = (peak.end.getTime() - peak.start.getTime()) / 1000 / 60 / 60;
+            return acc + timeDiffInMinutes;
+        }, 0);
+    });
+
+    // Extrapolate the estimated usage for the current week
+    const lastWeek = weeklyGroupedPeaks[weeklyGroupedPeaks.length - 1];
+    const now = new Date();
+    const totalHoursInWeek = 7 * 24;
+    const hoursPassed = (now.getTime() - lastWeek.weekStart.getTime()) / 1000 / 60 / 60;
+    const percentageOfWeekPassed = hoursPassed / totalHoursInWeek;
+
+    weeklyGroupedTimeInPeaks[weeklyGroupedTimeInPeaks.length - 1] =
+        weeklyGroupedTimeInPeaks[weeklyGroupedTimeInPeaks.length - 1] / percentageOfWeekPassed;
+
+    return weeklyGroupedTimeInPeaks.reduce((acc, time) => acc + time, 0) / weeklyGroupedPeaks.length;
+}
+
+interface Peak {
+    id: string;
+    start: Date;
+    end: Date;
+}
+
+interface GroupedPeaks {
+    weekStart: Date;
+    weekEnd: Date;
+    peaks: Peak[];
+}
+
+async function getWeeklyGroupedPeaks(deviceId: number) {
+    const peaksWithDevice = await getPeaksByDevice(deviceId);
+    if (!peaksWithDevice || peaksWithDevice.length === 0) {
+        return [];
+    }
+
+    const timeOfEarliestPeak = peaksWithDevice[0].start;
+    const groupedPeaks: GroupedPeaks[] = [];
+    const weekStart = new Date(timeOfEarliestPeak);
+
+    while (weekStart < new Date()) {
+        let weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+
+        if (weekEnd > new Date()) {
+            weekEnd = new Date();
+        }
+
+        const peaksInWeek: Peak[] = peaksWithDevice
+            .filter((peak) => peak.start >= weekStart && peak.start < weekEnd)
+            .map((peak) => ({
+                id: peak.id,
+                start: peak.start,
+                end: peak.end,
+            }));
+        groupedPeaks.push({
+            weekStart: new Date(weekStart),
+            weekEnd,
+            peaks: peaksInWeek,
+        });
+        weekStart.setDate(weekStart.getDate() + 7);
+    }
+    return groupedPeaks;
+}
+
 interface Sequence {
     start: Date;
     end: Date;
@@ -262,6 +335,12 @@ export async function updateDevicesForPeak(sensorDataSequenceId: string, deviceI
                 deviceId,
                 sensorDataSequenceId,
             });
+
+            const newWeeklyUsageEstimation = await calculateAverageWeeklyUsageTimeInHours(deviceId);
+            await trx
+                .update(device)
+                .set({ weeklyUsageEstimation: newWeeklyUsageEstimation })
+                .where(eq(device.id, deviceId));
         }
     });
 }
@@ -299,4 +378,17 @@ export async function getDevicesByPeak(sensorDataSequenceId: string) {
         .from(deviceToPeak)
         .innerJoin(device, eq(device.id, deviceToPeak.deviceId))
         .where(eq(deviceToPeak.sensorDataSequenceId, sensorDataSequenceId));
+}
+
+export async function getPeaksByDevice(deviceId: number) {
+    return db
+        .select({
+            id: sensorDataSequence.id,
+            start: sensorDataSequence.start,
+            end: sensorDataSequence.end,
+        })
+        .from(deviceToPeak)
+        .innerJoin(sensorDataSequence, eq(sensorDataSequence.id, deviceToPeak.sensorDataSequenceId))
+        .where(eq(deviceToPeak.deviceId, deviceId))
+        .orderBy(asc(sensorDataSequence.start));
 }

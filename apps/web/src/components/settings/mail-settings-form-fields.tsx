@@ -65,7 +65,7 @@ export default function MailSettingsFormFields({ form, disabled }: Props) {
                     )}
                 />
             </div>
-            <h4 className="pt-3 font-semibold text-xl">Anomalien</h4>
+            <h4 className="pt-3 font-semibold text-xl">Ungewöhnliche Verbräuche</h4>
             <FormField
                 control={form.control}
                 name="receiveAnomalyMails"
