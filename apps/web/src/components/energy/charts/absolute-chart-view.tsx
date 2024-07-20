@@ -87,9 +87,7 @@ export default async function AbsoluteChartView(props: Props) {
                         </div>
                     </CardContent>
                 </Card>
-            ) : (
-                <NotFound title="Absolut Eingespeist" />
-            )}
+            ) : null}
             {hasPowerValues ? (
                 <Card>
                     <CardHeader>
@@ -102,9 +100,9 @@ export default async function AbsoluteChartView(props: Props) {
                         </div>
                     </CardContent>
                 </Card>
-            ) : (
-                <NotFound title="Durchschnittliche Leistung" />
-            )}
+            ) : null}
+            {!hasOutValues ? <div className="col-span-1" /> : null}
+            {!hasPowerValues ? <div className="col-span-1" /> : null}
         </>
     );
 }
