@@ -3,7 +3,7 @@
 import AverageEnergyCostsDay from "@/components/costs/average-energy-costs-day-card";
 import AverageEnergyCostsMonth from "@/components/costs/average-energy-costs-month-card";
 import AverageEnergyCostsWeek from "@/components/costs/average-energy-costs-week-card";
-import EnergyCostsBarChart from "@/components/costs/energy-costs-bar-chart";
+import EnergyCostsBarChartCard from "@/components/costs/energy-costs-bar-chart-card";
 import EnergyCostsChangeLastMonth from "@/components/costs/energy-costs-change-last-month-card";
 import EnergyCostsChangeLastMonthNationalAverage from "@/components/costs/energy-costs-change-last-month-national-average-card";
 import EnergyCostsChangeLastWeek from "@/components/costs/energy-costs-change-last-week-card";
@@ -152,7 +152,7 @@ const ClientSidePage = ({ userData, energyDataRaw, sensorId }) => {
                 <div className="grid grid-cols-1 gap-4">
                     <ErrorBoundary fallback={EnergyCostsBarChartError}>
                         <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                            <EnergyCostsBarChart energyData={energyDataRaw} userData={userData} />
+                            <EnergyCostsBarChartCard energyData={energyDataRaw} userData={userData} />
                         </Suspense>
                     </ErrorBoundary>
                 </div>
