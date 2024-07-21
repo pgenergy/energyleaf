@@ -51,7 +51,7 @@ export default function WeekChart(props: Props) {
 
     function tickFormatter(value: Date) {
         const week = getWeekOfMonth(value);
-        return `W ${week}`;
+        return `Woche ${week}`;
     }
 
     const hasOutValues = useMemo(() => {
@@ -147,18 +147,17 @@ export default function WeekChart(props: Props) {
                         left: 10,
                         bottom: 10,
                     }}
-                    layout="vertical"
                 >
                     <ChartLegend content={<ChartLegendContent />} />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <YAxis
+                    <XAxis
                         dataKey="timestamp"
                         type="category"
                         tickFormatter={(value) => tickFormatter(value)}
                         tickLine={false}
                         interval="equidistantPreserveStart"
                     />
-                    <XAxis
+                    <YAxis
                         dataKey={activeChart}
                         type="number"
                         tickFormatter={(value) => value.toLocaleString()}
