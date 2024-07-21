@@ -2,7 +2,7 @@
 
 import { type ChartConfig, ChartContainer } from "@energyleaf/ui/chart";
 import { Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, parseISO, isValid } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 
 const chartConfig = {
     monthly: {
@@ -61,8 +61,6 @@ export function CostChart({ energyDataRaw, userData }) {
             Energiekosten: parseFloat(cumulativeEnergyConsumption.toFixed(2)),
         };
     });
-
-    console.log('Generated data for CostChart:', data);
     
     return (
         <ChartContainer className="min-h-52 w-full" config={chartConfig}>
@@ -94,7 +92,7 @@ export function CostChart({ energyDataRaw, userData }) {
                                     boxShadow: '0px 0px 6px rgba(0,0,0,0.1)'
                                 }}>
                                     <p style={{ color: 'black', margin: 0 }}>
-                                        {label} {/* Hier kannst du die Farbe und Formatierung des Datums anpassen */}
+                                        {label} {}
                                     </p>
                                     {payload.map((entry, index) => (
                                         <p key={index} style={{ margin: 0 }}>
