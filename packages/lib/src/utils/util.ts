@@ -44,9 +44,13 @@ export function getDayOfWeek(date: Date): string {
 /**
  * Convert a server date to berlin timezone before send to client
  */
-export function convertTZDate(date: Date) {
+export function convertTZDate(date: Date, type: "server" | "client" = "server") {
     const offset = getTimezoneOffset("Europe/Berlin", new Date());
     const localOffset = Math.abs(new Date().getTimezoneOffset() * 60 * 1000);
 
-    return offset === localOffset ? date : new Date(date.getTime() - offset);
+    if (type === "server") {
+        return offset === localOffset ? date : new Date(date.getTime() - offset);
+    }
+
+    return offset === localOffset ? date : new Date(date.getTime() + offset);
 }

@@ -10,7 +10,7 @@ import PeaksView from "./peak-view";
 export default async function EnergyPageWeekView() {
     const serverStartDate = startOfWeek(new Date(), { weekStartsOn: 1 });
     serverStartDate.setHours(0, 0, 0, 0);
-    const serverEndDate = endOfWeek(new Date());
+    const serverEndDate = endOfWeek(new Date(), { weekStartsOn: 1 });
     serverEndDate.setHours(23, 59, 59, 999);
 
     const startDate = convertTZDate(serverStartDate);

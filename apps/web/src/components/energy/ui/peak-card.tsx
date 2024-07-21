@@ -2,7 +2,7 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getDevicesByPeak } from "@/query/device";
 import { getEnergyDataForSensor } from "@/query/energy";
 import type { SensorDataSequenceType } from "@energyleaf/db/types";
-import { AggregationType } from "@energyleaf/lib";
+import { AggregationType, convertTZDate } from "@energyleaf/lib";
 import { Badge } from "@energyleaf/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import MiniChart from "@energyleaf/ui/charts/mini-chart";
@@ -20,17 +20,20 @@ export default async function PeakCard(props: Props) {
         return null;
     }
 
-    const startDate = new Date(props.sequence.start);
-    startDate.setMinutes(startDate.getMinutes() - 1);
-    const endDate = new Date(props.sequence.end);
-    endDate.setMinutes(endDate.getMinutes() + 1);
+    const sequenceStart = convertTZDate(props.sequence.start);
+    const sequenceEnd = convertTZDate(props.sequence.end);
 
-    const data = await getEnergyDataForSensor(startDate, endDate, props.sequence.sensorId, AggregationType.RAW);
+    const queryStart = new Date(sequenceStart);
+    queryStart.setMinutes(queryStart.getMinutes() - 1);
+    const queryEnd = new Date(sequenceEnd);
+    queryEnd.setMinutes(queryEnd.getMinutes() + 1);
+
+    const data = await getEnergyDataForSensor(queryStart, queryEnd, props.sequence.sensorId, AggregationType.RAW);
     if (!data || data.length === 0) {
         return null;
     }
     const devices = await getDevicesByPeak(props.sequence.id);
-    const isSameDay = startDate.getDate() === endDate.getDate();
+    const isSameDay = sequenceStart.getDate() === sequenceEnd.getDate();
 
     return (
         <Card className="col-span-1">
@@ -38,12 +41,12 @@ export default async function PeakCard(props: Props) {
                 <div className="flex flex-row items-center justify-between">
                     <div className="flex flex-col gap-1">
                         <CardTitle>
-                            {format(props.sequence.start, "HH:mm")} - {format(props.sequence.end, "HH:mm")}
+                            {format(sequenceStart, "HH:mm")} - {format(sequenceStart, "HH:mm")}
                         </CardTitle>
                         <CardDescription>
                             {isSameDay
-                                ? format(props.sequence.start, "PPP", { locale: de })
-                                : `${format(props.sequence.start, "dd.MM PPP", { locale: de })} - ${format(props.sequence.end, "dd.MM PPP", { locale: de })}`}
+                                ? format(sequenceStart, "PPP", { locale: de })
+                                : `${format(sequenceStart, "dd.MM PPP", { locale: de })} - ${format(sequenceEnd, "dd.MM PPP", { locale: de })}`}
                         </CardDescription>
                     </div>
                     <div className="w-1/3">
