@@ -3,7 +3,7 @@
 import { Calendar } from "@energyleaf/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import { de } from "date-fns/locale";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
 interface Props {
@@ -13,14 +13,21 @@ interface Props {
 
 export function EnergyDatePicker(props: Props) {
     const router = useRouter();
+    const pathname = usePathname();
     const [open, setOpen] = React.useState(false);
 
     function handleClick(date: Date) {
         const searchParams = new URLSearchParams();
         searchParams.set("date", date.toISOString());
-        router.push(`/energy/custom?${searchParams.toString()}`, {
-            scroll: false,
-        });
+        if (pathname === "/energy/custom") {
+            router.replace(`/energy/custom?${searchParams.toString()}`, {
+                scroll: false,
+            });
+        } else {
+            router.push(`/energy/custom?${searchParams.toString()}`, {
+                scroll: false,
+            });
+        }
         setOpen(false);
     }
 

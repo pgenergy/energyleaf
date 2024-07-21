@@ -3,7 +3,7 @@
 import { Calendar } from "@energyleaf/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import { de } from "date-fns/locale";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 
 export function EnergyRangeDatePicker(props: Props) {
     const router = useRouter();
+    const pathname = usePathname();
     const [open, setOpen] = React.useState(false);
     const [range, setRange] = React.useState<Date[] | undefined>(undefined);
 
@@ -35,9 +36,15 @@ export function EnergyRangeDatePicker(props: Props) {
 
         searchParams.set("date", date.toISOString());
         searchParams.set("compareDate", compareDate.toISOString());
-        router.push(`/energy/compare?${searchParams.toString()}`, {
-            scroll: false,
-        });
+        if (pathname === "/energy/compare") {
+            router.replace(`/energy/compare?${searchParams.toString()}`, {
+                scroll: false,
+            });
+        } else {
+            router.push(`/energy/compare?${searchParams.toString()}`, {
+                scroll: false,
+            });
+        }
         setOpen(false);
     }
 
