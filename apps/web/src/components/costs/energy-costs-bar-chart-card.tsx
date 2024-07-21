@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@energyleaf/ui/card';
+import { calculateCosts } from "@/components/dashboard/energy-cost";
+import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/db/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import EnergyCostsBarChart from "@energyleaf/ui/charts/energy-costs-bar-chart";
-import { calculateCosts } from '@/components/dashboard/energy-cost';
-import type { SensorDataSelectType, UserDataSelectType } from '@energyleaf/db/types';
 
 interface EnergyData extends SensorDataSelectType {}
 interface UserData extends UserDataSelectType {}
@@ -33,7 +33,7 @@ function calculateDailyCosts(energyData: EnergyData[], userData: UserData[]): Da
     return dailyCosts;
 }
 
-function EnergyCostsBarChartCard({ energyData, userData }: { energyData: EnergyData[], userData: UserData[] }) {
+function EnergyCostsBarChartCard({ energyData, userData }: { energyData: EnergyData[]; userData: UserData[] }) {
     const data = calculateDailyCosts(energyData, userData);
 
     if (data.length === 0) {

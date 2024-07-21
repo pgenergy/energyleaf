@@ -1,13 +1,13 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import {
     ChartContainer,
     ChartLegend,
     ChartLegendContent,
     ChartTooltip,
     ChartTooltipContent,
-} from '@energyleaf/ui/chart';
+} from "@energyleaf/ui/chart";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 interface DailyCost {
     date: string;
@@ -20,8 +20,8 @@ interface Props {
 
 const chartConfig = {
     cost: {
-        label: 'Kosten (€)',
-        color: 'hsl(var(--primary))',
+        label: "Kosten (€)",
+        color: "hsl(var(--primary))",
     },
 };
 
@@ -33,8 +33,8 @@ function EnergyCostsBarChart({ data }: Props) {
                     <CartesianGrid strokeDasharray="3 3" />
                     <ChartLegend content={<ChartLegendContent />} />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <XAxis dataKey="date" label={{ value: 'Datum', position: 'insideBottom', offset: -5 }} />
-                    <YAxis label={{ value: 'Kosten (€)', angle: -90, position: 'insideLeft' }} />
+                    <XAxis dataKey="date" label={{ value: "Datum", position: "insideBottom", offset: -5 }} />
+                    <YAxis label={{ value: "Kosten (€)", angle: -90, position: "insideLeft" }} />
                     <Tooltip />
                     <Bar dataKey="cost" fill={chartConfig.cost.color} barSize={20} />
                 </BarChart>
