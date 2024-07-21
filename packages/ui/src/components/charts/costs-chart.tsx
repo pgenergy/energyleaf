@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChartConfig, ChartContainer } from "@energyleaf/ui/chart";
+import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "@energyleaf/ui/chart";
 import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns";
 import { Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 
@@ -103,6 +103,15 @@ export function CostChart({ energyDataRaw, userData }) {
                         return null;
                     }}
                 />
+                <ChartLegend verticalAlign="top">
+                    <ChartLegendContent
+                        payload={[
+                            { dataKey: "Abschlagszahlung", color: "hsl(var(--primary))", value: "Monatliche Zahlung" },
+                            { dataKey: "Energiekosten", color: "hsl(var(--chart-4))", value: "Energieverbrauch" }
+                        ]}
+                        nameKey="dataKey"
+                    />
+                </ChartLegend>
             </LineChart>
         </ChartContainer>
     );
