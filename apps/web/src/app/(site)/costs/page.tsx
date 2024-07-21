@@ -5,6 +5,7 @@ import EnergyCostsChangeLastSevenDays from "@/components/costs/energy-costs-chan
 import EnergyCostsChangeLastSevenDaysNationalAverage from "@/components/costs/energy-costs-change-last-seven-days-national-average-card";
 import EnergyCostsChangeLastThirtyDays from "@/components/costs/energy-costs-change-last-thirty-days-card";
 import EnergyCostsChangeLastThirtyDaysNationalAverage from "@/components/costs/energy-costs-change-last-thirty-days-national-average-card";
+import CostChartCard from "@/components/costs/energy-costs-chart-card";
 import EnergyCostsComparativeProjectionDay from "@/components/costs/energy-costs-comparative-projection-day-card";
 import EnergyCostsComparativeProjectionMonth from "@/components/costs/energy-costs-comparative-projection-month-card";
 import EnergyCostsComparativeProjectionWeek from "@/components/costs/energy-costs-comparative-projection-week-card";
@@ -21,7 +22,6 @@ import EnergyCostsLastSevenDaysError from "@/components/costs/errors/energy-cost
 import EnergyCostsLastThirtyDaysError from "@/components/costs/errors/energy-costs-last-thirty-days-card-error";
 import EnergyCostsTodayError from "@/components/costs/errors/energy-costs-today-card-error";
 import EnergyCostsYesterdayError from "@/components/costs/errors/energy-costs-yesterday-card-error";
-import CostChartCard from "@/components/costs/energy-costs-chart-card";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
