@@ -89,8 +89,8 @@ export function CostChart({ energyDataRaw, userData }) {
                                     <p style={{ color: "black", margin: 0 }}>
                                         {label} {}
                                     </p>
-                                    {payload.map((entry, index) => (
-                                        <p key={index} style={{ margin: 0 }}>
+                                    {payload.map((entry) => (
+                                        <p key={entry.dataKey} style={{ margin: 0 }}>
                                             <span style={{ color: entry.stroke }}>{entry.name}:</span>
                                             <span style={{ color: entry.stroke, marginLeft: "5px" }}>
                                                 {entry.value} € {}
@@ -107,7 +107,7 @@ export function CostChart({ energyDataRaw, userData }) {
                     <ChartLegendContent
                         payload={[
                             { dataKey: "Abschlagszahlung", color: "hsl(var(--primary))", value: "Monatliche Zahlung" },
-                            { dataKey: "Energiekosten", color: "hsl(var(--chart-4))", value: "Energieverbrauch" }
+                            { dataKey: "Energiekosten", color: "hsl(var(--chart-4))", value: "Energieverbrauch" },
                         ]}
                         nameKey="dataKey"
                     />
