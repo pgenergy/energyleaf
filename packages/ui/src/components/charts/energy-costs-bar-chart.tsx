@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     ChartContainer,
     ChartLegend,
@@ -6,6 +5,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@energyleaf/ui/chart";
+import React from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 interface DailyCost {
@@ -26,9 +26,7 @@ const chartConfig = {
 
 const EnergyCostsBarChart = ({ data }: Props) => {
     if (data.length === 0) {
-        return (
-            <div className="text-center font-bold text-primary text-xl">Es sind keine Daten vorhanden</div>
-        );
+        return <div className="text-center font-bold text-primary text-xl">Es sind keine Daten vorhanden</div>;
     }
 
     return (
@@ -38,8 +36,8 @@ const EnergyCostsBarChart = ({ data }: Props) => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <ChartLegend content={<ChartLegendContent />} />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <XAxis dataKey="date" label={{ value: 'Datum', position: 'insideBottom', offset: -5 }} />
-                    <YAxis label={{ value: 'Kosten (€)', angle: -90, position: 'insideLeft' }} />
+                    <XAxis dataKey="date" label={{ value: "Datum", position: "insideBottom", offset: -5 }} />
+                    <YAxis label={{ value: "Kosten (€)", angle: -90, position: "insideLeft" }} />
                     <Tooltip />
                     <Bar dataKey="cost" fill={chartConfig.cost.color} barSize={20} />
                 </BarChart>

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import EnergyCostsBarChart from "@energyleaf/ui/charts/energy-costs-bar-chart";
 import { calculateCosts } from "@/components/dashboard/energy-cost";
 import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/db/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import EnergyCostsBarChart from "@energyleaf/ui/charts/energy-costs-bar-chart";
+import React from "react";
 
 interface EnergyData extends SensorDataSelectType {}
 interface UserData extends UserDataSelectType {}
