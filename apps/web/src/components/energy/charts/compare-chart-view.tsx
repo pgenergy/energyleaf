@@ -21,7 +21,6 @@ export default async function CompareChartView(props: Props) {
     }
 
     const sensorId = await getElectricitySensorIdForUser(user.id);
-
     if (!sensorId) {
         return (
             <Alert className="col-span-1 md:col-span-3">
@@ -61,7 +60,12 @@ export default async function CompareChartView(props: Props) {
                 <CardDescription>Hier sehen Sie Ihren absoluten Verbrauch der Wochen in diesem Monat</CardDescription>
             </CardHeader>
             <CardContent>
-                <CompareChart data={data} compareData={compareData} />
+                <CompareChart
+                    data={data}
+                    compareData={compareData}
+                    date={props.startDate}
+                    compareDate={props.compareStartDate}
+                />
             </CardContent>
         </Card>
     );

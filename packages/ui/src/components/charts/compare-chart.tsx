@@ -17,36 +17,42 @@ import { Bar, BarChart, XAxis, YAxis } from "recharts";
 interface Props {
     data: SensorDataSelectType[];
     compareData: SensorDataSelectType[];
+    date: Date;
+    compareDate: Date;
 }
 
-const chartConfig = {
-    value: {
-        label: "Erster - Verbrauch (kWh)",
-        color: "hsl(var(--primary))",
-    },
-    valueCompare: {
-        label: "Zweiter - Verbrauch (kWh)",
-        color: "hsl(var(--chart-3))",
-    },
-    valueOut: {
-        label: "Erster - Eingespeist (kWh)",
-        color: "hsl(var(--chart-4))",
-    },
-    valueOutCompare: {
-        label: "Zweiter - Eingespeist (kWh)",
-        color: "hsl(var(--chart-3))",
-    },
-    valueCurrent: {
-        label: "Erster - Leistung (W)",
-        color: "hsl(var(--chart-5))",
-    },
-    valueCurrentCompare: {
-        label: "Zweiter - Leistung (W)",
-        color: "hsl(var(--chart-3))",
-    },
-} satisfies ChartConfig;
-
 export default function CompareChart(props: Props) {
+    const chartConfig = useMemo(
+        () =>
+            ({
+                value: {
+                    label: `${format(props.date, "PP")} - Verbrauch (kWh)`,
+                    color: "hsl(var(--primary))",
+                },
+                valueCompare: {
+                    label: `${format(props.compareDate, "PP")} - Verbrauch (kWh)`,
+                    color: "hsl(var(--chart-3))",
+                },
+                valueOut: {
+                    label: `${format(props.date, "PP")} - Eingespeist (kWh)`,
+                    color: "hsl(var(--chart-4))",
+                },
+                valueOutCompare: {
+                    label: `${format(props.compareDate, "PP")} - Eingespeist (kWh)`,
+                    color: "hsl(var(--chart-3))",
+                },
+                valueCurrent: {
+                    label: `${format(props.date, "PP")} - Leistung (W)`,
+                    color: "hsl(var(--chart-5))",
+                },
+                valueCurrentCompare: {
+                    label: `${format(props.compareDate, "PP")} - Leistung (kWh)`,
+                    color: "hsl(var(--chart-3))",
+                },
+            }) satisfies ChartConfig,
+        [props.date, props.compareDate],
+    );
+
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
 
     function tickFormatter(value: Date) {
