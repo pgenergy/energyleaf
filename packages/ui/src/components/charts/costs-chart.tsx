@@ -73,7 +73,6 @@ export function CostChart({ energyDataRaw, userData }) {
                     tickLine={false}
                     interval="preserveStartEnd"
                     axisLine={false}
-                    label="Datum"
                 />
                 <YAxis
                     tickLine={false}
@@ -81,9 +80,36 @@ export function CostChart({ energyDataRaw, userData }) {
                     type="number"
                     label={{ value: "Kosten in €", angle: -90, position: "insideLeft", offset: 20, fontSize: 14 }}
                 />
-                <Line type="monotone" dataKey="Abschlagszahlung" stroke="hsl(var(--primary))" />
-                <Line type="monotone" dataKey="Energiekosten" stroke="hsl(var(--chart-4))" />
-                <Tooltip />
+                <Line type="monotone" dataKey="Abschlagszahlung" stroke="hsl(var(--primary))" dot={false}/>
+                <Line type="monotone" dataKey="Energiekosten" stroke="hsl(var(--chart-4))" dot={false}/>
+                <Tooltip 
+                    content={({ payload, label }) => {
+                        if (payload && payload.length) {
+                            return (
+                                <div style={{
+                                    backgroundColor: '#fff',
+                                    border: '1px solid #ccc',
+                                    padding: '10px',
+                                    borderRadius: '4px',
+                                    boxShadow: '0px 0px 6px rgba(0,0,0,0.1)'
+                                }}>
+                                    <p style={{ color: 'black', margin: 0 }}>
+                                        {label} {/* Hier kannst du die Farbe und Formatierung des Datums anpassen */}
+                                    </p>
+                                    {payload.map((entry, index) => (
+                                        <p key={index} style={{ margin: 0 }}>
+                                            <span style={{ color: entry.stroke }}>{entry.name }:</span> 
+                                            <span style={{ color: entry.stroke, marginLeft: '5px' }}>
+                                                {entry.value} € {}
+                                            </span>
+                                        </p>
+                                    ))}
+                                </div>
+                            );
+                        }
+                        return null;
+                    }} 
+                />
             </LineChart>
         </ChartContainer>
     );
