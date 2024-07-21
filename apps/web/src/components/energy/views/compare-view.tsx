@@ -1,4 +1,6 @@
 import { convertTZDate } from "@energyleaf/lib";
+import { Skeleton } from "@energyleaf/ui/skeleton";
+import { Suspense } from "react";
 import CompareChartView from "../charts/compare-chart-view";
 
 interface Props {
@@ -24,12 +26,14 @@ export default async function EnergyPageCompareView(props: Props) {
 
     return (
         <div className="col-span-1 grid grid-cols-1 gap-4 md:col-span-3 md:grid-cols-3">
-            <CompareChartView
-                startDate={startDate}
-                endDate={endDate}
-                compareStartDate={compareStartDate}
-                compareEndDate={compareEndDate}
-            />
+            <Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+                <CompareChartView
+                    startDate={startDate}
+                    endDate={endDate}
+                    compareStartDate={compareStartDate}
+                    compareEndDate={compareEndDate}
+                />
+            </Suspense>
         </div>
     );
 }

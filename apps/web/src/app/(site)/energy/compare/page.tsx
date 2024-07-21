@@ -1,4 +1,5 @@
 import EnergyPageCompareView from "@/components/energy/views/compare-view";
+import { convertTZDate } from "@energyleaf/lib";
 import { redirect } from "next/navigation";
 
 interface Props {
@@ -12,8 +13,8 @@ export default function EnergyCustomPage(props: Props) {
     if (!props.searchParams?.date || !props.searchParams?.compareDate) {
         redirect("/energy");
     }
-    const date = new Date(props.searchParams.date);
-    const compareDate = new Date(props.searchParams.compareDate);
+    const date = convertTZDate(new Date(props.searchParams.date), "client");
+    const compareDate = convertTZDate(new Date(props.searchParams.compareDate), "client");
 
     return <EnergyPageCompareView date={date} compareDate={compareDate} />;
 }
