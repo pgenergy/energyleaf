@@ -5,6 +5,7 @@ import EnergyCostsChangeLastMonth from "@/components/costs/energy-costs-change-l
 import EnergyCostsChangeLastMonthNationalAverage from "@/components/costs/energy-costs-change-last-month-national-average-card";
 import EnergyCostsChangeLastWeek from "@/components/costs/energy-costs-change-last-week-card";
 import EnergyCostsChangeLastWeekNationalAverage from "@/components/costs/energy-costs-change-last-week-national-average-card";
+import CostChartCard from "@/components/costs/energy-costs-chart-card";
 import EnergyCostsComparativeProjectionDay from "@/components/costs/energy-costs-comparative-projection-day-card";
 import EnergyCostsComparativeProjectionMonth from "@/components/costs/energy-costs-comparative-projection-month-card";
 import EnergyCostsComparativeProjectionWeek from "@/components/costs/energy-costs-comparative-projection-week-card";
@@ -176,6 +177,9 @@ export default async function CostsPage() {
                     </Suspense>
                 </div>
             </section>
+            <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                <CostChartCard energyDataRaw={energyDataRaw} userData={userData} />
+            </Suspense>
         </div>
     );
 }
