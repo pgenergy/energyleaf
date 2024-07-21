@@ -1,8 +1,7 @@
-import { calculateCosts } from "@/components/dashboard/energy-cost";
-import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/db/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from '@energyleaf/ui/card';
 import EnergyCostsBarChart from "@energyleaf/ui/charts/energy-costs-bar-chart";
-import React from "react";
+import { calculateCosts } from '@/components/dashboard/energy-cost';
+import type { SensorDataSelectType, UserDataSelectType } from '@energyleaf/db/types';
 
 interface EnergyData extends SensorDataSelectType {}
 interface UserData extends UserDataSelectType {}
@@ -12,7 +11,7 @@ interface DailyCost {
     cost: string;
 }
 
-const calculateDailyCosts = (energyData: EnergyData[], userData: UserData[]): DailyCost[] => {
+function calculateDailyCosts(energyData: EnergyData[], userData: UserData[]): DailyCost[] {
     const dailyDataMap = new Map<string, EnergyData[]>();
 
     for (const data of energyData) {
@@ -32,14 +31,9 @@ const calculateDailyCosts = (energyData: EnergyData[], userData: UserData[]): Da
     });
 
     return dailyCosts;
-};
-
-interface Props {
-    energyData: EnergyData[];
-    userData: UserData[];
 }
 
-const EnergyCostsBarChartCard = ({ energyData, userData }: Props) => {
+function EnergyCostsBarChartCard({ energyData, userData }: { energyData: EnergyData[], userData: UserData[] }) {
     const data = calculateDailyCosts(energyData, userData);
 
     if (data.length === 0) {
@@ -65,6 +59,6 @@ const EnergyCostsBarChartCard = ({ energyData, userData }: Props) => {
             </CardContent>
         </Card>
     );
-};
+}
 
 export default EnergyCostsBarChartCard;
