@@ -19,12 +19,12 @@ export default async function HourChartView(props: Props) {
     const sensorId = await getElectricitySensorIdForUser(user.id);
 
     if (!sensorId) {
-        return <NoDataView />;
+        return null;
     }
 
     const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, "sum");
     if (!data || data.length === 0) {
-        return <NoDataView />;
+        return null;
     }
 
     return (
@@ -35,20 +35,6 @@ export default async function HourChartView(props: Props) {
             </CardHeader>
             <CardContent>
                 <HourChart data={data} />
-            </CardContent>
-        </Card>
-    );
-}
-
-function NoDataView() {
-    return (
-        <Card className="col-span-1 md:col-span-3">
-            <CardHeader>
-                <CardTitle>Übersicht der Stunden</CardTitle>
-                <CardDescription>Hier sehen Sie Ihren absoluten Verbrauch über die Stunden</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-center text-muted-foreground">Keine Sensordaten vorhanden</p>
             </CardContent>
         </Card>
     );

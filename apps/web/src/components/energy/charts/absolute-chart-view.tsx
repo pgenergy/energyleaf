@@ -2,8 +2,10 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import type { SensorDataSelectType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
+import { Alert, AlertDescription, AlertTitle } from "@energyleaf/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import MiniChart from "@energyleaf/ui/charts/mini-chart";
+import { InfoIcon } from "lucide-react";
 
 interface Props {
     startDate: Date;
@@ -21,11 +23,15 @@ export default async function AbsoluteChartView(props: Props) {
     const sensorId = await getElectricitySensorIdForUser(user.id);
     if (!sensorId) {
         return (
-            <>
-                <NotFound title="Absoluter Verbrauch" />
-                <NotFound title="Absolut Eingespeist" />
-                <NotFound title="Durchschnittliche Leistung" />
-            </>
+            <Alert className="col-span-1 md:col-span-3">
+                <InfoIcon className="mr-2 h-4 w-4" />
+                <AlertTitle>Keine Sensordaten vorhanden</AlertTitle>
+                <AlertDescription>
+                    Zu dieser Zeit liegen keien Daten von Ihrem Sensor vor. Der Grund hierfür ist vermutlich, dass bei
+                    Ihnen noch kein Sensor installiert wurde. Sollte es sich hierbei jedoch um einen Fehler handel,
+                    kontaktieren Sie uns bitte.
+                </AlertDescription>
+            </Alert>
         );
     }
 
@@ -45,11 +51,14 @@ export default async function AbsoluteChartView(props: Props) {
 
     if (!hasValues) {
         return (
-            <>
-                <NotFound title="Absoluter Verbrauch" />
-                <NotFound title="Absolut Eingespeist" />
-                <NotFound title="Durchschnittliche Leistung" />
-            </>
+            <Alert className="col-span-1 md:col-span-3">
+                <InfoIcon className="mr-2 h-4 w-4" />
+                <AlertTitle>Keine Sensordaten vorhanden</AlertTitle>
+                <AlertDescription>
+                    In einem von Ihnen ausgewählten Zeitraum liegen keine Daten vor. Sollte es sich hierbei um einen
+                    Fehler handeln, kontaktieren Sie uns bitte.
+                </AlertDescription>
+            </Alert>
         );
     }
 

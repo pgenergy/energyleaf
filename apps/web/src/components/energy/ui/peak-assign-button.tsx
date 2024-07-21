@@ -12,6 +12,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@energyleaf/ui/dialog";
+import { PencilRulerIcon } from "lucide-react";
 import React from "react";
 
 interface Props {
@@ -25,7 +26,10 @@ export function PeakAssignmentDialog(props: Props) {
     return (
         <Dialog onOpenChange={setOpen} open={open}>
             <DialogTrigger asChild>
-                <Badge className="cursor-pointer">Zuweisen</Badge>
+                <Badge className="cursor-pointer">
+                    <PencilRulerIcon className="mr-2 h-2 w-2" />
+                    Zuweisen
+                </Badge>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>

@@ -1,6 +1,6 @@
 "use client";
 
-import { type EnergyRangeOptionType, energyRangeOptionKeys, energyRangeOptions } from "@/types/energy";
+import { type EnergyRangeOptionType, energyRangeOptions } from "@/types/energy";
 import { Button, buttonVariants } from "@energyleaf/ui/button";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -19,18 +19,7 @@ export default function EnergyPageRangeSelector() {
 
     return (
         <div className="col-span-1 flex flex-row flex-wrap items-center justify-center gap-4 md:col-span-3 md:justify-start">
-            {energyRangeOptionKeys
-                .filter((range) => range !== "custom" && range !== "compare")
-                .map((range) => (
-                    <RangeLink key={range} range={range} href={range === "today" ? "/energy" : `/energy/${range}`} />
-                ))}
-            <EnergyRangeDatePicker>
-                <Button variant={pathname === "/energy/compare" ? "default" : "ghost"}>
-                    {date && compareDate
-                        ? `${format(date, "PP", { locale: de })} - ${format(compareDate, "PP", { locale: de })}`
-                        : "Vergleichen"}
-                </Button>
-            </EnergyRangeDatePicker>
+            <RangeLink range="today" href="/energy" />
             {date && !compareDate ? (
                 <EnergyDatePicker date={date}>
                     <Button variant={pathname === "/energy/custom" ? "default" : "ghost"}>
@@ -39,9 +28,18 @@ export default function EnergyPageRangeSelector() {
                 </EnergyDatePicker>
             ) : (
                 <EnergyDatePicker date={undefined}>
-                    <Button variant={pathname === "/energy/custom" ? "default" : "ghost"}>Individuell</Button>
+                    <Button variant={pathname === "/energy/custom" ? "default" : "ghost"}>Tag wählen</Button>
                 </EnergyDatePicker>
             )}
+            <EnergyRangeDatePicker>
+                <Button variant={pathname === "/energy/compare" ? "default" : "ghost"}>
+                    {date && compareDate
+                        ? `${format(date, "PP", { locale: de })} - ${format(compareDate, "PP", { locale: de })}`
+                        : "Tage Vergleichen"}
+                </Button>
+            </EnergyRangeDatePicker>
+            <RangeLink range="week" href="/energy/week" />
+            <RangeLink range="month" href="/energy/month" />
         </div>
     );
 }

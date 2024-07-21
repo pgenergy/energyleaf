@@ -19,12 +19,12 @@ export default async function DayChartView(props: Props) {
     const sensorId = await getElectricitySensorIdForUser(user.id);
 
     if (!sensorId) {
-        return <NoDataView />;
+        return null;
     }
 
     const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.DAY, "sum");
     if (!data || data.length === 0) {
-        return <NoDataView />;
+        return null;
     }
 
     return (
@@ -35,20 +35,6 @@ export default async function DayChartView(props: Props) {
             </CardHeader>
             <CardContent>
                 <DayChart data={data} />
-            </CardContent>
-        </Card>
-    );
-}
-
-function NoDataView() {
-    return (
-        <Card className="col-span-1 md:col-span-3">
-            <CardHeader>
-                <CardTitle>Übersicht der Wochentage</CardTitle>
-                <CardDescription>Hier sehen Sie Ihren absoluten Verbrauch an den gegebenen Wochentagen</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-center text-muted-foreground">Keine Sensordaten vorhanden</p>
             </CardContent>
         </Card>
     );
