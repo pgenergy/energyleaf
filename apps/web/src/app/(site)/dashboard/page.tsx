@@ -40,9 +40,8 @@ export default async function DashboardPage({
     const aggregationType = searchParams.aggregation;
 
     const serverStart = new Date();
-    serverStart.setHours(0, 0, 0, 0);
+    serverStart.setHours(serverStart.getHours() - 3, 0, 0, 0);
     const serverEnd = new Date();
-    serverEnd.setHours(23, 59, 59, 999);
 
     const startDate = startDateString ? new Date(startDateString) : convertTZDate(serverStart);
     const endDate = endDateString ? new Date(endDateString) : convertTZDate(serverEnd);

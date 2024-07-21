@@ -144,12 +144,20 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
             if (sequenceLength > 5) {
                 const avgPeakPower = calculateAveragePower(values.slice(i, sequenceEnd));
 
-                sequences.push({
-                    start: entry.timestamp,
-                    end: values[sequenceEnd - 1].timestamp,
-                    isAtStart: isStart,
-                    averagePowerIncludingBaseLoad: avgPeakPower,
-                });
+                // if sequences are only 5min apart, mark as one sequence, because could be of device variance
+                if (
+                    sequences.length > 0 &&
+                    sequences[sequences.length - 1].end.getTime() - entry.timestamp.getTime() < 5 * 60 * 1000
+                ) {
+                    sequences[sequences.length - 1].end = values[sequenceEnd - 1].timestamp;
+                } else {
+                    sequences.push({
+                        start: entry.timestamp,
+                        end: values[sequenceEnd - 1].timestamp,
+                        isAtStart: isStart,
+                        averagePowerIncludingBaseLoad: avgPeakPower,
+                    });
+                }
             }
             i = sequenceEnd;
         } else {
