@@ -3,7 +3,7 @@ function evaluatePowerEstimation(powerEstimationRSquared: number) {
         return "insufficiently";
     }
 
-    if (powerEstimationRSquared < 0.8) {
+    if (powerEstimationRSquared < 0.7) {
         return "sufficiently";
     }
 
