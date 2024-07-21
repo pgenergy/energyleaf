@@ -11,6 +11,8 @@ interface Props {
     startDate: Date;
     endDate: Date;
     aggregation: AggregationType;
+    hideAlert?: boolean;
+    title?: React.ReactNode;
 }
 
 export default async function AbsoluteChartView(props: Props) {
@@ -22,6 +24,9 @@ export default async function AbsoluteChartView(props: Props) {
 
     const sensorId = await getElectricitySensorIdForUser(user.id);
     if (!sensorId) {
+        if (props.hideAlert) {
+            return null;
+        }
         return (
             <Alert className="col-span-1 md:col-span-3">
                 <InfoIcon className="mr-2 h-4 w-4" />
@@ -50,6 +55,9 @@ export default async function AbsoluteChartView(props: Props) {
     }
 
     if (!hasValues) {
+        if (props.hideAlert) {
+            return null;
+        }
         return (
             <Alert className="col-span-1 md:col-span-3">
                 <InfoIcon className="mr-2 h-4 w-4" />
@@ -73,6 +81,7 @@ export default async function AbsoluteChartView(props: Props) {
 
     return (
         <>
+            {props.title ? props.title : null}
             <Card>
                 <CardHeader>
                     <CardTitle>Absoluter Verbrauch</CardTitle>
@@ -113,22 +122,5 @@ export default async function AbsoluteChartView(props: Props) {
             {!hasOutValues ? <div className="col-span-1" /> : null}
             {!hasPowerValues ? <div className="col-span-1" /> : null}
         </>
-    );
-}
-
-interface NotFoundProps {
-    title: string;
-}
-
-function NotFound(props: NotFoundProps) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>{props.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-center text-muted-foreground">Keine Sensordaten vorhanden</p>
-            </CardContent>
-        </Card>
     );
 }

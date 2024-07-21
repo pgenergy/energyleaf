@@ -1,6 +1,8 @@
-import { convertTZDate } from "@energyleaf/lib";
+import { AggregationType, convertTZDate } from "@energyleaf/lib";
 import { Skeleton } from "@energyleaf/ui/skeleton";
+import { format } from "date-fns";
 import { Suspense } from "react";
+import AbsoluteChartView from "../charts/absolute-chart-view";
 import CompareChartView from "../charts/compare-chart-view";
 
 interface Props {
@@ -26,6 +28,30 @@ export default async function EnergyPageCompareView(props: Props) {
 
     return (
         <div className="col-span-1 grid grid-cols-1 gap-4 md:col-span-3 md:grid-cols-3">
+            <Suspense fallback={<Skeleton className="col-span-1 h-40 w-full md:col-span-3" />}>
+                <AbsoluteChartView
+                    startDate={startDate}
+                    endDate={endDate}
+                    aggregation={AggregationType.HOUR}
+                    hideAlert
+                    title={
+                        <h2 className="col-span-1 font-bold text-xl md:col-span-3">{format(serverStartDate, "PP")}</h2>
+                    }
+                />
+            </Suspense>
+            <Suspense fallback={<Skeleton className="col-span-1 h-40 w-full md:col-span-3" />}>
+                <AbsoluteChartView
+                    startDate={compareStartDate}
+                    endDate={compareEndDate}
+                    aggregation={AggregationType.HOUR}
+                    hideAlert
+                    title={
+                        <h2 className="col-span-1 font-bold text-xl md:col-span-3">
+                            {format(serverCompareStartDate, "PP")}
+                        </h2>
+                    }
+                />
+            </Suspense>
             <Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
                 <CompareChartView
                     startDate={startDate}
