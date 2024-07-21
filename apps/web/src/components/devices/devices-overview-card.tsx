@@ -1,5 +1,6 @@
 import { DeviceContextProvider } from "@/hooks/device-hook";
 import { getSession } from "@/lib/auth/auth.server";
+import { evaluatePowerEstimation } from "@/lib/devices/power-estimation";
 import { getUserData } from "@/query/user";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { ErrorBoundary } from "@energyleaf/ui/error";
@@ -20,7 +21,7 @@ export default async function DevicesOverviewCard() {
 
     const userData = await getUserData(user.id);
     const estimationRSquared = userData?.devicePowerEstimationRSquared ?? null;
-    const showEstimationBadge = estimationRSquared !== null && estimationRSquared < 0.8;
+    const showEstimationBadge = estimationRSquared !== null && evaluatePowerEstimation(estimationRSquared) !== "well";
 
     return (
         <DeviceContextProvider>

@@ -3,7 +3,7 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import { Input } from "@energyleaf/ui/input";
 import { CircleHelp } from "lucide-react";
 import type React from "react";
-import { type ChangeEvent, useCallback, useEffect, useState } from "react";
+import type { ChangeEvent } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type { z } from "zod";
 

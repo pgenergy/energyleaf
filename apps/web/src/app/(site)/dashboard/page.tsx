@@ -1,5 +1,7 @@
+import { createHash } from "node:crypto";
 import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
 import AbsolutEnergyConsumptionError from "@/components/dashboard/absolut-energy-consumption-card-error";
+import CSVExportButton from "@/components/dashboard/csv-export-button";
 import CurrentMeterNumberCard from "@/components/dashboard/current-meter-number-card";
 import CurrentMeterOutCard from "@/components/dashboard/current-meter-out-card";
 import CurrentMeterPowerCard from "@/components/dashboard/current-meter-power-card";
@@ -11,11 +13,12 @@ import EnergyCostCard from "@/components/dashboard/energy-cost-card";
 import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
 import GoalsCard from "@/components/dashboard/goals/goals-card";
 import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
+import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
+import { convertTZDate } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
-import { getTimezoneOffset, toZonedTime } from "date-fns-tz";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -36,23 +39,22 @@ export default async function DashboardPage({
     const endDateString = searchParams.end;
     const aggregationType = searchParams.aggregation;
 
-    const offset = getTimezoneOffset("Europe/Berlin", new Date());
-    const localOffset = Math.abs(new Date().getTimezoneOffset() * 60 * 1000);
     const serverStart = new Date();
     serverStart.setHours(0, 0, 0, 0);
     const serverEnd = new Date();
     serverEnd.setHours(23, 59, 59, 999);
 
-    const startDate = startDateString
-        ? new Date(startDateString)
-        : offset === localOffset
-          ? serverStart
-          : new Date(serverStart.getTime() - offset);
-    const endDate = endDateString
-        ? new Date(endDateString)
-        : offset === localOffset
-          ? serverEnd
-          : new Date(serverEnd.getTime() - offset);
+    const startDate = startDateString ? new Date(startDateString) : convertTZDate(serverStart);
+    const endDate = endDateString ? new Date(endDateString) : convertTZDate(serverEnd);
+
+    const csvExportData = {
+        userId: user.id,
+        userHash: createHash("sha256").update(`${user.id}${env.HASH_SECRET}`).digest("hex"),
+        endpoint:
+            env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
+                ? `https://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/csv_energy`
+                : `http://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/csv_energy`,
+    };
 
     return (
         <div className="flex flex-col gap-4">
@@ -81,6 +83,16 @@ export default async function DashboardPage({
                     <div className="flex flex-col gap-2 md:flex-row">
                         {user.id !== "demo" ? <DashboardDateRange endDate={endDate} startDate={startDate} /> : null}
                         <DashboardTimeRange startDate={startDate} endDate={endDate} />
+                        <div className="hidden flex-1 md:block" />
+                        {user.id !== "demo" ? (
+                            <CSVExportButton
+                                startDate={startDate}
+                                endDate={endDate}
+                                userId={csvExportData.userId}
+                                userHash={csvExportData.userHash}
+                                endpoint={csvExportData.endpoint}
+                            />
+                        ) : null}
                     </div>
                 </div>
                 <ErrorBoundary fallback={AbsolutEnergyConsumptionError}>

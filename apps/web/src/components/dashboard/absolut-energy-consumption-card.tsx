@@ -2,16 +2,15 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { format } from "date-fns";
-import { de } from "date-fns/locale";
 import { redirect } from "next/navigation";
 
 interface Props {
     startDate: Date;
     endDate: Date;
+    showDescription?: boolean;
 }
 
-export default async function AbsolutEnergyConsumptionCard({ startDate, endDate }: Props) {
+export default async function AbsolutEnergyConsumptionCard({ startDate, endDate, showDescription = true }: Props) {
     const { session, user } = await getSession();
 
     if (!session) {
@@ -29,7 +28,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
+                    <h1 className="text-center text-muted-foreground">Keine Sensordaten vorhanden</h1>
                 </CardContent>
             </Card>
         );
@@ -42,10 +41,10 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate 
         <Card className="w-full">
             <CardHeader>
                 <CardTitle>Absoluter Energieverbrauch</CardTitle>
-                <CardDescription>Im ausgewählten Zeitraum</CardDescription>
+                {showDescription ? <CardDescription>Im ausgewählten Zeitraum</CardDescription> : null}
             </CardHeader>
             <CardContent>
-                <h1 className="text-center font-bold text-2xl text-primary">{formatNumber(absolut)} kWh</h1>
+                <h1 className="text-center font-bold font-mono">{formatNumber(absolut)} kWh</h1>
             </CardContent>
         </Card>
     );
