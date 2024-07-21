@@ -1,4 +1,4 @@
-import { calculateAverageCostsPerDay } from "@/components/costs/average-costs-calculation";
+import { calculateAverageCostsPerDay } from "@/lib/costs/average-costs-calculation";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 

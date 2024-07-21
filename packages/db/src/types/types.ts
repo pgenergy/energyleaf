@@ -1,7 +1,6 @@
 import type {
     device,
     reportConfig,
-    reports,
     sensor,
     sensorData,
     sensorDataSequence,
@@ -9,11 +8,6 @@ import type {
     userData,
     userExperimentData,
 } from "../schema";
-
-export enum SortOrder {
-    ASC = "ASC",
-    DESC = "DESC",
-}
 
 export type UserSelectType = typeof user.$inferSelect;
 
@@ -24,8 +18,6 @@ export type UserExperimentDataSelectType = typeof userExperimentData.$inferSelec
 export type DeviceSelectType = typeof device.$inferSelect;
 
 export type ReportConfigSelectType = typeof reportConfig.$inferSelect;
-
-export type ReportSelectType = typeof reports.$inferSelect;
 
 export type AnomalyConfig = {
     receiveMails: boolean;

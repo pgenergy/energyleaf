@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences } from "@/query/energy";
 import { getUserData } from "@/query/user";
@@ -8,7 +6,6 @@ import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
-import CSVExportButton from "./csv-export-button";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
@@ -51,7 +48,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     const showPeaks = fulfills(user.appVersion, Versions.self_reflection) && !hasAggregation;
 
     const userData = await getUserData(user.id);
-    const workingPrice = hasAggregation ? undefined : userData?.workingPrice ?? undefined;
+    const workingPrice = userData?.workingPrice ?? undefined;
     const cost =
         workingPrice && userData?.basePrice
             ? (userData.basePrice / (30 * 24 * 60 * 60)) * 15 + workingPrice
@@ -60,31 +57,11 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
         : [];
 
-    const csvExportData = {
-        userId: user.id,
-        userHash: createHash("sha256").update(`${user.id}${env.HASH_SECRET}`).digest("hex"),
-        endpoint:
-            env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
-                ? `https://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/csv_energy`
-                : `http://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/csv_energy`,
-    };
-
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-col justify-start">
-                <div className="flex flex-row justify-between gap-2">
-                    <div className="flex flex-col gap-2">
-                        <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
-                        <CardDescription>Im ausgewählten Zeitraum</CardDescription>
-                    </div>
-                    {user.id !== "demo" ? (
-                        <CSVExportButton
-                            userId={csvExportData.userId}
-                            userHash={csvExportData.userHash}
-                            endpoint={csvExportData.endpoint}
-                        />
-                    ) : null}
-                </div>
+                <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
+                <CardDescription>Im ausgewählten Zeitraum</CardDescription>
                 {user.id !== "demo" ? (
                     <div className="flex flex-row gap-4">
                         <DashboardEnergyAggregation selected={aggregation} />

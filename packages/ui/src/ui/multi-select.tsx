@@ -17,6 +17,7 @@ interface Props<T extends Option> {
     loading?: boolean;
     onSelectedChange: (values: T[]) => void;
     placeholder?: string;
+    refetching?: boolean;
 }
 
 export function MultiSelect<T extends Option>({
@@ -24,6 +25,7 @@ export function MultiSelect<T extends Option>({
     placeholder,
     onSelectedChange,
     loading = false,
+    refetching = false,
     initialSelected = [],
 }: Props<T>) {
     const inputRef = React.useRef<HTMLInputElement>(null);
@@ -32,10 +34,13 @@ export function MultiSelect<T extends Option>({
     const [inputValue, setInputValue] = React.useState("");
 
     React.useEffect(() => {
+        if (refetching) {
+            setSelected([]);
+        }
         if (initialSelected.length > 0 && selected.length === 0) {
             setSelected([...initialSelected]);
         }
-    }, [initialSelected, selected]);
+    }, [initialSelected, selected, refetching]);
 
     const handleUnselect = React.useCallback(
         (option: T) => {
@@ -138,6 +143,11 @@ export function MultiSelect<T extends Option>({
                                             }}
                                             onSelect={(_) => {
                                                 handleSelect(option);
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Delete" || e.key === "Backspace") {
+                                                    e.preventDefault();
+                                                }
                                             }}
                                             className={"cursor-pointer"}
                                         >

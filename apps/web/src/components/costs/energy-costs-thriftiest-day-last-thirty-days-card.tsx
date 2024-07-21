@@ -1,4 +1,4 @@
-import { findMostEconomicalDay } from "@/components/costs/thriftiest-costs-calculation";
+import { findMostEconomicalDay } from "@/lib/costs/thriftiest-costs-calculation";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 

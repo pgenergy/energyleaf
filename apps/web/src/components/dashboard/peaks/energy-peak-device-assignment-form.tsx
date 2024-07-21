@@ -22,6 +22,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
     const {
         data: selectedDevices,
         isLoading: selectedDevicesLoading,
+        isRefetching: selectedDevicesRefetching,
         refetch,
     } = useQuery({
         queryKey: [`selectedDevices${sensorDataSequenceId}`],
@@ -94,6 +95,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
                                             value: device.id.toString(),
                                         }))}
                                         loading={devicesLoading || selectedDevicesLoading}
+                                        refetching={selectedDevicesRefetching}
                                         initialSelected={selectedDevices?.map((device) => ({
                                             ...device,
                                             label: device.name,

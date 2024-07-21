@@ -1,31 +1,11 @@
 "use client";
 
-import {
-    type DeviceCategory,
-    DeviceCategoryPowerState,
-    DeviceCategoryTitles,
-    type DeviceSelectType,
-} from "@energyleaf/db/types";
+import { type DeviceCategory, DeviceCategoryTitles, type DeviceSelectType } from "@energyleaf/db/types";
 import { type DeviceCategoryPower, formatNumber } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import type { ColumnDef } from "@tanstack/react-table";
-import {
-    ChevronDownIcon,
-    ChevronUpIcon,
-    ChevronsUpDownIcon,
-    CircleAlert,
-    CircleArrowDown,
-    CircleArrowRight,
-    CircleArrowUp,
-    ExternalLink,
-    Info,
-    SquareArrowDown,
-    SquareArrowDownRight,
-    SquareArrowRight,
-    SquareArrowUp,
-    SquareArrowUpRight,
-} from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon, CircleAlert, ExternalLink, Info } from "lucide-react";
 import getCategoryPowerState, {
     deviceCategoryPowerStateDescription,
 } from "node_modules/@energyleaf/lib/src/reference_power_data/reference_power_per_device_category";
