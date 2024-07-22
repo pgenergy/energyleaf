@@ -26,7 +26,7 @@ const chartConfig = {
 };
 
 function EnergyCostsBarChart({ data }: Props) {
-    const maxCost = Math.max(...data.map(d => parseFloat(d.cost)));
+    const maxCost = Math.max(...data.map((d) => Number.parseFloat(d.cost)));
 
     return (
         <ChartContainer config={chartConfig} className="max-h-96 min-h-52 w-full">
@@ -36,9 +36,7 @@ function EnergyCostsBarChart({ data }: Props) {
                     <ChartLegend content={<ChartLegendContent />} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <XAxis dataKey="date" label={{ value: "Datum", position: "insideBottom", offset: -5 }} />
-                    <YAxis label={{ value: "Kosten (€)", angle: -90, position: "insideLeft" }}
-                           domain={[0, maxCost]}
-                    />
+                    <YAxis label={{ value: "Kosten (€)", angle: -90, position: "insideLeft" }} domain={[0, maxCost]} />
                     <Tooltip formatter={(value: number) => `${value.toFixed(2)} €`} labelFormatter={(label) => label} />
                     <Bar dataKey="cost" fill={chartConfig.cost.color} barSize={20} />
                 </BarChart>

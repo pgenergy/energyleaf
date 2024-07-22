@@ -52,9 +52,7 @@ function EnergyCostsChangeLastMonth({ userData, energyData }) {
                 <CardTitle>Letzter Monat vs. Vormonat</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={"text-center font-bold text-xl"}>
-                    Letzter Monat: {formatNumber(thisMonthCosts)} €
-                </p>
+                <p className={"text-center font-bold text-xl"}>Letzter Monat: {formatNumber(thisMonthCosts)} €</p>
                 <p className={`text-center font-bold text-2xl ${color}`}>
                     {sign}
                     {formatNumber(costDifference)} € ({sign}

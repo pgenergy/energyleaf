@@ -62,9 +62,7 @@ function EnergyCostsChangeLastMonthNationalAverage({ userData, energyData }) {
                 <CardTitle>Letzter Monat vs. Deutscher Durchschnitt</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={"text-center font-bold text-xl"}>
-                    Letzter Monat: {formatNumber(thisMonthCosts)} €
-                </p>
+                <p className={"text-center font-bold text-xl"}>Letzter Monat: {formatNumber(thisMonthCosts)} €</p>
                 <p className={"text-center font-bold text-xl"}>
                     Deutscher Durchschnitt: {formatNumber(nationalAverageCost)} €
                 </p>

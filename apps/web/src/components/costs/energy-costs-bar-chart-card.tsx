@@ -15,10 +15,10 @@ function calculateDailyCosts(energyData: EnergyData[], userData: UserData[]): Da
     const dailyDataMap = new Map<string, EnergyData[]>();
 
     for (const data of energyData) {
-        const date = new Date(data.timestamp).toLocaleDateString('de-DE', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
+        const date = new Date(data.timestamp).toLocaleDateString("de-DE", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
         });
         if (!dailyDataMap.has(date)) {
             dailyDataMap.set(date, []);
