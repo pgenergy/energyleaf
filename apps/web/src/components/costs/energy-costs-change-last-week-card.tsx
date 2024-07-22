@@ -35,7 +35,7 @@ function EnergyCostsChangeLastWeek({ userData, energyData }) {
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energiekosten: Letzte Woche vs. Vorwoche</CardTitle>
+                    <CardTitle>Letzte Woche vs. Vorwoche</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -57,10 +57,10 @@ function EnergyCostsChangeLastWeek({ userData, energyData }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Energiekosten: Letzte Woche vs. Vorwoche</CardTitle>
+                <CardTitle>Letzte Woche vs. Vorwoche</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={"text-center font-bold text-xl"}>Kosten letzte Woche: {formatNumber(thisWeekCosts)} €</p>
+                <p className={"text-center font-bold text-xl"}>Letzte Woche: {formatNumber(thisWeekCosts)} €</p>
                 <p className={`text-center font-bold text-2xl ${color}`}>
                     {sign}
                     {formatNumber(costDifference)} € ({sign}

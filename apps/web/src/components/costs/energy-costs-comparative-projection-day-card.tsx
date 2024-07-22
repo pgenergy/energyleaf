@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
 export default function EnergyCostsComparativeProjectionDay({ userData, energyData }) {
     const predictedCost = getDayComparison(energyData, userData);
-    const color = predictedCost.absoluteDifference <= 0 ? "text-red-500" : "text-green-500";
+    const color = predictedCost.absoluteDifference >= 0 ? "text-red-500" : "text-green-500";
     return (
         <Card>
             <CardHeader>

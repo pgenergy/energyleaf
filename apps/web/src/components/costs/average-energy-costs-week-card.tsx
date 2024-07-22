@@ -9,7 +9,7 @@ export default function AverageEnergyCostsWeek({ userData, energyData }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Durchschnittliche Energiekosten pro Woche</CardTitle>
+                <CardTitle>Pro Woche</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-center font-bold text-2xl text-primary">{formattedCost} €</p>

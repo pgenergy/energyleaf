@@ -7,7 +7,7 @@ function EnergyCostsToday({ userData, energyDataRaw }) {
         return (
             <Card className="w-full">
                 <CardHeader>
-                    <CardTitle>Energiekosten heute</CardTitle>
+                    <CardTitle>Heute</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <h1 className="text-center font-bold text-2xl text-primary">Daten nicht verfügbar</h1>
@@ -33,7 +33,7 @@ function EnergyCostsToday({ userData, energyDataRaw }) {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Energiekosten heute</CardTitle>
+                <CardTitle>Heute</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-center font-bold text-2xl text-primary">{formattedCost} €</p>

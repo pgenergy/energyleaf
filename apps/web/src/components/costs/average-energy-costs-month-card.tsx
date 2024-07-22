@@ -9,7 +9,7 @@ export default function AverageEnergyCostsMonth({ userData, energyData }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Durchschnittliche Energiekosten pro Monat</CardTitle>
+                <CardTitle>Pro Monat</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-center font-bold text-2xl text-primary">{formattedCost} €</p>

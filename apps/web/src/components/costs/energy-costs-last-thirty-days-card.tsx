@@ -7,7 +7,7 @@ function EnergyCostsLastThirtyDays({ userData, energyDataRaw }) {
         return (
             <Card className="w-full">
                 <CardHeader>
-                    <CardTitle>Energiekosten letzte 30 Tage</CardTitle>
+                    <CardTitle>Letzte 30 Tage</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <h1 className="text-center font-bold text-2xl text-primary">Daten nicht verfügbar</h1>
@@ -32,7 +32,7 @@ function EnergyCostsLastThirtyDays({ userData, energyDataRaw }) {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Energiekosten letzte 30 Tage</CardTitle>
+                <CardTitle>Letzte 30 Tage</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-center font-bold text-2xl text-primary">{formattedCost} €</p>
