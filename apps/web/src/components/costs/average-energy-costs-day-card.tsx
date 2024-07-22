@@ -9,7 +9,7 @@ export default function AverageEnergyCostsDay({ userData, energyData }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Durchschnittliche Energiekosten pro Tag</CardTitle>
+                <CardTitle>Pro Tag</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-center font-bold text-2xl text-primary">{formattedCost} €</p>

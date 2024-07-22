@@ -39,7 +39,7 @@ function EnergyCostsBarChart({ data }: Props) {
                     <YAxis label={{ value: "Kosten (€)", angle: -90, position: "insideLeft" }}
                            domain={[0, maxCost]}
                     />
-                    <Tooltip />
+                    <Tooltip formatter={(value: number) => `${value.toFixed(2)} €`} labelFormatter={(label) => label} />
                     <Bar dataKey="cost" fill={chartConfig.cost.color} barSize={20} />
                 </BarChart>
             </ResponsiveContainer>

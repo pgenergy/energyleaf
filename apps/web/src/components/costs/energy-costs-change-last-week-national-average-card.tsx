@@ -27,7 +27,7 @@ function EnergyCostsChangeLastWeekNationalAverage({ userData, energyData }) {
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energiekosten: Letzte Woche vs. Deutscher Durchschnitt</CardTitle>
+                    <CardTitle>Letzte Woche vs. Deutscher Durchschnitt</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -43,7 +43,7 @@ function EnergyCostsChangeLastWeekNationalAverage({ userData, energyData }) {
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energiekosten: Letzte Woche vs. Deutscher Durchschnitt</CardTitle>
+                    <CardTitle>Letzte Woche vs. Deutscher Durchschnitt</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -64,10 +64,10 @@ function EnergyCostsChangeLastWeekNationalAverage({ userData, energyData }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Energiekosten: Letzte Woche vs. Deutscher Durchschnitt</CardTitle>
+                <CardTitle>Letzte Woche vs. Deutscher Durchschnitt</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className={"text-center font-bold text-xl"}>Kosten letzte Woche: {formatNumber(thisWeekCosts)} €</p>
+                <p className={"text-center font-bold text-xl"}>Letzte Woche: {formatNumber(thisWeekCosts)} €</p>
                 <p className={"text-center font-bold text-xl"}>
                     Deutscher Durchschnitt: {formatNumber(nationalAverageCost)} €
                 </p>

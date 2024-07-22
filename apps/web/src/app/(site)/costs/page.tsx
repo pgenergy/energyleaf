@@ -70,8 +70,6 @@ export default async function CostsPage() {
 
     return (
         <div className="flex flex-col gap-4">
-            <h1 className="font-bold text-2xl">Kosten-Übersichten</h1>
-
             {/* Absolute Energiekosten */}
             <section>
                 <h2 className="mb-4 font-bold text-xl">Absolute Energiekosten</h2>

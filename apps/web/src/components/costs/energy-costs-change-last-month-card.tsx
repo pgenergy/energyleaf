@@ -27,7 +27,7 @@ function EnergyCostsChangeLastMonth({ userData, energyData }) {
         return (
             <Card>
                 <CardHeader>
-                    <CardTitle>Energiekosten: Letzter Monat vs. Vormonat</CardTitle>
+                    <CardTitle>Letzter Monat vs. Vormonat</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center font-bold text-primary text-xl">
@@ -49,11 +49,11 @@ function EnergyCostsChangeLastMonth({ userData, energyData }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Energiekosten: Letzter Monat vs. Vormonat</CardTitle>
+                <CardTitle>Letzter Monat vs. Vormonat</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className={"text-center font-bold text-xl"}>
-                    Kosten letzter Monat: {formatNumber(thisMonthCosts)} €
+                    Letzter Monat: {formatNumber(thisMonthCosts)} €
                 </p>
                 <p className={`text-center font-bold text-2xl ${color}`}>
                     {sign}
