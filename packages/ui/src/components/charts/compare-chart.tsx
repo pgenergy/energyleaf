@@ -46,7 +46,7 @@ export default function CompareChart(props: Props) {
                     color: "hsl(var(--chart-5))",
                 },
                 valueCurrentCompare: {
-                    label: `${format(props.compareDate, "PP")} - Leistung (kWh)`,
+                    label: `${format(props.compareDate, "PP")} - Leistung (W)`,
                     color: "hsl(var(--chart-3))",
                 },
             }) satisfies ChartConfig,

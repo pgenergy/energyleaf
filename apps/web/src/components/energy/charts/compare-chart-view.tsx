@@ -43,14 +43,16 @@ export default async function CompareChartView(props: Props) {
         "sum",
     );
     if (!compareData || compareData.length === 0 || !data || data.length === 0) {
-        <Alert className="col-span-1 md:col-span-3">
-            <InfoIcon className="mr-2 h-4 w-4" />
-            <AlertTitle>Keine Sensordaten vorhanden</AlertTitle>
-            <AlertDescription>
-                In einem von Ihnen ausgewählten Zeitraum liegen keine Daten vor. Sollte es sich hierbei um einen Fehler
-                handeln, kontaktieren Sie uns bitte.
-            </AlertDescription>
-        </Alert>;
+        return (
+            <Alert className="col-span-1 md:col-span-3">
+                <InfoIcon className="mr-2 h-4 w-4" />
+                <AlertTitle>Keine Sensordaten vorhanden</AlertTitle>
+                <AlertDescription>
+                    In einem von Ihnen ausgewählten Zeitraum liegen keine Daten vor. Sollte es sich hierbei um einen
+                    Fehler handeln, kontaktieren Sie uns bitte.
+                </AlertDescription>
+            </Alert>
+        );
     }
 
     return (
