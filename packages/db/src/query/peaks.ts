@@ -131,7 +131,8 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
         const entry = values[i];
 
         if (entry.value > threshold) {
-            const isStart = i === 0;
+            // check if either directly after start or 5 minutes after
+            const isStart = i === 0 || entry.timestamp.getTime() - values[0].timestamp.getTime() < 5 * 60 * 1000;
             let sequenceEnd = i + 1;
 
             while (sequenceEnd < values.length && values[sequenceEnd].value > threshold) {
@@ -141,7 +142,7 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
             const sequenceLength = sequenceEnd - i;
 
             // only mark as peak if longer then 2min and not marked as anomaly yet
-            if (sequenceLength > 5) {
+            if (sequenceLength > 8) {
                 const avgPeakPower = calculateAveragePower(values.slice(i, sequenceEnd));
 
                 // if sequences are only 5min apart, mark as one sequence, because could be of device variance
@@ -222,8 +223,8 @@ export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
                 .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)))
                 .orderBy(asc(sensorData.timestamp));
 
-            // make sure we have at least 3 hours of reference data
-            if (calcData.length < 720) {
+            // make sure we have at least 12 hours of reference data
+            if (calcData.length < 2880) {
                 return [];
             }
 
@@ -272,7 +273,7 @@ export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
                 }
             }
             if (peaks.length !== 0) {
-                await saveSequences(peaks, props, calcData, energyData, trx);
+                await saveSequences(peaks, props, trx);
             }
 
             // if there is an anomaly in the last 24 hours return nothing to avoid sending another mail
@@ -294,8 +295,6 @@ export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
 async function saveSequences(
     peaks: (SensorDataSequenceType & { isAtStart: boolean })[],
     { start, sensorId, type }: FindAndMarkPeaksProps,
-    consideredData: SensorDataSelectType[],
-    dayData: SensorDataSelectType[],
     trx: DB,
 ) {
     const firstSequenceMergeable = peaks[0].isAtStart;
@@ -314,10 +313,7 @@ async function saveSequences(
             .limit(1);
         const lastSequenceOfSensor = lastSequenceOfSensorQuery.length > 0 ? lastSequenceOfSensorQuery[0] : null;
 
-        const beforeIndex = consideredData.findIndex((d) => d.id === dayData[0].id);
-        const lastEntryBeforeInterval = consideredData[beforeIndex - 1];
-
-        if (lastSequenceOfSensor && lastSequenceOfSensor.end.getTime() >= lastEntryBeforeInterval.timestamp.getTime()) {
+        if (lastSequenceOfSensor && peaks[0].start.getTime() - lastSequenceOfSensor.end.getTime() < 5 * 60 * 1000) {
             await trx
                 .update(sensorDataSequence)
                 .set({ end: peaks[0].end })
