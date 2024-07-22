@@ -150,13 +150,10 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
                 // and only mark a new peak if at least 5min apart from previous
                 if (
                     sequences.length > 0 &&
-                    sequences[sequences.length - 1].end.getTime() - entry.timestamp.getTime() < 2 * 60 * 1000
+                    entry.timestamp.getTime() - sequences[sequences.length - 1].end.getTime() < 2 * 60 * 1000
                 ) {
                     sequences[sequences.length - 1].end = values[sequenceEnd - 1].timestamp;
-                } else if (
-                    sequences.length > 0 &&
-                    sequences[sequences.length - 1].end.getTime() - entry.timestamp.getTime() > 5 * 60 * 1000
-                ) {
+                } else {
                     sequences.push({
                         start: entry.timestamp,
                         end: values[sequenceEnd - 1].timestamp,
