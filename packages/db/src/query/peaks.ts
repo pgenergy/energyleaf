@@ -263,7 +263,7 @@ export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
                 averagePeakPower: d.averagePowerIncludingBaseLoad - baseLoad,
                 type,
                 sensorId,
-            }));
+            })).filter((d) => d.averagePeakPower > 0);
 
             if (props.type === "anomaly") {
                 // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
