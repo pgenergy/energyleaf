@@ -32,15 +32,21 @@ export function MultiSelect<T extends Option>({
     const [open, setOpen] = React.useState(false);
     const [selected, setSelected] = React.useState<T[]>([]);
     const [inputValue, setInputValue] = React.useState("");
+    const [initialSelectedApplied, setInitialSelectedApplied] = React.useState(false);
 
     React.useEffect(() => {
         if (refetching) {
             setSelected([]);
+            setInitialSelectedApplied(false);
         }
-        if (initialSelected.length > 0 && selected.length === 0) {
+    }, [refetching]);
+
+    React.useEffect(() => {
+        if (initialSelected.length > 0 && !initialSelectedApplied && selected.length === 0) {
             setSelected([...initialSelected]);
+            setInitialSelectedApplied(true);
         }
-    }, [initialSelected, selected, refetching]);
+    }, [initialSelected, initialSelectedApplied, selected.length]);
 
     const handleUnselect = React.useCallback(
         (option: T) => {
