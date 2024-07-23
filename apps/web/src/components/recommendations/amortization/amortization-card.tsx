@@ -47,7 +47,7 @@ export default async function AmortizationCard() {
             <CardHeader>
                 <CardTitle>Geräte-Amortisation</CardTitle>
                 <CardDescription>
-                    Hier können Sie prüfen, nach welcher Zeit sich die Anschaffung eines neuen Gerätes rentiert hat.
+                    Hier können Sie prüfen, nach welcher Zeit sich die Anschaffung eines neuen Gerätes rentiert.
                 </CardDescription>
             </CardHeader>
             <CardContent>

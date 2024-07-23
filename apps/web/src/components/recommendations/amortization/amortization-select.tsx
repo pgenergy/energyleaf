@@ -25,8 +25,8 @@ export default function AmortizationSelect({ devices, selected, onSelectedChange
                         Es werden nur Geräte angezeigt, deren Leistung schlechter als die Leistung des Referenzgerätes
                         geschätzt wird.
                         <br />
-                        Durch Klick auf ein Gerät wird dieses ausgewählt oder abgewählt werden. In der
-                        Amortisationsrechnung werden nur ausgewählte Geräte berücksichtigt.
+                        Durch Klick auf ein Gerät wird dieses aus- oder abgewählt. In der Amortisationsrechnung werden
+                        nur ausgewählte Geräte berücksichtigt.
                     </PopoverContent>
                 </Popover>
             </div>
