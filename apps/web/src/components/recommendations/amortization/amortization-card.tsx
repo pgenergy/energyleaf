@@ -3,6 +3,9 @@ import { getDevicesByUser, getUserData } from "@energyleaf/db/query";
 import type { DeviceCategory } from "@energyleaf/db/types";
 import { getReferencePowerDataForDeviceCategory } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
+import { Info } from "lucide-react";
+import Link from "next/link";
 import AmortizationCardContent from "./amortization-card-content";
 
 export class DeviceItem {
@@ -44,11 +47,28 @@ export default async function AmortizationCard() {
 
     return (
         <Card className="w-full">
-            <CardHeader>
-                <CardTitle>Geräte-Amortisation</CardTitle>
-                <CardDescription>
-                    Hier können Sie prüfen, nach welcher Zeit sich die Anschaffung eines neuen Gerätes rentiert.
-                </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex flex-col gap-2">
+                    <CardTitle>Geräte-Amortisation</CardTitle>
+                    <CardDescription>
+                        Hier können Sie prüfen, nach welcher Zeit sich die Anschaffung eines neuen Gerätes rentiert.
+                    </CardDescription>
+                </div>
+                <Popover>
+                    <PopoverTrigger>
+                        <Info className="h-7 w-7" />
+                    </PopoverTrigger>
+                    <PopoverContent>
+                        Die Amortisationsrechnung berücksichtigt weder den{" "}
+                        <Link
+                            href="https://de.wikipedia.org/wiki/Zeitwert_des_Geldes"
+                            className="text-primary underline hover:no-underline"
+                        >
+                            Zeitwert des Geldes
+                        </Link>{" "}
+                        noch die Inflation.
+                    </PopoverContent>
+                </Popover>
             </CardHeader>
             <CardContent>
                 <AmortizationCardContent
