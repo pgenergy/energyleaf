@@ -212,7 +212,7 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
             return {
                 averagePower: 7000,
                 minimumPower: 5000,
-                maximumPower: 9000,
+                maximumPower: 12000,
                 linkToSource:
                     "https://www.energysage.com/electricity/house-watts/how-many-watts-does-an-electric-car-charger-use/",
                 purchasePrice: 30000,
