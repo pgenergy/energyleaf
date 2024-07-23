@@ -212,7 +212,7 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
             return {
                 averagePower: 7000,
                 minimumPower: 5000,
-                maximumPower: 9000,
+                maximumPower: 12000,
                 linkToSource:
                     "https://www.energysage.com/electricity/house-watts/how-many-watts-does-an-electric-car-charger-use/",
                 purchasePrice: 30000,
@@ -236,10 +236,7 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
     }
 }
 
-export default function getCategoryPowerState(
-    deviceCategoryPower: DeviceCategoryPower,
-    powerEstimationInWatts: number,
-) {
+export function getCategoryPowerState(deviceCategoryPower: DeviceCategoryPower, powerEstimationInWatts: number) {
     const { minimumPower, maximumPower } = deviceCategoryPower;
     const oneThirdBound = minimumPower + (maximumPower - minimumPower) / 3;
     const twoThirdBound = minimumPower + (2 * (maximumPower - minimumPower)) / 3;
@@ -260,14 +257,9 @@ export default function getCategoryPowerState(
 }
 
 export const deviceCategoryPowerStateDescription: Record<DeviceCategoryPowerState, string> = {
-    [DeviceCategoryPowerState.VERY_FRUGAL]:
-        "Die Leistung Ihres Gerätes liegt unterhalb dieses Bereichs und ist damit sehr sparsam.",
-    [DeviceCategoryPowerState.FRUGAL]:
-        "Die Leistung Ihres Gerätes liegt im unteren Drittel dieses Bereichs und ist damit sparsam.",
-    [DeviceCategoryPowerState.MEDIUM]:
-        "Die Leistung Ihres Gerätes liegt im mittleren Drittel dieses Bereichs und ist damit durchschnittlich.",
-    [DeviceCategoryPowerState.ABOVE_AVERAGE]:
-        "Die Leistung Ihres Gerätes liegt im oberen Drittel dieses Bereichs und hat damit eine überdurchschnittliche Leistung.",
-    [DeviceCategoryPowerState.HIGH]:
-        "Die Leistung Ihres Gerätes liegt oberhalb dieses Bereichs und hat damit eine hohe Leistung.",
+    [DeviceCategoryPowerState.VERY_FRUGAL]: "Die Leistung Ihres Gerätes liegt unterhalb dieses Bereichs.",
+    [DeviceCategoryPowerState.FRUGAL]: "Die Leistung Ihres Gerätes liegt im unteren Drittel dieses Bereichs.",
+    [DeviceCategoryPowerState.MEDIUM]: "Die Leistung Ihres Gerätes liegt im mittleren Drittel dieses Bereichs.",
+    [DeviceCategoryPowerState.ABOVE_AVERAGE]: "Die Leistung Ihres Gerätes liegt im oberen Drittel dieses Bereichs.",
+    [DeviceCategoryPowerState.HIGH]: "Die Leistung Ihres Gerätes liegt oberhalb dieses Bereichs.",
 };

@@ -1,8 +1,9 @@
 import type { DeviceCategory } from "@energyleaf/db/types";
 import { formatNumber } from "@energyleaf/lib";
 import { cn } from "@energyleaf/tailwindcss/utils";
-import { Button } from "@energyleaf/ui/button";
+import { DivButton } from "@energyleaf/ui/button";
 import { Input } from "@energyleaf/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import { CheckIcon, InfoIcon } from "lucide-react";
 import { useState } from "react";
 import DeviceCategoryIcon from "../../devices/device-category-icon";
@@ -26,15 +27,11 @@ export default function AmortizationSelectItem({ device, isSelected, onClick, on
     };
 
     return (
-        <Button
+        <DivButton
             key={device.id}
             className="flex h-92 w-full border-collapse flex-row items-center gap-2 border"
-            value={device.id}
-            variant={"ghost"}
-            onClick={(e) => {
-                const id = Number(e.currentTarget.value);
-                onClick(id);
-            }}
+            onClick={() => onClick(device.id)}
+            variant="ghost"
         >
             <CheckIcon className={cn("mr-2 h-6 w-6", isSelected ? "opacity-100" : "opacity-0")} />
             <div className="flex w-full flex-col items-start gap-6">
@@ -69,12 +66,18 @@ export default function AmortizationSelectItem({ device, isSelected, onClick, on
                                 }
                             }}
                         />
-                        <div title="Dieser Wert wurde anhand Ihrer Peaks geschätzt. Sie können ihn hier für die Amortisationsrechnung anpassen.">
-                            <InfoIcon className="h-6 w-6" />
-                        </div>
+                        <Popover>
+                            <PopoverTrigger onClick={(e) => e.stopPropagation()}>
+                                <InfoIcon className="h-6 w-6" />
+                            </PopoverTrigger>
+                            <PopoverContent>
+                                Dieser Wert wurde anhand Ihrer Peaks geschätzt. Sie können ihn hier für die
+                                Amortisationsrechnung anpassen.
+                            </PopoverContent>
+                        </Popover>
                     </div>
                 </div>
             </div>
-        </Button>
+        </DivButton>
     );
 }
