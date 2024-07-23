@@ -46,7 +46,7 @@ export default function EnergyConsumptionCardChart({ data, aggregation, userId, 
                 <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} userId={userId} />
             ) : null}
             <EnergyConsumptionChart
-                data={data}
+                data={{ data, classifications: [] }}
                 peaks={peaks}
                 aggregation={aggregation}
                 showPeaks={showPeaks}

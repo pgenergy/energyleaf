@@ -13,7 +13,7 @@ import ChartSwitchButton from "./chart-switch-button";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
 interface Props {
-    data: SensorDataSelectType[];
+    data: { data: SensorDataSelectType[], classifications: any[] };
     peaks?: SensorDataSequenceType[];
     cost?: number;
     showPeaks?: boolean;
@@ -55,44 +55,46 @@ export function EnergyConsumptionChart({
     const [mouseDown, setMouseDown] = useState(false);
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
 
+    console.log('Data received:', data);
+
     const preparedData = useMemo(() => {
-        return data.map((d) => ({
+        return data.data.map((d) => ({
             ...d,
             timestamp: d.timestamp.toISOString(),
             ...(cost ? { cost: d.value * cost } : {}),
         }));
-    }, [data, cost]);
+    }, [data.data, cost]);
 
     const hasOutValues = useMemo(() => {
-        return data.some((d) => d.valueOut);
-    }, [data]);
+        return data.data.some((d) => d.valueOut);
+    }, [data.data]);
 
     const hasCurrentValues = useMemo(() => {
-        return data.some((d) => d.valueCurrent);
-    }, [data]);
+        return data.data.some((d) => d.valueCurrent);
+    }, [data.data]);
 
     const hasCost = useMemo(() => {
         return preparedData.some((d) => d.cost);
     }, [preparedData]);
 
     const sameDay = useMemo(() => {
-        if (data.length === 0) return false;
+        if (data.data.length === 0) return false;
 
-        const firstDate = data[0].timestamp;
-        return data.every((value) => {
+        const firstDate = data.data[0].timestamp;
+        return data.data.every((value) => {
             const date = value.timestamp;
             return date.getDate() === firstDate.getDate();
         });
-    }, [data]);
+    }, [data.data]);
 
     const showSeconds = useMemo(() => {
-        if (data.length === 0) return false;
+        if (data.data.length === 0) return false;
 
-        const firstDate = data[0].timestamp;
-        const lastDate = data[data.length - 1].timestamp;
+        const firstDate = data.data[0].timestamp;
+        const lastDate = data.data[data.data.length - 1].timestamp;
         const diff = lastDate.getTime() - firstDate.getTime();
         return diff < 5 * 60 * 1000;
-    }, [data]);
+    }, [data.data]);
 
     const dynamicTickFormatter = (value: string) => {
         if (aggregation === AggregationType.RAW) {
