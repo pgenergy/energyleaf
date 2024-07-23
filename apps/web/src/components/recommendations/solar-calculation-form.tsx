@@ -1,5 +1,7 @@
 "use client";
+import { type SolarResultProps, calculateSolar } from "@/actions/solar";
 import SubmitButton from "@/components/auth/submit-button";
+import type { DefaultActionReturnPayload } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
@@ -7,15 +9,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
-interface Props {
+type Props = {
     userId: string;
-    userHash: string;
-    endpoint: string;
-}
+};
 
-export default async function SolarCalculatorForm(props: Props) {
+export default async function SolarCalculationForm(props: Props) {
     const solarCalcSchema = z.object({
         watts: z.string(),
     });
@@ -24,6 +25,7 @@ export default async function SolarCalculatorForm(props: Props) {
     const [next24hPrice, setNext24hPrice] = useState("0");
     const [last30dkWh, setLast30dkWh] = useState("0");
     const [last30dPrice, setLast30dPrice] = useState("0");
+    const [location, setLocation] = useState("");
 
     const form = useForm<z.infer<typeof solarCalcSchema>>({
         resolver: zodResolver(solarCalcSchema),
@@ -32,23 +34,38 @@ export default async function SolarCalculatorForm(props: Props) {
         },
     });
 
+    const calculateSolarCallback = async (data: z.infer<typeof solarCalcSchema>) => {
+        let res: DefaultActionReturnPayload<SolarResultProps> = undefined;
+
+        try {
+            res = await calculateSolar(Number(data.watts));
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
+        }
+
+        if (res) {
+            if (res?.payload) {
+                const { next24h, last30d, location } = res.payload;
+
+                setNext24hkWh(next24h.result.toFixed(2));
+                setNext24hPrice(next24h.price?.toFixed(2) ?? "");
+                setLast30dkWh(last30d.result.toFixed(2));
+                setLast30dPrice(last30d.price?.toFixed(2) ?? "");
+                setLocation(location);
+            }
+
+            if (!res?.success) {
+                throw new Error(res?.message);
+            }
+        }
+    };
+
     const onSubmit = (data: z.infer<typeof solarCalcSchema>, event) => {
         startTransition(() => {
-            fetch(props.endpoint, {
-                method: "POST",
-                body: JSON.stringify({
-                    userId: props.userId,
-                    userHash: props.userHash,
-                    watts: data.watts,
-                }),
-            })
-                .then((x) => x.json())
-                .then((x) => {
-                    setNext24hkWh(x.next24h.result);
-                    setNext24hPrice(x.next24h.price);
-                    setLast30dkWh(x.last30d.result);
-                    setLast30dPrice(x.last30d.price);
-                });
+            toast.promise(calculateSolarCallback(data), {
+                loading: "Berechnung wird durchgeführt...",
+                error: (err: Error) => err.message,
+            });
         });
     };
 
@@ -71,6 +88,8 @@ export default async function SolarCalculatorForm(props: Props) {
                     <SubmitButton pending={pending} text={"Berechnen"} />
                 </form>
             </Form>
+
+            {location ? <p className="p-4">Für {location}</p> : ""}
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
                 <Card>

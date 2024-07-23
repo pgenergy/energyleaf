@@ -28,7 +28,6 @@ import EnergyCostsLastSevenDaysError from "@/components/costs/errors/energy-cost
 import EnergyCostsLastThirtyDaysError from "@/components/costs/errors/energy-costs-last-thirty-days-card-error";
 import EnergyCostsTodayError from "@/components/costs/errors/energy-costs-today-card-error";
 import EnergyCostsYesterdayError from "@/components/costs/errors/energy-costs-yesterday-card-error";
-import SolarCalculationCard from "@/components/costs/solar-calculation-card";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
@@ -198,13 +197,6 @@ export default async function CostsPage() {
                 <h2 className="mb-4 font-bold text-xl">Monatliche Energiekosten gegenüber Abschlag</h2>
                 <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                     <CostChartCard energyDataRaw={energyDataRaw} userData={userData} />
-                </Suspense>
-            </section>
-
-            {/* Balkonkraftwerk simulieren */}
-            <section>
-                <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                    <SolarCalculationCard />
                 </Suspense>
             </section>
         </div>
