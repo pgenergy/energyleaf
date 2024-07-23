@@ -1,8 +1,9 @@
-import { and, asc, between, desc, eq, getTableColumns, lte, or, sql } from "drizzle-orm";
+import { and, asc, between, desc, eq, lte, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db, { type DB } from "..";
-import { device, deviceToPeak, sensorData, sensorDataSequence } from "../schema";
+import { device, deviceToPeak, sensorDataSequence } from "../schema";
 import type { SensorDataSelectType, SensorDataSequenceType } from "../types/types";
+import { getRawEnergyForSensorInRange } from "./sensor";
 
 function calculateMedian(values: SensorDataSelectType[]) {
     const sorted = [...values].sort((a, b) => a.value - b.value);
@@ -131,7 +132,8 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
         const entry = values[i];
 
         if (entry.value > threshold) {
-            const isStart = i === 0;
+            // check if either directly after start or 5 minutes after
+            const isStart = i === 0 || entry.timestamp.getTime() - values[0].timestamp.getTime() < 2 * 60 * 1000;
             let sequenceEnd = i + 1;
 
             while (sequenceEnd < values.length && values[sequenceEnd].value > threshold) {
@@ -141,15 +143,24 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
             const sequenceLength = sequenceEnd - i;
 
             // only mark as peak if longer then 2min and not marked as anomaly yet
-            if (sequenceLength > 5) {
+            if (sequenceLength > 8) {
                 const avgPeakPower = calculateAveragePower(values.slice(i, sequenceEnd));
 
-                sequences.push({
-                    start: entry.timestamp,
-                    end: values[sequenceEnd - 1].timestamp,
-                    isAtStart: isStart,
-                    averagePowerIncludingBaseLoad: avgPeakPower,
-                });
+                // if sequences are only 2min apart, mark as one sequence, because could be of device variance
+                // and only mark a new peak if at least 5min apart from previous
+                if (
+                    sequences.length > 0 &&
+                    entry.timestamp.getTime() - sequences[sequences.length - 1].end.getTime() < 2 * 60 * 1000
+                ) {
+                    sequences[sequences.length - 1].end = values[sequenceEnd - 1].timestamp;
+                } else {
+                    sequences.push({
+                        start: entry.timestamp,
+                        end: values[sequenceEnd - 1].timestamp,
+                        isAtStart: isStart,
+                        averagePowerIncludingBaseLoad: avgPeakPower,
+                    });
+                }
             }
             i = sequenceEnd;
         } else {
@@ -198,24 +209,10 @@ export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
 
     try {
         return await db.transaction(async (trx) => {
-            const { value, ...rest } = getTableColumns(sensorData);
-            const calcData = await db
-                .select({
-                    ...rest,
-                    value: sql<number>`${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`
-                        .mapWith({
-                            mapFromDriverValue: (value: string) => {
-                                return Number(value);
-                            },
-                        })
-                        .as("value"),
-                })
-                .from(sensorData)
-                .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)))
-                .orderBy(asc(sensorData.timestamp));
+            const calcData = await getRawEnergyForSensorInRange(sequenceStart, end, sensorId);
 
-            // make sure we have at least 3 hours of reference data
-            if (calcData.length < 720) {
+            // make sure we have at least 12 hours of reference data
+            if (calcData.length < 2880) {
                 return [];
             }
 
@@ -248,13 +245,15 @@ export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
             );
 
             const baseLoad = calculateAveragePower(calcDataWithoutPeaks);
-            let peaks: (SensorDataSequenceType & { isAtStart: boolean })[] = sequencesInConsideredPeriod.map((d) => ({
-                ...d,
-                id: nanoid(30),
-                averagePeakPower: d.averagePowerIncludingBaseLoad - baseLoad,
-                type,
-                sensorId,
-            }));
+            let peaks: (SensorDataSequenceType & { isAtStart: boolean })[] = sequencesInConsideredPeriod
+                .map((d) => ({
+                    ...d,
+                    id: nanoid(30),
+                    averagePeakPower: d.averagePowerIncludingBaseLoad - baseLoad,
+                    type,
+                    sensorId,
+                }))
+                .filter((d) => d.averagePeakPower > 0);
 
             if (props.type === "anomaly") {
                 // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
@@ -264,7 +263,7 @@ export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
                 }
             }
             if (peaks.length !== 0) {
-                await saveSequences(peaks, props, calcData, energyData, trx);
+                await saveSequences(peaks, props, trx);
             }
 
             // if there is an anomaly in the last 24 hours return nothing to avoid sending another mail
@@ -286,8 +285,6 @@ export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
 async function saveSequences(
     peaks: (SensorDataSequenceType & { isAtStart: boolean })[],
     { start, sensorId, type }: FindAndMarkPeaksProps,
-    consideredData: SensorDataSelectType[],
-    dayData: SensorDataSelectType[],
     trx: DB,
 ) {
     const firstSequenceMergeable = peaks[0].isAtStart;
@@ -306,10 +303,7 @@ async function saveSequences(
             .limit(1);
         const lastSequenceOfSensor = lastSequenceOfSensorQuery.length > 0 ? lastSequenceOfSensorQuery[0] : null;
 
-        const beforeIndex = consideredData.findIndex((d) => d.id === dayData[0].id);
-        const lastEntryBeforeInterval = consideredData[beforeIndex - 1];
-
-        if (lastSequenceOfSensor && lastSequenceOfSensor.end.getTime() >= lastEntryBeforeInterval.timestamp.getTime()) {
+        if (lastSequenceOfSensor && peaks[0].start.getTime() - lastSequenceOfSensor.end.getTime() < 2 * 60 * 1000) {
             await trx
                 .update(sensorDataSequence)
                 .set({ end: peaks[0].end })
