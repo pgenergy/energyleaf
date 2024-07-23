@@ -43,7 +43,7 @@ export function AmortizationChart(props: Props) {
                     tickLine={true}
                     interval="equidistantPreserveStart"
                     type="number"
-                    tickCount={data.length / 3}
+                    tickCount={10}
                     label={{ value: "Kosten in €", angle: -90, position: "insideLeft", offset: 4 }}
                 />
                 <Line type="linear" dataKey="before" stroke="var(--color-before)" dot={false} />
