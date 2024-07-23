@@ -52,7 +52,6 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
         try {
             res = await updateDevicesForPeak(data, sensorDataSequenceId);
             await queryClient.invalidateQueries({ queryKey: [`selectedDevices${sensorDataSequenceId}`] });
-            await refetch(); // refetch once to show the correct devices when opened with the same peak again.
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
