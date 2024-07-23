@@ -1,35 +1,19 @@
 "use client";
 
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@energyleaf/ui/alert-dialog";
 import { Button } from "@energyleaf/ui/button";
-import { DateRangePicker } from "@energyleaf/ui/utils/date-range-picker";
 import { DownloadIcon } from "lucide-react";
 import { useState } from "react";
-import type { DateRange } from "react-day-picker";
 import { toast } from "sonner";
 
 interface Props {
+    startDate: Date;
+    endDate: Date;
     userId: string;
     userHash: string;
     endpoint: string;
 }
 
-export default function CSVExportButton({ userId, userHash, endpoint }: Props) {
-    const [open, setOpen] = useState(false);
-    const [range, setRange] = useState<DateRange>({
-        from: new Date(0),
-        to: new Date(),
-    });
+export default function CSVExportButton(props: Props) {
     const [loading, setLoading] = useState(false);
 
     function startDownload() {
@@ -39,13 +23,13 @@ export default function CSVExportButton({ userId, userHash, endpoint }: Props) {
             async () => {
                 let res: Response;
                 try {
-                    res = await fetch(endpoint, {
+                    res = await fetch(props.endpoint, {
                         method: "POST",
                         body: JSON.stringify({
-                            userId,
-                            userHash,
-                            start: range.from?.toISOString(),
-                            end: range.to?.toISOString(),
+                            userId: props.userId,
+                            userHash: props.userHash,
+                            start: props.startDate.toISOString(),
+                            end: props.endDate.toISOString(),
                         }),
                     });
                 } catch (err) {
@@ -73,7 +57,6 @@ export default function CSVExportButton({ userId, userHash, endpoint }: Props) {
                 loading: "Export wird erstellt...",
                 success: () => {
                     setLoading(false);
-                    setOpen(false);
                     return "Export erstellt.";
                 },
                 error: (err: Error) => {
@@ -85,32 +68,9 @@ export default function CSVExportButton({ userId, userHash, endpoint }: Props) {
     }
 
     return (
-        <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogTrigger asChild>
-                <Button variant="outline">
-                    <DownloadIcon className="h-4 w-4" />
-                </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>CSV Export</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Sie haben die Möglichkeit, Ihre Daten als CSV zu exportieren. Wählen Sie hierzu den gewünschten
-                        Bereich aus.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <div className="flex flex-row justify-center py-4">
-                    <DateRangePicker startDate={range.from as Date} endDate={range.to as Date} onChange={setRange} />
-                </div>
-                <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setOpen(false)} disabled={loading}>
-                        Abbrechen
-                    </AlertDialogCancel>
-                    <AlertDialogAction onClick={startDownload} disabled={false}>
-                        Herunterladen
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+        <Button variant="outline" onClick={() => startDownload}>
+            <DownloadIcon className="h-4 w-4" />
+            <span className="ml-2 hidden md:block">Download</span>
+        </Button>
     );
 }

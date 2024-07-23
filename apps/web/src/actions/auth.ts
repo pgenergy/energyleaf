@@ -5,7 +5,6 @@ import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import { getUserDataCookieStoreDefaults, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
-import { genId } from "@energyleaf/db";
 import {
     type CreateUserType,
     createUser,
@@ -24,7 +23,7 @@ import {
     sendPasswordChangedEmail,
     sendPasswordResetEmail,
 } from "@energyleaf/mail";
-import { put } from "@vercel/blob";
+import { put } from "@energyleaf/storage";
 import * as jose from "jose";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";
@@ -59,7 +58,6 @@ export async function createAccount(data: FormData) {
     ) as (typeof userData.electricityMeterType.enumValues)[number];
     const electricityMeterNumber = data.get("electricityMeterNumber") as string;
     const participation = (data.get("participation") as string) === "true";
-    const prolific = (data.get("prolific") as string) === "true";
 
     if (!tos) {
         waitUntil(trackAction("privacy-policy/not-accepted", "create-account", "web", { mail }));
@@ -135,27 +133,25 @@ export async function createAccount(data: FormData) {
     const hash = await new Argon2id().hash(password);
 
     let url: string | undefined = undefined;
-    if (env.BLOB_READ_WRITE_TOKEN) {
+    if (
+        env.AWS_ENDPOINT_URL_S3 &&
+        env.AWS_SECRET_ACCESS_KEY &&
+        env.AWS_ACCESS_KEY_ID &&
+        env.BUCKET_NAME &&
+        env.AWS_REGION &&
+        env.FILE_URL
+    ) {
         try {
-            const imageMimeToExtensionMap = {
-                "image/jpeg": "jpg",
-                "image/png": "png",
-                "image/gif": "gif",
-                "image/bmp": "bmp",
-                "image/webp": "webp",
-                "image/tiff": "tiff",
-                "image/svg+xml": "svg",
-                "image/heic": "heic",
-                "image/heif": "heif",
-            };
-            const id = genId(25);
-            const type = file.type;
-            const ext = imageMimeToExtensionMap[type] || type.split("/")[1];
-            const res = await put(`electricitiy_meter/${id}.${ext}`, file, {
-                access: "public",
-                contentType: type,
+            const res = await put({
+                keyId: env.AWS_ACCESS_KEY_ID,
+                secret: env.AWS_SECRET_ACCESS_KEY,
+                region: env.AWS_REGION,
+                endpoint: env.AWS_ENDPOINT_URL_S3,
+                bucket: env.BUCKET_NAME,
+                path: "electricitiy_meter",
+                body: file,
             });
-            url = res.url;
+            url = `${env.FILE_URL}/${res.key}`;
         } catch (err) {
             await logError("electricity-meter/error-uploading-image", "create-account", "web", { mail }, err);
         }
@@ -177,7 +173,6 @@ export async function createAccount(data: FormData) {
             meterImgUrl: url,
             electricityMeterNumber,
             participation,
-            prolific,
         } satisfies CreateUserType);
         waitUntil(trackAction("user-account/created", "create-account", "web", { mail }));
         if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
@@ -197,7 +192,6 @@ export async function createAccount(data: FormData) {
                     hasWifi,
                     hasPower,
                     participates: participation,
-                    prolific,
                     to: env.ADMIN_MAIL,
                     from: env.RESEND_API_MAIL,
                     apiKey: env.RESEND_API_KEY,

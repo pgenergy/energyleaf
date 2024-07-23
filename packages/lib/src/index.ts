@@ -5,5 +5,5 @@ export * from "./actions/auth";
 export * from "./utils/util";
 export * from "./types";
 export * from "./types/aggregation-labels";
-export * from "./types/consumption/consumption-data";
 export * from "./types/consumption/device-classification";
+export * from "./reference_power_data/reference_power_per_device_category";

@@ -12,7 +12,7 @@ import {
     DropdownMenuTrigger,
 } from "@energyleaf/ui/dropdown-menu";
 import type { User } from "lucia";
-import { LightbulbIcon, LogOutIcon, User2Icon } from "lucide-react";
+import { LightbulbIcon, LogOutIcon, SettingsIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -71,9 +71,9 @@ export default function NavbarAvatar({ user }: Props) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link href="/profile">
-                        <User2Icon className="mr-2 h-4 w-4" />
-                        Profil
+                    <Link href="/settings">
+                        <SettingsIcon className="mr-2 h-4 w-4" />
+                        Einstellungen
                     </Link>
                 </DropdownMenuItem>
                 {user.id !== "demo" ? (

@@ -1,6 +1,6 @@
 import { createDevice, updateDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
-import { DeviceCategory } from "@energyleaf/db/types";
+import { DeviceCategory, DeviceCategoryTitles } from "@energyleaf/db/types";
 import type { DeviceSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
+import DeviceCategoryIcon from "./device-category-icon";
 
 interface Props {
     device?: DeviceSelectType;
@@ -22,7 +23,7 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
         resolver: zodResolver(deviceSchema),
         defaultValues: {
             deviceName: device?.name ?? "",
-            category: device?.category ? (device.category as keyof typeof DeviceCategory) : "",
+            category: device?.category ?? "",
         },
     });
 
@@ -92,8 +93,11 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {Object.entries(DeviceCategory).map(([key, value]) => (
-                                            <SelectItem key={key} value={key}>
-                                                {value}
+                                            <SelectItem key={key} value={value} className="m-3">
+                                                <div className="flex flex-row items-center gap-3">
+                                                    <DeviceCategoryIcon category={value} />
+                                                    {DeviceCategoryTitles[value]}
+                                                </div>
                                             </SelectItem>
                                         ))}
                                     </SelectContent>

@@ -1,9 +1,13 @@
 import { getSession } from "@/lib/auth/auth.server";
-import { getEnergyLastEntry } from "@/query/energy";
-import { getElectricitySensorIdForUser } from "@energyleaf/db/query";
-import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import { getElectricitySensorIdForUser, getEnergyLastEntry } from "@/query/energy";
+import { cn } from "@energyleaf/tailwindcss/utils";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 
-export default async function CurrentMeterOutCard() {
+interface Props {
+    showDescription?: boolean;
+}
+
+export default async function CurrentMeterOutCard(props: Props) {
     const { user } = await getSession();
     if (!user) {
         return null;
@@ -15,17 +19,22 @@ export default async function CurrentMeterOutCard() {
     }
 
     const value = await getEnergyLastEntry(sensorId);
-    if (!value?.valueOut) {
-        return null;
-    }
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Eingespeiste Energie</CardTitle>
+                <CardTitle>Aktuelle Eingespeiste Energie</CardTitle>
+                {props.showDescription ? <CardDescription>Unabhängig vom Zeitraum</CardDescription> : null}
             </CardHeader>
             <CardContent className="text-center">
-                <p className="font-medium">{value.valueOut.toFixed(6)} kWh</p>
+                <p
+                    className={cn({
+                        "font-bold font-mono": value?.valueOut !== null && value?.valueOut !== undefined,
+                        "text-muted-foreground": value?.valueOut === null || value?.valueOut === undefined,
+                    })}
+                >
+                    {!value?.valueOut ? "Keine Sensordaten vorhanden" : `${value.valueOut.toFixed(0)} kWh`}
+                </p>
             </CardContent>
         </Card>
     );

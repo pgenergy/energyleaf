@@ -21,6 +21,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
         };
     }, [initStartDate, initEndDate]);
     const [range, setRange] = useState<DateRange | undefined>(initRange);
+    const [open, setOpen] = useState(false);
 
     const calFooter = useMemo(() => {
         return range?.from && range.to ? null : <p>Bitte geben Sie einen Zeitraum an.</p>;
@@ -45,6 +46,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
 
         if (value?.from && value?.to) {
             onChange(value);
+            setOpen(false);
         }
     }
 
@@ -87,6 +89,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
 
         if (from && to) {
             onChange({ from, to });
+            setOpen(false);
         }
     }
 
@@ -96,7 +99,9 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
         const weekEnd = weekStart + 6;
 
         const firstDay = new Date(date.setDate(weekStart));
+        firstDay.setHours(0, 0, 0, 0);
         const lastDay = new Date(date.setDate(weekEnd));
+        lastDay.setHours(23, 59, 59, 999);
 
         return { from: firstDay, to: lastDay };
     }, []);
@@ -104,7 +109,9 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
     const getMonth = useMemo(() => {
         const date = new Date();
         const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+        monthStart.setHours(0, 0, 0, 0);
         const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        monthEnd.setHours(23, 59, 59, 999);
 
         return { from: monthStart, to: monthEnd };
     }, []);
@@ -117,50 +124,62 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
     }, []);
 
     return (
-        <div className="flex flex-row justify-end gap-4">
-            <Popover
-                onOpenChange={(isOpen) => {
-                    if (!isOpen) {
-                        setRange(initRange);
-                    }
-                }}
-            >
-                <PopoverTrigger asChild>
-                    <Button className="justify-start text-left font-normal" variant="outline">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateString()}
+        <Popover
+            open={open}
+            onOpenChange={(isOpen) => {
+                if (!isOpen) {
+                    setRange(initRange);
+                }
+
+                setOpen(isOpen);
+            }}
+        >
+            <PopoverTrigger asChild>
+                <Button className="text-center" variant="outline">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateString()}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="flex w-auto flex-col items-center gap-2">
+                <div className="flex flex-row flex-wrap gap-2">
+                    <Button
+                        onClick={() => {
+                            onChangeInternal(getToday);
+                        }}
+                        variant="outline"
+                    >
+                        Heute
                     </Button>
-                </PopoverTrigger>
-                <PopoverContent className="flex w-auto flex-col items-center gap-2">
-                    <div className="flex flex-row flex-wrap gap-2">
-                        <Button
-                            onClick={() => {
-                                onChangeInternal(getToday);
-                            }}
-                            variant="outline"
-                        >
-                            Heute
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                onChangeInternal(getWeek);
-                            }}
-                            variant="outline"
-                        >
-                            Woche
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                onChangeInternal(getMonth);
-                            }}
-                            variant="outline"
-                        >
-                            Monat
-                        </Button>
-                    </div>
-                    <Calendar initialFocus mode="range" onDayClick={onDayClick} selected={range} footer={calFooter} />
-                </PopoverContent>
-            </Popover>
-        </div>
+                    <Button
+                        onClick={() => {
+                            onChangeInternal(getWeek);
+                        }}
+                        variant="outline"
+                    >
+                        Woche
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            onChangeInternal(getMonth);
+                        }}
+                        variant="outline"
+                    >
+                        Monat
+                    </Button>
+                </div>
+                <Calendar
+                    locale={de}
+                    initialFocus
+                    mode="range"
+                    disabled={(d) => {
+                        const currentDate = new Date();
+                        return currentDate.getTime() < d.getTime();
+                    }}
+                    onDayClick={onDayClick}
+                    selected={range}
+                    footer={calFooter}
+                />
+            </PopoverContent>
+        </Popover>
     );
 }

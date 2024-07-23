@@ -13,15 +13,20 @@ import type { z } from "zod";
 
 interface Props {
     userId: string;
-    sensorDataId: string;
+    sensorDataSequenceId: string;
     onInteract: () => void;
 }
 
-export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInteract }: Props) {
+export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, onInteract }: Props) {
     const queryClient = useQueryClient();
-    const { data: selectedDevices, isLoading: selectedDevicesLoading } = useQuery({
-        queryKey: ["selectedDevices"],
-        queryFn: () => getDevicesByPeak(sensorDataId),
+    const {
+        data: selectedDevices,
+        isLoading: selectedDevicesLoading,
+        isRefetching: selectedDevicesRefetching,
+        refetch,
+    } = useQuery({
+        queryKey: [`selectedDevices${sensorDataSequenceId}`],
+        queryFn: () => getDevicesByPeak(sensorDataSequenceId),
     });
     const { data: devices, isLoading: devicesLoading } = useQuery({
         queryKey: ["devices"],
@@ -45,8 +50,8 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
         let res: DefaultActionReturn = undefined;
 
         try {
-            res = await updateDevicesForPeak(data, sensorDataId);
-            await queryClient.invalidateQueries({ queryKey: ["selectedDevices"] });
+            res = await updateDevicesForPeak(data, sensorDataSequenceId);
+            await queryClient.invalidateQueries({ queryKey: [`selectedDevices${sensorDataSequenceId}`] });
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
@@ -89,6 +94,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataId, onInterac
                                             value: device.id.toString(),
                                         }))}
                                         loading={devicesLoading || selectedDevicesLoading}
+                                        refetching={selectedDevicesRefetching}
                                         initialSelected={selectedDevices?.map((device) => ({
                                             ...device,
                                             label: device.name,

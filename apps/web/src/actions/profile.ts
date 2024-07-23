@@ -27,10 +27,11 @@ import type { baseInformationSchema } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { Argon2id } from "oslo/password";
+import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
+import { redirect } from "next/navigation";
 import type { z } from "zod";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
@@ -53,7 +54,7 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
             await updateUser(
                 {
                     firstname: data.firstname,
-                    lastName: data.lastname,
+                    lastname: data.lastname,
                     phone: data.phone,
                     address: data.address,
                     username: data.username,
@@ -67,7 +68,7 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
                     session,
                 }),
             );
-            revalidatePath("/profile");
+            revalidatePath("/settings");
             revalidatePath("/dashboard");
         } catch (e) {
             waitUntil(logError("user/not-updated", "update-base-information", "web", { userDataToLog, session }, e));
@@ -83,7 +84,7 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
             );
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein, um Ihr Profil zu bearbeiten.",
+                message: "Sie müssen angemeldet sein, um dies zu bearbeiten.",
             };
         }
         waitUntil(logError("profile/error", "update-base-information", "web", { userDataToLog, session }, err));
@@ -124,7 +125,7 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
                 session.userId,
             );
             waitUntil(trackAction("user/update-password", "update-password", "web", { session }));
-            revalidatePath("/profile");
+            revalidatePath("/settings/security");
             revalidatePath("/dashboard");
         } catch (e) {
             waitUntil(logError("user/not-updated", "update-password", "web", { session }, e));
@@ -182,7 +183,7 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
             waitUntil(
                 trackAction("user/updated-mail-information", "update-mail-information", "web", { data, session }),
             );
-            revalidatePath("/profile");
+            revalidatePath("/settings");
             revalidatePath("/dashboard");
         } catch (e) {
             waitUntil(
@@ -365,7 +366,16 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
             throw new UserNotFoundError();
         }
 
-        const match = await new Argon2id().verify(dbuser.password, data.password);
+        let match = false;
+        try {
+            match = await new Argon2id().verify(dbuser.password, data.password);
+        } catch (err) {
+            try {
+                match = await new Bcrypt().verify(dbuser.password, data.password);
+            } catch (err) {
+                waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, err }));
+            }
+        }
         if (!match) {
             waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, userId }));
             throw new PasswordsDoNotMatchError();
@@ -374,10 +384,8 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
         try {
             await deleteUser(session.userId);
             await deleteSessionsOfUser(userId);
-            waitUntil(trackAction("user/deleted-account", "delete-account", "web", { session, userId: userId }));
             cookies().delete(lucia.sessionCookieName);
-            revalidatePath("/profile");
-            revalidatePath("/dashboard");
+            waitUntil(trackAction("user/deleted-account", "delete-account", "web", { session, userId: userId }));
         } catch (e) {
             waitUntil(logError("user/error-deleting", "delete-account", "web", { session }, e));
             return {
@@ -393,16 +401,24 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
                 message: "Sie müssen angemeldet sein, um Ihren Account zu löschen.",
             };
         }
-        waitUntil(logError("user/error", "delete-account", "web", {}, err));
+
+        if (err instanceof PasswordsDoNotMatchError) {
+            return {
+                success: false,
+                message: "Das von Ihnen eingegebene Passwort stimmt nicht mit dem Passwort Ihres Accounts überein.",
+            };
+        }
+
         return {
             success: false,
             message: "Ein Fehler ist aufgetreten",
         };
     }
+    redirect("/");
 }
 
 function revalidateUserDataPaths() {
-    revalidatePath("/profile");
+    revalidatePath("/settings");
     revalidatePath("/dashboard");
     revalidatePath("/onboarding");
 }

@@ -1,0 +1,20 @@
+{
+    "name": "@energyleaf/storage",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "dependencies": {
+        "@aws-sdk/client-s3": "^3.616.0",
+        "mime-types": "^2.1.35",
+        "nanoid": "^5.0.7"
+    },
+    "devDependencies": {
+        "@energyleaf/tsconfig": "workspace:^",
+        "@types/mime-types": "^2.1.4",
+        "@types/node": "^20.14.11",
+        "typescript": "^5.5.3"
+    }
+}

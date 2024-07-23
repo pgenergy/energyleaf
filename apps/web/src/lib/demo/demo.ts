@@ -36,8 +36,8 @@ export function getUserDataCookieStoreDefaults() {
             hotWater: "electric",
             tariff: "basic",
             basePrice: 20,
-            monthlyPayment: 2,
-            workingPrice: 0.2,
+            monthlyPayment: 35,
+            workingPrice: 0.38,
             timestamp: new Date(2021, 1, 1),
             consumptionGoal: 20,
             electricityMeterNumber: "demo_number",
@@ -46,6 +46,7 @@ export function getUserDataCookieStoreDefaults() {
             wifiAtElectricityMeter: true,
             powerAtElectricityMeter: true,
             installationComment: null,
+            devicePowerEstimationRSquared: null,
         },
         mail_config: {
             report_config: {
@@ -108,6 +109,7 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
         const dataDate = new Date(item.timestamp);
         dataDate.setDate(day);
         dataDate.setMonth(month);
+        dataDate.setHours(dataDate.getHours(), dataDate.getMinutes(), dataDate.getSeconds(), 0);
 
         return {
             id: item.id,

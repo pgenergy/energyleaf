@@ -1,4 +1,4 @@
-import { env, getUrl } from "@/env.mjs";
+import { env } from "@/env.mjs";
 import {
     createToken,
     getElectricitySensorIdForUser,
@@ -44,7 +44,7 @@ export async function createReportsAndSendMails() {
         try {
             reportProps = await createReportData(userWithDueReport);
             const unsubscribeToken = await createToken(userWithDueReport.userId);
-            unsubscribeLink = buildUnsubscribeUrl({ baseUrl: getUrl(env), token: unsubscribeToken });
+            unsubscribeLink = buildUnsubscribeUrl({ baseUrl: env.NEXT_PUBLIC_APP_URL, token: unsubscribeToken });
         } catch (e) {
             waitUntil(
                 logError(

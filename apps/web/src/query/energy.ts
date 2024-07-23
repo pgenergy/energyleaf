@@ -6,6 +6,7 @@ import {
     getElectricitySensorIdForUser as getDbElectricitySensorIdForUser,
     getEnergyForSensorInRange as getDbEnergyForSensorInRange,
     getEnergyLastEntry as getDbEnergyLastEntry,
+    getSequencesBySensor,
 } from "@energyleaf/db/query";
 import { AggregationType } from "@energyleaf/lib";
 import { cache } from "react";
@@ -19,11 +20,18 @@ interface DeviceClassification {
 }
 
 export const getEnergyDataForSensor = cache(
-    async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) => {
+    async (
+        start: Date,
+        end: Date,
+        sensorId: string,
+        aggregation = AggregationType.RAW,
+        aggType: "sum" | "average" = "average",
+    ) => {
         if (sensorId === "demo_sensor") {
             return { data: getDemoSensorData(start, end), classifications: [] };
         }
-        const energyData = await getDbEnergyForSensorInRange(start, end, sensorId, aggregation);
+
+        const energyData = await getDbEnergyForSensorInRange(start, end, sensorId, aggregation, aggType);
         let classifications: DeviceClassification[] = [];
 
         if (energyData && energyData.length > 0) {
@@ -69,6 +77,14 @@ export const getElectricitySensorIdForUser = cache(async (userId: string) => {
 
 export const getEnergyLastEntry = cache(async (sensorId: string) => {
     if (sensorId === "demo_sensor") {
+        const start = new Date(new Date().setHours(0, 0, 0, 0));
+        const end = new Date(new Date().setHours(23, 59, 59, 999));
+        const data = getDemoSensorData(start, end);
+        const sum = data.reduce((acc, cur) => acc + cur.value, 0);
+        const last = data[data.length - 1];
+        last.value = sum * 12.32334;
+
+        return last;
     }
 
     return getDbEnergyLastEntry(sensorId);
@@ -91,12 +107,6 @@ export const classifyDeviceUsage = async (sensorData) => {
             body: JSON.stringify(req_data),
         });
 
-        /*if (!response.ok) {
-
-            console.error(`API Error: Failed to classify devices, status code: ${response.status}, error: ${errorText}`);
-            throw new Error(`API Error: Failed to classify devices, status code: ${response.status}, error: ${errorText}`);
-        }*/
-
         const errorText = await response.text();
         console.log(errorText);
 
@@ -106,3 +116,16 @@ export const classifyDeviceUsage = async (sensorData) => {
         throw error;
     }
 };
+
+type ExtraSequencesProps = {
+    start: Date;
+    end: Date;
+};
+
+export const getSensorDataSequences = cache(async (sensorId: string, extra?: ExtraSequencesProps) => {
+    if (sensorId === "demo_sensor") {
+        return []; // Does not exist in demo version.
+    }
+
+    return getSequencesBySensor(sensorId, extra);
+});

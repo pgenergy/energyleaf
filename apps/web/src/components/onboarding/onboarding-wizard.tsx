@@ -2,9 +2,9 @@
 
 import { completeOnboarding } from "@/actions/onboarding";
 import { updateMailInformation, updateUserDataInformation, updateUserGoals } from "@/actions/profile";
-import DataFormFields from "@/components/profile/data-form-fields";
-import MailSettingsFormFields from "@/components/profile/mail-settings-form-fields";
-import UserGoalsFormFields from "@/components/profile/user-goals-form-fields";
+import DataFormFields from "@/components/settings/data-form-fields";
+import MailSettingsFormFields from "@/components/settings/mail-settings-form-fields";
+import UserGoalsFormFields from "@/components/settings/user-goals-form-fields";
 import { createMailSettingsSchema, createUserDataSchemaFromUserDataSelectType } from "@/lib/schema/conversion/profile";
 import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
 import type { MailConfig, UserDataSelectType } from "@energyleaf/db/types";
@@ -14,7 +14,7 @@ import { Form } from "@energyleaf/ui/form";
 import { Wizard, WizardPage, useWizard } from "@energyleaf/ui/wizard";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRightIcon } from "lucide-react";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -72,7 +72,7 @@ function InformationStep() {
         <WizardPage title="Onboarding">
             <p className="text-sm">
                 Um die App in vollem Umfang nutzen zu können, sollten Sie die in den folgenden Schritten geforderten
-                Daten angeben. Sie können diese Angaben und Einstellungen später in Ihrem Profil aktualisieren.
+                Daten angeben. Sie können diese Angaben und Einstellungen später in den Einstellungen aktualisieren.
             </p>
             <div className="flex w-full justify-center pt-3">
                 <Button
@@ -125,7 +125,7 @@ function UserDataStep({ userData }: UserDataStepProps) {
 function GoalStep({ userData }: UserDataStepProps) {
     const goalCalculated = useMemo(() => {
         return !userData.consumptionGoal;
-    }, [userData]);
+    }, [userData.consumptionGoal]);
 
     const calculateGoal = useCallback(() => {
         if (!userData.monthlyPayment || !userData.basePrice || !userData.workingPrice) {
@@ -137,7 +137,7 @@ function GoalStep({ userData }: UserDataStepProps) {
         const monthlyVariableCosts = variableCosts / 12;
         const consumptionGoal = monthlyVariableCosts / userData.workingPrice;
         return Math.round(consumptionGoal);
-    }, [userData]);
+    }, [userData.monthlyPayment, userData.basePrice, userData.workingPrice]);
 
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
@@ -148,9 +148,12 @@ function GoalStep({ userData }: UserDataStepProps) {
 
     // Sometimes, the goal value is calculated with outdated data and not updated. To fix this issue, update the goal
     // value manually.
-    if (!form.formState.isDirty) {
-        form.setValue("goalValue", calculateGoal());
-    }
+    // biome-ignore lint/correctness/useExhaustiveDependencies: we only care about isDirty
+    useEffect(() => {
+        if (!form.formState.isDirty) {
+            form.setValue("goalValue", calculateGoal());
+        }
+    }, [form.formState.isDirty]);
 
     const { handleNextClick, handleStep } = useWizard();
 

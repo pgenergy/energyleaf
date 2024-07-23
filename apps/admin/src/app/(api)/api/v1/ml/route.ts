@@ -22,6 +22,12 @@ export const POST = async (req: NextRequest) => {
 
     try {
         const ml_req = DeviceClassificationRequest.create(body);
+
+        if (!env.ML_API_KEY) {
+            waitUntil(log("env-variable/not-defined", "error", "ml-communication", "api", req));
+            return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        }
+
         const ml_res = await fetch(`${env.ML_API_URL}/classify_devices`, {
             method: "POST",
             headers: {

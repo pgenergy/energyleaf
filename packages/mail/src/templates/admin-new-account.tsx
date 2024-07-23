@@ -1,4 +1,4 @@
-import { Container, Head, Html, Img, Preview, Text } from "@react-email/components";
+import { Container, Head, Html, Preview, Text } from "@react-email/components";
 import { Footer, Header, Main } from "../components";
 
 interface Props {
@@ -9,7 +9,6 @@ interface Props {
     hasWifi: boolean;
     hasPower: boolean;
     participates: boolean;
-    prolific: boolean;
     img?: string;
 }
 
@@ -21,7 +20,6 @@ export default function AdminNewAccountCreatedTemplate({
     hasWifi,
     hasPower,
     participates,
-    prolific,
 }: Props) {
     return (
         <Html lang="de">
@@ -41,7 +39,6 @@ export default function AdminNewAccountCreatedTemplate({
                         <br />- WLAN: {hasWifi ? "Ja" : "Nein"}
                         <br />- Steckdose: {hasPower ? "Ja" : "Nein"}
                         <br />- Möchte an Umfrage Teilnehmen: {participates ? "Ja" : "Nein"}
-                        <br />- Prolific: {prolific ? "Ja" : "Nein"}
                     </Text>
                 </Container>
                 <Footer />

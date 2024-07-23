@@ -47,7 +47,6 @@ export const signupSchema = z
             .default(false)
             .refine((d) => d, { message: "Sie müssen uns die Berechtigung geben, einen PIN zu beantragen" }),
         participation: z.boolean().default(false),
-        prolific: z.boolean().default(false),
     })
     .superRefine((data, ctx) => {
         if (data.password !== data.passwordRepeat) {

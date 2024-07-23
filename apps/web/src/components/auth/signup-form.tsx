@@ -41,7 +41,6 @@ export default function SignUpForm() {
             tos: false,
             pin: false,
             participation: false,
-            prolific: false,
         },
     });
 
@@ -236,7 +235,6 @@ export default function SignUpForm() {
                                     <Input
                                         type="file"
                                         accept="image/*"
-                                        capture={true}
                                         onChange={(e) => {
                                             field.onChange(e.target.files ? e.target.files[0] : null);
                                         }}
@@ -346,45 +344,9 @@ export default function SignUpForm() {
                                     </FormControl>
                                 </div>
                                 <FormDescription>
-                                    Durch die Teilnahme an der Umfrage, tragen Sie dazu bei, Forschungen im Bereich
+                                    Durch die Teilnahme an der Umfrage tragen Sie dazu bei, Forschungen im Bereich
                                     Energie vorranzutreiben. Teilnehmer, die an einer Umfrage teilnehmen, werden von uns
-                                    priorisiert an das System angeschlossen
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="prolific"
-                        render={({ field }) => (
-                            <FormItem>
-                                <div className="flex flex-row items-center justify-between">
-                                    <FormLabel>Ich möchte an Prolific teilnehmen (optional)</FormLabel>
-                                    <FormControl>
-                                        <Switch
-                                            checked={field.value}
-                                            onCheckedChange={(value) => {
-                                                field.onChange(value);
-                                                if (value && !form.getValues().participation) {
-                                                    form.setValue("participation", true);
-                                                }
-                                            }}
-                                        />
-                                    </FormControl>
-                                </div>
-                                <FormDescription>
-                                    Es ist uns rechtlich nur möglich Geld für die Umfragen auszuzahlen, wenn Sie sich
-                                    über Prolific für unsere Umfragen registrieren. Diese Anmeldung ist mit etwas
-                                    Aufwand verbunden, da eine Verifizierung stattfinden muss. Eine Anleitung finden sie{" "}
-                                    <a
-                                        href="https://jbh9hx6nwkx1up9t.public.blob.vercel-storage.com/downloads/prolific_anleitung.pdf"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                    >
-                                        hier
-                                    </a>
-                                    .
+                                    priorisiert an das System angeschlossen.
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
@@ -426,12 +388,13 @@ export default function SignUpForm() {
                                         <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                                     </FormControl>
                                     <FormLabel className="text-sm">
-                                        Ich bin damit Einverstanden, dass der PIN in meinem Namen beantragt wird.
+                                        Ich bin damit einverstanden, dass der Freischaltungs-PIN meines Stormzählers in
+                                        meinem Namen beantragt wird.
                                     </FormLabel>
                                 </div>
                                 <FormDescription>
-                                    Der PIN wird von Ihrem Stromanbieter zur Verfügung gestellt. Dieser ist notwendig um
-                                    die Daten ihres Zählers auszulesen.
+                                    Der PIN wird von Ihrem Stromanbieter zur Verfügung gestellt. Dieser wird dafür
+                                    benötigt, dass die genauen Daten ihres Zählers ausgelesen werden können.
                                 </FormDescription>
                             </FormItem>
                         )}

@@ -2,7 +2,7 @@
 
 import { env } from "@/env.mjs";
 import { checkIfAdmin } from "@/lib/auth/auth.action";
-import type { userStateSchema } from "@/lib/schema/user";
+import type { userOnboardingFormSchema, userStateSchema } from "@/lib/schema/user";
 import {
     createExperimentDataForUser,
     deleteExperimentDataForUser,
@@ -16,6 +16,7 @@ import {
     setUserAdmin as setUserAdminDb,
     updateExperimentDataForUser,
     updateLastReportTimestamp,
+    updateUserData,
     updateUser as updateUserDb,
 } from "@energyleaf/db/query";
 import type { baseInformationSchema } from "@energyleaf/lib";
@@ -25,6 +26,7 @@ import {
     sendExperimentRemovedEmail,
     sendSurveyInviteEmail,
 } from "@energyleaf/mail";
+import { put } from "@energyleaf/storage";
 import { waitUntil } from "@vercel/functions";
 import { revalidatePath } from "next/cache";
 import "server-only";
@@ -46,14 +48,13 @@ export async function getAllUsersAction() {
 
 export async function setUserActive(id: string, active: boolean) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         const activationDate = new Date();
         activationDate.setHours(0, 0, 0, 0);
         await setUserActiveDb(id, active, activationDate);
@@ -93,15 +94,13 @@ export async function setUserActive(id: string, active: boolean) {
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await setUserAdminDb(id, isAdmin);
         revalidatePath("/users");
     } catch (e) {
@@ -114,15 +113,13 @@ export async function setUserAdmin(id: string, isAdmin: boolean) {
 
 export async function deleteUser(id: string) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await deleteUserDb(id);
         await deleteSessionsOfUser(id);
         revalidatePath("/users");
@@ -136,19 +133,17 @@ export async function deleteUser(id: string) {
 
 export async function updateUser(data: z.infer<typeof baseInformationSchema>, id: string) {
     try {
-        await checkIfAdmin();
-    } catch (err) {
-        return {
-            success: false,
-            message: "Keine Berechtigung.",
-        };
-    }
-
-    try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
         await updateUserDb(
             {
                 firstname: data.firstname,
-                lastName: data.lastname,
+                lastname: data.lastname,
                 username: data.username,
                 email: data.email,
                 phone: data.phone,
@@ -165,17 +160,69 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
     }
 }
 
-export async function updateUserState(data: z.infer<typeof userStateSchema>, id: string) {
+export async function updateUserOnboardingData(
+    data: z.infer<typeof userOnboardingFormSchema>,
+    id: string,
+    fileData: FormData,
+) {
     try {
-        await checkIfAdmin();
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            return {
+                success: false,
+                message: "Keine Berechtigung.",
+            };
+        }
+        const file = fileData.get("file") as File | undefined;
+        let fileUrl: string | null = null;
+
+        if (
+            file &&
+            env.AWS_REGION &&
+            env.AWS_ACCESS_KEY_ID &&
+            env.AWS_ENDPOINT_URL_S3 &&
+            env.AWS_SECRET_ACCESS_KEY &&
+            env.BUCKET_NAME &&
+            env.FILE_URL
+        ) {
+            try {
+                const res = await put({
+                    keyId: env.AWS_ACCESS_KEY_ID,
+                    secret: env.AWS_SECRET_ACCESS_KEY,
+                    region: env.AWS_REGION,
+                    endpoint: env.AWS_ENDPOINT_URL_S3,
+                    bucket: env.BUCKET_NAME,
+                    path: "electricitiy_meter",
+                    body: file,
+                });
+                fileUrl = `${env.FILE_URL}/${res.key}`;
+            } catch {}
+        }
+
+        await updateUserData(
+            {
+                electricityMeterType: data.meterType,
+                electricityMeterNumber: data.meterNumber,
+                powerAtElectricityMeter: data.hasPower,
+                wifiAtElectricityMeter: data.hasWifi,
+                electricityMeterImgUrl: fileUrl,
+            },
+            id,
+        );
     } catch (err) {
         return {
             success: false,
-            message: "Keine Berechtigung.",
+            message: "Es ist ein Fehler aufgetreten.",
         };
     }
+}
 
+export async function updateUserState(data: z.infer<typeof userStateSchema>, id: string) {
     try {
+        const admin = await checkIfAdmin();
+        if (!admin) {
+            throw new Error("Keine Berechtigung.");
+        }
         const userData = await getUserById(id);
         if (!userData) {
             throw new Error("Nutzer nicht gefunden.");
@@ -259,6 +306,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                     installationDate: data.installationDate || null,
                     deinstallationDate: data.deinstallationDate || null,
                     getsPaid: data.getsPaid,
+                    experimentNumber: data.experimentNumber ?? null,
                 });
             } catch (err) {
                 throw new Error("Fehler beim Erstellen der Experimentdaten.");
@@ -271,6 +319,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                         installationDate: data.installationDate || null,
                         deinstallationDate: data.deinstallationDate || null,
                         getsPaid: data.getsPaid,
+                        experimentNumber: data.experimentNumber ?? null,
                     },
                     id,
                 );
@@ -285,8 +334,8 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
 
         // Send user mails based on expent status
         let name = userData.username;
-        if (userData.firstname && userData.lastName && userData.firstname !== "" && userData.lastName !== "") {
-            name = `${userData.firstname} ${userData.lastName}`;
+        if (userData.firstname && userData.lastname && userData.firstname !== "" && userData.lastname !== "") {
+            name = `${userData.firstname} ${userData.lastname}`;
         }
 
         if (data.experimentStatus === "dismissed") {
@@ -296,6 +345,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                     from: env.RESEND_API_MAIL,
                     apiKey: env.RESEND_API_KEY,
                     name,
+                    reason: data.dismissedReason,
                 });
             } catch (err) {
                 waitUntil(
@@ -306,6 +356,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                         {
                             userId: userData.id,
                             data: data,
+                            reason: data.dismissedReason,
                         },
                         err,
                     ),
@@ -318,7 +369,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
         if ((data.experimentStatus === "second_survey" || data.experimentStatus === "third_survey") && !data.getsPaid) {
             const number = data.experimentStatus === "second_survey" ? 2 : 3;
             const surveyToken = userData.id.replace(/-_/g, "");
-            const surveyId = data.experimentStatus === "second_survey" ? "TODO 1" : "TODO 2";
+            const surveyId = data.experimentStatus === "second_survey" ? "468112" : "349968";
             const surveyLink = `https://umfragen.uni-oldenburg.de/index.php?r=survey/index&token=${surveyToken}&sid=${surveyId}&lang=de`;
             try {
                 await sendSurveyInviteEmail({
