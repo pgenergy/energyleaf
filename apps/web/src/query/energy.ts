@@ -99,7 +99,7 @@ export const classifyDeviceUsage = async (sensorData) => {
     };
 
     try {
-        const response = await fetch(`http://${env.ADMIN_URL}/api/v1/ml`, {
+        const response = await fetch(`http://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/ml`, {
             method: "POST",
             headers: {
                 Authorization: env.ML_API_KEY,
