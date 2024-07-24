@@ -100,14 +100,23 @@ function appendTipsByDevices(tips: EnergyTipKey[], deviceCategories: DeviceCateg
     }
 }
 
+function getRelevantTipKeys(deviceCategory: DeviceCategory[]) {
+    const tips = getEnergyTipsInRegion(EnergyTipKeyRegions.Common);
+    appendTipsByDevices(tips, deviceCategory);
+    return tips;
+}
+
 export function getTipsByDeviceCategory(deviceCategory: DeviceCategory) {
     const tips: EnergyTipKey[] = [];
     appendTipsByDevices(tips, [deviceCategory]);
     return tips.map((tipKey) => getEnergyTip(tipKey));
 }
 
+export function pickRandomTip(deviceCategories: DeviceCategory[]) {
+    const tips = getRelevantTipKeys(deviceCategories);
+    return tips[Math.floor(Math.random() * tips.length)];
+}
+
 export function getRelevantTips(deviceCategory: DeviceCategory[]) {
-    const tips = getEnergyTipsInRegion(EnergyTipKeyRegions.Common);
-    appendTipsByDevices(tips, deviceCategory);
-    return tips.map((tipKey) => getEnergyTip(tipKey));
+    return getRelevantTipKeys(deviceCategory).map((tipKey) => getEnergyTip(tipKey));
 }

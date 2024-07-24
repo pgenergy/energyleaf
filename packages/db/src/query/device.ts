@@ -17,10 +17,10 @@ export async function getDevicesByUser(userId: string, search?: string) {
         .where(and(...conditions));
 }
 
-export async function getDeviceCategoriesByUser(userId: string) {
-    return (await db.selectDistinct({ category: device.category }).from(device).where(eq(device.userId, userId))).map(
-        (x) => x.category as DeviceCategory,
-    );
+export async function getDeviceCategoriesByUser(userId: string, database: DB = db) {
+    return (
+        await database.selectDistinct({ category: device.category }).from(device).where(eq(device.userId, userId))
+    ).map((x) => x.category as DeviceCategory);
 }
 
 export type CreateDeviceType = {
