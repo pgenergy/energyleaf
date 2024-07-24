@@ -1,11 +1,6 @@
 import { DeviceCategory, DeviceSuperCategory, getDeviceCategories } from "@energyleaf/db/types";
 import { getEnergyTip } from "./energy-tip-definitions";
-import { EnergyTipKey } from "./energy-tip-key";
-
-function getEnergyTipsInRange(regionIndex: number): EnergyTipKey[] {
-    const regionSize = 10;
-    return Array.from({ length: regionSize }, (_, i) => i + regionIndex * regionSize).filter((x) => x in EnergyTipKey);
-}
+import { type EnergyTipKey, EnergyTipKeyRegions, getEnergyTipsInRegion } from "./energy-tip-key";
 
 function appendTipsByDevices(tips: EnergyTipKey[], deviceCategories: DeviceCategory[]) {
     if (deviceCategories.length === 0) {
@@ -13,100 +8,100 @@ function appendTipsByDevices(tips: EnergyTipKey[], deviceCategories: DeviceCateg
     }
 
     if (deviceCategories.includes(DeviceCategory.Stovetop)) {
-        tips.push(...getEnergyTipsInRange(0));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Stovetop));
     }
 
     if (deviceCategories.includes(DeviceCategory.Oven)) {
-        tips.push(...getEnergyTipsInRange(1));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Oven));
     }
 
     const includesFridge = deviceCategories.includes(DeviceCategory.Fridge);
     const includesFreezer = deviceCategories.includes(DeviceCategory.Freezer);
     if (includesFridge || includesFreezer) {
-        tips.push(...getEnergyTipsInRange(2));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.FridgeAndFreezer));
     }
 
     if (includesFridge) {
-        tips.push(...getEnergyTipsInRange(3));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Fridge));
     }
 
     if (deviceCategories.includes(DeviceCategory.Microwave)) {
-        tips.push(...getEnergyTipsInRange(4));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Microwave));
     }
 
     if (deviceCategories.includes(DeviceCategory.Kettle)) {
-        tips.push(...getEnergyTipsInRange(5));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Kettle));
     }
 
     if (deviceCategories.includes(DeviceCategory.CoffeeMachine)) {
-        tips.push(...getEnergyTipsInRange(6));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.CoffeeMachine));
     }
 
     if (deviceCategories.includes(DeviceCategory.AirFryer)) {
-        tips.push(...getEnergyTipsInRange(7));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.AirFryer));
     }
 
     if (deviceCategories.includes(DeviceCategory.Blender)) {
-        tips.push(...getEnergyTipsInRange(8));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Blender));
     }
 
     if (deviceCategories.includes(DeviceCategory.Dishwasher)) {
-        tips.push(...getEnergyTipsInRange(9));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Dishwasher));
     }
 
     if (deviceCategories.includes(DeviceCategory.WashingMachine)) {
-        tips.push(...getEnergyTipsInRange(10));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.WashingMachine));
     }
 
     if (deviceCategories.includes(DeviceCategory.Dryer)) {
-        tips.push(...getEnergyTipsInRange(11));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Dryer));
     }
 
     if (deviceCategories.includes(DeviceCategory.VacuumCleaner)) {
-        tips.push(...getEnergyTipsInRange(12));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.VacuumCleaner));
     }
 
     if (deviceCategories.includes(DeviceCategory.Iron)) {
-        tips.push(...getEnergyTipsInRange(13));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Iron));
     }
 
     const entertainmentSuperCategoryItems = getDeviceCategories(DeviceSuperCategory.Entertainment);
     if (deviceCategories.some((deviceCategory) => entertainmentSuperCategoryItems.includes(deviceCategory))) {
-        tips.push(...getEnergyTipsInRange(14));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Entertainment));
     }
 
     if (deviceCategories.includes(DeviceCategory.TVsAndMonitors)) {
-        tips.push(...getEnergyTipsInRange(15));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.TVsAndMonitors));
     }
 
     if (deviceCategories.includes(DeviceCategory.EntertainmentAndComputers)) {
-        tips.push(...getEnergyTipsInRange(16));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.EntertainmentAndComputers));
     }
 
     if (deviceCategories.includes(DeviceCategory.HairDryer)) {
-        tips.push(...getEnergyTipsInRange(17));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.HairDryer));
     }
 
     const climateControlSuperCategoryItems = getDeviceCategories(DeviceSuperCategory.ClimateControl);
     if (deviceCategories.some((deviceCategory) => climateControlSuperCategoryItems.includes(deviceCategory))) {
-        tips.push(...getEnergyTipsInRange(18));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.ClimateControl));
     }
 
     if (deviceCategories.includes(DeviceCategory.Lighting)) {
-        tips.push(...getEnergyTipsInRange(19));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.Lighting));
     }
 
     if (deviceCategories.includes(DeviceCategory.ECar)) {
-        tips.push(...getEnergyTipsInRange(20));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.ECar));
     }
 
     if (deviceCategories.includes(DeviceCategory.EMobility)) {
-        tips.push(...getEnergyTipsInRange(21));
+        tips.push(...getEnergyTipsInRegion(EnergyTipKeyRegions.EMobility));
     }
 }
 
 export function getRelevantTips(deviceCategory: DeviceCategory[]) {
-    const tips = getEnergyTipsInRange(22);
+    const tips = getEnergyTipsInRegion(EnergyTipKeyRegions.Common);
     appendTipsByDevices(tips, deviceCategory);
     return tips.map((tipKey) => getEnergyTip(tipKey));
 }

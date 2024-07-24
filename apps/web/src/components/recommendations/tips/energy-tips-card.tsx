@@ -11,6 +11,7 @@ export default async function EnergyTipsCard() {
     }
 
     const energyTips = await getEnergyTips(user.id);
+    const shuffledTips = energyTips.sort(() => Math.random() - 0.5);
 
     return (
         <Card>
@@ -19,7 +20,7 @@ export default async function EnergyTipsCard() {
                 <CardDescription>Hier erhalten Sie Tipps, um Strom zu sparen.</CardDescription>
             </CardHeader>
             <CardContent>
-                <EnergyTipRandomPicker tips={energyTips} />
+                <EnergyTipRandomPicker tips={shuffledTips} />
             </CardContent>
         </Card>
     );

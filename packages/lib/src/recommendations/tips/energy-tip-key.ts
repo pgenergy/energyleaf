@@ -1,3 +1,34 @@
+export enum EnergyTipKeyRegions {
+    Stovetop = 0,
+    Oven = 1,
+    FridgeAndFreezer = 2,
+    Fridge = 3,
+    Microwave = 4,
+    Kettle = 5,
+    CoffeeMachine = 6,
+    AirFryer = 7,
+    Blender = 8,
+    Dishwasher = 9,
+    WashingMachine = 10,
+    Dryer = 11,
+    VacuumCleaner = 12,
+    Iron = 13,
+    Entertainment = 14,
+    TVsAndMonitors = 15,
+    EntertainmentAndComputers = 16,
+    HairDryer = 17,
+    ClimateControl = 18,
+    Lighting = 19,
+    ECar = 20,
+    EMobility = 21,
+    Common = 22,
+}
+
+export function getEnergyTipsInRegion(region: EnergyTipKeyRegions): EnergyTipKey[] {
+    const regionSize = 10;
+    return Array.from({ length: regionSize }, (_, i) => i + region * regionSize).filter((x) => x in EnergyTipKey);
+}
+
 export enum EnergyTipKey {
     // Stovetop
     StovetopLid = 0,
