@@ -10,7 +10,9 @@ import {
     ChartTooltipContent,
 } from "@energyleaf/ui/chart";
 import ChartSwitchButton from "@energyleaf/ui/charts/chart-switch-button";
-import { startOfMonth } from "date-fns";
+import { format, setDay } from "date-fns";
+import { de } from "date-fns/locale";
+import { CircleSlash2Icon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
@@ -25,33 +27,20 @@ const chartConfig = {
     },
     valueOut: {
         label: "Eingespeist (kWh)",
-        color: "hsl(var(--chart-4))",
+        color: "hsl(var(--chart-3))",
     },
     valueCurrent: {
         label: "Leistung (W)",
-        color: "hsl(var(--chart-5))",
+        color: "hsl(var(--chart-4))",
     },
 } satisfies ChartConfig;
 
-function getWeekOfMonth(date: Date): number {
-    const dayOfMonth = date.getDate();
-
-    const startMonth = startOfMonth(new Date());
-    const startDay = startMonth.getDay();
-
-    const weekStartAdjusted = startDay === 0 ? 7 : startDay;
-    const offset = weekStartAdjusted > 1 ? 8 - weekStartAdjusted : 1;
-    const weekNumber = Math.ceil((dayOfMonth + offset - 1) / 7);
-
-    return weekNumber;
-}
-
-export default function WeekChart(props: Props) {
+export default function EnergyDayChart(props: Props) {
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
 
     function tickFormatter(value: Date) {
-        const week = getWeekOfMonth(value);
-        return `Woche ${week}`;
+        const day = format(value, "EEEE", { locale: de });
+        return `${day}`;
     }
 
     const hasOutValues = useMemo(() => {
@@ -64,11 +53,10 @@ export default function WeekChart(props: Props) {
 
     const fillArray = useMemo(() => {
         const result: SensorDataSelectType[] = [];
-        const startMonth = startOfMonth(new Date());
 
-        for (let i = 0; i < 4; i++) {
-            const date = new Date();
-            date.setDate(startMonth.getDate() + i * 7);
+        for (let i = 1; i < 8; i++) {
+            const weekDay = i % 7;
+            const date = setDay(new Date(), weekDay);
 
             result.push({
                 id: i.toString(),
@@ -85,23 +73,19 @@ export default function WeekChart(props: Props) {
 
     const processedData = useMemo(() => {
         return props.data.reduce((acc, cur) => {
-            const index = acc.findIndex((item) => getWeekOfMonth(item.timestamp) === getWeekOfMonth(cur.timestamp));
+            const index = acc.findIndex((item) => item.timestamp.getDay() === cur.timestamp.getDay());
             if (index !== -1) {
                 const existing = acc[index];
                 existing.value = cur.value;
                 existing.sensorId = cur.sensorId;
 
-                if (cur.valueOut) {
-                    if (!existing.valueOut) {
-                        existing.valueOut = cur.valueOut;
-                        existing.sensorId = cur.sensorId;
-                    }
+                if (cur.valueOut && !existing.valueOut) {
+                    existing.valueOut = cur.valueOut;
+                    existing.sensorId = cur.sensorId;
                 }
-                if (cur.valueCurrent) {
-                    if (!existing.valueCurrent) {
-                        existing.valueCurrent = cur.valueCurrent;
-                        existing.sensorId = cur.sensorId;
-                    }
+                if (cur.valueCurrent && !existing.valueCurrent) {
+                    existing.valueCurrent = cur.valueCurrent;
+                    existing.sensorId = cur.sensorId;
                 }
             }
 
@@ -132,7 +116,12 @@ export default function WeekChart(props: Props) {
                             active={activeChart === "valueCurrent"}
                             chart="valueCurrent"
                             onClick={setActiveChart}
-                            label="Leistung"
+                            label={
+                                <>
+                                    <CircleSlash2Icon className="mr-2 h-3 w-3" />
+                                    Leistung
+                                </>
+                            }
                         />
                     ) : null}
                 </div>

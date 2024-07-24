@@ -8,8 +8,8 @@ import { de } from "date-fns/locale";
 import { useMemo, useState } from "react";
 import { Area, AreaChart, ReferenceArea, Tooltip, XAxis, YAxis } from "recharts";
 import type { CategoricalChartState } from "recharts/types/chart/types";
-import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "../../ui/chart";
-import ChartSwitchButton from "./chart-switch-button";
+import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "../../../ui/chart";
+import ChartSwitchButton from "../chart-switch-button";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
 interface Props {
@@ -135,7 +135,12 @@ export function EnergyConsumptionChart({
         const leftX = leftValue.activeLabel;
         const rightX = rightValue.activeLabel;
 
+
         if (!leftX || !rightX) return;
+
+        if (Math.abs(new Date(leftX).getTime() - new Date(rightX).getTime()) < 1 * 60 * 1000) {
+            return; 
+        }
 
         let leftDate = new Date(leftX);
         let rightDate = new Date(rightX);

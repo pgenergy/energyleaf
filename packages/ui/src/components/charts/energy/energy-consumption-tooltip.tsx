@@ -7,7 +7,7 @@ import { de } from "date-fns/locale";
 import { useMemo } from "react";
 import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
-import { useChart } from "../../ui/chart";
+import { useChart } from "../../../ui/chart";
 
 interface Props {
     aggregationType: AggregationType;

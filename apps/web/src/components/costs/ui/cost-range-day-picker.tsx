@@ -1,14 +1,14 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
 import MultiDatePicker from "@energyleaf/ui/utils/multi-day-picker";
+import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
 interface Props {
     children: React.ReactNode;
 }
 
-export default function EnergyRangeDatePicker(props: Props) {
+export default function CostsRangeDatePicker(props: Props) {
     const router = useRouter();
     const pathname = usePathname();
 
@@ -20,12 +20,12 @@ export default function EnergyRangeDatePicker(props: Props) {
 
         searchParams.set("date", date.toISOString());
         searchParams.set("compareDate", compareDate.toISOString());
-        if (pathname === "/energy/compare") {
-            router.replace(`/energy/compare?${searchParams.toString()}`, {
+        if (pathname === "/costs/compare") {
+            router.replace(`/costs/compare?${searchParams.toString()}`, {
                 scroll: false,
             });
         } else {
-            router.push(`/energy/compare?${searchParams.toString()}`, {
+            router.push(`/costs/compare?${searchParams.toString()}`, {
                 scroll: false,
             });
         }

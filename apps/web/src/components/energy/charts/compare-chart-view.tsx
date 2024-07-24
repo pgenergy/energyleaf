@@ -3,7 +3,7 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import { AggregationType } from "@energyleaf/lib";
 import { Alert, AlertDescription, AlertTitle } from "@energyleaf/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import CompareChart from "@energyleaf/ui/charts/compare-chart";
+import CompareChart from "@energyleaf/ui/charts/energy/compare-chart";
 import { InfoIcon } from "lucide-react";
 
 interface Props {

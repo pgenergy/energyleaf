@@ -2,7 +2,7 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import WeekChart from "@energyleaf/ui/charts/week-chart";
+import WeekChart from "@energyleaf/ui/charts/energy/week-chart";
 
 interface Props {
     startDate: Date;

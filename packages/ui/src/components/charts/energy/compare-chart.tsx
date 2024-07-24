@@ -11,6 +11,7 @@ import {
 } from "@energyleaf/ui/chart";
 import ChartSwitchButton from "@energyleaf/ui/charts/chart-switch-button";
 import { format } from "date-fns";
+import { CircleSlash2Icon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
@@ -21,7 +22,7 @@ interface Props {
     compareDate: Date;
 }
 
-export default function CompareChart(props: Props) {
+export default function EnergyCompareChart(props: Props) {
     const chartConfig = useMemo(
         () =>
             ({
@@ -174,7 +175,12 @@ export default function CompareChart(props: Props) {
                             active={activeChart === "valueCurrent"}
                             chart="valueCurrent"
                             onClick={setActiveChart}
-                            label="Leistung"
+                            label={
+                                <>
+                                    <CircleSlash2Icon className="mr-2 h-3 w-3" />
+                                    Leistung
+                                </>
+                            }
                         />
                     ) : null}
                 </div>

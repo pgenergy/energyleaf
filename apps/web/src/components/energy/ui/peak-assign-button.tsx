@@ -27,7 +27,7 @@ export function PeakAssignmentDialog(props: Props) {
         <Dialog onOpenChange={setOpen} open={open}>
             <DialogTrigger asChild>
                 <Badge className="cursor-pointer">
-                    <PencilRulerIcon className="mr-2 h-2 w-2" />
+                    <PencilRulerIcon className="mr-2 h-3 w-3" />
                     Zuweisen
                 </Badge>
             </DialogTrigger>

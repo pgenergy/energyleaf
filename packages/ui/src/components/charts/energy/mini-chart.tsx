@@ -2,7 +2,7 @@
 
 import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { Area, AreaChart, XAxis, YAxis } from "recharts";
-import { type ChartConfig, ChartContainer } from "../../ui/chart";
+import { type ChartConfig, ChartContainer } from "../../../ui/chart";
 
 interface Props {
     data: SensorDataSelectType[];
@@ -21,7 +21,7 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-export default function MiniChart(props: Props) {
+export default function EnergyMiniChart(props: Props) {
     return (
         <ChartContainer className="max-h-8 min-h-8 w-full" config={chartConfig}>
             <AreaChart data={props.data}>

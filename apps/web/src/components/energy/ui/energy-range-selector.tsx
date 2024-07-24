@@ -1,13 +1,12 @@
 "use client";
 
-import { type EnergyRangeOptionType, energyRangeOptions } from "@/types/energy";
-import { Button, buttonVariants } from "@energyleaf/ui/button";
+import { Button } from "@energyleaf/ui/button";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { EnergyDatePicker } from "./energy-day-picker";
-import { EnergyRangeDatePicker } from "./energy-range-day-picker";
+import EnergyDatePicker from "./energy-day-picker";
+import EnergyRangeDatePicker from "./energy-range-day-picker";
+import RangeNavSelector, { RangeNavLink } from "@/components/nav/range-selector";
 
 export default function EnergyPageRangeSelector() {
     const pathname = usePathname();
@@ -18,8 +17,8 @@ export default function EnergyPageRangeSelector() {
         : undefined;
 
     return (
-        <div className="col-span-1 flex flex-row flex-wrap items-center justify-center gap-4 md:col-span-3 md:justify-start">
-            <RangeLink range="today" href="/energy" />
+        <RangeNavSelector>
+            <RangeNavLink range="today" href="/energy" />
             {date && !compareDate ? (
                 <EnergyDatePicker date={date}>
                     <Button variant={pathname === "/energy/custom" ? "default" : "ghost"}>
@@ -38,28 +37,8 @@ export default function EnergyPageRangeSelector() {
                         : "Tage Vergleichen"}
                 </Button>
             </EnergyRangeDatePicker>
-            <RangeLink range="week" href="/energy/week" />
-            <RangeLink range="month" href="/energy/month" />
-        </div>
-    );
-}
-
-interface RangeLinkProps {
-    range: EnergyRangeOptionType;
-    href: string;
-}
-
-function RangeLink(props: RangeLinkProps) {
-    const pathname = usePathname();
-
-    return (
-        <Link
-            href={props.href}
-            className={buttonVariants({
-                variant: props.href === pathname ? "default" : "ghost",
-            })}
-        >
-            {energyRangeOptions[props.range]}
-        </Link>
+            <RangeNavLink range="week" href="/energy/week" />
+            <RangeNavLink range="month" href="/energy/month" />
+        </RangeNavSelector>
     );
 }

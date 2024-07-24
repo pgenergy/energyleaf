@@ -6,8 +6,16 @@ import { Suspense } from "react";
 import AbsoluteChartView from "../charts/absolute-chart-view";
 import DayChartView from "../charts/day-chart-view";
 import PeaksView from "./peak-view";
+import { getSession } from "@/lib/auth/auth.server";
+import { fulfills, Versions } from "@energyleaf/lib/versioning";
 
 export default async function EnergyPageWeekView() {
+    const { user } = await getSession();
+
+    if (!user) {
+        return null;
+    }
+
     const serverStartDate = startOfWeek(new Date(), { weekStartsOn: 1 });
     serverStartDate.setHours(0, 0, 0, 0);
     const serverEndDate = endOfWeek(new Date(), { weekStartsOn: 1 });
@@ -24,9 +32,11 @@ export default async function EnergyPageWeekView() {
             <Suspense fallback={<Skeleton className="col-span-1 h-96 w-full md:col-span-3" />}>
                 <DayChartView startDate={startDate} endDate={endDate} />
             </Suspense>
-            <Suspense fallback={<Skeleton className="col-span-1 h-52 w-full md:col-span-3" />}>
-                <PeaksView startDate={startDate} endDate={endDate} />
-            </Suspense>
+            {fulfills(user.appVersion, Versions.self_reflection) ? (
+                <Suspense fallback={<Skeleton className="col-span-1 h-52 w-full md:col-span-3" />}>
+                    <PeaksView startDate={startDate} endDate={endDate} />
+                </Suspense>
+            ) : null}
         </div>
     );
 }
