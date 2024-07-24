@@ -100,6 +100,12 @@ function appendTipsByDevices(tips: EnergyTipKey[], deviceCategories: DeviceCateg
     }
 }
 
+export function getTipsByDeviceCategory(deviceCategory: DeviceCategory) {
+    const tips: EnergyTipKey[] = [];
+    appendTipsByDevices(tips, [deviceCategory]);
+    return tips.map((tipKey) => getEnergyTip(tipKey));
+}
+
 export function getRelevantTips(deviceCategory: DeviceCategory[]) {
     const tips = getEnergyTipsInRegion(EnergyTipKeyRegions.Common);
     appendTipsByDevices(tips, deviceCategory);
