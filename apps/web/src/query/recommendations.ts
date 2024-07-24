@@ -1,5 +1,5 @@
 import { getDeviceCategoriesByUser } from "@energyleaf/db/query";
-import { getRelevantTips } from "@energyleaf/lib";
+import { getRelevantTips } from "@energyleaf/lib/tips";
 import { cache } from "react";
 
 export const getEnergyTips = cache(async (userId: string) => {
