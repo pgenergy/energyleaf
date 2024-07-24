@@ -210,6 +210,9 @@ importers:
       '@energyleaf/mail':
         specifier: workspace:*
         version: link:../../packages/mail
+      '@energyleaf/proto':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@energyleaf/storage':
         specifier: workspace:*
         version: link:../../packages/storage

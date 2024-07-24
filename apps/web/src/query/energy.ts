@@ -1,4 +1,3 @@
-import { env } from "@/env.mjs";
 import { getDemoSensorData } from "@/lib/demo/demo";
 import {
     getAvgEnergyConsumptionForSensor as getDbAvgEnergyConsumptionForSensor,
@@ -11,6 +10,7 @@ import {
 import { AggregationType } from "@energyleaf/lib";
 import { cache } from "react";
 import "server-only";
+import { mlApi } from "@/actions/ml";
 
 interface DeviceClassification {
     timestamp: string;
@@ -99,18 +99,9 @@ export const classifyDeviceUsage = async (sensorData) => {
     };
 
     try {
-        const response = await fetch(`http://${env.NEXT_PUBLIC_ADMIN_URL}/api/v1/ml`, {
-            method: "POST",
-            headers: {
-                Authorization: env.ML_API_KEY,
-            },
-            body: JSON.stringify(req_data),
-        });
+        const response = await mlApi(req_data);
 
-        const errorText = await response.text();
-        console.log(errorText);
-
-        return JSON.parse(errorText).electricity;
+        return response.electricity;
     } catch (error) {
         console.error("Error in device classification: ", error);
         throw error;
