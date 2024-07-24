@@ -3,7 +3,7 @@
 import type { EnergyTip } from "@energyleaf/lib/tips";
 import { Button } from "@energyleaf/ui/button";
 import {} from "@tanstack/react-query";
-import { ArrowRightIcon, LightbulbIcon } from "lucide-react";
+import { ArrowRightIcon, ExternalLink, LightbulbIcon } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
@@ -24,7 +24,14 @@ export default function EnergyTipRandomPicker({ tips }: Props) {
     return (
         <div className="flex flex-col items-center gap-4">
             <LightbulbIcon className="h-16 w-16" />
-            <span className="text-center text-xl italic">{tips[tipIndex]?.text}</span>
+            <div className="text-center text-xl italic">
+                {tips[tipIndex]?.text}
+                <span className="inline-flex items-center">
+                    <a href={tips[tipIndex].linkToSource} className="ml-1 flex items-center">
+                        <ExternalLink className="h-4 w-4" />
+                    </a>
+                </span>
+            </div>
             <Button className="gap-2" onClick={onNextClick}>
                 Nächster Tipp <ArrowRightIcon />
             </Button>
