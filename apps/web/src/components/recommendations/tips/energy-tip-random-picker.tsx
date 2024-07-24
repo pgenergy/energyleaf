@@ -1,38 +1,33 @@
 "use client";
 
-import { DeviceCategory } from "@energyleaf/db/types";
-import { pickRandomEnergyTip } from "@energyleaf/lib";
+import type { EnergyTip } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
-import { Spinner } from "@energyleaf/ui/spinner";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {} from "@tanstack/react-query";
 import { ArrowRightIcon, LightbulbIcon } from "lucide-react";
-import {} from "react";
+import { useMemo, useState } from "react";
 
-export default function EnergyTipRandomPicker() {
-    const queryClient = useQueryClient();
-    const queryKey = "energy-tips";
-    const {
-        data: tip,
-        isLoading,
-        isRefetching,
-    } = useQuery({
-        queryKey: [queryKey],
-        queryFn: async () => {
-            await new Promise((resolve) => setTimeout(resolve, 200));
-            return pickRandomEnergyTip([DeviceCategory.ECar]);
-        },
-    });
+interface Props {
+    tips: EnergyTip[];
+}
 
-    async function onNextClick() {
-        await queryClient.invalidateQueries({ queryKey: [queryKey] });
+export default function EnergyTipRandomPicker({ tips }: Props) {
+    if (tips.length === 0) {
+        return <div className="flex flex-col items-center text-muted-foreground">Keine Tipps verfügbar.</div>;
+    }
+
+    const shuffledTips = useMemo(() => tips.sort(() => Math.random() - 0.5), [tips]);
+
+    const [tipIndex, setTipIndex] = useState<number>(0);
+
+    function onNextClick() {
+        setTipIndex((prev) => (prev + 1) % shuffledTips.length);
     }
 
     return (
         <div className="flex flex-col items-center gap-4">
             <LightbulbIcon className="h-16 w-16" />
-            {isLoading ? <Spinner className="h-16 w-16" /> : <span className="text-xl italic">{tip?.text}</span>}
-            <Button className="gap-2" disabled={isRefetching} onClick={onNextClick}>
-                {isRefetching ? <Spinner className="h-4 w-4" /> : null}
+            <span className="text-center text-xl italic">{shuffledTips[tipIndex]?.text}</span>
+            <Button className="gap-2" onClick={onNextClick}>
                 Nächster Tipp <ArrowRightIcon />
             </Button>
         </div>

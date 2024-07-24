@@ -550,18 +550,9 @@ const Tips: { [key in EnergyTipKey]: EnergyTip } = {
     },
 };
 
-function getEnergyTipsByDeviceCategory(deviceCategory: DeviceCategory) {
-    switch (deviceCategory) {
-        case DeviceCategory.Stovetop:
-            return getEnergyTipsInRange(0);
-        default:
-            return [];
-    }
-}
-
 function getEnergyTipsInRange(regionIndex: number): EnergyTipKey[] {
     const regionSize = 10;
-    return Array.from({ length: regionSize }, (_, i) => i + regionIndex * regionSize);
+    return Array.from({ length: regionSize }, (_, i) => i + regionIndex * regionSize).filter((x) => x in EnergyTipKey);
 }
 
 function appendTipsByDevices(tips: EnergyTipKey[], deviceCategories: DeviceCategory[]) {
@@ -660,6 +651,12 @@ function appendTipsByDevices(tips: EnergyTipKey[], deviceCategories: DeviceCateg
     if (deviceCategories.includes(DeviceCategory.EMobility)) {
         tips.push(...getEnergyTipsInRange(21));
     }
+}
+
+export function getRelevantTips(deviceCategory: DeviceCategory[]) {
+    const tips = getEnergyTipsInRange(22);
+    appendTipsByDevices(tips, deviceCategory);
+    return tips.map((tipKey) => getEnergyTip(tipKey));
 }
 
 export function pickRandomEnergyTip(deviceCategories: DeviceCategory[]) {

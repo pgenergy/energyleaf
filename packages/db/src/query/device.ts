@@ -2,6 +2,7 @@ import { type SQLWrapper, and, eq, sql } from "drizzle-orm";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import db, { type DB } from "../";
 import { device, deviceHistory, deviceToPeak, sensorDataSequence, userData } from "../schema";
+import type { DeviceCategory } from "../types/types";
 
 export async function getDevicesByUser(userId: string, search?: string) {
     const conditions: SQLWrapper[] = [eq(device.userId, userId)];
@@ -14,6 +15,12 @@ export async function getDevicesByUser(userId: string, search?: string) {
         .select()
         .from(device)
         .where(and(...conditions));
+}
+
+export async function getDeviceCategoriesByUser(userId: string) {
+    return (await db.selectDistinct({ category: device.category }).from(device).where(eq(device.userId, userId))).map(
+        (x) => x.category as DeviceCategory,
+    );
 }
 
 export type CreateDeviceType = {
