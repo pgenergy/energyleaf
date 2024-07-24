@@ -6,3 +6,4 @@ export * from "./utils/util";
 export * from "./types";
 export * from "./types/aggregation-labels";
 export * from "./recommendations/power-reference-data";
+export * from "./recommendations/energy-tips";
