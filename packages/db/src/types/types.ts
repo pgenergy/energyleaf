@@ -128,6 +128,58 @@ export enum DeviceCategory {
     Others = "others",
 }
 
+/**
+ * Super categories for device categories.
+ * @see DeviceCategory
+ */
+export enum DeviceSuperCategory {
+    KitchenAppliances = "kitchenAppliances",
+    CleaningAppliances = "cleaningAppliances",
+    PersonalCare = "personalCare",
+    ClimateControl = "climateControl",
+    Entertainment = "entertainment",
+    Lighting = "lighting",
+    Mobility = "mobility",
+    Others = "others",
+}
+
+const superCategoryToDeviceCategoriesMap: { [key in DeviceSuperCategory]: DeviceCategory[] } = {
+    [DeviceSuperCategory.KitchenAppliances]: [
+        DeviceCategory.Stovetop,
+        DeviceCategory.Oven,
+        DeviceCategory.Fridge,
+        DeviceCategory.Freezer,
+        DeviceCategory.Microwave,
+        DeviceCategory.Kettle,
+        DeviceCategory.Toaster,
+        DeviceCategory.CoffeeMachine,
+        DeviceCategory.AirFryer,
+        DeviceCategory.Blender,
+        DeviceCategory.Dishwasher,
+    ],
+    [DeviceSuperCategory.CleaningAppliances]: [
+        DeviceCategory.WashingMachine,
+        DeviceCategory.Dryer,
+        DeviceCategory.VacuumCleaner,
+        DeviceCategory.Iron,
+    ],
+    [DeviceSuperCategory.PersonalCare]: [DeviceCategory.HairDryer, DeviceCategory.BodyCare],
+    [DeviceSuperCategory.ClimateControl]: [
+        DeviceCategory.HeaterFan,
+        DeviceCategory.ElectricHeater,
+        DeviceCategory.AirConditioning,
+        DeviceCategory.HeatPump,
+    ],
+    [DeviceSuperCategory.Entertainment]: [DeviceCategory.TVsAndMonitors, DeviceCategory.EntertainmentAndComputers],
+    [DeviceSuperCategory.Lighting]: [DeviceCategory.Lighting],
+    [DeviceSuperCategory.Mobility]: [DeviceCategory.ECar, DeviceCategory.EMobility],
+    [DeviceSuperCategory.Others]: [DeviceCategory.Others],
+};
+
+export function getDeviceCategories(superCategory: DeviceSuperCategory): DeviceCategory[] {
+    return superCategoryToDeviceCategoriesMap[superCategory];
+}
+
 export const DeviceCategoryTitles: Record<DeviceCategory, string> = {
     [DeviceCategory.Stovetop]: "Herd",
     [DeviceCategory.Oven]: "Backofen",
@@ -156,6 +208,17 @@ export const DeviceCategoryTitles: Record<DeviceCategory, string> = {
     [DeviceCategory.ECar]: "Elektroauto",
     [DeviceCategory.EMobility]: "Weitere Elektromobilität (z. B. E-Bike)",
     [DeviceCategory.Others]: "Sonstige Geräte",
+};
+
+export const DeviceSuperCategoryTitles: Record<DeviceSuperCategory, string> = {
+    [DeviceSuperCategory.KitchenAppliances]: "Küchengeräte",
+    [DeviceSuperCategory.CleaningAppliances]: "Reinigungsgeräte",
+    [DeviceSuperCategory.PersonalCare]: "Körperpflege",
+    [DeviceSuperCategory.ClimateControl]: "Klimatisierung",
+    [DeviceSuperCategory.Entertainment]: "Unterhaltung",
+    [DeviceSuperCategory.Lighting]: "Beleuchtung",
+    [DeviceSuperCategory.Mobility]: "Mobilität",
+    [DeviceSuperCategory.Others]: "Sonstiges",
 };
 
 export enum DeviceCategoryPowerState {
