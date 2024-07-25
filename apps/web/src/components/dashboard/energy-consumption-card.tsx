@@ -1,5 +1,5 @@
 import { getSession } from "@/lib/auth/auth.server";
-import { getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences, classifyDeviceUsage } from "@/query/energy";
+import { getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences } from "@/query/energy";
 import { getUserData } from "@/query/user";
 import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 import type { DeviceClassification } from "@energyleaf/lib";
+import { mockClassifyDeviceUsage } from "./mock-classify-device-usage";
 
 interface Props {
     startDate: Date;
@@ -46,7 +47,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
     const data = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
-    const classifiedData: DeviceClassification[] = await classifyDeviceUsage(data); // Fetch classified data
+    const classifiedData: DeviceClassification[] = await mockClassifyDeviceUsage(data); // Use mock data
     const showPeaks = fulfills(user.appVersion, Versions.self_reflection) && !hasAggregation;
 
     const userData = await getUserData(user.id);

@@ -1,3 +1,5 @@
+"use client";
+
 import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
 import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy-consumption-chart";
