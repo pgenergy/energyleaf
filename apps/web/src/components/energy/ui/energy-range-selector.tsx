@@ -1,12 +1,12 @@
 "use client";
 
+import RangeNavSelector, { RangeNavLink } from "@/components/nav/range-selector";
 import { Button } from "@energyleaf/ui/button";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { usePathname, useSearchParams } from "next/navigation";
 import EnergyDatePicker from "./energy-day-picker";
 import EnergyRangeDatePicker from "./energy-range-day-picker";
-import RangeNavSelector, { RangeNavLink } from "@/components/nav/range-selector";
 
 export default function EnergyPageRangeSelector() {
     const pathname = usePathname();

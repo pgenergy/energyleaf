@@ -1,11 +1,11 @@
+import { getSession } from "@/lib/auth/auth.server";
 import { AggregationType, convertTZDate } from "@energyleaf/lib";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";
 import AbsoluteChartView from "../charts/absolute-chart-view";
 import HourChartView from "../charts/hour-chart-view";
 import PeaksView from "./peak-view";
-import { getSession } from "@/lib/auth/auth.server";
-import { fulfills, Versions } from "@energyleaf/lib/versioning";
 
 interface Props {
     initialDate?: Date;

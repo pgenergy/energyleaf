@@ -1,6 +1,11 @@
 "use client";
 
 import type { SensorDataSelectType } from "@energyleaf/db/types";
+import ChartSwitchButton from "@energyleaf/ui/charts/chart-switch-button";
+import { format } from "date-fns";
+import { CircleSlash2Icon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import {
     type ChartConfig,
     ChartContainer,
@@ -9,11 +14,6 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "../../../ui/chart";
-import ChartSwitchButton from "@energyleaf/ui/charts/chart-switch-button";
-import { format } from "date-fns";
-import { CircleSlash2Icon } from "lucide-react";
-import { useMemo, useState } from "react";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
 interface Props {
     data: SensorDataSelectType[];

@@ -135,11 +135,10 @@ export function EnergyConsumptionChart({
         const leftX = leftValue.activeLabel;
         const rightX = rightValue.activeLabel;
 
-
         if (!leftX || !rightX) return;
 
         if (Math.abs(new Date(leftX).getTime() - new Date(rightX).getTime()) < 1 * 60 * 1000) {
-            return; 
+            return;
         }
 
         let leftDate = new Date(leftX);

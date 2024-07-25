@@ -53,8 +53,8 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                     }
                 />
                 <p className="text-sm">
-                    <span className="font-bold">Verbrauch: </span>
-                    <span className="font-mono">{data.value.toFixed(4)}</span>{" "}
+                    <span className="text-muted-foreground">Verbrauch </span>
+                    <span className="font-medium font-mono">{data.value.toFixed(4)}</span>{" "}
                     {computeTimestampLabel(aggregationType, true)}
                 </p>
             </div>
@@ -69,8 +69,8 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                         }
                     />
                     <p className="text-sm">
-                        <span className="font-bold">Eingespeist: </span>
-                        <span className="font-mono">{data.valueOut.toFixed(4)}</span>{" "}
+                        <span className="text-muted-foreground">Eingespeist </span>
+                        <span className="font-medium font-mono">{data.valueOut.toFixed(4)}</span>{" "}
                         {computeTimestampLabel(aggregationType, true)}
                     </p>
                 </div>
@@ -86,8 +86,8 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                         }
                     />
                     <p className="text-sm">
-                        <span className="font-bold">Leistung: </span>
-                        <span className="font-mono">{data.valueCurrent.toFixed(4)}</span> W
+                        <span className="text-muted-foreground">Leistung </span>
+                        <span className="font-medium font-mono">{data.valueCurrent.toFixed(4)}</span> W
                     </p>
                 </div>
             ) : null}
@@ -102,8 +102,8 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                         }
                     />
                     <p className="text-sm">
-                        <span className="font-bold">Kosten: </span>
-                        <span className="font-mono">{data.cost.toFixed(4)}</span> €
+                        <span className="text-muted-foreground">Kosten </span>
+                        <span className="font-medium font-mono">{data.cost.toFixed(4)}</span> €
                     </p>
                 </div>
             ) : null}

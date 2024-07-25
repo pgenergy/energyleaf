@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 
 interface Props {
     children: React.ReactNode;
-};
+}
 
 export default function RangeNavSelector(props: Props) {
     return (

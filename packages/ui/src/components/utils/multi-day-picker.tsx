@@ -26,6 +26,7 @@ export default function MultiDatePicker(props: Props) {
 
             props.onChange(range);
             setRange(undefined);
+            setOpen(false);
         }
     }, [range, props.min]);
 

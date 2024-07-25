@@ -3,16 +3,15 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import { getUserData } from "@/query/user";
 import { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import CostHourChart from "@energyleaf/ui/charts/costs/hour-chart";
+import DayChart from "@energyleaf/ui/charts/costs/day-chart";
 
 interface Props {
     startDate: Date;
     endDate: Date;
 }
 
-export default async function CostHourChartView(props: Props) {
+export default async function DayChartView(props: Props) {
     const { user } = await getSession();
-
     if (!user) {
         return null;
     }
@@ -27,12 +26,12 @@ export default async function CostHourChartView(props: Props) {
         return null;
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, "sum");
+    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.DAY, "sum");
     if (!data || data.length === 0) {
         return null;
     }
 
-    const totalBaseCost = userData.basePrice ? userData.basePrice / 30 / 24 : 0;
+    const totalBaseCost = userData.basePrice ? userData.basePrice / 30 : 0;
     const processedData = data.map((d) => ({
         ...d,
         cost: d.value * (userData.workingPrice as number) + totalBaseCost,
@@ -41,11 +40,11 @@ export default async function CostHourChartView(props: Props) {
     return (
         <Card className="col-span-1 md:col-span-3">
             <CardHeader>
-                <CardTitle>Übersicht der Stunden</CardTitle>
-                <CardDescription>Hier sehen Sie Ihren absoluten Kosten der jeweiligen Stunde</CardDescription>
+                <CardTitle>Übersicht der Wochentage</CardTitle>
+                <CardDescription>Hier sehen Sie Ihren absoluten Verbrauch an den gegebenen Wochentagen</CardDescription>
             </CardHeader>
             <CardContent>
-                <CostHourChart data={processedData} />
+                <DayChart data={processedData} />
             </CardContent>
         </Card>
     );

@@ -14,6 +14,7 @@ export default function (props: Props) {
             <h2 className="col-span-1 font-bold text-xl md:col-span-3">Kosten im Zeitraum</h2>
             <CostPageRangeSelector />
             {props.children}
+            <h2 className="col-span-1 font-bold text-xl md:col-span-3">Durchschnittliche Kosten</h2>
         </div>
     );
 }
