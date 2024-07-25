@@ -27,7 +27,7 @@ export default async function EnergyPageWeekView() {
     return (
         <div className="col-span-1 grid grid-cols-1 gap-4 md:col-span-3 md:grid-cols-3">
             <Suspense fallback={<Skeleton className="col-span-1 h-40 w-full md:col-span-3" />}>
-                <AbsoluteChartView startDate={startDate} endDate={endDate} aggregation={AggregationType.DAY} />
+                <AbsoluteChartView startDate={startDate} endDate={endDate} aggregation={AggregationType.WEEKDAY} />
             </Suspense>
             <Suspense fallback={<Skeleton className="col-span-1 h-96 w-full md:col-span-3" />}>
                 <DayChartView startDate={startDate} endDate={endDate} />

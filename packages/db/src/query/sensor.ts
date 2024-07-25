@@ -165,13 +165,33 @@ export async function getHourEnergyForSensorInRange(
 /**
  * Get the aggregation based on day weekday 0 - 7
  */
-export async function getDayEnergyForSensorInRange(
+export async function getWeekDayEnergyForSensorInRange(
     start: Date,
     end: Date,
     sensorId: string,
     type: "sum" | "average" = "average",
 ): Promise<SensorDataSelectType[]> {
     const query = await aggregatedValues(start, end, sensorId, "WEEKDAY", type);
+    return query.map((row, index) => ({
+        ...row,
+        id: index.toString(),
+        value: Number(row.value),
+        valueOut: Number(row.valueOut),
+        valueCurrent: Number(row.valueCurrent),
+        timestamp: row.timestamp,
+    }));
+}
+
+/**
+ * Get the aggregation based on day in month 0 - 31
+ */
+export async function getDayEnergyForSensorInRange(
+    start: Date,
+    end: Date,
+    sensorId: string,
+    type: "sum" | "average" = "average",
+): Promise<SensorDataSelectType[]> {
+    const query = await aggregatedValues(start, end, sensorId, "%d", type);
     return query.map((row, index) => ({
         ...row,
         id: index.toString(),
@@ -192,6 +212,26 @@ export async function getWeekEnergyForSensorInRange(
     type: "sum" | "average" = "average",
 ): Promise<SensorDataSelectType[]> {
     const query = await aggregatedValues(start, end, sensorId, "WEEK", type);
+    return query.map((row, index) => ({
+        ...row,
+        id: index.toString(),
+        value: Number(row.value),
+        valueOut: Number(row.valueOut),
+        valueCurrent: Number(row.valueCurrent),
+        timestamp: row.timestamp,
+    }));
+}
+
+/**
+ * Get the aggregation based on week per month 0 - 52
+ */
+export async function getCalendarWeekEnergyForSensorInRange(
+    start: Date,
+    end: Date,
+    sensorId: string,
+    type: "sum" | "average" = "average",
+): Promise<SensorDataSelectType[]> {
+    const query = await aggregatedValues(start, end, sensorId, "%X-W%V", type);
     return query.map((row, index) => ({
         ...row,
         id: index.toString(),
@@ -254,10 +294,14 @@ export async function getEnergyForSensorInRange(
             return getRawEnergyForSensorInRange(start, end, sensorId);
         case AggregationType.HOUR:
             return getHourEnergyForSensorInRange(start, end, sensorId, type);
+        case AggregationType.WEEKDAY:
+            return getWeekDayEnergyForSensorInRange(start, end, sensorId, type);
         case AggregationType.DAY:
             return getDayEnergyForSensorInRange(start, end, sensorId, type);
         case AggregationType.WEEK:
             return getWeekEnergyForSensorInRange(start, end, sensorId, type);
+        case AggregationType.CALENDAR_WEEK:
+            return getCalendarWeekEnergyForSensorInRange(start, end, sensorId, type);
         case AggregationType.MONTH:
             return getMonthEnergyForSensorInRange(start, end, sensorId, type);
         case AggregationType.YEAR:

@@ -2,9 +2,11 @@
 
 import { useDeviceContext } from "@/hooks/device-hook";
 import { Dialog, DialogContent, DialogHeader } from "@energyleaf/ui/dialog";
+import { useQueryClient } from "@tanstack/react-query";
 import DeviceDetailsForm from "./device-details-form";
 
 export default function DeviceEditDialog() {
+    const queryClient = useQueryClient();
     const deviceContext = useDeviceContext();
 
     return (
@@ -22,6 +24,7 @@ export default function DeviceEditDialog() {
                     onCallback={() => {
                         deviceContext.setDialogOpen(false);
                         deviceContext.setDevice(undefined);
+                        queryClient.invalidateQueries({ queryKey: ["devices"] });
                     }}
                 />
             </DialogContent>

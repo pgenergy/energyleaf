@@ -28,10 +28,12 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
         const formatOptions = {
             [AggregationType.RAW]: "dd.MM.yyyy HH:mm:ss",
             [AggregationType.HOUR]: "HH 'Uhr'",
-            [AggregationType.DAY]: "dddd",
+            [AggregationType.DAY]: "do",
+            [AggregationType.WEEKDAY]: "iiii",
             [AggregationType.MONTH]: "MMMM",
             [AggregationType.YEAR]: "yyyy",
-            [AggregationType.WEEK]: `'KW' WW`,
+            [AggregationType.CALENDAR_WEEK]: `'KW' WW`,
+            [AggregationType.WEEK]: `'Woche' WW`,
         };
         return format(date, formatOptions[aggregationType] || "dd.MM.yyyy HH:mm:ss", { locale: de });
     }, [data?.timestamp, aggregationType]);

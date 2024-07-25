@@ -106,8 +106,14 @@ export default async function CostAbsoluteChartView(props: Props) {
             case AggregationType.DAY:
                 totalBaseCost = userData.basePrice / 30;
                 break;
+            case AggregationType.WEEKDAY:
+                totalBaseCost = userData.basePrice / 30;
+                break;
             case AggregationType.WEEK:
                 totalBaseCost = userData.basePrice / 4;
+                break;
+            case AggregationType.CALENDAR_WEEK:
+                totalBaseCost = userData.basePrice / 52;
                 break;
             case AggregationType.MONTH:
                 totalBaseCost = userData.basePrice;

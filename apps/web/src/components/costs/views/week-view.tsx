@@ -37,7 +37,7 @@ export default async function WeekPageWeekView() {
                     endDate={endDate}
                     compareStartDate={compareStartDate}
                     compareEndDate={compareEndDate}
-                    aggregation={AggregationType.DAY}
+                    aggregation={AggregationType.WEEKDAY}
                     previousTitle="Zu letzter Woche"
                 />
             </Suspense>

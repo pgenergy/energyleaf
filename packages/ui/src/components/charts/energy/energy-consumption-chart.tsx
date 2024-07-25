@@ -107,15 +107,23 @@ export function EnergyConsumptionChart({
         }
 
         if (aggregation === AggregationType.HOUR) {
-            return format(new Date(value), "HH:00");
+            return format(new Date(value), "HH 'Uhr'");
         }
 
         if (aggregation === AggregationType.DAY) {
-            return format(new Date(value), "dddd", { locale: de });
+            return format(new Date(value), "do", { locale: de });
+        }
+
+        if (aggregation === AggregationType.WEEKDAY) {
+            return format(new Date(value), "iiii", { locale: de });
+        }
+
+        if (aggregation === AggregationType.CALENDAR_WEEK) {
+            return format(new Date(value), "'KW' WW", { locale: de });
         }
 
         if (aggregation === AggregationType.WEEK) {
-            return format(new Date(value), "'KW' WW", { locale: de });
+            return format(new Date(value), "'Woche' WW", { locale: de });
         }
 
         if (aggregation === AggregationType.MONTH) {
