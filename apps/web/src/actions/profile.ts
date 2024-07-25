@@ -54,7 +54,7 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
             await updateUser(
                 {
                     firstname: data.firstname,
-                    lastName: data.lastname,
+                    lastname: data.lastname,
                     phone: data.phone,
                     address: data.address,
                     username: data.username,
@@ -68,7 +68,7 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
                     session,
                 }),
             );
-            revalidatePath("/profile");
+            revalidatePath("/settings");
             revalidatePath("/dashboard");
         } catch (e) {
             waitUntil(logError("user/not-updated", "update-base-information", "web", { userDataToLog, session }, e));
@@ -84,7 +84,7 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
             );
             return {
                 success: false,
-                message: "Sie müssen angemeldet sein, um Ihr Profil zu bearbeiten.",
+                message: "Sie müssen angemeldet sein, um dies zu bearbeiten.",
             };
         }
         waitUntil(logError("profile/error", "update-base-information", "web", { userDataToLog, session }, err));
@@ -125,7 +125,7 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
                 session.userId,
             );
             waitUntil(trackAction("user/update-password", "update-password", "web", { session }));
-            revalidatePath("/profile");
+            revalidatePath("/settings/security");
             revalidatePath("/dashboard");
         } catch (e) {
             waitUntil(logError("user/not-updated", "update-password", "web", { session }, e));
@@ -183,7 +183,7 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
             waitUntil(
                 trackAction("user/updated-mail-information", "update-mail-information", "web", { data, session }),
             );
-            revalidatePath("/profile");
+            revalidatePath("/settings");
             revalidatePath("/dashboard");
         } catch (e) {
             waitUntil(
@@ -418,7 +418,7 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
 }
 
 function revalidateUserDataPaths() {
-    revalidatePath("/profile");
+    revalidatePath("/settings");
     revalidatePath("/dashboard");
     revalidatePath("/onboarding");
 }

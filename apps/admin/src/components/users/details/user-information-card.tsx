@@ -46,14 +46,14 @@ export default function UserInformationCard({ user }: Props) {
             <CardHeader>
                 <CardTitle>{cardTitle}</CardTitle>
                 <CardDescription>
-                    Hier können Sie die Informationen von Nutzer {user.firstname} {user.lastName} | {user.username}{" "}
+                    Hier können Sie die Informationen von Nutzer {user.firstname} {user.lastname} | {user.username}{" "}
                     einsehen und ändern mit ID: {user.id}.
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <UserBaseInformationForm
                     firstname={user.firstname}
-                    lastname={user.lastName}
+                    lastname={user.lastname}
                     changeIsPending={changeIsPending}
                     email={user.email}
                     phone={user.phone ?? undefined}

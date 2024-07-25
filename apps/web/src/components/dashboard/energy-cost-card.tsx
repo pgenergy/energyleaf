@@ -31,7 +31,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
+                    <h1 className="text-center text-muted-foreground">Keine Sensordaten vorhanden</h1>
                 </CardContent>
             </Card>
         );
@@ -54,13 +54,13 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
             </CardHeader>
             <CardContent>
                 {parsedCost > 0 ? (
-                    <p className="text-center font-bold text-2xl text-primary">{formattedCost} €</p>
+                    <p className="text-center font-bold font-mono">{formattedCost} €</p>
                 ) : (
                     <Link
-                        href="/profile"
+                        href="/settings"
                         className="flex flex-row items-center justify-center gap-2 text-muted-foreground text-sm"
                     >
-                        Preis im Profil festlegen <ArrowRightIcon className="h-4 w-4" />
+                        Preis in den Einstellungen festlegen <ArrowRightIcon className="h-4 w-4" />
                     </Link>
                 )}
             </CardContent>

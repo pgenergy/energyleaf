@@ -53,7 +53,7 @@ export default async function UserDetailsPage({ params }: Props) {
                     </Suspense>
                 </ErrorBoundary>
                 <ErrorBoundary fallback={UserConsumptionCardError}>
-                    <Suspense fallback={<Skeleton className="h-[57rem] w-full" />}>
+                    <Suspense fallback={<Skeleton className="h-96 w-full" />}>
                         <UserConsumptionCard userId={user.id} />
                     </Suspense>
                 </ErrorBoundary>

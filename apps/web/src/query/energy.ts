@@ -5,17 +5,24 @@ import {
     getElectricitySensorIdForUser as getDbElectricitySensorIdForUser,
     getEnergyForSensorInRange as getDbEnergyForSensorInRange,
     getEnergyLastEntry as getDbEnergyLastEntry,
+    getSequencesBySensor,
 } from "@energyleaf/db/query";
 import { AggregationType } from "@energyleaf/lib";
 import { cache } from "react";
 import "server-only";
 
 export const getEnergyDataForSensor = cache(
-    async (start: Date, end: Date, sensorId: string, aggregation = AggregationType.RAW) => {
+    async (
+        start: Date,
+        end: Date,
+        sensorId: string,
+        aggregation = AggregationType.RAW,
+        aggType: "sum" | "average" = "average",
+    ) => {
         if (sensorId === "demo_sensor") {
             return getDemoSensorData(start, end);
         }
-        return getDbEnergyForSensorInRange(start, end, sensorId, aggregation);
+        return getDbEnergyForSensorInRange(start, end, sensorId, aggregation, aggType);
     },
 );
 
@@ -61,4 +68,17 @@ export const getEnergyLastEntry = cache(async (sensorId: string) => {
     }
 
     return getDbEnergyLastEntry(sensorId);
+});
+
+type ExtraSequencesProps = {
+    start: Date;
+    end: Date;
+};
+
+export const getSensorDataSequences = cache(async (sensorId: string, extra?: ExtraSequencesProps) => {
+    if (sensorId === "demo_sensor") {
+        return []; // Does not exist in demo version.
+    }
+
+    return getSequencesBySensor(sensorId, extra);
 });

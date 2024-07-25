@@ -143,7 +143,7 @@ export async function updateUser(data: z.infer<typeof baseInformationSchema>, id
         await updateUserDb(
             {
                 firstname: data.firstname,
-                lastName: data.lastname,
+                lastname: data.lastname,
                 username: data.username,
                 email: data.email,
                 phone: data.phone,
@@ -334,8 +334,8 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
 
         // Send user mails based on expent status
         let name = userData.username;
-        if (userData.firstname && userData.lastName && userData.firstname !== "" && userData.lastName !== "") {
-            name = `${userData.firstname} ${userData.lastName}`;
+        if (userData.firstname && userData.lastname && userData.firstname !== "" && userData.lastname !== "") {
+            name = `${userData.firstname} ${userData.lastname}`;
         }
 
         if (data.experimentStatus === "dismissed") {
@@ -369,7 +369,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
         if ((data.experimentStatus === "second_survey" || data.experimentStatus === "third_survey") && !data.getsPaid) {
             const number = data.experimentStatus === "second_survey" ? 2 : 3;
             const surveyToken = userData.id.replace(/-_/g, "");
-            const surveyId = data.experimentStatus === "second_survey" ? "TODO 1" : "TODO 2";
+            const surveyId = data.experimentStatus === "second_survey" ? "468112" : "349968";
             const surveyLink = `https://umfragen.uni-oldenburg.de/index.php?r=survey/index&token=${surveyToken}&sid=${surveyId}&lang=de`;
             try {
                 await sendSurveyInviteEmail({

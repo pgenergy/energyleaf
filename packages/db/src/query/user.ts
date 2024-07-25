@@ -165,7 +165,6 @@ export type CreateUserType = {
     electricityMeterType: (typeof userData.electricityMeterType.enumValues)[number];
     electricityMeterNumber: string;
     participation: boolean;
-    prolific: boolean;
     meterImgUrl?: string;
 };
 
@@ -184,13 +183,13 @@ export async function createUser(data: CreateUserType) {
         await trx.insert(user).values({
             id: userId,
             firstname: data.firstname,
-            lastName: data.lastname,
+            lastname: data.lastname,
             address: data.address,
             phone: data.phone,
             username: data.username,
             email: data.email,
             password: data.password,
-            isParticipant: data.participation || data.prolific,
+            isParticipant: data.participation,
         });
         await trx.insert(userData).values({
             userId,
@@ -206,10 +205,10 @@ export async function createUser(data: CreateUserType) {
             timestampLast: new Date(),
         });
 
-        if (data.participation || data.prolific) {
+        if (data.participation) {
             await trx.insert(userExperimentData).values({
                 userId,
-                getsPaid: data.prolific,
+                getsPaid: true,
             });
         }
     });
@@ -280,7 +279,7 @@ export async function deleteUser(id: string) {
         await trx.insert(historyUser).values({
             ...data.user,
             firstname: "",
-            lastName: "",
+            lastname: "",
             phone: "",
             address: "",
             username: "",

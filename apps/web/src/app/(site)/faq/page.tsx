@@ -72,8 +72,8 @@ export default async function FaqPage() {
                             </AccordionTrigger>
                             <AccordionContent>
                                 Sie können Ihre Profilinformationen aktualisieren, indem Sie auf Ihr Profilbild oben
-                                rechts klicken. Dort können Sie Ihre persönlichen Daten, Tarifinformationen und
-                                Maileinstellungen anpassen.
+                                rechts klicken. Dort können Sie unter Einstellungen Ihre persönlichen Daten,
+                                Tarifinformationen und Maileinstellungen anpassen.
                             </AccordionContent>
                         </AccordionItem>
                         <AccordionItem value="item-6">
@@ -81,8 +81,9 @@ export default async function FaqPage() {
                                 Kann ich regelmäßig Berichte über meinen Energieverbrauch erhalten?
                             </AccordionTrigger>
                             <AccordionContent>
-                                Ja, sie können im Profil einstellen, dass Sie regelmäßige Berichte per E-Mail erhalten,
-                                indem Sie im Profil das Intervall und die Uhrzeit der Zusendung konfigurieren.
+                                Ja, sie können in den Einstellungen einstellen, dass Sie regelmäßige Berichte per E-Mail
+                                erhalten, indem Sie in den Einstellungen das Intervall und die Uhrzeit der Zusendung
+                                konfigurieren.
                             </AccordionContent>
                         </AccordionItem>
                         {fulfills(user.appVersion, Versions.self_reflection) && (
@@ -95,7 +96,8 @@ export default async function FaqPage() {
                                         Energyleaf sendet Ihnen bei aktivierter Einstellung automatisch eine
                                         Benachrichtigung per E-Mail, wenn Ihr aktueller Verbrauch stark von Ihrem
                                         normalen Verbrauch abweicht und ungewöhnlich hoch ist. Sollten Sie die
-                                        Einstellung aktivieren wollen, können Sie dies oben rechts in Ihrem Profil tun.
+                                        Einstellung aktivieren wollen, können Sie dies oben rechts in den Einstellungen
+                                        tun.
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-8">
@@ -103,10 +105,10 @@ export default async function FaqPage() {
                                         Wie kann ich mein Energieverbrauchsziel festlegen und überwachen?
                                     </AccordionTrigger>
                                     <AccordionContent>
-                                        Sie können in Ihrem Profil ein tägliches Energieverbrauchsziel in kWh oder ein
-                                        tägliches Energiebudget in Euro festlegen. Energyleaf zeigt Ihnen dann auf der
-                                        Übersichtseite sowie in den Berichten, wie gut Sie Ihr Ziel erreichen, und warnt
-                                        Sie, wenn Sie es überschreiten.
+                                        Sie können in den Einstellungen ein tägliches Energieverbrauchsziel in kWh oder
+                                        ein tägliches Energiebudget in Euro festlegen. Energyleaf zeigt Ihnen dann auf
+                                        der Übersichtseite sowie in den Berichten, wie gut Sie Ihr Ziel erreichen, und
+                                        warnt Sie, wenn Sie es überschreiten.
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="item-9">

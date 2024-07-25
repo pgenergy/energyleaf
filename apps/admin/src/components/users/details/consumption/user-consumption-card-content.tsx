@@ -22,7 +22,7 @@ export default function UserConsumptionCardContent({ userId }: Props) {
     }
 
     return (
-        <div className="h-96 w-full">
+        <div className="w-full">
             {data.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center">
                     <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>

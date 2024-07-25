@@ -5,7 +5,6 @@ import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import { getUserDataCookieStoreDefaults, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
-import { genId } from "@energyleaf/db";
 import {
     type CreateUserType,
     createUser,
@@ -59,7 +58,6 @@ export async function createAccount(data: FormData) {
     ) as (typeof userData.electricityMeterType.enumValues)[number];
     const electricityMeterNumber = data.get("electricityMeterNumber") as string;
     const participation = (data.get("participation") as string) === "true";
-    const prolific = (data.get("prolific") as string) === "true";
 
     if (!tos) {
         waitUntil(trackAction("privacy-policy/not-accepted", "create-account", "web", { mail }));
@@ -175,7 +173,6 @@ export async function createAccount(data: FormData) {
             meterImgUrl: url,
             electricityMeterNumber,
             participation,
-            prolific,
         } satisfies CreateUserType);
         waitUntil(trackAction("user-account/created", "create-account", "web", { mail }));
         if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
@@ -195,7 +192,6 @@ export async function createAccount(data: FormData) {
                     hasWifi,
                     hasPower,
                     participates: participation,
-                    prolific,
                     to: env.ADMIN_MAIL,
                     from: env.RESEND_API_MAIL,
                     apiKey: env.RESEND_API_KEY,

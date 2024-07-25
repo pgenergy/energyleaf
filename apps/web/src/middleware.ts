@@ -10,7 +10,7 @@ type AppVersionSpecificRoute = Record<string, Versions>;
 const appVersionSpecificRoutes: AppVersionSpecificRoute = {
     "/devices": Versions.self_reflection,
     "/recommendations": Versions.support,
-    "/report": Versions.support, // TODO: Remove this line when the page is ready (PGE-101)
+    "/report": Versions.support,
 };
 
 export default async function middleware(req: NextRequest) {

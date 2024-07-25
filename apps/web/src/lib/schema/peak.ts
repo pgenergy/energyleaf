@@ -6,5 +6,5 @@ export const deviceSchema = z.object({
 });
 
 export const peakSchema = z.object({
-    device: z.array(deviceSchema).min(1, "Es muss mindestens ein Gerät ausgewählt werden"),
+    device: z.array(deviceSchema),
 });
