@@ -41,7 +41,7 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
 
     const userData = await getUserDataHistory(userId);
 
-    const rawCosts = calculateCosts(userData, energyDataRaw.data);
+    const rawCosts = calculateCosts(userData, energyDataRaw);
     const cost = rawCosts.toFixed(2);
     const parsedCost = Number.parseFloat(cost);
     const formattedCost = formatNumber(parsedCost);

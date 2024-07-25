@@ -11,15 +11,17 @@ import type { CategoricalChartState } from "recharts/types/chart/types";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "../../ui/chart";
 import ChartSwitchButton from "./chart-switch-button";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
+import type { DeviceClassification } from "@energyleaf/lib";
 
 interface Props {
-    data: { data: SensorDataSelectType[], classifications: any[] };
+    data: SensorDataSelectType[];
     peaks?: SensorDataSequenceType[];
     cost?: number;
     showPeaks?: boolean;
     aggregation?: AggregationType;
     peaksCallback?: (value: SensorDataSequenceType) => void;
     zoomCallback?: (left: Date, right: Date) => void;
+    classifiedData: DeviceClassification[];
 }
 
 const chartConfig = {
@@ -49,86 +51,86 @@ export function EnergyConsumptionChart({
     cost,
     zoomCallback,
     peaksCallback,
+    classifiedData,
 }: Props) {
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
     const [mouseDown, setMouseDown] = useState(false);
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
 
-    console.log('Data received:', data);
-
     const preparedData = useMemo(() => {
-        return data.data.map((d) => ({
+        return data.map((d) => ({
             ...d,
             timestamp: d.timestamp.toISOString(),
             ...(cost ? { cost: d.value * cost } : {}),
         }));
-    }, [data.data, cost]);
+    }, [data, cost]);
 
     const hasOutValues = useMemo(() => {
-        return data.data.some((d) => d.valueOut);
-    }, [data.data]);
+        return data.some((d) => d.valueOut);
+    }, [data]);
 
     const hasCurrentValues = useMemo(() => {
-        return data.data.some((d) => d.valueCurrent);
-    }, [data.data]);
+        return data.some((d) => d.valueCurrent);
+    }, [data]);
 
     const hasCost = useMemo(() => {
         return preparedData.some((d) => d.cost);
     }, [preparedData]);
 
     const sameDay = useMemo(() => {
-        if (data.data.length === 0) return false;
+        if (data.length === 0) return false;
 
-        const firstDate = data.data[0].timestamp;
-        return data.data.every((value) => {
-            const date = value.timestamp;
+        const firstDate = new Date(data[0].timestamp);
+        return data.every((value) => {
+            const date = new Date(value.timestamp);
             return date.getDate() === firstDate.getDate();
         });
-    }, [data.data]);
+    }, [data]);
 
     const showSeconds = useMemo(() => {
-        if (data.data.length === 0) return false;
+        if (data.length === 0) return false;
 
-        const firstDate = data.data[0].timestamp;
-        const lastDate = data.data[data.data.length - 1].timestamp;
+        const firstDate = new Date(data[0].timestamp);
+        const lastDate = new Date(data[data.length - 1].timestamp);
         const diff = lastDate.getTime() - firstDate.getTime();
         return diff < 5 * 60 * 1000;
-    }, [data.data]);
+    }, [data]);
 
     const dynamicTickFormatter = (value: string) => {
+        const date = new Date(value);
         if (aggregation === AggregationType.RAW) {
             if (sameDay) {
                 if (showSeconds) {
-                    return format(new Date(value), "HH:mm:ss");
+                    return format(date, "HH:mm:ss");
                 }
-                return format(new Date(value), "HH:mm");
+                return format(date, "HH:mm");
             }
 
-            return format(new Date(value), "dd.MM: HH:mm");
+            return format(date, "dd.MM: HH:mm");
         }
 
         if (aggregation === AggregationType.HOUR) {
-            return format(new Date(value), "HH:00");
+            return format(date, "HH:00");
         }
 
         if (aggregation === AggregationType.DAY) {
-            return format(new Date(value), "dddd", { locale: de });
+            return format(date, "eeee", { locale: de });
         }
 
         if (aggregation === AggregationType.WEEK) {
-            return format(new Date(value), "'KW' WW", { locale: de });
+            return format(date, "'KW' WW", { locale: de });
         }
 
         if (aggregation === AggregationType.MONTH) {
-            return format(new Date(value), "MMMM", { locale: de });
+            return format(date, "MMMM", { locale: de });
         }
 
         if (aggregation === AggregationType.YEAR) {
-            return format(new Date(value), "yyyy", { locale: de });
+            return format(date, "yyyy", { locale: de });
         }
 
-        return format(new Date(value), "dd.MM: HH:mm:ss");
+        return format(date, "dd.MM: HH:mm:ss");
     };
 
     const handleZoom = () => {
@@ -317,6 +319,26 @@ export function EnergyConsumptionChart({
                             fillOpacity={0.2}
                         />
                     ) : null}
+                    {classifiedData
+                        ? classifiedData.map((classification) => (
+                              <ReferenceArea
+                                  key={classification.timestamp}
+                                  x1={classification.timestamp}
+                                  x2={classification.timestamp}
+                                  label={{
+                                      position: "top",
+                                      value: classification.dominantClassification,
+                                      fill: "hsl(var(--chart-4))",
+                                      fontSize: 10,
+                                  }}
+                                  stroke="hsl(var(--chart-4))"
+                                  strokeOpacity={0.6}
+                                  fill="hsl(var(--chart-4))"
+                                  fillOpacity={0.2}
+                                  isFront
+                              />
+                          ))
+                        : null}
                 </AreaChart>
             </ChartContainer>
         </>

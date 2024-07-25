@@ -12,7 +12,7 @@ import { cache } from "react";
 import "server-only";
 import { mlApi } from "@/actions/ml";
 
-interface DeviceClassification {
+export interface DeviceClassification {
     timestamp: string;
     power: number;
     dominantClassification: string;
@@ -28,21 +28,9 @@ export const getEnergyDataForSensor = cache(
         aggType: "sum" | "average" = "average",
     ) => {
         if (sensorId === "demo_sensor") {
-            return { data: getDemoSensorData(start, end), classifications: [] };
+            return getDemoSensorData(start, end);
         }
-
-        const energyData = await getDbEnergyForSensorInRange(start, end, sensorId, aggregation, aggType);
-        let classifications: DeviceClassification[] = [];
-
-        if (energyData && energyData.length > 0) {
-            try {
-                classifications = await classifyDeviceUsage(energyData);
-            } catch (error) {
-                console.error("Error in device classification: ", error);
-            }
-        }
-
-        return { data: energyData, classifications };
+        return getDbEnergyForSensorInRange(start, end, sensorId, aggregation, aggType);
     },
 );
 

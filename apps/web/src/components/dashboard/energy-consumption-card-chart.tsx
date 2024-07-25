@@ -1,11 +1,10 @@
-"use client";
-
 import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
 import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy-consumption-chart";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
+import type { DeviceClassification } from "@energyleaf/lib";
 
 interface Props {
     data: SensorDataSelectType[];
@@ -14,9 +13,10 @@ interface Props {
     showPeaks: boolean;
     userId: string;
     cost?: number;
+    classifiedData: DeviceClassification[];
 }
 
-export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost, peaks }: Props) {
+export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost, peaks, classifiedData }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<SensorDataSequenceType | null>(null);
     const router = useRouter();
@@ -46,13 +46,14 @@ export default function EnergyConsumptionCardChart({ data, aggregation, userId, 
                 <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} userId={userId} />
             ) : null}
             <EnergyConsumptionChart
-                data={{ data, classifications: [] }}
+                data={data}
                 peaks={peaks}
                 aggregation={aggregation}
                 showPeaks={showPeaks}
                 cost={cost}
                 peaksCallback={clickCallback}
                 zoomCallback={handleZoom}
+                classifiedData={classifiedData}
             />
         </>
     );
