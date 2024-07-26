@@ -1,18 +1,12 @@
 "use server";
 
+import { lookupGeoLocation } from "@/actions/geo";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { getUserData } from "@/query/user";
-import { getUserById, logError } from "@energyleaf/db/query";
-import { type DefaultActionReturnPayload, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib";
+import { log, logError } from "@energyleaf/db/query";
+import { type DefaultActionReturnPayload, UserNotLoggedInError } from "@energyleaf/lib";
 import { waitUntil } from "@vercel/functions";
-import type { Session } from "lucia";
-import { cache } from "react";
-
-interface OpenStreetMapProps {
-    lat: number;
-    lon: number;
-    display_name: string;
-}
+import type { Session, User } from "lucia";
 
 interface WeatherProps {
     timestamp: string;
@@ -34,20 +28,19 @@ export interface SolarResultDetailsProps {
 export async function calculateSolar(watts: number): Promise<DefaultActionReturnPayload<SolarResultProps>> {
     let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
+        let user: User | null;
+        ({ session, user } = await getActionSession());
         if (!session) {
             throw new UserNotLoggedInError();
         }
-
-        const dbuser = await getUserById(session.userId);
-        if (!dbuser) {
-            throw new UserNotFoundError();
+        if (!user) {
+            throw new UserNotLoggedInError();
         }
 
-        const { lat, lon, display_name } = await lookupLocation(dbuser.address);
+        const { lat, lon, display_name } = await lookupGeoLocation(user.address);
         const weatherData = await getWeather(lat, lon);
 
-        const userData = await getUserData(dbuser.id);
+        const userData = await getUserData(user.id);
         if (!userData) {
             throw new Error("User data not found");
         }
@@ -66,6 +59,8 @@ export async function calculateSolar(watts: number): Promise<DefaultActionReturn
         const payload: SolarResultProps = { next24h, last30d, location: display_name };
         const success = !!userData.workingPrice;
         const message = success ? "" : "Es wurde kein Preis hinterlegt";
+
+        waitUntil(log("solar/success", "info", "calculate-solar", "web", { success, message, payload }));
         return { success, message, payload };
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
@@ -92,20 +87,6 @@ function calculate(weatherData: WeatherProps[], watts: number, workingPrice: num
     return { solar, result, price };
 }
 
-const lookupLocation = cache(async (loc: string) => {
-    const osmReq = await fetch(
-        `https://nominatim.openstreetmap.org/search.php?q=${loc}&accept-language=de&format=jsonv2`,
-    );
-
-    const body = (await osmReq.json()) as OpenStreetMapProps[];
-
-    if (!osmReq.ok || !body) {
-        throw { message: "OpenStreetMap Request Error", osmReq };
-    }
-
-    return body[0];
-});
-
 const getWeather = async (lat: number, lon: number) => {
     let d = new Date();
     d.setDate(new Date().getDate() - 30);
@@ -118,7 +99,7 @@ const getWeather = async (lat: number, lon: number) => {
     const last_date = d.toISOString();
 
     const weatherReq = await fetch(
-        `https://api.brightsky.dev/weather?date=${date}&last_date=${last_date}&lat=${lat}&lon=${lon}`,
+        `https://api.brightsky.dev/weather?date=${date}&last_date=${last_date}&lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`,
         {
             headers: {
                 Accept: "application/json",
