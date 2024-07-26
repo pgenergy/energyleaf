@@ -128,6 +128,9 @@ importers:
       jose:
         specifier: ^5.6.3
         version: 5.6.3
+      jsdom:
+        specifier: ^24.1.0
+        version: 24.1.0(canvas@2.11.2)
       lucia:
         specifier: ^3.2.0
         version: 3.2.0
@@ -4603,10 +4606,6 @@ packages:
   https-proxy-agent@5.0.1:
     resolution: {integrity: sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA==}
     engines: {node: '>= 6'}
-
-  https-proxy-agent@7.0.4:
-    resolution: {integrity: sha512-wlwpilI7YdjSkWaQ/7omYBMTliDcmCN8OLihO6I9B86g06lMyAoqgoDpV0XqoaPOKj+0DIdAvnsWfyAAhmimcg==}
-    engines: {node: '>= 14'}
 
   https-proxy-agent@7.0.5:
     resolution: {integrity: sha512-1e4Wqeblerz+tMKPIq2EMGiiWW1dIjZOksyHWSUm1rmuvw/how9hBHZ38lAGj5ID4Ik6EdkOw7NmWPy6LAwalw==}
@@ -10576,13 +10575,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  https-proxy-agent@7.0.4:
-    dependencies:
-      agent-base: 7.1.1
-      debug: 4.3.5
-    transitivePeerDependencies:
-      - supports-color
-
   https-proxy-agent@7.0.5:
     dependencies:
       agent-base: 7.1.1
@@ -10767,7 +10759,7 @@ snapshots:
       form-data: 4.0.0
       html-encoding-sniffer: 4.0.0
       http-proxy-agent: 7.0.2
-      https-proxy-agent: 7.0.4
+      https-proxy-agent: 7.0.5
       is-potential-custom-element-name: 1.0.1
       nwsapi: 2.2.10
       parse5: 7.1.2
