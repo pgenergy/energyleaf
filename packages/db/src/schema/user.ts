@@ -2,6 +2,7 @@ import { Versions } from "@energyleaf/lib/versioning";
 import { sql } from "drizzle-orm";
 import {
     boolean,
+    date,
     datetime,
     float,
     int,
@@ -95,6 +96,12 @@ export const userData = mysqlTable("user_data", {
 
 export const historyUserData = mysqlTable("history_user_data", {
     ...userDataFields,
+});
+
+export const userTipOfTheDay = mysqlTable("user_tip_of_the_day", {
+    userId: varchar("user_id", { length: 30 }).primaryKey().notNull(),
+    tipId: int("tip_id").notNull(),
+    timestamp: date("date").notNull(),
 });
 
 export const session = mysqlTable("session", {

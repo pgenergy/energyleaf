@@ -7,19 +7,67 @@ import {
     formatNumber,
     getCategoryPowerState,
 } from "@energyleaf/lib";
+import type { EnergyTip } from "@energyleaf/lib/tips";
 import { Button } from "@energyleaf/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon, CircleAlert, ExternalLink, Info } from "lucide-react";
+import {
+    ChevronDownIcon,
+    ChevronUpIcon,
+    ChevronsUpDownIcon,
+    CircleAlert,
+    DotIcon,
+    ExternalLink,
+    Info,
+    LightbulbIcon,
+} from "lucide-react";
+import { Fragment } from "react";
 import DeviceCategoryIcon from "../device-category-icon";
 import DeviceActionCell from "./device-action-cell";
 import DeviceCategoryPowerIcon from "./device-category-power-icon";
 
 export type DeviceColumnsType = DeviceSelectType & {
     categoryReferenceData: DeviceCategoryPower;
+    tips: EnergyTip[] | undefined;
 };
 
 export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
+    {
+        accessorKey: "tips",
+        header: undefined,
+        cell: ({ row }) => {
+            const tips = row.getValue<EnergyTip[] | undefined>("tips");
+            if (!tips || tips.length === 0) {
+                return null;
+            }
+
+            return (
+                <Popover>
+                    <PopoverTrigger title="Stromspartipps für Gerät anzeigen">
+                        <LightbulbIcon className="h-5 w-5" />
+                    </PopoverTrigger>
+                    <PopoverContent className="flex flex-col gap-2">
+                        <span className="font-bold">Stromspartipps</span>
+                        <div className="grid grid-flow-row grid-cols-[auto_1fr] gap-2">
+                            {tips?.map((tip, index) => (
+                                <Fragment key={index.toString()}>
+                                    <DotIcon className="h-4 w-4" />
+                                    <div>
+                                        <span>{tip.text}</span>
+                                        <span className="inline-flex items-center">
+                                            <a href={tip.linkToSource} className="ml-1 flex items-center">
+                                                <ExternalLink className="h-4 w-4" />
+                                            </a>
+                                        </span>
+                                    </div>
+                                </Fragment>
+                            ))}
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            );
+        },
+    },
     {
         accessorKey: "name",
         header: ({ column }) => {

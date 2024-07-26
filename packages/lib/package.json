@@ -8,7 +8,8 @@
 		"./errors/auth": "./src/errors/auth-errors.ts",
 		"./errors/sensor": "./src/errors/sensor-errors.ts",
 		"./versioning": "./src/versioning/versions.ts",
-		"./utils/*": "./src/utils/*.ts"
+		"./utils/*": "./src/utils/*.ts",
+		"./tips": "./src/recommendations/tips/index.ts"
 	},
 	"scripts": {
 		"clean": "git clean -xdf node_modules"
