@@ -13,9 +13,6 @@ export const GET = async (req: NextRequest) => {
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 
-    // Wait 30 s
-    await new Promise((resolve) => setTimeout(resolve, 30000));
-
     try {
         await createReportsAndSendMails();
         return NextResponse.json({ status: 200, statusMessage: "Reports created and sent" });
