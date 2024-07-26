@@ -5,7 +5,18 @@ import { energyleaf_ml, parseReadableStream } from "@energyleaf/proto";
 
 const { DeviceClassificationRequest, DeviceClassificationResponse } = energyleaf_ml;
 
-export const mlApi = async (body) => {
+export interface RequestProps {
+    electricity: {
+        timestamp: string;
+        power: number;
+    }[];
+}
+
+export const mlApi = async (body: RequestProps) => {
+    if (!body) {
+        throw new Error("Missing or empty body");
+    }
+
     const ml_req = DeviceClassificationRequest.create(body);
 
     if (!env.ML_API_KEY) {

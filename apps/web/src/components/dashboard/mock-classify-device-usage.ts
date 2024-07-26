@@ -1,6 +1,7 @@
+import type { SensorDataSelectType } from "@energyleaf/db/types";
 import type { DeviceClassification } from "@energyleaf/lib";
 
-export const mockClassifyDeviceUsage = async (sensorData: any[]): Promise<DeviceClassification[]> => {
+export const mockClassifyDeviceUsage = async (sensorData: SensorDataSelectType[]): Promise<DeviceClassification[]> => {
     return [
         {
             timestamp: "2024-07-16T00:00:00.000Z",
