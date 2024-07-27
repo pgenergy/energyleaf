@@ -33,7 +33,7 @@ export default async function EnergyAbsoluteChartView(props: Props) {
                 <AlertTitle>Keine Sensordaten vorhanden</AlertTitle>
                 <AlertDescription>
                     Zu dieser Zeit liegen keien Daten von Ihrem Sensor vor. Der Grund hierfür ist vermutlich, dass bei
-                    Ihnen noch kein Sensor installiert wurde. Sollte es sich hierbei jedoch um einen Fehler handel,
+                    Ihnen noch kein Sensor installiert wurde. Sollte es sich hierbei jedoch um einen Fehler handeln,
                     kontaktieren Sie uns bitte.
                 </AlertDescription>
             </Alert>

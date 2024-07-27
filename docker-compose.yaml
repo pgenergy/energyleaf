@@ -1,7 +1,8 @@
 version: "3.8"
 services:
   ps-mysql:
-    image: arm64v8/mysql:8.0
+    # image: arm64v8/mysql:8.0 -- for arm64
+    # image: mysql:8.0 -- for x86
     restart: always
     environment:
       MYSQL_DATABASE: energyleaf

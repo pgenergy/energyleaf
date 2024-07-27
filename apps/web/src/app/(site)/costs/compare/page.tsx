@@ -11,7 +11,7 @@ interface Props {
 
 export default function CostComparePage(props: Props) {
     if (!props.searchParams?.date || !props.searchParams?.compareDate) {
-        redirect("/energy");
+        redirect("/costs");
     }
     const date = convertTZDate(new Date(props.searchParams.date), "client");
     const compareDate = convertTZDate(new Date(props.searchParams.compareDate), "client");

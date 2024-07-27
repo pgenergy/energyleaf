@@ -14,7 +14,7 @@ import { Suspense } from "react";
 export const metadata = {
     title: "Kosten | Energyleaf",
 };
-export const maxDuration = 70;
+export const maxDuration = 120;
 
 interface Props {
     children: React.ReactNode;
@@ -52,7 +52,7 @@ export default async function (props: Props) {
                 <AlertTitle>Keine Sensordaten vorhanden</AlertTitle>
                 <AlertDescription>
                     Zu dieser Zeit liegen keien Daten von Ihrem Sensor vor. Der Grund hierfür ist vermutlich, dass bei
-                    Ihnen noch kein Sensor installiert wurde. Sollte es sich hierbei jedoch um einen Fehler handel,
+                    Ihnen noch kein Sensor installiert wurde. Sollte es sich hierbei jedoch um einen Fehler handeln,
                     kontaktieren Sie uns bitte.
                 </AlertDescription>
             </Alert>
@@ -65,7 +65,7 @@ export default async function (props: Props) {
             <CostPageRangeSelector />
             {props.children}
             <CostMoreDataView />
-            <Suspense fallback={<Skeleton className="md:cols-span-3 col-span-1 h-[40rem] w-full" />}>
+            <Suspense fallback={<Skeleton className="col-span-1 h-[40rem] w-full md:col-span-3" />}>
                 <CostDiscountView />
             </Suspense>
         </div>

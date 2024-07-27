@@ -56,18 +56,16 @@ export default async function CostDiscountView() {
     const dailyCost = userData.monthlyPayment / 30;
 
     return (
-        <>
-            <Card className="col-span-1 md:col-span-3">
-                <CardHeader>
-                    <CardTitle>Monatlicher Abschlag</CardTitle>
-                    <CardDescription>
-                        Deine Kosten hochgerechnet auf diesen Monat, basierend auf deinen Daten
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <CostDiscountChart dailyCost={dailyCost} data={processedData} />
-                </CardContent>
-            </Card>
-        </>
+        <Card className="col-span-1 w-full md:col-span-3">
+            <CardHeader>
+                <CardTitle>Monatlicher Abschlag</CardTitle>
+                <CardDescription>
+                    Deine Kosten hochgerechnet auf diesen Monat basierend auf deinen Daten
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <CostDiscountChart dailyCost={dailyCost} data={processedData} />
+            </CardContent>
+        </Card>
     );
 }

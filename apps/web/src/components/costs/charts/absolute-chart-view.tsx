@@ -6,7 +6,7 @@ import { AggregationType, convertTZDate } from "@energyleaf/lib";
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { Alert, AlertDescription, AlertTitle } from "@energyleaf/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { format } from "date-fns";
+import { endOfMonth, format } from "date-fns";
 import { de } from "date-fns/locale";
 import { InfoIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 import Link from "next/link";
@@ -58,7 +58,7 @@ export default async function CostAbsoluteChartView(props: Props) {
                 <AlertTitle>Keine Sensordaten vorhanden</AlertTitle>
                 <AlertDescription>
                     Zu dieser Zeit liegen keien Daten von Ihrem Sensor vor. Der Grund hierfür ist vermutlich, dass bei
-                    Ihnen noch kein Sensor installiert wurde. Sollte es sich hierbei jedoch um einen Fehler handel,
+                    Ihnen noch kein Sensor installiert wurde. Sollte es sich hierbei jedoch um einen Fehler handeln,
                     kontaktieren Sie uns bitte.
                 </AlertDescription>
             </Alert>
@@ -113,7 +113,7 @@ export default async function CostAbsoluteChartView(props: Props) {
                 break;
             case AggregationType.DAY:
                 totalBaseCost = userData.basePrice / 30;
-                totalMissing = 30 - data.length;
+                totalMissing = endOfMonth(new Date()).getDate() - data.length;
                 break;
             case AggregationType.WEEKDAY:
                 totalBaseCost = userData.basePrice / 30;
@@ -187,9 +187,9 @@ export default async function CostAbsoluteChartView(props: Props) {
                             {props.previousTitle}
                             <div className="flex flex-row items-center gap-2">
                                 {positivTrend ? (
-                                    <TrendingUpIcon className="h-6 w-6 fill-current stroke-current text-primary" />
+                                    <TrendingDownIcon className="h-6 w-6 fill-current stroke-current text-primary" />
                                 ) : (
-                                    <TrendingDownIcon className="h-6 w-6 fill-current stroke-current text-destructive" />
+                                    <TrendingUpIcon className="h-6 w-6 fill-current stroke-current text-destructive" />
                                 )}
                                 <p
                                     className={cn(

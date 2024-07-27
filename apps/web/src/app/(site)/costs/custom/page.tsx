@@ -8,7 +8,7 @@ interface Props {
     };
 }
 
-export default function EnergyCustomPage(props: Props) {
+export default function CostCustomPage(props: Props) {
     if (!props.searchParams?.date) {
         redirect("/energy");
     }

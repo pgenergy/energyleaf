@@ -117,7 +117,7 @@ export default function CostDiscountChart(props: Props) {
                     dot={false}
                     stroke="var(--color-cost)"
                     strokeWidth={3}
-                    strokeDasharray="4"
+                    strokeDasharray="4 4"
                 />
                 <Line dataKey="dailyCost" type="linear" dot={false} stroke="var(--color-dailyCost)" strokeWidth={2} />
             </LineChart>
