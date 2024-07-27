@@ -18,7 +18,7 @@
         }
     ],
     "functions": {
-        "src/(api)/api/v1/reports/route.ts": {
+        "api/v1/reports/route.ts": {
             "includeFiles": "fonts/**"
         }
     }
