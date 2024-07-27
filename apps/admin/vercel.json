@@ -18,7 +18,7 @@
         }
     ],
     "functions": {
-        "(api)/api/v1/reports": {
+        "src/(api)/api/v1/reports": {
             "includeFiles": "fonts/**"
         }
     }
