@@ -34,10 +34,16 @@ export default async function CompareChartView(props: Props) {
         );
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        AggregationType.HOUR,
+        "sum",
+    );
     const compareData = await getEnergyDataForSensor(
-        props.compareStartDate,
-        props.compareEndDate,
+        props.compareStartDate.toISOString(),
+        props.compareEndDate.toISOString(),
         sensorId,
         AggregationType.HOUR,
         "sum",

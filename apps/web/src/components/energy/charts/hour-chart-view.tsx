@@ -22,7 +22,13 @@ export default async function HourChartView(props: Props) {
         return null;
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        AggregationType.HOUR,
+        "sum",
+    );
     if (!data || data.length === 0) {
         return null;
     }

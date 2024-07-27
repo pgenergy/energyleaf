@@ -44,7 +44,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         aggregation = AggregationType[aggregationType.toUpperCase() as keyof typeof AggregationType];
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
-    const data = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
+    const data = await getEnergyDataForSensor(startDate.toISOString(), endDate.toISOString(), sensorId, aggregation);
     const showPeaks = fulfills(user.appVersion, Versions.self_reflection) && !hasAggregation;
 
     const userData = await getUserData(user.id);

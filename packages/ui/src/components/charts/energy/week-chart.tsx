@@ -10,7 +10,7 @@ import {
     ChartTooltipContent,
 } from "@energyleaf/ui/chart";
 import ChartSwitchButton from "@energyleaf/ui/charts/chart-switch-button";
-import { startOfMonth } from "date-fns";
+import { getWeekOfMonth, startOfMonth } from "date-fns";
 import { CircleSlash2Icon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
@@ -33,19 +33,6 @@ const chartConfig = {
         color: "hsl(var(--chart-4))",
     },
 } satisfies ChartConfig;
-
-function getWeekOfMonth(date: Date): number {
-    const dayOfMonth = date.getDate();
-
-    const startMonth = startOfMonth(new Date());
-    const startDay = startMonth.getDay();
-
-    const weekStartAdjusted = startDay === 0 ? 7 : startDay;
-    const offset = weekStartAdjusted > 1 ? 8 - weekStartAdjusted : 1;
-    const weekNumber = Math.ceil((dayOfMonth + offset - 1) / 7);
-
-    return weekNumber;
-}
 
 export default function EnergyWeekChart(props: Props) {
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");

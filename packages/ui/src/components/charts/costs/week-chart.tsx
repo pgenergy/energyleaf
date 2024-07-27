@@ -9,7 +9,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@energyleaf/ui/chart";
-import { startOfMonth } from "date-fns";
+import { endOfMonth, getWeekOfMonth, startOfMonth } from "date-fns";
 import { useMemo } from "react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
@@ -24,19 +24,6 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-function getWeekOfMonth(date: Date): number {
-    const dayOfMonth = date.getDate();
-
-    const startMonth = startOfMonth(new Date());
-    const startDay = startMonth.getDay();
-
-    const weekStartAdjusted = startDay === 0 ? 7 : startDay;
-    const offset = weekStartAdjusted > 1 ? 8 - weekStartAdjusted : 1;
-    const weekNumber = Math.ceil((dayOfMonth + offset - 1) / 7);
-
-    return weekNumber;
-}
-
 export default function CostWeekChart(props: Props) {
     function tickFormatter(value: Date) {
         const week = getWeekOfMonth(value);
@@ -44,10 +31,11 @@ export default function CostWeekChart(props: Props) {
     }
 
     const fillArray = useMemo(() => {
+        const maxWeeks = getWeekOfMonth(endOfMonth(new Date()));
         const result: (SensorDataSelectType & { cost: number })[] = [];
         const startMonth = startOfMonth(new Date());
 
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < maxWeeks; i++) {
             const date = new Date();
             date.setDate(startMonth.getDate() + i * 7);
 

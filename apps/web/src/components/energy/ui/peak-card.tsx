@@ -28,7 +28,12 @@ export default async function PeakCard(props: Props) {
     const queryEnd = new Date(sequenceEnd);
     queryEnd.setMinutes(queryEnd.getMinutes() + 1);
 
-    const data = await getEnergyDataForSensor(queryStart, queryEnd, props.sequence.sensorId, AggregationType.RAW);
+    const data = await getEnergyDataForSensor(
+        queryStart.toISOString(),
+        queryEnd.toISOString(),
+        props.sequence.sensorId,
+        AggregationType.RAW,
+    );
     if (!data || data.length === 0) {
         return null;
     }

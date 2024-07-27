@@ -26,15 +26,22 @@ export default async function CostWeekChartView(props: Props) {
         return null;
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.WEEK, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        AggregationType.WEEK,
+        "sum",
+    );
     if (!data || data.length === 0) {
         return null;
     }
 
+    const workingPrice = userData.workingPrice;
     const totalBaseCost = userData.basePrice ? userData.basePrice / 4 : 0;
     const processedData = data.map((d) => ({
         ...d,
-        cost: d.value * (userData.workingPrice as number) + totalBaseCost,
+        cost: d.value * workingPrice + totalBaseCost,
     }));
 
     return (

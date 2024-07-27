@@ -34,7 +34,7 @@ export default async function AbsolutEnergyConsumptionCard({ startDate, endDate,
         );
     }
 
-    const energyData = await getEnergyDataForSensor(startDate, endDate, sensorId);
+    const energyData = await getEnergyDataForSensor(startDate.toISOString(), endDate.toISOString(), sensorId);
     const absolut = energyData.reduce((acc, cur) => acc + cur.value, 0);
 
     return (

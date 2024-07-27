@@ -65,7 +65,13 @@ export default async function CostAbsoluteChartView(props: Props) {
         );
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, props.aggregation, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        props.aggregation,
+        "sum",
+    );
     const hasValues = data.length > 0;
     if (data.length === 1) {
         const newFirst = {
@@ -98,36 +104,43 @@ export default async function CostAbsoluteChartView(props: Props) {
     const total = data.reduce((acc, cur) => acc + cur.value, 0);
     const workingCost = userData.workingPrice * total;
     let totalBaseCost = 0;
+    let totalMissing = 0;
     if (userData.basePrice) {
         switch (props.aggregation) {
             case AggregationType.HOUR:
                 totalBaseCost = userData.basePrice / 30 / 24;
+                totalMissing = 24 - data.length;
                 break;
             case AggregationType.DAY:
                 totalBaseCost = userData.basePrice / 30;
+                totalMissing = 30 - data.length;
                 break;
             case AggregationType.WEEKDAY:
                 totalBaseCost = userData.basePrice / 30;
+                totalMissing = 7 - data.length;
                 break;
             case AggregationType.WEEK:
                 totalBaseCost = userData.basePrice / 4;
+                totalMissing = 4 - data.length;
                 break;
             case AggregationType.CALENDAR_WEEK:
                 totalBaseCost = userData.basePrice / 52;
+                totalMissing = 52 - data.length;
                 break;
             case AggregationType.MONTH:
                 totalBaseCost = userData.basePrice;
+                totalMissing = 12 - data.length;
                 break;
             case AggregationType.YEAR:
                 totalBaseCost = userData.basePrice * 12;
                 break;
         }
     }
-    const totalCost = totalBaseCost + workingCost;
+    const totalCost = totalBaseCost * data.length + workingCost;
 
     const compareData = await getEnergyDataForSensor(
-        props.compareStartDate,
-        props.compareEndDate,
+        props.compareStartDate.toISOString(),
+        props.compareEndDate.toISOString(),
         sensorId,
         props.aggregation,
         "sum",
@@ -135,7 +148,7 @@ export default async function CostAbsoluteChartView(props: Props) {
     const hasCompareData = compareData.length > 0;
     const compareTotal = compareData.reduce((acc, cur) => acc + cur.value, 0);
     const compareWorkingCost = userData.workingPrice * compareTotal;
-    const compareTotalCost = totalBaseCost + compareWorkingCost;
+    const compareTotalCost = totalBaseCost * compareData.length + compareWorkingCost;
 
     const totalChange = totalCost - compareTotalCost;
     const percentageChange = (totalCost / compareTotalCost) * 100 - 100;
@@ -145,6 +158,11 @@ export default async function CostAbsoluteChartView(props: Props) {
     const displayEndDate = convertTZDate(new Date(props.compareEndDate), "client");
     const displayInitalDate = convertTZDate(new Date(props.startDate), "client");
     const sameDay = displayStartDate.getDate() === displayEndDate.getDate();
+    let predicitionCost = 0;
+    if (totalMissing > 0 && hasCompareData && totalMissing < compareData.length) {
+        const checkData = compareData.slice(compareData.length - totalMissing);
+        predicitionCost = checkData.reduce((acc, cur) => acc + cur.value, 0) + totalBaseCost * totalMissing;
+    }
 
     return (
         <>
@@ -219,6 +237,16 @@ export default async function CostAbsoluteChartView(props: Props) {
                     </CardHeader>
                     <CardContent>
                         <p className="font-bold font-mono">{compareTotalCost.toFixed(2)} €</p>
+                    </CardContent>
+                </Card>
+            ) : predicitionCost > 0 ? (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Hochrechnung</CardTitle>
+                        <CardDescription>Basierend auf vorherigen Daten</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="font-bold font-mono">{(totalCost + predicitionCost).toFixed(2)} €</p>
                     </CardContent>
                 </Card>
             ) : (

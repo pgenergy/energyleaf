@@ -40,7 +40,13 @@ export default async function EnergyAbsoluteChartView(props: Props) {
         );
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, props.aggregation, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        props.aggregation,
+        "sum",
+    );
     const hasValues = data.length > 0;
     if (data.length === 1) {
         const newFirst = {

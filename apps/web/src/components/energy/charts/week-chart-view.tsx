@@ -22,7 +22,13 @@ export default async function WeekChartView(props: Props) {
         return null;
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.WEEK, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        AggregationType.WEEK,
+        "sum",
+    );
     if (!data || data.length === 0) {
         return null;
     }

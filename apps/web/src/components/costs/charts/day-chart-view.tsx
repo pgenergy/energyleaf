@@ -26,7 +26,13 @@ export default async function DayChartView(props: Props) {
         return null;
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.WEEKDAY, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        AggregationType.WEEKDAY,
+        "sum",
+    );
     if (!data || data.length === 0) {
         return null;
     }
