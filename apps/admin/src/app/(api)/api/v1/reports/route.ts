@@ -1,3 +1,5 @@
+export const maxDuration = 300; // This function can run for a maximum of 300 seconds
+
 import { env } from "@/env.mjs";
 import { createReportsAndSendMails } from "@/lib/reports/send-reports";
 import { log, logError } from "@energyleaf/db/query";
