@@ -16,10 +16,5 @@
             "path": "/api/v1/anomaly",
             "schedule": "0,30 * * * *"
         }
-    ],
-    "functions": {
-        "api/v1/reports/route.ts": {
-            "includeFiles": "fonts/**"
-        }
-    }
+    ]
 }
