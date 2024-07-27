@@ -13,6 +13,8 @@ import EnergyCostCard from "@/components/dashboard/energy-cost-card";
 import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
 import GoalsCard from "@/components/dashboard/goals/goals-card";
 import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
+import TipOfTheDayCard from "@/components/dashboard/tip-of-the-day-card";
+import TipOfTheDayCardError from "@/components/dashboard/tip-of-the-day-card-error";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
 import { convertTZDate } from "@energyleaf/lib";
@@ -62,6 +64,13 @@ export default async function DashboardPage({
                 <div className="col-span-1 md:col-span-3">
                     <h1 className="font-bold text-2xl">Übersicht</h1>
                 </div>
+                {fulfills(user.appVersion, Versions.support) && (
+                    <ErrorBoundary fallback={TipOfTheDayCardError}>
+                        <Suspense fallback={<Skeleton className="col-span-1 h-72 w-full md:col-span-3" />}>
+                            <TipOfTheDayCard />
+                        </Suspense>
+                    </ErrorBoundary>
+                )}
                 {fulfills(user.appVersion, Versions.self_reflection) && (
                     <ErrorBoundary fallback={GoalsCardError}>
                         <Suspense fallback={<Skeleton className="col-span-1 h-72 w-full md:col-span-3" />}>

@@ -8,6 +8,11 @@ const nextConfig = {
         config.externals.push("@node-rs/argon2", "@node-rs/bcrypt", "jsdom", "canvas", "@aws-sdk/client-s3");
         return config;
     },
+    experimental: {
+        outputFileTracingIncludes: {
+            "/api/v1/reports.ts": ["./fonts/**/*"],
+        },
+    },
 };
 
 export default nextConfig;

@@ -43,4 +43,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
-export { Button, buttonVariants };
+export interface DivButtonProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof buttonVariants> {}
+
+/**
+ * A div component that looks and behaves like a button.
+ *
+ * IMPORTANT: Note that you should always prefer the `Button` component over this one. This component should only be used in cases where you need a button inside of a button.
+ */
+const DivButton = React.forwardRef<HTMLDivElement, DivButtonProps>(({ className, variant, size, ...props }, ref) => {
+    return <div className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+});
+
+export { Button, DivButton, buttonVariants };

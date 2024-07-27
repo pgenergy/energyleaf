@@ -1,7 +1,11 @@
+export const maxDuration = 300; // This function can run for a maximum of 300 seconds
+
+import { join } from "node:path";
 import { env } from "@/env.mjs";
 import { createReportsAndSendMails } from "@/lib/reports/send-reports";
 import { log, logError } from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
+import { registerFont } from "canvas";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
@@ -12,6 +16,8 @@ export const GET = async (req: NextRequest) => {
     }
 
     try {
+        registerFont(join(process.cwd(), "/fonts/ARIAL.TTF"), { family: "Arial" });
+
         await createReportsAndSendMails();
         return NextResponse.json({ status: 200, statusMessage: "Reports created and sent" });
     } catch (e) {
