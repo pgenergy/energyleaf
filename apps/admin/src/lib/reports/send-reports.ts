@@ -31,7 +31,7 @@ interface UserReportData {
 
 export async function createReportsAndSendMails() {
     const usersWithDueReport: UserReportData[] = await getUsersWitDueReport();
-    waitUntil(trackAction("users/start-due-reports-check", "report", "api", usersWithDueReport));
+    waitUntil(trackAction("users/start-due-reports-check", "reports", "api", usersWithDueReport));
 
     const totalReports = usersWithDueReport.length;
     let successfulReports = 0;
@@ -48,8 +48,8 @@ export async function createReportsAndSendMails() {
         } catch (e) {
             waitUntil(
                 logError(
-                    "create-report/failed",
-                    "report",
+                    "create-reports/failed",
+                    "reports",
                     "api",
                     { userWithDueReport, reportProps, unsubscribeLink },
                     e,
@@ -65,8 +65,8 @@ export async function createReportsAndSendMails() {
             } catch (e) {
                 waitUntil(
                     logError(
-                        "send-report/failed",
-                        "report",
+                        "send-reports/failed",
+                        "reports",
                         "api",
                         { userWithDueReport, reportProps, unsubscribeLink },
                         e,
@@ -82,8 +82,8 @@ export async function createReportsAndSendMails() {
         } catch (e) {
             waitUntil(
                 logError(
-                    "save-report-in-db/failed",
-                    "report",
+                    "save-reports-in-db/failed",
+                    "reports",
                     "api",
                     { userWithDueReport, reportProps, unsubscribeLink },
                     e,
@@ -97,8 +97,8 @@ export async function createReportsAndSendMails() {
         } catch (e) {
             waitUntil(
                 logError(
-                    "update-last-report-timestamp/failed",
-                    "report-creation",
+                    "update-last-reports-timestamp/failed",
+                    "reports-creation",
                     "api",
                     { userWithDueReport, reportProps, unsubscribeLink },
                     e,
@@ -110,7 +110,7 @@ export async function createReportsAndSendMails() {
         successfulReports += thisReportIsSuccessful;
     }
 
-    waitUntil(trackAction("users/end-due-reports-check", "report", "api", { totalReports, successfulReports }));
+    waitUntil(trackAction("users/end-due-reports-check", "reports", "api", { totalReports, successfulReports }));
 }
 
 export async function createReportData(user: UserReportData): Promise<ReportProps> {

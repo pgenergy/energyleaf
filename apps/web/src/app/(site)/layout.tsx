@@ -44,9 +44,9 @@ const navLinks = [
         appVersion: Versions.self_reflection,
     },
     {
-        slug: "report",
+        slug: "reports",
         title: "Berichte",
-        path: "/report",
+        path: "/reports",
         icon: <MailsIcon className="mr-2 h-4 w-4" />,
         appVersion: Versions.support,
     },

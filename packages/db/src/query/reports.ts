@@ -111,6 +111,17 @@ export async function getMetaDataOfAllReportsForUser(userId: string, limit: numb
         .limit(limit);
 }
 
+export async function getLastReportIdByUser(userId: string) {
+    const result = await db
+        .select({ id: reports.id })
+        .from(reports)
+        .where(eq(reports.userId, userId))
+        .orderBy(desc(reports.timestamp))
+        .limit(1);
+
+    return result.length > 0 ? result[0].id : null;
+}
+
 export async function getReportByIdAndUser(reportId: string, userId: string): Promise<ReportProps | null> {
     const report = await db
         .select({

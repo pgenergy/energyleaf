@@ -472,7 +472,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
     const { user, session } = await getActionSession();
     if (!id) {
         if (!user) {
-            waitUntil(trackAction("user/not-logged-in", "update-report-config", "web", { data, session }));
+            waitUntil(trackAction("user/not-logged-in", "update-reports-config", "web", { data, session }));
             return {
                 success: false,
                 message: "Nicht eingeloggt.",
@@ -484,7 +484,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
 
     const dbUser = await getUserById(id);
     if (!dbUser) {
-        waitUntil(trackAction("user/not-found-in-db", "update-report-config", "web", { data, session }));
+        waitUntil(trackAction("user/not-found-in-db", "update-reports-config", "web", { data, session }));
         return {
             success: false,
             message: "Nutzer nicht gefunden.",
@@ -492,7 +492,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
     }
 
     try {
-        waitUntil(trackAction("report-config-updated", "update-report-config", "web", { data, session }));
+        waitUntil(trackAction("reports-config-updated", "update-reports-config", "web", { data, session }));
         await updateMailSettingsDb(
             {
                 reportConfig: {
@@ -507,7 +507,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
             id,
         );
     } catch (e) {
-        waitUntil(logError("report-config-update-error", "update-report-config", "web", { data, session }, e));
+        waitUntil(logError("reports-config-update-error", "update-reports-config", "web", { data, session }, e));
         return {
             success: false,
             message: "Fehler beim Speichern der Einstellungen.",
