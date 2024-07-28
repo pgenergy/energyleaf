@@ -13,35 +13,27 @@ export const GET = async (req: NextRequest) => {
         return NextResponse.json({ statusMessage: "Unauthorized" }, { status: 401 });
     }
 
-    const start = new Date();
-    const end = new Date();
-
-    if (start.getMinutes() >= 30) {
-        start.setHours(start.getHours(), 0, 0, 0);
-        end.setHours(end.getHours(), 30, 59, 999);
-    } else {
-        start.setHours(start.getHours() - 1, 30, 0, 0);
-        end.setHours(end.getHours() - 1, 59, 59, 999);
-    }
-
     try {
-        waitUntil(trackAction("all-users/start-anomalies-check", "anomaly-check", "api", { start, end }));
+        const now = new Date();
+        waitUntil(trackAction("all-users/start-anomalies-check", "anomaly-check", "api", { timestamp: now }));
         const userData = await getUsersWhoRecieveAnomalyMail();
         const promises: Promise<void>[] = [];
         for (const data of userData) {
             const { user, sensor } = data;
             const fn = async () => {
+                let startDate: Date | null = null;
+                let endDate: Date | null = null;
                 try {
-                    const anomalies = await findAndMark(
+                    const result = await findAndMark(
                         {
                             sensorId: sensor.id,
-                            start,
-                            end,
                             type: "anomaly",
                         },
                         5000, // set the multiplier to 5000 that must be enough so it wont trigger on normal peaks
                     );
-                    if (anomalies.length > 0) {
+                    startDate = result.start;
+                    endDate = result.end;
+                    if (result.resultCount > 0) {
                         const link =
                             env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
                                 ? `https://${env.NEXT_PUBLIC_APP_URL}`
@@ -79,9 +71,9 @@ export const GET = async (req: NextRequest) => {
                             "api",
                             {
                                 userId: user.id,
-                                sesnorId: sensor.id,
-                                start,
-                                end,
+                                sensorId: sensor.id,
+                                start: startDate,
+                                end: endDate || now,
                                 type: "anomaly",
                             },
                             err,
