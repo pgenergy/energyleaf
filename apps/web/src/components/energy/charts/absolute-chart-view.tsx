@@ -4,7 +4,7 @@ import type { SensorDataSelectType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
 import { Alert, AlertDescription, AlertTitle } from "@energyleaf/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import MiniChart from "@energyleaf/ui/charts/mini-chart";
+import EnergyMiniChart from "@energyleaf/ui/charts/energy/mini-chart";
 import { InfoIcon } from "lucide-react";
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
     title?: React.ReactNode;
 }
 
-export default async function AbsoluteChartView(props: Props) {
+export default async function EnergyAbsoluteChartView(props: Props) {
     const { user } = await getSession();
 
     if (!user) {
@@ -33,14 +33,20 @@ export default async function AbsoluteChartView(props: Props) {
                 <AlertTitle>Keine Sensordaten vorhanden</AlertTitle>
                 <AlertDescription>
                     Zu dieser Zeit liegen keien Daten von Ihrem Sensor vor. Der Grund hierfür ist vermutlich, dass bei
-                    Ihnen noch kein Sensor installiert wurde. Sollte es sich hierbei jedoch um einen Fehler handel,
+                    Ihnen noch kein Sensor installiert wurde. Sollte es sich hierbei jedoch um einen Fehler handeln,
                     kontaktieren Sie uns bitte.
                 </AlertDescription>
             </Alert>
         );
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, props.aggregation, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        props.aggregation,
+        "sum",
+    );
     const hasValues = data.length > 0;
     if (data.length === 1) {
         const newFirst = {
@@ -89,7 +95,7 @@ export default async function AbsoluteChartView(props: Props) {
                 <CardContent className="grid grid-cols-1 md:grid-cols-2">
                     <p className="font-bold font-mono">{total.toFixed(2)} kWh</p>
                     <div className="hidden md:block">
-                        <MiniChart data={data} display="value" />
+                        <EnergyMiniChart data={data} display="value" />
                     </div>
                 </CardContent>
             </Card>
@@ -101,7 +107,7 @@ export default async function AbsoluteChartView(props: Props) {
                     <CardContent className="grid grid-cols-1 md:grid-cols-2">
                         <p className="font-bold font-mono">{totalOut.toFixed(2)} kWh</p>
                         <div className="hidden md:block">
-                            <MiniChart data={data} display="valueOut" />
+                            <EnergyMiniChart data={data} display="valueOut" />
                         </div>
                     </CardContent>
                 </Card>
@@ -114,7 +120,7 @@ export default async function AbsoluteChartView(props: Props) {
                     <CardContent className="grid grid-cols-1 md:grid-cols-2">
                         <p className="font-bold font-mono">{averagePower.toFixed(2)} W</p>
                         <div className="hidden md:block">
-                            <MiniChart data={data} display="valueCurrent" />
+                            <EnergyMiniChart data={data} display="valueCurrent" />
                         </div>
                     </CardContent>
                 </Card>

@@ -2,7 +2,7 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import HourChart from "@energyleaf/ui/charts/hour-chart";
+import EnergyHourChart from "@energyleaf/ui/charts/energy/hour-chart";
 
 interface Props {
     startDate: Date;
@@ -22,7 +22,13 @@ export default async function HourChartView(props: Props) {
         return null;
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        AggregationType.HOUR,
+        "sum",
+    );
     if (!data || data.length === 0) {
         return null;
     }
@@ -34,7 +40,7 @@ export default async function HourChartView(props: Props) {
                 <CardDescription>Hier sehen Sie Ihren absoluten Verbrauch über die Stunden</CardDescription>
             </CardHeader>
             <CardContent>
-                <HourChart data={data} />
+                <EnergyHourChart data={data} />
             </CardContent>
         </Card>
     );

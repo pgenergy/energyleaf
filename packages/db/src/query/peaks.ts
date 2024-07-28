@@ -150,7 +150,10 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
                 // and only mark a new peak if at least 5min apart from previous
                 if (
                     sequences.length > 0 &&
-                    entry.timestamp.getTime() - sequences[sequences.length - 1].end.getTime() < 2 * 60 * 1000
+                    entry.timestamp.getTime() - sequences[sequences.length - 1].end.getTime() < 2 * 60 * 1000 &&
+                    Math.min(sequences[sequences.length - 1].averagePowerIncludingBaseLoad, avgPeakPower) /
+                        Math.max(sequences[sequences.length - 1].averagePowerIncludingBaseLoad, avgPeakPower) >
+                        0.8
                 ) {
                     sequences[sequences.length - 1].end = values[sequenceEnd - 1].timestamp;
                 } else {
@@ -303,7 +306,13 @@ async function saveSequences(
             .limit(1);
         const lastSequenceOfSensor = lastSequenceOfSensorQuery.length > 0 ? lastSequenceOfSensorQuery[0] : null;
 
-        if (lastSequenceOfSensor && peaks[0].start.getTime() - lastSequenceOfSensor.end.getTime() < 2 * 60 * 1000) {
+        if (
+            lastSequenceOfSensor &&
+            peaks[0].start.getTime() - lastSequenceOfSensor.end.getTime() < 2 * 60 * 1000 &&
+            Math.min(lastSequenceOfSensor.averagePeakPower, peaks[0].averagePeakPower) /
+                Math.max(lastSequenceOfSensor.averagePeakPower, peaks[0].averagePeakPower) >
+                0.8
+        ) {
             await trx
                 .update(sensorDataSequence)
                 .set({ end: peaks[0].end })

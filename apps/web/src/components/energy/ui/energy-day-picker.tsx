@@ -1,8 +1,6 @@
 "use client";
 
-import { Calendar } from "@energyleaf/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
-import { de } from "date-fns/locale";
+import DatePicker from "@energyleaf/ui/utils/date-picker";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -11,10 +9,9 @@ interface Props {
     date?: Date;
 }
 
-export function EnergyDatePicker(props: Props) {
+export default function EnergyDatePicker(props: Props) {
     const router = useRouter();
     const pathname = usePathname();
-    const [open, setOpen] = React.useState(false);
 
     function handleClick(date: Date) {
         const searchParams = new URLSearchParams();
@@ -28,25 +25,11 @@ export function EnergyDatePicker(props: Props) {
                 scroll: false,
             });
         }
-        setOpen(false);
     }
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>{props.children}</PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-                <Calendar
-                    mode="single"
-                    selected={props.date}
-                    onSelect={handleClick}
-                    initialFocus
-                    locale={de}
-                    disabled={(d) => {
-                        const currentDate = new Date();
-                        return currentDate.getTime() < d.getTime();
-                    }}
-                />
-            </PopoverContent>
-        </Popover>
+        <DatePicker date={props.date} onChange={handleClick}>
+            {props.children}
+        </DatePicker>
     );
 }
