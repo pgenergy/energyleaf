@@ -53,7 +53,24 @@ export async function getUsersWitDueReport() {
 }
 
 export async function getLastReportForUser(userId: string): Promise<ReportProps | null> {
-    const userReports = await getReportForUserDescending(userId);
+    const userReports = await db
+        .select({
+            id: reports.id,
+            dateFrom: reports.dateFrom,
+            dateTo: reports.dateTo,
+            totalEnergyConsumption: reports.totalEnergyConsumption,
+            avgEnergyConsumptionPerDay: reports.avgEnergyConsumptionPerDay,
+            totalEnergyCost: reports.totalEnergyCost,
+            avgEnergyCost: reports.avgEnergyCost,
+            bestDay: reports.bestDay,
+            bestDayConsumption: reports.bestDayConsumption,
+            worstDay: reports.worstDay,
+            worstDayConsumption: reports.worstDayConsumption,
+        })
+        .from(reports)
+        .where(eq(reports.userId, userId))
+        .orderBy(desc(reports.timestamp))
+        .limit(1);
 
     if (!userReports || userReports.length === 0) {
         console.info("No report found for user");
@@ -81,8 +98,21 @@ export async function getLastReportForUser(userId: string): Promise<ReportProps 
     };
 }
 
-export async function getReportForUserDescending(userId: string) {
+export async function getMetaDataOfAllReportsForUser(userId: string, limit: number) {
     return db
+        .select({
+            id: reports.id,
+            dateFrom: reports.dateFrom,
+            dateTo: reports.dateTo,
+        })
+        .from(reports)
+        .where(eq(reports.userId, userId))
+        .orderBy(desc(reports.timestamp))
+        .limit(limit);
+}
+
+export async function getReportByIdAndUser(reportId: string, userId: string): Promise<ReportProps | null> {
+    const report = await db
         .select({
             id: reports.id,
             dateFrom: reports.dateFrom,
@@ -97,8 +127,33 @@ export async function getReportForUserDescending(userId: string) {
             worstDayConsumption: reports.worstDayConsumption,
         })
         .from(reports)
-        .where(eq(reports.userId, userId))
-        .orderBy(desc(reports.timestamp));
+        .where(and(eq(reports.userId, userId), eq(reports.id, reportId)));
+
+    if (report.length === 0) {
+        return null;
+    }
+
+    const dayStatistics = await db
+        .select({
+            date: reportsDayStatistics.date,
+            dailyConsumption: reportsDayStatistics.dailyConsumption,
+            dailyGoal: reportsDayStatistics.dailyGoal,
+            exceeded: reportsDayStatistics.exceeded,
+            progress: reportsDayStatistics.progress,
+        })
+        .from(reportsDayStatistics)
+        .where(eq(reportsDayStatistics.reportId, reportId));
+
+    return {
+        ...report[0],
+        dayStatistics: dayStatistics.map((stat) => ({
+            day: new Date(stat.date),
+            dailyConsumption: stat.dailyConsumption,
+            dailyGoal: stat.dailyGoal,
+            exceeded: stat.exceeded,
+            progress: stat.progress,
+        })),
+    };
 }
 
 export async function saveReport(reportProps: ReportProps, userId: string) {
