@@ -1,6 +1,6 @@
 import EnergyPageRangeSelector from "@/components/energy/ui/range-selector";
 import { getSession } from "@/lib/auth/auth.server";
-import {getMetaDataOfAllReportsForUser, getReportByIdAndUser} from "@energyleaf/db/query";
+import { getMetaDataOfAllReportsForUser, getReportByIdAndUser } from "@energyleaf/db/query";
 import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -20,15 +20,24 @@ export default async function ReportPageLayout(props: Props) {
 
     const last20Reports = await getMetaDataOfAllReportsForUser(user.id, 20);
 
-    if (!last20Reports) {
+    if (!last20Reports || last20Reports.length === 0) {
         return (
             <div className="flex flex-col gap-4">
                 <Card className="w-full">
                     <CardHeader>
                         <CardTitle>Berichte</CardTitle>
                         <CardDescription>
-                            Es wurden noch keine Berichte erstellt. Kommen Sie später nochmal wieder. Sie können Ihre
-                            Berichtsintervalle in den Einstellungen konfigurieren.
+                            Es wurde bisher noch kein Bericht für Sie erstellt. Kommen Sie später nochmal wieder. Sie
+                            können das Intervall, in dem Ihr Berichte erstellt werden {" "}
+                            <a
+                                className="text-primary hover:underline"
+                                href="/settings/reports"
+                                rel="noopener noreferrer"
+                                target="_blank"
+                            >
+                                hier
+                            </a>{" "}
+                            in den Einstellungen konfigurieren.
                         </CardDescription>
                     </CardHeader>
                 </Card>
