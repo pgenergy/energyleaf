@@ -17,7 +17,7 @@
 	"devDependencies": {
 		"@energyleaf/tsconfig": "workspace:^",
 		"@types/jsdom": "^21.1.7",
-		"@types/node": "^20.14.12",
+		"@types/node": "^22.0.0",
 		"typescript": "^5.5.4"
 	},
 	"dependencies": {

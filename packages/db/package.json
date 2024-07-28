@@ -28,9 +28,9 @@
     },
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:^",
-        "@types/node": "^20.14.12",
+        "@types/node": "^22.0.0",
         "drizzle-kit": "^0.23.0",
-        "mysql2": "^3.10.3",
+        "mysql2": "^3.11.0",
         "typescript": "^5.5.4"
     }
 }
