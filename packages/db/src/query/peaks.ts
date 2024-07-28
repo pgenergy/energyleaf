@@ -306,13 +306,6 @@ async function findAndMarkInPeriod(
 async function getSequenceMarkingPeriod(sensorId: string, type: "peak" | "anomaly", db: DB) {
     const end = new Date();
 
-    // shift date back to last 30 min interval to not work on the newest data
-    if (end.getMinutes() >= 30) {
-        end.setHours(end.getHours(), 29, 59, 999);
-    } else {
-        end.setHours(end.getHours() - 1, 59, 59, 999);
-    }
-
     const lastMarking = await getTimeOfLastMarking(sensorId, type, db);
     if (lastMarking) {
         const start = new Date(lastMarking);
@@ -321,7 +314,7 @@ async function getSequenceMarkingPeriod(sensorId: string, type: "peak" | "anomal
     }
 
     const start = new Date(end);
-    start.setHours(start.getHours(), end.getMinutes() - 29, end.getSeconds() - 59, end.getMilliseconds() - 999); // By default, 30 min interval
+    start.setHours(end.getHours(), 0, 0, 0);
     return { start, end };
 }
 
