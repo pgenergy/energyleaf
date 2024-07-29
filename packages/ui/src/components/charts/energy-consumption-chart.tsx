@@ -6,12 +6,18 @@ import clsx from "clsx";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo, useState } from "react";
-import { Area, AreaChart, ReferenceArea, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, ReferenceDot, Tooltip, XAxis, YAxis, ReferenceArea } from "recharts";
 import type { CategoricalChartState } from "recharts/types/chart/types";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "../../ui/chart";
 import ChartSwitchButton from "./chart-switch-button";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 import type { DeviceClassification } from "@energyleaf/lib";
+import { GiWashingMachine } from 'react-icons/gi';
+import { CiRouter } from "react-icons/ci";
+import { BiFridge, BiSolidDryer } from "react-icons/bi";
+import { LuMicrowave } from "react-icons/lu";
+import { CgSmartHomeBoiler } from "react-icons/cg";
+import { TbFreezeRow } from "react-icons/tb";
 
 interface Props {
     data: SensorDataSelectType[];
@@ -42,6 +48,30 @@ const chartConfig = {
         color: "hsl(var(--chart-5))",
     },
 } satisfies ChartConfig;
+
+const deviceIcons = {
+    freezer: TbFreezeRow,
+    fridge: BiFridge,
+    micro_wave: LuMicrowave,
+    router: CiRouter,
+    boiler: CgSmartHomeBoiler,
+    dryer: BiSolidDryer,
+    washing_machine: GiWashingMachine,
+};
+
+const CustomDot = (props) => {
+    const { cx, cy, dominantClassification } = props;
+    const IconComponent = deviceIcons[dominantClassification];
+    if (!IconComponent) return null;
+    const size = 12;
+    const iconProps = { x: cx - size / 2, y: cy - size / 2, width: size, height: size, color: 'white' };
+    return (
+        <g>
+            <circle cx={cx} cy={cy} r={10} fill="blue" />
+            <IconComponent {...iconProps} />
+        </g>
+    );
+};
 
 export function EnergyConsumptionChart({
     data,
@@ -321,21 +351,15 @@ export function EnergyConsumptionChart({
                     ) : null}
                     {classifiedData
                         ? classifiedData.map((classification) => (
-                              <ReferenceArea
+                              <ReferenceDot
                                   key={classification.timestamp}
-                                  x1={classification.timestamp}
-                                  x2={classification.timestamp}
-                                  label={{
-                                      position: "top",
-                                      value: classification.dominantClassification,
-                                      fill: "hsl(var(--chart-4))",
-                                      fontSize: 10,
-                                  }}
-                                  stroke="hsl(var(--chart-4))"
-                                  strokeOpacity={0.6}
-                                  fill="hsl(var(--chart-4))"
-                                  fillOpacity={0.2}
+                                  x={classification.timestamp}
+                                  y={classification.power}
+                                  r={10}
+                                  fill="blue"
+                                  stroke="blue"
                                   isFront
+                                  shape={<CustomDot dominantClassification={classification.dominantClassification} />}
                               />
                           ))
                         : null}
