@@ -2,22 +2,22 @@
 
 import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
+import type { DeviceClassification } from "@energyleaf/lib";
 import clsx from "clsx";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo, useState } from "react";
-import { Area, AreaChart, ReferenceDot, Tooltip, XAxis, YAxis, ReferenceArea } from "recharts";
+import { BiFridge, BiSolidDryer } from "react-icons/bi";
+import { CgSmartHomeBoiler } from "react-icons/cg";
+import { CiRouter } from "react-icons/ci";
+import { GiWashingMachine } from "react-icons/gi";
+import { LuMicrowave } from "react-icons/lu";
+import { TbFreezeRow } from "react-icons/tb";
+import { Area, AreaChart, ReferenceArea, ReferenceDot, Tooltip, XAxis, YAxis } from "recharts";
 import type { CategoricalChartState } from "recharts/types/chart/types";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "../../../ui/chart";
 import ChartSwitchButton from "../chart-switch-button";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
-import type { DeviceClassification } from "@energyleaf/lib";
-import { GiWashingMachine } from 'react-icons/gi';
-import { CiRouter } from "react-icons/ci";
-import { BiFridge, BiSolidDryer } from "react-icons/bi";
-import { LuMicrowave } from "react-icons/lu";
-import { CgSmartHomeBoiler } from "react-icons/cg";
-import { TbFreezeRow } from "react-icons/tb";
 
 interface Props {
     data: SensorDataSelectType[];
@@ -64,7 +64,7 @@ const CustomDot = (props) => {
     const IconComponent = deviceIcons[dominantClassification];
     if (!IconComponent) return null;
     const size = 12;
-    const iconProps = { x: cx - size / 2, y: cy - size / 2, width: size, height: size, color: 'white' };
+    const iconProps = { x: cx - size / 2, y: cy - size / 2, width: size, height: size, color: "white" };
     return (
         <g>
             <circle cx={cx} cy={cy} r={10} fill="blue" />
@@ -285,7 +285,9 @@ export function EnergyConsumptionChart({
                             <EnergyConsumptionTooltip
                                 aggregationType={aggregation ?? AggregationType.RAW}
                                 tooltipProps={props}
-                                classifiedData={aggregation === AggregationType.RAW && activeChart === "value" ? classifiedData : []}
+                                classifiedData={
+                                    aggregation === AggregationType.RAW && activeChart === "value" ? classifiedData : []
+                                }
                             />
                         )}
                     />

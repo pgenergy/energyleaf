@@ -2,11 +2,11 @@
 
 import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
+import type { DeviceClassification } from "@energyleaf/lib";
 import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy/energy-consumption-chart";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
-import type { DeviceClassification } from "@energyleaf/lib";
 
 interface Props {
     data: SensorDataSelectType[];
@@ -18,7 +18,15 @@ interface Props {
     classifiedData: DeviceClassification[];
 }
 
-export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost, peaks, classifiedData }: Props) {
+export default function EnergyConsumptionCardChart({
+    data,
+    aggregation,
+    userId,
+    showPeaks,
+    cost,
+    peaks,
+    classifiedData,
+}: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<SensorDataSequenceType | null>(null);
     const router = useRouter();

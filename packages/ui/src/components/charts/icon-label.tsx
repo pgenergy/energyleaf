@@ -1,10 +1,4 @@
-import { FC } from "react";
-import { GiWashingMachine } from 'react-icons/gi';
-import { CiRouter } from "react-icons/ci";
-import { BiFridge, BiSolidDryer } from "react-icons/bi";
-import { LuMicrowave } from "react-icons/lu";
-import { CgSmartHomeBoiler } from "react-icons/cg";
-import { TbFreezeRow } from "react-icons/tb";
+import type { FC } from "react";
 
 interface IconLabelProps {
     x: number;

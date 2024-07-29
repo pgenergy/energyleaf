@@ -2,13 +2,13 @@
 
 import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
+import type { DeviceClassification } from "@energyleaf/lib";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
 import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { useChart } from "../../../ui/chart";
-import { DeviceClassification } from "@energyleaf/lib";
 
 interface Props {
     aggregationType: AggregationType;
@@ -54,7 +54,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
         if (aggregationType !== AggregationType.RAW) return null;
         if (!data?.timestamp) return null;
         const classification = classifiedData.find(
-            (c) => new Date(c.timestamp).toISOString() === new Date(data.timestamp).toISOString()
+            (c) => new Date(c.timestamp).toISOString() === new Date(data.timestamp).toISOString(),
         );
         return classification ? deviceNames[classification.dominantClassification] : null;
     }, [data?.timestamp, classifiedData, aggregationType]);

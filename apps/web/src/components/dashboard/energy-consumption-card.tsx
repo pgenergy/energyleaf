@@ -1,14 +1,19 @@
 import { getSession } from "@/lib/auth/auth.server";
-import { classifyDeviceUsage, getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences } from "@/query/energy";
+import {
+    classifyDeviceUsage,
+    getElectricitySensorIdForUser,
+    getEnergyDataForSensor,
+    getSensorDataSequences,
+} from "@/query/energy";
 import { getUserData } from "@/query/user";
 import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
+import type { DeviceClassification } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
-import type { DeviceClassification } from "@energyleaf/lib";
 
 interface Props {
     startDate: Date;
