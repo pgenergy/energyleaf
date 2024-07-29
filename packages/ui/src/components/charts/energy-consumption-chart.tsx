@@ -273,6 +273,7 @@ export function EnergyConsumptionChart({
                             <EnergyConsumptionTooltip
                                 aggregationType={aggregation ?? AggregationType.RAW}
                                 tooltipProps={props}
+                                classifiedData={classifiedData}
                             />
                         )}
                     />
@@ -349,7 +350,7 @@ export function EnergyConsumptionChart({
                             fillOpacity={0.2}
                         />
                     ) : null}
-                    {classifiedData
+                    {aggregation === AggregationType.RAW && activeChart === "value" && classifiedData
                         ? classifiedData.map((classification) => (
                               <ReferenceDot
                                   key={classification.timestamp}

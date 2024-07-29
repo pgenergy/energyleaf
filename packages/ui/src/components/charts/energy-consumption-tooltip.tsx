@@ -8,13 +8,25 @@ import { useMemo } from "react";
 import type { TooltipProps } from "recharts";
 import type { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { useChart } from "../../ui/chart";
+import type { DeviceClassification } from "@energyleaf/lib";
 
 interface Props {
     aggregationType: AggregationType;
     tooltipProps: TooltipProps<ValueType, NameType>;
+    classifiedData: DeviceClassification[];
 }
 
-export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps }: Props) {
+const deviceNames: Record<string, string> = {
+    freezer: "Gefrierschrank",
+    fridge: "Kühlschrank",
+    micro_wave: "Mikrowelle",
+    router: "Router",
+    boiler: "Boiler",
+    dryer: "Wäschetrockner",
+    washing_machine: "Waschmaschine",
+};
+
+export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps, classifiedData = [] }: Props) {
     const { config } = useChart();
     const payload = tooltipProps.payload;
     const data = payload?.[0]?.payload as SensorDataSelectType & { cost?: number };
@@ -36,6 +48,14 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
         return format(date, formatOptions[aggregationType] || "dd.MM.yyyy HH:mm:ss", { locale: de });
     }, [data?.timestamp, aggregationType]);
 
+    const detectedDevice = useMemo(() => {
+        if (!data?.timestamp) return null;
+        const classification = classifiedData.find(
+            (c) => new Date(c.timestamp).toISOString() === new Date(data.timestamp).toISOString()
+        );
+        return classification ? deviceNames[classification.dominantClassification] : null;
+    }, [data?.timestamp, classifiedData]);
+
     if (!data?.value) {
         return null;
     }
@@ -43,14 +63,18 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
     return (
         <div className="z-10 flex flex-col gap-2 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl">
             <p className="font-bold">{formattedTimestamp}</p>
+            {detectedDevice ? (
+                <div className="flex flex-row items-center gap-1">
+                    <p className="text-sm">
+                        <span className="font-bold">Automatisch erkanntes Gerät: </span>
+                        <span className="font-mono">{detectedDevice}</span>
+                    </p>
+                </div>
+            ) : null}
             <div className="flex flex-row items-center gap-1">
                 <div
                     className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
-                    style={
-                        {
-                            "--color-bg": config.value.color,
-                        } as React.CSSProperties
-                    }
+                    style={{ "--color-bg": config.value.color } as React.CSSProperties}
                 />
                 <p className="text-sm">
                     <span className="font-bold">Verbrauch: </span>
@@ -62,11 +86,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                 <div className="flex flex-row items-center gap-1">
                     <div
                         className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
-                        style={
-                            {
-                                "--color-bg": config.valueOut.color,
-                            } as React.CSSProperties
-                        }
+                        style={{ "--color-bg": config.valueOut.color } as React.CSSProperties}
                     />
                     <p className="text-sm">
                         <span className="font-bold">Eingespeist: </span>
@@ -79,11 +99,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                 <div className="flex flex-row items-center gap-1">
                     <div
                         className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
-                        style={
-                            {
-                                "--color-bg": config.valueCurrent.color,
-                            } as React.CSSProperties
-                        }
+                        style={{ "--color-bg": config.valueCurrent.color } as React.CSSProperties}
                     />
                     <p className="text-sm">
                         <span className="font-bold">Leistung: </span>
@@ -95,11 +111,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                 <div className="flex flex-row items-center gap-1">
                     <div
                         className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
-                        style={
-                            {
-                                "--color-bg": config.cost.color,
-                            } as React.CSSProperties
-                        }
+                        style={{ "--color-bg": config.cost.color } as React.CSSProperties}
                     />
                     <p className="text-sm">
                         <span className="font-bold">Kosten: </span>
