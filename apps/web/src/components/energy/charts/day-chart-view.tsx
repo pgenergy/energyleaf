@@ -2,7 +2,7 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import DayChart from "@energyleaf/ui/charts/day-chart";
+import DayChart from "@energyleaf/ui/charts/energy/day-chart";
 
 interface Props {
     startDate: Date;
@@ -22,7 +22,13 @@ export default async function DayChartView(props: Props) {
         return null;
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.DAY, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        AggregationType.WEEKDAY,
+        "sum",
+    );
     if (!data || data.length === 0) {
         return null;
     }

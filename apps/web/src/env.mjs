@@ -7,8 +7,6 @@ export const env = createEnv({
         HASH_SECRET: z.string(),
         CRON_SECRET: z.string().optional(),
 
-        VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
-
         DATABASE_HOST: z.string(),
         DATABASE_USERNAME: z.string(),
         DATABASE_PASSWORD: z.string(),

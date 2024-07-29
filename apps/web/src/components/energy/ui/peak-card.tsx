@@ -5,7 +5,7 @@ import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType, convertTZDate } from "@energyleaf/lib";
 import { Badge } from "@energyleaf/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import MiniChart from "@energyleaf/ui/charts/mini-chart";
+import EnergyMiniChart from "@energyleaf/ui/charts/energy/mini-chart";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { PeakAssignmentDialog } from "./peak-assign-button";
@@ -28,7 +28,12 @@ export default async function PeakCard(props: Props) {
     const queryEnd = new Date(sequenceEnd);
     queryEnd.setMinutes(queryEnd.getMinutes() + 1);
 
-    const data = await getEnergyDataForSensor(queryStart, queryEnd, props.sequence.sensorId, AggregationType.RAW);
+    const data = await getEnergyDataForSensor(
+        queryStart.toISOString(),
+        queryEnd.toISOString(),
+        props.sequence.sensorId,
+        AggregationType.RAW,
+    );
     if (!data || data.length === 0) {
         return null;
     }
@@ -50,7 +55,7 @@ export default async function PeakCard(props: Props) {
                         </CardDescription>
                     </div>
                     <div className="w-1/3">
-                        <MiniChart data={data} display="value" />
+                        <EnergyMiniChart data={data} display="value" />
                     </div>
                 </div>
             </CardHeader>

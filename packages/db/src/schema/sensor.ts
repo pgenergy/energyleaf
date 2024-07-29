@@ -88,6 +88,8 @@ export const sensorData = mysqlTable(
     },
 );
 
+const sequenceTypes = ["peak", "anomaly"] as const;
+
 export const sensorDataSequence = mysqlTable(
     "sensor_data_sequence",
     {
@@ -98,7 +100,7 @@ export const sensorDataSequence = mysqlTable(
         sensorId: varchar("sensor_id", { length: 30 }).notNull(),
         start: timestamp("start").notNull(),
         end: timestamp("end").notNull(),
-        type: mysqlEnum("type", ["peak", "anomaly"]).notNull(),
+        type: mysqlEnum("type", sequenceTypes).notNull(),
         averagePeakPower: decimalType("average_peak_power").notNull(),
     },
     (table) => {
@@ -106,6 +108,20 @@ export const sensorDataSequence = mysqlTable(
             uniqueIdxStart: uniqueIndex("senor_data_sequence_sensor_id_start").on(table.sensorId, table.start),
             uniqueIdxEnd: uniqueIndex("senor_data_sequence_sensor_id_end").on(table.sensorId, table.end),
             index: index("senor_data_sequence_sensor_id").on(table.sensorId, table.start, table.end),
+        };
+    },
+);
+
+export const sensorSequenceMarkingLog = mysqlTable(
+    "sensor_sequence_marking_log",
+    {
+        sensorId: varchar("sensor_id", { length: 30 }).notNull(),
+        sequenceType: mysqlEnum("sequence_type", sequenceTypes).notNull(),
+        lastMarked: timestamp("last_marked").notNull().default(sql`CURRENT_TIMESTAMP`),
+    },
+    (table) => {
+        return {
+            pk: primaryKey({ columns: [table.sensorId, table.sequenceType] }),
         };
     },
 );

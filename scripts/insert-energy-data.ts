@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { genId } from "@energyleaf/db";
-import { getRawEnergyForSensorInRange, insertRawEnergyValues } from "@energyleaf/db/query";
+import { findAndMark, getRawEnergyForSensorInRange, insertRawEnergyValues } from "@energyleaf/db/query";
 
 export async function insertEnergyData(args: string[]) {
     const sensorId = args[0];
@@ -44,7 +44,7 @@ export async function download(args: string[]) {
     const filePath = path.join(process.cwd(), "download.json");
 
     const start = new Date();
-    start.setDate(start.getDate() - 14);
+    start.setDate(start.getDate() - 19);
     start.setHours(0, 0, 0, 0);
 
     const end = new Date();
@@ -71,15 +71,49 @@ export async function upload(args: string[]) {
         timestamp: string;
     }[];
 
+    const processedData = data.map((d, i) => {
+        const totalBefore = data.slice(0, i).reduce((acc, d) => acc + d.value, 0);
+        const newDate = new Date(d.timestamp);
+        newDate.setDate(newDate.getDate() + 7);
+
+        return {
+            ...d,
+            value: i === 0 ? 0 : d.value + totalBefore,
+            valueCurrent: i === 0 ? 0 : d.valueCurrent,
+            valueOut: null,
+            timestamp: newDate,
+        };
+    });
+
     const splitSize = 1000;
-    for (let i = 0; i < data.length; i += splitSize) {
-        const chunk = data.slice(i, i + splitSize);
+    for (let i = 0; i < processedData.length; i += splitSize) {
+        const chunk = processedData.slice(i, i + splitSize);
         await insertRawEnergyValues(
             chunk.map((d) => ({
                 ...d,
                 sensorId,
-                timestamp: new Date(d.timestamp),
             })),
         );
     }
+}
+
+export async function markPeaks(args: string[]) {
+    const sensorId = args[0];
+    if (!sensorId) {
+        throw new Error("sensorId is required");
+    }
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 10);
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 5);
+
+    await findAndMark({
+        timePeriod: {
+            start: startDate,
+            end: endDate,
+        },
+        sensorId,
+        type: "peak",
+    });
 }

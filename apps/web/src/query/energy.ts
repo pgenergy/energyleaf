@@ -22,12 +22,14 @@ export interface DeviceClassification {
 
 export const getEnergyDataForSensor = cache(
     async (
-        start: Date,
-        end: Date,
+        startDate: string,
+        endDate: string,
         sensorId: string,
         aggregation = AggregationType.RAW,
         aggType: "sum" | "average" = "average",
     ) => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
         if (sensorId === "demo_sensor") {
             return getDemoSensorData(start, end);
         }

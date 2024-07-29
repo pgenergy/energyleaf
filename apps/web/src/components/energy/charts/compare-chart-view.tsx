@@ -3,7 +3,7 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import { AggregationType } from "@energyleaf/lib";
 import { Alert, AlertDescription, AlertTitle } from "@energyleaf/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import CompareChart from "@energyleaf/ui/charts/compare-chart";
+import CompareChart from "@energyleaf/ui/charts/energy/compare-chart";
 import { InfoIcon } from "lucide-react";
 
 interface Props {
@@ -34,10 +34,16 @@ export default async function CompareChartView(props: Props) {
         );
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.HOUR, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        AggregationType.HOUR,
+        "sum",
+    );
     const compareData = await getEnergyDataForSensor(
-        props.compareStartDate,
-        props.compareEndDate,
+        props.compareStartDate.toISOString(),
+        props.compareEndDate.toISOString(),
         sensorId,
         AggregationType.HOUR,
         "sum",

@@ -1,8 +1,9 @@
-import { and, asc, between, desc, eq, getTableColumns, lte, or, sql } from "drizzle-orm";
+import { and, asc, between, desc, eq, lte, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db, { type DB } from "..";
-import { device, deviceToPeak, sensorData, sensorDataSequence } from "../schema";
+import { device, deviceToPeak, sensorDataSequence, sensorSequenceMarkingLog } from "../schema";
 import type { SensorDataSelectType, SensorDataSequenceType } from "../types/types";
+import { getRawEnergyForSensorInRange } from "./sensor";
 
 function calculateMedian(values: SensorDataSelectType[]) {
     const sorted = [...values].sort((a, b) => a.value - b.value);
@@ -131,7 +132,8 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
         const entry = values[i];
 
         if (entry.value > threshold) {
-            const isStart = i === 0;
+            // check if either directly after start or 5 minutes after
+            const isStart = i === 0 || entry.timestamp.getTime() - values[0].timestamp.getTime() < 2 * 60 * 1000;
             let sequenceEnd = i + 1;
 
             while (sequenceEnd < values.length && values[sequenceEnd].value > threshold) {
@@ -141,15 +143,27 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
             const sequenceLength = sequenceEnd - i;
 
             // only mark as peak if longer then 2min and not marked as anomaly yet
-            if (sequenceLength > 5) {
+            if (sequenceLength > 8) {
                 const avgPeakPower = calculateAveragePower(values.slice(i, sequenceEnd));
 
-                sequences.push({
-                    start: entry.timestamp,
-                    end: values[sequenceEnd - 1].timestamp,
-                    isAtStart: isStart,
-                    averagePowerIncludingBaseLoad: avgPeakPower,
-                });
+                // if sequences are only 2min apart, mark as one sequence, because could be of device variance
+                // and only mark a new peak if at least 5min apart from previous
+                if (
+                    sequences.length > 0 &&
+                    entry.timestamp.getTime() - sequences[sequences.length - 1].end.getTime() < 2 * 60 * 1000 &&
+                    Math.min(sequences[sequences.length - 1].averagePowerIncludingBaseLoad, avgPeakPower) /
+                        Math.max(sequences[sequences.length - 1].averagePowerIncludingBaseLoad, avgPeakPower) >
+                        0.8
+                ) {
+                    sequences[sequences.length - 1].end = values[sequenceEnd - 1].timestamp;
+                } else {
+                    sequences.push({
+                        start: entry.timestamp,
+                        end: values[sequenceEnd - 1].timestamp,
+                        isAtStart: isStart,
+                        averagePowerIncludingBaseLoad: avgPeakPower,
+                    });
+                }
             }
             i = sequenceEnd;
         } else {
@@ -184,110 +198,171 @@ export function findPeaks(
 
 interface FindAndMarkPeaksProps {
     sensorId: string;
-    start: Date;
-    end: Date;
+    timePeriod?: { start: Date; end: Date } | undefined;
     type: "peak" | "anomaly";
 }
 
-export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5) {
-    const { sensorId, start, end, type } = props;
+export interface FindAndMarkPeaksResult {
+    start: Date;
+    end: Date;
+    resultCount: number;
+}
 
+export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5): Promise<FindAndMarkPeaksResult> {
+    const { sensorId, timePeriod, type } = props;
+
+    return await db.transaction(async (trx) => {
+        const { start, end } = timePeriod || (await getSequenceMarkingPeriod(sensorId, type, trx));
+
+        let resultCount = 0;
+        try {
+            resultCount = await findAndMarkInPeriod(sensorId, start, end, type, threshold, trx);
+            await updateLastMarkingTime(sensorId, type, end, trx);
+        } catch (err) {
+            resultCount = resultCount > 0 ? resultCount : 0;
+        }
+
+        return {
+            start,
+            end,
+            resultCount,
+        };
+    });
+}
+
+async function findAndMarkInPeriod(
+    sensorId: string,
+    start: Date,
+    end: Date,
+    type: "peak" | "anomaly",
+    threshold: number,
+    trx: DB,
+) {
     // we shift the start 12 hours back, so we have a bigger sample for the threshold
     const sequenceStart = new Date(start);
     sequenceStart.setHours(sequenceStart.getHours() - 24, 0, 0, 0);
 
-    try {
-        return await db.transaction(async (trx) => {
-            const { value, ...rest } = getTableColumns(sensorData);
-            const calcData = await db
-                .select({
-                    ...rest,
-                    value: sql<number>`${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp})`
-                        .mapWith({
-                            mapFromDriverValue: (value: string) => {
-                                return Number(value);
-                            },
-                        })
-                        .as("value"),
-                })
-                .from(sensorData)
-                .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, sequenceStart, end)))
-                .orderBy(asc(sensorData.timestamp));
+    const calcData = await getRawEnergyForSensorInRange(sequenceStart, end, sensorId);
 
-            // make sure we have at least 3 hours of reference data
-            if (calcData.length < 720) {
-                return [];
-            }
-
-            // check if all values are integers if so we know that the sensor has no pin
-            if (calcData.every((d) => Number.isInteger(d.value))) {
-                return [];
-            }
-
-            const energyData = calcData.filter((d) => {
-                return d.timestamp.getTime() >= start.getTime();
-            });
-
-            const sequencesInConsideredPeriod = findPeaks(calcData, energyData, threshold);
-
-            const sequencesBeforeConsideredPeriod = await trx
-                .select()
-                .from(sensorDataSequence)
-                .where(
-                    and(
-                        eq(sensorDataSequence.sensorId, sensorId),
-                        between(sensorDataSequence.start, sequenceStart, end),
-                    ),
-                );
-
-            const peaksInDay = sequencesInConsideredPeriod
-                .map((d) => ({ start: d.start, end: d.end }))
-                .concat(sequencesBeforeConsideredPeriod);
-            const calcDataWithoutPeaks = calcData.filter(
-                (d) => !peaksInDay.some((peak) => d.timestamp >= peak.start && d.timestamp <= peak.end),
-            );
-
-            const baseLoad = calculateAveragePower(calcDataWithoutPeaks);
-            let peaks: (SensorDataSequenceType & { isAtStart: boolean })[] = sequencesInConsideredPeriod.map((d) => ({
-                ...d,
-                id: nanoid(30),
-                averagePeakPower: d.averagePowerIncludingBaseLoad - baseLoad,
-                type,
-                sensorId,
-            }));
-
-            if (props.type === "anomaly") {
-                // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
-                const lastAnomaly = sequencesBeforeConsideredPeriod.find((d) => d.type === "anomaly");
-                if (lastAnomaly) {
-                    peaks = peaks.filter((d) => d.start.getTime() - lastAnomaly.end.getTime() > 30 * 60 * 1000);
-                }
-            }
-            if (peaks.length !== 0) {
-                await saveSequences(peaks, props, calcData, energyData, trx);
-            }
-
-            // if there is an anomaly in the last 24 hours return nothing to avoid sending another mail
-            if (props.type === "anomaly") {
-                if (sequencesInConsideredPeriod.length !== 0) {
-                    if (sequencesBeforeConsideredPeriod.some((d) => d.type === "anomaly")) {
-                        return [];
-                    }
-                }
-            }
-
-            return peaks;
-        });
-    } catch (err) {
-        return [];
+    // make sure we have at least 12 hours of reference data
+    if (calcData.length < 2880) {
+        return 0;
     }
+
+    // check if all values are integers if so we know that the sensor has no pin
+    if (calcData.every((d) => Number.isInteger(d.value))) {
+        return 0;
+    }
+
+    const energyData = calcData.filter((d) => {
+        return d.timestamp.getTime() >= start.getTime();
+    });
+
+    const sequencesInConsideredPeriod = findPeaks(calcData, energyData, threshold);
+
+    const sequencesBeforeConsideredPeriod = await trx
+        .select()
+        .from(sensorDataSequence)
+        .where(and(eq(sensorDataSequence.sensorId, sensorId), between(sensorDataSequence.start, sequenceStart, end)));
+
+    const peaksInDay = sequencesInConsideredPeriod
+        .map((d) => ({ start: d.start, end: d.end }))
+        .concat(sequencesBeforeConsideredPeriod);
+    const calcDataWithoutPeaks = calcData.filter(
+        (d) => !peaksInDay.some((peak) => d.timestamp >= peak.start && d.timestamp <= peak.end),
+    );
+
+    const baseLoad = calculateAveragePower(calcDataWithoutPeaks);
+    let peaks: (SensorDataSequenceType & { isAtStart: boolean })[] = sequencesInConsideredPeriod
+        .map((d) => ({
+            ...d,
+            id: nanoid(30),
+            averagePeakPower: d.averagePowerIncludingBaseLoad - baseLoad,
+            type,
+            sensorId,
+        }))
+        .filter((d) => d.averagePeakPower > 0);
+
+    if (type === "anomaly") {
+        // if it is anomaly make sure there at least 30min apart from previous ones to avoid double marking
+        const lastAnomaly = sequencesBeforeConsideredPeriod.find((d) => d.type === "anomaly");
+        if (lastAnomaly) {
+            peaks = peaks.filter((d) => d.start.getTime() - lastAnomaly.end.getTime() > 30 * 60 * 1000);
+        }
+    }
+    if (peaks.length !== 0) {
+        await saveSequences(peaks, sensorId, type, start, trx);
+    }
+
+    // if there is an anomaly in the last 24 hours return nothing to avoid sending another mail
+    if (type === "anomaly") {
+        if (sequencesInConsideredPeriod.length !== 0) {
+            if (sequencesBeforeConsideredPeriod.some((d) => d.type === "anomaly")) {
+                return 0;
+            }
+        }
+    }
+
+    return peaks.length;
+}
+
+async function getSequenceMarkingPeriod(sensorId: string, type: "peak" | "anomaly", db: DB) {
+    const end = new Date();
+
+    const lastMarking = await getTimeOfLastMarking(sensorId, type, db);
+    if (lastMarking) {
+        const start = new Date(lastMarking);
+        start.setMilliseconds(start.getMilliseconds() + 1); // Add one milliseconds so that the periods don't overlap
+        return { start: start <= end ? start : end, end };
+    }
+
+    const start = new Date(end);
+    start.setHours(end.getHours(), 0, 0, 0);
+    return { start, end };
+}
+
+async function getTimeOfLastMarking(sensorId: string, type: "peak" | "anomaly", db: DB) {
+    const markingLog = await db
+        .select()
+        .from(sensorSequenceMarkingLog)
+        .where(and(eq(sensorSequenceMarkingLog.sensorId, sensorId), eq(sensorSequenceMarkingLog.sequenceType, type)));
+    if (markingLog.length > 0) {
+        return markingLog[0].lastMarked;
+    }
+
+    const lastSequence = await db
+        .select()
+        .from(sensorDataSequence)
+        .where(and(eq(sensorDataSequence.sensorId, sensorId), eq(sensorDataSequence.type, type)))
+        .orderBy(desc(sensorDataSequence.end))
+        .limit(1);
+    if (lastSequence.length > 0) {
+        return lastSequence[0].end;
+    }
+
+    return null;
+}
+
+async function updateLastMarkingTime(sensorId: string, type: "peak" | "anomaly", date: Date, trx: DB) {
+    const existing = await trx
+        .select()
+        .from(sensorSequenceMarkingLog)
+        .where(and(eq(sensorSequenceMarkingLog.sensorId, sensorId), eq(sensorSequenceMarkingLog.sequenceType, type)));
+    if (existing.length === 0) {
+        return trx.insert(sensorSequenceMarkingLog).values({ sensorId, sequenceType: type, lastMarked: date });
+    }
+
+    return trx
+        .update(sensorSequenceMarkingLog)
+        .set({ lastMarked: date })
+        .where(and(eq(sensorSequenceMarkingLog.sensorId, sensorId), eq(sensorSequenceMarkingLog.sequenceType, type)));
 }
 
 async function saveSequences(
     peaks: (SensorDataSequenceType & { isAtStart: boolean })[],
-    { start, sensorId, type }: FindAndMarkPeaksProps,
-    consideredData: SensorDataSelectType[],
-    dayData: SensorDataSelectType[],
+    sensorId: string,
+    type: "peak" | "anomaly",
+    start: Date,
     trx: DB,
 ) {
     const firstSequenceMergeable = peaks[0].isAtStart;
@@ -306,10 +381,13 @@ async function saveSequences(
             .limit(1);
         const lastSequenceOfSensor = lastSequenceOfSensorQuery.length > 0 ? lastSequenceOfSensorQuery[0] : null;
 
-        const beforeIndex = consideredData.findIndex((d) => d.id === dayData[0].id);
-        const lastEntryBeforeInterval = consideredData[beforeIndex - 1];
-
-        if (lastSequenceOfSensor && lastSequenceOfSensor.end.getTime() >= lastEntryBeforeInterval.timestamp.getTime()) {
+        if (
+            lastSequenceOfSensor &&
+            peaks[0].start.getTime() - lastSequenceOfSensor.end.getTime() < 2 * 60 * 1000 &&
+            Math.min(lastSequenceOfSensor.averagePeakPower, peaks[0].averagePeakPower) /
+                Math.max(lastSequenceOfSensor.averagePeakPower, peaks[0].averagePeakPower) >
+                0.8
+        ) {
             await trx
                 .update(sensorDataSequence)
                 .set({ end: peaks[0].end })
