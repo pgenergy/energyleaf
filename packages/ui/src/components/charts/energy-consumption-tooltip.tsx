@@ -49,12 +49,13 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
     }, [data?.timestamp, aggregationType]);
 
     const detectedDevice = useMemo(() => {
+        if (aggregationType !== AggregationType.RAW) return null;
         if (!data?.timestamp) return null;
         const classification = classifiedData.find(
             (c) => new Date(c.timestamp).toISOString() === new Date(data.timestamp).toISOString()
         );
         return classification ? deviceNames[classification.dominantClassification] : null;
-    }, [data?.timestamp, classifiedData]);
+    }, [data?.timestamp, classifiedData, aggregationType]);
 
     if (!data?.value) {
         return null;

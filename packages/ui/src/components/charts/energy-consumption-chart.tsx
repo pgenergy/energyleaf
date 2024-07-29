@@ -273,7 +273,7 @@ export function EnergyConsumptionChart({
                             <EnergyConsumptionTooltip
                                 aggregationType={aggregation ?? AggregationType.RAW}
                                 tooltipProps={props}
-                                classifiedData={classifiedData}
+                                classifiedData={aggregation === AggregationType.RAW && activeChart === "value" ? classifiedData : []}
                             />
                         )}
                     />

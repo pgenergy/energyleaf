@@ -9,7 +9,6 @@ import { redirect } from "next/navigation";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 import type { DeviceClassification } from "@energyleaf/lib";
-import { mockClassifyDeviceUsage } from "./mock-classify-device-usage";
 
 interface Props {
     startDate: Date;
@@ -47,7 +46,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
     const data = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
-    const classifiedData: DeviceClassification[] = await classifyDeviceUsage(data); // Use mock data
+    const classifiedData: DeviceClassification[] = await classifyDeviceUsage(data);
     const showPeaks = fulfills(user.appVersion, Versions.self_reflection) && !hasAggregation;
 
     const userData = await getUserData(user.id);
