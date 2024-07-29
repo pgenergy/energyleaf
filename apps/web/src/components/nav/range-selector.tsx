@@ -1,7 +1,7 @@
 "use client";
 
 import { type EnergyRangeOptionType, energyRangeOptions } from "@/types/energy";
-import { Button, buttonVariants } from "@energyleaf/ui/button";
+import { buttonVariants } from "@energyleaf/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -35,15 +35,4 @@ export function RangeNavLink(props: RangeLinkProps) {
             {energyRangeOptions[props.range]}
         </Link>
     );
-}
-
-interface RangeButtonProps {
-    href: string;
-    children: React.ReactNode;
-}
-
-export function RangeNavButton(props: RangeButtonProps) {
-    const pathname = usePathname();
-
-    return <Button variant={pathname === props.href ? "default" : "ghost"}>{props.children}</Button>;
 }
