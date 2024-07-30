@@ -1,3 +1,5 @@
+"use client";
+
 import DeviceCategoryIcon from "@/components/devices/device-category-icon";
 import {
     DeviceCategory,
@@ -14,9 +16,10 @@ interface Props {
 }
 
 export default function EnergyTipCardDescription({ tip }: Props) {
-    const { belongsTo } = tip;
+    console.log(tip);
 
     const content = useMemo(() => {
+        const { belongsTo } = tip;
         if (!belongsTo) {
             return "Allgemein";
         }
@@ -59,7 +62,7 @@ export default function EnergyTipCardDescription({ tip }: Props) {
         }
 
         return null;
-    }, [belongsTo]);
+    }, [tip]);
 
     return <CardDescription>{content}</CardDescription>;
 }
