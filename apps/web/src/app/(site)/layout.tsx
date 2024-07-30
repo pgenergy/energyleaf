@@ -25,16 +25,16 @@ const navLinks = [
         icon: <HomeIcon className="mr-2 h-4 w-4" />,
     },
     {
-        slug: "costs",
-        title: "Kosten",
-        path: "/costs",
-        icon: <DollarSignIcon className="mr-2 h-4 w-4" />,
-    },
-    {
         slug: "energy",
         title: "Strom",
         path: "/energy",
         icon: <ZapIcon className="mr-2 h-4 w-4" />,
+    },
+    {
+        slug: "costs",
+        title: "Kosten",
+        path: "/costs",
+        icon: <DollarSignIcon className="mr-2 h-4 w-4" />,
     },
     {
         slug: "devices",
