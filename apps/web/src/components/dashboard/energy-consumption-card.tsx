@@ -29,7 +29,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         return (
             <Card className="w-full">
                 <CardHeader>
-                    <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
+                    <CardTitle>Verbrauch, Leistung, Einspeisung und Kosten</CardTitle>
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -44,7 +44,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         aggregation = AggregationType[aggregationType.toUpperCase() as keyof typeof AggregationType];
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
-    const data = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
+    const data = await getEnergyDataForSensor(startDate.toISOString(), endDate.toISOString(), sensorId, aggregation);
     const showPeaks = fulfills(user.appVersion, Versions.self_reflection) && !hasAggregation;
 
     const userData = await getUserData(user.id);
@@ -60,7 +60,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-col justify-start">
-                <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
+                <CardTitle>Verbrauch, Leistung, Einspeisung und Kosten</CardTitle>
                 <CardDescription>Im ausgewählten Zeitraum</CardDescription>
                 {user.id !== "demo" ? (
                     <div className="flex flex-row gap-4">

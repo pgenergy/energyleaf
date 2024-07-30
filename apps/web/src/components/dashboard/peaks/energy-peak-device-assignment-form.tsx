@@ -23,7 +23,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
         data: selectedDevices,
         isLoading: selectedDevicesLoading,
         isRefetching: selectedDevicesRefetching,
-        refetch,
+        refetch: refetchSelectedDevices,
     } = useQuery({
         queryKey: [`selectedDevices${sensorDataSequenceId}`],
         queryFn: () => getDevicesByPeak(sensorDataSequenceId),
@@ -69,6 +69,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
         });
 
         onInteract();
+        refetchSelectedDevices();
     }
 
     function onAbort() {

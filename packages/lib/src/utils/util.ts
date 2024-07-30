@@ -7,10 +7,14 @@ export const computeTimestampLabel = (aggregationParam: AggregationType | undefi
             return withWh ? "kWh (Jahr)" : "(in Jahren)";
         case AggregationType.MONTH:
             return withWh ? "kWh (Monat)" : "(in Monaten)";
+        case AggregationType.CALENDAR_WEEK:
+            return withWh ? "kWh (Kalenderwoche)" : "(in Kalenderwochen)";
         case AggregationType.WEEK:
-            return withWh ? "kWh (Wochen)" : "(in Wochen)";
+            return withWh ? "kWh (Wochen - Monat)" : "(in Wochen)";
         case AggregationType.DAY:
             return withWh ? "kWh (Tag)" : "(in Tagen)";
+        case AggregationType.WEEKDAY:
+            return withWh ? "kWh (Wochentag)" : "(in Tagen)";
         case AggregationType.HOUR:
             return withWh ? "kWh (Stunde)" : "(in Stunden)";
         default:

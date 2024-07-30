@@ -38,3 +38,6 @@ yarn-error.log*
 # docker data
 data
 !packages/lib/src/data
+
+# debug files
+download.json

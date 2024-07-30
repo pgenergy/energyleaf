@@ -109,8 +109,10 @@ export async function markPeaks(args: string[]) {
     endDate.setDate(endDate.getDate() + 5);
 
     await findAndMark({
-        start: startDate,
-        end: endDate,
+        timePeriod: {
+            start: startDate,
+            end: endDate,
+        },
         sensorId,
         type: "peak",
     });
