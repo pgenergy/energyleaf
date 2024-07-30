@@ -16,8 +16,6 @@ interface Props {
 }
 
 export default function EnergyTipCardDescription({ tip }: Props) {
-    console.log(tip);
-
     const content = useMemo(() => {
         const { belongsTo } = tip;
         if (!belongsTo) {
