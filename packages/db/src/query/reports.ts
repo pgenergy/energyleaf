@@ -153,7 +153,8 @@ export async function getReportByIdAndUser(reportId: string, userId: string): Pr
             progress: reportsDayStatistics.progress,
         })
         .from(reportsDayStatistics)
-        .where(eq(reportsDayStatistics.reportId, reportId));
+        .where(eq(reportsDayStatistics.reportId, reportId))
+        .orderBy(reportsDayStatistics.date);
 
     return {
         ...report[0],

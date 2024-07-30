@@ -7,7 +7,11 @@ interface DayEnergyStatisticsProps {
     dayEnergyStatistics: DailyGoalStatistic[] | undefined;
 }
 
-const DayTile: React.FC<{ stats: DailyGoalStatistic }> = ({ stats }) => {
+interface DayTileProps {
+    stats: DailyGoalStatistic;
+}
+
+function DayTile({ stats }: DayTileProps) {
     const progVariant = stats.exceeded ?? false ? "destructive" : "default";
 
     return (
@@ -18,10 +22,9 @@ const DayTile: React.FC<{ stats: DailyGoalStatistic }> = ({ stats }) => {
             <span className="m-0 p-0 font-semibold"> {formatDate(stats.day)}</span>
         </div>
     );
-};
+}
 
-const DayStatistics: React.FC<DayEnergyStatisticsProps> = ({ dayEnergyStatistics }) => {
-    console.log(dayEnergyStatistics);
+export default function DayStatisticsCard({ dayEnergyStatistics }: DayEnergyStatisticsProps) {
     if (!dayEnergyStatistics || dayEnergyStatistics.length === 0) {
         return null;
     }
@@ -42,6 +45,4 @@ const DayStatistics: React.FC<DayEnergyStatisticsProps> = ({ dayEnergyStatistics
             </CardContent>
         </Card>
     );
-};
-
-export default DayStatistics;
+}

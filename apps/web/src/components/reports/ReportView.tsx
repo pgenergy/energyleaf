@@ -1,7 +1,8 @@
 import { getReportByIdAndUser } from "@energyleaf/db/query";
 import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import React from "react";
-import DayStatistics from "./day-statistics";
+import DailyAbsoluteEnergyCard from "./daily-absolute-energy-card"; // Import the component
+import DayStatisticsCard from "./day-statistics-card";
 
 interface Props {
     reportId?: string;
@@ -26,7 +27,8 @@ export default async function ReportView(props: Props) {
 
     return (
         <div className="flex flex-col gap-4">
-            <DayStatistics dayEnergyStatistics={report.dayEnergyStatistics} />
+            <DayStatisticsCard dayEnergyStatistics={report.dayEnergyStatistics} />
+            <DailyAbsoluteEnergyCard dayEnergyStatistics={report.dayEnergyStatistics} />
         </div>
     );
 }
