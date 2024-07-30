@@ -32,7 +32,10 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (![...publicRoutes, ...unprotectedRoutes].includes(path) && !loggedIn) {
-        return NextResponse.redirect(new URL("/", req.url));
+        const nextUrl = encodeURI(path);
+        const searchParams = new URLSearchParams();
+        searchParams.set("next", nextUrl);
+        return NextResponse.redirect(new URL(`/?next=${nextUrl}`, req.url));
     }
 
     if (
