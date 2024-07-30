@@ -6,15 +6,15 @@ export const metadata = {
 };
 
 interface Props {
-    searchParams: {
+    searchParams?: {
         next?: string;
     };
 }
 
-export default function Page() {
+export default function Page(props: Props) {
     return (
         <CardContent>
-            <LoginForm />
+            <LoginForm next={props.searchParams?.next} />
         </CardContent>
     );
 }

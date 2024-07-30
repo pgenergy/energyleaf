@@ -418,7 +418,11 @@ async function handleSignIn(session: Session, user: UserSelectType | null, next?
         redirect("/onboarding");
     }
 
-    redirect("/dashboard");
+    if (next) {
+        redirect(next);
+    } else {
+        redirect("/dashboard");
+    }
 }
 
 /**
