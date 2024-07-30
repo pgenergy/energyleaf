@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getEnergyTips } from "@/query/recommendations";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import {} from "lucide-react";
+import EnergyTipCardDescription from "./energy-tip-card-description";
 import EnergyTipRandomPicker from "./energy-tip-random-picker";
 
 export default async function EnergyTipsCard() {
@@ -18,6 +19,7 @@ export default async function EnergyTipsCard() {
             <CardHeader>
                 <CardTitle>Energiespartipps</CardTitle>
                 <CardDescription>Hier erhalten Sie Tipps, um Strom zu sparen.</CardDescription>
+                <EnergyTipCardDescription tip={shuffledTips[0]} />
             </CardHeader>
             <CardContent>
                 <EnergyTipRandomPicker tips={shuffledTips} />
