@@ -157,12 +157,23 @@ export async function getReportByIdAndUser(reportId: string, userId: string): Pr
 
     return {
         ...report[0],
-        dayStatistics: dayStatistics.map((stat) => ({
+        totalEnergyCost: report[0].totalEnergyCost ?? undefined,
+        avgEnergyCost: report[0].avgEnergyCost ?? undefined,
+        bestDay: {
+            day: new Date(report[0].bestDay),
+            consumption: report[0].bestDayConsumption,
+        },
+        worstDay: {
+            day: new Date(report[0].worstDay),
+            consumption: report[0].worstDayConsumption,
+        },
+        dayEnergyStatistics: dayStatistics.map((stat) => ({
             day: new Date(stat.date),
             dailyConsumption: stat.dailyConsumption,
-            dailyGoal: stat.dailyGoal,
-            exceeded: stat.exceeded,
-            progress: stat.progress,
+            dailyGoal: stat.dailyGoal ?? undefined,
+            exceeded: stat.exceeded ?? undefined,
+            progress: stat.progress ?? undefined,
+            image: "",
         })),
     };
 }

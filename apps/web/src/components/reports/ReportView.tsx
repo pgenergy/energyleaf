@@ -1,16 +1,14 @@
+import { getReportByIdAndUser } from "@energyleaf/db/query";
+import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import React from "react";
-import {Card, CardDescription, CardHeader, CardTitle} from "@energyleaf/ui/card";
-import {getReportByIdAndUser} from "@energyleaf/db/query";
+import DayStatistics from "./day-statistics";
 
 interface Props {
     reportId?: string;
     userId?: string;
 }
 
-export default async function ReportView (props: Props) {
-
-
-
+export default async function ReportView(props: Props) {
     const report = await getReportByIdAndUser(props.reportId, props.userId);
 
     if (!report) {
@@ -28,12 +26,7 @@ export default async function ReportView (props: Props) {
 
     return (
         <div className="flex flex-col gap-4">
-            <Card className="w-full">
-                <CardHeader>
-                    <CardTitle>Berichte</CardTitle>
-                    <CardDescription>Toller Bericht hier oder?</CardDescription>
-                </CardHeader>
-            </Card>
+            <DayStatistics dayEnergyStatistics={report.dayEnergyStatistics} />
         </div>
     );
 }
