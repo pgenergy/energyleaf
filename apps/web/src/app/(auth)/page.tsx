@@ -5,6 +5,12 @@ export const metadata = {
     title: "Energyleaf",
 };
 
+interface Props {
+    searchParams: {
+        next?: string;
+    };
+}
+
 export default function Page() {
     return (
         <CardContent>
