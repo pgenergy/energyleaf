@@ -35,8 +35,6 @@ export default function SignUpForm() {
             password: "",
             passwordRepeat: "",
             electricityMeterNumber: "",
-            hasWifi: false,
-            hasPower: false,
             file: new File([], ""),
             tos: false,
             pin: false,
@@ -254,12 +252,23 @@ export default function SignUpForm() {
                         name="hasWifi"
                         render={({ field }) => (
                             <FormItem>
-                                <div className="flex flex-row items-center justify-between">
-                                    <FormLabel>WLAN vorhanden?</FormLabel>
+                                <FormLabel>WLAN vorhanden?</FormLabel>
+                                <Select
+                                    onValueChange={(value) => {
+                                        field.onChange(value === "true");
+                                    }}
+                                    value={field.value !== undefined ? (field.value ? "true" : "false") : undefined}
+                                >
                                     <FormControl>
-                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Wählen..." />
+                                        </SelectTrigger>
                                     </FormControl>
-                                </div>
+                                    <SelectContent>
+                                        <SelectItem value="true">WLAN vorhanden</SelectItem>
+                                        <SelectItem value="false">Kein WLAN vorhanden</SelectItem>
+                                    </SelectContent>
+                                </Select>
                                 <FormDescription>
                                     Ist eine stabile WLAN-Verbindung an ihrem Stromzähler vorhanden?
                                 </FormDescription>
@@ -272,12 +281,23 @@ export default function SignUpForm() {
                         name="hasPower"
                         render={({ field }) => (
                             <FormItem>
-                                <div className="flex flex-row items-center justify-between">
-                                    <FormLabel>Steckdose vorhanden?</FormLabel>
+                                <FormLabel>Steckdose vorhanden?</FormLabel>
+                                <Select
+                                    onValueChange={(value) => {
+                                        field.onChange(value === "true");
+                                    }}
+                                    value={field.value !== undefined ? (field.value ? "true" : "false") : undefined}
+                                >
                                     <FormControl>
-                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Wählen..." />
+                                        </SelectTrigger>
                                     </FormControl>
-                                </div>
+                                    <SelectContent>
+                                        <SelectItem value="true">Steckdose vorhanden</SelectItem>
+                                        <SelectItem value="false">Keine Steckdose vorhanden</SelectItem>
+                                    </SelectContent>
+                                </Select>
                                 <FormDescription>
                                     Befindet sich in der Nähe ihres Stromzählers eine Steckdose,? Sollte dies nicht der
                                     Fall sein, erhalten sie von uns einen Akku, um den Sensor damit zu betreiben.
