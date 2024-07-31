@@ -1,24 +1,21 @@
 "use client";
+
 import { type SolarResultProps, calculateSolar } from "@/actions/solar";
 import SubmitButton from "@/components/auth/submit-button";
 import type { DefaultActionReturnPayload } from "@energyleaf/lib";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@energyleaf/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
+import { Skeleton } from "@energyleaf/ui/skeleton";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
-type Props = {
-    userId: string;
-};
-
-export default async function SolarCalculationForm(props: Props) {
+export default function SolarCalculationForm() {
     const solarCalcSchema = z.object({
-        watts: z.string(),
+        watts: z.string().min(1, "Bitte geben Sie eine Zahl ein."),
     });
     const [pending, startTransition] = useTransition();
     const [next24hkWh, setNext24hkWh] = useState("0");
@@ -27,12 +24,18 @@ export default async function SolarCalculationForm(props: Props) {
     const [last30dPrice, setLast30dPrice] = useState("0");
     const [location, setLocation] = useState("");
 
+    const defaultValues = {
+        watts: "800",
+    };
     const form = useForm<z.infer<typeof solarCalcSchema>>({
         resolver: zodResolver(solarCalcSchema),
-        defaultValues: {
-            watts: "",
-        },
+        defaultValues,
     });
+
+    // call calculateSolarCallback once when the component is mounted
+    useEffect(() => {
+        startTransition(() => calculateSolarCallback(defaultValues));
+    }, []);
 
     const calculateSolarCallback = async (data: z.infer<typeof solarCalcSchema>) => {
         let res: DefaultActionReturnPayload<SolarResultProps> = undefined;
@@ -60,24 +63,20 @@ export default async function SolarCalculationForm(props: Props) {
         }
     };
 
-    const onSubmit = (data: z.infer<typeof solarCalcSchema>, event) => {
-        startTransition(() => {
-            toast.promise(calculateSolarCallback(data), {
-                loading: "Berechnung wird durchgeführt...",
-                error: (err: Error) => err.message,
-            });
-        });
+    const onSubmit = (data: z.infer<typeof solarCalcSchema>) => {
+        startTransition(() => calculateSolarCallback(data));
     };
 
     return (
-        <>
+        <div className="flex flex-col gap-4">
             <Form {...form}>
-                <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+                <form className="flex flex-col gap-2" onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
                         control={form.control}
                         name="watts"
                         render={({ field }) => (
                             <FormItem>
+                                <FormLabel>Leistung (in Watt)</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Wattzahl" type="number" {...field} />
                                 </FormControl>
@@ -89,42 +88,66 @@ export default async function SolarCalculationForm(props: Props) {
                 </form>
             </Form>
 
-            {location ? <p className="p-4">Für {location}</p> : ""}
+            {location ? <p>Für {location}</p> : ""}
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
                 <Card>
-                    <CardHeader>
-                        <CardTitle>In den nächsten 24 Stunden</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center font-bold text-2xl text-primary">
-                        {Number(next24hkWh).toFixed(2)} kWh
-                    </CardContent>
+                    {pending ? (
+                        <Skeleton className="h-40 w-full" />
+                    ) : (
+                        <>
+                            <CardHeader>
+                                <CardTitle>Produzierter Strom in den nächsten 24 Stunden</CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-center font-bold text-2xl text-primary">
+                                {Number(next24hkWh).toFixed(2)} kWh
+                            </CardContent>
+                        </>
+                    )}
                 </Card>
                 <Card>
-                    <CardHeader>
-                        <CardTitle>In den nächsten 24 Stunden</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center font-bold text-2xl text-primary">
-                        {Number(next24hPrice).toFixed(2)} €
-                    </CardContent>
+                    {pending ? (
+                        <Skeleton className="h-40 w-full" />
+                    ) : (
+                        <>
+                            <CardHeader>
+                                <CardTitle>Kostenersparnis in den nächsten 24 Stunden</CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-center font-bold text-2xl text-primary">
+                                {Number(next24hPrice).toFixed(2)} €
+                            </CardContent>
+                        </>
+                    )}
                 </Card>
                 <Card>
-                    <CardHeader>
-                        <CardTitle>In den letzten 30 Tagen</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center font-bold text-2xl text-primary">
-                        {Number(last30dkWh).toFixed(2)} kWh
-                    </CardContent>
+                    {pending ? (
+                        <Skeleton className="h-40 w-full" />
+                    ) : (
+                        <>
+                            <CardHeader>
+                                <CardTitle>Produzierter Strom in den letzten 30 Tagen</CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-center font-bold text-2xl text-primary">
+                                {Number(last30dkWh).toFixed(2)} kWh
+                            </CardContent>
+                        </>
+                    )}
                 </Card>
                 <Card>
-                    <CardHeader>
-                        <CardTitle>In den letzten 30 Tagen</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center font-bold text-2xl text-primary">
-                        {Number(last30dPrice).toFixed(2)} €
-                    </CardContent>
+                    {pending ? (
+                        <Skeleton className="h-40 w-full" />
+                    ) : (
+                        <>
+                            <CardHeader>
+                                <CardTitle>Kostenersparnis in den letzten 30 Tagen</CardTitle>
+                            </CardHeader>
+                            <CardContent className="text-center font-bold text-2xl text-primary">
+                                {Number(last30dPrice).toFixed(2)} €
+                            </CardContent>
+                        </>
+                    )}
                 </Card>
             </div>
-        </>
+        </div>
     );
 }
