@@ -1,3 +1,9 @@
-export default function LaundryDryer() {
-    return <span className="icon-[ph--washing-machine]" style={{ width: "24px", height: "24px" }} />;
+import { cn } from "@energyleaf/tailwindcss/utils";
+
+interface Props {
+    className?: string;
+}
+
+export default function LaundryDryer({ className }: Props) {
+    return <span className={cn("icon-[ph--washing-machine]", className)} />;
 }
