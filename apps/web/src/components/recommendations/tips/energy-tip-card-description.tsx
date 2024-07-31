@@ -1,14 +1,6 @@
 "use client";
-
-import DeviceCategoryIcon from "@/components/devices/device-category-icon";
-import {
-    DeviceCategory,
-    DeviceCategoryTitles,
-    DeviceSuperCategory,
-    DeviceSuperCategoryTitles,
-} from "@energyleaf/db/types";
-import type { EnergyTip } from "@energyleaf/lib/tips";
-import { CardDescription } from "@energyleaf/ui/card";
+import { DeviceCategoryTitles, DeviceSuperCategoryTitles } from "@energyleaf/db/types";
+import { type EnergyTip, isDeviceCategory, isDeviceCategoryArray, isDeviceSuperCategory } from "@energyleaf/lib/tips";
 import { useMemo } from "react";
 
 interface Props {
@@ -22,33 +14,8 @@ export default function EnergyTipCardDescription({ tip }: Props) {
             return "Allgemein";
         }
 
-        function isDeviceCategory(
-            value: DeviceCategory | DeviceCategory[] | DeviceSuperCategory,
-        ): value is DeviceCategory {
-            return typeof value === "string" && Object.values(DeviceCategory).includes(value as DeviceCategory);
-        }
-
-        function isDeviceCategoryArray(
-            value: DeviceCategory | DeviceCategory[] | DeviceSuperCategory,
-        ): value is DeviceCategory[] {
-            return Array.isArray(value) && value.every(isDeviceCategory);
-        }
-
-        function isDeviceSuperCategory(
-            value: DeviceCategory | DeviceCategory[] | DeviceSuperCategory,
-        ): value is DeviceSuperCategory {
-            return (
-                typeof value === "string" && Object.values(DeviceSuperCategory).includes(value as DeviceSuperCategory)
-            );
-        }
-
         if (isDeviceCategory(belongsTo)) {
-            return (
-                <span className="flex flex-row items-center gap-1">
-                    {`Für Geräte-Kategorie ${DeviceCategoryTitles[belongsTo]}`}
-                    <DeviceCategoryIcon category={belongsTo} />
-                </span>
-            );
+            return `Für Geräte-Kategorie ${DeviceCategoryTitles[belongsTo]}`;
         }
 
         if (isDeviceCategoryArray(belongsTo)) {
@@ -62,5 +29,5 @@ export default function EnergyTipCardDescription({ tip }: Props) {
         return null;
     }, [tip]);
 
-    return <CardDescription>{content}</CardDescription>;
+    return content;
 }

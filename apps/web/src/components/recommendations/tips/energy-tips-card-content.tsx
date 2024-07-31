@@ -21,8 +21,10 @@ export default function EnergyTipsCardContent({ tips }: Props) {
         <Card>
             <CardHeader>
                 <CardTitle>Energiespartipps</CardTitle>
-                <CardDescription>Hier erhalten Sie Tipps, um Strom zu sparen.</CardDescription>
-                <EnergyTipCardDescription tip={tips[tipIndex]} />
+                <CardDescription className="flex flex-col gap-1">
+                    <span>Hier erhalten Sie Tipps, um Strom zu sparen.</span>
+                    <EnergyTipCardDescription tip={tips[tipIndex]} />
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 {tips.length === 0 ? (
