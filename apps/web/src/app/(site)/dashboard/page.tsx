@@ -90,7 +90,7 @@ export default async function DashboardPage({
                 <div className="col-span-1 mt-8 flex flex-col gap-4 md:col-span-3 md:mt-16">
                     <h1 className="font-bold text-2xl">Werte im Zeitraum</h1>
                     <div className="flex flex-col gap-2 md:flex-row">
-                        {user.id !== "demo" ? <DashboardDateRange endDate={endDate} startDate={startDate} /> : null}
+                        <DashboardDateRange endDate={endDate} startDate={startDate} />
                         <DashboardTimeRange startDate={startDate} endDate={endDate} />
                         <div className="hidden flex-1 md:block" />
                         {user.id !== "demo" ? (

@@ -1,4 +1,6 @@
 import type { SensorDataSelectType, UserDataType } from "@energyleaf/db/types";
+import { AggregationType, convertTZDate } from "@energyleaf/lib";
+import { differenceInDays, getWeekOfMonth, getWeekYear } from "date-fns";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
 import { getActionSession } from "../auth/auth.action";
@@ -35,8 +37,8 @@ export function getUserDataCookieStoreDefaults() {
             household: 2,
             hotWater: "electric",
             tariff: "basic",
-            basePrice: 20,
-            monthlyPayment: 35,
+            basePrice: 30,
+            monthlyPayment: 120,
             workingPrice: 0.38,
             timestamp: new Date(2021, 1, 1),
             consumptionGoal: 20,
@@ -94,34 +96,183 @@ export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data:
     cookies.set("demo_data", JSON.stringify(newData));
 }
 
-export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[] {
-    const date = new Date();
-    const day = date.getDate();
-    const month = date.getMonth();
+export function getDemoSensorData(start: Date, end: Date, agg?: AggregationType): SensorDataSelectType[] {
     const inputData = demoData as {
         id: string;
         sensorId: string;
         value: number;
+        valueOut: number | null;
+        valueCurrent: number | null;
         timestamp: string;
     }[];
 
+    const current = new Date();
+    const lastEntry = inputData[inputData.length - 1];
+    const dayDiff = differenceInDays(current, new Date(lastEntry.timestamp));
+
     const fixedData = inputData.map((item, index) => {
         const dataDate = new Date(item.timestamp);
-        dataDate.setDate(day);
-        dataDate.setMonth(month);
-        dataDate.setHours(dataDate.getHours(), dataDate.getMinutes(), dataDate.getSeconds(), 0);
+        dataDate.setDate(dataDate.getDate() + dayDiff + 1);
 
         return {
             id: item.id,
             sensorId: "demo_sensor",
             timestamp: dataDate,
             value: index === 0 ? 0 : item.value - inputData[index - 1].value,
-            valueOut: null,
-            valueCurrent: null,
+            valueOut: item.valueOut
+                ? index === 0
+                    ? 0
+                    : item.valueOut - (inputData[index - 1].valueOut as number)
+                : null,
+            valueCurrent: item.valueOut,
         };
     });
 
-    return fixedData.filter(
+    const dataInRange = fixedData.filter(
         (item) => item.timestamp.getTime() >= start.getTime() && item.timestamp.getTime() <= end.getTime(),
     );
+
+    const result: SensorDataSelectType[] = [];
+    switch (agg) {
+        case AggregationType.RAW:
+            return dataInRange;
+        case AggregationType.HOUR:
+            for (let i = 0; i < dataInRange.length; i++) {
+                const item = dataInRange[i];
+                const index = result.findIndex(
+                    (d) =>
+                        convertTZDate(d.timestamp, "client").getHours() ===
+                        convertTZDate(item.timestamp, "client").getHours(),
+                );
+
+                if (index === -1) {
+                    result.push(item);
+                } else {
+                    result[index].value += item.value;
+                }
+            }
+            return result;
+        case AggregationType.DAY:
+            for (let i = 0; i < dataInRange.length; i++) {
+                const item = dataInRange[i];
+                const index = result.findIndex(
+                    (d) =>
+                        convertTZDate(d.timestamp, "client").getDate() ===
+                        convertTZDate(item.timestamp, "client").getDate(),
+                );
+
+                if (index === -1) {
+                    result.push(item);
+                } else {
+                    result[index].value += item.value;
+                }
+            }
+            return result;
+        case AggregationType.WEEKDAY:
+            for (let i = 0; i < dataInRange.length; i++) {
+                const item = dataInRange[i];
+                const index = result.findIndex(
+                    (d) =>
+                        convertTZDate(d.timestamp, "client").getDay() ===
+                        convertTZDate(item.timestamp, "client").getDay(),
+                );
+
+                if (index === -1) {
+                    result.push(item);
+                } else {
+                    result[index].value += item.value;
+                }
+            }
+            return result;
+        case AggregationType.WEEK:
+            for (let i = 0; i < dataInRange.length; i++) {
+                const item = dataInRange[i];
+                const index = result.findIndex(
+                    (d) =>
+                        getWeekOfMonth(convertTZDate(d.timestamp, "client")) ===
+                        getWeekOfMonth(convertTZDate(item.timestamp, "client")),
+                );
+
+                if (index === -1) {
+                    result.push(item);
+                } else {
+                    result[index].value += item.value;
+                }
+            }
+            return result;
+        case AggregationType.CALENDAR_WEEK:
+            for (let i = 0; i < dataInRange.length; i++) {
+                const item = dataInRange[i];
+                const index = result.findIndex(
+                    (d) =>
+                        getWeekYear(convertTZDate(d.timestamp, "client")) ===
+                        getWeekYear(convertTZDate(item.timestamp, "client")),
+                );
+
+                if (index === -1) {
+                    result.push(item);
+                } else {
+                    result[index].value += item.value;
+                }
+            }
+            return result;
+        case AggregationType.MONTH:
+            for (let i = 0; i < dataInRange.length; i++) {
+                const item = dataInRange[i];
+                const index = result.findIndex(
+                    (d) =>
+                        convertTZDate(d.timestamp, "client").getMonth() ===
+                        convertTZDate(item.timestamp, "client").getMonth(),
+                );
+
+                if (index === -1) {
+                    result.push(item);
+                } else {
+                    result[index].value += item.value;
+                }
+            }
+            return result;
+        case AggregationType.YEAR:
+            for (let i = 0; i < dataInRange.length; i++) {
+                const item = dataInRange[i];
+                const index = result.findIndex(
+                    (d) =>
+                        convertTZDate(d.timestamp, "client").getFullYear() ===
+                        convertTZDate(item.timestamp, "client").getFullYear(),
+                );
+
+                if (index === -1) {
+                    result.push(item);
+                } else {
+                    result[index].value += item.value;
+                }
+            }
+            return result;
+        default:
+            return dataInRange;
+    }
+}
+
+export function getLastEnergyEntry(): SensorDataSelectType {
+    const inputData = demoData as {
+        id: string;
+        sensorId: string;
+        value: number;
+        valueOut: number | null;
+        valueCurrent: number | null;
+        timestamp: string;
+    }[];
+
+    const current = new Date();
+    const lastEntry = inputData[inputData.length - 1];
+    const dayDiff = differenceInDays(current, new Date(lastEntry.timestamp));
+
+    const dataDate = new Date(lastEntry.timestamp);
+    dataDate.setDate(dataDate.getDate() + dayDiff + 1);
+
+    return {
+        ...lastEntry,
+        timestamp: dataDate,
+        sensorId: "demo_sensor",
+    };
 }

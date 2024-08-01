@@ -1,7 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { genId } from "@energyleaf/db";
-import { findAndMark, getRawEnergyForSensorInRange, insertRawEnergyValues } from "@energyleaf/db/query";
+import db, { genId } from "@energyleaf/db";
+import { findAndMark, insertRawEnergyValues } from "@energyleaf/db/query";
+import { sensorData } from "@energyleaf/db/schema";
+import { convertTZDate } from "@energyleaf/lib";
+import { and, between, eq } from "drizzle-orm";
 
 export async function insertEnergyData(args: string[]) {
     const sensorId = args[0];
@@ -11,28 +14,32 @@ export async function insertEnergyData(args: string[]) {
 
     const filePath = path.join(process.cwd(), "apps", "web", "src", "lib", "demo");
     const fileContent = await fs.readFile(path.join(filePath, "demo.json"));
-    const day = new Date().getDate();
-    const month = new Date().getMonth();
-    const data = (
-        JSON.parse(fileContent.toString()) as {
-            id: string;
-            sensorId: string;
-            value: number;
-            timestamp: string;
-        }[]
-    ).map((d) => {
-        const dataDate = new Date(d.timestamp);
-        dataDate.setDate(day);
-        dataDate.setMonth(month);
+    const current = new Date();
+    const data = JSON.parse(fileContent.toString()) as {
+        id: string;
+        sensorId: string;
+        value: number;
+        valueOut: number | null;
+        valueCurrent: number | null;
+        timestamp: string;
+    }[];
+
+    const lastEntry = data[data.length - 1];
+    const timeDiff = current.getDate() - new Date(lastEntry.timestamp).getDate();
+
+    const processedData = data.map((d) => {
+        const newDate = new Date(d.timestamp);
+        newDate.setDate(newDate.getDate() + timeDiff);
+
         return {
             ...d,
             id: genId(),
+            timestamp: newDate,
             sensorId,
-            timestamp: dataDate,
         };
     });
 
-    await insertRawEnergyValues(data);
+    await insertRawEnergyValues(processedData);
 }
 
 export async function download(args: string[]) {
@@ -44,13 +51,19 @@ export async function download(args: string[]) {
     const filePath = path.join(process.cwd(), "download.json");
 
     const start = new Date();
-    start.setDate(start.getDate() - 19);
+    start.setDate(start.getDate() - 15);
     start.setHours(0, 0, 0, 0);
-
     const end = new Date();
+    end.setDate(end.getDate() - 1);
     end.setHours(23, 59, 59, 999);
 
-    const data = await getRawEnergyForSensorInRange(start, end, sensorId);
+    const queryStart = convertTZDate(start);
+    const queryEnd = convertTZDate(end);
+
+    const data = await db
+        .select()
+        .from(sensorData)
+        .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, queryStart, queryEnd)));
     await fs.writeFile(filePath, JSON.stringify(data));
 }
 
