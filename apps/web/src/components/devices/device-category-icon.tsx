@@ -1,4 +1,5 @@
 import { DeviceCategory } from "@energyleaf/db/types";
+import { cn } from "@energyleaf/tailwindcss/utils";
 import {
     coffeemaker,
     dishwasher,
@@ -34,64 +35,66 @@ import VacuumCleaner from "./icons/vacuum-cleaner";
 
 interface Props {
     category: DeviceCategory;
+    className?: string;
 }
 
-export default function DeviceCategoryIcon({ category }: Props) {
+export default function DeviceCategoryIcon({ category, className }: Props) {
+    className = cn("h-6 w-6", className);
     switch (category) {
         case DeviceCategory.Stovetop:
-            return <Heater />;
+            return <Heater className={className} />;
         case DeviceCategory.Oven:
-            return <Oven />;
+            return <Oven className={className} />;
         case DeviceCategory.AirFryer:
-            return <Fryer />;
+            return <Fryer className={className} />;
         case DeviceCategory.Fridge:
-            return <Refrigerator />;
+            return <Refrigerator className={className} />;
         case DeviceCategory.Freezer:
-            return <Icon iconNode={refrigeratorFreezer} />;
+            return <Icon iconNode={refrigeratorFreezer} className={className} />;
         case DeviceCategory.Microwave:
-            return <Microwave />;
+            return <Microwave className={className} />;
         case DeviceCategory.Kettle:
-            return <Icon iconNode={kettleElectric} />;
+            return <Icon iconNode={kettleElectric} className={className} />;
         case DeviceCategory.Toaster:
-            return <Icon iconNode={toaster} />;
+            return <Icon iconNode={toaster} className={className} />;
         case DeviceCategory.CoffeeMachine:
-            return <Icon iconNode={coffeemaker} />;
+            return <Icon iconNode={coffeemaker} className={className} />;
         case DeviceCategory.Blender:
-            return <CookingPot />;
+            return <CookingPot className={className} />;
         case DeviceCategory.Dishwasher:
-            return <Icon iconNode={dishwasher} />;
+            return <Icon iconNode={dishwasher} className={className} />;
         case DeviceCategory.WashingMachine:
-            return <WashingMachine />;
+            return <WashingMachine className={className} />;
         case DeviceCategory.Dryer:
-            return <LaundryDryer />;
+            return <LaundryDryer className={className} />;
         case DeviceCategory.VacuumCleaner:
-            return <VacuumCleaner />;
+            return <VacuumCleaner className={className} />;
         case DeviceCategory.Iron:
-            return <Icon iconNode={iron} />;
+            return <Icon iconNode={iron} className={className} />;
         case DeviceCategory.TVsAndMonitors:
-            return <Tv />;
+            return <Tv className={className} />;
         case DeviceCategory.EntertainmentAndComputers:
-            return <Laptop />;
+            return <Laptop className={className} />;
         case DeviceCategory.HairDryer:
-            return <Icon iconNode={hairdryer} />;
+            return <Icon iconNode={hairdryer} className={className} />;
         case DeviceCategory.BodyCare:
-            return <Icon iconNode={razor} />;
+            return <Icon iconNode={razor} className={className} />;
         case DeviceCategory.HeaterFan:
-            return <Fan />;
+            return <Fan className={className} />;
         case DeviceCategory.ElectricHeater:
-            return <HeatingCoil />;
+            return <HeatingCoil className={className} />;
         case DeviceCategory.AirConditioning:
-            return <AirVent />;
+            return <AirVent className={className} />;
         case DeviceCategory.HeatPump:
-            return <HeatPump />;
+            return <HeatPump className={className} />;
         case DeviceCategory.Lighting:
-            return <Lamp />;
+            return <Lamp className={className} />;
         case DeviceCategory.ECar:
-            return <Car />;
+            return <Car className={className} />;
         case DeviceCategory.EMobility:
-            return <Bike />;
+            return <Bike className={className} />;
         case DeviceCategory.Others:
-            return <Ellipsis />;
+            return <Ellipsis className={className} />;
         default:
             return null;
     }
