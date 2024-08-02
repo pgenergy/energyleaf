@@ -1,5 +1,6 @@
 import type {
     device,
+    deviceToPeak,
     reportConfig,
     sensor,
     sensorData,
@@ -40,6 +41,8 @@ export type SensorInsertType = typeof sensor.$inferInsert;
 export type SensorDataSelectType = typeof sensorData.$inferSelect;
 
 export type SensorDataSequenceType = typeof sensorDataSequence.$inferSelect;
+
+export type SensorDeviceSequenceSelectType = typeof deviceToPeak.$inferSelect;
 
 export type SensorSelectTypeWithUser = {
     sensor: SensorSelectType;
