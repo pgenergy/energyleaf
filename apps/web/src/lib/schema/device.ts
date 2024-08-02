@@ -6,7 +6,7 @@ export const deviceSchema = z.object({
     category: z
         .string()
         .min(1, { message: "Bitte geben Sie eine Kategorie an." })
-        .refine((value) => Object.keys(DeviceCategory).includes(value as DeviceCategory), {
+        .refine((value) => Object.values(DeviceCategory).includes(value as DeviceCategory), {
             message: "Bitte wählen Sie eine Kategorie aus.",
         }),
 });

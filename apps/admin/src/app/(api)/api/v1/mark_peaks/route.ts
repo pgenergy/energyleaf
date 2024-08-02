@@ -1,6 +1,5 @@
 import { env } from "@/env.mjs";
 import { findAndMark, getAllSensors, log, logError } from "@energyleaf/db/query";
-import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -11,65 +10,55 @@ export const GET = async (req: NextRequest) => {
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 
-    const startDate = new Date();
-    const endDate = new Date();
-
-    // shift date back by half an hour to not mark and perform on newest values
-    if (startDate.getMinutes() >= 30) {
-        startDate.setHours(startDate.getHours() - 1, 30, 0, 0);
-        endDate.setHours(endDate.getHours() - 1, 59, 59, 999);
-    } else {
-        startDate.setHours(startDate.getHours() - 1, 0, 0, 0);
-        endDate.setHours(endDate.getHours() - 1, 30, 59, 59);
-    }
-
     try {
         const sensors = await getAllSensors(true);
         const sensorIds = sensors.map((d) => d.id);
 
-        const promises: Promise<SensorDataSelectType[]>[] = [];
+        const promises: Promise<void>[] = [];
         waitUntil(
             log("mark-peaks/length", "info", "mark-peaks", "api", {
-                length: sensorIds.length,
+                numberOfSensors: sensorIds.length,
             }),
         );
         for (let i = 0; i < sensorIds.length; i++) {
             const sensorId = sensorIds[i];
 
-            promises.push(
-                findAndMark(
-                    {
-                        sensorId,
-                        start: startDate,
-                        end: endDate,
-                        type: "peak",
-                    },
-                    10,
-                ),
-            );
+            const fn = async () => {
+                let startDate: Date | null = null;
+                let endDate: Date | null = null;
+                try {
+                    const result = await findAndMark(
+                        {
+                            sensorId,
+                            type: "peak",
+                        },
+                        10,
+                    );
+                    startDate = result.start;
+                    endDate = result.end;
+                } catch (err) {
+                    waitUntil(
+                        logError(
+                            "mark-peaks/user-error",
+                            "mark-peaks",
+                            "api",
+                            {
+                                sensorId,
+                                start: startDate?.toISOString(),
+                                end: (endDate ?? new Date()).toISOString(),
+                            },
+                            new Error(err),
+                        ),
+                    );
+                }
+            };
+
+            promises.push(fn());
         }
 
         // use allSettled so we dont abort if one fails
-        const results = await Promise.allSettled(promises);
-        for (let i = 0; i < results.length; i++) {
-            const result = results[i];
-            const sensorId = sensorIds[i];
-            if (result.status === "rejected") {
-                waitUntil(
-                    logError(
-                        "mark-peaks/user-error",
-                        "mark-peaks",
-                        "api",
-                        {
-                            sensorId,
-                            start: startDate.toISOString(),
-                            end: endDate.toISOString(),
-                        },
-                        new Error(result.reason),
-                    ),
-                );
-            }
-        }
+        await Promise.allSettled(promises);
+        return NextResponse.json({ statusMessage: "Peaks successfully marked." });
     } catch (err) {
         waitUntil(
             logError(
@@ -77,13 +66,12 @@ export const GET = async (req: NextRequest) => {
                 "mark-peaks",
                 "api",
                 {
-                    startDate,
-                    endDate,
+                    time: new Date().toISOString(),
                     req,
                 },
                 err,
             ),
         );
-        return;
+        return NextResponse.json({ statusMessage: "Internal Server Error" }, { status: 500 });
     }
 };

@@ -5,10 +5,16 @@ export const metadata = {
     title: "Energyleaf",
 };
 
-export default function Page() {
+interface Props {
+    searchParams?: {
+        next?: string;
+    };
+}
+
+export default function Page(props: Props) {
     return (
         <CardContent>
-            <LoginForm />
+            <LoginForm next={props.searchParams?.next} />
         </CardContent>
     );
 }

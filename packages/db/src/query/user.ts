@@ -1,5 +1,7 @@
+import { pickRandomTip } from "@energyleaf/lib/tips";
 import { and, desc, eq, gte } from "drizzle-orm";
 import db, { genId } from "../";
+import type { EnergyTipKey } from "../../../lib/src/recommendations/tips/energy-tip-key";
 import {
     historyReportConfig,
     historyUser,
@@ -12,8 +14,10 @@ import {
     user,
     userData,
     userExperimentData,
+    userTipOfTheDay,
 } from "../schema";
 import type { UserDataSelectType, UserSelectType } from "../types/types";
+import { getDeviceCategoriesByUser } from "./device";
 
 /**
  * Get a user by id from the database
@@ -350,4 +354,37 @@ export async function getUserIdByToken(givenToken: string) {
         return null;
     }
     return data[0].userId;
+}
+
+export async function getTipOfTheDay(userId: string) {
+    return db.transaction(async (trx) => {
+        const currentValue = await trx.select().from(userTipOfTheDay).where(eq(userTipOfTheDay.userId, userId));
+        const isFirstTip = currentValue.length === 0;
+        const isTipOutdated =
+            currentValue.length > 0 && currentValue[0].timestamp < new Date(new Date().setHours(0, 0, 0, 0));
+        const tip: EnergyTipKey =
+            isFirstTip || isTipOutdated
+                ? pickRandomTip(await getDeviceCategoriesByUser(userId, trx))
+                : currentValue[0].tipId;
+
+        if (isFirstTip) {
+            await trx.insert(userTipOfTheDay).values({
+                userId,
+                tipId: tip,
+                timestamp: new Date(),
+            });
+        }
+
+        if (isTipOutdated) {
+            await trx
+                .update(userTipOfTheDay)
+                .set({
+                    tipId: tip,
+                    timestamp: new Date(),
+                })
+                .where(eq(userTipOfTheDay.userId, userId));
+        }
+
+        return tip;
+    });
 }

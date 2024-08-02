@@ -1,46 +1,37 @@
-import AvgEnergyConsumptionCard from "@/components/recommendations/avg-energy-consumption-card";
-import AvgEnergyConsumptionError from "@/components/recommendations/avg-energy-consumption-card-error";
-import AvgEnergyConsumptionComparisonCard from "@/components/recommendations/avg-energy-consumption-comparison";
-import AvgEnergyConsumptionComparisonError from "@/components/recommendations/avg-energy-consumption-comparison-error";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import AmortizationCard from "@/components/recommendations/amortization/amortization-card";
+import AmortizationCardError from "@/components/recommendations/amortization/amortization-card-error";
+import SolarCalculationCard from "@/components/recommendations/solar-calculation-card";
+import SolarCalculationCardError from "@/components/recommendations/solar-calculation-card-error";
+import EnergyTipsCard from "@/components/recommendations/tips/energy-tips-card";
+import EnergyTipsCardError from "@/components/recommendations/tips/energy-tips-card-error";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 
 export const metadata = {
     title: "Empfehlungen | Energyleaf",
 };
 
-export default function RecommendationsPage() {
+export default async function RecommendationsPage() {
     return (
         <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div>
-                    <ErrorBoundary fallback={AvgEnergyConsumptionError}>
-                        <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                            <AvgEnergyConsumptionCard />
-                        </Suspense>
-                    </ErrorBoundary>
-                </div>
-                <div>
-                    <ErrorBoundary fallback={AvgEnergyConsumptionComparisonError}>
-                        <Suspense fallback={<Skeleton className="h-72 w-full" />}>
-                            <AvgEnergyConsumptionComparisonCard />
-                        </Suspense>
-                    </ErrorBoundary>
-                </div>
-            </div>
-            <Card className="w-full">
-                <CardHeader>
-                    <CardTitle>Ihre Geräte</CardTitle>
-                    <CardDescription>Hier sehen Sie den Verbauch Ihrer Geräte</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex flex-row justify-center">
-                        <p className="text-muted-foreground">Noch keine Geräte vorhanden</p>
-                    </div>
-                </CardContent>
-            </Card>
+            <ErrorBoundary fallback={AmortizationCardError}>
+                <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                    <AmortizationCard />
+                </Suspense>
+            </ErrorBoundary>
+            <ErrorBoundary fallback={EnergyTipsCardError}>
+                <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                    <EnergyTipsCard />
+                </Suspense>
+            </ErrorBoundary>
+
+            {/* Balkonkraftwerk simulieren */}
+            <ErrorBoundary fallback={SolarCalculationCardError}>
+                <Suspense fallback={<Skeleton className="h-40 w-full" />}>
+                    <SolarCalculationCard />
+                </Suspense>
+            </ErrorBoundary>
         </div>
     );
 }

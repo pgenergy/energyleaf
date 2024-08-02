@@ -27,7 +27,9 @@ export function calculateAggregationOptions(startDateStr: DateType, endDateStr: 
 
     if (hourDiff >= 1) options.push(AggregationType.HOUR);
     if (dayDiff >= 2) options.push(AggregationType.DAY);
+    if (dayDiff >= 2) options.push(AggregationType.WEEKDAY);
     if (weekDiff >= 2) options.push(AggregationType.WEEK);
+    if (weekDiff >= 2) options.push(AggregationType.CALENDAR_WEEK);
     if (monthDiff >= 2) options.push(AggregationType.MONTH);
     if (yearDiff >= 2) options.push(AggregationType.YEAR);
 

@@ -1,21 +1,11 @@
-import { type ExtractTablesWithRelations, and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
 
 import type { ReportProps } from "@energyleaf/lib";
-import type { MySqlTransaction } from "drizzle-orm/mysql-core";
-import type { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
-import db, { genId } from "../";
+import db, { type DB, genId } from "../";
 import { reportConfig, reports, reportsDayStatistics } from "../schema/reports";
 import { user } from "../schema/user";
 
-export async function getReportConfigByUserId(
-    trx: MySqlTransaction<
-        PlanetscaleQueryResultHKT,
-        PlanetScalePreparedQueryHKT,
-        Record<string, never>,
-        ExtractTablesWithRelations<Record<string, never>>
-    >,
-    id: string,
-) {
+export async function getReportConfigByUserId(trx: DB, id: string) {
     const data = await trx.select().from(reportConfig).where(eq(reportConfig.userId, id));
 
     if (data.length === 0) {

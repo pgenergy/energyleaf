@@ -46,6 +46,7 @@ export function getUserDataCookieStoreDefaults() {
             wifiAtElectricityMeter: true,
             powerAtElectricityMeter: true,
             installationComment: null,
+            devicePowerEstimationRSquared: null,
         },
         mail_config: {
             report_config: {
@@ -117,8 +118,6 @@ export function getDemoSensorData(start: Date, end: Date): SensorDataSelectType[
             value: index === 0 ? 0 : item.value - inputData[index - 1].value,
             valueOut: null,
             valueCurrent: null,
-            isPeak: false,
-            isAnomaly: false,
         };
     });
 

@@ -1,8 +1,10 @@
 export enum AggregationType {
     RAW = "RAW",
     HOUR = "HOUR",
+    WEEKDAY = "WEEKDAY",
     DAY = "DAY",
     WEEK = "WEEK",
+    CALENDAR_WEEK = "CALENDAR_WEEK",
     MONTH = "MONTH",
     YEAR = "YEAR",
 }
@@ -28,3 +30,11 @@ export const DismissedReasonEnumMap: Record<DismissedReasonEnum, string> = {
     [DismissedReasonEnum.WRONG_METER]: "Falscher Zähler",
     [DismissedReasonEnum.ATTENTION_CHECK]: "Aufmerksamkeitsprüfung",
 };
+
+export interface DeviceCategoryPower {
+    averagePower: number;
+    minimumPower: number;
+    maximumPower: number;
+    linkToSource: string;
+    purchasePrice: number;
+}

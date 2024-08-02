@@ -2,6 +2,7 @@ import { Versions } from "@energyleaf/lib/versioning";
 import { sql } from "drizzle-orm";
 import {
     boolean,
+    date,
     datetime,
     float,
     int,
@@ -86,6 +87,7 @@ const userDataFields = {
     powerAtElectricityMeter: boolean("power_at_electricity_meter").default(false),
     wifiAtElectricityMeter: boolean("wifi_at_electricity_meter").default(false),
     installationComment: text("installation_comment"),
+    devicePowerEstimationRSquared: float("device_power_estimation_r_squared"),
 };
 
 export const userData = mysqlTable("user_data", {
@@ -94,6 +96,12 @@ export const userData = mysqlTable("user_data", {
 
 export const historyUserData = mysqlTable("history_user_data", {
     ...userDataFields,
+});
+
+export const userTipOfTheDay = mysqlTable("user_tip_of_the_day", {
+    userId: varchar("user_id", { length: 30 }).primaryKey().notNull(),
+    tipId: int("tip_id").notNull(),
+    timestamp: date("date").notNull(),
 });
 
 export const session = mysqlTable("session", {

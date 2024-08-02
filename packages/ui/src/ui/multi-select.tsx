@@ -17,6 +17,7 @@ interface Props<T extends Option> {
     loading?: boolean;
     onSelectedChange: (values: T[]) => void;
     placeholder?: string;
+    refetching?: boolean;
 }
 
 export function MultiSelect<T extends Option>({
@@ -24,18 +25,28 @@ export function MultiSelect<T extends Option>({
     placeholder,
     onSelectedChange,
     loading = false,
+    refetching = false,
     initialSelected = [],
 }: Props<T>) {
     const inputRef = React.useRef<HTMLInputElement>(null);
     const [open, setOpen] = React.useState(false);
     const [selected, setSelected] = React.useState<T[]>([]);
     const [inputValue, setInputValue] = React.useState("");
+    const [initialSelectedApplied, setInitialSelectedApplied] = React.useState(false);
 
     React.useEffect(() => {
-        if (initialSelected.length > 0 && selected.length === 0) {
-            setSelected([...initialSelected]);
+        if (refetching) {
+            setSelected([]);
+            setInitialSelectedApplied(false);
         }
-    }, [initialSelected, selected]);
+    }, [refetching]);
+
+    React.useEffect(() => {
+        if (initialSelected.length > 0 && !initialSelectedApplied && selected.length === 0) {
+            setSelected([...initialSelected]);
+            setInitialSelectedApplied(true);
+        }
+    }, [initialSelected, initialSelectedApplied, selected.length]);
 
     const handleUnselect = React.useCallback(
         (option: T) => {
@@ -138,6 +149,11 @@ export function MultiSelect<T extends Option>({
                                             }}
                                             onSelect={(_) => {
                                                 handleSelect(option);
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Delete" || e.key === "Backspace") {
+                                                    e.preventDefault();
+                                                }
                                             }}
                                             className={"cursor-pointer"}
                                         >

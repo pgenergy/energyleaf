@@ -1,8 +1,8 @@
-import { type ExtractTablesWithRelations, type SQLWrapper, and, eq, ilike, like, sql } from "drizzle-orm";
-import type { MySqlTransaction } from "drizzle-orm/mysql-core";
-import type { PlanetScalePreparedQueryHKT, PlanetscaleQueryResultHKT } from "drizzle-orm/planetscale-serverless";
-import db from "../";
-import { device, deviceHistory } from "../schema";
+import { type SQLWrapper, and, eq, sql } from "drizzle-orm";
+import { type MathNumericType, type Matrix, all, create } from "mathjs";
+import db, { type DB } from "../";
+import { device, deviceHistory, deviceToPeak, sensorDataSequence, userData } from "../schema";
+import type { DeviceCategory } from "../types/types";
 
 export async function getDevicesByUser(userId: string, search?: string) {
     const conditions: SQLWrapper[] = [eq(device.userId, userId)];
@@ -15,6 +15,12 @@ export async function getDevicesByUser(userId: string, search?: string) {
         .select()
         .from(device)
         .where(and(...conditions));
+}
+
+export async function getDeviceCategoriesByUser(userId: string, database: DB = db) {
+    return (
+        await database.selectDistinct({ category: device.category }).from(device).where(eq(device.userId, userId))
+    ).map((x) => x.category as DeviceCategory);
 }
 
 export type CreateDeviceType = {
@@ -57,15 +63,81 @@ export async function deleteDevice(id: number, userId: string) {
     });
 }
 
-async function getDeviceById(
-    trx: MySqlTransaction<
-        PlanetscaleQueryResultHKT,
-        PlanetScalePreparedQueryHKT,
-        Record<string, never>,
-        ExtractTablesWithRelations<Record<string, never>>
-    >,
-    id: number,
-) {
+export async function updatePowerOfDevices(userId: string) {
+    return db.transaction(async (trx) => {
+        const devicesWithPeaks = await trx
+            .select()
+            .from(device)
+            .leftJoin(deviceToPeak, eq(deviceToPeak.deviceId, device.id))
+            .leftJoin(sensorDataSequence, eq(sensorDataSequence.id, deviceToPeak.sensorDataSequenceId))
+            .where(eq(device.userId, userId));
+
+        const devices = Array.from(new Set(devicesWithPeaks.map((device) => device.device.id)));
+        const flattenPeak = devicesWithPeaks
+            .filter((x) => x.device_to_peak && x.sensor_data_sequence)
+            .map((device) => ({
+                sequenceId: device.sensor_data_sequence?.id ?? "",
+                power: device.sensor_data_sequence?.averagePeakPower ?? 0,
+                device: device.device_to_peak?.deviceId ?? 0,
+            }));
+
+        const peaks = Object.values(
+            flattenPeak.reduce(
+                (acc, obj) => {
+                    if (!acc[obj.sequenceId]) {
+                        acc[obj.sequenceId] = { sequence: obj.sequenceId, devices: [], power: obj.power };
+                    }
+                    acc[obj.sequenceId].devices.push(obj.device);
+                    return acc;
+                },
+                {} as { [key: string]: { sequence: string; devices: number[]; power: number } },
+            ),
+        );
+
+        const math = create(all, {});
+
+        // Extract matrices. A is a matrix of 0s and 1s, where each row corresponds to a peak and each column to a device. b is a matrix of power values for each peak.
+        const A = math.matrix(
+            peaks.map((dp) => {
+                const row = devices.map((device) => (dp.devices.includes(device) ? 1 : 0));
+                return row;
+            }),
+        );
+        const b = math.matrix(peaks.map((dp) => [dp.power]));
+
+        // Solve the least squares problem: (A^T A) x = A^T b
+        const At = math.transpose(A);
+        const AtA = math.multiply(At, A);
+        const Atb = math.multiply(At, b);
+        const solution = math.lusolve(AtA, Atb);
+
+        // Extract the solution values and save them to the database
+        const result = solution
+            .toArray()
+            .map((value, index) => ({ [devices[index]]: (value as MathNumericType[])[0] }));
+        for (const deviceId of devices) {
+            const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
+            const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
+            const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
+            await trx.update(device).set({ powerEstimation: correctedPowerEstimation }).where(eq(device.id, deviceId));
+        }
+
+        // Calculate R^2
+        const residuals = math.subtract(b, math.multiply(A, solution));
+        const subtraction = math.subtract(b, math.mean(b)) as Matrix;
+        const SST = math.sum(math.map(subtraction, math.square));
+        const SSR = math.sum(math.map(residuals, math.square));
+        let rSquared: number;
+        if (SST === 0) {
+            rSquared = SSR === 0 ? 1 : 0;
+        } else {
+            rSquared = math.subtract(1, math.divide(SSR, SST)) as number;
+        }
+        await trx.update(userData).set({ devicePowerEstimationRSquared: rSquared }).where(eq(userData.userId, userId));
+    });
+}
+
+async function getDeviceById(trx: DB, id: number) {
     const query = await trx.select().from(device).where(eq(device.id, id));
     if (query.length === 0) {
         throw new Error("Device not found");
@@ -75,13 +147,16 @@ async function getDeviceById(
 }
 
 async function copyToHistoryTable(
-    trx: MySqlTransaction<
-        PlanetscaleQueryResultHKT,
-        PlanetScalePreparedQueryHKT,
-        Record<string, never>,
-        ExtractTablesWithRelations<Record<string, never>>
-    >,
-    device: { id: number; userId: string; name: string; created: Date | null; timestamp: Date },
+    trx: DB,
+    device: {
+        id: number;
+        userId: string;
+        name: string;
+        created: Date | null;
+        timestamp: Date;
+        category: string;
+        powerEstimation: number | null;
+    },
 ) {
     await trx.insert(deviceHistory).values({
         deviceId: device.id,
@@ -89,5 +164,7 @@ async function copyToHistoryTable(
         name: device.name,
         created: device.created,
         timestamp: device.timestamp,
+        category: device.category,
+        powerEstimation: device.powerEstimation,
     });
 }

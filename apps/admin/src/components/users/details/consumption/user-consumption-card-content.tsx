@@ -4,7 +4,7 @@ import { getConsumptionBySensor, getElectricitySensorByUser } from "@/actions/se
 import { useUserContext } from "@/hooks/user-hook";
 import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
-import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy-consumption-chart";
+import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy/energy-consumption-chart";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -22,7 +22,7 @@ export default function UserConsumptionCardContent({ userId }: Props) {
     }
 
     return (
-        <div className="h-96 w-full">
+        <div className="w-full">
             {data.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center">
                     <p className="text-muted-foreground">In diesem Zeitraum stehen keine Daten zur Verfügung</p>

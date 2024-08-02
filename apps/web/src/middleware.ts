@@ -10,7 +10,7 @@ type AppVersionSpecificRoute = Record<string, Versions>;
 const appVersionSpecificRoutes: AppVersionSpecificRoute = {
     "/devices": Versions.self_reflection,
     "/recommendations": Versions.support,
-    "/report": Versions.support, // TODO: Remove this line when the page is ready (PGE-101)
+    "/report": Versions.support,
 };
 
 export default async function middleware(req: NextRequest) {
@@ -32,7 +32,10 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (![...publicRoutes, ...unprotectedRoutes].includes(path) && !loggedIn) {
-        return NextResponse.redirect(new URL("/", req.url));
+        const nextUrl = encodeURI(path);
+        const searchParams = new URLSearchParams();
+        searchParams.set("next", nextUrl);
+        return NextResponse.redirect(new URL(`/?next=${nextUrl}`, req.url));
     }
 
     if (

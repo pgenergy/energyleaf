@@ -5,7 +5,6 @@ import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import { getUserDataCookieStoreDefaults, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
-import { genId } from "@energyleaf/db";
 import {
     type CreateUserType,
     createUser,
@@ -346,10 +345,10 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
 /**
  * Server action to sign a user in
  */
-export async function signInAction(email: string, password: string) {
+export async function signInAction(email: string, password: string, next?: string) {
     const { session } = await getActionSession();
     if (session) {
-        await handleSignIn(session, null);
+        await handleSignIn(session, null, next);
     }
 
     const user = await getUserByMail(email);
@@ -404,11 +403,11 @@ export async function signInAction(email: string, password: string) {
     const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
-    await handleSignIn(newSession, user);
+    await handleSignIn(newSession, user, next);
     waitUntil(trackAction("user-signed-in", "sign-in", "web", { email, userId: user.id }));
 }
 
-async function handleSignIn(session: Session, user: UserSelectType | null) {
+async function handleSignIn(session: Session, user: UserSelectType | null, next?: string) {
     let userData = user;
     if (!userData) {
         userData = await getUserById(session.userId);
@@ -419,7 +418,11 @@ async function handleSignIn(session: Session, user: UserSelectType | null) {
         redirect("/onboarding");
     }
 
-    redirect("/dashboard");
+    if (next) {
+        redirect(next);
+    } else {
+        redirect("/dashboard");
+    }
 }
 
 /**

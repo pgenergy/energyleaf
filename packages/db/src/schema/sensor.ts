@@ -80,14 +80,48 @@ export const sensorData = mysqlTable(
         valueOut: decimalType("value_out"),
         valueCurrent: decimalType("value_current"),
         timestamp: timestamp("timestamp").notNull().default(sql`CURRENT_TIMESTAMP`),
-        isPeak: boolean("is_peak").notNull().default(false),
-        isAnomaly: boolean("is_anomaly").notNull().default(false),
     },
     (table) => {
         return {
             uniqueIdx: uniqueIndex("sensor_data_sensor_id_timestamp").on(table.sensorId, table.timestamp),
-            peakIdx: index("sensor_data_peak_idx").on(table.isPeak),
-            anomalyIdx: index("sensor_data_anomaly_idx").on(table.isAnomaly),
+        };
+    },
+);
+
+const sequenceTypes = ["peak", "anomaly"] as const;
+
+export const sensorDataSequence = mysqlTable(
+    "sensor_data_sequence",
+    {
+        id: varchar("id", { length: 30 })
+            .primaryKey()
+            .notNull()
+            .$defaultFn(() => nanoid(30)),
+        sensorId: varchar("sensor_id", { length: 30 }).notNull(),
+        start: timestamp("start").notNull(),
+        end: timestamp("end").notNull(),
+        type: mysqlEnum("type", sequenceTypes).notNull(),
+        averagePeakPower: decimalType("average_peak_power").notNull(),
+    },
+    (table) => {
+        return {
+            uniqueIdxStart: uniqueIndex("senor_data_sequence_sensor_id_start").on(table.sensorId, table.start),
+            uniqueIdxEnd: uniqueIndex("senor_data_sequence_sensor_id_end").on(table.sensorId, table.end),
+            index: index("senor_data_sequence_sensor_id").on(table.sensorId, table.start, table.end),
+        };
+    },
+);
+
+export const sensorSequenceMarkingLog = mysqlTable(
+    "sensor_sequence_marking_log",
+    {
+        sensorId: varchar("sensor_id", { length: 30 }).notNull(),
+        sequenceType: mysqlEnum("sequence_type", sequenceTypes).notNull(),
+        lastMarked: timestamp("last_marked").notNull().default(sql`CURRENT_TIMESTAMP`),
+    },
+    (table) => {
+        return {
+            pk: primaryKey({ columns: [table.sensorId, table.sequenceType] }),
         };
     },
 );
