@@ -34,7 +34,7 @@ export default function CostRangeSelector() {
                 <Button variant={pathname === "/costs/compare" ? "default" : "ghost"}>
                     {date && compareDate
                         ? `${format(date, "PP", { locale: de })} - ${format(compareDate, "PP", { locale: de })}`
-                        : "Tage Vergleichen"}
+                        : "Tage vergleichen"}
                 </Button>
             </CostsRangeDatePicker>
             <RangeNavLink range="week" href="/costs/week" />

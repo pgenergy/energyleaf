@@ -34,7 +34,7 @@ export default function EnergyPageRangeSelector() {
                 <Button variant={pathname === "/energy/compare" ? "default" : "ghost"}>
                     {date && compareDate
                         ? `${format(date, "PP", { locale: de })} - ${format(compareDate, "PP", { locale: de })}`
-                        : "Tage Vergleichen"}
+                        : "Tage vergleichen"}
                 </Button>
             </EnergyRangeDatePicker>
             <RangeNavLink range="week" href="/energy/week" />
