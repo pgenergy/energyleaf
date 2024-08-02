@@ -13,7 +13,6 @@ export default function EnergyConsumptionCustomTick({
     payload,
     tickFormatter,
 }: Props): ReactElement<SVGElement, string> {
-    console.log(payload);
     const formatted = tickFormatter(payload.value);
     const parts = Array.isArray(formatted) ? formatted : [formatted];
 
