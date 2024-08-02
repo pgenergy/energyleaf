@@ -21,17 +21,17 @@ export default function CostRangeSelector() {
             <RangeNavLink range="today" href="/costs" />
             {date && !compareDate ? (
                 <CostsDatePicker date={date}>
-                    <Button variant={pathname === "costs/custom" ? "default" : "ghost"}>
+                    <Button variant={pathname === "/costs/custom" ? "default" : "ghost"}>
                         {format(date, "PPP", { locale: de })}
                     </Button>
                 </CostsDatePicker>
             ) : (
                 <CostsDatePicker date={undefined}>
-                    <Button variant={pathname === "costs/custom" ? "default" : "ghost"}>Tag wählen</Button>
+                    <Button variant={pathname === "/costs/custom" ? "default" : "ghost"}>Tag wählen</Button>
                 </CostsDatePicker>
             )}
             <CostsRangeDatePicker>
-                <Button variant={pathname === "costs/compare" ? "default" : "ghost"}>
+                <Button variant={pathname === "/costs/compare" ? "default" : "ghost"}>
                     {date && compareDate
                         ? `${format(date, "PP", { locale: de })} - ${format(compareDate, "PP", { locale: de })}`
                         : "Tage Vergleichen"}

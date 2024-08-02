@@ -1,4 +1,4 @@
-import { getDemoSensorData, getLastEnergyEntry } from "@/lib/demo/demo";
+import { getDemoLastEnergyEntry, getDemoPeaks, getDemoSensorData } from "@/lib/demo/demo";
 import {
     getAvgEnergyConsumptionForSensor as getDbAvgEnergyConsumptionForSensor,
     getAvgEnergyConsumptionForUserInComparison as getDbAvgEnergyConsumptionForUserInComparison,
@@ -59,7 +59,7 @@ export const getElectricitySensorIdForUser = cache(async (userId: string) => {
 
 export const getEnergyLastEntry = cache(async (sensorId: string) => {
     if (sensorId === "demo_sensor") {
-        return getLastEnergyEntry();
+        return getDemoLastEnergyEntry();
     }
 
     return getDbEnergyLastEntry(sensorId);
@@ -72,7 +72,10 @@ type ExtraSequencesProps = {
 
 export const getSensorDataSequences = cache(async (sensorId: string, extra?: ExtraSequencesProps) => {
     if (sensorId === "demo_sensor") {
-        return []; // Does not exist in demo version.
+        if (!extra) {
+            return [];
+        }
+        return getDemoPeaks(extra.start, extra.end);
     }
 
     return getSequencesBySensor(sensorId, extra);

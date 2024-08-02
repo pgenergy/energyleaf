@@ -22,6 +22,7 @@
 	"devDependencies": {
 		"@energyleaf/tsconfig": "workspace:*",
 		"@total-typescript/ts-reset": "^0.5.1",
+		"date-fns": "^3.6.0",
 		"drizzle-orm": "^0.32.1",
 		"jiti": "^1.21.6",
 		"turbo": "^2.0.9"

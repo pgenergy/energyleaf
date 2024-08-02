@@ -14,21 +14,42 @@ import {
 import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import "server-only";
+import { addOrUpdateDeviceToCookieStore, deleteDeviceFromCookieStore, getDevicesCookieStore } from "@/lib/demo/demo";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
+import { cookies } from "next/headers";
 import type { z } from "zod";
 
 export async function createDevice(data: z.infer<typeof deviceSchema>) {
     let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
-
-        if (!session) {
+        const { user, session: actionSession } = await getActionSession();
+        session = actionSession;
+        if (!session || !user) {
             waitUntil(log("user/not-logged-in", "error", "create-device", "web", { data }));
             throw new UserNotLoggedInError();
         }
 
         const id = session.userId;
+
+        // handle demo user
+        if (user.id === "demo_user") {
+            const currentDevices = getDevicesCookieStore(cookies());
+            const newId = currentDevices.length + 1;
+            addOrUpdateDeviceToCookieStore(cookies(), {
+                id: newId,
+                name: data.deviceName,
+                category: data.category,
+                created: new Date(),
+                timestamp: new Date(),
+                userId: "demo_user",
+                powerEstimation: null,
+                weeklyUsageEstimation: null,
+            });
+            revalidatePath("/devices");
+            return;
+        }
+
         const dbUser = await getUserById(id);
         if (!dbUser) {
             waitUntil(log("user/not-found", "error", "create-device", "web", { data, session }));
@@ -78,14 +99,35 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
 export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId: number) {
     let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
+        const { user, session: actionSession } = await getActionSession();
+        session = actionSession;
 
-        if (!session) {
+        if (!session || !user) {
             waitUntil(log("user/not-logged-in", "error", "update-device", "web", { data }));
             throw new UserNotLoggedInError();
         }
 
         const userId = session.userId;
+
+        // handle demo user
+        if (user.id === "demo_user") {
+            const currentDevices = getDevicesCookieStore(cookies());
+            const device = currentDevices.find((d) => d.id === deviceId);
+            if (!device) {
+                return {
+                    success: false,
+                    message: "Fehler beim Speichern des Gerätes.",
+                };
+            }
+            addOrUpdateDeviceToCookieStore(cookies(), {
+                ...device,
+                name: data.deviceName,
+                category: data.category,
+            });
+            revalidatePath("/devices");
+            return;
+        }
+
         const dbUser = await getUserById(userId);
         if (!dbUser) {
             waitUntil(log("user/not-found", "error", "update-device", "web", { data, deviceId, session }));
@@ -134,14 +176,31 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
 export async function deleteDevice(deviceId: number) {
     let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
+        const { user, session: actionSession } = await getActionSession();
+        session = actionSession;
 
-        if (!session) {
+        if (!session || !user) {
             waitUntil(log("user/not-logged-in", "error", "delete-device", "web", { deviceId }));
             throw new UserNotLoggedInError();
         }
 
         const userId = session.userId;
+
+        // handle demo user
+        if (user.id === "demo_user") {
+            const currentDevices = getDevicesCookieStore(cookies());
+            const device = currentDevices.find((d) => d.id === deviceId);
+            if (!device) {
+                return {
+                    success: false,
+                    message: "Fehler beim Löschen des Geräts",
+                };
+            }
+            deleteDeviceFromCookieStore(cookies(), deviceId);
+            revalidatePath("/devices");
+            return;
+        }
+
         try {
             await deleteDeviceDb(deviceId, userId);
             waitUntil(trackAction("device/delete", "delete-device", "web", { deviceId, session }));

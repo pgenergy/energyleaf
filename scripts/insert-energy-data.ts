@@ -4,6 +4,7 @@ import db, { genId } from "@energyleaf/db";
 import { findAndMark, insertRawEnergyValues } from "@energyleaf/db/query";
 import { sensorData } from "@energyleaf/db/schema";
 import { convertTZDate } from "@energyleaf/lib";
+import { differenceInDays } from "date-fns";
 import { and, between, eq } from "drizzle-orm";
 
 export async function insertEnergyData(args: string[]) {
@@ -25,11 +26,11 @@ export async function insertEnergyData(args: string[]) {
     }[];
 
     const lastEntry = data[data.length - 1];
-    const timeDiff = current.getDate() - new Date(lastEntry.timestamp).getDate();
+    const timeDiff = differenceInDays(current, new Date(lastEntry.timestamp));
 
     const processedData = data.map((d) => {
         const newDate = new Date(d.timestamp);
-        newDate.setDate(newDate.getDate() + timeDiff);
+        newDate.setDate(newDate.getDate() + timeDiff + 1);
 
         return {
             ...d,

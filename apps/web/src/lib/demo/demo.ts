@@ -1,8 +1,15 @@
-import type { SensorDataSelectType, UserDataType } from "@energyleaf/db/types";
+import { findPeaks } from "@energyleaf/db/query";
+import type {
+    DeviceSelectType,
+    SensorDataSelectType,
+    SensorDataSequenceType,
+    UserDataType,
+} from "@energyleaf/db/types";
 import { AggregationType, convertTZDate } from "@energyleaf/lib";
 import { differenceInDays, getWeekOfMonth, getWeekYear } from "date-fns";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { getActionSession } from "../auth/auth.action";
 import demoData from "./demo.json";
 
@@ -96,7 +103,38 @@ export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data:
     cookies.set("demo_data", JSON.stringify(newData));
 }
 
-export function getDemoSensorData(start: Date, end: Date, agg?: AggregationType): SensorDataSelectType[] {
+export function getDevicesCookieStore(cookies: ReadonlyRequestCookies): DeviceSelectType[] {
+    const devices = cookies.get("demo_devices");
+    if (!devices) {
+        return [];
+    }
+
+    const parsedDevices = JSON.parse(devices.value) as DeviceSelectType[];
+    return parsedDevices;
+}
+
+export function addOrUpdateDeviceToCookieStore(cookies: ReadonlyRequestCookies, device: DeviceSelectType) {
+    const devices = getDevicesCookieStore(cookies);
+    if (devices.some((d) => d.id === device.id)) {
+        const newDevices = devices.map((d) => {
+            if (d.id === device.id) {
+                return device;
+            }
+        });
+        cookies.set("demo_devices", JSON.stringify(newDevices));
+        return;
+    }
+    const newDevices = [...devices, device];
+    cookies.set("demo_devices", JSON.stringify(newDevices));
+}
+
+export function deleteDeviceFromCookieStore(cookies: ReadonlyRequestCookies, deviceId: number) {
+    const devices = getDevicesCookieStore(cookies);
+    const newDevices = devices.filter((d) => d.id !== deviceId);
+    cookies.set("demo_devices", JSON.stringify(newDevices));
+}
+
+const getDemoSensorCachedData = cache((): SensorDataSelectType[] => {
     const inputData = demoData as {
         id: string;
         sensorId: string;
@@ -110,25 +148,32 @@ export function getDemoSensorData(start: Date, end: Date, agg?: AggregationType)
     const lastEntry = inputData[inputData.length - 1];
     const dayDiff = differenceInDays(current, new Date(lastEntry.timestamp));
 
-    const fixedData = inputData.map((item, index) => {
-        const dataDate = new Date(item.timestamp);
-        dataDate.setDate(dataDate.getDate() + dayDiff + 1);
+    const processedData = inputData
+        .map((item, index) => {
+            const dataDate = new Date(item.timestamp);
+            dataDate.setDate(dataDate.getDate() + dayDiff + 1);
 
-        return {
-            id: item.id,
-            sensorId: "demo_sensor",
-            timestamp: dataDate,
-            value: index === 0 ? 0 : item.value - inputData[index - 1].value,
-            valueOut: item.valueOut
-                ? index === 0
-                    ? 0
-                    : item.valueOut - (inputData[index - 1].valueOut as number)
-                : null,
-            valueCurrent: item.valueOut,
-        };
-    });
+            return {
+                id: item.id,
+                sensorId: "demo_sensor",
+                timestamp: dataDate,
+                value: index === 0 ? 0 : item.value - inputData[index - 1].value,
+                valueOut: item.valueOut
+                    ? index === 0
+                        ? 0
+                        : item.valueOut - (inputData[index - 1].valueOut as number)
+                    : null,
+                valueCurrent: item.valueOut,
+            };
+        })
+        .slice(1);
 
-    const dataInRange = fixedData.filter(
+    return processedData;
+});
+
+export function getDemoSensorData(start: Date, end: Date, agg?: AggregationType): SensorDataSelectType[] {
+    const data = getDemoSensorCachedData();
+    const dataInRange = data.filter(
         (item) => item.timestamp.getTime() >= start.getTime() && item.timestamp.getTime() <= end.getTime(),
     );
 
@@ -253,7 +298,58 @@ export function getDemoSensorData(start: Date, end: Date, agg?: AggregationType)
     }
 }
 
-export function getLastEnergyEntry(): SensorDataSelectType {
+export function getDemoPeaks(start: Date, end: Date): SensorDataSequenceType[] {
+    const data = getDemoSensorCachedData();
+
+    const peaks = findPeaks(data, data);
+    const dataWithoutPeaks = data.filter(
+        (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
+    );
+    const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.value, 0) / dataWithoutPeaks.length;
+
+    return peaks
+        .filter((peak) => {
+            // start is before start date and end is between start and end date
+            if (
+                peak.start.getTime() < start.getTime() &&
+                peak.end.getTime() > start.getTime() &&
+                peak.end.getTime() <= end.getTime()
+            ) {
+                return true;
+            }
+
+            // start is between start and end date and end is after end date
+            if (
+                peak.start.getTime() >= start.getTime() &&
+                peak.start.getTime() <= end.getTime() &&
+                peak.end.getTime() > end.getTime()
+            ) {
+                return true;
+            }
+
+            // start and end are between start and end date
+            if (peak.start.getTime() >= start.getTime() && peak.end.getTime() <= end.getTime()) {
+                return true;
+            }
+
+            // start is before and end is after
+            if (peak.start.getTime() < start.getTime() && peak.end.getTime() > end.getTime()) {
+                return true;
+            }
+
+            return false;
+        })
+        .map((peak) => ({
+            id: Buffer.from(peak.start.getTime().toString()).toString("base64"),
+            sensorId: "demo_sensor",
+            start: peak.start,
+            end: peak.end,
+            averagePeakPower: peak.averagePowerIncludingBaseLoad - averageBaseLoad,
+            type: "peak",
+        }));
+}
+
+export function getDemoLastEnergyEntry(): SensorDataSelectType {
     const inputData = demoData as {
         id: string;
         sensorId: string;
