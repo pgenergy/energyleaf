@@ -64,7 +64,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                 <CardDescription>Im ausgewählten Zeitraum</CardDescription>
                 {user.id !== "demo" ? (
                     <div className="flex flex-row gap-4">
-                        <DashboardEnergyAggregation selected={aggregation} />
+                        <DashboardEnergyAggregation selected={aggregation} startDate={startDate} endDate={endDate} />
                     </div>
                 ) : null}
             </CardHeader>
