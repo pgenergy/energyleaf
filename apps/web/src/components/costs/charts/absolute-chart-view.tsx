@@ -207,7 +207,7 @@ export default async function CostAbsoluteChartView(props: Props) {
                         </CardTitle>
                         <CardDescription>
                             {sameDay
-                                ? `Im vergleich zum ${format(displayStartDate, "PPP", { locale: de })}`
+                                ? `Im Vergleich zum ${format(displayStartDate, "PPP", { locale: de })}`
                                 : `Vergleich zu ${format(displayStartDate, "PPP", { locale: de })} - ${format(displayEndDate, "PPP", { locale: de })}`}
                         </CardDescription>
                     </CardHeader>
