@@ -3,9 +3,10 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser } from "@/query/energy";
 import { getGoalStatus } from "@/query/goals";
 import type { GoalStatus } from "@/types/goals";
+import { buttonVariants } from "@energyleaf/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
-import { ArrowRightIcon, Info } from "lucide-react";
+import { ArrowRightIcon, Info, SettingsIcon } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -36,21 +37,25 @@ export default async function GoalsCard() {
 
     return (
         <Card className="col-span-1 w-full md:col-span-3">
-            <CardHeader className="flex flex-row items-center justify-between">
-                <div className="flex flex-col gap-2">
-                    <CardTitle>Ziele</CardTitle>
-                    <CardDescription>Hier sehen Sie Ihr aktuelles Verbrauchsziel.</CardDescription>
-                </div>
-                <Popover>
-                    <PopoverTrigger>
-                        <Info className="h-7 w-7" />
-                    </PopoverTrigger>
-                    <PopoverContent>
-                        Hier sehen Sie Ihren Energieverbrauch pro Tag/Woche/Monat (oben) im Verhältnis zu Ihrem
-                        Verbrauchsziel im jeweiligen Zeitraum (unten). Sie können Ihr Verbrauchsziel in den
-                        Einstellungen ändern.
-                    </PopoverContent>
-                </Popover>
+            <CardHeader>
+                <CardTitle className="flex w-full flex-row items-center justify-between gap-4">
+                    Ziele
+                    <div className="flex flex-row gap-2">
+                        <Link className={buttonVariants({ variant: "ghost", size: "icon" })} href="/settings/goals">
+                            <SettingsIcon className="h-7 w-7" />
+                        </Link>
+                        <Popover>
+                            <PopoverTrigger>
+                                <Info className="h-7 w-7" />
+                            </PopoverTrigger>
+                            <PopoverContent>
+                                Hier sehen Sie Ihren Energieverbrauch pro Tag/Woche/Monat (oben) im Verhältnis zu Ihrem
+                                Verbrauchsziel im jeweiligen Zeitraum (unten). Sie können Ihr Verbrauchsziel in den
+                                Einstellungen ändern.
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                </CardTitle>
             </CardHeader>
             <CardContent>
                 {goals.length > 0 ? (

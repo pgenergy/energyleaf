@@ -112,8 +112,10 @@ export default function SolarCalculationForm() {
                             <CardHeader>
                                 <CardTitle className="text-xl">Nächste 24 Stunden</CardTitle>
                             </CardHeader>
-                            <CardContent className="text-center font-bold font-mono text-primary text-xl">
-                                {Number(next24hkWh).toFixed(2)} kWh
+                            <CardContent>
+                                <p className="font-bold font-mono text-primary text-xl">
+                                    {Number(next24hkWh).toFixed(2)} kWh
+                                </p>
                             </CardContent>
                         </>
                     )}
@@ -126,8 +128,10 @@ export default function SolarCalculationForm() {
                             <CardHeader>
                                 <CardTitle className="text-xl">Letzte 30 Tage</CardTitle>
                             </CardHeader>
-                            <CardContent className="text-center font-bold font-mono text-primary text-xl">
-                                {Number(last30dkWh).toFixed(2)} kWh
+                            <CardContent>
+                                <p className="font-bold font-mono text-primary text-xl">
+                                    {Number(last30dkWh).toFixed(2)} kWh
+                                </p>
                             </CardContent>
                         </>
                     )}
@@ -143,8 +147,10 @@ export default function SolarCalculationForm() {
                             <CardHeader>
                                 <CardTitle className="text-xl">Nächste 24 Stunden</CardTitle>
                             </CardHeader>
-                            <CardContent className="text-center font-bold font-mono text-primary text-xl">
-                                {Number(next24hPrice).toFixed(2)} €
+                            <CardContent>
+                                <p className="font-bold font-mono text-primary text-xl">
+                                    {Number(next24hPrice).toFixed(2)} €
+                                </p>
                             </CardContent>
                         </>
                     )}
@@ -157,8 +163,10 @@ export default function SolarCalculationForm() {
                             <CardHeader>
                                 <CardTitle className="text-xl">Letzte 30 Tage</CardTitle>
                             </CardHeader>
-                            <CardContent className="text-center font-bold font-mono text-primary text-xl">
-                                {Number(last30dPrice).toFixed(2)} €
+                            <CardContent>
+                                <p className="font-bold font-mono text-primary text-xl">
+                                    {Number(last30dPrice).toFixed(2)} €
+                                </p>
                             </CardContent>
                         </>
                     )}
