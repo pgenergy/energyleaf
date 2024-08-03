@@ -14,7 +14,11 @@ import {
 import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import "server-only";
-import { addOrUpdateDeviceToCookieStore, deleteDeviceFromCookieStore, getDevicesCookieStore } from "@/lib/demo/demo";
+import {
+    addOrUpdateDemoDeviceToCookieStore,
+    deleteDemoDeviceFromCookieStore,
+    getDemoDevicesCookieStore,
+} from "@/lib/demo/demo";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";
@@ -33,16 +37,16 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
         const id = session.userId;
 
         // handle demo user
-        if (user.id === "demo_user") {
-            const currentDevices = getDevicesCookieStore(cookies());
+        if (user.id === "demo") {
+            const currentDevices = getDemoDevicesCookieStore(cookies());
             const newId = currentDevices.length + 1;
-            addOrUpdateDeviceToCookieStore(cookies(), {
+            addOrUpdateDemoDeviceToCookieStore(cookies(), {
                 id: newId,
                 name: data.deviceName,
                 category: data.category,
                 created: new Date(),
                 timestamp: new Date(),
-                userId: "demo_user",
+                userId: "demo",
                 powerEstimation: null,
                 weeklyUsageEstimation: null,
             });
@@ -110,8 +114,8 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         const userId = session.userId;
 
         // handle demo user
-        if (user.id === "demo_user") {
-            const currentDevices = getDevicesCookieStore(cookies());
+        if (user.id === "demo") {
+            const currentDevices = getDemoDevicesCookieStore(cookies());
             const device = currentDevices.find((d) => d.id === deviceId);
             if (!device) {
                 return {
@@ -119,7 +123,7 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
                     message: "Fehler beim Speichern des Gerätes.",
                 };
             }
-            addOrUpdateDeviceToCookieStore(cookies(), {
+            addOrUpdateDemoDeviceToCookieStore(cookies(), {
                 ...device,
                 name: data.deviceName,
                 category: data.category,
@@ -187,8 +191,8 @@ export async function deleteDevice(deviceId: number) {
         const userId = session.userId;
 
         // handle demo user
-        if (user.id === "demo_user") {
-            const currentDevices = getDevicesCookieStore(cookies());
+        if (user.id === "demo") {
+            const currentDevices = getDemoDevicesCookieStore(cookies());
             const device = currentDevices.find((d) => d.id === deviceId);
             if (!device) {
                 return {
@@ -196,7 +200,7 @@ export async function deleteDevice(deviceId: number) {
                     message: "Fehler beim Löschen des Geräts",
                 };
             }
-            deleteDeviceFromCookieStore(cookies(), deviceId);
+            deleteDemoDeviceFromCookieStore(cookies(), deviceId);
             revalidatePath("/devices");
             return;
         }

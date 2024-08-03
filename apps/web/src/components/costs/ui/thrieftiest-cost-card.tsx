@@ -95,13 +95,13 @@ function NoDataCard(props: NoDataProps) {
         <Card>
             <CardHeader>
                 <CardTitle>{props.agg === "day" ? "Sparsamster Tag" : "Sparsamste Woche"}</CardTitle>
-                <CardDescription>
-                    Basierend auf diesem Monat. es werden keine Daten angezeigt, wenn zu wenig Zeit in diesem Monat
-                    vergangen ist.
-                </CardDescription>
+                <CardDescription>Basierend auf diesem Monat.</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-row items-center justify-center">
+            <CardContent className="flex flex-col items-center justify-center">
                 <p className="text-muted-foreground">Nicht genug Daten in diesem Monat</p>
+                <p className="text-muted-foreground text-xs">
+                    Dies ist der Fall wenn zu wenig Zeit in diesem Monat vergangen ist.
+                </p>
             </CardContent>
         </Card>
     );

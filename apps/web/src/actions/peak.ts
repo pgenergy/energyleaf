@@ -39,7 +39,7 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         const devices = data.device.map((device) => device.id);
 
         // handle demo
-        if (user.id === "demo_user") {
+        if (user.id === "demo") {
             assignDemoDevicesToPeaks(cookies(), sensorDataId, devices);
             updateDemoPowerEstimationForDevices(cookies());
             revalidatePath("/dashboard");
@@ -82,7 +82,7 @@ export async function getDevicesByUser(userId: string, search?: string) {
     const { session, user } = await getActionSession();
 
     // handle demo
-    if (user?.id === "demo_user") {
+    if (user?.id === "demo") {
         return getDemoDevicesCookieStore(cookies());
     }
 
@@ -95,7 +95,7 @@ export async function getDevicesByPeak(sensorDataSequenceId: string) {
     const { session, user } = await getActionSession();
 
     // handle demo
-    if (user?.id === "demo_user") {
+    if (user?.id === "demo") {
         return getDemoDevicesFromPeaksCookieStore(cookies(), sensorDataSequenceId);
     }
 

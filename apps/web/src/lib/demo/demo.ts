@@ -1,16 +1,16 @@
 import { findPeaks } from "@energyleaf/db/query";
-import type {
-    DeviceSelectType,
-    SensorDataSelectType,
-    SensorDataSequenceType,
-    SensorDeviceSequenceSelectType,
-    UserDataType,
+import {
+    DeviceCategory,
+    type DeviceSelectType,
+    type SensorDataSelectType,
+    type SensorDataSequenceType,
+    type SensorDeviceSequenceSelectType,
+    type UserDataType,
 } from "@energyleaf/db/types";
 import { AggregationType, convertTZDate } from "@energyleaf/lib";
 import { differenceInDays, getWeekOfMonth, getWeekYear } from "date-fns";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
-import { cache } from "react";
 import { getActionSession } from "../auth/auth.action";
 import demoData from "./demo.json";
 
@@ -49,7 +49,7 @@ export function getUserDataCookieStoreDefaults() {
             monthlyPayment: 120,
             workingPrice: 0.38,
             timestamp: new Date(2021, 1, 1),
-            consumptionGoal: 20,
+            consumptionGoal: 45,
             electricityMeterNumber: "demo_number",
             electricityMeterType: "digital",
             electricityMeterImgUrl: null,
@@ -135,6 +135,11 @@ export function deleteDemoDeviceFromCookieStore(cookies: ReadonlyRequestCookies,
     cookies.set("demo_devices", JSON.stringify(newDevices));
 }
 
+export function getDemoDeviceCategories(cookies: ReadonlyRequestCookies): DeviceCategory[] {
+    const devices = getDemoDevicesCookieStore(cookies);
+    return devices.map((device) => DeviceCategory[device.category as keyof typeof DeviceCategory]);
+}
+
 export function getDemoDevicePeaksCookieStore(
     cookies: ReadonlyRequestCookies,
     sequenceId: string,
@@ -151,7 +156,7 @@ export function getDemoDevicePeaksCookieStore(
 export function getDemoDevicesFromPeaksCookieStore(
     cookies: ReadonlyRequestCookies,
     sequenceId: string,
-): DeviceSelectType[] {
+): { id: number; name: string }[] {
     const deviceToPeaks = getDemoDevicePeaksCookieStore(cookies, sequenceId);
     const devices = getDemoDevicesCookieStore(cookies);
 
@@ -160,7 +165,12 @@ export function getDemoDevicesFromPeaksCookieStore(
     }
 
     const deviceIds = deviceToPeaks.map((peak) => peak.deviceId);
-    return devices.filter((device) => deviceIds.includes(device.id));
+    return devices
+        .filter((device) => deviceIds.includes(device.id))
+        .map((d) => ({
+            id: d.id,
+            name: d.name,
+        }));
 }
 
 export function assignDemoDevicesToPeaks(cookies: ReadonlyRequestCookies, sequenceId: string, devices: number[]) {
@@ -181,9 +191,24 @@ export function assignDemoDevicesToPeaks(cookies: ReadonlyRequestCookies, sequen
     cookies.set("demo_peaks", JSON.stringify(filteredDeviceToPeaks));
 }
 
-export function updateDemoPowerEstimationForDevices(cookies: ReadonlyRequestCookies) {}
+export function updateDemoPowerEstimationForDevices(cookies: ReadonlyRequestCookies) {
+    const start = new Date(0);
+    const end = new Date();
+    end.setDate(end.getDate() + 1);
+    const data = getDemoPeaks(start, end);
 
-const getDemoSensorCachedData = cache((): SensorDataSelectType[] => {
+    const deviceToPeaksRaw = cookies.get("demo_peaks");
+    if (!deviceToPeaksRaw) {
+        return [];
+    }
+
+    const deviceToPeaks = JSON.parse(deviceToPeaksRaw.value) as SensorDeviceSequenceSelectType[];
+    const peaksWithDevices = data.filter((peak) =>
+        deviceToPeaks.some((device) => device.sensorDataSequenceId === peak.id),
+    );
+}
+
+function getDemoSensorCachedData(): SensorDataSelectType[] {
     const inputData = demoData as {
         id: string;
         sensorId: string;
@@ -218,7 +243,7 @@ const getDemoSensorCachedData = cache((): SensorDataSelectType[] => {
         .slice(1);
 
     return processedData;
-});
+}
 
 export function getDemoSensorData(start: Date, end: Date, agg?: AggregationType): SensorDataSelectType[] {
     const data = getDemoSensorCachedData();

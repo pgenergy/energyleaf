@@ -84,7 +84,7 @@ export default function CostDiscountChart(props: Props) {
     }, [props.dailyCost, props.data]);
 
     return (
-        <ChartContainer config={chartConfig} className="col-span-1 max-h-[40rem] min-h-96 md:col-span-3">
+        <ChartContainer config={chartConfig} className="max-h-[40rem] min-h-96 w-full">
             <LineChart
                 data={processedData}
                 accessibilityLayer
