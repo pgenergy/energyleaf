@@ -2,7 +2,7 @@ import { Container, Head, Html, Img, Preview, Row, Section, Text } from "@react-
 import { BadgeEuroIcon, ReceiptEuroIcon, ThumbsDown, ThumbsUp, Zap } from "lucide-react";
 import React from "react";
 
-import {type ReportProps, formatDate, formatNumber, getDayOfWeek, getTrendMode, TrendModes} from "@energyleaf/lib";
+import { type ReportProps, TrendModes, formatDate, formatNumber, getDayOfWeek, getTrendMode } from "@energyleaf/lib";
 import { Footer, Header, Main, UnsubscribeText } from "../components";
 import Card from "../components/card";
 import Centering from "../components/centering";

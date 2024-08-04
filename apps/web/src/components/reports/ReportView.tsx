@@ -1,9 +1,9 @@
+import KeyFiguresOverviewCard from "@/components/reports/key-figures-overview-card";
 import { getReportByIdAndUser } from "@energyleaf/db/query";
 import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import React from "react";
 import DailyAbsoluteEnergyCard from "./daily-absolute-energy-card"; // Import the component
 import DayStatisticsCard from "./day-statistics-card";
-import KeyFiguresOverviewCard from "@/components/reports/key-figures-overview-card";
 
 interface Props {
     reportId?: string;

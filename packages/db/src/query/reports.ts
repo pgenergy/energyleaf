@@ -1,6 +1,6 @@
-import { and, desc, eq, gt, lte, or, sql } from "drizzle-orm";
+import {and, desc, eq, gt, lt, lte, or, sql} from "drizzle-orm";
 
-import type { ReportProps } from "@energyleaf/lib";
+import type {LastReport, ReportProps} from "@energyleaf/lib";
 import db, { type DB, genId } from "../";
 import { reportConfig, reports, reportsDayStatistics } from "../schema/reports";
 import { user } from "../schema/user";
@@ -52,20 +52,21 @@ export async function getUsersWitDueReport() {
         );
 }
 
-export async function getLastReportForUser(userId: string): Promise<ReportProps | null> {
+export async function getLastReportForUser(userId: string): Promise<LastReport | null> {
     const userReports = await db
         .select({
-            id: reports.id,
-            dateFrom: reports.dateFrom,
-            dateTo: reports.dateTo,
             totalEnergyConsumption: reports.totalEnergyConsumption,
             avgEnergyConsumptionPerDay: reports.avgEnergyConsumptionPerDay,
             totalEnergyCost: reports.totalEnergyCost,
             avgEnergyCost: reports.avgEnergyCost,
-            bestDay: reports.bestDay,
-            bestDayConsumption: reports.bestDayConsumption,
-            worstDay: reports.worstDay,
-            worstDayConsumption: reports.worstDayConsumption,
+            bestDay: {
+                day: reports.bestDay,
+                consumption: reports.bestDayConsumption,
+            },
+            worstDay: {
+                day: reports.worstDay,
+                consumption: reports.worstDayConsumption,
+            },
         })
         .from(reports)
         .where(eq(reports.userId, userId))
@@ -144,6 +145,27 @@ export async function getReportByIdAndUser(reportId: string, userId: string): Pr
         return null;
     }
 
+    const reportBefore = await db
+        .select({
+            id: reports.id,
+            totalEnergyConsumption: reports.totalEnergyConsumption,
+            avgEnergyConsumptionPerDay: reports.avgEnergyConsumptionPerDay,
+            totalEnergyCost: reports.totalEnergyCost,
+            avgEnergyCost: reports.avgEnergyCost,
+            bestDay: {
+                day: reports.bestDay,
+                consumption: reports.bestDayConsumption,
+            },
+            worstDay: {
+                day: reports.worstDay,
+                consumption: reports.worstDayConsumption,
+            }
+        })
+        .from(reports)
+        .where(and(eq(reports.userId, userId), lt(reports.timestamp, report[0].timestamp)))
+        .orderBy(desc(reports.timestamp))
+        .limit(1);
+
     const dayStatistics = await db
         .select({
             date: reportsDayStatistics.date,
@@ -176,6 +198,7 @@ export async function getReportByIdAndUser(reportId: string, userId: string): Pr
             progress: stat.progress ?? undefined,
             image: "",
         })),
+        lastReport: reportBefore.length > 0 ? reportBefore[0] : undefined,
     };
 }
 

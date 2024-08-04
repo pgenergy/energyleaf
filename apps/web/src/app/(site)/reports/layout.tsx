@@ -1,10 +1,9 @@
-import EnergyPageRangeSelector from "@/components/energy/ui/range-selector";
+import ReportSelector from "@/components/reports/ReportSelector";
 import { getSession } from "@/lib/auth/auth.server";
-import {getMetaDataOfAllReportsForUser } from "@energyleaf/db/query";
+import { getMetaDataOfAllReportsForUser } from "@energyleaf/db/query";
 import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import React from "react";
-import ReportSelector from "@/components/reports/ReportSelector";
 
 interface Props {
     children: React.ReactNode;
@@ -26,7 +25,7 @@ export default async function ReportsPageLayout(props: Props) {
                         <CardTitle>Berichte</CardTitle>
                         <CardDescription>
                             Es wurde bisher noch kein Bericht für Sie erstellt. Kommen Sie später nochmal wieder. Sie
-                            können das Intervall, in dem Ihr Berichte erstellt werden {" "}
+                            können das Intervall, in dem Ihr Berichte erstellt werden{" "}
                             <a
                                 className="text-primary hover:underline"
                                 href="/settings/reports"
