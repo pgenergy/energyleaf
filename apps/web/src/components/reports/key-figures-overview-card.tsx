@@ -1,11 +1,4 @@
-import {
-    type ReportProps,
-    type TrendModes,
-    formatDate,
-    formatNumber,
-    getDayOfWeek,
-    getTrendMode,
-} from "@energyleaf/lib";
+import { type ReportProps, formatDate, formatNumber, getDayOfWeek, getTrendMode } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { TrendIcon } from "@energyleaf/ui/utils/trend-icon";
 import { BadgeEuroIcon, ReceiptEuroIcon, ThumbsDown, ThumbsUp, Zap } from "lucide-react";
@@ -24,15 +17,13 @@ interface KeyFiguresCardProps {
 }
 
 function KeyFiguresCard({ text, icon, currentValue, lastValue, unit }: KeyFiguresCardProps) {
-    const mode: TrendModes = getTrendMode(lastValue, currentValue);
-    console.log(lastValue, currentValue, mode);
     return (
         <div className={"rounded bg-muted p-2 text-center"}>
             {icon}
             <div className={"h-4"}>{text} </div>
             {lastValue && (
                 <div className={"pt-3 text-xs"}>
-                    <TrendIcon size={4} mode={mode} />
+                    <TrendIcon size={40} mode={getTrendMode(lastValue, currentValue)} />
                     <div className="font-semibold">Vorheriger Bericht:</div>
                     <div>
                         {" "}

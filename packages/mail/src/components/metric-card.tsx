@@ -1,4 +1,4 @@
-import type { TrendModes } from "@energyleaf/lib/src/types/trend-modes";
+import type { TrendModes } from "@energyleaf/lib";
 import { TrendIcon } from "@energyleaf/ui/utils/trend-icon";
 import { Row, Section } from "@react-email/components";
 import type { ReactElement, ReactNode } from "react";

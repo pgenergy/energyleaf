@@ -7,11 +7,11 @@ import DayStatisticsCard from "./day-statistics-card";
 
 interface Props {
     reportId?: string;
-    userId?: string;
+    userId: string;
 }
 
 export default async function ReportView(props: Props) {
-    const report = await getReportByIdAndUser(props.reportId, props.userId);
+    const report = props.reportId ? await getReportByIdAndUser(props.reportId, props.userId) : undefined;
 
     if (!report) {
         return (

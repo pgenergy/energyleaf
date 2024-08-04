@@ -30,13 +30,15 @@ export default function DayStatisticsCard({ dayEnergyStatistics }: DayEnergyStat
     }
 
     const dayLengthText =
-        dayEnergyStatistics.length === 1 ? "gestern" : `in den letzten ${dayEnergyStatistics.length} Tagen`;
+        dayEnergyStatistics.length === 1 ? "an dem Tag" : `in den ${dayEnergyStatistics.length} Tagen`;
 
     return (
         <Card>
             <CardHeader>
                 <CardTitle className="text-2xl">Tägliche Ziele</CardTitle>
-                <CardDescription>Hier sehen Sie, ob Sie Ihre Ziele {dayLengthText} erreicht haben.</CardDescription>
+                <CardDescription>
+                    Hier sehen Sie, ob Sie Ihre Ziele {dayLengthText} des ausgewählten Berichts erreicht haben.
+                </CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-4">
                 {dayEnergyStatistics?.map((x) => (

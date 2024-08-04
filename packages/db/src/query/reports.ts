@@ -1,6 +1,6 @@
-import {and, desc, eq, gt, lt, lte, or, sql} from "drizzle-orm";
+import { and, desc, eq, gt, lt, lte, or, sql } from "drizzle-orm";
 
-import type {LastReport, ReportProps} from "@energyleaf/lib";
+import type { LastReport, ReportProps } from "@energyleaf/lib";
 import db, { type DB, genId } from "../";
 import { reportConfig, reports, reportsDayStatistics } from "../schema/reports";
 import { user } from "../schema/user";
@@ -81,21 +81,18 @@ export async function getLastReportForUser(userId: string): Promise<LastReport |
     const lastReport = userReports[0];
 
     return {
-        dateFrom: new Date(lastReport.dateFrom),
-        dateTo: new Date(lastReport.dateTo),
         totalEnergyConsumption: lastReport.totalEnergyConsumption,
         avgEnergyConsumptionPerDay: lastReport.avgEnergyConsumptionPerDay,
         totalEnergyCost: lastReport.totalEnergyCost ?? undefined,
         avgEnergyCost: lastReport.avgEnergyCost ?? undefined,
         bestDay: {
-            day: new Date(lastReport.bestDay),
-            consumption: lastReport.bestDayConsumption,
+            day: new Date(lastReport.bestDay.day),
+            consumption: lastReport.bestDay.consumption,
         },
         worstDay: {
-            day: new Date(lastReport.worstDay),
-            consumption: lastReport.worstDayConsumption,
+            day: new Date(lastReport.worstDay.day),
+            consumption: lastReport.worstDay.consumption,
         },
-        dayEnergyStatistics: [],
     };
 }
 
@@ -120,7 +117,7 @@ export async function getLastReportIdByUser(userId: string) {
         .orderBy(desc(reports.timestamp))
         .limit(1);
 
-    return result.length > 0 ? result[0].id : null;
+    return result.length > 0 ? result[0].id : undefined;
 }
 
 export async function getReportByIdAndUser(reportId: string, userId: string): Promise<ReportProps | null> {
@@ -160,12 +157,31 @@ export async function getReportByIdAndUser(reportId: string, userId: string): Pr
             worstDay: {
                 day: reports.worstDay,
                 consumption: reports.worstDayConsumption,
-            }
+            },
         })
         .from(reports)
         .where(and(eq(reports.userId, userId), lt(reports.timestamp, report[0].timestamp)))
         .orderBy(desc(reports.timestamp))
         .limit(1);
+
+    let lastReport: LastReport | undefined = undefined;
+
+    if (reportBefore.length > 0) {
+        lastReport = {
+            totalEnergyConsumption: reportBefore[0].totalEnergyConsumption,
+            avgEnergyConsumptionPerDay: reportBefore[0].avgEnergyConsumptionPerDay,
+            totalEnergyCost: reportBefore[0].totalEnergyCost ?? undefined,
+            avgEnergyCost: reportBefore[0].avgEnergyCost ?? undefined,
+            bestDay: {
+                day: new Date(reportBefore[0].bestDay.day),
+                consumption: reportBefore[0].bestDay.consumption,
+            },
+            worstDay: {
+                day: new Date(reportBefore[0].worstDay.day),
+                consumption: reportBefore[0].worstDay.consumption,
+            },
+        };
+    }
 
     const dayStatistics = await db
         .select({
@@ -199,7 +215,7 @@ export async function getReportByIdAndUser(reportId: string, userId: string): Pr
             progress: stat.progress ?? undefined,
             image: "",
         })),
-        lastReport: reportBefore.length > 0 ? reportBefore[0] : undefined,
+        lastReport: lastReport,
     };
 }
 
