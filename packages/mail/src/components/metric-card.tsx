@@ -1,8 +1,8 @@
 import { Row, Section } from "@react-email/components";
 import type { ReactElement, ReactNode } from "react";
-import type { TrendModes } from "../types/trend-modes";
+import type { TrendModes } from "@energyleaf/lib/src/types/trend-modes";
 import Card from "./card";
-import { TrendIcon } from "./tend-icon";
+import {TrendIcon} from "@energyleaf/ui/utils/trend-icon";
 
 interface Props {
     heading: string;

@@ -2,7 +2,7 @@ import { Container, Head, Html, Img, Preview, Row, Section, Text } from "@react-
 import { BadgeEuroIcon, ReceiptEuroIcon, ThumbsDown, ThumbsUp, Zap } from "lucide-react";
 import React from "react";
 
-import { type ReportProps, formatDate, formatNumber, getDayOfWeek } from "@energyleaf/lib";
+import {type ReportProps, formatDate, formatNumber, getDayOfWeek, getTrendMode, TrendModes} from "@energyleaf/lib";
 import { Footer, Header, Main, UnsubscribeText } from "../components";
 import Card from "../components/card";
 import Centering from "../components/centering";
@@ -10,7 +10,6 @@ import DayTile from "../components/day-tile";
 import HalfRow from "../components/half-row";
 import MetricCard from "../components/metric-card";
 import Tile from "../components/tile";
-import { TrendModes, getTrendMode } from "../types/trend-modes";
 export default function ReportTemplate(
     {
         dateFrom: fromDate,
