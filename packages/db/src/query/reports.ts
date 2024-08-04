@@ -137,6 +137,7 @@ export async function getReportByIdAndUser(reportId: string, userId: string): Pr
             bestDayConsumption: reports.bestDayConsumption,
             worstDay: reports.worstDay,
             worstDayConsumption: reports.worstDayConsumption,
+            timestamp: reports.timestamp,
         })
         .from(reports)
         .where(and(eq(reports.userId, userId), eq(reports.id, reportId)));
