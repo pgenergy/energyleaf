@@ -24,5 +24,9 @@ export default async function ReportsPage(props: Props) {
         reportId = await getLastReportIdByUser(user.id);
     }
 
+    if (!reportId) {
+        return null;
+    }
+
     return <ReportView reportId={reportId} userId={user.id} />;
 }
