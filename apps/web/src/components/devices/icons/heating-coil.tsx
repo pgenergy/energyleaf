@@ -1,3 +1,9 @@
-export default function HeatingCoil() {
-    return <span className="icon-[mdi--heating-coil]" style={{ width: "24px", height: "24px" }} />;
+import { cn } from "@energyleaf/tailwindcss/utils";
+
+interface Props {
+    className?: string;
+}
+
+export default function HeatingCoil({ className }: Props) {
+    return <span className={cn("icon-[mdi--heating-coil]", className)} />;
 }

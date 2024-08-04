@@ -64,20 +64,6 @@ export default async function DashboardPage({
                 <div className="col-span-1 md:col-span-3">
                     <h1 className="font-bold text-2xl">Übersicht</h1>
                 </div>
-                {fulfills(user.appVersion, Versions.support) && (
-                    <ErrorBoundary fallback={TipOfTheDayCardError}>
-                        <Suspense fallback={<Skeleton className="col-span-1 h-72 w-full md:col-span-3" />}>
-                            <TipOfTheDayCard />
-                        </Suspense>
-                    </ErrorBoundary>
-                )}
-                {fulfills(user.appVersion, Versions.self_reflection) && (
-                    <ErrorBoundary fallback={GoalsCardError}>
-                        <Suspense fallback={<Skeleton className="col-span-1 h-72 w-full md:col-span-3" />}>
-                            <GoalsCard />
-                        </Suspense>
-                    </ErrorBoundary>
-                )}
                 <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                     <CurrentMeterNumberCard />
                 </Suspense>
@@ -87,6 +73,20 @@ export default async function DashboardPage({
                 <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                     <CurrentMeterPowerCard />
                 </Suspense>
+                {fulfills(user.appVersion, Versions.self_reflection) && (
+                    <ErrorBoundary fallback={GoalsCardError}>
+                        <Suspense fallback={<Skeleton className="col-span-1 h-72 w-full md:col-span-3" />}>
+                            <GoalsCard />
+                        </Suspense>
+                    </ErrorBoundary>
+                )}
+                {fulfills(user.appVersion, Versions.support) && (
+                    <ErrorBoundary fallback={TipOfTheDayCardError}>
+                        <Suspense fallback={<Skeleton className="col-span-1 h-72 w-full md:col-span-3" />}>
+                            <TipOfTheDayCard />
+                        </Suspense>
+                    </ErrorBoundary>
+                )}
                 <div className="col-span-1 mt-8 flex flex-col gap-4 md:col-span-3 md:mt-16">
                     <h1 className="font-bold text-2xl">Werte im Zeitraum</h1>
                     <div className="flex flex-col gap-2 md:flex-row">

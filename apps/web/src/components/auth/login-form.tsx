@@ -14,7 +14,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-export default function LoginForm() {
+interface Props {
+    next?: string;
+}
+
+export default function LoginForm(props: Props) {
     const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
     const [demoPending, setDemoPending] = useTransition();
@@ -36,10 +40,10 @@ export default function LoginForm() {
         });
     }
 
-    async function signInActionCallback(mail: string, password: string) {
+    async function signInActionCallback(mail: string, password: string, next?: string) {
         let res: DefaultActionReturn = undefined;
         try {
-            res = await signInAction(mail, password);
+            res = await signInAction(mail, password, next);
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
@@ -52,7 +56,7 @@ export default function LoginForm() {
     function onSubmit(data: z.infer<typeof loginSchema>) {
         setError("");
         startTransition(() => {
-            toast.promise(signInActionCallback(data.mail, data.password), {
+            toast.promise(signInActionCallback(data.mail, data.password, props.next), {
                 loading: "Anmelden...",
                 success: "Erfolgreich angemeldet",
                 error: (err: Error) => {

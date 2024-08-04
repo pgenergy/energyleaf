@@ -1,3 +1,9 @@
-export default function HeatPump() {
-    return <span className="icon-[material-symbols--heat-pump-outline]" style={{ width: "24px", height: "24px" }} />;
+import { cn } from "@energyleaf/tailwindcss/utils";
+
+interface Props {
+    className?: string;
+}
+
+export default function HeatPump({ className }: Props) {
+    return <span className={cn("icon-[material-symbols--heat-pump-outline]", className)} />;
 }
