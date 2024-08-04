@@ -9,6 +9,7 @@ import {
 } from "@energyleaf/db/types";
 import { AggregationType, convertTZDate } from "@energyleaf/lib";
 import { differenceInDays, getWeekOfMonth, getWeekYear } from "date-fns";
+import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
 import { getActionSession } from "../auth/auth.action";
@@ -110,7 +111,11 @@ export function getDemoDevicesCookieStore(cookies: ReadonlyRequestCookies): Devi
         return [];
     }
 
-    const parsedDevices = JSON.parse(devices.value) as DeviceSelectType[];
+    const parsedDevices = (JSON.parse(devices.value) as DeviceSelectType[]).map((d) => ({
+        ...d,
+        created: d.created ? new Date(d.created) : null,
+        timestamp: new Date(d.timestamp),
+    }));
     return parsedDevices;
 }
 
@@ -121,6 +126,8 @@ export function addOrUpdateDemoDeviceToCookieStore(cookies: ReadonlyRequestCooki
             if (d.id === device.id) {
                 return device;
             }
+
+            return d;
         });
         cookies.set("demo_devices", JSON.stringify(newDevices));
         return;
@@ -176,7 +183,15 @@ export function getDemoDevicesFromPeaksCookieStore(
 export function assignDemoDevicesToPeaks(cookies: ReadonlyRequestCookies, sequenceId: string, devices: number[]) {
     const peaks = cookies.get("demo_peaks");
     if (!peaks) {
-        return [];
+        const newPeaks: SensorDeviceSequenceSelectType[] = [];
+        for (let i = 0; i < devices.length; i++) {
+            newPeaks.push({
+                deviceId: devices[i],
+                sensorDataSequenceId: sequenceId,
+            });
+        }
+        cookies.set("demo_peaks", JSON.stringify(newPeaks));
+        return;
     }
 
     const deviceToPeaks = JSON.parse(peaks.value) as SensorDeviceSequenceSelectType[];
@@ -199,13 +214,111 @@ export function updateDemoPowerEstimationForDevices(cookies: ReadonlyRequestCook
 
     const deviceToPeaksRaw = cookies.get("demo_peaks");
     if (!deviceToPeaksRaw) {
-        return [];
+        return;
     }
 
+    const rawDevices = getDemoDevicesCookieStore(cookies);
+    if (rawDevices.length === 0) {
+        return;
+    }
     const deviceToPeaks = JSON.parse(deviceToPeaksRaw.value) as SensorDeviceSequenceSelectType[];
-    const peaksWithDevices = data.filter((peak) =>
-        deviceToPeaks.some((device) => device.sensorDataSequenceId === peak.id),
+    const devicesWithPeaks = deviceToPeaks.map((d) => {
+        const peak = data.find((p) => p.id === d.sensorDataSequenceId);
+        const device = rawDevices.find((di) => di.id === d.deviceId);
+
+        return {
+            device: {
+                ...device,
+            },
+            device_to_peak: {
+                ...d,
+            },
+            sensor_data_sequence: {
+                ...peak,
+            },
+        };
+    });
+
+    const devices = Array.from(new Set(devicesWithPeaks.map((device) => device.device.id))) as number[];
+    const flattenPeak = devicesWithPeaks
+        .filter((x) => x.device_to_peak && x.sensor_data_sequence)
+        .map((device) => ({
+            sequenceId: device.sensor_data_sequence?.id ?? "",
+            power: device.sensor_data_sequence?.averagePeakPower ?? 0,
+            device: device.device_to_peak?.deviceId ?? 0,
+        }));
+
+    const peaks = Object.values(
+        flattenPeak.reduce(
+            (acc, obj) => {
+                if (!acc[obj.sequenceId]) {
+                    acc[obj.sequenceId] = { sequence: obj.sequenceId, devices: [], power: obj.power };
+                }
+                acc[obj.sequenceId].devices.push(obj.device);
+                return acc;
+            },
+            {} as { [key: string]: { sequence: string; devices: number[]; power: number } },
+        ),
     );
+
+    const math = create(all, {});
+
+    // Extract matrices. A is a matrix of 0s and 1s, where each row corresponds to a peak and each column to a device. b is a matrix of power values for each peak.
+    const A = math.matrix(
+        peaks.map((dp) => {
+            const row = devices.map((device) => (dp.devices.includes(device) ? 1 : 0));
+            return row;
+        }),
+    );
+    const b = math.matrix(peaks.map((dp) => [dp.power]));
+
+    // Solve the least squares problem: (A^T A) x = A^T b
+    const At = math.transpose(A);
+    const AtA = math.multiply(At, A);
+    const Atb = math.multiply(At, b);
+    const solution = math.lusolve(AtA, Atb);
+
+    // Extract the solution values and save them to the database
+    const result = solution.toArray().map((value: MathNumericType[] | MathNumericType, index: number) => ({
+        [devices[index]]: (value as MathNumericType[])[0],
+    }));
+    for (const deviceId of devices) {
+        const device = rawDevices.find((d) => d.id === deviceId) as DeviceSelectType;
+        const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
+        const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
+        const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
+        addOrUpdateDemoDeviceToCookieStore(cookies, {
+            ...device,
+            powerEstimation: correctedPowerEstimation,
+        });
+    }
+
+    // Calculate R^2
+    const residuals = math.subtract(b, math.multiply(A, solution));
+    const subtraction = math.subtract(b, math.mean(b)) as Matrix;
+    const SST = math.sum(math.map(subtraction, math.square));
+    const SSR = math.sum(math.map(residuals, math.square));
+    let rSquared: number;
+    if (SST === 0) {
+        rSquared = SSR === 0 ? 1 : 0;
+    } else {
+        rSquared = math.subtract(1, math.divide(SSR, SST)) as number;
+    }
+
+    const userData = cookies.get("demo_data");
+    if (!userData) {
+        return;
+    }
+
+    const parsedData = JSON.parse(userData.value) as UserDataType;
+    updateUserDataCookieStore(cookies, {
+        user_data: {
+            ...parsedData.user_data,
+            devicePowerEstimationRSquared: rSquared,
+        },
+    });
+
+    return;
 }
 
 function getDemoSensorCachedData(): SensorDataSelectType[] {

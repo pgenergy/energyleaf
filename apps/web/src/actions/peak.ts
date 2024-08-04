@@ -45,6 +45,7 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
             revalidatePath("/dashboard");
             revalidatePath("/devices");
             revalidatePath("/energy");
+            return;
         }
 
         try {
