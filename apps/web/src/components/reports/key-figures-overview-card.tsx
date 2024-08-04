@@ -18,20 +18,26 @@ interface KeyFiguresCardProps {
 
 function KeyFiguresCard({ text, icon, currentValue, lastValue, unit }: KeyFiguresCardProps) {
     return (
-        <div className={"rounded bg-muted p-2 text-center"}>
-            {icon}
-            <div className={"h-4"}>{text} </div>
-            {lastValue && (
-                <div className={"pt-3 text-xs"}>
-                    <TrendIcon size={40} mode={getTrendMode(lastValue, currentValue)} />
-                    <div className="font-semibold">Vorheriger Bericht:</div>
-                    <div>
-                        {" "}
-                        `${formatNumber(lastValue)} ${unit}`{" "}
+        <div className={"flex flex-col justify-between rounded bg-muted p-2 text-center"}>
+            <div>
+                <div className="mb-2 flex items-center justify-center">{icon}</div>
+                <div className={"p-2 font-bold"}>{text} </div>
+            </div>
+            <div className={""}>
+                <div>{`${formatNumber(currentValue)} ${unit}`}</div>
+                {lastValue && (
+                    <div className={"pt-3 text-xs"}>
+                        <div className="mb-2 flex items-center justify-center">
+                            <TrendIcon size={20} mode={getTrendMode(lastValue, currentValue)} />
+                        </div>
+                        <div className="font-semibold">Vorheriger Bericht:</div>
+                        <div>
+                            {" "}
+                            {formatNumber(lastValue)} {unit}{" "}
+                        </div>
                     </div>
-                </div>
-            )}
-            <div>{`${formatNumber(currentValue)} ${unit}`}</div>
+                )}
+            </div>
         </div>
     );
 }
@@ -47,11 +53,13 @@ interface DateCardProps {
 function DayCard({ text, icon, date, valueOfDate, unit }: DateCardProps) {
     return (
         <div className={"rounded bg-muted p-2 text-center"}>
-            <div> {icon}</div>
-            <div>{text}</div>
-            <div>{getDayOfWeek(date)}</div>
-            <div>{formatDate(date)}</div>
-            <div>{`${formatNumber(valueOfDate)} ${unit}`}</div>
+            <div className={"mb-2 flex items-center justify-center"}> {icon}</div>
+            <div className={"p-4 font-bold"}>{text}</div>
+            <div className={"p-0 text-base"}>
+                <div>{getDayOfWeek(date)}</div>
+                <div>{formatDate(date)}</div>
+                <div>{`${formatNumber(valueOfDate)} ${unit}`}</div>
+            </div>
         </div>
     );
 }
@@ -76,7 +84,7 @@ export default function KeyFiguresOverviewCard({ report }: Props) {
                     lastValue={report.lastReport?.totalEnergyConsumption}
                 />
                 <KeyFiguresCard
-                    text={"Durschnittl. Verbrauch pro Tag"}
+                    text={"Durchschnittl. Verbrauch pro Tag"}
                     icon={<Zap />}
                     currentValue={report.avgEnergyConsumptionPerDay}
                     unit={"kWh"}
@@ -90,7 +98,7 @@ export default function KeyFiguresOverviewCard({ report }: Props) {
                     lastValue={report.lastReport?.totalEnergyCost}
                 />
                 <KeyFiguresCard
-                    text={"Durschschnittl. Energiekosten pro Tag"}
+                    text={"Durchschnittl. Energiekosten pro Tag"}
                     icon={<ReceiptEuroIcon />}
                     currentValue={report.avgEnergyCost ?? 0}
                     unit={"€"}

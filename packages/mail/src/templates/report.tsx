@@ -73,7 +73,7 @@ export default function ReportTemplate(
                                 {`${formatNumber(totalEnergyConsumption)} kWh`}
                             </MetricCard>
                             <MetricCard
-                                heading="Durschnittl. Verbrauch pro Tag"
+                                heading="Durchschnittl. Verbrauch pro Tag"
                                 icon={<Zap />}
                                 lastReportInfo={
                                     lastReport && {
@@ -108,7 +108,7 @@ export default function ReportTemplate(
                                 {totalEnergyCost ? `${formatNumber(totalEnergyCost)} €` : <i>Nicht konfiguriert</i>}
                             </MetricCard>
                             <MetricCard
-                                heading="Durschschnittl. Energiekosten pro Tag"
+                                heading="Durchschnittl. Energiekosten pro Tag"
                                 icon={<ReceiptEuroIcon />}
                                 lastReportInfo={
                                     lastReport?.avgEnergyCost

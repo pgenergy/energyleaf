@@ -40,7 +40,7 @@ export default function DayStatisticsCard({ dayEnergyStatistics }: DayEnergyStat
                     Hier sehen Sie, ob Sie Ihre Ziele {dayLengthText} des ausgewählten Berichts erreicht haben.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-4">
+            <CardContent className="grid grid-cols-2 md:grid-cols-4">
                 {dayEnergyStatistics?.map((x) => (
                     <DayTile key={x.day.toDateString()} stats={x} />
                 ))}
