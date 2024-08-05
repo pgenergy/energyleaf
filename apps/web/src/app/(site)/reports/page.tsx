@@ -1,32 +1,16 @@
-import ReportView from "@/components/reports/ReportView";
-import { getSession } from "@/lib/auth/auth.server";
-import { getLastReportIdByUser } from "@energyleaf/db/query";
-import React from "react";
+import { redirect } from 'next/navigation';
+import {getSession} from "@/lib/auth/auth.server";
+import {getLastReportIdByUser} from "@energyleaf/db/query";
 
-export const metadata = {
-    title: "Berichte | Energyleaf",
-};
-
-interface Props {
-    searchParams?: {
-        id?: string;
-    };
-}
-
-export default async function ReportsPage(props: Props) {
+export default async function ReportsPage() {
     const { user } = await getSession();
     if (!user) {
+        redirect("/");
         return null;
     }
 
-    let reportId = props.searchParams?.id;
-    if (!reportId) {
-        reportId = await getLastReportIdByUser(user.id);
-    }
+    const reportId = await getLastReportIdByUser(user.id);
 
-    if (!reportId) {
-        return null;
-    }
-
-    return <ReportView reportId={reportId} userId={user.id} />;
+    redirect(`/reports/${reportId}`);
+    return null;
 }

@@ -1,33 +1,29 @@
 import ReportSelector from "@/components/reports/ReportSelector";
 import { getSession } from "@/lib/auth/auth.server";
 import {getLastReportIdByUser, getMetaDataOfAllReportsForUser, getReportByIdAndUser} from "@energyleaf/db/query";
+import {formatDate} from "@energyleaf/lib";
+import {Button, buttonVariants} from "@energyleaf/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import React from "react";
-import {Button} from "@energyleaf/ui/button";
-import {formatDate} from "@energyleaf/lib";
 
 interface Props {
-    searchParams?: {
-        id?: string;
-    };
     children: React.ReactNode;
+    params: {
+        id: string;
+    };
 }
 
-export default async function ReportsPageLayout(props: Props) {
+export default async function ReportsPageLayout({children, params}: Props) {
     const { user } = await getSession();
     if (!user) {
         redirect("/");
     }
 
+    console.log(params);
+
     const last20Reports = await getMetaDataOfAllReportsForUser(user.id, 20);
-
-    let reportId = props.searchParams?.id;
-    if (!reportId) {
-        reportId = await getLastReportIdByUser(user.id);
-    }
-    const report = reportId ? await getReportByIdAndUser(reportId, user.id) : undefined;
-
     if (!last20Reports || last20Reports.length === 0) {
         return (
             <div className="flex flex-col gap-4">
@@ -53,21 +49,54 @@ export default async function ReportsPageLayout(props: Props) {
         );
     }
 
-    console.log(report.dateTo > report.dateFrom);
+    const reportId  = params.id;
+
+    console.log(reportId);
+
+    const report = reportId ? await getReportByIdAndUser(reportId, user.id) : await getReportByIdAndUser(last20Reports[0].id, user.id);
+
+    // console.log(report);
+
     const stringEnd = report.dateTo > report.dateFrom ? `bis zum ${formatDate(report.dateTo)}` : "";
+
+    const currentIndex = last20Reports.findIndex((r) => r.id === reportId);
+    const reportIdBefore = currentIndex < last20Reports.length - 1 ? last20Reports[currentIndex + 1].id : undefined;
+    const reportIdAfter = currentIndex > 0 ? last20Reports[currentIndex - 1].id : undefined;
+
+    // console.log(last20Reports);
+    // console.log (currentIndex, reportIdBefore, reportIdAfter);
 
     return (
         <div className="gap-4">
             <h1 className="font-bold text-2xl">Aktueller und vergangene Berichte</h1>
             <div className="flex gap-4">
             <ReportSelector />
-                <div>
-                    {/*<Button onClick={() => redirect("/reports")}>Alle Berichte</Button>*/}
+                <div className={"flex"}>
+                        {reportIdBefore && (
+                            <Link
+                                href={`/reports/${reportIdBefore}`}
+                                className={buttonVariants({
+                                    variant: "ghost",
+                                })}
+                            >
+                                Vorheriger Bericht
+                            </Link>
+                        )}
                     <div className="flex flex-row gap-4">Bericht vom {formatDate(report.dateFrom)} {stringEnd}</div>
-                    {/*<Button onClick={() => redirect("/reports")}>T</Button>*/}
-                </div>
+                {reportIdAfter && (
+                    <Link
+                        href={`/reports/${reportIdAfter}`}
+                        className={buttonVariants({
+                            variant: "ghost",
+                        })}
+                    >
+                        Nächster Bericht
+                    </Link>
+                )}
+
             </div>
-            {props.children}
+            </div>
+            {children}
         </div>
     );
 }

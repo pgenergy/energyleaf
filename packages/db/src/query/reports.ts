@@ -96,7 +96,7 @@ export async function getLastReportForUser(userId: string): Promise<LastReport |
     };
 }
 
-export async function getMetaDataOfAllReportsForUser(userId: string, limit: number) {
+export async function getMetaDataOfAllReportsForUser(userId: string, limit: number) : Promise<Array<{id: string, dateFrom: Date, dateTo: Date}>> {
     return db
         .select({
             id: reports.id,
