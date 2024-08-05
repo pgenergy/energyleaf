@@ -246,7 +246,7 @@ export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMail
     return resp.data?.id;
 }
 
-type ReportMailOptions = MailOptions & ReportProps & { unsubscribeLink: string } & {reportPageLink: string};
+type ReportMailOptions = MailOptions & ReportProps & { unsubscribeLink: string } & { reportPageLink: string };
 
 export async function sendReport(options: ReportMailOptions) {
     if (!options.apiKey || options.apiKey === "") {

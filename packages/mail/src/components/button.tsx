@@ -48,7 +48,8 @@ export function UnsubscribeText({ unsubscribeLink, reportPageLink }: Unsubscribe
                 abmelden.
                 {reportPageLink && (
                     <>
-                        {" "}Sie können Ihre vergangenen Berichte auch in der Energyleaf-App unter dem Menüpunkt{" "}
+                        {" "}
+                        Sie können Ihre vergangenen Berichte auch in der Energyleaf-App unter dem Menüpunkt{" "}
                         <Link className="text-primary" href={reportPageLink}>
                             Berichte
                         </Link>{" "}

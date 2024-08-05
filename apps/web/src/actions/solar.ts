@@ -2,7 +2,7 @@
 
 import { getActionSession } from "@/lib/auth/auth.action";
 import { getUserData } from "@/query/user";
-import {getUserById, logError, trackAction} from "@energyleaf/db/query";
+import { getUserById, logError, trackAction } from "@energyleaf/db/query";
 import { type DefaultActionReturnPayload, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
@@ -67,8 +67,8 @@ export async function calculateSolar(watts: number): Promise<DefaultActionReturn
         const success = !!userData.workingPrice;
         const message = success ? "" : "Es wurde kein Preis hinterlegt";
         waitUntil(
-            trackAction("calculate-result", "web", "calculate-solar", { session, watts, success, message, payload }),
-        )
+            trackAction("calculate-result", "calculate-solar", "web", { session, watts, success, message, payload }),
+        );
         return { success, message, payload };
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {
