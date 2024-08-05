@@ -1,6 +1,5 @@
 import ReportView from "@/components/reports/ReportView";
 import { getSession } from "@/lib/auth/auth.server";
-import { getLastReportIdByUser } from "@energyleaf/db/query";
 import React from "react";
 
 export const metadata = {

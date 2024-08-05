@@ -1,6 +1,5 @@
 import KeyFiguresOverviewCard from "@/components/reports/key-figures-overview-card";
 import { getReportByIdAndUser } from "@energyleaf/db/query";
-import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import React from "react";
 import DailyAbsoluteEnergyCard from "./daily-absolute-energy-card"; // Import the component
 import DayStatisticsCard from "./day-statistics-card";
@@ -14,16 +13,7 @@ export default async function ReportView(props: Props) {
     const report = props.reportId ? await getReportByIdAndUser(props.reportId, props.userId) : undefined;
 
     if (!report) {
-        return (
-            <div className="flex flex-col gap-4">
-                <Card className="w-full">
-                    <CardHeader>
-                        <CardTitle>Bericht</CardTitle>
-                        <CardDescription>Der Bericht konnte nicht gefunden werden.</CardDescription>
-                    </CardHeader>
-                </Card>
-            </div>
-        );
+        return null;
     }
 
     return (

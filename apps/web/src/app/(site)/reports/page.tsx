@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
-import {getSession} from "@/lib/auth/auth.server";
-import {getLastReportIdByUser} from "@energyleaf/db/query";
+import { getSession } from "@/lib/auth/auth.server";
+import { getLastReportIdByUser } from "@energyleaf/db/query";
+import { redirect } from "next/navigation";
 
 export default async function ReportsPage() {
     const { user } = await getSession();
