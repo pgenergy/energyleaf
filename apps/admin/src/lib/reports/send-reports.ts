@@ -231,6 +231,7 @@ export async function sendReportMail(userReport: UserReportData, reportProps: Re
             from: env.RESEND_API_MAIL,
             to: userReport.email,
             unsubscribeLink: unsubscribeLink,
+            reportPageLink: `${env.NEXT_PUBLIC_APP_URL}/reports`,
             apiKey: env.RESEND_API_KEY,
         });
     }

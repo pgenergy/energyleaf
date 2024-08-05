@@ -26,6 +26,7 @@ export default function ReportTemplate(
         dailyTotalConsumptionGraph,
     }: ReportProps,
     unsubscribeLink: string,
+    reportPageLink: string,
 ) {
     const dateForm = formatDate(fromDate);
     const dateTo = formatDate(toDate);
@@ -145,7 +146,7 @@ export default function ReportTemplate(
                 </Tile>
 
                 <Centering>
-                    <UnsubscribeText href={unsubscribeLink} />
+                    <UnsubscribeText unsubscribeLink={unsubscribeLink} reportPageLink={reportPageLink} />
                     <Footer />
                 </Centering>
             </Main>
