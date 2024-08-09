@@ -15,11 +15,11 @@ export const getActionSession = async () => {
                 lastname: "Nutzer",
                 email: "demo@energyleaf.de",
                 phone: null,
-                address: "Demo Adresse",
+                address: "Ammerländer Heerstraße 114, Oldenburg",
                 created: new Date().toISOString(),
                 isAdmin: false,
                 isActive: true,
-                appVersion: Versions.transparency as number,
+                appVersion: Versions.support as number,
                 onboardingCompleted: true,
             },
             session: {

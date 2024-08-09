@@ -155,7 +155,7 @@ export default function EnergyCompareChart(props: Props) {
     return (
         <>
             {hasOutValues || hasCurrentValues ? (
-                <div className="flex flex-row items-center justify-end gap-2">
+                <div className="flex flex-row flex-wrap items-center justify-end gap-2">
                     <ChartSwitchButton
                         active={activeChart === "value"}
                         chart="value"

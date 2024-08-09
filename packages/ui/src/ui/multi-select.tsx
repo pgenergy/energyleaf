@@ -67,24 +67,30 @@ export function MultiSelect<T extends Option>({
         [selected, onSelectedChange],
     );
 
-    const handleKeyDown = React.useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-        const input = inputRef.current;
-        if (input) {
-            if (e.key === "Delete" || e.key === "Backspace") {
-                if (input.value === "") {
-                    setSelected((prev) => {
-                        const newSelected = [...prev];
+    const handleKeyDown = React.useCallback(
+        (e: React.KeyboardEvent<HTMLDivElement>) => {
+            const input = inputRef.current;
+            if (input) {
+                if (e.key === "Delete" || e.key === "Backspace") {
+                    if (input.value === "") {
+                        const newSelected = [...selected];
                         newSelected.pop();
-                        return newSelected;
-                    });
+                        setSelected((prev) => {
+                            const newSelected = [...prev];
+                            newSelected.pop();
+                            return newSelected;
+                        });
+                        onSelectedChange(newSelected);
+                    }
+                }
+                // This is not a default behaviour of the <input /> field
+                if (e.key === "Escape") {
+                    input.blur();
                 }
             }
-            // This is not a default behaviour of the <input /> field
-            if (e.key === "Escape") {
-                input.blur();
-            }
-        }
-    }, []);
+        },
+        [onSelectedChange, selected],
+    );
 
     const selectables = options?.filter((option) => !selected.some((d) => d.value === option.value));
 

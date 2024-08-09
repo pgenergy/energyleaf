@@ -18,12 +18,12 @@ export default async function ThrieftiestCostCard(props: Props) {
 
     const userData = await getUserData(user.id);
     if (!userData?.workingPrice) {
-        return null;
+        return <NoDataCard agg={props.agg} />;
     }
 
     const sensorId = await getElectricitySensorIdForUser(user.id);
     if (!sensorId) {
-        return null;
+        return <NoDataCard agg={props.agg} />;
     }
 
     const serverStartDate = startOfMonth(new Date());
@@ -51,7 +51,7 @@ export default async function ThrieftiestCostCard(props: Props) {
         (props.agg === "day" && data.length <= 2) ||
         (props.agg === "week" && data.length <= 1)
     ) {
-        return null;
+        return <NoDataCard agg={props.agg} />;
     }
 
     const workingPrice = userData.workingPrice;
@@ -80,6 +80,27 @@ export default async function ThrieftiestCostCard(props: Props) {
                     {props.agg === "day"
                         ? format(convertTZDate(cheapestValue.timestamp, "client"), "PPP", { locale: de })
                         : `Woche ${getWeekOfMonth(convertTZDate(cheapestValue.timestamp, "client"))}`}
+                </p>
+            </CardContent>
+        </Card>
+    );
+}
+
+interface NoDataProps {
+    agg: "day" | "week";
+}
+
+function NoDataCard(props: NoDataProps) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>{props.agg === "day" ? "Sparsamster Tag" : "Sparsamste Woche"}</CardTitle>
+                <CardDescription>Basierend auf diesem Monat.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center justify-center">
+                <p className="text-muted-foreground">Nicht genug Daten in diesem Monat</p>
+                <p className="text-muted-foreground text-xs">
+                    Dies ist der Fall wenn zu wenig Zeit in diesem Monat vergangen ist.
                 </p>
             </CardContent>
         </Card>
