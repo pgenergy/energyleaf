@@ -25,8 +25,6 @@ export default async function RecommendationsPage() {
                     <EnergyTipsCard />
                 </Suspense>
             </ErrorBoundary>
-
-            {/* Balkonkraftwerk simulieren */}
             <ErrorBoundary fallback={SolarCalculationCardError}>
                 <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                     <SolarCalculationCard />

@@ -33,38 +33,15 @@ export type DeviceColumnsType = DeviceSelectType & {
 
 export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
     {
-        accessorKey: "tips",
-        header: undefined,
+        accessorKey: "category",
+        header: "Kategorie",
         cell: ({ row }) => {
-            const tips = row.getValue<EnergyTip[] | undefined>("tips");
-            if (!tips || tips.length === 0) {
-                return null;
-            }
-
+            const category = row.getValue<DeviceCategory>("category");
             return (
-                <Popover>
-                    <PopoverTrigger title="Stromspartipps für Gerät anzeigen">
-                        <LightbulbIcon className="h-5 w-5" />
-                    </PopoverTrigger>
-                    <PopoverContent className="flex flex-col gap-2">
-                        <span className="font-bold">Stromspartipps</span>
-                        <div className="grid grid-flow-row grid-cols-[auto_1fr] gap-2">
-                            {tips?.map((tip, index) => (
-                                <Fragment key={index.toString()}>
-                                    <DotIcon className="h-4 w-4" />
-                                    <div>
-                                        <span>{tip.text}</span>
-                                        <span className="inline-flex items-center">
-                                            <a href={tip.linkToSource} className="ml-1 flex items-center">
-                                                <ExternalLink className="h-4 w-4" />
-                                            </a>
-                                        </span>
-                                    </div>
-                                </Fragment>
-                            ))}
-                        </div>
-                    </PopoverContent>
-                </Popover>
+                <div className="flex flex-row items-center gap-2">
+                    <DeviceCategoryIcon category={category} />
+                    {DeviceCategoryTitles[category]}
+                </div>
             );
         },
     },
@@ -120,19 +97,6 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
             }
 
             return <span>{Intl.DateTimeFormat("de-DE").format(row.getValue("created"))}</span>;
-        },
-    },
-    {
-        accessorKey: "category",
-        header: "Kategorie",
-        cell: ({ row }) => {
-            const category = row.getValue<DeviceCategory>("category");
-            return (
-                <div className="flex flex-row items-center gap-2">
-                    <DeviceCategoryIcon category={category} />
-                    {DeviceCategoryTitles[category]}
-                </div>
-            );
         },
     },
     {
@@ -210,6 +174,42 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
                         </PopoverContent>
                     </Popover>
                 </div>
+            );
+        },
+    },
+    {
+        accessorKey: "tips",
+        header: undefined,
+        cell: ({ row }) => {
+            const tips = row.getValue<EnergyTip[] | undefined>("tips");
+            if (!tips || tips.length === 0) {
+                return null;
+            }
+
+            return (
+                <Popover>
+                    <PopoverTrigger title="Stromspartipps für Gerät anzeigen">
+                        <LightbulbIcon className="h-5 w-5" />
+                    </PopoverTrigger>
+                    <PopoverContent className="flex flex-col gap-2">
+                        <span className="font-bold">Stromspartipps</span>
+                        <div className="grid grid-flow-row grid-cols-[auto_1fr] gap-2">
+                            {tips?.map((tip, index) => (
+                                <Fragment key={index.toString()}>
+                                    <DotIcon className="h-4 w-4" />
+                                    <div>
+                                        <span>{tip.text}</span>
+                                        <span className="inline-flex items-center">
+                                            <a href={tip.linkToSource} className="ml-1 flex items-center">
+                                                <ExternalLink className="h-4 w-4" />
+                                            </a>
+                                        </span>
+                                    </div>
+                                </Fragment>
+                            ))}
+                        </div>
+                    </PopoverContent>
+                </Popover>
             );
         },
     },

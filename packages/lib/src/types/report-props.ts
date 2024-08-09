@@ -18,6 +18,15 @@ export interface DailyConsumption {
     consumption: number;
 }
 
+export interface LastReport {
+    totalEnergyConsumption: number;
+    avgEnergyConsumptionPerDay: number;
+    totalEnergyCost?: number;
+    avgEnergyCost?: number;
+    bestDay: DailyConsumption;
+    worstDay: DailyConsumption;
+}
+
 export interface ReportProps {
     userName?: string;
     dateFrom: Date;
@@ -38,5 +47,5 @@ export interface ReportProps {
     /**
      * The values of the last report to compare with the new report
      */
-    lastReport?: ReportProps;
+    lastReport?: LastReport;
 }

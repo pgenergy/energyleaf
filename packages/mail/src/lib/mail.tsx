@@ -246,7 +246,7 @@ export async function sendAdminNewAccountCreatedEmail(props: AdminNewAccountMail
     return resp.data?.id;
 }
 
-type ReportMailOptions = MailOptions & ReportProps & { unsubscribeLink: string };
+type ReportMailOptions = MailOptions & ReportProps & { unsubscribeLink: string } & { reportPageLink: string };
 
 export async function sendReport(options: ReportMailOptions) {
     if (!options.apiKey || options.apiKey === "") {
@@ -258,7 +258,7 @@ export async function sendReport(options: ReportMailOptions) {
         to: options.to,
         from: options.from,
         subject: `Energyleaf: Bericht von ${formatDate(options.dateFrom)} bis ${formatDate(options.dateTo)}`,
-        react: ReportTemplate(options, options.unsubscribeLink),
+        react: ReportTemplate(options, options.unsubscribeLink, options.reportPageLink),
     });
 
     if (resp.error) {

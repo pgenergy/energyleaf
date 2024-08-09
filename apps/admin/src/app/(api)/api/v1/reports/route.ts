@@ -11,7 +11,7 @@ import { type NextRequest, NextResponse } from "next/server";
 export const GET = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
     if (!req.headers.has("authorization") || req.headers.get("authorization") !== `Bearer ${cronSecret}`) {
-        waitUntil(log("request-unauthorized/missing-key", "error", "report-creation", "api", req));
+        waitUntil(log("request-unauthorized/missing-key", "error", "reports-creation", "api", req));
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 
@@ -21,7 +21,7 @@ export const GET = async (req: NextRequest) => {
         await createReportsAndSendMails();
         return NextResponse.json({ status: 200, statusMessage: "Reports created and sent" });
     } catch (e) {
-        waitUntil(logError("unhandled-crash/failed-in-process-not-finished", "report-creation", "api", req, e));
+        waitUntil(logError("unhandled-crash/failed-in-process-not-finished", "reports-creation", "api", req, e));
         return NextResponse.json({ status: 500, statusMessage: "Internal Server Error" });
     }
 };
