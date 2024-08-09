@@ -68,7 +68,7 @@ export default function CSVExportButton(props: Props) {
     }
 
     return (
-        <Button variant="outline" onClick={() => startDownload}>
+        <Button variant="outline" onClick={() => startDownload()}>
             <DownloadIcon className="h-4 w-4" />
             <span className="ml-2 hidden md:block">Download</span>
         </Button>
