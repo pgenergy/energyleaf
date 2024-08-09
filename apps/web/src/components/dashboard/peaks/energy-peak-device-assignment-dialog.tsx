@@ -8,9 +8,10 @@ interface Props {
     setOpen: (open: boolean) => void;
     value: SensorDataSequenceType;
     userId: string;
+    detectedDevices: { name: string; confidence: number }[];
 }
 
-export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId }: Props) {
+export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId, detectedDevices }: Props) {
     return (
         <Dialog onOpenChange={setOpen} open={open}>
             <DialogContent>
@@ -23,6 +24,7 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId 
                 <p>Leistung: {formatNumber(value.averagePeakPower)} Watt</p>
                 <EnergyPeakDeviceAssignmentForm
                     userId={userId}
+                    detectedDevices={detectedDevices}
                     onInteract={() => {
                         setOpen(false);
                     }}
