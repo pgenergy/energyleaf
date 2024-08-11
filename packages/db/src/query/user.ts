@@ -219,11 +219,11 @@ export async function createUser(data: CreateUserType) {
         const standardDevices = [
             { name: "Gefrierschrank", category: "freezer" },
             { name: "Kühlschrank", category: "fridge" },
-            { name: "Mikrowelle", category: "micro_wave" },
-            { name: "Router", category: "router" },
-            { name: "Boiler", category: "boiler" },
+            { name: "Mikrowelle", category: "microwave" },
+            { name: "Router", category: "others" },
+            { name: "Boiler", category: "others" },
             { name: "Wäschetrockner", category: "dryer" },
-            { name: "Waschmaschine", category: "washing_machine" },
+            { name: "Waschmaschine", category: "washingMachine" },
         ];
 
         for (const device of standardDevices) {

@@ -31,7 +31,14 @@ export default async function DevicesOverviewCard() {
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div className="flex flex-col gap-2">
                         <CardTitle>Ihre Geräte</CardTitle>
-                        <CardDescription>Hier sehen Sie alle Ihre Geräte und können diese verwalten.</CardDescription>
+                        <CardDescription>
+                            Hier sehen Sie alle Ihre Geräte und können diese verwalten.
+                            <p className="text-sm text-muted-foreground mt-1">
+                                Hinweis: Einige Standardgeräte wurden für Sie initial angelegt. Unsere KI kann diese Geräte
+                                erkennen und überwachen. Falls Sie jedoch eines dieser Geräte nicht besitzen, können Sie es
+                                problemlos löschen.
+                            </p>
+                        </CardDescription>
                     </div>
                     <DeviceAddButton />
                 </CardHeader>
