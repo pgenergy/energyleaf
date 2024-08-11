@@ -1,14 +1,13 @@
 import { getSession } from "@/lib/auth/auth.server";
 import {
-    classifyDeviceUsage,
     getElectricitySensorIdForUser,
     getEnergyDataForSensor,
     getSensorDataSequences,
 } from "@/query/energy";
+import { classifyAndSaveDevicesForPeaks } from "@/actions/device";
 import { getUserData } from "@/query/user";
 import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
-import type { DeviceClassification } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
@@ -51,8 +50,24 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
     const data = await getEnergyDataForSensor(startDate.toISOString(), endDate.toISOString(), sensorId, aggregation);
-    const classifiedData: DeviceClassification[] = await classifyDeviceUsage(data);
+
     const showPeaks = fulfills(user.appVersion, Versions.self_reflection) && !hasAggregation;
+    const peaks: SensorDataSequenceType[] = showPeaks
+        ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
+        : [];
+
+    if (showPeaks && peaks.length > 0) {
+        const peaksData = peaks.map(peak => ({
+            id: peak.id,
+            electricity: data
+                .filter(d => d.timestamp >= peak.start && d.timestamp <= peak.end)
+                .map(d => ({
+                    timestamp: d.timestamp.toISOString(),
+                    power: d.value,
+                })),
+        }));
+        await classifyAndSaveDevicesForPeaks(peaksData, userId);
+    }
 
     const userData = await getUserData(user.id);
     const workingPrice = userData?.workingPrice ?? undefined;
@@ -60,9 +75,6 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         workingPrice && userData?.basePrice
             ? (userData.basePrice / (30 * 24 * 60 * 60)) * 15 + workingPrice
             : workingPrice;
-    const peaks: SensorDataSequenceType[] = showPeaks
-        ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
-        : [];
 
     return (
         <Card className="w-full">
@@ -89,7 +101,6 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             userId={userId}
                             cost={cost}
                             showPeaks={showPeaks}
-                            classifiedData={classifiedData}
                         />
                     )}
                 </div>

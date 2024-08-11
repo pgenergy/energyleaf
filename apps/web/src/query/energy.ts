@@ -10,8 +10,6 @@ import {
 import { AggregationType } from "@energyleaf/lib";
 import { cache } from "react";
 import "server-only";
-import { mlApi } from "@/actions/ml";
-import type { SensorDataSelectType } from "@energyleaf/db/types";
 
 export interface DeviceClassification {
     timestamp: string;
@@ -80,24 +78,6 @@ export const getEnergyLastEntry = cache(async (sensorId: string) => {
 
     return getDbEnergyLastEntry(sensorId);
 });
-
-export const classifyDeviceUsage = async (sensorData: SensorDataSelectType[]) => {
-    const req_data = {
-        electricity: sensorData.map((data) => ({
-            timestamp: data.timestamp.toISOString(),
-            power: data.value,
-        })),
-    };
-
-    try {
-        const response = await mlApi(req_data);
-
-        return response.electricity;
-    } catch (error) {
-        console.error("Error in device classification: ", error);
-        throw error;
-    }
-};
 
 type ExtraSequencesProps = {
     start: Date;

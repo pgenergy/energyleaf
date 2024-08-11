@@ -2,7 +2,6 @@
 
 import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
-import type { DeviceClassification } from "@energyleaf/lib";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
@@ -13,20 +12,9 @@ import { useChart } from "../../../ui/chart";
 interface Props {
     aggregationType: AggregationType;
     tooltipProps: TooltipProps<ValueType, NameType>;
-    classifiedData: DeviceClassification[];
 }
 
-const deviceNames: Record<string, string> = {
-    freezer: "Gefrierschrank",
-    fridge: "Kühlschrank",
-    micro_wave: "Mikrowelle",
-    router: "Router",
-    boiler: "Boiler",
-    dryer: "Wäschetrockner",
-    washing_machine: "Waschmaschine",
-};
-
-export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps, classifiedData = [] }: Props) {
+export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps }: Props) {
     const { config } = useChart();
     const payload = tooltipProps.payload;
     const data = payload?.[0]?.payload as SensorDataSelectType & { cost?: number };
@@ -50,15 +38,6 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
         return format(date, formatOptions[aggregationType] || "dd.MM.yyyy HH:mm:ss", { locale: de });
     }, [data?.timestamp, aggregationType]);
 
-    const detectedDevice = useMemo(() => {
-        if (aggregationType !== AggregationType.RAW) return null;
-        if (!data?.timestamp) return null;
-        const classification = classifiedData.find(
-            (c) => new Date(c.timestamp).toISOString() === new Date(data.timestamp).toISOString(),
-        );
-        return classification ? deviceNames[classification.dominantClassification] : null;
-    }, [data?.timestamp, classifiedData, aggregationType]);
-
     if (!data?.value) {
         return null;
     }
@@ -66,14 +45,6 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
     return (
         <div className="z-10 flex flex-col gap-2 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl">
             <p className="font-bold">{formattedTimestamp}</p>
-            {detectedDevice ? (
-                <div className="flex flex-row items-center gap-1">
-                    <p className="text-sm">
-                        <span className="font-bold">Automatisch erkanntes Gerät: </span>
-                        <span className="font-mono">{detectedDevice}</span>
-                    </p>
-                </div>
-            ) : null}
             <div className="flex flex-row items-center gap-1">
                 <div
                     className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"

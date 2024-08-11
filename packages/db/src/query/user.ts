@@ -17,7 +17,7 @@ import {
     userTipOfTheDay,
 } from "../schema";
 import type { UserDataSelectType, UserSelectType } from "../types/types";
-import { getDeviceCategoriesByUser } from "./device";
+import { getDeviceCategoriesByUser, createDevice } from "./device";
 
 /**
  * Get a user by id from the database
@@ -213,6 +213,24 @@ export async function createUser(data: CreateUserType) {
             await trx.insert(userExperimentData).values({
                 userId,
                 getsPaid: true,
+            });
+        }
+
+        const standardDevices = [
+            { name: "Gefrierschrank", category: "freezer" },
+            { name: "Kühlschrank", category: "fridge" },
+            { name: "Mikrowelle", category: "micro_wave" },
+            { name: "Router", category: "router" },
+            { name: "Boiler", category: "boiler" },
+            { name: "Wäschetrockner", category: "dryer" },
+            { name: "Waschmaschine", category: "washing_machine" },
+        ];
+
+        for (const device of standardDevices) {
+            await createDevice({
+                name: device.name,
+                category: device.category,
+                userId: userId,
             });
         }
     });

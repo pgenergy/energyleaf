@@ -2,18 +2,11 @@
 
 import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
-import type { DeviceClassification } from "@energyleaf/lib";
 import clsx from "clsx";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo, useState } from "react";
-import { BiFridge, BiSolidDryer } from "react-icons/bi";
-import { CgSmartHomeBoiler } from "react-icons/cg";
-import { CiRouter } from "react-icons/ci";
-import { GiWashingMachine } from "react-icons/gi";
-import { LuMicrowave } from "react-icons/lu";
-import { TbFreezeRow } from "react-icons/tb";
-import { Area, AreaChart, ReferenceArea, ReferenceDot, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, ReferenceArea, Tooltip, XAxis, YAxis } from "recharts";
 import type { CategoricalChartState } from "recharts/types/chart/types";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "../../../ui/chart";
 import ChartSwitchButton from "../chart-switch-button";
@@ -27,7 +20,6 @@ interface Props {
     aggregation?: AggregationType;
     peaksCallback?: (value: SensorDataSequenceType) => void;
     zoomCallback?: (left: Date, right: Date) => void;
-    classifiedData: DeviceClassification[];
 }
 
 const chartConfig = {
@@ -49,30 +41,6 @@ const chartConfig = {
     },
 } satisfies ChartConfig;
 
-const deviceIcons = {
-    freezer: TbFreezeRow,
-    fridge: BiFridge,
-    micro_wave: LuMicrowave,
-    router: CiRouter,
-    boiler: CgSmartHomeBoiler,
-    dryer: BiSolidDryer,
-    washing_machine: GiWashingMachine,
-};
-
-const CustomDot = (props) => {
-    const { cx, cy, dominantClassification } = props;
-    const IconComponent = deviceIcons[dominantClassification];
-    if (!IconComponent) return null;
-    const size = 12;
-    const iconProps = { x: cx - size / 2, y: cy - size / 2, width: size, height: size, color: "white" };
-    return (
-        <g>
-            <circle cx={cx} cy={cy} r={10} fill="blue" />
-            <IconComponent {...iconProps} />
-        </g>
-    );
-};
-
 export function EnergyConsumptionChart({
     data,
     peaks,
@@ -81,7 +49,6 @@ export function EnergyConsumptionChart({
     cost,
     zoomCallback,
     peaksCallback,
-    classifiedData,
 }: Props) {
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
@@ -285,9 +252,6 @@ export function EnergyConsumptionChart({
                             <EnergyConsumptionTooltip
                                 aggregationType={aggregation ?? AggregationType.RAW}
                                 tooltipProps={props}
-                                classifiedData={
-                                    aggregation === AggregationType.RAW && activeChart === "value" ? classifiedData : []
-                                }
                             />
                         )}
                     />
@@ -364,20 +328,6 @@ export function EnergyConsumptionChart({
                             fillOpacity={0.2}
                         />
                     ) : null}
-                    {aggregation === AggregationType.RAW && activeChart === "value" && classifiedData
-                        ? classifiedData.map((classification) => (
-                              <ReferenceDot
-                                  key={classification.timestamp}
-                                  x={classification.timestamp}
-                                  y={classification.power}
-                                  r={10}
-                                  fill="blue"
-                                  stroke="blue"
-                                  isFront
-                                  shape={<CustomDot dominantClassification={classification.dominantClassification} />}
-                              />
-                          ))
-                        : null}
                 </AreaChart>
             </ChartContainer>
         </>

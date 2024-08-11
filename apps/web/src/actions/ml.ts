@@ -6,9 +6,12 @@ import { energyleaf_ml, parseReadableStream } from "@energyleaf/proto";
 const { DeviceClassificationRequest, DeviceClassificationResponse } = energyleaf_ml;
 
 export interface RequestProps {
-    electricity: {
-        timestamp: string;
-        power: number;
+    peaks: {
+        id: string;
+        electricity: {
+            timestamp: string;
+            power: number;
+        }[];
     }[];
 }
 

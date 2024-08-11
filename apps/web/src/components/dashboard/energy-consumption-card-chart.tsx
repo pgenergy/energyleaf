@@ -2,7 +2,6 @@
 
 import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
-import type { DeviceClassification } from "@energyleaf/lib";
 import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy/energy-consumption-chart";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -15,7 +14,6 @@ interface Props {
     showPeaks: boolean;
     userId: string;
     cost?: number;
-    classifiedData: DeviceClassification[];
 }
 
 export default function EnergyConsumptionCardChart({
@@ -25,7 +23,6 @@ export default function EnergyConsumptionCardChart({
     showPeaks,
     cost,
     peaks,
-    classifiedData,
 }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<SensorDataSequenceType | null>(null);
@@ -63,7 +60,6 @@ export default function EnergyConsumptionCardChart({
                 cost={cost}
                 peaksCallback={clickCallback}
                 zoomCallback={handleZoom}
-                classifiedData={classifiedData}
             />
         </>
     );

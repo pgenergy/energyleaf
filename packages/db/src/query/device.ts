@@ -168,3 +168,25 @@ async function copyToHistoryTable(
         powerEstimation: device.powerEstimation,
     });
 }
+
+export async function saveDeviceToPeakDb(sensorDataSequenceId: string, deviceName: string, userId: string) {
+    try {
+        const deviceResult = await db
+            .select()
+            .from(device)
+            .where(and(eq(device.name, deviceName), eq(device.userId, userId)))
+            .limit(1);
+
+        if (deviceResult.length === 0) {
+            throw new Error("Gerät nicht gefunden.");
+        }
+
+        await db.insert(deviceToPeak).values({
+            deviceId: deviceResult[0].id,
+            sensorDataSequenceId,
+        });
+    } catch (error) {
+        console.error("Error saving device to peak:", error);
+        throw new Error("Failed to save device to peak.");
+    }
+}
