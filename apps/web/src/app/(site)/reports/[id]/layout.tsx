@@ -45,7 +45,7 @@ export default async function ReportsPageLayout({ children, params }: Props) {
                         <CardDescription>Der Bericht konnte nicht gefunden werden. </CardDescription>
                     </CardHeader>
                     <div className="m-5 w-full items-center justify-between">
-                        <div className="w-200">Hier kannst du einen deiner letzten Berichte auswählen:</div>
+                        <div className="w-200">Hier können Sie einen Ihrer letzten Berichte auswählen:</div>
                         <div className="mt-3 flex">
                             <ReportSelector reportId={reportId} last20Reports={last20Reports} />
                         </div>
