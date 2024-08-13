@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ener
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import DeviceAddButton from "./device-add-button";
 import { DeviceDeleteDialog } from "./device-delete-dialog";
 import DeviceEditDialog from "./device-edit-dialog";
@@ -23,6 +24,8 @@ export default async function DevicesOverviewCard() {
     const estimationRSquared = userData?.devicePowerEstimationRSquared ?? null;
     const showEstimationBadge = estimationRSquared !== null && evaluatePowerEstimation(estimationRSquared) !== "well";
 
+    const showStandardDeviceHint = fulfills(user.appVersion, Versions.support);
+
     return (
         <DeviceContextProvider>
             <DeviceEditDialog />
@@ -33,11 +36,13 @@ export default async function DevicesOverviewCard() {
                         <CardTitle>Ihre Geräte</CardTitle>
                         <CardDescription>
                             Hier sehen Sie alle Ihre Geräte und können diese verwalten.
-                            <p className="text-sm text-muted-foreground mt-1">
-                                Hinweis: Einige Standardgeräte wurden für Sie initial angelegt. Unsere KI kann diese Geräte
-                                erkennen und überwachen. Falls Sie jedoch eines dieser Geräte nicht besitzen, können Sie es
-                                problemlos löschen.
-                            </p>
+                            {showStandardDeviceHint && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    Hinweis: Einige Standardgeräte wurden für Sie initial angelegt. Unsere KI kann diese Geräte
+                                    erkennen und überwachen. Falls Sie jedoch eines dieser Geräte nicht besitzen, können Sie es
+                                    problemlos löschen.
+                                </p>
+                            )}
                         </CardDescription>
                     </div>
                     <DeviceAddButton />

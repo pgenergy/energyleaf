@@ -190,3 +190,33 @@ export async function saveDeviceToPeakDb(sensorDataSequenceId: string, deviceNam
         throw new Error("Failed to save device to peak.");
     }
 }
+
+export async function createStandardDevicesIfNotExist(userId: string) {
+    const existingDevices = await getDevicesByUser(userId);
+    const existingDeviceNames = new Set(existingDevices.map(device => device.name));
+
+    const deletedDevices = await db.select()
+        .from(deviceHistory)
+        .where(eq(deviceHistory.userId, userId));
+    const deletedDeviceNames = new Set(deletedDevices.map(device => device.name));
+
+    const standardDevices = [
+        { name: "Gefrierschrank", category: "freezer" },
+        { name: "Kühlschrank", category: "fridge" },
+        { name: "Mikrowelle", category: "microwave" },
+        { name: "Router", category: "others" },
+        { name: "Boiler", category: "others" },
+        { name: "Wäschetrockner", category: "dryer" },
+        { name: "Waschmaschine", category: "washingMachine" },
+    ];
+
+    for (const device of standardDevices) {
+        if (!existingDeviceNames.has(device.name) && !deletedDeviceNames.has(device.name)) {
+            await createDevice({
+                name: device.name,
+                category: device.category,
+                userId: userId,
+            });
+        }
+    }
+}
