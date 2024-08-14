@@ -27,9 +27,11 @@ interface Props extends VariantProps<typeof circularProgressVariants> {
 }
 
 const CircularProgress = ({ progress, variant, children, size = 100, strokeWidth = 10 }: Props) => {
-    if (progress < 0 || progress > 100) {
+    if (progress < 0) {
         throw new Error("Progress must be between 0 and 100");
     }
+
+    progress = progress > 100 ? 100 : progress;
 
     const [center, radius, arcLength] = useMemo(() => {
         const center = size / 2;
