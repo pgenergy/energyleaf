@@ -220,3 +220,19 @@ export async function createStandardDevicesIfNotExist(userId: string) {
         }
     }
 }
+
+export async function getPeaksWithoutDevices(peaks: { id: string }[]) {
+    const peaksToClassify = [];
+    for (const peak of peaks) {
+        const existingAssignments = await db
+            .select()
+            .from(deviceToPeak)
+            .where(eq(deviceToPeak.sensorDataSequenceId, peak.id));
+
+        if (existingAssignments.length === 0) {
+            peaksToClassify.push(peak);
+        }
+    }
+
+    return peaksToClassify;
+}

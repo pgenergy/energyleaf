@@ -11,6 +11,7 @@ import {
     trackAction,
     updateDevice as updateDeviceDb,
     saveDeviceToPeakDb,
+    getPeaksWithoutDevices, // Importiere die neue Funktion
 } from "@energyleaf/db/query";
 import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
@@ -172,7 +173,13 @@ export async function deleteDevice(deviceId: number) {
 
 export async function classifyAndSaveDevicesForPeaks(peaks: { id: string; electricity: { timestamp: string; power: number; }[]; }[], userId: string) {
     try {
-        const response = await mlApi({ peaks });
+        const peaksToClassify = await getPeaksWithoutDevices(peaks);
+
+        if (peaksToClassify.length === 0) {
+            return;
+        }
+
+        const response = await mlApi({ peaks: peaksToClassify });
 
         for (const peak of response.peaks) {
             const devicesToSave = peak.devices
