@@ -72,10 +72,10 @@ export default function KeyFiguresOverviewCard({ report }: Props) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-2xl">Aktuelle Kennzahlen</CardTitle>
+                <CardTitle>Aktuelle Kennzahlen</CardTitle>
                 <CardDescription>Hier sehen Sie Ihre Kennzahlen für die vergangene Periode.</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4 md:grid-cols-2">
+            <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <KeyFiguresCard
                     text={"Verbrauch Gesamt"}
                     icon={<Zap />}

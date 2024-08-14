@@ -35,7 +35,7 @@ export default function DayStatisticsCard({ dayEnergyStatistics }: DayEnergyStat
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-2xl">Tägliche Ziele</CardTitle>
+                <CardTitle>Tägliche Ziele</CardTitle>
                 <CardDescription>
                     Hier sehen Sie, ob Sie Ihre Ziele {dayLengthText} des ausgewählten Berichts erreicht haben.
                 </CardDescription>

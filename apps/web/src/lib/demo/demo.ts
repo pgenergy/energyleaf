@@ -7,13 +7,14 @@ import {
     type SensorDeviceSequenceSelectType,
     type UserDataType,
 } from "@energyleaf/db/types";
-import { AggregationType, convertTZDate } from "@energyleaf/lib";
+import { AggregationType, type ReportProps, convertTZDate } from "@energyleaf/lib";
 import { differenceInDays, getWeekOfMonth, getWeekYear } from "date-fns";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
 import { getActionSession } from "../auth/auth.action";
 import demoData from "./demo.json";
+import "server-only";
 
 export async function isDemoUser() {
     const { session, user } = await getActionSession();
@@ -557,5 +558,80 @@ export function getDemoLastEnergyEntry(): SensorDataSelectType {
         ...lastEntry,
         timestamp: dataDate,
         sensorId: "demo_sensor",
+    };
+}
+
+export function getDemoReportIds() {
+    return ["report_1"];
+}
+
+export function getDemoMetaDataOfReports() {
+    const dateFrom = new Date();
+    dateFrom.setDate(dateFrom.getDate() - 3);
+    dateFrom.setHours(0, 0, 0);
+    const dateTo = new Date();
+    dateTo.setDate(dateTo.getDate() - 1);
+    dateTo.setHours(23, 59, 59);
+    return [
+        {
+            id: "report_1",
+            dateFrom: new Date(dateFrom),
+            dateTo: new Date(dateTo),
+        },
+    ];
+}
+
+export function getDemoReport(): ReportProps {
+    const dateFrom = new Date();
+    dateFrom.setDate(dateFrom.getDate() - 4);
+    dateFrom.setHours(0, 0, 0);
+    const dateTo = new Date();
+    dateTo.setDate(dateTo.getDate() - 1);
+    dateTo.setHours(23, 59, 59);
+
+    const userData = getDemoUserData();
+
+    const data = getDemoSensorData(dateFrom, dateTo, AggregationType.DAY);
+    const totalEnergyConsumption = data.reduce((acc, curr) => acc + curr.value, 0);
+    const avgEnergyConsumptionPerDay = totalEnergyConsumption / data.length;
+    let totalEnergyCost: number | undefined = undefined;
+    const worstDay = data.reduce(
+        (acc, curr) => {
+            if (!acc || curr.value < acc.value) {
+                return curr;
+            }
+
+            return acc;
+        },
+        null as SensorDataSelectType | null,
+    ) as SensorDataSelectType;
+    const bestDay = data.reduce(
+        (acc, curr) => {
+            if (!acc || curr.value > acc.value) {
+                return curr;
+            }
+            return acc;
+        },
+        null as SensorDataSelectType | null,
+    ) as SensorDataSelectType;
+    if (userData.user_data.workingPrice) {
+        totalEnergyCost = totalEnergyConsumption * userData.user_data.workingPrice;
+    }
+
+    return {
+        userName: "demo",
+        dateFrom: new Date(dateFrom),
+        dateTo: new Date(dateTo),
+        totalEnergyConsumption,
+        totalEnergyCost,
+        avgEnergyConsumptionPerDay,
+        bestDay: {
+            day: bestDay.timestamp,
+            consumption: bestDay.value,
+        },
+        worstDay: {
+            day: worstDay.timestamp,
+            consumption: worstDay.value,
+        },
     };
 }

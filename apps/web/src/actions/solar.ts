@@ -2,8 +2,8 @@
 
 import { getActionSession } from "@/lib/auth/auth.action";
 import { getUserData } from "@/query/user";
-import { getUserById, logError, trackAction } from "@energyleaf/db/query";
-import { type DefaultActionReturnPayload, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib";
+import { logError, trackAction } from "@energyleaf/db/query";
+import { type DefaultActionReturnPayload, UserNotLoggedInError } from "@energyleaf/lib";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 import { cache } from "react";
