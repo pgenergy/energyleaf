@@ -2,7 +2,7 @@ import { Container, Head, Html, Img, Preview, Row, Section, Text } from "@react-
 import { BadgeEuroIcon, ReceiptEuroIcon, ThumbsDown, ThumbsUp, Zap } from "lucide-react";
 import React from "react";
 
-import { type ReportProps, formatDate, formatNumber, getDayOfWeek } from "@energyleaf/lib";
+import { type ReportProps, TrendModes, formatDate, formatNumber, getDayOfWeek, getTrendMode } from "@energyleaf/lib";
 import { Footer, Header, Main, UnsubscribeText } from "../components";
 import Card from "../components/card";
 import Centering from "../components/centering";
@@ -10,7 +10,6 @@ import DayTile from "../components/day-tile";
 import HalfRow from "../components/half-row";
 import MetricCard from "../components/metric-card";
 import Tile from "../components/tile";
-import { TrendModes, getTrendMode } from "../types/trend-modes";
 export default function ReportTemplate(
     {
         dateFrom: fromDate,
@@ -27,6 +26,7 @@ export default function ReportTemplate(
         dailyTotalConsumptionGraph,
     }: ReportProps,
     unsubscribeLink: string,
+    reportPageLink: string,
 ) {
     const dateForm = formatDate(fromDate);
     const dateTo = formatDate(toDate);
@@ -74,7 +74,7 @@ export default function ReportTemplate(
                                 {`${formatNumber(totalEnergyConsumption)} kWh`}
                             </MetricCard>
                             <MetricCard
-                                heading="Durschnittl. Verbrauch pro Tag"
+                                heading="Durchschnittl. Verbrauch pro Tag"
                                 icon={<Zap />}
                                 lastReportInfo={
                                     lastReport && {
@@ -109,7 +109,7 @@ export default function ReportTemplate(
                                 {totalEnergyCost ? `${formatNumber(totalEnergyCost)} €` : <i>Nicht konfiguriert</i>}
                             </MetricCard>
                             <MetricCard
-                                heading="Durschschnittl. Energiekosten pro Tag"
+                                heading="Durchschnittl. Energiekosten pro Tag"
                                 icon={<ReceiptEuroIcon />}
                                 lastReportInfo={
                                     lastReport?.avgEnergyCost
@@ -146,7 +146,7 @@ export default function ReportTemplate(
                 </Tile>
 
                 <Centering>
-                    <UnsubscribeText href={unsubscribeLink} />
+                    <UnsubscribeText unsubscribeLink={unsubscribeLink} reportPageLink={reportPageLink} />
                     <Footer />
                 </Centering>
             </Main>

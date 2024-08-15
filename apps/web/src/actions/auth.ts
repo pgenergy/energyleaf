@@ -345,10 +345,10 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
 /**
  * Server action to sign a user in
  */
-export async function signInAction(email: string, password: string) {
+export async function signInAction(email: string, password: string, next?: string) {
     const { session } = await getActionSession();
     if (session) {
-        await handleSignIn(session, null);
+        await handleSignIn(session, null, next);
     }
 
     const user = await getUserByMail(email);
@@ -403,11 +403,11 @@ export async function signInAction(email: string, password: string) {
     const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
-    await handleSignIn(newSession, user);
+    await handleSignIn(newSession, user, next);
     waitUntil(trackAction("user-signed-in", "sign-in", "web", { email, userId: user.id }));
 }
 
-async function handleSignIn(session: Session, user: UserSelectType | null) {
+async function handleSignIn(session: Session, user: UserSelectType | null, next?: string) {
     let userData = user;
     if (!userData) {
         userData = await getUserById(session.userId);
@@ -418,7 +418,11 @@ async function handleSignIn(session: Session, user: UserSelectType | null) {
         redirect("/onboarding");
     }
 
-    redirect("/dashboard");
+    if (next) {
+        redirect(next);
+    } else {
+        redirect("/dashboard");
+    }
 }
 
 /**
@@ -472,7 +476,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
     const { user, session } = await getActionSession();
     if (!id) {
         if (!user) {
-            waitUntil(trackAction("user/not-logged-in", "update-report-config", "web", { data, session }));
+            waitUntil(trackAction("user/not-logged-in", "update-reports-config", "web", { data, session }));
             return {
                 success: false,
                 message: "Nicht eingeloggt.",
@@ -484,7 +488,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
 
     const dbUser = await getUserById(id);
     if (!dbUser) {
-        waitUntil(trackAction("user/not-found-in-db", "update-report-config", "web", { data, session }));
+        waitUntil(trackAction("user/not-found-in-db", "update-reports-config", "web", { data, session }));
         return {
             success: false,
             message: "Nutzer nicht gefunden.",
@@ -492,7 +496,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
     }
 
     try {
-        waitUntil(trackAction("report-config-updated", "update-report-config", "web", { data, session }));
+        waitUntil(trackAction("reports-config-updated", "update-reports-config", "web", { data, session }));
         await updateMailSettingsDb(
             {
                 reportConfig: {
@@ -507,7 +511,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
             id,
         );
     } catch (e) {
-        waitUntil(logError("report-config-update-error", "update-report-config", "web", { data, session }, e));
+        waitUntil(logError("reports-config-update-error", "update-reports-config", "web", { data, session }, e));
         return {
             success: false,
             message: "Fehler beim Speichern der Einstellungen.",

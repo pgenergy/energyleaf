@@ -1,5 +1,10 @@
+import { cn } from "@energyleaf/tailwindcss/utils";
 import React from "react";
 
-export default function Oven() {
-    return <span className="icon-[hugeicons--oven]" style={{ width: "24px", height: "24px" }} />;
+interface Props {
+    className?: string;
+}
+
+export default function Oven({ className }: Props) {
+    return <span className={cn("icon-[hugeicons--oven]", className)} />;
 }

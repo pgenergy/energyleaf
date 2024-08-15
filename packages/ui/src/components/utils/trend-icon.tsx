@@ -1,6 +1,6 @@
+import { TrendModes } from "@energyleaf/lib";
 import { MoveRight, TrendingDown, TrendingUp } from "lucide-react";
 import React from "react";
-import { TrendModes } from "../types/trend-modes";
 
 interface Props {
     size: number;

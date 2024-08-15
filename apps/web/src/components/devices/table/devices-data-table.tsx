@@ -69,7 +69,7 @@ export function DevicesDataTable<TData, TValue>({ columns, data, showTips }: Dat
                     <TableBody>
                         {table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow data-state={row.getIsSelected() && "selected"} key={row.id}>
+                                <TableRow dafta-state={row.getIsSelected() && "selected"} key={row.id}>
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}

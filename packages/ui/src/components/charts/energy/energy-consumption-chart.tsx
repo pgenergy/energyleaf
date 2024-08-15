@@ -10,6 +10,7 @@ import { Area, AreaChart, ReferenceArea, Tooltip, XAxis, YAxis } from "recharts"
 import type { CategoricalChartState } from "recharts/types/chart/types";
 import { type ChartConfig, ChartContainer, ChartLegend, ChartLegendContent } from "../../../ui/chart";
 import ChartSwitchButton from "../chart-switch-button";
+import EnergyConsumptionCustomTick from "./energy-consumption-custom-tick";
 import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
 interface Props {
@@ -104,7 +105,8 @@ export function EnergyConsumptionChart({
                 return format(date, "HH:mm");
             }
 
-            return format(date, "dd.MM: HH:mm");
+            const formatDate = new Date(value);
+            return [format(formatDate, "dd.MM."), format(formatDate, "HH:mm")];
         }
 
         if (aggregation === AggregationType.HOUR) {
@@ -257,7 +259,17 @@ export function EnergyConsumptionChart({
                     />
                     <XAxis
                         dataKey="timestamp"
-                        tickFormatter={dynamicTickFormatter}
+                        tick={(props) => (
+                            <EnergyConsumptionCustomTick
+                                tickFormatter={dynamicTickFormatter}
+                                svgProps={props}
+                                payload={props.payload}
+                            />
+                        )}
+                        tickFormatter={(val) => {
+                            const formatted = dynamicTickFormatter(val);
+                            return Array.isArray(formatted) ? formatted.join(" ") : formatted;
+                        }}
                         type="category"
                         tickLine={false}
                         interval="equidistantPreserveStart"
