@@ -24,7 +24,7 @@ importers:
         version: link:packages/lib
       '@vercel/analytics':
         specifier: ^1.3.1
-        version: 1.3.1(next@14.2.5(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        version: 1.3.1(next@14.2.5(@opentelemetry/api@1.9.0)(react@18.3.1))(react@18.3.1)
       dotenv-cli:
         specifier: ^7.4.2
         version: 7.4.2
@@ -115,7 +115,7 @@ importers:
         version: 8.20.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@vercel/functions':
         specifier: ^1.4.0
-        version: 1.4.0(@aws-sdk/credential-provider-web-identity@3.621.0(@aws-sdk/client-sts@3.629.0))
+        version: 1.4.0(@aws-sdk/credential-provider-web-identity@3.621.0)
       canvas:
         specifier: ^2.11.2
         version: 2.11.2
@@ -203,7 +203,7 @@ importers:
         version: 8.4.41
       tailwindcss:
         specifier: ^3.4.10
-        version: 3.4.10(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4))
+        version: 3.4.10(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4))
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -226,8 +226,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/mail
       '@energyleaf/proto':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.1.1
+        version: 1.1.1
       '@energyleaf/storage':
         specifier: workspace:*
         version: link:../../packages/storage
@@ -263,7 +263,7 @@ importers:
         version: 8.20.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@vercel/functions':
         specifier: ^1.4.0
-        version: 1.4.0(@aws-sdk/credential-provider-web-identity@3.621.0(@aws-sdk/client-sts@3.629.0))
+        version: 1.4.0(@aws-sdk/credential-provider-web-identity@3.621.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -357,7 +357,7 @@ importers:
         version: 8.4.41
       tailwindcss:
         specifier: ^3.4.10
-        version: 3.4.10(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4))
+        version: 3.4.10(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4))
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
@@ -467,13 +467,13 @@ importers:
         version: 18.3.1(react@18.3.1)
       react-email:
         specifier: 2.1.6
-        version: 2.1.6(@opentelemetry/api@1.9.0)(@swc/helpers@0.5.12)(eslint@9.9.0(jiti@1.21.6))(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4))
+        version: 2.1.6(@opentelemetry/api@1.9.0)(@swc/helpers@0.5.12)(eslint@9.9.0(jiti@1.21.6))(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4))
       resend:
         specifier: ^3.5.0
         version: 3.5.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tailwindcss:
         specifier: ^3.4.10
-        version: 3.4.10(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4))
+        version: 3.4.10(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4))
     devDependencies:
       '@energyleaf/tsconfig':
         specifier: workspace:^
@@ -526,10 +526,10 @@ importers:
         version: 2.5.2
       tailwindcss:
         specifier: ^3.4.10
-        version: 3.4.10(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4))
+        version: 3.4.10(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4))
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.10(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)))
+        version: 1.0.7(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4)))
     devDependencies:
       '@energyleaf/tsconfig':
         specifier: workspace:*
@@ -686,7 +686,7 @@ importers:
         version: link:../tsconfig
       '@turbo/gen':
         specifier: ^2.0.9
-        version: 2.0.9(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)
+        version: 2.0.9(@swc/core@1.7.11)(@types/node@22.3.0)(typescript@5.5.4)
       '@types/node':
         specifier: ^22.3.0
         version: 22.3.0
@@ -1072,6 +1072,9 @@ packages:
 
   '@energyleaf/proto@1.0.1':
     resolution: {integrity: sha512-K2YbhPwDwD+ahtHRp1LKuNWr2IO9MHUMbfJfqYXjje4rPB7LnxsEX3A6+uKPs7w8hpIq75bG3iWLPdD3QBJj2Q==}
+
+  '@energyleaf/proto@1.1.1':
+    resolution: {integrity: sha512-p7tPouUiv6VT3gZrFosrXPdJyWUKXFPeOWDCLsSwNMMNG3wgnQmf5ThAG1+ISZsxbBBbddNJVESW2/sGslGvyA==}
 
   '@esbuild-kit/core-utils@3.3.2':
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
@@ -6922,6 +6925,10 @@ snapshots:
     dependencies:
       '@protobuf-ts/runtime': 2.9.4
 
+  '@energyleaf/proto@1.1.1':
+    dependencies:
+      '@protobuf-ts/runtime': 2.9.4
+
   '@esbuild-kit/core-utils@3.3.2':
     dependencies:
       esbuild: 0.18.20
@@ -9192,7 +9199,7 @@ snapshots:
       '@swc/core-win32-x64-msvc': 1.3.101
       '@swc/helpers': 0.5.12
 
-  '@swc/core@1.7.11(@swc/helpers@0.5.12)':
+  '@swc/core@1.7.11':
     dependencies:
       '@swc/counter': 0.1.3
       '@swc/types': 0.1.12
@@ -9207,7 +9214,6 @@ snapshots:
       '@swc/core-win32-arm64-msvc': 1.7.11
       '@swc/core-win32-ia32-msvc': 1.7.11
       '@swc/core-win32-x64-msvc': 1.7.11
-      '@swc/helpers': 0.5.12
     optional: true
 
   '@swc/counter@0.1.3': {}
@@ -9270,7 +9276,7 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@turbo/gen@2.0.9(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)':
+  '@turbo/gen@2.0.9(@swc/core@1.7.11)(@types/node@22.3.0)(typescript@5.5.4)':
     dependencies:
       '@turbo/workspaces': 2.0.9
       commander: 10.0.1
@@ -9280,7 +9286,7 @@ snapshots:
       node-plop: 0.26.3
       picocolors: 1.0.1
       proxy-agent: 6.4.0
-      ts-node: 10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)
+      ts-node: 10.9.2(@swc/core@1.7.11)(@types/node@22.3.0)(typescript@5.5.4)
       update-check: 1.5.4
       validate-npm-package-name: 5.0.1
     transitivePeerDependencies:
@@ -9423,14 +9429,14 @@ snapshots:
       - uglify-js
       - webpack-cli
 
-  '@vercel/analytics@1.3.1(next@14.2.5(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
+  '@vercel/analytics@1.3.1(next@14.2.5(@opentelemetry/api@1.9.0)(react@18.3.1))(react@18.3.1)':
     dependencies:
       server-only: 0.0.1
     optionalDependencies:
       next: 14.2.5(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
 
-  '@vercel/functions@1.4.0(@aws-sdk/credential-provider-web-identity@3.621.0(@aws-sdk/client-sts@3.629.0))':
+  '@vercel/functions@1.4.0(@aws-sdk/credential-provider-web-identity@3.621.0)':
     optionalDependencies:
       '@aws-sdk/credential-provider-web-identity': 3.621.0(@aws-sdk/client-sts@3.629.0)
 
@@ -11284,21 +11290,21 @@ snapshots:
       camelcase-css: 2.0.1
       postcss: 8.4.41
 
-  postcss-load-config@4.0.2(postcss@8.4.38)(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)):
+  postcss-load-config@4.0.2(postcss@8.4.38)(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4)):
     dependencies:
       lilconfig: 3.1.2
       yaml: 2.5.0
     optionalDependencies:
       postcss: 8.4.38
-      ts-node: 10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)
+      ts-node: 10.9.2(@swc/core@1.7.11)(@types/node@22.3.0)(typescript@5.5.4)
 
-  postcss-load-config@4.0.2(postcss@8.4.41)(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)):
+  postcss-load-config@4.0.2(postcss@8.4.41)(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4)):
     dependencies:
       lilconfig: 3.1.2
       yaml: 2.5.0
     optionalDependencies:
       postcss: 8.4.41
-      ts-node: 10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)
+      ts-node: 10.9.2(@swc/core@1.7.11)(@types/node@22.3.0)(typescript@5.5.4)
 
   postcss-nested@6.2.0(postcss@8.4.38):
     dependencies:
@@ -11398,7 +11404,7 @@ snapshots:
       react: 18.3.1
       scheduler: 0.23.2
 
-  react-email@2.1.6(@opentelemetry/api@1.9.0)(@swc/helpers@0.5.12)(eslint@9.9.0(jiti@1.21.6))(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)):
+  react-email@2.1.6(@opentelemetry/api@1.9.0)(@swc/helpers@0.5.12)(eslint@9.9.0(jiti@1.21.6))(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4)):
     dependencies:
       '@babel/core': 7.24.5
       '@babel/parser': 7.24.5
@@ -11438,7 +11444,7 @@ snapshots:
       source-map-js: 1.0.2
       stacktrace-parser: 0.1.10
       tailwind-merge: 2.2.0
-      tailwindcss: 3.4.0(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4))
+      tailwindcss: 3.4.0(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4))
       typescript: 5.1.6
     transitivePeerDependencies:
       - '@opentelemetry/api'
@@ -11889,11 +11895,11 @@ snapshots:
 
   tailwind-merge@2.5.2: {}
 
-  tailwindcss-animate@1.0.7(tailwindcss@3.4.10(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4))):
+  tailwindcss-animate@1.0.7(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4))):
     dependencies:
-      tailwindcss: 3.4.10(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4))
+      tailwindcss: 3.4.10(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4))
 
-  tailwindcss@3.4.0(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)):
+  tailwindcss@3.4.0(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4)):
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
@@ -11912,7 +11918,7 @@ snapshots:
       postcss: 8.4.38
       postcss-import: 15.1.0(postcss@8.4.38)
       postcss-js: 4.0.1(postcss@8.4.38)
-      postcss-load-config: 4.0.2(postcss@8.4.38)(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4))
+      postcss-load-config: 4.0.2(postcss@8.4.38)(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4))
       postcss-nested: 6.2.0(postcss@8.4.38)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.8
@@ -11920,7 +11926,7 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  tailwindcss@3.4.10(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4)):
+  tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4)):
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
@@ -11939,7 +11945,7 @@ snapshots:
       postcss: 8.4.41
       postcss-import: 15.1.0(postcss@8.4.41)
       postcss-js: 4.0.1(postcss@8.4.41)
-      postcss-load-config: 4.0.2(postcss@8.4.41)(ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4))
+      postcss-load-config: 4.0.2(postcss@8.4.41)(ts-node@10.9.2(@types/node@22.3.0)(typescript@5.5.4))
       postcss-nested: 6.2.0(postcss@8.4.41)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.8
@@ -11958,7 +11964,7 @@ snapshots:
       mkdirp: 1.0.4
       yallist: 4.0.0
 
-  terser-webpack-plugin@5.3.10(@swc/core@1.3.101(@swc/helpers@0.5.12))(esbuild@0.19.11)(webpack@5.93.0(@swc/core@1.3.101(@swc/helpers@0.5.12))(esbuild@0.19.11)):
+  terser-webpack-plugin@5.3.10(@swc/core@1.3.101(@swc/helpers@0.5.12))(esbuild@0.19.11)(webpack@5.93.0):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
@@ -12030,7 +12036,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-node@10.9.2(@swc/core@1.7.11(@swc/helpers@0.5.12))(@types/node@22.3.0)(typescript@5.5.4):
+  ts-node@10.9.2(@swc/core@1.7.11)(@types/node@22.3.0)(typescript@5.5.4):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -12048,7 +12054,7 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     optionalDependencies:
-      '@swc/core': 1.7.11(@swc/helpers@0.5.12)
+      '@swc/core': 1.7.11
 
   tslib@1.14.1: {}
 
@@ -12229,7 +12235,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(@swc/core@1.3.101(@swc/helpers@0.5.12))(esbuild@0.19.11)(webpack@5.93.0(@swc/core@1.3.101(@swc/helpers@0.5.12))(esbuild@0.19.11))
+      terser-webpack-plugin: 5.3.10(@swc/core@1.3.101(@swc/helpers@0.5.12))(esbuild@0.19.11)(webpack@5.93.0)
       watchpack: 2.4.1
       webpack-sources: 3.2.3
     transitivePeerDependencies:
