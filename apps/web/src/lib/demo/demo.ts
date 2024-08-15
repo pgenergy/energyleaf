@@ -1,4 +1,5 @@
 import { findPeaks } from "@energyleaf/db/query";
+import { getEnergyLastEntry, getRawEnergyForSensorInRange } from "@energyleaf/db/query";
 import {
     DeviceCategory,
     type DeviceSelectType,
@@ -13,7 +14,6 @@ import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
 import { getActionSession } from "../auth/auth.action";
-import demoData from "./demo.json";
 import "server-only";
 
 export async function isDemoUser() {
@@ -207,11 +207,11 @@ export function assignDemoDevicesToPeaks(cookies: ReadonlyRequestCookies, sequen
     cookies.set("demo_peaks", JSON.stringify(filteredDeviceToPeaks));
 }
 
-export function updateDemoPowerEstimationForDevices(cookies: ReadonlyRequestCookies) {
+export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyRequestCookies) {
     const start = new Date(0);
     const end = new Date();
     end.setDate(end.getDate() + 1);
-    const data = getDemoPeaks(start, end);
+    const data = await getDemoPeaks(start, end);
 
     const deviceToPeaksRaw = cookies.get("demo_peaks");
     if (!deviceToPeaksRaw) {
@@ -322,36 +322,21 @@ export function updateDemoPowerEstimationForDevices(cookies: ReadonlyRequestCook
     return;
 }
 
-function getDemoSensorCachedData(): SensorDataSelectType[] {
-    const inputData = demoData as {
-        id: string;
-        sensorId: string;
-        value: number;
-        valueOut: number | null;
-        valueCurrent: number | null;
-        timestamp: string;
-    }[];
+async function getDemoSensorCachedData(): Promise<SensorDataSelectType[]> {
+    const inputData = await getRawEnergyForSensorInRange(new Date(0), new Date(), "demo_sensor");
 
     const current = new Date();
     const lastEntry = inputData[inputData.length - 1];
     const dayDiff = differenceInDays(current, new Date(lastEntry.timestamp));
 
     const processedData = inputData
-        .map((item, index) => {
+        .map((item) => {
             const dataDate = new Date(item.timestamp);
             dataDate.setDate(dataDate.getDate() + dayDiff + 1);
 
             return {
-                id: item.id,
-                sensorId: "demo_sensor",
+                ...item,
                 timestamp: dataDate,
-                value: index === 0 ? 0 : item.value - inputData[index - 1].value,
-                valueOut: item.valueOut
-                    ? index === 0
-                        ? 0
-                        : item.valueOut - (inputData[index - 1].valueOut as number)
-                    : null,
-                valueCurrent: item.valueOut,
             };
         })
         .slice(1);
@@ -359,8 +344,12 @@ function getDemoSensorCachedData(): SensorDataSelectType[] {
     return processedData;
 }
 
-export function getDemoSensorData(start: Date, end: Date, agg?: AggregationType): SensorDataSelectType[] {
-    const data = getDemoSensorCachedData();
+export async function getDemoSensorData(
+    start: Date,
+    end: Date,
+    agg?: AggregationType,
+): Promise<SensorDataSelectType[]> {
+    const data = await getDemoSensorCachedData();
     const dataInRange = data.filter(
         (item) => item.timestamp.getTime() >= start.getTime() && item.timestamp.getTime() <= end.getTime(),
     );
@@ -486,8 +475,8 @@ export function getDemoSensorData(start: Date, end: Date, agg?: AggregationType)
     }
 }
 
-export function getDemoPeaks(start: Date, end: Date): SensorDataSequenceType[] {
-    const data = getDemoSensorCachedData();
+export async function getDemoPeaks(start: Date, end: Date): Promise<SensorDataSequenceType[]> {
+    const data = await getDemoSensorCachedData();
 
     const peaks = findPeaks(data, data);
     const dataWithoutPeaks = data.filter(
@@ -537,28 +526,13 @@ export function getDemoPeaks(start: Date, end: Date): SensorDataSequenceType[] {
         }));
 }
 
-export function getDemoLastEnergyEntry(): SensorDataSelectType {
-    const inputData = demoData as {
-        id: string;
-        sensorId: string;
-        value: number;
-        valueOut: number | null;
-        valueCurrent: number | null;
-        timestamp: string;
-    }[];
-
-    const current = new Date();
-    const lastEntry = inputData[inputData.length - 1];
-    const dayDiff = differenceInDays(current, new Date(lastEntry.timestamp));
-
-    const dataDate = new Date(lastEntry.timestamp);
-    dataDate.setDate(dataDate.getDate() + dayDiff + 1);
-
-    return {
-        ...lastEntry,
-        timestamp: dataDate,
-        sensorId: "demo_sensor",
-    };
+export async function getDemoLastEnergyEntry(): Promise<{
+    value: number;
+    valueOut: number | null;
+    valueCurrent: number | null;
+} | null> {
+    const inputData = await getEnergyLastEntry("demo_sensor");
+    return inputData;
 }
 
 export function getDemoReportIds() {
@@ -581,7 +555,7 @@ export function getDemoMetaDataOfReports() {
     ];
 }
 
-export function getDemoReport(): ReportProps {
+export async function getDemoReport(): Promise<ReportProps> {
     const dateFrom = new Date();
     dateFrom.setDate(dateFrom.getDate() - 4);
     dateFrom.setHours(0, 0, 0);
@@ -591,7 +565,7 @@ export function getDemoReport(): ReportProps {
 
     const userData = getDemoUserData();
 
-    const data = getDemoSensorData(dateFrom, dateTo, AggregationType.DAY);
+    const data = await getDemoSensorData(dateFrom, dateTo, AggregationType.DAY);
     const totalEnergyConsumption = data.reduce((acc, curr) => acc + curr.value, 0);
     const avgEnergyConsumptionPerDay = totalEnergyConsumption / data.length;
     let totalEnergyCost: number | undefined = undefined;
