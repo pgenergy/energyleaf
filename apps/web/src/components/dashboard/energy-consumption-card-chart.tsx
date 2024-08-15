@@ -16,14 +16,7 @@ interface Props {
     cost?: number;
 }
 
-export default function EnergyConsumptionCardChart({
-    data,
-    aggregation,
-    userId,
-    showPeaks,
-    cost,
-    peaks,
-}: Props) {
+export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost, peaks }: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<SensorDataSequenceType | null>(null);
     const router = useRouter();

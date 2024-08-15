@@ -1,7 +1,8 @@
 import { env } from "@/env.mjs";
-import { findAndMark, getAllSensors, log, logError } from "@energyleaf/db/query";
+import { findAndMark, getAllSensors, log, logError} from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
+import { classifyAndSaveDevicesForPeaks } from "@/query/peak";
 
 export const GET = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
@@ -36,6 +37,17 @@ export const GET = async (req: NextRequest) => {
                     );
                     startDate = result.start;
                     endDate = result.end;
+
+                    const peaksToClassify = result.peaks.map(peak => ({
+                        id: peak.id,
+                        electricity: peak.data.map(data => ({
+                            timestamp: data.timestamp.toISOString(),
+                            power: data.value,
+                        })),
+                    }));
+
+                    await classifyAndSaveDevicesForPeaks(peaksToClassify, sensorId);
+
                 } catch (err) {
                     waitUntil(
                         logError(
@@ -58,7 +70,7 @@ export const GET = async (req: NextRequest) => {
 
         // use allSettled so we dont abort if one fails
         await Promise.allSettled(promises);
-        return NextResponse.json({ statusMessage: "Peaks successfully marked." });
+        return NextResponse.json({ statusMessage: "Peaks successfully marked and classified." });
     } catch (err) {
         waitUntil(
             logError(

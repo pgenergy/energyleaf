@@ -4,7 +4,6 @@ import {
     getEnergyDataForSensor,
     getSensorDataSequences,
 } from "@/query/energy";
-import { classifyAndSaveDevicesForPeaks } from "@/actions/device";
 import { getUserData } from "@/query/user";
 import { createStandardDevicesIfNotExist } from "@energyleaf/db/query";
 import type { SensorDataSequenceType } from "@energyleaf/db/types";
@@ -61,19 +60,6 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     const peaks: SensorDataSequenceType[] = showPeaks
         ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
         : [];
-
-    if (showPeaks && peaks.length > 0) {
-        const peaksData = peaks.map(peak => ({
-            id: peak.id,
-            electricity: data
-                .filter(d => d.timestamp >= peak.start && d.timestamp <= peak.end)
-                .map(d => ({
-                    timestamp: d.timestamp.toISOString(),
-                    power: d.value,
-                })),
-        }));
-        await classifyAndSaveDevicesForPeaks(peaksData, userId);
-    }
 
     const userData = await getUserData(user.id);
     const workingPrice = userData?.workingPrice ?? undefined;

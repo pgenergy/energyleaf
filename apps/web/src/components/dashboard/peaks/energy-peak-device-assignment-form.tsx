@@ -14,11 +14,10 @@ import type { z } from "zod";
 interface Props {
     userId: string;
     sensorDataSequenceId: string;
-    detectedDevices: { name: string; confidence: number }[];
     onInteract: () => void;
 }
 
-export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, detectedDevices, onInteract }: Props) {
+export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, onInteract }: Props) {
     const queryClient = useQueryClient();
     const {
         data: selectedDevices,
@@ -44,17 +43,8 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, d
     useEffect(() => {
         if (selectedDevices) {
             form.setValue("device", selectedDevices);
-        } else {
-            const filteredDetectedDevices = detectedDevices
-                .filter(device => device.confidence >= 0.9)
-                .map((device, index) => ({
-                    id: index,
-                    name: device.name
-                }));
-
-            form.setValue("device", filteredDetectedDevices);
         }
-    }, [selectedDevices, detectedDevices, form]);
+    }, [selectedDevices, form]);
 
     async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>) {
         let res: DefaultActionReturn = undefined;
