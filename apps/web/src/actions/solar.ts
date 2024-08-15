@@ -2,8 +2,8 @@
 
 import { getActionSession } from "@/lib/auth/auth.action";
 import { getUserData } from "@/query/user";
-import { getUserById, logError, trackAction } from "@energyleaf/db/query";
-import { type DefaultActionReturnPayload, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib";
+import { logError, trackAction } from "@energyleaf/db/query";
+import { type DefaultActionReturnPayload, UserNotLoggedInError } from "@energyleaf/lib";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 import { cache } from "react";
@@ -34,20 +34,17 @@ export interface SolarResultDetailsProps {
 export async function calculateSolar(watts: number): Promise<DefaultActionReturnPayload<SolarResultProps>> {
     let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
-        if (!session) {
+        const { session: actionSession, user } = await getActionSession();
+        session = actionSession;
+
+        if (!session || !user) {
             throw new UserNotLoggedInError();
         }
 
-        const dbuser = await getUserById(session.userId);
-        if (!dbuser) {
-            throw new UserNotFoundError();
-        }
-
-        const { lat, lon, display_name } = await lookupLocation(dbuser.address);
+        const { lat, lon, display_name } = await lookupLocation(user.address);
         const weatherData = await getWeather(lat, lon);
 
-        const userData = await getUserData(dbuser.id);
+        const userData = await getUserData(user.id);
         if (!userData) {
             throw new Error("User data not found");
         }

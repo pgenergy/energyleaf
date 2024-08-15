@@ -19,7 +19,6 @@ export default async function ReportsPage(props: Props) {
     }
 
     const reportId = props.params?.id;
-
     if (!reportId) {
         return null;
     }

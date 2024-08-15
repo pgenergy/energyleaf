@@ -19,10 +19,10 @@ export default function ReportSelector({ last20Reports, reportId }: ReportSelect
     };
 
     return (
-        <div className={"w-200"}>
+        <div>
             <Select defaultValue={preselectedReport ? preselectedReport.id : undefined} onValueChange={handleChange}>
-                <SelectTrigger className=" text-lg">
-                    <SelectValue placeholder="Wähle einen Bericht" className="w-full" />
+                <SelectTrigger>
+                    <SelectValue placeholder="Wähle einen Bericht" />
                 </SelectTrigger>
                 <SelectContent>
                     {last20Reports.map((report) => {
@@ -31,7 +31,7 @@ export default function ReportSelector({ last20Reports, reportId }: ReportSelect
                             ? `Bericht ${formatDate(report.dateFrom)} - ${formatDate(report.dateTo)}`
                             : `Bericht vom ${formatDate(report.dateFrom)}`;
                         return (
-                            <SelectItem key={report.id} value={report.id} className="text-lg">
+                            <SelectItem key={report.id} value={report.id}>
                                 {dateString}
                             </SelectItem>
                         );

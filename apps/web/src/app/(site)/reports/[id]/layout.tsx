@@ -1,13 +1,12 @@
 import ReportSelector from "@/components/reports/ReportSelector";
 import { getSession } from "@/lib/auth/auth.server";
-import { getMetaDataOfAllReportsForUser, getReportByIdAndUser } from "@energyleaf/db/query";
-import { formatDate } from "@energyleaf/lib";
+import { getMetaDataOfReports, getReportById } from "@/query/reports";
+import { convertTZDate, formatDate } from "@energyleaf/lib";
 import { buttonVariants } from "@energyleaf/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { differenceInDays } from "date-fns";
 import { ArrowLeft, ArrowRight, SettingsIcon } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import React from "react";
 
 interface Props {
@@ -20,19 +19,16 @@ interface Props {
 export default async function ReportsPageLayout({ children, params }: Props) {
     const { user } = await getSession();
     if (!user) {
-        redirect("/");
+        return null;
     }
 
-    const last20Reports = await getMetaDataOfAllReportsForUser(user.id, 20);
+    const last20Reports = await getMetaDataOfReports(user.id, 20);
     if (!last20Reports || last20Reports.length === 0) {
         return UserHasNoReportsCard();
     }
 
-    const reportId = params.id;
-
-    const report = reportId
-        ? await getReportByIdAndUser(reportId, user.id)
-        : await getReportByIdAndUser(last20Reports[0].id, user.id);
+    const reportId = params.id || last20Reports[0].id;
+    const report = await getReportById(reportId, user.id);
 
     if (!report) {
         return (
@@ -55,40 +51,46 @@ export default async function ReportsPageLayout({ children, params }: Props) {
         );
     }
 
-    const reportHasMoreThanOneDay = !(differenceInDays(report.dateTo, report.dateFrom) === 1);
+    const toDate = convertTZDate(report.dateTo);
+    const fromDate = convertTZDate(report.dateFrom);
+    const reportHasMoreThanOneDay = !(differenceInDays(toDate, fromDate) === 1);
     const stringEnd = reportHasMoreThanOneDay
-        ? `${formatDate(report.dateFrom)} - ${formatDate(report.dateTo)}`
-        : ` vom ${formatDate(report.dateFrom)}`;
+        ? `${formatDate(toDate)} - ${formatDate(fromDate)}`
+        : ` vom ${formatDate(fromDate)}`;
 
     const currentIndex = last20Reports.findIndex((r) => r.id === reportId);
     const reportIdBefore = currentIndex < last20Reports.length - 1 ? last20Reports[currentIndex + 1].id : undefined;
     const reportIdAfter = currentIndex > 0 ? last20Reports[currentIndex - 1].id : undefined;
 
     return (
-        <div className="gap-4">
-            <h1 className="mb-3 font-bold text-2xl">Aktueller und vergangene Berichte</h1>
-            <div className="mb-3 flex w-full items-center justify-between">
-                <ReportSelector reportId={reportId} last20Reports={last20Reports} />
-                <div className={" flex w-200 items-center rounded px-2 py-1"}>
+        <div className="flex flex-col gap-4">
+            <h1 className="font-bold text-xl">Aktueller und vergangene Berichte</h1>
+            <div className="grid grid-cols-1 items-center gap-4 md:grid-cols-3">
+                <div className="flex flex-row items-center justify-center md:justify-start">
+                    <ReportSelector reportId={reportId} last20Reports={last20Reports} />
+                </div>
+                <div className="flex flex-row items-center justify-center gap-2">
                     <Link
                         href={reportIdBefore ? `/reports/${reportIdBefore}` : "#"}
-                        className={buttonVariants({ variant: reportIdBefore ? "nav" : "ghost" })}
+                        className={buttonVariants({ variant: reportIdBefore ? "nav" : "ghost", size: "icon" })}
                         aria-disabled={!reportIdBefore}
                     >
                         <ArrowLeft />
                     </Link>
-                    <div className="flex flex-row gap-4 text-xl">Bericht {stringEnd}</div>
+                    <p>Bericht {stringEnd}</p>
                     <Link
                         href={reportIdAfter ? `/reports/${reportIdAfter}` : "#"}
-                        className={buttonVariants({ variant: reportIdAfter ? "nav" : "ghost" })}
+                        className={buttonVariants({ variant: reportIdAfter ? "nav" : "ghost", size: "icon" })}
                         aria-disabled={!reportIdAfter}
                     >
                         <ArrowRight />
                     </Link>
                 </div>
-                <Link className={buttonVariants({ variant: "ghost", size: "icon" })} href="/settings/reports">
-                    <SettingsIcon className="h-7 w-7" />
-                </Link>
+                <div className="flex flex-row items-center justify-center md:justify-end">
+                    <Link className={buttonVariants({ variant: "ghost", size: "icon" })} href="/settings/reports">
+                        <SettingsIcon className="h-6 w-6" />
+                    </Link>
+                </div>
             </div>
             <div className="my-4 border-primary-background border-t" />
             {children}

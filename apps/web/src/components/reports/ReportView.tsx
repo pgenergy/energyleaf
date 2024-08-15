@@ -1,16 +1,16 @@
 import KeyFiguresOverviewCard from "@/components/reports/key-figures-overview-card";
-import { getReportByIdAndUser } from "@energyleaf/db/query";
+import { getReportById } from "@/query/reports";
 import React from "react";
-import DailyAbsoluteEnergyCard from "./daily-absolute-energy-card"; // Import the component
+import DailyAbsoluteEnergyCard from "./daily-absolute-energy-card";
 import DayStatisticsCard from "./day-statistics-card";
 
 interface Props {
-    reportId?: string;
+    reportId: string;
     userId: string;
 }
 
 export default async function ReportView(props: Props) {
-    const report = props.reportId ? await getReportByIdAndUser(props.reportId, props.userId) : undefined;
+    const report = await getReportById(props.reportId, props.userId);
 
     if (!report) {
         return null;

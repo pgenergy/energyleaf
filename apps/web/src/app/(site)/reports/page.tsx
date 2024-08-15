@@ -1,16 +1,16 @@
 import { getSession } from "@/lib/auth/auth.server";
-import { getLastReportIdByUser } from "@energyleaf/db/query";
+import { getLastReportId } from "@/query/reports";
 import { redirect } from "next/navigation";
 
 export default async function ReportsPage() {
     const { user } = await getSession();
     if (!user) {
         redirect("/");
-        return null;
     }
 
-    const reportId = await getLastReportIdByUser(user.id);
-
+    const reportId = await getLastReportId(user.id);
+    if (!reportId) {
+        redirect("/");
+    }
     redirect(`/reports/${reportId}`);
-    return null;
 }

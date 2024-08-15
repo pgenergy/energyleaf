@@ -2,6 +2,8 @@ import CostPageCompareView from "@/components/costs/views/compare-view";
 import { convertTZDate } from "@energyleaf/lib";
 import { redirect } from "next/navigation";
 
+export const maxDuration = 120;
+
 interface Props {
     searchParams?: {
         date?: string;
