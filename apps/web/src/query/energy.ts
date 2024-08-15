@@ -22,7 +22,7 @@ export const getEnergyDataForSensor = cache(
         const start = new Date(startDate);
         const end = new Date(endDate);
         if (sensorId === "demo_sensor") {
-            return getDemoSensorData(start, end, aggregation);
+            return getDemoSensorData(start, end, aggregation, aggType);
         }
         return getDbEnergyForSensorInRange(start, end, sensorId, aggregation, aggType);
     },

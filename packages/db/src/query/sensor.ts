@@ -317,6 +317,7 @@ export async function getEnergyLastEntry(sensorId: string) {
             value: sensorData.value,
             valueOut: sensorData.valueOut,
             valueCurrent: sensorData.valueCurrent,
+            timestamp: sensorData.timestamp,
         })
         .from(sensorData)
         .where(eq(sensorData.sensorId, sensorId))
