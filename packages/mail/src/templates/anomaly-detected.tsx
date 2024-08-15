@@ -18,7 +18,7 @@ export default function AnomalyDetectedTemplate({ name, link, unsubscribeLink }:
                     </Text>
                     <CustomButton href={link}>Zur Übersicht</CustomButton>
                     <ButtonAltText href={link} />
-                    <UnsubscribeText href={unsubscribeLink} />
+                    <UnsubscribeText unsubscribeLink={unsubscribeLink} />
                 </Container>
                 <Footer />
             </Main>

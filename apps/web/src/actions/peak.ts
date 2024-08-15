@@ -13,22 +13,41 @@ import {
 import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import "server-only";
+import {
+    assignDemoDevicesToPeaks,
+    getDemoDevicesCookieStore,
+    getDemoDevicesFromPeaksCookieStore,
+    updateDemoPowerEstimationForDevices,
+} from "@/lib/demo/demo";
 import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
+import { cookies } from "next/headers";
 import type { z } from "zod";
 
 export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sensorDataId: string) {
     let session: Session | null = null;
     try {
-        session = (await getActionSession())?.session;
+        const { session: actionSession, user } = await getActionSession();
+        session = actionSession;
 
-        if (!session) {
+        if (!session || !user) {
             waitUntil(log("user/not-logged-in", "error", "update-devices-for-peak", "web", { data }));
             throw new UserNotLoggedInError();
         }
 
         const devices = data.device.map((device) => device.id);
+
+        // handle demo
+        if (user.id === "demo") {
+            assignDemoDevicesToPeaks(cookies(), sensorDataId, devices);
+            updateDemoPowerEstimationForDevices(cookies());
+            revalidatePath("/dashboard");
+            revalidatePath("/devices");
+            revalidatePath("/energy");
+            return;
+        }
+
         try {
             await updateDevicesForPeakDb(sensorDataId, devices);
             await updatePowerOfDevices(session.userId);
@@ -54,18 +73,33 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
             message: "Es ist ein Fehler aufgetreten.",
         };
     }
+
     revalidatePath("/dashboard");
+    revalidatePath("/devices");
+    revalidatePath("/energy");
 }
 
 export async function getDevicesByUser(userId: string, search?: string) {
-    const session = (await getActionSession())?.session;
+    const { session, user } = await getActionSession();
+
+    // handle demo
+    if (user?.id === "demo") {
+        return getDemoDevicesCookieStore(cookies());
+    }
+
     const devices = getDbDevicesByUser(userId, search);
     waitUntil(trackAction("peak/get-devices", "get-devices-by-user", "web", { search, devices, session }));
     return devices;
 }
 
 export async function getDevicesByPeak(sensorDataSequenceId: string) {
-    const { session } = await getActionSession();
+    const { session, user } = await getActionSession();
+
+    // handle demo
+    if (user?.id === "demo") {
+        return getDemoDevicesFromPeaksCookieStore(cookies(), sensorDataSequenceId);
+    }
+
     const devices = getDevicesByPeakDb(sensorDataSequenceId);
     waitUntil(
         trackAction("peak/get-devices", "get-devices-by-peak", "web", { sensorDataSequenceId, devices, session }),

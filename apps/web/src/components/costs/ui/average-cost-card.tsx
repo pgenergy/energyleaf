@@ -12,17 +12,17 @@ interface Props {
 export default async function CostAverageCard(props: Props) {
     const { user } = await getSession();
     if (!user) {
-        return null;
+        return <NoDataCard agg={props.agg} />;
     }
 
     const userData = await getUserData(user.id);
     if (!userData?.workingPrice) {
-        return null;
+        return <NoDataCard agg={props.agg} />;
     }
 
     const sensorId = await getElectricitySensorIdForUser(user.id);
     if (!sensorId) {
-        return null;
+        return <NoDataCard agg={props.agg} />;
     }
 
     const serverStartDate = new Date();
@@ -77,6 +77,27 @@ export default async function CostAverageCard(props: Props) {
             </CardHeader>
             <CardContent>
                 <p className="font-bold font-mono">{average.toFixed(2)} €</p>
+            </CardContent>
+        </Card>
+    );
+}
+
+interface NoDataProps {
+    agg: "day" | "week";
+}
+
+function NoDataCard(props: NoDataProps) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex flex-row items-center">
+                    <CircleSlash2Icon className="mr-2 h-5 w-5" />
+                    {props.agg === "day" ? "Kosten pro Tag" : "Kosten pro Woche"}
+                </CardTitle>
+                <CardDescription>Kosten basierend auf den letzten 30 Tagen</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-row items-center justify-center">
+                <p className="text-muted-foreground">Keine Sensordaten vorhanden</p>
             </CardContent>
         </Card>
     );
