@@ -141,6 +141,7 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
         try {
             await updateDeviceDb(deviceId, {
                 name: data.deviceName,
+                userId: userId,
                 category: data.category,
             });
             waitUntil(trackAction("device/update", "update-device", "web", { data, deviceId, session }));

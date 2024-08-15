@@ -79,9 +79,9 @@ export function EnergyConsumptionChart({
     const sameDay = useMemo(() => {
         if (data.length === 0) return false;
 
-        const firstDate = new Date(data[0].timestamp);
+        const firstDate = data[0].timestamp;
         return data.every((value) => {
-            const date = new Date(value.timestamp);
+            const date = value.timestamp;
             return date.getDate() === firstDate.getDate();
         });
     }, [data]);
@@ -89,20 +89,19 @@ export function EnergyConsumptionChart({
     const showSeconds = useMemo(() => {
         if (data.length === 0) return false;
 
-        const firstDate = new Date(data[0].timestamp);
-        const lastDate = new Date(data[data.length - 1].timestamp);
+        const firstDate = data[0].timestamp;
+        const lastDate = data[data.length - 1].timestamp;
         const diff = lastDate.getTime() - firstDate.getTime();
         return diff < 5 * 60 * 1000;
     }, [data]);
 
     const dynamicTickFormatter = (value: string) => {
-        const date = new Date(value);
         if (aggregation === AggregationType.RAW) {
             if (sameDay) {
                 if (showSeconds) {
-                    return format(date, "HH:mm:ss");
+                    return format(new Date(value), "HH:mm:ss");
                 }
-                return format(date, "HH:mm");
+                return format(new Date(value), "HH:mm");
             }
 
             const formatDate = new Date(value);
@@ -130,14 +129,14 @@ export function EnergyConsumptionChart({
         }
 
         if (aggregation === AggregationType.MONTH) {
-            return format(date, "MMMM", { locale: de });
+            return format(new Date(value), "MMMM", { locale: de });
         }
 
         if (aggregation === AggregationType.YEAR) {
-            return format(date, "yyyy", { locale: de });
+            return format(new Date(value), "yyyy", { locale: de });
         }
 
-        return format(date, "dd.MM: HH:mm:ss");
+        return format(new Date(value), "dd.MM: HH:mm:ss");
     };
 
     const handleZoom = () => {
