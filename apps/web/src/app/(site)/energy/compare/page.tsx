@@ -9,6 +9,8 @@ interface Props {
     };
 }
 
+export const maxDuration = 120;
+
 export default function EnergyComparePage(props: Props) {
     if (!props.searchParams?.date || !props.searchParams?.compareDate) {
         redirect("/energy");
