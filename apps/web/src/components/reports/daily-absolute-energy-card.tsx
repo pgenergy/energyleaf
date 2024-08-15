@@ -21,7 +21,7 @@ export default function DailyAbsoluteEnergyCard({ dayEnergyStatistics }: Props) 
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-2xl">Absoluter Tagesverbrauch</CardTitle>
+                <CardTitle>Absoluter Tagesverbrauch</CardTitle>
                 <CardDescription>Hier sehen Sie {dayLengthText}.</CardDescription>
             </CardHeader>
             <CardContent>
