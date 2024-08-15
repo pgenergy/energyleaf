@@ -26,6 +26,7 @@ import { Suspense } from "react";
 export const metadata = {
     title: "Dashboard | Energyleaf",
 };
+export const maxDuration = 120;
 
 export default async function DashboardPage({
     searchParams,
