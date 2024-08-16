@@ -5,7 +5,6 @@ import {
     getSensorDataSequences,
 } from "@/query/energy";
 import { getUserData } from "@/query/user";
-import { createStandardDevicesIfNotExist } from "@energyleaf/db/query";
 import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
@@ -28,10 +27,6 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     }
 
     const userId = user.id;
-
-    if (fulfills(user.appVersion, Versions.support)) {
-        await createStandardDevicesIfNotExist(userId);
-    }
 
     const sensorId = await getElectricitySensorIdForUser(userId);
 

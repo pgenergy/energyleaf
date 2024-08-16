@@ -3,7 +3,7 @@
 import { env } from "@/env.mjs";
 import { energyleaf_ml, parseReadableStream } from "@energyleaf/proto";
 
-const { DeviceClassificationRequest, DeviceClassificationResponse } = energyleaf_ml;
+const { DeviceClassificationPeakRequest, DeviceClassificationPeakResponse } = energyleaf_ml;
 
 export interface RequestProps {
     peaks: {
@@ -20,7 +20,7 @@ export const mlApi = async (body: RequestProps) => {
         throw new Error("Missing or empty body");
     }
 
-    const ml_req = DeviceClassificationRequest.create(body);
+    const ml_req = DeviceClassificationPeakRequest.create(body);
 
     if (!env.ML_API_KEY) {
         throw Error("env-variable/not-defined");
@@ -32,7 +32,7 @@ export const mlApi = async (body: RequestProps) => {
             "Content-Type": "application/x-protobuf",
             "x-api-key": env.ML_API_KEY,
         },
-        body: DeviceClassificationRequest.toBinary(ml_req),
+        body: DeviceClassificationPeakRequest.toBinary(ml_req),
     });
 
     if (!ml_res.body) {
@@ -40,7 +40,7 @@ export const mlApi = async (body: RequestProps) => {
     }
 
     const binaryData = await parseReadableStream(ml_res.body);
-    const data = DeviceClassificationResponse.fromBinary(binaryData);
+    const data = DeviceClassificationPeakResponse.fromBinary(binaryData);
 
     return data;
 };

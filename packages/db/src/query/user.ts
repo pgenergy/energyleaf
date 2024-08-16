@@ -388,3 +388,19 @@ export async function getTipOfTheDay(userId: string) {
         return tip;
     });
 }
+
+export async function getUserBySensorId(sensorId: string) {
+    const query = await db
+        .select({
+            userId: user.id,
+            appVersion: user.appVersion,
+        })
+        .from(sensor)
+        .innerJoin(user, eq(sensor.userId, user.id))
+        .where(eq(sensor.id, sensorId));
+
+    if (query.length === 0) {
+        return null;
+    }
+    return query[0];
+}

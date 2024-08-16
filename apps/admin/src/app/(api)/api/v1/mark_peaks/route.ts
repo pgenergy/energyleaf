@@ -1,8 +1,9 @@
 import { env } from "@/env.mjs";
-import { findAndMark, getAllSensors, log, logError} from "@energyleaf/db/query";
+import { findAndMark, getAllSensors, log, logError, getSequencesBySensor, getRawEnergyForSensorInRange, getUserBySensorId, createStandardDevicesIfNotExist } from "@energyleaf/db/query";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 import { classifyAndSaveDevicesForPeaks } from "@/query/peak";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 
 export const GET = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
@@ -38,15 +39,26 @@ export const GET = async (req: NextRequest) => {
                     startDate = result.start;
                     endDate = result.end;
 
-                    const peaksToClassify = result.peaks.map(peak => ({
-                        id: peak.id,
-                        electricity: peak.data.map(data => ({
-                            timestamp: data.timestamp.toISOString(),
-                            power: data.value,
-                        })),
-                    }));
+                    const user = await getUserBySensorId(sensorId);
 
-                    await classifyAndSaveDevicesForPeaks(peaksToClassify, sensorId);
+                    if (user && fulfills(user.appVersion, Versions.support)) {
+                        await createStandardDevicesIfNotExist(user.userId);
+
+                        const peaks = await getSequencesBySensor(sensorId, { start: startDate!, end: endDate! });
+
+                        const peaksToClassify = await Promise.all(peaks.map(async peak => {
+                            const electricityData = await getRawEnergyForSensorInRange(peak.start, peak.end, sensorId);
+                            return {
+                                id: peak.id,
+                                electricity: electricityData.map(data => ({
+                                    timestamp: data.timestamp.toISOString(),
+                                    power: data.value,
+                                })),
+                            };
+                        }));
+
+                        await classifyAndSaveDevicesForPeaks(peaksToClassify, sensorId);
+                    }
 
                 } catch (err) {
                     waitUntil(
@@ -70,7 +82,7 @@ export const GET = async (req: NextRequest) => {
 
         // use allSettled so we dont abort if one fails
         await Promise.allSettled(promises);
-        return NextResponse.json({ statusMessage: "Peaks successfully marked and classified." });
+        return NextResponse.json({ statusMessage: "Peaks successfully marked and classified where applicable." });
     } catch (err) {
         waitUntil(
             logError(
