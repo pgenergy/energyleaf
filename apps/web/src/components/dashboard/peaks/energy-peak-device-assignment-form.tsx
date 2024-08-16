@@ -6,10 +6,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { MultiSelect } from "@energyleaf/ui/multi-select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
+import { log } from "@energyleaf/db/query";
 
 interface Props {
     userId: string;
@@ -19,6 +20,8 @@ interface Props {
 
 export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, onInteract }: Props) {
     const queryClient = useQueryClient();
+    const initialDevicesRef = useRef<string[]>([]);
+
     const {
         data: selectedDevices,
         isLoading: selectedDevicesLoading,
@@ -28,6 +31,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
         queryKey: [`selectedDevices${sensorDataSequenceId}`],
         queryFn: () => getDevicesByPeak(sensorDataSequenceId),
     });
+
     const { data: devices, isLoading: devicesLoading } = useQuery({
         queryKey: ["devices"],
         queryFn: () => getDevicesByUser(userId),
@@ -43,6 +47,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
     useEffect(() => {
         if (selectedDevices) {
             form.setValue("device", selectedDevices);
+            initialDevicesRef.current = selectedDevices.map(device => device.id.toString());
         }
     }, [selectedDevices, form]);
 
@@ -52,6 +57,21 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
         try {
             res = await updateDevicesForPeak(data, sensorDataSequenceId);
             await queryClient.invalidateQueries({ queryKey: [`selectedDevices${sensorDataSequenceId}`] });
+
+            const addedDevices = data.device.filter(device => !initialDevicesRef.current.includes(device.id.toString()));
+            const removedDevices = initialDevicesRef.current.filter(device => !data.device.some(d => d.id.toString() === device));
+
+            if (addedDevices.length > 0 || removedDevices.length > 0) {
+                await log("user-device-assignment", "info", "peak-device-assignment", "web", {
+                    sensorDataSequenceId,
+                    userId,
+                    addedDevices,
+                    removedDevices,
+                    initialDevices: initialDevicesRef.current,
+                    finalDevices: data.device.map(device => device.id.toString()),
+                });
+            }
+
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
