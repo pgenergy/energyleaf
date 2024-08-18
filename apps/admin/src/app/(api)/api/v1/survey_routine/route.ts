@@ -70,7 +70,7 @@ const sendMails = async (
     }
 };
 
-export const POST = async (req: NextRequest) => {
+export const GET = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
     if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== cronSecret) {
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
