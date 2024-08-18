@@ -1,5 +1,6 @@
 import { env } from "@/env.mjs";
 import { getUsersWhoRecieveSurveyMail, logError, trackAction, updateExperimentDataForUser } from "@energyleaf/db/query";
+import { convertTZDate } from "@energyleaf/lib";
 import { sendSurveyInviteEmail } from "@energyleaf/mail";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
@@ -80,18 +81,22 @@ export const GET = async (req: NextRequest) => {
         return NextResponse.json({ status: 200, statusMessage: "Mail not configured" });
     }
 
-    const checkDate = new Date();
-    checkDate.setHours(0, 0, 0, 0);
-    checkDate.setDate(checkDate.getDate() - 7);
+    const firstDate = new Date();
+    firstDate.setHours(0, 0, 0, 0);
+    firstDate.setDate(firstDate.getDate() - 7);
+    const checkDate = convertTZDate(firstDate);
     try {
         await sendMails(checkDate, "second_survey", "1", 2);
     } catch (err) {
         // errors are handled in sendMails
     }
 
-    checkDate.setDate(checkDate.getDate() - 7);
+    const secondDate = new Date();
+    secondDate.setHours(0, 0, 0, 0);
+    secondDate.setDate(firstDate.getDate() - 7);
+    const checkDate2 = convertTZDate(secondDate);
     try {
-        await sendMails(checkDate, "third_survey", "2", 3);
+        await sendMails(checkDate2, "third_survey", "2", 3);
     } catch (err) {
         // errors are handled in sendMails
     }

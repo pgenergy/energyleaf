@@ -90,7 +90,7 @@ export async function getUsersWhoRecieveSurveyMail(date: Date) {
         .innerJoin(userExperimentData, eq(user.id, userExperimentData.userId))
         .where(
             and(
-                eq(user.activationDate, date),
+                eq(userExperimentData.installationDate, date),
                 eq(user.isParticipant, true),
                 eq(user.isActive, true),
                 eq(userExperimentData.getsPaid, false),
