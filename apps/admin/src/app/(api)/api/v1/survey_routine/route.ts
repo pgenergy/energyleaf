@@ -93,7 +93,7 @@ export const GET = async (req: NextRequest) => {
 
     const secondDate = new Date();
     secondDate.setHours(0, 0, 0, 0);
-    secondDate.setDate(firstDate.getDate() - 7);
+    secondDate.setDate(firstDate.getDate() - 14);
     const checkDate2 = convertTZDate(secondDate);
     try {
         await sendMails(checkDate2, "third_survey", "2", 3);
