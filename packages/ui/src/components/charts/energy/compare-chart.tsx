@@ -81,7 +81,9 @@ export default function EnergyCompareChart(props: Props) {
                 sensorId: "",
                 timestamp: date,
                 value: 0,
+                consumption: 0,
                 valueOut: null,
+                inserted: null,
                 valueCurrent: null,
             });
         }
@@ -92,13 +94,17 @@ export default function EnergyCompareChart(props: Props) {
     const processedData = useMemo(() => {
         const results: (SensorDataSelectType & {
             valueCompare: number;
+            valueCompareConsumption: number;
             valueOutCompare: number | null;
+            valueCompareInserted: number | null;
             valueCurrentCompare: number | null;
         })[] = [];
         for (let i = 0; i < fillArray.length; i++) {
             const result: SensorDataSelectType & {
                 valueCompare: number;
+                valueCompareConsumption: number;
                 valueOutCompare: number | null;
+                valueCompareInserted: number | null;
                 valueCurrentCompare: number | null;
             } = {
                 id: "",
@@ -106,8 +112,12 @@ export default function EnergyCompareChart(props: Props) {
                 timestamp: new Date(),
                 value: 0,
                 valueCompare: 0,
+                consumption: 0,
+                valueCompareConsumption: 0,
                 valueOut: null,
                 valueOutCompare: null,
+                inserted: null,
+                valueCompareInserted: null,
                 valueCurrent: null,
                 valueCurrentCompare: null,
             };
@@ -122,10 +132,12 @@ export default function EnergyCompareChart(props: Props) {
                 result.id = data.id;
                 result.sensorId = data.sensorId;
                 result.value = data.value;
+                result.consumption = data.consumption;
                 result.timestamp = data.timestamp;
 
                 if (data.valueOut) {
                     result.valueOut = data.valueOut;
+                    result.inserted = data.inserted;
                 }
 
                 if (data.valueCurrent) {
@@ -136,9 +148,13 @@ export default function EnergyCompareChart(props: Props) {
             if (compareDataIndex !== -1) {
                 const compareData = props.compareData[compareDataIndex];
                 result.valueCompare = compareData.value;
+                if (compareData.consumption) {
+                    result.valueCompareConsumption = compareData.consumption;
+                }
 
                 if (compareData.valueOut) {
                     result.valueOutCompare = compareData.valueOut;
+                    result.valueCompareInserted = compareData.inserted;
                 }
 
                 if (compareData.valueCurrent) {
