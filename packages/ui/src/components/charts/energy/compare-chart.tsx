@@ -96,7 +96,7 @@ export default function EnergyCompareChart(props: Props) {
             valueCompare: number;
             valueCompareConsumption: number;
             valueOutCompare: number | null;
-            valueCompareInserted: number | null;
+            valueCompareInserted: number | null;
             valueCurrentCompare: number | null;
         })[] = [];
         for (let i = 0; i < fillArray.length; i++) {
@@ -104,7 +104,7 @@ export default function EnergyCompareChart(props: Props) {
                 valueCompare: number;
                 valueCompareConsumption: number;
                 valueOutCompare: number | null;
-                valueCompareInserted: number | null;
+                valueCompareInserted: number | null;
                 valueCurrentCompare: number | null;
             } = {
                 id: "",
