@@ -53,7 +53,9 @@ export default function EnergyCompareChart(props: Props) {
                 sensorId: "",
                 timestamp: date,
                 value: 0,
+                consumption: 0,
                 valueOut: null,
+                inserted: null,
                 valueCurrent: null,
                 cost: 0,
                 costCompare: 0,
@@ -77,9 +79,11 @@ export default function EnergyCompareChart(props: Props) {
                 sensorId: "",
                 timestamp: new Date(),
                 value: 0,
+                consumption: 0,
                 cost: 0,
                 costCompare: 0,
                 valueOut: null,
+                inserted: null,
                 valueCurrent: null,
             };
             const cur = fillArray[i];

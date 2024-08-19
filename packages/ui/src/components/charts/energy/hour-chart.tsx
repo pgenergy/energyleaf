@@ -62,7 +62,9 @@ export default function EnergyHourChart(props: Props) {
                 sensorId: "",
                 timestamp: date,
                 value: 0,
+                consumption: 0,
                 valueOut: null,
+                inserted: null,
                 valueCurrent: null,
             });
         }
@@ -76,10 +78,12 @@ export default function EnergyHourChart(props: Props) {
             if (index !== -1) {
                 const existing = acc[index];
                 existing.value = cur.value;
+                existing.consumption = cur.consumption;
                 existing.sensorId = cur.sensorId;
 
                 if (cur.valueOut) {
                     existing.valueOut = cur.valueOut;
+                    existing.inserted = cur.inserted;
                     existing.sensorId = cur.sensorId;
                 }
                 if (cur.valueCurrent) {

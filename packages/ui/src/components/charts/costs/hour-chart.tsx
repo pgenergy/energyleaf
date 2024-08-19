@@ -42,7 +42,9 @@ export default function CostHourChart(props: Props) {
                 sensorId: "",
                 timestamp: date,
                 value: 0,
+                consumption: 0,
                 valueOut: null,
+                inserted: null,
                 valueCurrent: null,
                 cost: 0,
             });
