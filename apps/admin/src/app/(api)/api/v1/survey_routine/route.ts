@@ -91,7 +91,7 @@ export const GET = async (req: NextRequest) => {
     firstEndDate.setDate(firstEndDate.getDate() - 7);
     const firstEndCheckDate = convertTZDate(firstEndDate);
     try {
-        await sendMails(firstStartCheckDate, firstEndCheckDate, "second_survey", "1", 2);
+        await sendMails(firstStartCheckDate, firstEndCheckDate, "second_survey", "468112", 2);
     } catch (err) {
         // errors are handled in sendMails
     }
@@ -105,7 +105,7 @@ export const GET = async (req: NextRequest) => {
     secondEndDate.setDate(secondEndDate.getDate() - 14);
     const secondEndCheckDate = convertTZDate(secondEndDate);
     try {
-        await sendMails(secondStartCheckDate, secondEndCheckDate, "third_survey", "2", 3);
+        await sendMails(secondStartCheckDate, secondEndCheckDate, "third_survey", "349968", 3);
     } catch (err) {
         // errors are handled in sendMails
     }
