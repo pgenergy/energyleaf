@@ -1,5 +1,5 @@
 import { pickRandomTip } from "@energyleaf/lib/tips";
-import { and, desc, eq, gte } from "drizzle-orm";
+import { and, between, desc, eq, gte } from "drizzle-orm";
 import db, { genId } from "../";
 import type { EnergyTipKey } from "../../../lib/src/recommendations/tips/energy-tip-key";
 import {
@@ -83,17 +83,18 @@ export async function deleteExperimentDataForUser(id: string) {
 /**
  * Get all users who recive an survey mail
  */
-export async function getUsersWhoRecieveSurveyMail(date: Date) {
+export async function getUsersWhoRecieveSurveyMail(startDate: Date, endDate: Date) {
     return await db
         .select()
         .from(user)
         .innerJoin(userExperimentData, eq(user.id, userExperimentData.userId))
         .where(
             and(
-                eq(userExperimentData.installationDate, date),
+                between(userExperimentData.installationDate, startDate, endDate),
                 eq(user.isParticipant, true),
                 eq(user.isActive, true),
-                eq(userExperimentData.getsPaid, false),
+                eq(userExperimentData.usesProlific, false),
+                eq(userExperimentData.getsPaid, true),
             ),
         );
 }

@@ -66,6 +66,7 @@ export const userExperimentData = mysqlTable("user_experiment_data", {
     deinstallationDate: timestamp("deinstallation_date"),
     experimentNumber: int("experiment_number"),
     getsPaid: boolean("gets_paid").default(false).notNull(),
+    usesProlific: boolean("uses_prolific").default(false).notNull(),
 });
 
 const userDataFields = {

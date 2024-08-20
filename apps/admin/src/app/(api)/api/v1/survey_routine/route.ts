@@ -6,7 +6,8 @@ import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
 const sendMails = async (
-    date: Date,
+    startDate: Date,
+    endDate: Date,
     status: "second_survey" | "third_survey",
     surveyId: string,
     surveyNumber: number,
@@ -14,7 +15,7 @@ const sendMails = async (
     if (!env.RESEND_API_KEY || !env.RESEND_API_MAIL) {
         return;
     }
-    const firstSurveyUsers = await getUsersWhoRecieveSurveyMail(date);
+    const firstSurveyUsers = await getUsersWhoRecieveSurveyMail(startDate, endDate);
     for (const firstSurveyUser of firstSurveyUsers) {
         const { user } = firstSurveyUser;
 
@@ -81,22 +82,30 @@ export const GET = async (req: NextRequest) => {
         return NextResponse.json({ status: 200, statusMessage: "Mail not configured" });
     }
 
-    const firstDate = new Date();
-    firstDate.setHours(0, 0, 0, 0);
-    firstDate.setDate(firstDate.getDate() - 7);
-    const checkDate = convertTZDate(firstDate);
+    const firstStartDate = new Date();
+    firstStartDate.setHours(0, 0, 0, 0);
+    firstStartDate.setDate(firstStartDate.getDate() - 7);
+    const firstStartCheckDate = convertTZDate(firstStartDate);
+    const firstEndDate = new Date();
+    firstEndDate.setHours(23, 59, 59, 999);
+    firstEndDate.setDate(firstEndDate.getDate() - 7);
+    const firstEndCheckDate = convertTZDate(firstEndDate);
     try {
-        await sendMails(checkDate, "second_survey", "1", 2);
+        await sendMails(firstStartCheckDate, firstEndCheckDate, "second_survey", "1", 2);
     } catch (err) {
         // errors are handled in sendMails
     }
 
-    const secondDate = new Date();
-    secondDate.setHours(0, 0, 0, 0);
-    secondDate.setDate(firstDate.getDate() - 14);
-    const checkDate2 = convertTZDate(secondDate);
+    const secondStartDate = new Date();
+    secondStartDate.setHours(0, 0, 0, 0);
+    secondStartDate.setDate(firstStartDate.getDate() - 14);
+    const secondStartCheckDate = convertTZDate(secondStartDate);
+    const secondEndDate = new Date();
+    secondEndDate.setHours(23, 59, 59, 999);
+    secondEndDate.setDate(secondEndDate.getDate() - 14);
+    const secondEndCheckDate = convertTZDate(secondEndDate);
     try {
-        await sendMails(checkDate2, "third_survey", "2", 3);
+        await sendMails(secondStartCheckDate, secondEndCheckDate, "third_survey", "2", 3);
     } catch (err) {
         // errors are handled in sendMails
     }
