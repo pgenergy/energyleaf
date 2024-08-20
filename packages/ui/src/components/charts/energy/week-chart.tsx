@@ -63,7 +63,9 @@ export default function EnergyWeekChart(props: Props) {
                 sensorId: "",
                 timestamp: date,
                 value: 0,
+                consumption: 0,
                 valueOut: null,
+                inserted: null,
                 valueCurrent: null,
             });
         }
@@ -77,11 +79,13 @@ export default function EnergyWeekChart(props: Props) {
             if (index !== -1) {
                 const existing = acc[index];
                 existing.value = cur.value;
+                existing.consumption = cur.consumption;
                 existing.sensorId = cur.sensorId;
 
                 if (cur.valueOut) {
                     if (!existing.valueOut) {
                         existing.valueOut = cur.valueOut;
+                        existing.inserted = cur.inserted;
                         existing.sensorId = cur.sensorId;
                     }
                 }
