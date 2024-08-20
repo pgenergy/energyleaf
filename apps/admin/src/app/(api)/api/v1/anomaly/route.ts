@@ -6,6 +6,8 @@ import { sendAnomalyEmail } from "@energyleaf/mail";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
+export const maxDuration = 300;
+
 export const GET = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
     if (!req.headers.has("authorization") || req.headers.get("authorization") !== `Bearer ${cronSecret}`) {
