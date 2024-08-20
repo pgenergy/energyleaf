@@ -23,6 +23,7 @@ export default function UserActionsModule({ user, experimentData }: Props) {
         installationDate: experimentData?.installationDate ?? undefined,
         deinstallationDate: experimentData?.deinstallationDate ?? undefined,
         getsPaid: experimentData?.getsPaid ?? false,
+        usesProlific: experimentData?.usesProlific ?? false,
         experimentNumber: experimentData?.experimentNumber ?? undefined,
     };
 
