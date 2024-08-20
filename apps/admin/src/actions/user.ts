@@ -306,6 +306,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                     installationDate: data.installationDate || null,
                     deinstallationDate: data.deinstallationDate || null,
                     getsPaid: data.getsPaid,
+                    usesProlific: data.usesProlific,
                     experimentNumber: data.experimentNumber ?? null,
                 });
             } catch (err) {
@@ -319,6 +320,7 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
                         installationDate: data.installationDate || null,
                         deinstallationDate: data.deinstallationDate || null,
                         getsPaid: data.getsPaid,
+                        usesProlific: data.usesProlific,
                         experimentNumber: data.experimentNumber ?? null,
                     },
                     id,
@@ -366,7 +368,11 @@ export async function updateUserState(data: z.infer<typeof userStateSchema>, id:
 
         // Only send invite mails if they are not getting paid through prolific
         // this is normaly handled by the cron job, but when set manuelly we want to achieve the same
-        if ((data.experimentStatus === "second_survey" || data.experimentStatus === "third_survey") && !data.getsPaid) {
+        if (
+            (data.experimentStatus === "second_survey" || data.experimentStatus === "third_survey") &&
+            !data.usesProlific &&
+            data.getsPaid
+        ) {
             const number = data.experimentStatus === "second_survey" ? 2 : 3;
             const surveyToken = userData.id.replace(/-_/g, "");
             const surveyId = data.experimentStatus === "second_survey" ? "468112" : "349968";

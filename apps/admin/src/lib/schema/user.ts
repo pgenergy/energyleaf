@@ -15,6 +15,7 @@ export const userStateSchema = z
         installationDate: z.date().optional(),
         deinstallationDate: z.date().optional(),
         getsPaid: z.boolean().default(false),
+        usesProlific: z.boolean().default(false),
         experimentNumber: z.nativeEnum(ExperimentNumberEnum).optional(),
     })
     .superRefine((data, ctx) => {
