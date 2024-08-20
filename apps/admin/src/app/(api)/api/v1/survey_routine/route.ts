@@ -73,43 +73,42 @@ const sendMails = async (
 };
 
 export const GET = async (req: NextRequest) => {
-    return NextResponse.json({ status: 200, statusMessage: "OK" });
-    // const cronSecret = env.CRON_SECRET;
-    // if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== `Bearer ${cronSecret}`) {
-    //     return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
-    // }
-    //
-    // if (!env.RESEND_API_MAIL || !env.RESEND_API_KEY) {
-    //     return NextResponse.json({ status: 200, statusMessage: "Mail not configured" });
-    // }
-    //
-    // const firstStartDate = new Date();
-    // firstStartDate.setHours(0, 0, 0, 0);
-    // firstStartDate.setDate(firstStartDate.getDate() - 7);
-    // const firstStartCheckDate = convertTZDate(firstStartDate);
-    // const firstEndDate = new Date();
-    // firstEndDate.setHours(23, 59, 59, 999);
-    // firstEndDate.setDate(firstEndDate.getDate() - 7);
-    // const firstEndCheckDate = convertTZDate(firstEndDate);
-    // try {
-    //     await sendMails(firstStartCheckDate, firstEndCheckDate, "second_survey", "468112", 2);
-    // } catch (err) {
-    //     // errors are handled in sendMails
-    // }
-    //
-    // const secondStartDate = new Date();
-    // secondStartDate.setHours(0, 0, 0, 0);
-    // secondStartDate.setDate(firstStartDate.getDate() - 14);
-    // const secondStartCheckDate = convertTZDate(secondStartDate);
-    // const secondEndDate = new Date();
-    // secondEndDate.setHours(23, 59, 59, 999);
-    // secondEndDate.setDate(secondEndDate.getDate() - 14);
-    // const secondEndCheckDate = convertTZDate(secondEndDate);
-    // try {
-    //     await sendMails(secondStartCheckDate, secondEndCheckDate, "third_survey", "349968", 3);
-    // } catch (err) {
-    //     // errors are handled in sendMails
-    // }
-    //
-    // return new NextResponse("", { status: 200 });
+    const cronSecret = env.CRON_SECRET;
+    if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== `Bearer ${cronSecret}`) {
+        return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
+    }
+
+    if (!env.RESEND_API_MAIL || !env.RESEND_API_KEY) {
+        return NextResponse.json({ status: 200, statusMessage: "Mail not configured" });
+    }
+
+    const firstStartDate = new Date();
+    firstStartDate.setHours(0, 0, 0, 0);
+    firstStartDate.setDate(firstStartDate.getDate() - 7);
+    const firstStartCheckDate = convertTZDate(firstStartDate);
+    const firstEndDate = new Date();
+    firstEndDate.setHours(23, 59, 59, 999);
+    firstEndDate.setDate(firstEndDate.getDate() - 7);
+    const firstEndCheckDate = convertTZDate(firstEndDate);
+    try {
+        await sendMails(firstStartCheckDate, firstEndCheckDate, "second_survey", "468112", 2);
+    } catch (err) {
+        // errors are handled in sendMails
+    }
+
+    const secondStartDate = new Date();
+    secondStartDate.setHours(0, 0, 0, 0);
+    secondStartDate.setDate(firstStartDate.getDate() - 14);
+    const secondStartCheckDate = convertTZDate(secondStartDate);
+    const secondEndDate = new Date();
+    secondEndDate.setHours(23, 59, 59, 999);
+    secondEndDate.setDate(secondEndDate.getDate() - 14);
+    const secondEndCheckDate = convertTZDate(secondEndDate);
+    try {
+        await sendMails(secondStartCheckDate, secondEndCheckDate, "third_survey", "349968", 3);
+    } catch (err) {
+        // errors are handled in sendMails
+    }
+
+    return new NextResponse("", { status: 200 });
 };
