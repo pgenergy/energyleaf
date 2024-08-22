@@ -571,13 +571,39 @@ export async function insertSensorData(data: SensorDataInput) {
             throw new Error("value/too-high");
         }
 
+        // filter out false readings from the sensor for value current
+        let valueCurrent = data.valueCurrent;
+        if (valueCurrent && (valueCurrent > 40000 || valueCurrent < -20000)) {
+            if (lastEntry.valueCurrent) {
+                valueCurrent = lastEntry.valueCurrent;
+            } else {
+                valueCurrent = 0;
+            }
+        }
+
+        // filter out false readings from the sensor for value out
+        // we have a toleranz of 2 kwh per minute which is more than enough
+        // to filter false readings but also let values pass from high power solar panels
+        let valueOut = data.valueOut;
+        if (
+            valueOut &&
+            lastEntry.valueOut &&
+            (valueOut < lastEntry.valueOut || valueOut - lastEntry.valueOut > timeDiff * 2)
+        ) {
+            valueOut = lastEntry.valueOut;
+        }
+
+        const consumption = newValue - lastEntry.value;
+        const inserted = valueOut && lastEntry.valueOut ? valueOut - lastEntry.valueOut : null;
+
+
         await trx.insert(sensorData).values({
             sensorId: dbSensor.id,
             value: newValue,
-            consumption: data.value - lastEntry.value,
-            valueOut: data.valueOut,
-            inserted: data.value - lastEntry.value,
-            valueCurrent: data.valueCurrent,
+            consumption,
+            valueOut,
+            inserted,
+            valueCurrent,
             timestamp: data.timestamp,
         });
     });
