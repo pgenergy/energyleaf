@@ -201,13 +201,13 @@ export async function createStandardDevicesIfNotExist(userId: string) {
     const deletedDeviceNames = new Set(deletedDevices.map(device => device.name));
 
     const standardDevices = [
+        { name: "Waschmaschine", category: "washingMachine" },
+        { name: "Spülmaschine", category: "dishwasher" },
+        { name: "Wäschetrockner", category: "dryer" },
         { name: "Gefrierschrank", category: "freezer" },
         { name: "Kühlschrank", category: "fridge" },
         { name: "Mikrowelle", category: "microwave" },
-        { name: "Router", category: "others" },
-        { name: "Boiler", category: "others" },
-        { name: "Wäschetrockner", category: "dryer" },
-        { name: "Waschmaschine", category: "washingMachine" },
+        { name: "Kaffeemaschine", category: "coffeeMachine" },
     ];
 
     for (const device of standardDevices) {
