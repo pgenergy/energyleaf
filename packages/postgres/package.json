@@ -1,30 +1,29 @@
 {
-    "name": "@energyleaf/db",
+    "name": "@energyleaf/postgres",
     "version": "0.0.1",
-    "description": "Database module for energyleaf",
+    "description": "Postgres database module for energyleaf",
     "type": "module",
     "private": true,
     "exports": {
         ".": "./src/index.ts",
-        "./schema": "./src/schema.ts",
-        "./query": "./src/query/index.ts",
+        "./schema/*": "./src/schema/*.ts",
+        "./query/*": "./src/query/*.ts",
         "./adapter": "./src/adapter.ts",
         "./types": "./src/types/types.ts"
     },
     "scripts": {
-        "push": "drizzle-kit push --config=./drizzle-local.config.ts",
-        "push:prod": "drizzle-kit push",
-        "studio": "drizzle-kit studio --config=./drizzle-local.config.ts",
-        "studio:prod": "drizzle-kit studio",
-        "clean": "git clean -xdf node_modules"
+        "generate": "drizzle-kit generate",
+        "generate:empty": "drizzle-kit generate --custom",
+        "migrate": "drizzle-kit migrate",
+        "studio": "drizzle-kit studio"
     },
     "dependencies": {
         "@energyleaf/lib": "workspace:^",
         "@lucia-auth/adapter-drizzle": "^1.1.0",
-        "@planetscale/database": "^1.18.0",
         "drizzle-orm": "^0.33.0",
         "mathjs": "^13.0.3",
-        "nanoid": "^5.0.7"
+        "nanoid": "^5.0.7",
+        "postgres": "^3.4.4"
     },
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:^",

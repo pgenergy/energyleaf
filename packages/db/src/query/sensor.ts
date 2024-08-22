@@ -561,14 +561,36 @@ export async function insertSensorData(data: SensorDataInput) {
             return;
         }
 
-        // in this check we allow 0.4 kwh per minute
-        // so for 15 seconds which is currently the sensor rate we allow 0.1 kwh
-        // in an hour this would be 24 kwh
+        // in this check we allow 0.6 kwh per minute
+        // so for 15 seconds which is currently the sensor rate we allow 0.15 kwh
+        // in an hour this would be 36 kwh
         // this is a very high value and should never be reached
         // but is hopefully a good protection against faulty sensors
         const timeDiff = (new Date().getTime() - lastEntry.timestamp.getTime()) / 1000 / 60;
-        if (newValue - lastEntry.value > timeDiff * 0.4) {
+        if (newValue - lastEntry.value > timeDiff * 0.6) {
             throw new Error("value/too-high");
+        }
+
+        // filter out false readings from the sensor for value current
+        let valueCurrent = data.valueCurrent;
+        if (valueCurrent && (valueCurrent > 40000 || valueCurrent < -20000)) {
+            if (lastEntry.valueCurrent) {
+                valueCurrent = lastEntry.valueCurrent;
+            } else {
+                valueCurrent = 0;
+            }
+        }
+
+        // filter out false readings from the sensor for value out
+        // we have a toleranz of 2 kwh per minute which is more than enough
+        // to filter false readings but also let values pass from high power solar panels
+        let valueOut = data.valueOut;
+        if (
+            valueOut &&
+            lastEntry.valueOut &&
+            (valueOut < lastEntry.valueOut || valueOut - lastEntry.valueOut > timeDiff * 2)
+        ) {
+            valueOut = lastEntry.valueOut;
         }
 
         await trx.insert(sensorData).values({

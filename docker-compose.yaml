@@ -1,7 +1,20 @@
 version: "3.8"
 services:
+  postgres:
+    image: timescale/timescaledb-ha:pg16
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: energyleaf
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/postgres:/home/postgres/pgdata/data
   ps-mysql:
-    # image: arm64v8/mysql:8.0 -- for arm64
+    # -- for arm --
+    # image: arm64v8/mysql:8.0
+    # -- for x86 --
     # image: mysql:8.0 -- for x86
     restart: always
     environment:
