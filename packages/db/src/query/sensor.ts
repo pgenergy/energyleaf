@@ -593,13 +593,16 @@ export async function insertSensorData(data: SensorDataInput) {
             valueOut = lastEntry.valueOut;
         }
 
+        const consumption = newValue - lastEntry.value;
+        const inserted = valueOut && lastEntry.valueOut ? valueOut - lastEntry.valueOut : null;
+
         await trx.insert(sensorData).values({
             sensorId: dbSensor.id,
             value: newValue,
-            consumption: data.value - lastEntry.value,
-            valueOut: data.valueOut,
-            inserted: data.value - lastEntry.value,
-            valueCurrent: data.valueCurrent,
+            consumption,
+            valueOut,
+            inserted,
+            valueCurrent,
             timestamp: data.timestamp,
         });
     });
