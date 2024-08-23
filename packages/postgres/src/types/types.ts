@@ -1,3 +1,7 @@
+import type { sensorTable } from "../schema/sensor";
+
+export type SensorInsertType = typeof sensorTable.$inferInsert;
+
 export enum DeviceCategory {
     Stovetop = "stovetop",
     Oven = "oven",
