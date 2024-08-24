@@ -15,7 +15,7 @@
 		"@energyleaf/db": "workspace:^",
 		"@energyleaf/lib": "workspace:^",
 		"@energyleaf/mail": "workspace:*",
-		"@energyleaf/proto": "^1.0.1",
+		"@energyleaf/proto": "^1.2.0",
 		"@energyleaf/storage": "workspace:*",
 		"@energyleaf/tailwindcss": "workspace:*",
 		"@energyleaf/ui": "workspace:*",

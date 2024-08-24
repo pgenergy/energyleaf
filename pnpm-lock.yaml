@@ -81,8 +81,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/mail
       '@energyleaf/proto':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.2.0
+        version: 1.2.0
       '@energyleaf/storage':
         specifier: workspace:*
         version: link:../../packages/storage
@@ -1070,11 +1070,11 @@ packages:
   '@emotion/memoize@0.7.4':
     resolution: {integrity: sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==}
 
-  '@energyleaf/proto@1.0.1':
-    resolution: {integrity: sha512-K2YbhPwDwD+ahtHRp1LKuNWr2IO9MHUMbfJfqYXjje4rPB7LnxsEX3A6+uKPs7w8hpIq75bG3iWLPdD3QBJj2Q==}
-
   '@energyleaf/proto@1.1.1':
     resolution: {integrity: sha512-p7tPouUiv6VT3gZrFosrXPdJyWUKXFPeOWDCLsSwNMMNG3wgnQmf5ThAG1+ISZsxbBBbddNJVESW2/sGslGvyA==}
+
+  '@energyleaf/proto@1.2.0':
+    resolution: {integrity: sha512-tfxd0xbVcBaN9XF0x7j0jRGyaEQLg7qX7burxD/q/h0mymH+hUfREhx5qxvwBWrOPk8LXVSPpFPEE10j87qHhg==}
 
   '@esbuild-kit/core-utils@3.3.2':
     resolution: {integrity: sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==}
@@ -6921,11 +6921,11 @@ snapshots:
   '@emotion/memoize@0.7.4':
     optional: true
 
-  '@energyleaf/proto@1.0.1':
+  '@energyleaf/proto@1.1.1':
     dependencies:
       '@protobuf-ts/runtime': 2.9.4
 
-  '@energyleaf/proto@1.1.1':
+  '@energyleaf/proto@1.2.0':
     dependencies:
       '@protobuf-ts/runtime': 2.9.4
 

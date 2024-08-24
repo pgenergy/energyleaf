@@ -17,17 +17,11 @@ interface Props {
     startDate: Date;
     endDate: Date;
     aggregationType: string | undefined;
+    userId: string;
+    appVersion: number;
 }
 
-export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
-    const { user } = await getSession();
-
-    if (!user) {
-        redirect("/");
-    }
-
-    const userId = user.id;
-
+export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType, userId, appVersion }: Props) {
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
@@ -51,12 +45,12 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
     const hasAggregation = aggregation !== AggregationType.RAW;
     const data = await getEnergyDataForSensor(startDate.toISOString(), endDate.toISOString(), sensorId, aggregation);
 
-    const showPeaks = fulfills(user.appVersion, Versions.self_reflection) && !hasAggregation;
+    const showPeaks = fulfills(appVersion, Versions.self_reflection) && !hasAggregation;
     const peaks: SensorDataSequenceType[] = showPeaks
         ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
         : [];
 
-    const userData = await getUserData(user.id);
+    const userData = await getUserData(userId);
     const workingPrice = userData?.workingPrice ?? undefined;
     const cost =
         workingPrice && userData?.basePrice
@@ -68,7 +62,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
             <CardHeader className="flex flex-col justify-start">
                 <CardTitle>Verbrauch, Leistung, Einspeisung und Kosten</CardTitle>
                 <CardDescription>Im ausgewählten Zeitraum</CardDescription>
-                {user.id !== "demo" ? (
+                {userId !== "demo" ? (
                     <div className="flex flex-row gap-4">
                         <DashboardEnergyAggregation selected={aggregation} startDate={startDate} endDate={endDate} />
                     </div>
@@ -86,6 +80,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             peaks={peaks}
                             aggregation={aggregation}
                             userId={userId}
+                            appVersion={appVersion}
                             cost={cost}
                             showPeaks={showPeaks}
                         />

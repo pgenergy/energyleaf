@@ -3,23 +3,17 @@ import { formatNumber } from "@energyleaf/lib";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { getSession } from "@/lib/auth/auth.server";
 
 interface Props {
     open: boolean;
     setOpen: (open: boolean) => void;
     value: SensorDataSequenceType;
     userId: string;
+    appVersion: number;
 }
 
-export async function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId }: Props) {
-    const { user } = await getSession();
-
-    if (!user) {
-        return null;
-    }
-
-    const showStandardDeviceHint = fulfills(user.appVersion, Versions.support);
+export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId, appVersion }: Props) {
+    const showStandardDeviceHint = fulfills(appVersion, Versions.support);
 
     return (
         <Dialog onOpenChange={setOpen} open={open}>
