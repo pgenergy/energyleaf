@@ -203,11 +203,9 @@ export async function createStandardDevicesIfNotExist(userId: string) {
     const standardDevices = [
         { name: "Waschmaschine", category: "washingMachine" },
         { name: "Spülmaschine", category: "dishwasher" },
-        { name: "Wäschetrockner", category: "dryer" },
         { name: "Gefrierschrank", category: "freezer" },
         { name: "Kühlschrank", category: "fridge" },
         { name: "Mikrowelle", category: "microwave" },
-        { name: "Kaffeemaschine", category: "coffeeMachine" },
     ];
 
     for (const device of standardDevices) {

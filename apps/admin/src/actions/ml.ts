@@ -7,7 +7,7 @@ const { DeviceClassificationPeakRequest, DeviceClassificationPeakResponse } = en
 
 export interface RequestProps {
     peaks: {
-        peak_id: string;
+        id: string;
         electricity: {
             timestamp: string;
             power: number;

@@ -9,7 +9,15 @@ import "server-only";
 import { waitUntil } from "@vercel/functions";
 import { mlApi } from "@/actions/ml";
 
-export async function classifyAndSaveDevicesForPeaks(peaks: { id: string; electricity: { timestamp: string; power: number; }[]; }[], userId: string) {
+const deviceNameMapping = {
+    fridge: "Kühlschrank",
+    freezer: "Gefrierschrank",
+    micro_wave_oven: "Mikrowelle",
+    dishwasher: "Spülmaschine",
+    washing_machine: "Waschmaschine",
+};
+
+export async function classifyAndSaveDevicesForPeaks(peaks: { id: string }[], userId: string) {
     try {
         const peaksToClassify = await getPeaksWithoutDevices(peaks);
 
@@ -23,7 +31,7 @@ export async function classifyAndSaveDevicesForPeaks(peaks: { id: string; electr
             const devicesToSave = peak.devices
                 .filter(device => device.confidence >= 0.9)
                 .map(device => ({
-                    name: device.name,
+                    name: deviceNameMapping[device.name] || device.name,
                     confidence: device.confidence,
                 }));
 
@@ -37,7 +45,7 @@ export async function classifyAndSaveDevicesForPeaks(peaks: { id: string; electr
     }
 }
 
-async function saveDevicesToPeak(peakId: string, devices: { name: string; confidence: number; }[], userId: string) {
+async function saveDevicesToPeak(peakId: string, devices: { name: string }[], userId: string) {
     try {
         for (const device of devices) {
             await saveDeviceToPeakDb(peakId, device.name, userId);

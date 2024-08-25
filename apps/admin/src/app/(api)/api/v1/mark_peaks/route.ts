@@ -57,7 +57,7 @@ export const GET = async (req: NextRequest) => {
                             };
                         }));
 
-                        await classifyAndSaveDevicesForPeaks(peaksToClassify, sensorId);
+                        await classifyAndSaveDevicesForPeaks(peaksToClassify, user.userId);
                     }
 
                 } catch (err) {
