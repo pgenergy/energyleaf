@@ -11,13 +11,6 @@ import { AggregationType } from "@energyleaf/lib";
 import { cache } from "react";
 import "server-only";
 
-export interface DeviceClassification {
-    timestamp: string;
-    power: number;
-    dominantClassification: string;
-    classification: Record<string, number>;
-}
-
 export const getEnergyDataForSensor = cache(
     async (
         startDate: string,
