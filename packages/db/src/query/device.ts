@@ -218,7 +218,7 @@ export async function createStandardDevicesIfNotExist(userId: string) {
 }
 
 export async function getPeaksWithoutDevices(peaks: { id: string }[]) {
-    const peaksToClassify = [];
+    const peaksToClassify: { id: string }[] = [];
     for (const peak of peaks) {
         const existingAssignments = await db
             .select()

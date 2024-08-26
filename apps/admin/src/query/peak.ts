@@ -13,13 +13,15 @@ const deviceNameMapping = {
     washing_machine: "Waschmaschine",
 };
 
-export async function classifyAndSaveDevicesForPeaks(peaks: { id: string }[], userId: string) {
+export async function classifyAndSaveDevicesForPeaks(peaks: { id: string; electricity: { timestamp: string; power: number; }[] }[], userId: string) {
     try {
-        const peaksToClassify = await getPeaksWithoutDevices(peaks);
+        const peaksToClassifyIds = await getPeaksWithoutDevices(peaks.map(peak => ({ id: peak.id })));
 
-        if (peaksToClassify.length === 0) {
+        if (peaksToClassifyIds.length === 0) {
             return;
         }
+
+        const peaksToClassify = peaks.filter(peak => peaksToClassifyIds.some(peakToClassify => peakToClassify.id === peak.id));
 
         const response = await mlApi({ peaks: peaksToClassify });
 
