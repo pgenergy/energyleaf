@@ -193,12 +193,10 @@ export async function saveDeviceToPeakDb(sensorDataSequenceId: string, deviceNam
 
 export async function createStandardDevicesIfNotExist(userId: string) {
     const existingDevices = await getDevicesByUser(userId);
-    const existingDeviceNames = new Set(existingDevices.map(device => device.name));
+    const existingDeviceNames = new Set(existingDevices.map((device) => device.name));
 
-    const deletedDevices = await db.select()
-        .from(deviceHistory)
-        .where(eq(deviceHistory.userId, userId));
-    const deletedDeviceNames = new Set(deletedDevices.map(device => device.name));
+    const deletedDevices = await db.select().from(deviceHistory).where(eq(deviceHistory.userId, userId));
+    const deletedDeviceNames = new Set(deletedDevices.map((device) => device.name));
 
     const standardDevices = [
         { name: "Waschmaschine", category: "washingMachine" },

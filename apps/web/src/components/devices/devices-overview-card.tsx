@@ -2,11 +2,11 @@ import { DeviceContextProvider } from "@/hooks/device-hook";
 import { getSession } from "@/lib/auth/auth.server";
 import { evaluatePowerEstimation } from "@/lib/devices/power-estimation";
 import { getUserData } from "@/query/user";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";
-import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import DeviceAddButton from "./device-add-button";
 import { DeviceDeleteDialog } from "./device-delete-dialog";
 import DeviceEditDialog from "./device-edit-dialog";
@@ -37,10 +37,10 @@ export default async function DevicesOverviewCard() {
                         <CardDescription>
                             Hier sehen Sie alle Ihre Geräte und können diese verwalten.
                             {showStandardDeviceHint && (
-                                <p className="text-sm text-muted-foreground mt-1">
-                                    Hinweis: Einige Standardgeräte wurden für Sie initial angelegt. Unsere KI kann diese Geräte
-                                    erkennen und überwachen. Falls Sie jedoch eines dieser Geräte nicht besitzen, können Sie es
-                                    problemlos löschen.
+                                <p className="mt-1 text-muted-foreground text-sm">
+                                    Hinweis: Einige Standardgeräte wurden für Sie initial angelegt. Unsere KI kann diese
+                                    Geräte erkennen und überwachen. Falls Sie jedoch eines dieser Geräte nicht besitzen,
+                                    können Sie es problemlos löschen.
                                 </p>
                             )}
                         </CardDescription>

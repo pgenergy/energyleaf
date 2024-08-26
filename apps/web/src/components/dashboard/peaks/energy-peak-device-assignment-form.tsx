@@ -1,5 +1,6 @@
 import { getDevicesByPeak, getDevicesByUser, updateDevicesForPeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
+import { log } from "@energyleaf/db/query";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Button } from "@energyleaf/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
@@ -10,7 +11,6 @@ import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { log } from "@energyleaf/db/query";
 
 interface Props {
     userId: string;
@@ -47,7 +47,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
     useEffect(() => {
         if (selectedDevices) {
             form.setValue("device", selectedDevices);
-            initialDevicesRef.current = selectedDevices.map(device => device.id.toString());
+            initialDevicesRef.current = selectedDevices.map((device) => device.id.toString());
         }
     }, [selectedDevices, form]);
 
@@ -58,8 +58,12 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
             res = await updateDevicesForPeak(data, sensorDataSequenceId);
             await queryClient.invalidateQueries({ queryKey: [`selectedDevices${sensorDataSequenceId}`] });
 
-            const addedDevices = data.device.filter(device => !initialDevicesRef.current.includes(device.id.toString()));
-            const removedDevices = initialDevicesRef.current.filter(device => !data.device.some(d => d.id.toString() === device));
+            const addedDevices = data.device.filter(
+                (device) => !initialDevicesRef.current.includes(device.id.toString()),
+            );
+            const removedDevices = initialDevicesRef.current.filter(
+                (device) => !data.device.some((d) => d.id.toString() === device),
+            );
 
             if (addedDevices.length > 0 || removedDevices.length > 0) {
                 await log("user-device-assignment", "info", "peak-device-assignment", "web", {
@@ -68,10 +72,9 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
                     addedDevices,
                     removedDevices,
                     initialDevices: initialDevicesRef.current,
-                    finalDevices: data.device.map(device => device.id.toString()),
+                    finalDevices: data.device.map((device) => device.id.toString()),
                 });
             }
-
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }

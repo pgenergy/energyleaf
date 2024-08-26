@@ -1,8 +1,8 @@
 import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { formatNumber } from "@energyleaf/lib";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
-import { Versions, fulfills } from "@energyleaf/lib/versioning";
 
 interface Props {
     open: boolean;
@@ -23,9 +23,10 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId,
                     <DialogDescription>
                         Wählen Sie die Geräte aus, die diesen Verbrauch verursacht haben.
                         {showStandardDeviceHint && (
-                            <p className="text-sm text-muted-foreground mt-2">
-                                Hinweis: Unsere KI hat möglicherweise bereits Geräte erkannt, die diesen Verbrauch verursacht
-                                haben. Falls diese falsch erkannt wurden, wählen Sie bitte die richtigen Geräte aus.
+                            <p className="mt-2 text-muted-foreground text-sm">
+                                Hinweis: Unsere KI hat möglicherweise bereits Geräte erkannt, die diesen Verbrauch
+                                verursacht haben. Falls diese falsch erkannt wurden, wählen Sie bitte die richtigen
+                                Geräte aus.
                             </p>
                         )}
                     </DialogDescription>

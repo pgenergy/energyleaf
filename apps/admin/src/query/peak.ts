@@ -1,13 +1,9 @@
 "use server";
 
-import {
-    logError,
-    saveDeviceToPeakDb,
-    getPeaksWithoutDevices,
-} from "@energyleaf/db/query";
+import { getPeaksWithoutDevices, logError, saveDeviceToPeakDb } from "@energyleaf/db/query";
 import "server-only";
-import { waitUntil } from "@vercel/functions";
 import { mlApi } from "@/actions/ml";
+import { waitUntil } from "@vercel/functions";
 
 const deviceNameMapping = {
     fridge: "Kühlschrank",
@@ -29,8 +25,8 @@ export async function classifyAndSaveDevicesForPeaks(peaks: { id: string }[], us
 
         for (const peak of response.peaks) {
             const devicesToSave = peak.devices
-                .filter(device => device.confidence >= 0.9)
-                .map(device => ({
+                .filter((device) => device.confidence >= 0.9)
+                .map((device) => ({
                     name: deviceNameMapping[device.name] || device.name,
                     confidence: device.confidence,
                 }));
@@ -40,7 +36,9 @@ export async function classifyAndSaveDevicesForPeaks(peaks: { id: string }[], us
             }
         }
     } catch (error) {
-        waitUntil(logError("device/classification-error", "classifyAndSaveDevicesForPeaks", "web", { peaks, userId }, error));
+        waitUntil(
+            logError("device/classification-error", "classifyAndSaveDevicesForPeaks", "web", { peaks, userId }, error),
+        );
         throw new Error("Fehler bei der Geräteklassifikation und Speicherung.");
     }
 }
@@ -51,7 +49,9 @@ async function saveDevicesToPeak(peakId: string, devices: { name: string }[], us
             await saveDeviceToPeakDb(peakId, device.name, userId);
         }
     } catch (error) {
-        waitUntil(logError("device/save-to-peak-error", "saveDevicesToPeak", "web", { peakId, devices, userId }, error));
+        waitUntil(
+            logError("device/save-to-peak-error", "saveDevicesToPeak", "web", { peakId, devices, userId }, error),
+        );
         throw new Error("Fehler beim Speichern der Geräte für den Peak.");
     }
 }

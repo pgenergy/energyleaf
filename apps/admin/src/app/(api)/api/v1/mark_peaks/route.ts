@@ -1,9 +1,18 @@
 import { env } from "@/env.mjs";
-import { findAndMark, getAllSensors, log, logError, getSequencesBySensor, getRawEnergyForSensorInRange, getUserBySensorId, createStandardDevicesIfNotExist } from "@energyleaf/db/query";
+import { classifyAndSaveDevicesForPeaks } from "@/query/peak";
+import {
+    createStandardDevicesIfNotExist,
+    findAndMark,
+    getAllSensors,
+    getRawEnergyForSensorInRange,
+    getSequencesBySensor,
+    getUserBySensorId,
+    log,
+    logError,
+} from "@energyleaf/db/query";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
-import { classifyAndSaveDevicesForPeaks } from "@/query/peak";
-import { Versions, fulfills } from "@energyleaf/lib/versioning";
 
 export const maxDuration = 300;
 
@@ -41,27 +50,36 @@ export const GET = async (req: NextRequest) => {
                     startDate = result.start;
                     endDate = result.end;
 
+                    if (!startDate || !endDate) {
+                        throw new Error("Start date or end date is undefined.");
+                    }
+
                     const user = await getUserBySensorId(sensorId);
 
                     if (user && fulfills(user.appVersion, Versions.support)) {
                         await createStandardDevicesIfNotExist(user.userId);
 
-                        const peaks = await getSequencesBySensor(sensorId, { start: startDate!, end: endDate! });
+                        const peaks = await getSequencesBySensor(sensorId, { start: startDate, end: endDate });
 
-                        const peaksToClassify = await Promise.all(peaks.map(async peak => {
-                            const electricityData = await getRawEnergyForSensorInRange(peak.start, peak.end, sensorId);
-                            return {
-                                id: peak.id,
-                                electricity: electricityData.map(data => ({
-                                    timestamp: data.timestamp.toISOString(),
-                                    power: data.value,
-                                })),
-                            };
-                        }));
+                        const peaksToClassify = await Promise.all(
+                            peaks.map(async (peak) => {
+                                const electricityData = await getRawEnergyForSensorInRange(
+                                    peak.start,
+                                    peak.end,
+                                    sensorId,
+                                );
+                                return {
+                                    id: peak.id,
+                                    electricity: electricityData.map((data) => ({
+                                        timestamp: data.timestamp.toISOString(),
+                                        power: data.value,
+                                    })),
+                                };
+                            }),
+                        );
 
                         await classifyAndSaveDevicesForPeaks(peaksToClassify, user.userId);
                     }
-
                 } catch (err) {
                     waitUntil(
                         logError(
