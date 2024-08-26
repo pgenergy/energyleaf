@@ -1,4 +1,5 @@
 import { findPeaks } from "@energyleaf/db/query";
+import { getEnergyForSensorInRange, getEnergyLastEntry } from "@energyleaf/db/query";
 import {
     DeviceCategory,
     type DeviceSelectType,
@@ -7,13 +8,12 @@ import {
     type SensorDeviceSequenceSelectType,
     type UserDataType,
 } from "@energyleaf/db/types";
-import { AggregationType, type ReportProps, convertTZDate } from "@energyleaf/lib";
-import { differenceInDays, getWeekOfMonth, getWeekYear } from "date-fns";
+import { AggregationType, type ReportProps } from "@energyleaf/lib";
+import { differenceInDays } from "date-fns";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
 import { getActionSession } from "../auth/auth.action";
-import demoData from "./demo.json";
 import "server-only";
 
 export async function isDemoUser() {
@@ -207,11 +207,11 @@ export function assignDemoDevicesToPeaks(cookies: ReadonlyRequestCookies, sequen
     cookies.set("demo_peaks", JSON.stringify(filteredDeviceToPeaks));
 }
 
-export function updateDemoPowerEstimationForDevices(cookies: ReadonlyRequestCookies) {
+export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyRequestCookies) {
     const start = new Date(0);
     const end = new Date();
     end.setDate(end.getDate() + 1);
-    const data = getDemoPeaks(start, end);
+    const data = await getDemoPeaks(start, end);
 
     const deviceToPeaksRaw = cookies.get("demo_peaks");
     if (!deviceToPeaksRaw) {
@@ -322,172 +322,46 @@ export function updateDemoPowerEstimationForDevices(cookies: ReadonlyRequestCook
     return;
 }
 
-function getDemoSensorCachedData(): SensorDataSelectType[] {
-    const inputData = demoData as {
-        id: string;
-        sensorId: string;
-        value: number;
-        valueOut: number | null;
-        valueCurrent: number | null;
-        timestamp: string;
-    }[];
-
+function processDemoDataDate(data: SensorDataSelectType[]): SensorDataSelectType[] {
     const current = new Date();
-    const lastEntry = inputData[inputData.length - 1];
-    const dayDiff = differenceInDays(current, new Date(lastEntry.timestamp));
+    const lastEntry = data[data.length - 1];
+    const dayDiff = differenceInDays(current, lastEntry.timestamp);
 
-    const processedData = inputData
-        .map((item, index) => {
-            const dataDate = new Date(item.timestamp);
-            dataDate.setDate(dataDate.getDate() + dayDiff + 1);
+    const processedData = data.map((item) => {
+        const dataDate = new Date(item.timestamp);
+        dataDate.setDate(dataDate.getDate() + dayDiff + 1);
 
-            return {
-                id: item.id,
-                sensorId: "demo_sensor",
-                timestamp: dataDate,
-                value: index === 0 ? 0 : item.value - inputData[index - 1].value,
-                valueOut: item.valueOut
-                    ? index === 0
-                        ? 0
-                        : item.valueOut - (inputData[index - 1].valueOut as number)
-                    : null,
-                valueCurrent: item.valueOut,
-            };
-        })
-        .slice(1);
+        return {
+            ...item,
+            timestamp: dataDate,
+        };
+    });
 
     return processedData;
 }
 
-export function getDemoSensorData(start: Date, end: Date, agg?: AggregationType): SensorDataSelectType[] {
-    const data = getDemoSensorCachedData();
-    const dataInRange = data.filter(
-        (item) => item.timestamp.getTime() >= start.getTime() && item.timestamp.getTime() <= end.getTime(),
-    );
-
-    const result: SensorDataSelectType[] = [];
-    switch (agg) {
-        case AggregationType.RAW:
-            return dataInRange;
-        case AggregationType.HOUR:
-            for (let i = 0; i < dataInRange.length; i++) {
-                const item = dataInRange[i];
-                const index = result.findIndex(
-                    (d) =>
-                        convertTZDate(d.timestamp, "client").getHours() ===
-                        convertTZDate(item.timestamp, "client").getHours(),
-                );
-
-                if (index === -1) {
-                    result.push(item);
-                } else {
-                    result[index].value += item.value;
-                }
-            }
-            return result;
-        case AggregationType.DAY:
-            for (let i = 0; i < dataInRange.length; i++) {
-                const item = dataInRange[i];
-                const index = result.findIndex(
-                    (d) =>
-                        convertTZDate(d.timestamp, "client").getDate() ===
-                        convertTZDate(item.timestamp, "client").getDate(),
-                );
-
-                if (index === -1) {
-                    result.push(item);
-                } else {
-                    result[index].value += item.value;
-                }
-            }
-            return result;
-        case AggregationType.WEEKDAY:
-            for (let i = 0; i < dataInRange.length; i++) {
-                const item = dataInRange[i];
-                const index = result.findIndex(
-                    (d) =>
-                        convertTZDate(d.timestamp, "client").getDay() ===
-                        convertTZDate(item.timestamp, "client").getDay(),
-                );
-
-                if (index === -1) {
-                    result.push(item);
-                } else {
-                    result[index].value += item.value;
-                }
-            }
-            return result;
-        case AggregationType.WEEK:
-            for (let i = 0; i < dataInRange.length; i++) {
-                const item = dataInRange[i];
-                const index = result.findIndex(
-                    (d) =>
-                        getWeekOfMonth(convertTZDate(d.timestamp, "client")) ===
-                        getWeekOfMonth(convertTZDate(item.timestamp, "client")),
-                );
-
-                if (index === -1) {
-                    result.push(item);
-                } else {
-                    result[index].value += item.value;
-                }
-            }
-            return result;
-        case AggregationType.CALENDAR_WEEK:
-            for (let i = 0; i < dataInRange.length; i++) {
-                const item = dataInRange[i];
-                const index = result.findIndex(
-                    (d) =>
-                        getWeekYear(convertTZDate(d.timestamp, "client")) ===
-                        getWeekYear(convertTZDate(item.timestamp, "client")),
-                );
-
-                if (index === -1) {
-                    result.push(item);
-                } else {
-                    result[index].value += item.value;
-                }
-            }
-            return result;
-        case AggregationType.MONTH:
-            for (let i = 0; i < dataInRange.length; i++) {
-                const item = dataInRange[i];
-                const index = result.findIndex(
-                    (d) =>
-                        convertTZDate(d.timestamp, "client").getMonth() ===
-                        convertTZDate(item.timestamp, "client").getMonth(),
-                );
-
-                if (index === -1) {
-                    result.push(item);
-                } else {
-                    result[index].value += item.value;
-                }
-            }
-            return result;
-        case AggregationType.YEAR:
-            for (let i = 0; i < dataInRange.length; i++) {
-                const item = dataInRange[i];
-                const index = result.findIndex(
-                    (d) =>
-                        convertTZDate(d.timestamp, "client").getFullYear() ===
-                        convertTZDate(item.timestamp, "client").getFullYear(),
-                );
-
-                if (index === -1) {
-                    result.push(item);
-                } else {
-                    result[index].value += item.value;
-                }
-            }
-            return result;
-        default:
-            return dataInRange;
+export async function getDemoSensorData(
+    start: Date,
+    end: Date,
+    agg?: AggregationType,
+    type: "sum" | "average" = "average",
+): Promise<SensorDataSelectType[]> {
+    const lastEntry = await getDemoLastEnergyEntry();
+    if (!lastEntry) {
+        return [];
     }
+    const dayDiff = differenceInDays(new Date(), lastEntry.timestamp) + 1;
+    const queryStart = new Date(start);
+    queryStart.setDate(queryStart.getDate() - dayDiff);
+    const queryEnd = new Date(end);
+    queryEnd.setDate(queryEnd.getDate() - dayDiff);
+
+    const data = await getEnergyForSensorInRange(queryStart, queryEnd, "demo_sensor", agg, type);
+    return processDemoDataDate(data);
 }
 
-export function getDemoPeaks(start: Date, end: Date): SensorDataSequenceType[] {
-    const data = getDemoSensorCachedData();
+export async function getDemoPeaks(start: Date, end: Date): Promise<SensorDataSequenceType[]> {
+    const data = await getDemoSensorData(start, end, AggregationType.RAW);
 
     const peaks = findPeaks(data, data);
     const dataWithoutPeaks = data.filter(
@@ -537,28 +411,9 @@ export function getDemoPeaks(start: Date, end: Date): SensorDataSequenceType[] {
         }));
 }
 
-export function getDemoLastEnergyEntry(): SensorDataSelectType {
-    const inputData = demoData as {
-        id: string;
-        sensorId: string;
-        value: number;
-        valueOut: number | null;
-        valueCurrent: number | null;
-        timestamp: string;
-    }[];
-
-    const current = new Date();
-    const lastEntry = inputData[inputData.length - 1];
-    const dayDiff = differenceInDays(current, new Date(lastEntry.timestamp));
-
-    const dataDate = new Date(lastEntry.timestamp);
-    dataDate.setDate(dataDate.getDate() + dayDiff + 1);
-
-    return {
-        ...lastEntry,
-        timestamp: dataDate,
-        sensorId: "demo_sensor",
-    };
+export async function getDemoLastEnergyEntry() {
+    const inputData = await getEnergyLastEntry("demo_sensor");
+    return inputData;
 }
 
 export function getDemoReportIds() {
@@ -581,7 +436,7 @@ export function getDemoMetaDataOfReports() {
     ];
 }
 
-export function getDemoReport(): ReportProps {
+export async function getDemoReport(): Promise<ReportProps> {
     const dateFrom = new Date();
     dateFrom.setDate(dateFrom.getDate() - 4);
     dateFrom.setHours(0, 0, 0);
@@ -591,7 +446,7 @@ export function getDemoReport(): ReportProps {
 
     const userData = getDemoUserData();
 
-    const data = getDemoSensorData(dateFrom, dateTo, AggregationType.DAY);
+    const data = await getDemoSensorData(dateFrom, dateTo, AggregationType.DAY);
     const totalEnergyConsumption = data.reduce((acc, curr) => acc + curr.value, 0);
     const avgEnergyConsumptionPerDay = totalEnergyConsumption / data.length;
     let totalEnergyCost: number | undefined = undefined;

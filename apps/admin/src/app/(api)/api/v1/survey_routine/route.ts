@@ -1,11 +1,13 @@
 import { env } from "@/env.mjs";
 import { getUsersWhoRecieveSurveyMail, logError, trackAction, updateExperimentDataForUser } from "@energyleaf/db/query";
+import { convertTZDate } from "@energyleaf/lib";
 import { sendSurveyInviteEmail } from "@energyleaf/mail";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
 const sendMails = async (
-    date: Date,
+    startDate: Date,
+    endDate: Date,
     status: "second_survey" | "third_survey",
     surveyId: string,
     surveyNumber: number,
@@ -13,7 +15,7 @@ const sendMails = async (
     if (!env.RESEND_API_KEY || !env.RESEND_API_MAIL) {
         return;
     }
-    const firstSurveyUsers = await getUsersWhoRecieveSurveyMail(date);
+    const firstSurveyUsers = await getUsersWhoRecieveSurveyMail(startDate, endDate);
     for (const firstSurveyUser of firstSurveyUsers) {
         const { user } = firstSurveyUser;
 
@@ -70,9 +72,9 @@ const sendMails = async (
     }
 };
 
-export const POST = async (req: NextRequest) => {
+export const GET = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
-    if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== cronSecret) {
+    if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== `Bearer ${cronSecret}`) {
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 
@@ -80,18 +82,30 @@ export const POST = async (req: NextRequest) => {
         return NextResponse.json({ status: 200, statusMessage: "Mail not configured" });
     }
 
-    const checkDate = new Date();
-    checkDate.setHours(0, 0, 0, 0);
-    checkDate.setDate(checkDate.getDate() - 7);
+    const firstStartDate = new Date();
+    firstStartDate.setHours(0, 0, 0, 0);
+    firstStartDate.setDate(firstStartDate.getDate() - 7);
+    const firstStartCheckDate = convertTZDate(firstStartDate);
+    const firstEndDate = new Date();
+    firstEndDate.setHours(23, 59, 59, 999);
+    firstEndDate.setDate(firstEndDate.getDate() - 7);
+    const firstEndCheckDate = convertTZDate(firstEndDate);
     try {
-        await sendMails(checkDate, "second_survey", "1", 2);
+        await sendMails(firstStartCheckDate, firstEndCheckDate, "second_survey", "468112", 2);
     } catch (err) {
         // errors are handled in sendMails
     }
 
-    checkDate.setDate(checkDate.getDate() - 7);
+    const secondStartDate = new Date();
+    secondStartDate.setHours(0, 0, 0, 0);
+    secondStartDate.setDate(firstStartDate.getDate() - 14);
+    const secondStartCheckDate = convertTZDate(secondStartDate);
+    const secondEndDate = new Date();
+    secondEndDate.setHours(23, 59, 59, 999);
+    secondEndDate.setDate(secondEndDate.getDate() - 14);
+    const secondEndCheckDate = convertTZDate(secondEndDate);
     try {
-        await sendMails(checkDate, "third_survey", "2", 3);
+        await sendMails(secondStartCheckDate, secondEndCheckDate, "third_survey", "349968", 3);
     } catch (err) {
         // errors are handled in sendMails
     }

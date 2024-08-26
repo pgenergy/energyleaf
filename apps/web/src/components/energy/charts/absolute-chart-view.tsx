@@ -53,7 +53,9 @@ export default async function EnergyAbsoluteChartView(props: Props) {
             id: data[0].id,
             sensorId: data[0].sensorId,
             value: data[0].value,
+            consumption: data[0].consumption,
             valueOut: data[0].valueOut,
+            inserted: data[0].inserted,
             valueCurrent: data[0].valueCurrent,
             timestamp: new Date(data[0].timestamp.getTime() - 10),
         } satisfies SensorDataSelectType;

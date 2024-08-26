@@ -5,6 +5,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import { classifyAndSaveDevicesForPeaks } from "@/query/peak";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 
+export const maxDuration = 300;
+
 export const GET = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
     if (!req.headers.has("Authorization") || req.headers.get("Authorization") !== `Bearer ${cronSecret}`) {

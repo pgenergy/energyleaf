@@ -88,10 +88,12 @@ async function aggregatedValues(
             value: sql<number>`COALESCE(${sensorData.value} - LAG(${sensorData.value}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp}), 0)`.as(
                 "sub_value",
             ),
+            consumption: sensorData.consumption,
             valueOut:
                 sql<number>`COALESCE(${sensorData.valueOut} - LAG(${sensorData.valueOut}, 1) OVER (PARTITION BY ${sensorData.sensorId} ORDER BY ${sensorData.timestamp}), 0)`.as(
                     "sub_value_out",
                 ),
+            inserted: sensorData.inserted,
             valueCurrent: sql<number | null>`${sensorData.valueCurrent}`.as("sub_value_current"),
             timestamp: sql`${sensorData.timestamp}`
                 .mapWith({
@@ -127,7 +129,9 @@ async function aggregatedValues(
         .select({
             sensorId: subQuery.sensorId,
             value: sum ? sql<number>`SUM(${subQuery.value})` : sql<number>`AVG(${subQuery.value})`,
+            consumption: sum ? sql<number>`SUM(${subQuery.consumption})` : sql<number>`AVG(${subQuery.consumption})`,
             valueOut: sum ? sql<number>`SUM(${subQuery.valueOut})` : sql<number>`AVG(${subQuery.valueOut})`,
+            inserted: sum ? sql<number>`SUM(${subQuery.inserted})` : sql<number>`AVG(${subQuery.inserted})`,
             valueCurrent: sql<number | null>`AVG(${subQuery.valueCurrent})`,
             timestamp: sql`MIN(${subQuery.timestamp})`.mapWith({
                 mapFromDriverValue: (value: unknown) => {
@@ -317,6 +321,7 @@ export async function getEnergyLastEntry(sensorId: string) {
             value: sensorData.value,
             valueOut: sensorData.valueOut,
             valueCurrent: sensorData.valueCurrent,
+            timestamp: sensorData.timestamp,
         })
         .from(sensorData)
         .where(eq(sensorData.sensorId, sensorId))
@@ -541,7 +546,9 @@ export async function insertSensorData(data: SensorDataInput) {
             await trx.insert(sensorData).values({
                 sensorId: dbSensor.id,
                 value: newValue,
+                consumption: 0,
                 valueOut: data.valueOut,
+                inserted: 0,
                 valueCurrent: data.valueCurrent,
                 timestamp: data.timestamp,
             });
@@ -564,11 +571,39 @@ export async function insertSensorData(data: SensorDataInput) {
             throw new Error("value/too-high");
         }
 
+        // filter out false readings from the sensor for value current
+        let valueCurrent = data.valueCurrent;
+        if (valueCurrent && (valueCurrent > 40000 || valueCurrent < -20000)) {
+            if (lastEntry.valueCurrent) {
+                valueCurrent = lastEntry.valueCurrent;
+            } else {
+                valueCurrent = 0;
+            }
+        }
+
+        // filter out false readings from the sensor for value out
+        // we have a toleranz of 2 kwh per minute which is more than enough
+        // to filter false readings but also let values pass from high power solar panels
+        let valueOut = data.valueOut;
+        if (
+            valueOut &&
+            lastEntry.valueOut &&
+            (valueOut < lastEntry.valueOut || valueOut - lastEntry.valueOut > timeDiff * 2)
+        ) {
+            valueOut = lastEntry.valueOut;
+        }
+
+        const consumption = newValue - lastEntry.value;
+        const inserted = valueOut && lastEntry.valueOut ? valueOut - lastEntry.valueOut : null;
+
+
         await trx.insert(sensorData).values({
             sensorId: dbSensor.id,
             value: newValue,
-            valueOut: data.valueOut,
-            valueCurrent: data.valueCurrent,
+            consumption,
+            valueOut,
+            inserted,
+            valueCurrent,
             timestamp: data.timestamp,
         });
     });
@@ -581,6 +616,7 @@ export async function insertRawSensorValue(sensorId: string, value: number) {
     return db.insert(sensorData).values({
         sensorId: sensorId,
         value: value,
+        consumption: 0,
         timestamp: sql<Date>`NOW()`,
     });
 }

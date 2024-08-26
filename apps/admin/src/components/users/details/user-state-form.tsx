@@ -198,6 +198,22 @@ export default function UserStateForm({ initialValues, id }: Props) {
                         />
                         <FormField
                             control={form.control}
+                            name="usesProlific"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
+                                    <div className="flex flex-col gap-2">
+                                        <FormLabel>Bezahlung über Prolific</FormLabel>
+                                        <FormDescription>Gibt an ob dieser Nutzer über Prolific bezahlt wird.</FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
                             name="experimentStatus"
                             render={({ field }) => (
                                 <FormItem>
@@ -298,7 +314,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                                 mode="single"
                                                 selected={field.value}
                                                 onSelect={field.onChange}
-                                                disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
+                                                disabled={(date) => date < new Date("1900-01-01")}
                                                 initialFocus
                                             />
                                         </PopoverContent>
@@ -311,7 +327,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                             name="installationDate"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Installationsdatum</FormLabel>
+                                    <FormLabel>Deinstallationsdatum</FormLabel>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <FormControl>
@@ -338,7 +354,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                                 mode="single"
                                                 selected={field.value}
                                                 onSelect={field.onChange}
-                                                disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
+                                                disabled={(date) => date < new Date("1900-01-01")}
                                                 initialFocus
                                             />
                                         </PopoverContent>
