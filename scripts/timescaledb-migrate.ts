@@ -11,6 +11,7 @@ import {
     reports as mysqlReports,
     reportsDayStatistics as mysqlReportsDayStatistics,
     sensor as mysqlSensor,
+    sensorData as mysqlSensorData,
     sensorHistory as mysqlSensorHistory,
     sensorSequenceMarkingLog as mysqlSensorSequenceMarkingLog,
     sensorToken as mysqlSensorToken,
@@ -18,6 +19,7 @@ import {
     token as mysqlToken,
     user as mysqlUser,
     userData as mysqlUserData,
+    userExperimentData as mysqlUserExperimentData,
     userTipOfTheDay as mysqlUserTipOfTheDay,
 } from "@energyleaf/db/schema";
 import { type DB as PgDB, db as pgDb } from "@energyleaf/postgres";
@@ -35,6 +37,7 @@ import {
 } from "@energyleaf/postgres/schema/reports";
 import {
     sensorTable as pgSensor,
+    sensorDataTable as pgSensorData,
     sensorHistoryTable as pgSensorHistory,
     sensorSequenceMarkingLogTable as pgSensorSequenceMarkingLog,
     sensorTokenTable as pgSensorToken,
@@ -46,6 +49,7 @@ import {
     token as pgToken,
     user as pgUser,
     userData as pgUserData,
+    userExperimentData as pgUserExperimentData,
     userTipOfTheDay as pgUserTipOfTheDay,
 } from "@energyleaf/postgres/schema/user";
 import { getTableName, sql } from "drizzle-orm";
@@ -56,6 +60,7 @@ export async function timescaleDbMigrate(args: string[]) {
             console.log("Starting migration.");
 
             await automaticMigrations(mysqlTrx, pgTrx);
+            await manualMigrations(mysqlTrx, pgTrx);
 
             console.log("Migration done 🎉");
         });
@@ -70,7 +75,7 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
     const automaticMigrations = [
         { mySqlTable: mysqlUser, pgTable: pgUser },
         { mySqlTable: mysqlUserData, pgTable: pgUserData, overrideSystemValue: true },
-        // { mySqlTable: mysqlUserExperimentData, pgTable: pgUserExperimentData, overrideSystemValue: true },
+        { mySqlTable: mysqlUserExperimentData, pgTable: pgUserExperimentData, overrideSystemValue: true },
         { mySqlTable: mysqlUserTipOfTheDay, pgTable: pgUserTipOfTheDay },
         { mySqlTable: mysqlHistoryUser, pgTable: pgHistoryUser },
         { mySqlTable: mysqlHistoryUserData, pgTable: pgHistoryUserData, overrideSystemValue: true },
@@ -85,7 +90,7 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
         { mySqlTable: mysqlReportConfig, pgTable: pgReportConfig, overrideSystemValue: true },
         { mySqlTable: mysqlHistoryReportConfig, pgTable: pgHistoryReportConfig, overrideSystemValue: true },
         { mySqlTable: mysqlSensor, pgTable: pgSensor },
-        // { mySqlTable: mysqlSensorData, pgTable: pgSensorData },
+        { mySqlTable: mysqlSensorData, pgTable: pgSensorData, overrideSystemValue: true },
         { mySqlTable: mysqlSensorHistory, pgTable: pgSensorHistory },
         { mySqlTable: mysqlSensorToken, pgTable: pgSensorToken },
         { mySqlTable: mysqlSensorSequenceMarkingLog, pgTable: pgSensorSequenceMarkingLog },
@@ -100,7 +105,10 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
         if (data.length > 0) {
             await pgTrx.delete(pgTable).execute(); // TODO: Make configurable
 
-            const insertQuery = pgTrx.insert(pgTable).values(data).getSQL();
+            const insertQuery = pgTrx
+                .insert(pgTable)
+                .values(...data)
+                .getSQL();
             if (overrideSystemValue) {
                 // Some hacky way to insert data with OVERRIDING SYSTEM VALUE because drizzle-orm does not support it
                 insertQuery.queryChunks.splice(6, 0, sql` OVERRIDING SYSTEM VALUE `);
@@ -109,4 +117,23 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
         }
         console.log(`Table ${tableName} migrated ✅`);
     }
+}
+
+/**
+ * Performs all migrations that require manual intervention.
+ */
+async function manualMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
+    console.log("Starting manual migrations.");
+
+    // Migrate user_experiment_data
+    // console.log("Migrating user_experiment_data...");
+    // const userExperimentData = await mysqlTrx.select().from(mysqlUserExperimentData);
+    // await pgTrx.delete(pgUserExperimentData).execute(); // TODO: Make configurable
+    // await pgTrx.insert(pgUserExperimentData).values(userExperimentData);
+
+    // Migrate sensor_data
+    // console.log("Migrating sensor_data...");
+    // const sensorData = await mysqlTrx.select().from(mysqlSensorData);
+    // await pgTrx.delete(pgSensorData).execute(); // TODO: Make configurable
+    // await pgTrx.insert(pgSensorData).values(sensorData);
 }
