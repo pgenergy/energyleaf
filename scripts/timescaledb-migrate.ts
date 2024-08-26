@@ -22,6 +22,7 @@ import {
     userExperimentData as mysqlUserExperimentData,
     userTipOfTheDay as mysqlUserTipOfTheDay,
 } from "@energyleaf/db/schema";
+import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { type DB as PgDB, db as pgDb } from "@energyleaf/postgres";
 import {
     device as pgDevice,
@@ -55,16 +56,26 @@ import {
 import { getTableName, sql } from "drizzle-orm";
 
 export async function timescaleDbMigrate(args: string[]) {
-    await db.transaction(async (mysqlTrx) => {
-        await pgDb.transaction(async (pgTrx) => {
-            console.log("Starting migration.");
+    // await db.transaction(
+    //     async (mysqlTrx) => {
+    await pgDb.transaction(async (pgTrx) => {
+        console.log("Starting migration.");
 
-            await automaticMigrations(mysqlTrx, pgTrx);
-            await manualMigrations(mysqlTrx, pgTrx);
+        // Start stopwatch
+        const start = Date.now();
 
-            console.log("Migration done 🎉");
-        });
+        await automaticMigrations(db, pgTrx);
+        await manualMigrations(db, pgTrx);
+
+        console.log("Migration done 🎉");
+
+        // Stop stopwatch
+        const end = Date.now();
+        console.log(`Migration took ${end - start}ms.`);
     });
+    // },
+    //     { isolationLevel: "read committed", accessMode: "read only", withConsistentSnapshot: true },
+    // );
 }
 
 /**
@@ -84,13 +95,12 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
         { mySqlTable: mysqlDevice, pgTable: pgDevice, overrideSystemValue: true },
         { mySqlTable: mysqlDeviceHistory, pgTable: pgDeviceHistory, overrideSystemValue: true },
         { mySqlTable: mysqlDeviceToPeak, pgTable: pgDeviceToPeak },
-        { mySqlTable: mysqlLogs, pgTable: pgLogs, overrideSystemValue: true },
+        // { mySqlTable: mysqlLogs, pgTable: pgLogs, overrideSystemValue: true },
         { mySqlTable: mysqlReports, pgTable: pgReports },
         { mySqlTable: mysqlReportsDayStatistics, pgTable: pgReportsDayStatistics },
         { mySqlTable: mysqlReportConfig, pgTable: pgReportConfig, overrideSystemValue: true },
         { mySqlTable: mysqlHistoryReportConfig, pgTable: pgHistoryReportConfig, overrideSystemValue: true },
         { mySqlTable: mysqlSensor, pgTable: pgSensor },
-        { mySqlTable: mysqlSensorData, pgTable: pgSensorData, overrideSystemValue: true },
         { mySqlTable: mysqlSensorHistory, pgTable: pgSensorHistory },
         { mySqlTable: mysqlSensorToken, pgTable: pgSensorToken },
         { mySqlTable: mysqlSensorSequenceMarkingLog, pgTable: pgSensorSequenceMarkingLog },
@@ -100,21 +110,16 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
     for (const { mySqlTable, pgTable, overrideSystemValue } of automaticMigrations) {
         const tableName = getTableName(mySqlTable);
         console.log(`Automatically migrating table ${tableName}...`);
+
         const data = await mysqlTrx.select().from(mySqlTable);
-
-        if (data.length > 0) {
-            await pgTrx.delete(pgTable).execute(); // TODO: Make configurable
-
-            const insertQuery = pgTrx
-                .insert(pgTable)
-                .values(...data)
-                .getSQL();
-            if (overrideSystemValue) {
-                // Some hacky way to insert data with OVERRIDING SYSTEM VALUE because drizzle-orm does not support it
-                insertQuery.queryChunks.splice(6, 0, sql` OVERRIDING SYSTEM VALUE `);
-            }
-            await pgTrx.execute(insertQuery);
+        await pgTrx.delete(pgTable).execute(); // TODO: Make configurable
+        const insertQuery = pgTrx.insert(pgTable).values(data).getSQL();
+        if (overrideSystemValue) {
+            // Some hacky way to insert data with OVERRIDING SYSTEM VALUE because drizzle-orm does not support it
+            insertQuery.queryChunks.splice(6, 0, sql` OVERRIDING SYSTEM VALUE `);
         }
+        await pgTrx.execute(insertQuery);
+
         console.log(`Table ${tableName} migrated ✅`);
     }
 }
@@ -125,15 +130,52 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
 async function manualMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
     console.log("Starting manual migrations.");
 
-    // Migrate user_experiment_data
-    // console.log("Migrating user_experiment_data...");
-    // const userExperimentData = await mysqlTrx.select().from(mysqlUserExperimentData);
-    // await pgTrx.delete(pgUserExperimentData).execute(); // TODO: Make configurable
-    // await pgTrx.insert(pgUserExperimentData).values(userExperimentData);
-
     // Migrate sensor_data
-    // console.log("Migrating sensor_data...");
-    // const sensorData = await mysqlTrx.select().from(mysqlSensorData);
-    // await pgTrx.delete(pgSensorData).execute(); // TODO: Make configurable
-    // await pgTrx.insert(pgSensorData).values(sensorData);
+    console.log("Migrating sensor_data...");
+    const batchSize = 8000;
+    let data: SensorDataSelectType[] = [];
+    let batchIndex = 0;
+    let finished = false;
+    while (!finished) {
+        data = await mysqlTrx
+            .select()
+            .from(mysqlSensorData)
+            .limit(batchSize)
+            .offset(batchSize * batchIndex++);
+
+        if (data.length === 0) {
+            finished = true;
+            break;
+        }
+
+        const insertQuery = pgTrx.insert(pgSensorData).values(data).onConflictDoNothing().getSQL();
+        // Some hacky way to insert data with OVERRIDING SYSTEM VALUE because drizzle-orm does not support it
+        insertQuery.queryChunks.splice(6, 0, sql` OVERRIDING SYSTEM VALUE `);
+        await pgTrx.execute(insertQuery);
+    }
+    console.log("Table sensor_data migrated ✅");
+
+    // Migrate logs
+    console.log("Migrating logs...");
+    let logs: {}[] = [];
+    batchIndex = 0;
+    finished = false;
+    while (!finished) {
+        logs = await mysqlTrx
+            .select()
+            .from(mysqlLogs)
+            .limit(batchSize)
+            .offset(batchSize * batchIndex++);
+
+        if (logs.length === 0) {
+            finished = true;
+            break;
+        }
+
+        const insertQuery = pgTrx.insert(pgLogs).values(logs).onConflictDoNothing().getSQL();
+        // Some hacky way to insert data with OVERRIDING SYSTEM VALUE because drizzle-orm does not support it
+        insertQuery.queryChunks.splice(6, 0, sql` OVERRIDING SYSTEM VALUE `);
+        await pgTrx.execute(insertQuery);
+    }
+    console.log("Table logs migrated ✅");
 }
