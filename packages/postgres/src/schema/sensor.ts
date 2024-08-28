@@ -143,7 +143,7 @@ export const sensorDataWeekTable = pgMaterializedView("sensor_data_week")
     .as((qb) => {
         return qb
             .select({
-                bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 day')`.as("bucket"),
+                bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 week')`.as("bucket"),
                 ...sensorDataAggFields,
             })
             .from(sensorDataTable)
@@ -158,7 +158,7 @@ export const sensorDataMonthTable = pgMaterializedView("sensor_data_month")
     .as((qb) => {
         return qb
             .select({
-                bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 day')`.as("bucket"),
+                bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 month')`.as("bucket"),
                 ...sensorDataAggFields,
             })
             .from(sensorDataTable)
