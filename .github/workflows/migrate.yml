@@ -4,7 +4,7 @@ on:
       - main
 
 jobs:
-  Linting:
+  Migrate:
     runs-on: ubuntu-latest
     env:
       HASH_SECRET: ${{ secrets.HASH_SECRET }}
@@ -52,5 +52,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Lint
+      - name: Migrate
         run: pnpm pg:migrate
