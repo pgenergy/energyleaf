@@ -1,12 +1,12 @@
+import { db as pgDb } from "@energyleaf/postgres";
+import { deviceToPeakTable } from "@energyleaf/postgres/schema/device";
+import { sensorDataSequenceTable, sensorSequenceMarkingLogTable } from "@energyleaf/postgres/schema/sensor";
 import { and, asc, between, desc, eq, lte, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db, { type DB } from "..";
-import { db as pgDb } from "@energyleaf/postgres";
 import { device, deviceToPeak, sensorDataSequence, sensorSequenceMarkingLog } from "../schema";
 import type { SensorDataSelectType, SensorDataSequenceType } from "../types/types";
 import { getRawEnergyForSensorInRange } from "./sensor";
-import { sensorDataSequenceTable, sensorSequenceMarkingLogTable } from "@energyleaf/postgres/schema/sensor";
-import { deviceToPeakTable } from "@energyleaf/postgres/schema/device";
 
 function calculateMedian(values: SensorDataSelectType[]) {
     const sorted = [...values].sort((a, b) => a.value - b.value);
@@ -435,7 +435,7 @@ export async function updateDevicesForPeak(sensorDataSequenceId: string, deviceI
             });
             await pgDb.insert(deviceToPeakTable).values({
                 deviceId,
-                sensorDataSequenceId
+                sensorDataSequenceId,
             });
 
             const newWeeklyUsageEstimation = await calculateAverageWeeklyUsageTimeInHours(deviceId);
