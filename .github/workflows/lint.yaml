@@ -7,6 +7,20 @@ on:
 jobs:
   Linting:
     runs-on: ubuntu-latest
+    env:
+      HASH_SECRET: ${{ secrets.HASH_SECRET }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+      NEXT_PUBLIC_ADMIN_URL: ${{ secrets.NEXT_PUBLIC_ADMIN_URL }}
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      PG_CONNECTION: ${{ secrets.PG_CONNECTION }}
+      PG_DIRECT: ${{ secrets.PG_DIRECT }}
+      ADMIN_MAIL: ${{ secrets.ADMIN_MAIL }}
+      ML_API_KEY: ${{ secrets.ML_API_KEY }}
+      ML_API_URL: ${{ secrets.ML_API_URL }}
 
     steps:
       - name: Checkout
