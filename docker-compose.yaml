@@ -12,9 +12,9 @@ services:
     volumes:
       - ./data/postgres:/home/postgres/pgdata/data
   # ps-mysql:
-  #   # -- for arm --
+  #   -- for arm --
   #   # image: arm64v8/mysql:8.0
-  #   # -- for x86 --
+  #   -- for x86 --
   #   # image: mysql:8.0 -- for x86
   #   restart: always
   #   environment:
