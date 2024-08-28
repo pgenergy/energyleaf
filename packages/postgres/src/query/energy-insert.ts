@@ -1,6 +1,6 @@
+import { and, desc, eq, lt } from "drizzle-orm";
 import { db, genId } from "..";
 import { sensorDataTable, sensorTable } from "../schema/sensor";
-import { and, eq, lt, desc } from "drizzle-orm";
 
 export async function insertRawEnergyValues(
     data: {
@@ -14,12 +14,14 @@ export async function insertRawEnergyValues(
 }
 
 export async function insertRawEnergyValue(sensorId: string, value: number) {
-    return insertRawEnergyValues([{
-       id: genId(30),
-       value,
-       sensorId,
-       timestamp: new Date(),
-    }]);
+    return insertRawEnergyValues([
+        {
+            id: genId(30),
+            value,
+            sensorId,
+            timestamp: new Date(),
+        },
+    ]);
 }
 
 interface SensorDataInput {

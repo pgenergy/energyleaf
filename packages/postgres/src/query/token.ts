@@ -1,6 +1,6 @@
+import { eq } from "drizzle-orm";
 import { db, genId } from "..";
 import { sensorTable, sensorTokenTable } from "../schema/sensor";
-import { eq } from "drizzle-orm";
 
 export async function createSensorToken(clientId: string) {
     const dbReturn = await db.transaction(async (trx) => {

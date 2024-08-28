@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, doublePrecision, integer, pgTable, timestamp, text } from "drizzle-orm/pg-core";
+import { boolean, doublePrecision, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 
 const reportConfigFields = {
@@ -16,15 +16,15 @@ const reportConfigFields = {
         .notNull(),
 };
 
-export const reportConfig = pgTable("report_config", {
+export const reportConfigTable = pgTable("report_config", {
     ...reportConfigFields,
 });
 
-export const historyReportConfig = pgTable("history_report_config", {
+export const historyReportConfigTable = pgTable("history_report_config", {
     ...reportConfigFields,
 });
 
-export const reports = pgTable("report_data", {
+export const reportsTable = pgTable("report_data", {
     id: text("id")
         .primaryKey()
         .notNull()
@@ -43,7 +43,7 @@ export const reports = pgTable("report_data", {
     bestDayConsumption: doublePrecision("best_day_consumption").notNull(),
 });
 
-export const reportsDayStatistics = pgTable("reports_day_statistics", {
+export const reportsDayStatisticsTable = pgTable("reports_day_statistics", {
     id: text("id")
         .primaryKey()
         .notNull()

@@ -89,6 +89,7 @@ export const sensorDataTable = pgTable(
 );
 
 const sensorDataAggFields = {
+    sensorId: sensorDataTable.sensorId,
     maxValue: sql<number>`MAX(${sensorDataTable.value})`.as("max_value"),
     minValue: sql<number>`MIN(${sensorDataTable.value})`.as("min_value"),
     maxValueOut: sql<number>`MAX(${sensorDataTable.valueOut})`.as("max_value_out"),
@@ -112,7 +113,6 @@ export const sensorDataHourTable = pgMaterializedView("sensor_data_hour")
     .as((qb) => {
         return qb
             .select({
-                sensor_id: sensorDataTable.sensorId,
                 bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 hour')`.as("bucket"),
                 ...sensorDataAggFields,
             })
@@ -128,7 +128,6 @@ export const sensorDataDayTable = pgMaterializedView("sensor_data_day")
     .as((qb) => {
         return qb
             .select({
-                sensor_id: sensorDataTable.sensorId,
                 bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 day')`.as("bucket"),
                 ...sensorDataAggFields,
             })
@@ -144,7 +143,6 @@ export const sensorDataWeekTable = pgMaterializedView("sensor_data_week")
     .as((qb) => {
         return qb
             .select({
-                sensor_id: sensorDataTable.sensorId,
                 bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 day')`.as("bucket"),
                 ...sensorDataAggFields,
             })
@@ -160,7 +158,6 @@ export const sensorDataMonthTable = pgMaterializedView("sensor_data_month")
     .as((qb) => {
         return qb
             .select({
-                sensor_id: sensorDataTable.sensorId,
                 bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 day')`.as("bucket"),
                 ...sensorDataAggFields,
             })

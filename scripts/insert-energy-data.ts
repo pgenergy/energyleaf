@@ -1,11 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { findAndMark } from "@energyleaf/db/query";
+import { convertTZDate } from "@energyleaf/lib";
 // import db, { genId } from "@energyleaf/db";
 import { db, genId } from "@energyleaf/postgres";
-import { findAndMark, insertRawEnergyValues } from "@energyleaf/db/query";
 // import { sensorData } from "@energyleaf/db/schema";
 import { sensorDataTable as sensorData } from "@energyleaf/postgres/schema/sensor";
-import { convertTZDate } from "@energyleaf/lib";
 import { differenceInDays } from "date-fns";
 import { and, between, eq } from "drizzle-orm";
 
@@ -51,9 +51,7 @@ export async function insertEnergyData(args: string[]) {
         const splitSize = 1000;
         for (let i = 0; i < processedData.length; i += splitSize) {
             const chunk = processedData.slice(i, i + splitSize);
-            await trx
-                .insert(sensorData)
-                .values(chunk);
+            await trx.insert(sensorData).values(chunk);
         }
     });
 }

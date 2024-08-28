@@ -7,5 +7,5 @@ export default {
         // biome-ignore lint/style/noNonNullAssertion: <explanation>
         url: process.env.PG_CONNECTION!,
     },
-    out: "./drizzle"
+    out: "./drizzle",
 } satisfies Config;

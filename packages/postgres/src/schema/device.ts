@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
-import { DeviceCategory } from "../types/types";
 import { numericType } from "../types/dbTypes";
+import { DeviceCategory } from "../types/types";
 
 const deviceFields = {
     id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity(),
