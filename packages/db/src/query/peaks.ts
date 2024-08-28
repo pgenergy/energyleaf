@@ -1,9 +1,12 @@
 import { and, asc, between, desc, eq, lte, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db, { type DB } from "..";
+import { db as pgDb } from "@energyleaf/postgres";
 import { device, deviceToPeak, sensorDataSequence, sensorSequenceMarkingLog } from "../schema";
 import type { SensorDataSelectType, SensorDataSequenceType } from "../types/types";
 import { getRawEnergyForSensorInRange } from "./sensor";
+import { sensorDataSequenceTable, sensorSequenceMarkingLogTable } from "@energyleaf/postgres/schema/sensor";
+import { deviceToPeakTable } from "@energyleaf/postgres/schema/device";
 
 function calculateMedian(values: SensorDataSelectType[]) {
     const sorted = [...values].sort((a, b) => a.value - b.value);
@@ -349,9 +352,19 @@ async function updateLastMarkingTime(sensorId: string, type: "peak" | "anomaly",
         .from(sensorSequenceMarkingLog)
         .where(and(eq(sensorSequenceMarkingLog.sensorId, sensorId), eq(sensorSequenceMarkingLog.sequenceType, type)));
     if (existing.length === 0) {
+        await pgDb.insert(sensorSequenceMarkingLogTable).values({ sensorId, sequenceType: type, lastMarked: date });
         return trx.insert(sensorSequenceMarkingLog).values({ sensorId, sequenceType: type, lastMarked: date });
     }
 
+    await pgDb
+        .update(sensorSequenceMarkingLogTable)
+        .set({ lastMarked: date })
+        .where(
+            and(
+                eq(sensorSequenceMarkingLogTable.sensorId, sensorId),
+                eq(sensorSequenceMarkingLogTable.sequenceType, type),
+            ),
+        );
     return trx
         .update(sensorSequenceMarkingLog)
         .set({ lastMarked: date })
@@ -392,12 +405,19 @@ async function saveSequences(
                 .update(sensorDataSequence)
                 .set({ end: peaks[0].end })
                 .where(eq(sensorDataSequence.id, lastSequenceOfSensor.id));
+            try {
+                await pgDb
+                    .update(sensorDataSequenceTable)
+                    .set({ end: peaks[0].end })
+                    .where(eq(sensorDataSequenceTable.id, lastSequenceOfSensor.id));
+            } catch (err) {}
             peaks.shift();
         }
     }
 
     if (peaks.length > 0) {
         await trx.insert(sensorDataSequence).values(peaks);
+        await pgDb.insert(sensorDataSequenceTable).values(peaks);
     }
 }
 
@@ -412,6 +432,10 @@ export async function updateDevicesForPeak(sensorDataSequenceId: string, deviceI
             await trx.insert(deviceToPeak).values({
                 deviceId,
                 sensorDataSequenceId,
+            });
+            await pgDb.insert(deviceToPeakTable).values({
+                deviceId,
+                sensorDataSequenceId
             });
 
             const newWeeklyUsageEstimation = await calculateAverageWeeklyUsageTimeInHours(deviceId);

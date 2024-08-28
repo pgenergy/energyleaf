@@ -17,7 +17,7 @@ const deviceFields = {
     weeklyUsageEstimation: numericType("weekly_usage_estimation"),
 };
 
-export const device = pgTable("device", {
+export const deviceTable = pgTable("device", {
     ...deviceFields,
 });
 
@@ -29,7 +29,7 @@ export const deviceHistory = pgTable("history_device", {
 /**
  * A table to handle the n:m relationship between devices and peaks. A peak is an entry in the sensor_data_sequence table.
  */
-export const deviceToPeak = pgTable(
+export const deviceToPeakTable = pgTable(
     "device_to_peak",
     {
         deviceId: integer("device_id").notNull(),
