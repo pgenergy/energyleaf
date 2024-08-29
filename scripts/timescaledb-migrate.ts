@@ -126,7 +126,6 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
     for (const { mySqlTable, pgTable, overrideSystemValue, batched, orderBy } of automaticMigrations) {
         const tableName = getTableName(mySqlTable);
 
-        await pgTrx.delete(pgTable).execute();
 
         if (batched && orderBy) {
             console.log(`Migrating table ${tableName}...`);
