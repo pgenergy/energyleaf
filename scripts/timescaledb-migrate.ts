@@ -1,6 +1,7 @@
 import type { DB as MySqlDB } from "@energyleaf/db";
 import db from "@energyleaf/db";
 import {
+    sensorDataSequence as mySqlSensorDataSequence,
     device as mysqlDevice,
     deviceHistory as mysqlDeviceHistory,
     deviceToPeak as mysqlDeviceToPeak,
@@ -25,20 +26,21 @@ import {
 } from "@energyleaf/db/schema";
 import { type DB as PgDB, db as pgDb } from "@energyleaf/postgres";
 import {
-    device as pgDevice,
+    deviceTable as pgDevice,
     deviceHistory as pgDeviceHistory,
-    deviceToPeak as pgDeviceToPeak,
+    deviceToPeakTable as pgDeviceToPeak,
 } from "@energyleaf/postgres/schema/device";
 import { logs as pgLogs } from "@energyleaf/postgres/schema/logs";
 import {
-    historyReportConfig as pgHistoryReportConfig,
-    reportConfig as pgReportConfig,
-    reports as pgReports,
-    reportsDayStatistics as pgReportsDayStatistics,
+    historyReportConfigTable as pgHistoryReportConfig,
+    reportConfigTable as pgReportConfig,
+    reportsTable as pgReports,
+    reportsDayStatisticsTable as pgReportsDayStatistics,
 } from "@energyleaf/postgres/schema/reports";
 import {
     sensorTable as pgSensor,
     sensorDataTable as pgSensorData,
+    sensorDataSequenceTable as pgSensorDataSequence,
     sensorHistoryTable as pgSensorHistory,
     sensorSequenceMarkingLogTable as pgSensorSequenceMarkingLog,
     sensorTokenTable as pgSensorToken,
@@ -105,6 +107,7 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
         { mySqlTable: mysqlSensorToken, pgTable: pgSensorToken },
         { mySqlTable: mysqlSensorSequenceMarkingLog, pgTable: pgSensorSequenceMarkingLog },
         { mySqlTable: mysqlSensorData, pgTable: pgSensorData, overrideSystemValue: true, batched: true },
+        { mySqlTable: mySqlSensorDataSequence, pgTable: pgSensorDataSequence },
     ];
 
     console.log("Starting automatic migrations.");
