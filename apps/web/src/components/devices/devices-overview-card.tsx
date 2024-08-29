@@ -39,8 +39,8 @@ export default async function DevicesOverviewCard() {
                             {showStandardDeviceHint && (
                                 <p className="mt-1 text-muted-foreground text-sm">
                                     Hinweis: Einige Standardgeräte wurden für Sie initial angelegt. Unsere KI kann diese
-                                    Geräte erkennen und überwachen. Falls Sie jedoch eines dieser Geräte nicht besitzen,
-                                    können Sie es problemlos löschen.
+                                    Geräte erkennen. Falls Sie jedoch eines dieser Geräte nicht besitzen, können Sie es
+                                    problemlos löschen.
                                 </p>
                             )}
                         </CardDescription>

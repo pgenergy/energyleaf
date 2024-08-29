@@ -4,7 +4,6 @@ import {
     createStandardDevicesIfNotExist,
     findAndMark,
     getAllSensors,
-    getRawEnergyForSensorInRange,
     getSequencesBySensor,
     getUserBySensorId,
     log,
@@ -63,14 +62,9 @@ export const GET = async (req: NextRequest) => {
 
                         const peaksToClassify = await Promise.all(
                             peaks.map(async (peak) => {
-                                const electricityData = await getRawEnergyForSensorInRange(
-                                    peak.start,
-                                    peak.end,
-                                    sensorId,
-                                );
                                 return {
                                     id: peak.id,
-                                    electricity: electricityData.map((data) => ({
+                                    electricity: peak.sensorData.map((data) => ({
                                         timestamp: data.timestamp.toISOString(),
                                         power: data.value,
                                     })),

@@ -42,6 +42,10 @@ export type SensorDataSelectType = typeof sensorData.$inferSelect;
 
 export type SensorDataSequenceType = typeof sensorDataSequence.$inferSelect;
 
+export interface SensorDataSequenceTypeWithSensorData extends SensorDataSequenceType {
+    sensorData: SensorDataSelectType[];
+}
+
 export type SensorDeviceSequenceSelectType = typeof deviceToPeak.$inferSelect;
 
 export type SensorSelectTypeWithUser = {
