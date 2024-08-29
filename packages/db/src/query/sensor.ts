@@ -1,5 +1,7 @@
 import { AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
 import { SensorAlreadyExistsError } from "@energyleaf/lib/errors/sensor";
+import { db as pgDb } from "@energyleaf/postgres";
+import { sensorDataTable } from "@energyleaf/postgres/schema/sensor";
 import { and, between, desc, eq, getTableColumns, gt, gte, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db from "../";
@@ -552,6 +554,15 @@ export async function insertSensorData(data: SensorDataInput) {
                 valueCurrent: data.valueCurrent,
                 timestamp: data.timestamp,
             });
+            await pgDb.insert(sensorDataTable).values({
+                sensorId: dbSensor.id,
+                value: newValue,
+                consumption: 0,
+                valueOut: data.valueOut,
+                inserted: 0,
+                valueCurrent: data.valueCurrent,
+                timestamp: data.timestamp,
+            });
             return;
         }
         const lastEntry = lastEntries[0];
@@ -561,13 +572,13 @@ export async function insertSensorData(data: SensorDataInput) {
             return;
         }
 
-        // in this check we allow 0.4 kwh per minute
-        // so for 15 seconds which is currently the sensor rate we allow 0.1 kwh
-        // in an hour this would be 24 kwh
+        // in this check we allow 0.6 kwh per minute
+        // so for 15 seconds which is currently the sensor rate we allow 0.15 kwh
+        // in an hour this would be 36 kwh
         // this is a very high value and should never be reached
         // but is hopefully a good protection against faulty sensors
         const timeDiff = (new Date().getTime() - lastEntry.timestamp.getTime()) / 1000 / 60;
-        if (newValue - lastEntry.value > timeDiff * 0.4) {
+        if (newValue - lastEntry.value > timeDiff * 0.6) {
             throw new Error("value/too-high");
         }
 
@@ -597,6 +608,15 @@ export async function insertSensorData(data: SensorDataInput) {
         const inserted = valueOut && lastEntry.valueOut ? valueOut - lastEntry.valueOut : null;
 
         await trx.insert(sensorData).values({
+            sensorId: dbSensor.id,
+            value: newValue,
+            consumption,
+            valueOut,
+            inserted,
+            valueCurrent,
+            timestamp: data.timestamp,
+        });
+        await pgDb.insert(sensorDataTable).values({
             sensorId: dbSensor.id,
             value: newValue,
             consumption,

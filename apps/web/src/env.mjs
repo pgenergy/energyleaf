@@ -15,6 +15,9 @@ export const env = createEnv({
         ML_API_URL: z.string(),
         ML_API_KEY: z.string(),
 
+        PG_CONNECTION: z.string(),
+        PG_DIRECT: z.string(),
+
         RESEND_API_KEY: z.string().optional(),
         RESEND_API_MAIL: z.string().email().optional(),
 
