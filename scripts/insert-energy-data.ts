@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import db, { genId } from "@energyleaf/db";
-import { findAndMark, insertRawEnergyValues } from "@energyleaf/db/query";
-import { sensorData } from "@energyleaf/db/schema";
+import { findAndMark } from "@energyleaf/db/query";
 import { convertTZDate } from "@energyleaf/lib";
+import { db, genId } from "@energyleaf/postgres";
+import { sensorDataTable as sensorData } from "@energyleaf/postgres/schema/sensor";
 import { differenceInDays } from "date-fns";
 import { and, between, eq } from "drizzle-orm";
 
@@ -13,8 +13,8 @@ export async function insertEnergyData(args: string[]) {
         throw new Error("sensorId is required");
     }
 
-    const filePath = path.join(process.cwd(), "apps", "web", "src", "lib", "demo");
-    const fileContent = await fs.readFile(path.join(filePath, "demo.json"));
+    const filePath = path.join(process.cwd());
+    const fileContent = await fs.readFile(path.join(filePath, "download.json"));
     const current = new Date();
     const data = JSON.parse(fileContent.toString()) as {
         id: string;
@@ -23,24 +23,35 @@ export async function insertEnergyData(args: string[]) {
         valueOut: number | null;
         valueCurrent: number | null;
         timestamp: string;
+        consumption: number;
+        inserted: number;
     }[];
 
     const lastEntry = data[data.length - 1];
     const timeDiff = differenceInDays(current, new Date(lastEntry.timestamp));
 
-    const processedData = data.map((d) => {
+    const processedData = data.map((d, i) => {
         const newDate = new Date(d.timestamp);
         newDate.setDate(newDate.getDate() + timeDiff + 1);
+        const consumption: number = i === 0 ? 0 : d.value - data[i - 1].value;
 
         return {
             ...d,
             id: genId(),
             timestamp: newDate,
+            consumption,
             sensorId,
         };
     });
 
-    await insertRawEnergyValues(processedData);
+    // chunk data
+    await db.transaction(async (trx) => {
+        const splitSize = 1000;
+        for (let i = 0; i < processedData.length; i += splitSize) {
+            const chunk = processedData.slice(i, i + splitSize);
+            await trx.insert(sensorData).values(chunk);
+        }
+    });
 }
 
 export async function download(args: string[]) {
@@ -66,49 +77,6 @@ export async function download(args: string[]) {
         .from(sensorData)
         .where(and(eq(sensorData.sensorId, sensorId), between(sensorData.timestamp, queryStart, queryEnd)));
     await fs.writeFile(filePath, JSON.stringify(data));
-}
-
-export async function upload(args: string[]) {
-    const sensorId = args[0];
-    if (!sensorId) {
-        throw new Error("sensorId is required");
-    }
-
-    const filePath = path.join(process.cwd());
-    const fileContent = await fs.readFile(path.join(filePath, "download.json"));
-    const data = JSON.parse(fileContent.toString()) as {
-        id: string;
-        sensorId: string;
-        value: number;
-        valueOut: number | null;
-        valueCurrent: number | null;
-        timestamp: string;
-    }[];
-
-    const processedData = data.map((d, i) => {
-        const totalBefore = data.slice(0, i).reduce((acc, d) => acc + d.value, 0);
-        const newDate = new Date(d.timestamp);
-        newDate.setDate(newDate.getDate() + 7);
-
-        return {
-            ...d,
-            value: i === 0 ? 0 : d.value + totalBefore,
-            valueCurrent: i === 0 ? 0 : d.valueCurrent,
-            valueOut: null,
-            timestamp: newDate,
-        };
-    });
-
-    const splitSize = 1000;
-    for (let i = 0; i < processedData.length; i += splitSize) {
-        const chunk = processedData.slice(i, i + splitSize);
-        await insertRawEnergyValues(
-            chunk.map((d) => ({
-                ...d,
-                sensorId,
-            })),
-        );
-    }
 }
 
 export async function markPeaks(args: string[]) {

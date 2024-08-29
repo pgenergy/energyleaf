@@ -26,7 +26,9 @@
     "AWS_REGION",
     "AWS_ENDPOINT_URL_S3",
     "BUCKET_NAME",
-    "FILE_URL"
+    "FILE_URL",
+    "PG_CONNECTION",
+    "PG_DIRECT"
   ],
   "tasks": {
     "build": {

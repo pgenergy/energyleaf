@@ -1,11 +1,10 @@
 on:
-  pull_request:
+  push:
     branches:
       - main
-      - development
 
 jobs:
-  Linting:
+  Migrate:
     runs-on: ubuntu-latest
     env:
       HASH_SECRET: ${{ secrets.HASH_SECRET }}
@@ -53,5 +52,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Lint
-        run: pnpm lint
+      - name: Migrate
+        run: pnpm pg:migrate
