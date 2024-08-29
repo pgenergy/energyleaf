@@ -1,7 +1,7 @@
 import { type SQLWrapper, and, eq, sql } from "drizzle-orm";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import db, { type DB } from "../";
-import { device, deviceHistory, deviceToPeak, sensorDataSequence, userData } from "../schema";
+import { device, deviceHistory, deviceSuggestionsPeak, deviceToPeak, sensorDataSequence, userData } from "../schema";
 import type { DeviceCategory } from "../types/types";
 
 export async function getDevicesByUser(userId: string, search?: string) {
@@ -169,26 +169,14 @@ async function copyToHistoryTable(
     });
 }
 
-export async function saveDeviceToPeakDb(sensorDataSequenceId: string, deviceName: string, userId: string) {
-    try {
-        const deviceResult = await db
-            .select()
-            .from(device)
-            .where(and(eq(device.name, deviceName), eq(device.userId, userId)))
-            .limit(1);
-
-        if (deviceResult.length === 0) {
-            throw new Error("Gerät nicht gefunden.");
-        }
-
-        await db.insert(deviceToPeak).values({
-            deviceId: deviceResult[0].id,
-            sensorDataSequenceId,
-        });
-    } catch (error) {
-        console.error("Error saving device to peak:", error);
-        throw new Error("Failed to save device to peak.");
-    }
+export async function saveDeviceSuggestionsToPeakDb(
+    sensorDataSequenceId: string,
+    suggestions: DeviceCategory[],
+    userId: string,
+) {
+    await db
+        .insert(deviceSuggestionsPeak)
+        .values(suggestions.map((category) => ({ sensorDataSequenceId, deviceCategory: category })));
 }
 
 export async function createStandardDevicesIfNotExist(userId: string) {

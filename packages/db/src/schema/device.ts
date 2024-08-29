@@ -38,3 +38,12 @@ export const deviceToPeak = mysqlTable(
         };
     },
 );
+
+/**
+ * Stores suggestions for device categories per peak provided by a ML model.
+ */
+export const deviceSuggestionsPeak = mysqlTable("device_suggestions_peak", {
+    id: int("id").autoincrement().primaryKey().notNull(),
+    sensorDataSequenceId: varchar("sensor_data_sequence_id", { length: 30 }).notNull(),
+    deviceCategory: mysqlEnum("device_category", Object.values(DeviceCategory) as [string, ...string[]]).notNull(),
+});

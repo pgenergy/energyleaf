@@ -66,7 +66,7 @@ export const GET = async (req: NextRequest) => {
                                     id: peak.id,
                                     electricity: peak.sensorData.map((data) => ({
                                         timestamp: data.timestamp.toISOString(),
-                                        power: data.consumption ?? 0, // Normally shouldn't be null
+                                        power: (data.consumption ?? 0) / 1000, // Normally shouldn't be null
                                     })),
                                 };
                             }),
