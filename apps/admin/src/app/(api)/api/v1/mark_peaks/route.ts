@@ -1,7 +1,6 @@
 import { env } from "@/env.mjs";
 import { classifyAndSaveDevicesForPeaks } from "@/query/peak";
 import {
-    createStandardDevicesIfNotExist,
     findAndMark,
     getAllSensors,
     getSequencesBySensor,
@@ -56,8 +55,6 @@ export const GET = async (req: NextRequest) => {
                     const user = await getUserBySensorId(sensorId);
 
                     if (user && fulfills(user.appVersion, Versions.support)) {
-                        await createStandardDevicesIfNotExist(user.userId);
-
                         const peaks = await getSequencesBySensor(sensorId, { start: startDate, end: endDate });
 
                         const peaksToClassify = await Promise.all(

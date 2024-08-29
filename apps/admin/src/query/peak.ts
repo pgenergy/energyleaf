@@ -37,7 +37,7 @@ export async function classifyAndSaveDevicesForPeaks(
                 .map((device) => deviceCategoryMapping[device.name]);
 
             if (devicesToSave.length > 0) {
-                await saveDevicesToPeak(peak.id, devicesToSave, userId);
+                await saveDevicesToPeak(peak.id, devicesToSave);
             }
         }
     } catch (error) {
@@ -48,6 +48,6 @@ export async function classifyAndSaveDevicesForPeaks(
     }
 }
 
-async function saveDevicesToPeak(peakId: string, devices: DeviceCategory[], userId: string) {
-    await saveDeviceSuggestionsToPeakDb(peakId, devices, userId);
+async function saveDevicesToPeak(peakId: string, devices: DeviceCategory[]) {
+    await saveDeviceSuggestionsToPeakDb(peakId, devices);
 }

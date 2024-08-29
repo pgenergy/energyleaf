@@ -169,40 +169,10 @@ async function copyToHistoryTable(
     });
 }
 
-export async function saveDeviceSuggestionsToPeakDb(
-    sensorDataSequenceId: string,
-    suggestions: DeviceCategory[],
-    userId: string,
-) {
+export async function saveDeviceSuggestionsToPeakDb(sensorDataSequenceId: string, suggestions: DeviceCategory[]) {
     await db
         .insert(deviceSuggestionsPeak)
         .values(suggestions.map((category) => ({ sensorDataSequenceId, deviceCategory: category })));
-}
-
-export async function createStandardDevicesIfNotExist(userId: string) {
-    const existingDevices = await getDevicesByUser(userId);
-    const existingDeviceNames = new Set(existingDevices.map((device) => device.name));
-
-    const deletedDevices = await db.select().from(deviceHistory).where(eq(deviceHistory.userId, userId));
-    const deletedDeviceNames = new Set(deletedDevices.map((device) => device.name));
-
-    const standardDevices = [
-        { name: "Waschmaschine", category: "washingMachine" },
-        { name: "Spülmaschine", category: "dishwasher" },
-        { name: "Gefrierschrank", category: "freezer" },
-        { name: "Kühlschrank", category: "fridge" },
-        { name: "Mikrowelle", category: "microwave" },
-    ];
-
-    for (const device of standardDevices) {
-        if (!existingDeviceNames.has(device.name) && !deletedDeviceNames.has(device.name)) {
-            await createDevice({
-                name: device.name,
-                category: device.category,
-                userId: userId,
-            });
-        }
-    }
 }
 
 export async function getPeaksWithoutDevices(peaks: { id: string }[]) {
