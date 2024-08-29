@@ -1,6 +1,8 @@
 import { and, desc, eq, gt, lt, lte, or, sql } from "drizzle-orm";
 
 import type { LastReport, ReportProps } from "@energyleaf/lib";
+import { db as pgDb } from "@energyleaf/postgres";
+import { reportsDayStatisticsTable, reportsTable } from "@energyleaf/postgres/schema/reports";
 import db, { type DB, genId } from "../";
 import { reportConfig, reports, reportsDayStatistics } from "../schema/reports";
 import { user } from "../schema/user";
@@ -237,9 +239,32 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
             worstDay: reportProps.worstDay.day,
             worstDayConsumption: reportProps.worstDay.consumption,
         });
+        await pgDb.insert(reportsTable).values({
+            id: reportId,
+            timestamp: new Date(),
+            dateFrom: reportProps.dateFrom,
+            dateTo: reportProps.dateTo,
+            userId: userId,
+            totalEnergyConsumption: reportProps.totalEnergyConsumption,
+            avgEnergyConsumptionPerDay: reportProps.avgEnergyConsumptionPerDay,
+            totalEnergyCost: reportProps.totalEnergyCost,
+            avgEnergyCost: reportProps.avgEnergyCost,
+            bestDay: reportProps.bestDay.day,
+            bestDayConsumption: reportProps.bestDay.consumption,
+            worstDay: reportProps.worstDay.day,
+            worstDayConsumption: reportProps.worstDay.consumption,
+        });
 
         for (const dayStat of reportProps.dayEnergyStatistics ?? []) {
             await trx.insert(reportsDayStatistics).values({
+                date: dayStat.day,
+                dailyConsumption: dayStat.dailyConsumption,
+                progress: dayStat.progress,
+                exceeded: dayStat.exceeded,
+                dailyGoal: dayStat.dailyGoal,
+                reportId: reportId,
+            });
+            await pgDb.insert(reportsDayStatisticsTable).values({
                 date: dayStat.day,
                 dailyConsumption: dayStat.dailyConsumption,
                 progress: dayStat.progress,
