@@ -86,6 +86,20 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
     // overrideSystemValue is used to insert data with OVERRIDING SYSTEM VALUE which is required for fields with default values.
     // batched is used to enable batch insert. This is needed to prevent the drizzle issue "Maximum call stack size exceeded.". (https://github.com/drizzle-team/drizzle-orm/issues/2063)
     const automaticMigrations = [
+        {
+            mySqlTable: mysqlSensorData,
+            pgTable: pgSensorData,
+            overrideSystemValue: true,
+            batched: true,
+            orderBy: mysqlSensorData.timestamp,
+        },
+        {
+            mySqlTable: mysqlLogs,
+            pgTable: pgLogs,
+            overrideSystemValue: true,
+            batched: true,
+            orderBy: mysqlLogs.timestamp,
+        },
         { mySqlTable: mysqlUser, pgTable: pgUser },
         { mySqlTable: mysqlUserData, pgTable: pgUserData, overrideSystemValue: true },
         { mySqlTable: mysqlUserExperimentData, pgTable: pgUserExperimentData, overrideSystemValue: true },
@@ -97,13 +111,6 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
         { mySqlTable: mysqlDevice, pgTable: pgDevice, overrideSystemValue: true },
         { mySqlTable: mysqlDeviceHistory, pgTable: pgDeviceHistory, overrideSystemValue: true },
         { mySqlTable: mysqlDeviceToPeak, pgTable: pgDeviceToPeak },
-        {
-            mySqlTable: mysqlLogs,
-            pgTable: pgLogs,
-            overrideSystemValue: true,
-            batched: true,
-            orderBy: mysqlLogs.timestamp,
-        },
         { mySqlTable: mysqlReports, pgTable: pgReports },
         { mySqlTable: mysqlReportsDayStatistics, pgTable: pgReportsDayStatistics },
         { mySqlTable: mysqlReportConfig, pgTable: pgReportConfig, overrideSystemValue: true },
@@ -113,13 +120,6 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
         { mySqlTable: mysqlSensorToken, pgTable: pgSensorToken },
         { mySqlTable: mysqlSensorSequenceMarkingLog, pgTable: pgSensorSequenceMarkingLog },
         { mySqlTable: mySqlSensorDataSequence, pgTable: pgSensorDataSequence },
-        {
-            mySqlTable: mysqlSensorData,
-            pgTable: pgSensorData,
-            overrideSystemValue: true,
-            batched: true,
-            orderBy: mysqlSensorData.timestamp,
-        },
     ];
 
     console.log("Starting automatic migrations.");
