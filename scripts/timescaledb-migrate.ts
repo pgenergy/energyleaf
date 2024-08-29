@@ -56,7 +56,7 @@ import {
     userTipOfTheDay as pgUserTipOfTheDay,
 } from "@energyleaf/postgres/schema/user";
 import { getTableName, sql } from "drizzle-orm";
-import type { MySqlTable } from "drizzle-orm/mysql-core";
+import type { MySqlColumn, MySqlTable } from "drizzle-orm/mysql-core";
 import type { PgTable } from "drizzle-orm/pg-core";
 
 export async function timescaleDbMigrate(args: string[]) {
@@ -97,7 +97,13 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
         { mySqlTable: mysqlDevice, pgTable: pgDevice, overrideSystemValue: true },
         { mySqlTable: mysqlDeviceHistory, pgTable: pgDeviceHistory, overrideSystemValue: true },
         { mySqlTable: mysqlDeviceToPeak, pgTable: pgDeviceToPeak },
-        { mySqlTable: mysqlLogs, pgTable: pgLogs, overrideSystemValue: true, batched: true },
+        {
+            mySqlTable: mysqlLogs,
+            pgTable: pgLogs,
+            overrideSystemValue: true,
+            batched: true,
+            orderBy: mysqlLogs.timestamp,
+        },
         { mySqlTable: mysqlReports, pgTable: pgReports },
         { mySqlTable: mysqlReportsDayStatistics, pgTable: pgReportsDayStatistics },
         { mySqlTable: mysqlReportConfig, pgTable: pgReportConfig, overrideSystemValue: true },
@@ -106,19 +112,25 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
         { mySqlTable: mysqlSensorHistory, pgTable: pgSensorHistory },
         { mySqlTable: mysqlSensorToken, pgTable: pgSensorToken },
         { mySqlTable: mysqlSensorSequenceMarkingLog, pgTable: pgSensorSequenceMarkingLog },
-        { mySqlTable: mysqlSensorData, pgTable: pgSensorData, overrideSystemValue: true, batched: true },
         { mySqlTable: mySqlSensorDataSequence, pgTable: pgSensorDataSequence },
+        {
+            mySqlTable: mysqlSensorData,
+            pgTable: pgSensorData,
+            overrideSystemValue: true,
+            batched: true,
+            orderBy: mysqlSensorData.timestamp,
+        },
     ];
 
     console.log("Starting automatic migrations.");
-    for (const { mySqlTable, pgTable, overrideSystemValue, batched } of automaticMigrations) {
+    for (const { mySqlTable, pgTable, overrideSystemValue, batched, orderBy } of automaticMigrations) {
         const tableName = getTableName(mySqlTable);
 
         await pgTrx.delete(pgTable).execute();
 
-        if (batched) {
+        if (batched && orderBy) {
             console.log(`Migrating table ${tableName}...`);
-            await batchInsertData(mySqlTable, mysqlTrx, pgTable, pgTrx, overrideSystemValue);
+            await batchInsertData(mySqlTable, mysqlTrx, pgTable, pgTrx, orderBy, overrideSystemValue);
         } else {
             console.log(`Migrating table ${tableName} with batching...`);
             const data = await mysqlTrx.select().from(mySqlTable);
@@ -143,6 +155,7 @@ async function batchInsertData(
     mysqlTrx: MySqlDB,
     pgTable: PgTable,
     pgTrx: PgDB,
+    orderBy: MySqlColumn,
     overrideSystemValue?: boolean,
 ) {
     const batchSize = 8000;
@@ -153,7 +166,8 @@ async function batchInsertData(
             .select()
             .from(mysqlTable)
             .limit(batchSize)
-            .offset(batchSize * batchIndex++);
+            .offset(batchSize * batchIndex++)
+            .orderBy(orderBy);
 
         if (data.length === 0) {
             finished = true;
