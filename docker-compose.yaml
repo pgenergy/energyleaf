@@ -11,37 +11,37 @@ services:
       - 5432:5432
     volumes:
       - ./data/postgres:/home/postgres/pgdata/data
-  ps-mysql:
-    # -- for arm --
-    # image: arm64v8/mysql:8.0
-    # -- for x86 --
-    # image: mysql:8.0 -- for x86
-    restart: always
-    environment:
-      MYSQL_DATABASE: energyleaf
-      MYSQL_ROOT_HOST: "%"
-      MYSQL_ROOT_PASSWORD: root
-    command:
-      [
-        "--max_connections=1000",
-        "--default-authentication-plugin=mysql_native_password",
-      ]
-    ports:
-      - 3306:3306
-    volumes:
-      - ./data/mysql:/var/lib/mysql
-  planetscale-proxy:
-    image: ghcr.io/mattrobenolt/ps-http-sim:v0.0.9
-    command:
-      [
-        "-listen-port=3900",
-        "-mysql-dbname=energyleaf",
-        "-mysql-addr=ps-mysql",
-        "-mysql-max-rows=10000000"
-      ]
-    depends_on:
-      - ps-mysql
-    ports:
-      - 3900:3900
-    links:
-      - ps-mysql
+  # ps-mysql:
+  #   -- for arm --
+  #   # image: arm64v8/mysql:8.0
+  #   -- for x86 --
+  #   # image: mysql:8.0 -- for x86
+  #   restart: always
+  #   environment:
+  #     MYSQL_DATABASE: energyleaf
+  #     MYSQL_ROOT_HOST: "%"
+  #     MYSQL_ROOT_PASSWORD: root
+  #   command:
+  #     [
+  #       "--max_connections=1000",
+  #       "--default-authentication-plugin=mysql_native_password",
+  #     ]
+  #   ports:
+  #     - 3306:3306
+  #   volumes:
+  #     - ./data/mysql:/var/lib/mysql
+  # planetscale-proxy:
+  #   image: ghcr.io/mattrobenolt/ps-http-sim:v0.0.9
+  #   command:
+  #     [
+  #       "-listen-port=3900",
+  #       "-mysql-dbname=energyleaf",
+  #       "-mysql-addr=ps-mysql",
+  #       "-mysql-max-rows=10000000"
+  #     ]
+  #   depends_on:
+  #     - ps-mysql
+  #   ports:
+  #     - 3900:3900
+  #   links:
+  #     - ps-mysql

@@ -1,4 +1,6 @@
-import type { sensorTable } from "../schema/sensor";
+import type { sensorDataTable, sensorTable } from "../schema/sensor";
+
+export type SensorDataSelectType = typeof sensorDataTable.$inferSelect;
 
 export type SensorInsertType = typeof sensorTable.$inferInsert;
 

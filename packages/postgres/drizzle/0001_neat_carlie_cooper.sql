@@ -1,6 +1,6 @@
 -- Custom SQL migration file, put you code below! --
-SELECT * FROM create_hypertable('sensor_data', by_range('timestamp', INTERVAL '1 day'));--> statement-breakpoint
-SELECT * FROM add_dimension('sensor_data', by_hash('sensor_id', 10));--> statement-breakpoint
+SELECT * FROM create_hypertable('sensor_data', 'timestamp', chunk_time_interval => INTERVAL '1 day');--> statement-breakpoint
+SELECT * FROM add_dimension('sensor_data', 'sensor_id', number_partitions => 10, if_not_exists => true);--> statement-breakpoint
 
 CREATE MATERIALIZED VIEW "sensor_data_hour" WITH (timescaledb.continuous = true) AS
     SELECT
@@ -25,7 +25,7 @@ CREATE MATERIALIZED VIEW "sensor_data_hour" WITH (timescaledb.continuous = true)
 --> statement-breakpoint
 
 SELECT add_continuous_aggregate_policy('sensor_data_hour',
-  start_offset => INTERVAL '3 hours',
+  start_offset => INTERVAL '4 hours',
   end_offset   => INTERVAL '1 hour',
   schedule_interval => INTERVAL '1 hour');
 --> statement-breakpoint
@@ -53,7 +53,7 @@ CREATE MATERIALIZED VIEW "sensor_data_day" WITH (timescaledb.continuous = true) 
 --> statement-breakpoint
 
 SELECT add_continuous_aggregate_policy('sensor_data_day',
-  start_offset => INTERVAL '3 days',
+  start_offset => INTERVAL '4 days',
   end_offset   => INTERVAL '1 day',
   schedule_interval => INTERVAL '1 day');
 --> statement-breakpoint
@@ -81,7 +81,7 @@ CREATE MATERIALIZED VIEW "sensor_data_week" WITH (timescaledb.continuous = true)
 --> statement-breakpoint
 
 SELECT add_continuous_aggregate_policy('sensor_data_week',
-  start_offset => INTERVAL '3 weeks',
+  start_offset => INTERVAL '4 weeks',
   end_offset   => INTERVAL '1 week',
   schedule_interval => INTERVAL '1 week');
 --> statement-breakpoint
@@ -108,7 +108,7 @@ CREATE MATERIALIZED VIEW "sensor_data_month" WITH (timescaledb.continuous = true
     WITH NO DATA;
 
 SELECT add_continuous_aggregate_policy('sensor_data_month',
-  start_offset => INTERVAL '3 months',
+  start_offset => INTERVAL '4 months',
   end_offset   => INTERVAL '1 month',
   schedule_interval => INTERVAL '1 month');
 --> statement-breakpoint

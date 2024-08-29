@@ -1,8 +1,16 @@
-import type { SensorInsertType, SensorType } from "../types/types";
-import { db, genId } from "..";
-import { eq, and, ne } from "drizzle-orm";
-import { sensorDataTable, sensorHistoryTable, sensorTable, sensorTokenTable } from "../schema/sensor";
 import { SensorAlreadyExistsError, UserHasSensorOfSameType } from "@energyleaf/lib/errors/sensor";
+import { and, eq, isNotNull, ne } from "drizzle-orm";
+import { db, genId } from "..";
+import { sensorDataTable, sensorHistoryTable, sensorTable, sensorTokenTable } from "../schema/sensor";
+import { type SensorInsertType, SensorType } from "../types/types";
+
+export async function getAllSensors(active?: boolean) {
+    if (active) {
+        return db.select().from(sensorTable).where(isNotNull(sensorTable.userId));
+    }
+
+    return db.select().from(sensorTable);
+}
 
 type CreateSensorType = {
     macAddress: string;
@@ -176,4 +184,30 @@ export async function updateNeedsScript(sensorId: string, needsScript: boolean) 
             needsScript,
         })
         .where(eq(sensorTable.id, sensorId));
+}
+
+export async function getElectricitySensorIdForUser(userId: string) {
+    return await db.transaction(async (trx) => {
+        const query = await trx
+            .select()
+            .from(sensorTable)
+            .where(and(eq(sensorTable.userId, userId), eq(sensorTable.sensorType, SensorType.Electricity)));
+
+        if (query.length > 0) {
+            return query[0].id;
+        }
+
+        // User has no sensor in sensor table? Then check the sensor_history table
+        const history = await trx
+            .select()
+            .from(sensorHistoryTable)
+            .where(
+                and(eq(sensorHistoryTable.userId, userId), eq(sensorHistoryTable.sensorType, SensorType.Electricity)),
+            );
+        if (history.length === 0) {
+            return null;
+        }
+
+        return history[0].sensorId;
+    });
 }

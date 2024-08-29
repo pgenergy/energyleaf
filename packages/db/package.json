@@ -20,6 +20,7 @@
     },
     "dependencies": {
         "@energyleaf/lib": "workspace:^",
+        "@energyleaf/postgres": "workspace:^",
         "@lucia-auth/adapter-drizzle": "^1.1.0",
         "@planetscale/database": "^1.18.0",
         "drizzle-orm": "^0.33.0",

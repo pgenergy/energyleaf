@@ -5,7 +5,7 @@ export default {
     dialect: "postgresql",
     dbCredentials: {
         // biome-ignore lint/style/noNonNullAssertion: <explanation>
-        url: process.env.PG_CONNECTION!,
+        url: process.env.PG_DIRECT!,
     },
-    out: "./drizzle"
+    out: "./drizzle",
 } satisfies Config;
