@@ -113,7 +113,7 @@ export const sensorDataHourTable = pgMaterializedView("sensor_data_hour")
     .as((qb) => {
         return qb
             .select({
-                bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 hour')`.as("bucket"),
+                bucket: sql`time_bucket('1 hour', ${sensorDataTable.timestamp}, 'Europe/Berlin')`.as("bucket"),
                 ...sensorDataAggFields,
             })
             .from(sensorDataTable)
@@ -128,7 +128,7 @@ export const sensorDataDayTable = pgMaterializedView("sensor_data_day")
     .as((qb) => {
         return qb
             .select({
-                bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 day')`.as("bucket"),
+                bucket: sql`time_bucket('1 day', ${sensorDataTable.timestamp}, 'Europe/Berlin')`.as("bucket"),
                 ...sensorDataAggFields,
             })
             .from(sensorDataTable)
@@ -143,7 +143,7 @@ export const sensorDataWeekTable = pgMaterializedView("sensor_data_week")
     .as((qb) => {
         return qb
             .select({
-                bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 week')`.as("bucket"),
+                bucket: sql`time_bucket('1 week', ${sensorDataTable.timestamp}, 'Europe/Berlin')`.as("bucket"),
                 ...sensorDataAggFields,
             })
             .from(sensorDataTable)
@@ -158,7 +158,7 @@ export const sensorDataMonthTable = pgMaterializedView("sensor_data_month")
     .as((qb) => {
         return qb
             .select({
-                bucket: sql`time_bucket(${sensorDataTable.timestamp}, INTERVAL '1 month')`.as("bucket"),
+                bucket: sql`time_bucket('1 month', ${sensorDataTable.timestamp}, 'Europe/Berlin')`.as("bucket"),
                 ...sensorDataAggFields,
             })
             .from(sensorDataTable)
