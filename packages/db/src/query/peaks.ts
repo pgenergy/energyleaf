@@ -352,11 +352,15 @@ async function updateLastMarkingTime(sensorId: string, type: "peak" | "anomaly",
         .from(sensorSequenceMarkingLog)
         .where(and(eq(sensorSequenceMarkingLog.sensorId, sensorId), eq(sensorSequenceMarkingLog.sequenceType, type)));
     if (existing.length === 0) {
-        await pgDb.insert(sensorSequenceMarkingLogTable).values({ sensorId, sequenceType: type, lastMarked: date });
-        return trx.insert(sensorSequenceMarkingLog).values({ sensorId, sequenceType: type, lastMarked: date });
+        await trx.insert(sensorSequenceMarkingLog).values({ sensorId, sequenceType: type, lastMarked: date });
+        return pgDb.insert(sensorSequenceMarkingLogTable).values({ sensorId, sequenceType: type, lastMarked: date });
     }
 
-    await pgDb
+    await trx
+        .update(sensorSequenceMarkingLog)
+        .set({ lastMarked: date })
+        .where(and(eq(sensorSequenceMarkingLog.sensorId, sensorId), eq(sensorSequenceMarkingLog.sequenceType, type)));
+    return pgDb
         .update(sensorSequenceMarkingLogTable)
         .set({ lastMarked: date })
         .where(
@@ -365,10 +369,6 @@ async function updateLastMarkingTime(sensorId: string, type: "peak" | "anomaly",
                 eq(sensorSequenceMarkingLogTable.sequenceType, type),
             ),
         );
-    return trx
-        .update(sensorSequenceMarkingLog)
-        .set({ lastMarked: date })
-        .where(and(eq(sensorSequenceMarkingLog.sensorId, sensorId), eq(sensorSequenceMarkingLog.sequenceType, type)));
 }
 
 async function saveSequences(
@@ -433,16 +433,16 @@ export async function updateDevicesForPeak(sensorDataSequenceId: string, deviceI
                 deviceId,
                 sensorDataSequenceId,
             });
-            await pgDb.insert(deviceToPeakTable).values({
-                deviceId,
-                sensorDataSequenceId,
-            });
-
             const newWeeklyUsageEstimation = await calculateAverageWeeklyUsageTimeInHours(deviceId);
             await trx
                 .update(device)
                 .set({ weeklyUsageEstimation: newWeeklyUsageEstimation })
                 .where(eq(device.id, deviceId));
+
+            await pgDb.insert(deviceToPeakTable).values({
+                deviceId,
+                sensorDataSequenceId,
+            });
         }
     });
 }
