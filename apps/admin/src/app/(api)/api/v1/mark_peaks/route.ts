@@ -69,7 +69,7 @@ export const GET = async (req: NextRequest) => {
                             }),
                         );
 
-                        await classifyAndSaveDevicesForPeaks(peaksToClassify, user.userId);
+                        waitUntil(classifyAndSaveDevicesForPeaks(peaksToClassify, user.userId));
                     }
                 } catch (err) {
                     waitUntil(
