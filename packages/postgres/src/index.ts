@@ -9,3 +9,5 @@ export const genId = (length = 30) => {
     const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890");
     return nanoid(length);
 };
+
+export type DB = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
