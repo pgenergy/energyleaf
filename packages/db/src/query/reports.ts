@@ -256,7 +256,9 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
         });
 
         for (const dayStat of reportProps.dayEnergyStatistics ?? []) {
+            const id = genId(35);
             await trx.insert(reportsDayStatistics).values({
+                id,
                 date: dayStat.day,
                 dailyConsumption: dayStat.dailyConsumption,
                 progress: dayStat.progress,
@@ -265,6 +267,7 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
                 reportId: reportId,
             });
             await pgDb.insert(reportsDayStatisticsTable).values({
+                id,
                 date: dayStat.day,
                 dailyConsumption: dayStat.dailyConsumption,
                 progress: dayStat.progress,

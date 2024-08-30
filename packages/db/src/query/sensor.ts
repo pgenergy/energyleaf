@@ -4,7 +4,7 @@ import { db as pgDb } from "@energyleaf/postgres";
 import { sensorDataTable } from "@energyleaf/postgres/schema/sensor";
 import { and, between, desc, eq, getTableColumns, gt, gte, isNotNull, lt, lte, ne, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import db from "../";
+import db, { genId } from "../";
 import { sensor, sensorData, sensorHistory, sensorToken, user, userData } from "../schema";
 import {
     type SensorDataSelectType,
@@ -545,7 +545,9 @@ export async function insertSensorData(data: SensorDataInput) {
             if (newValue <= 0) {
                 return;
             }
+            const id = genId(30);
             await trx.insert(sensorData).values({
+                id,
                 sensorId: dbSensor.id,
                 value: newValue,
                 consumption: 0,
@@ -555,6 +557,7 @@ export async function insertSensorData(data: SensorDataInput) {
                 timestamp: data.timestamp,
             });
             await pgDb.insert(sensorDataTable).values({
+                id,
                 sensorId: dbSensor.id,
                 value: newValue,
                 consumption: 0,
@@ -607,7 +610,9 @@ export async function insertSensorData(data: SensorDataInput) {
         const consumption = newValue - lastEntry.value;
         const inserted = valueOut && lastEntry.valueOut ? valueOut - lastEntry.valueOut : null;
 
+        const id = genId(30);
         await trx.insert(sensorData).values({
+            id,
             sensorId: dbSensor.id,
             value: newValue,
             consumption,
@@ -617,6 +622,7 @@ export async function insertSensorData(data: SensorDataInput) {
             timestamp: data.timestamp,
         });
         await pgDb.insert(sensorDataTable).values({
+            id,
             sensorId: dbSensor.id,
             value: newValue,
             consumption,
