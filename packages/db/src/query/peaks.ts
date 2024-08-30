@@ -1,10 +1,17 @@
 import { db as pgDb } from "@energyleaf/postgres";
 import { deviceToPeakTable } from "@energyleaf/postgres/schema/device";
 import { sensorDataSequenceTable, sensorSequenceMarkingLogTable } from "@energyleaf/postgres/schema/sensor";
-import { type SQLWrapper, and, asc, between, desc, eq, lte, or } from "drizzle-orm";
+import { type SQLWrapper, and, asc, between, desc, eq, lte, min, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import db, { type DB } from "..";
-import { device, deviceToPeak, sensorData, sensorDataSequence, sensorSequenceMarkingLog } from "../schema";
+import {
+    device,
+    deviceSuggestionsPeak,
+    deviceToPeak,
+    sensorData,
+    sensorDataSequence,
+    sensorSequenceMarkingLog,
+} from "../schema";
 import type {
     SensorDataSelectType,
     SensorDataSequenceType,
@@ -496,10 +503,24 @@ export async function getDevicesByPeak(sensorDataSequenceId: string) {
         .select({
             id: deviceToPeak.deviceId,
             name: device.name,
+            category: device.category,
         })
         .from(deviceToPeak)
         .innerJoin(device, eq(device.id, deviceToPeak.deviceId))
         .where(eq(deviceToPeak.sensorDataSequenceId, sensorDataSequenceId));
+}
+
+export async function getDeviceSuggestionsByPeak(sensorDataSequenceId: string) {
+    const suggestionsWithDevices = await db
+        .select({
+            id: deviceSuggestionsPeak.id,
+            deviceCategory: deviceSuggestionsPeak.deviceCategory,
+            deviceId: min(device.id), // just get the first device
+        })
+        .from(deviceSuggestionsPeak)
+        .leftJoin(device, eq(device.category, deviceSuggestionsPeak.deviceCategory))
+        .where(eq(deviceSuggestionsPeak.sensorDataSequenceId, sensorDataSequenceId))
+        .groupBy(deviceSuggestionsPeak.id);
 }
 
 export async function getPeaksByDevice(deviceId: number) {

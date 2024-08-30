@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const deviceSchema = z.object({
-    id: z.number().int().positive("ID muss eine positive Ganzzahl sein"),
+    id: z.string().min(1),
+    deviceId: z.number().optional(),
     name: z.string(),
 });
 

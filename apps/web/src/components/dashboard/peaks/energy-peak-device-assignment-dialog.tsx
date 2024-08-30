@@ -22,13 +22,6 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId,
                     <DialogTitle>Geräteauswahl</DialogTitle>
                     <DialogDescription>
                         Wählen Sie die Geräte aus, die diesen Verbrauch verursacht haben.
-                        {showStandardDeviceHint && (
-                            <p className="mt-2 text-muted-foreground text-sm">
-                                Hinweis: Unsere KI hat möglicherweise bereits Geräte erkannt, die diesen Verbrauch
-                                verursacht haben. Falls diese falsch erkannt wurden, wählen Sie bitte die richtigen
-                                Geräte aus.
-                            </p>
-                        )}
                     </DialogDescription>
                 </DialogHeader>
                 <p>Leistung: {formatNumber(value.averagePeakPower)} Watt</p>

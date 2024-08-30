@@ -20,6 +20,9 @@ import {
     updateDemoPowerEstimationForDevices,
 } from "@/lib/demo/demo";
 import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
+import { DeviceCategory, DeviceCategoryTitles } from "@energyleaf/db/types";
+import type { DefaultActionReturnPayload } from "@energyleaf/lib";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";
@@ -100,9 +103,110 @@ export async function getDevicesByPeak(sensorDataSequenceId: string) {
         return getDemoDevicesFromPeaksCookieStore(cookies(), sensorDataSequenceId);
     }
 
-    const devices = getDevicesByPeakDb(sensorDataSequenceId);
+    const devices = await getDevicesByPeakDb(sensorDataSequenceId);
     waitUntil(
         trackAction("peak/get-devices", "get-devices-by-peak", "web", { sensorDataSequenceId, devices, session }),
     );
     return devices;
+}
+
+// TODO: Maybe verschieben
+export interface DeviceOption {
+    id: string;
+    category: DeviceCategory;
+    name: string;
+    isSuggested: boolean;
+    isDraft: boolean;
+    isSelected: boolean;
+    deviceId?: number;
+}
+
+export interface DeviceSelection {
+    hasSuggestions: boolean;
+    options: DeviceOption[];
+}
+
+export async function getDeviceOptionsByPeak(
+    sensorDataSequenceId: string,
+): Promise<DefaultActionReturnPayload<DeviceSelection>> {
+    const { user } = await getActionSession();
+
+    if (!user) {
+        return {
+            success: false,
+            message: "Sie müssen angemeldet sein, um ausgewählte Geräte für Peaks zu bearbeiten.",
+        };
+    }
+
+    const selectedDevices = await getDevicesByPeak(sensorDataSequenceId);
+    const allDevices: DeviceOption[] = (await getDevicesByUser(user.id)).map((device) => {
+        return {
+            id: device.id.toString(),
+            category: device.category as DeviceCategory,
+            name: device.name,
+            isSuggested: false,
+            isDraft: false,
+            deviceId: device.id,
+            isSelected: selectedDevices.some((selectedDevice) => selectedDevice.id === device.id),
+        };
+    });
+
+    let hasSuggestions = false;
+    if (fulfills(user.appVersion, Versions.support) && selectedDevices.length === 0) {
+        const suggestions = await getDeviceSuggestionsByPeak(sensorDataSequenceId);
+        const suggestedCategories = new Set(suggestions.map((suggestion) => suggestion.deviceCategory));
+        console.log("Suggested Categories", suggestedCategories);
+
+        for (const device of allDevices.filter((device) => suggestedCategories.has(device.category))) {
+            console.log("Setting device as suggested", device);
+            device.isSuggested = true;
+            device.isSelected = true;
+        }
+
+        const existingCategories = new Set(allDevices.map((device) => device.category));
+        const newCategories = new Set(
+            [...Array.from(suggestedCategories)].filter((category) => !existingCategories.has(category)),
+        );
+        const maxDeviceId = Math.max(...allDevices.map((device) => device.deviceId ?? 0));
+        const draftDevices: DeviceOption[] = Array.from(newCategories).map((category) => {
+            return {
+                id: maxDeviceId + category,
+                category: category,
+                name: DeviceCategoryTitles[category],
+                isSuggested: true,
+                isDraft: true,
+                isSelected: true,
+            };
+        });
+        allDevices.push(...draftDevices);
+
+        hasSuggestions = suggestions.length > 0;
+    }
+
+    return {
+        success: true,
+        payload: {
+            hasSuggestions: hasSuggestions,
+            options: allDevices,
+        },
+        message: "Geräteoptionen erfolgreich geladen.",
+    };
+}
+
+export async function getDeviceSuggestionsByPeak(sensorDataSequenceId: string) {
+    const { user } = await getActionSession();
+
+    // TODO: Correct load from DB
+    return [
+        {
+            id: 1,
+            deviceCategory: DeviceCategory.Fridge,
+            sensorDataSequenceId: sensorDataSequenceId,
+        },
+        {
+            id: 2,
+            deviceCategory: DeviceCategory.WashingMachine,
+            sensorDataSequenceId: sensorDataSequenceId,
+        },
+    ];
 }
