@@ -1,5 +1,5 @@
+import { classifyAndSaveDevicesForPeaks } from "@/actions/ml";
 import { env } from "@/env.mjs";
-import { classifyAndSaveDevicesForPeaks } from "@/query/peak";
 import {
     findAndMark,
     getAllSensors,
