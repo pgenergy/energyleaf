@@ -20,6 +20,7 @@ import {
     getDemoDevicesFromPeaksCookieStore,
     updateDemoPowerEstimationForDevices,
 } from "@/lib/demo/demo";
+import type { DeviceOption, DeviceSelection } from "@/lib/devices/types";
 import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
 import { type DeviceCategory, DeviceCategoryTitles } from "@energyleaf/db/types";
 import type { DefaultActionReturnPayload } from "@energyleaf/lib";
@@ -118,22 +119,6 @@ export async function getDevicesByPeak(sensorDataSequenceId: string) {
         trackAction("peak/get-devices", "get-devices-by-peak", "web", { sensorDataSequenceId, devices, session }),
     );
     return devices;
-}
-
-// TODO: Maybe verschieben
-export interface DeviceOption {
-    id: string;
-    category: DeviceCategory;
-    name: string;
-    isSuggested: boolean;
-    isDraft: boolean;
-    isSelected: boolean;
-    deviceId?: number;
-}
-
-export interface DeviceSelection {
-    hasSuggestions: boolean;
-    options: DeviceOption[];
 }
 
 export async function getDeviceOptionsByPeak(
