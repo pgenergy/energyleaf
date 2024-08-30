@@ -1,4 +1,4 @@
-import { type SQLWrapper, and, eq, sql } from "drizzle-orm";
+import { type SQLWrapper, and, eq, inArray, sql } from "drizzle-orm";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import db, { type DB } from "../";
 import { device, deviceHistory, deviceSuggestionsPeak, deviceToPeak, sensorDataSequence, userData } from "../schema";
@@ -184,17 +184,13 @@ export async function saveDeviceSuggestionsToPeakDb(sensorDataSequenceId: string
 }
 
 export async function getPeaksWithoutDevices(peaks: { id: string }[]) {
-    const peaksToClassify: { id: string }[] = [];
-    for (const peak of peaks) {
-        const existingAssignments = await db
-            .select()
-            .from(deviceToPeak)
-            .where(eq(deviceToPeak.sensorDataSequenceId, peak.id));
+    const peakIds = peaks.map((peak) => peak.id);
 
-        if (existingAssignments.length === 0) {
-            peaksToClassify.push(peak);
-        }
-    }
+    const existingAssignments = await db
+        .select({ id: deviceToPeak.sensorDataSequenceId })
+        .from(deviceToPeak)
+        .where(inArray(deviceToPeak.sensorDataSequenceId, peakIds));
+    const existingIds = new Set(existingAssignments.map((assign) => assign.id));
 
-    return peaksToClassify;
+    return peaks.filter((peak) => !existingIds.has(peak.id));
 }
