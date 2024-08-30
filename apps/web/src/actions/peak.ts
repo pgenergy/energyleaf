@@ -16,6 +16,7 @@ import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import "server-only";
 import {
+    assignDemoDevicesToPeaks,
     getDemoDevicesCookieStore,
     getDemoDevicesFromPeaksCookieStore,
     updateDemoPowerEstimationForDevices,
@@ -42,12 +43,11 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         }
 
         const devices = data.device.map((device) => device.deviceId).filter((id) => id !== undefined);
-        const draftDevices = data.device.filter((device) => device.isDraft);
 
         // handle demo
         if (user.id === "demo") {
-            // FIXME: Implement demo
-            // assignDemoDevicesToPeaks(cookies(), sensorDataId, devices);
+            // No devices need to be added since suggestions are not part of the demo.
+            assignDemoDevicesToPeaks(cookies(), sensorDataId, devices);
             updateDemoPowerEstimationForDevices(cookies());
             revalidatePath("/dashboard");
             revalidatePath("/devices");
@@ -56,6 +56,7 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         }
 
         try {
+            const draftDevices = data.device.filter((device) => device.isDraft);
             if (draftDevices.length > 0) {
                 const newDeviceIds = await createDevices(
                     draftDevices.map((device) => ({ name: device.name, userId: user.id, category: device.category })),
