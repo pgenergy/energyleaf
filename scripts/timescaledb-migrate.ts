@@ -85,6 +85,7 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
     // Define the tables that should be migrated automatically.
     // overrideSystemValue is used to insert data with OVERRIDING SYSTEM VALUE which is required for fields with default values.
     // batched is used to enable batch insert. This is needed to prevent the drizzle issue "Maximum call stack size exceeded.". (https://github.com/drizzle-team/drizzle-orm/issues/2063)
+    // orderBy is used to order the data when batched is enabled.
     const automaticMigrations = [
         {
             mySqlTable: mysqlSensorData,
@@ -125,7 +126,6 @@ async function automaticMigrations(mysqlTrx: MySqlDB, pgTrx: PgDB) {
     console.log("Starting automatic migrations.");
     for (const { mySqlTable, pgTable, overrideSystemValue, batched, orderBy } of automaticMigrations) {
         const tableName = getTableName(mySqlTable);
-
 
         if (batched && orderBy) {
             console.log(`Migrating table ${tableName}...`);
