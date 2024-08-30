@@ -163,7 +163,7 @@ export function MultiSelect<T extends Option>({
                                                     e.preventDefault();
                                                 }
                                             }}
-                                            className={"cursor-pointer flex flex-row justify-between"}
+                                            className={"flex cursor-pointer flex-row justify-between"}
                                         >
                                             {option.label}
                                             {option.icon ? option.icon({ className: "h-4 w-4 mr-2" }) : null}

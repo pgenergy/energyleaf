@@ -3,6 +3,8 @@
 import { getActionSession } from "@/lib/auth/auth.action";
 import type { peakSchema } from "@/lib/schema/peak";
 import {
+    createDevices,
+    getDeviceSuggestionsByPeak,
     getDevicesByPeak as getDevicesByPeakDb,
     log,
     logError,
@@ -14,13 +16,12 @@ import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { revalidatePath } from "next/cache";
 import "server-only";
 import {
-    assignDemoDevicesToPeaks,
     getDemoDevicesCookieStore,
     getDemoDevicesFromPeaksCookieStore,
     updateDemoPowerEstimationForDevices,
 } from "@/lib/demo/demo";
 import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
-import { DeviceCategory, DeviceCategoryTitles } from "@energyleaf/db/types";
+import { type DeviceCategory, DeviceCategoryTitles } from "@energyleaf/db/types";
 import type { DefaultActionReturnPayload } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { waitUntil } from "@vercel/functions";
@@ -39,11 +40,13 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
             throw new UserNotLoggedInError();
         }
 
-        const devices = data.device.map((device) => device.id);
+        const devices = data.device.map((device) => device.deviceId).filter((id) => id !== undefined);
+        const draftDevices = data.device.filter((device) => device.isDraft);
 
         // handle demo
         if (user.id === "demo") {
-            assignDemoDevicesToPeaks(cookies(), sensorDataId, devices);
+            // FIXME: Implement demo
+            // assignDemoDevicesToPeaks(cookies(), sensorDataId, devices);
             updateDemoPowerEstimationForDevices(cookies());
             revalidatePath("/dashboard");
             revalidatePath("/devices");
@@ -52,6 +55,13 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         }
 
         try {
+            if (draftDevices.length > 0) {
+                const newDeviceIds = await createDevices(
+                    draftDevices.map((device) => ({ name: device.name, userId: user.id, category: device.category })),
+                );
+                devices.push(...newDeviceIds);
+            }
+
             await updateDevicesForPeakDb(sensorDataId, devices);
             await updatePowerOfDevices(session.userId);
             waitUntil(trackAction("peak/update-devices", "update-devices-for-peak", "web", { data, session }));
@@ -152,26 +162,26 @@ export async function getDeviceOptionsByPeak(
     });
 
     let hasSuggestions = false;
-    if (fulfills(user.appVersion, Versions.support) && selectedDevices.length === 0) {
+    if (fulfills(user.appVersion, Versions.support) && user?.id !== "demo" && selectedDevices.length === 0) {
         const suggestions = await getDeviceSuggestionsByPeak(sensorDataSequenceId);
         const suggestedCategories = new Set(suggestions.map((suggestion) => suggestion.deviceCategory));
-        console.log("Suggested Categories", suggestedCategories);
 
         for (const device of allDevices.filter((device) => suggestedCategories.has(device.category))) {
-            console.log("Setting device as suggested", device);
             device.isSuggested = true;
             device.isSelected = true;
         }
 
         const existingCategories = new Set(allDevices.map((device) => device.category));
         const newCategories = new Set(
-            [...Array.from(suggestedCategories)].filter((category) => !existingCategories.has(category)),
+            [...Array.from(suggestedCategories)].filter(
+                (category) => !existingCategories.has(category as DeviceCategory),
+            ),
         );
         const maxDeviceId = Math.max(...allDevices.map((device) => device.deviceId ?? 0));
         const draftDevices: DeviceOption[] = Array.from(newCategories).map((category) => {
             return {
                 id: maxDeviceId + category,
-                category: category,
+                category: category as DeviceCategory,
                 name: DeviceCategoryTitles[category],
                 isSuggested: true,
                 isDraft: true,
@@ -191,22 +201,4 @@ export async function getDeviceOptionsByPeak(
         },
         message: "Geräteoptionen erfolgreich geladen.",
     };
-}
-
-export async function getDeviceSuggestionsByPeak(sensorDataSequenceId: string) {
-    const { user } = await getActionSession();
-
-    // TODO: Correct load from DB
-    return [
-        {
-            id: 1,
-            deviceCategory: DeviceCategory.Fridge,
-            sensorDataSequenceId: sensorDataSequenceId,
-        },
-        {
-            id: 2,
-            deviceCategory: DeviceCategory.WashingMachine,
-            sensorDataSequenceId: sensorDataSequenceId,
-        },
-    ];
 }

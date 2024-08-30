@@ -3,19 +3,20 @@ import { peakSchema } from "@/lib/schema/peak";
 import type { DeviceCategory } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
 import { Alert, AlertDescription, AlertTitle } from "@energyleaf/ui/alert";
+import {} from "@energyleaf/ui/alert-dialog";
 import { Button } from "@energyleaf/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { MultiSelect } from "@energyleaf/ui/multi-select";
+import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { BotIcon } from "lucide-react";
+import { BotIcon, InfoIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
 interface Props {
-    userId: string;
     sensorDataSequenceId: string;
     onInteract: () => void;
 }
@@ -29,11 +30,12 @@ export interface Device {
     deviceId?: number;
 }
 
-export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, onInteract }: Props) {
+export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInteract }: Props) {
     const queryClient = useQueryClient();
     const [devices, setDevices] = useState<Device[]>([]);
     const [selected, setSelected] = useState<Device[]>([]);
     const [hasSuggestions, setHasSuggestions] = useState<boolean>(false);
+    const [draftDevicesSelected, setDraftDevicesSelected] = useState<boolean>(false);
 
     const {
         data: selectionData,
@@ -42,7 +44,7 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
         isRefetching,
     } = useQuery({
         queryKey: [`devices${sensorDataSequenceId}`],
-        queryFn: () => getDeviceOptionsByPeak(userId),
+        queryFn: () => getDeviceOptionsByPeak(sensorDataSequenceId),
     });
 
     const form = useForm<z.infer<typeof peakSchema>>({
@@ -55,17 +57,22 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
     useEffect(() => {
         if (selected) {
             form.setValue("device", selected);
+            setDraftDevicesSelected(selected.some((x) => x.isDraft));
         }
     }, [selected, form]);
 
     useEffect(() => {
-        setHasSuggestions(selectionData?.payload?.hasSuggestions ?? false);
-        setSelected(selectionData?.payload?.options?.filter((device) => device.isSelected) ?? []);
-        setDevices(selectionData?.payload?.options ?? []);
-    }, [selectionData]);
+        if (selectionData) {
+            const { success, payload, message } = selectionData;
+            if (!success || !payload) {
+                throw new Error("Geräte konnten nicht geladen werden.", { cause: message });
+            }
 
-    console.log("devices", devices);
-    console.log("selected", selected);
+            setHasSuggestions(payload.hasSuggestions);
+            setSelected(payload.options.filter((device) => device.isSelected) ?? []);
+            setDevices(payload.options);
+        }
+    }, [selectionData]);
 
     async function addOrUpdatePeakCallback(data: z.infer<typeof peakSchema>) {
         let res: DefaultActionReturn = undefined;
@@ -139,7 +146,13 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
                                                     ? (props) => <BotIcon {...props} />
                                                     : undefined,
                                             }))}
-                                            onSelectedChange={field.onChange}
+                                            onSelectedChange={(e) => {
+                                                const selectedDevices = e
+                                                    .map((x) => devices.find((d) => d.id === x.value))
+                                                    .filter((x) => x !== undefined);
+                                                field.onChange(selectedDevices);
+                                                setDraftDevicesSelected(selectedDevices.some((x) => x.isDraft));
+                                            }}
                                             placeholder="Geräte auswählen..."
                                         />
                                     </FormControl>
@@ -149,8 +162,27 @@ export function EnergyPeakDeviceAssignmentForm({ userId, sensorDataSequenceId, o
                         }}
                     />
 
-                    <div className="flex flex-row justify-end">
+                    <div className="flex flex-row-reverse items-center justify-between">
                         <Button type="submit">Speichern</Button>
+                        {draftDevicesSelected ? (
+                            <Popover>
+                                <PopoverContent>
+                                    <p>Beim Speichern werden folgende Geräte für Sie hinzugefügt:</p>
+                                    {form
+                                        .getValues()
+                                        .device.filter((device) => device.isDraft)
+                                        .map((device) => device.name)
+                                        .join(", ")}
+                                </PopoverContent>
+
+                                <PopoverTrigger>
+                                    <div className="flex flex-row items-center gap-1 text-muted-foreground text-sm">
+                                        <InfoIcon className="h-4 w-4" />
+                                        Neue Geräte
+                                    </div>
+                                </PopoverTrigger>
+                            </Popover>
+                        ) : null}
                     </div>
                 </form>
             </Form>

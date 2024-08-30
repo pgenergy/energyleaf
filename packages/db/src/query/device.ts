@@ -30,11 +30,19 @@ export type CreateDeviceType = {
 };
 
 export async function createDevice(data: CreateDeviceType) {
-    await db.insert(device).values({
-        name: data.name,
-        userId: data.userId,
-        category: data.category,
-    });
+    await createDeviceInternal([data], db);
+}
+
+export async function createDevices(devices: CreateDeviceType[]) {
+    const newIds = await createDeviceInternal(devices, db);
+    return newIds.map((id) => id.id);
+}
+
+async function createDeviceInternal(data: CreateDeviceType[], trx: DB) {
+    return trx
+        .insert(device)
+        .values([...data])
+        .$returningId();
 }
 
 export async function updateDevice(id: number, data: Partial<CreateDeviceType>) {
