@@ -12,6 +12,9 @@ export const env = createEnv({
         DATABASE_PASSWORD: z.string(),
         DATABASE_NAME: z.string(),
 
+        ML_API_URL: z.string(),
+        ML_API_KEY: z.string(),
+
         PG_CONNECTION: z.string(),
         PG_DIRECT: z.string(),
 

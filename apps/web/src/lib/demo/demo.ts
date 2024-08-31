@@ -164,7 +164,7 @@ export function getDemoDevicePeaksCookieStore(
 export function getDemoDevicesFromPeaksCookieStore(
     cookies: ReadonlyRequestCookies,
     sequenceId: string,
-): { id: number; name: string }[] {
+): { id: number; name: string; category: DeviceCategory }[] {
     const deviceToPeaks = getDemoDevicePeaksCookieStore(cookies, sequenceId);
     const devices = getDemoDevicesCookieStore(cookies);
 
@@ -178,6 +178,7 @@ export function getDemoDevicesFromPeaksCookieStore(
         .map((d) => ({
             id: d.id,
             name: d.name,
+            category: d.category as DeviceCategory,
         }));
 }
 

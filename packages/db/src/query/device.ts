@@ -1,7 +1,7 @@
-import { type SQLWrapper, and, eq, sql } from "drizzle-orm";
+import { type SQLWrapper, and, eq, inArray, sql } from "drizzle-orm";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import db, { type DB } from "../";
-import { device, deviceHistory, deviceToPeak, sensorDataSequence, userData } from "../schema";
+import { device, deviceHistory, deviceSuggestionsPeak, deviceToPeak, sensorDataSequence, userData } from "../schema";
 import type { DeviceCategory } from "../types/types";
 
 export async function getDevicesByUser(userId: string, search?: string) {
@@ -30,11 +30,19 @@ export type CreateDeviceType = {
 };
 
 export async function createDevice(data: CreateDeviceType) {
-    await db.insert(device).values({
-        name: data.name,
-        userId: data.userId,
-        category: data.category,
-    });
+    await createDeviceInternal([data], db);
+}
+
+export async function createDevices(devices: CreateDeviceType[]) {
+    const newIds = await createDeviceInternal(devices, db);
+    return newIds.map((id) => id.id);
+}
+
+async function createDeviceInternal(data: CreateDeviceType[], trx: DB) {
+    return trx
+        .insert(device)
+        .values([...data])
+        .$returningId();
 }
 
 export async function updateDevice(id: number, data: Partial<CreateDeviceType>) {
@@ -167,4 +175,22 @@ async function copyToHistoryTable(
         category: device.category,
         powerEstimation: device.powerEstimation,
     });
+}
+
+export async function saveDeviceSuggestionsToPeakDb(sensorDataSequenceId: string, suggestions: DeviceCategory[]) {
+    await db
+        .insert(deviceSuggestionsPeak)
+        .values(suggestions.map((category) => ({ sensorDataSequenceId, deviceCategory: category })));
+}
+
+export async function getPeaksWithoutDevices(peaks: { id: string }[]) {
+    const peakIds = peaks.map((peak) => peak.id);
+
+    const existingAssignments = await db
+        .select({ id: deviceToPeak.sensorDataSequenceId })
+        .from(deviceToPeak)
+        .where(inArray(deviceToPeak.sensorDataSequenceId, peakIds));
+    const existingIds = new Set(existingAssignments.map((assign) => assign.id));
+
+    return peaks.filter((peak) => !existingIds.has(peak.id));
 }

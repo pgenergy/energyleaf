@@ -17,7 +17,6 @@ import React from "react";
 
 interface Props {
     value: SensorDataSequenceType;
-    userId: string;
 }
 
 export function PeakAssignmentDialog(props: Props) {
@@ -40,7 +39,6 @@ export function PeakAssignmentDialog(props: Props) {
                 </DialogHeader>
                 <p>Leistung: {formatNumber(props.value.averagePeakPower)} Watt</p>
                 <EnergyPeakDeviceAssignmentForm
-                    userId={props.userId}
                     onInteract={() => {
                         setOpen(false);
                     }}

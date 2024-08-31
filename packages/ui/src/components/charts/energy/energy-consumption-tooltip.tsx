@@ -48,11 +48,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
             <div className="flex flex-row items-center gap-1">
                 <div
                     className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
-                    style={
-                        {
-                            "--color-bg": config.value.color,
-                        } as React.CSSProperties
-                    }
+                    style={{ "--color-bg": config.value.color } as React.CSSProperties}
                 />
                 <p className="text-sm">
                     <span className="text-muted-foreground">Verbrauch </span>
@@ -64,11 +60,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                 <div className="flex flex-row items-center gap-1">
                     <div
                         className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
-                        style={
-                            {
-                                "--color-bg": config.valueOut.color,
-                            } as React.CSSProperties
-                        }
+                        style={{ "--color-bg": config.valueOut.color } as React.CSSProperties}
                     />
                     <p className="text-sm">
                         <span className="text-muted-foreground">Eingespeist </span>
@@ -81,11 +73,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                 <div className="flex flex-row items-center gap-1">
                     <div
                         className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
-                        style={
-                            {
-                                "--color-bg": config.valueCurrent.color,
-                            } as React.CSSProperties
-                        }
+                        style={{ "--color-bg": config.valueCurrent.color } as React.CSSProperties}
                     />
                     <p className="text-sm">
                         <span className="text-muted-foreground">Leistung </span>
@@ -97,11 +85,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                 <div className="flex flex-row items-center gap-1">
                     <div
                         className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
-                        style={
-                            {
-                                "--color-bg": config.cost.color,
-                            } as React.CSSProperties
-                        }
+                        style={{ "--color-bg": config.cost.color } as React.CSSProperties}
                     />
                     <p className="text-sm">
                         <span className="text-muted-foreground">Kosten </span>

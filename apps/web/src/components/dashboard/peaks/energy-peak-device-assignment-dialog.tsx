@@ -1,5 +1,6 @@
 import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { formatNumber } from "@energyleaf/lib";
+import {} from "@energyleaf/lib/versioning";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
 
@@ -8,9 +9,10 @@ interface Props {
     setOpen: (open: boolean) => void;
     value: SensorDataSequenceType;
     userId: string;
+    appVersion: number;
 }
 
-export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId }: Props) {
+export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, appVersion }: Props) {
     return (
         <Dialog onOpenChange={setOpen} open={open}>
             <DialogContent>
@@ -22,7 +24,6 @@ export function EnergyPeakDeviceAssignmentDialog({ open, setOpen, value, userId 
                 </DialogHeader>
                 <p>Leistung: {formatNumber(value.averagePeakPower)} Watt</p>
                 <EnergyPeakDeviceAssignmentForm
-                    userId={userId}
                     onInteract={() => {
                         setOpen(false);
                     }}
