@@ -2,9 +2,13 @@
 
 import { updateUserState } from "@/actions/user";
 import { userStateSchema } from "@/lib/schema/user";
-import { ExperimentNumberEnum, ExperimentNumberEnumMap, userDataExperimentStatusEnum } from "@energyleaf/db/types";
 import { type DefaultActionReturn, DismissedReasonEnum, DismissedReasonEnumMap } from "@energyleaf/lib";
 import { Versions, stringify } from "@energyleaf/lib/versioning";
+import {
+    ExperimentNumberEnum,
+    ExperimentNumberEnumMap,
+    userDataExperimentStatusEnum,
+} from "@energyleaf/postgres/types";
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { Button } from "@energyleaf/ui/button";
 import { Calendar } from "@energyleaf/ui/calendar";

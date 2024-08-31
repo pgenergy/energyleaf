@@ -1,4 +1,4 @@
-import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/postgres/types";
 
 interface EnergyEntryWithUserData {
     energyData: SensorDataSelectType;

@@ -11,10 +11,6 @@
 		"start": "dotenv -- turbo run start",
 		"lint": "biome lint && biome check --unsafe",
 		"format": "biome format --write&& biome check --write --unsafe",
-		"db:push": "dotenv -- pnpm --filter db run push",
-		"db:push:prod": "dotenv -- pnpm --filter db run push:prod",
-		"db:studio": "dotenv -- pnpm --filter db run studio",
-		"db:studio:prod": "dotenv -- pnpm --filter db run studio:prod",
         "pg:generate": "pnpm --filter @energyleaf/postgres run generate",
         "pg:generate:empty": "pnpm --filter @energyleaf/postgres run generate:empty",
         "pg:migrate": "dotenv -- pnpm --filter @energyleaf/postgres run migrate",
@@ -35,7 +31,6 @@
 	"name": "energyleaf",
 	"dependencies": {
 		"@biomejs/biome": "^1.8.3",
-		"@energyleaf/db": "workspace:*",
         "@energyleaf/postgres": "workspace:*",
 		"@energyleaf/lib": "workspace:*",
 		"@vercel/analytics": "^1.3.1",

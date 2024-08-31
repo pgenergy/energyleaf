@@ -1,8 +1,8 @@
 "use client";
 
 import { EnergyPeakDeviceAssignmentForm } from "@/components/dashboard/peaks/energy-peak-device-assignment-form";
-import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { formatNumber } from "@energyleaf/lib";
+import type { SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
 import { Badge } from "@energyleaf/ui/badge";
 import {
     Dialog,
@@ -16,7 +16,7 @@ import { MousePointerClickIcon } from "lucide-react";
 import React from "react";
 
 interface Props {
-    value: SensorDataSequenceType;
+    value: SensorDataSequenceSelectType;
     userId: string;
 }
 

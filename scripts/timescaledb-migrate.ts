@@ -27,10 +27,10 @@ import {
 import { type DB as PgDB, db as pgDb } from "@energyleaf/postgres";
 import {
     deviceTable as pgDevice,
-    deviceHistory as pgDeviceHistory,
+    deviceHistoryTable as pgDeviceHistory,
     deviceToPeakTable as pgDeviceToPeak,
 } from "@energyleaf/postgres/schema/device";
-import { logs as pgLogs } from "@energyleaf/postgres/schema/logs";
+import { logsTable as pgLogs } from "@energyleaf/postgres/schema/logs";
 import {
     historyReportConfigTable as pgHistoryReportConfig,
     reportConfigTable as pgReportConfig,
@@ -46,14 +46,14 @@ import {
     sensorTokenTable as pgSensorToken,
 } from "@energyleaf/postgres/schema/sensor";
 import {
-    historyUser as pgHistoryUser,
-    historyUserData as pgHistoryUserData,
-    session as pgSession,
-    token as pgToken,
-    user as pgUser,
-    userData as pgUserData,
-    userExperimentData as pgUserExperimentData,
-    userTipOfTheDay as pgUserTipOfTheDay,
+    historyUserTable as pgHistoryUser,
+    historyUserDataTable as pgHistoryUserData,
+    sessionTable as pgSession,
+    tokenTable as pgToken,
+    userTable as pgUser,
+    userDataTable as pgUserData,
+    userExperimentDataTable as pgUserExperimentData,
+    userTipOfTheDayTable as pgUserTipOfTheDay,
 } from "@energyleaf/postgres/schema/user";
 import { getTableName, sql } from "drizzle-orm";
 import type { MySqlColumn, MySqlTable } from "drizzle-orm/mysql-core";

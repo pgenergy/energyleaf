@@ -1,6 +1,6 @@
 "use client";
 
-import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSelectType } from "@energyleaf/postgres/types";
 import { eachDayOfInterval, endOfMonth, format, startOfMonth } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";

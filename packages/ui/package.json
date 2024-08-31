@@ -27,7 +27,7 @@
     },
     "dependencies": {
         "@date-fns/utc": "^1.2.0",
-        "@energyleaf/db": "workspace:^",
+        "@energyleaf/postgres": "workspace:^",
         "@energyleaf/lib": "workspace:^",
         "@energyleaf/tailwindcss": "workspace:^",
         "@hookform/resolvers": "^3.9.0",

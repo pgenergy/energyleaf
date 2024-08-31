@@ -1,21 +1,19 @@
 import { env } from "@/env.mjs";
-import {
-    createToken,
-    getElectricitySensorIdForUser,
-    getEnergySumForSensorInRange,
-    getLastReportForUser,
-    getUserDataByUserId,
-    getUsersWitDueReport,
-    logError,
-    saveReport,
-    trackAction,
-    updateLastReportTimestamp,
-} from "@energyleaf/db/query";
-import type { UserDataSelectType } from "@energyleaf/db/types";
 import { buildUnsubscribeUrl } from "@energyleaf/lib";
 import type { DailyConsumption, DailyGoalProgress, DailyGoalStatistic, ReportProps } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { sendReport } from "@energyleaf/mail";
+import { getEnergySumForSensorInRange } from "@energyleaf/postgres/query/energy-get";
+import { logError, trackAction } from "@energyleaf/postgres/query/logs";
+import {
+    getLastReportForUser,
+    getUsersWitDueReport,
+    saveReport,
+    updateLastReportTimestamp,
+} from "@energyleaf/postgres/query/report";
+import { getElectricitySensorIdForUser } from "@energyleaf/postgres/query/sensor";
+import { createToken, getUserDataByUserId } from "@energyleaf/postgres/query/user";
+import type { UserDataSelectType } from "@energyleaf/postgres/types";
 import { waitUntil } from "@vercel/functions";
 import { renderDailyConsumptionChart, renderDailyStatistic } from "./graphs";
 import { renderImage } from "./image";

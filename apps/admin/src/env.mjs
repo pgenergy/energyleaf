@@ -6,11 +6,6 @@ export const env = createEnv({
     server: {
         HASH_SECRET: z.string(),
 
-        DATABASE_HOST: z.string(),
-        DATABASE_USERNAME: z.string(),
-        DATABASE_PASSWORD: z.string(),
-        DATABASE_NAME: z.string(),
-
         PG_CONNECTION: z.string(),
         PG_DIRECT: z.string(),
 

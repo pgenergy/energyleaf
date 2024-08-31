@@ -1,7 +1,7 @@
 "use client";
 
-import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { AggregationType, computeTimestampLabel } from "@energyleaf/lib";
+import type { SensorDataSelectType } from "@energyleaf/postgres/types";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";

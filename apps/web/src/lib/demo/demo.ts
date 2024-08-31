@@ -1,14 +1,14 @@
-import { findPeaks } from "@energyleaf/db/query";
-import { getEnergyForSensorInRange, getEnergyLastEntry } from "@energyleaf/db/query";
+import { AggregationType, type ReportProps } from "@energyleaf/lib";
+import { getEnergyForSensorInRange, getEnergyLastEntry } from "@energyleaf/postgres/query/energy-get";
+import { findPeaks } from "@energyleaf/postgres/query/peaks";
 import {
     DeviceCategory,
     type DeviceSelectType,
     type SensorDataSelectType,
-    type SensorDataSequenceType,
+    type SensorDataSequenceSelectType,
     type SensorDeviceSequenceSelectType,
-    type UserDataType,
-} from "@energyleaf/db/types";
-import { AggregationType, type ReportProps } from "@energyleaf/lib";
+    type UserWithDataSelectType,
+} from "@energyleaf/postgres/types";
 import { differenceInDays } from "date-fns";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
@@ -32,13 +32,13 @@ export function getDemoUserData() {
         return getUserDataCookieStoreDefaults();
     }
 
-    const userData = JSON.parse(data) as UserDataType;
+    const userData = JSON.parse(data) as UserWithDataSelectType;
     userData.user_data.timestamp = new Date(userData.user_data.timestamp);
     return userData;
 }
 
 export function getUserDataCookieStoreDefaults() {
-    const data: UserDataType = {
+    const data: UserWithDataSelectType = {
         user_data: {
             id: 1,
             userId: "demo",
@@ -79,14 +79,14 @@ export function getUserDataCookieStoreDefaults() {
     return data;
 }
 
-export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data: Partial<UserDataType>) {
+export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data: Partial<UserWithDataSelectType>) {
     const userData = cookies.get("demo_data");
     if (!userData) {
         return;
     }
 
-    const parsedData = JSON.parse(userData.value) as UserDataType;
-    const newData: UserDataType = {
+    const parsedData = JSON.parse(userData.value) as UserWithDataSelectType;
+    const newData: UserWithDataSelectType = {
         user_data: {
             ...parsedData.user_data,
             ...data.user_data,
@@ -211,7 +211,7 @@ export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyReque
     const start = new Date(0);
     const end = new Date();
     end.setDate(end.getDate() + 1);
-    const data = await getDemoPeaks(start, end);
+    const data = await getDemoPeaks(start, end, cookies);
 
     const deviceToPeaksRaw = cookies.get("demo_peaks");
     if (!deviceToPeaksRaw) {
@@ -311,7 +311,7 @@ export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyReque
         return;
     }
 
-    const parsedData = JSON.parse(userData.value) as UserDataType;
+    const parsedData = JSON.parse(userData.value) as UserWithDataSelectType;
     updateUserDataCookieStore(cookies, {
         user_data: {
             ...parsedData.user_data,
@@ -360,14 +360,41 @@ export async function getDemoSensorData(
     return processDemoDataDate(data);
 }
 
-export async function getDemoPeaks(start: Date, end: Date): Promise<SensorDataSequenceType[]> {
-    const data = await getDemoSensorData(start, end, AggregationType.RAW);
+interface Sequence {
+    start: Date;
+    end: Date;
+    isAtStart: boolean;
+    averagePowerIncludingBaseLoad: number;
+}
 
-    const peaks = findPeaks(data, data);
-    const dataWithoutPeaks = data.filter(
-        (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
-    );
-    const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.value, 0) / dataWithoutPeaks.length;
+export async function getDemoPeaks(
+    start: Date,
+    end: Date,
+    cookies: ReadonlyRequestCookies,
+): Promise<SensorDataSequenceSelectType[]> {
+    let peaks: Sequence[] = [];
+    let averageBaseLoad: number;
+
+    const cookiePeaks = cookies.get("demo_raw_peaks");
+    if (!cookiePeaks) {
+        const data = await getDemoSensorData(start, end, AggregationType.RAW);
+        peaks = findPeaks(data, data);
+        const dataWithoutPeaks = data.filter(
+            (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
+        );
+        averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.value, 0) / dataWithoutPeaks.length;
+        cookies.set(
+            "demo_raw_peaks",
+            JSON.stringify({
+                peaks,
+                averageBaseLoad,
+            }),
+        );
+    } else {
+        const cookieData = JSON.parse(cookiePeaks.value) as { peaks: Sequence[]; averageBaseLoad: number };
+        peaks = cookieData.peaks;
+        averageBaseLoad = cookieData.averageBaseLoad;
+    }
 
     return peaks
         .filter((peak) => {

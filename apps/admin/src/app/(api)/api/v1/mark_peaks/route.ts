@@ -1,5 +1,7 @@
 import { env } from "@/env.mjs";
-import { findAndMark, getAllSensors, log, logError } from "@energyleaf/db/query";
+import { log, logError } from "@energyleaf/postgres/query/logs";
+import { findAndMark } from "@energyleaf/postgres/query/peaks";
+import { getAllSensors } from "@energyleaf/postgres/query/sensor";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 

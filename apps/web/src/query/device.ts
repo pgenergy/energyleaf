@@ -1,5 +1,6 @@
 import { getDemoDevicesCookieStore, getDemoDevicesFromPeaksCookieStore } from "@/lib/demo/demo";
-import { getDevicesByPeak as getDbDevicesByPeak, getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
+import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/postgres/query/device";
+import { getDevicesByPeak as getDbDevicesByPeak } from "@energyleaf/postgres/query/peaks";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import "server-only";

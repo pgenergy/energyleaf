@@ -3,7 +3,7 @@ import {
     getUserExperimentData as getDbUserExperimentData,
     getUserById as getUserByIdDb,
     getUserDataByUserId,
-} from "@energyleaf/db/query";
+} from "@energyleaf/postgres/query/user";
 import { cache } from "react";
 import "server-only";
 

@@ -2,15 +2,13 @@
 
 import { getActionSession } from "@/lib/auth/auth.action";
 import type { peakSchema } from "@/lib/schema/peak";
+import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
+import { updatePowerOfDevices } from "@energyleaf/postgres/query/device";
+import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
 import {
     getDevicesByPeak as getDevicesByPeakDb,
-    log,
-    logError,
-    trackAction,
     updateDevicesForPeak as updateDevicesForPeakDb,
-    updatePowerOfDevices,
-} from "@energyleaf/db/query";
-import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
+} from "@energyleaf/postgres/query/peaks";
 import { revalidatePath } from "next/cache";
 import "server-only";
 import {
@@ -19,7 +17,7 @@ import {
     getDemoDevicesFromPeaksCookieStore,
     updateDemoPowerEstimationForDevices,
 } from "@/lib/demo/demo";
-import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
+import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/postgres/query/device";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";

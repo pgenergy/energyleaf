@@ -7,10 +7,14 @@ import { redirect } from "next/navigation";
 import bg from "../../../public/image/bg/login.png";
 import logo from "../../../public/image/logo/logo.png";
 
-export default async function AuthLayout({ children }: { children: React.ReactNode }) {
-    const { session } = await getSession();
+export default async function OnboardingLayout({ children }: { children: React.ReactNode }) {
+    const { session, user } = await getSession();
 
-    if (session) {
+    if (!session || !user) {
+        redirect("/");
+    }
+
+    if (user.onboardingCompleted) {
         redirect("/dashboard");
     }
 

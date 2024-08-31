@@ -1,25 +1,30 @@
 import { type SQLWrapper, and, eq, sql } from "drizzle-orm";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
-import db, { type DB } from "../";
-import { device, deviceHistory, deviceToPeak, sensorDataSequence, userData } from "../schema";
+import { type DB, db } from "../";
+import { deviceHistoryTable, deviceTable, deviceToPeakTable } from "../schema/device";
+import { sensorDataSequenceTable } from "../schema/sensor";
+import { userDataTable } from "../schema/user";
 import type { DeviceCategory } from "../types/types";
 
 export async function getDevicesByUser(userId: string, search?: string) {
-    const conditions: SQLWrapper[] = [eq(device.userId, userId)];
+    const conditions: SQLWrapper[] = [eq(deviceTable.userId, userId)];
     if (search) {
         const searchText = `%${search.toLowerCase()}%`;
-        conditions.push(sql`lower(${device.name}) LIKE ${searchText}`);
+        conditions.push(sql`lower(${deviceTable.name}) LIKE ${searchText}`);
     }
 
     return db
         .select()
-        .from(device)
+        .from(deviceTable)
         .where(and(...conditions));
 }
 
 export async function getDeviceCategoriesByUser(userId: string, database: DB = db) {
     return (
-        await database.selectDistinct({ category: device.category }).from(device).where(eq(device.userId, userId))
+        await database
+            .selectDistinct({ category: deviceTable.category })
+            .from(deviceTable)
+            .where(eq(deviceTable.userId, userId))
     ).map((x) => x.category as DeviceCategory);
 }
 
@@ -30,7 +35,7 @@ export type CreateDeviceType = {
 };
 
 export async function createDevice(data: CreateDeviceType) {
-    await db.insert(device).values({
+    await db.insert(deviceTable).values({
         name: data.name,
         userId: data.userId,
         category: data.category,
@@ -42,12 +47,12 @@ export async function updateDevice(id: number, data: Partial<CreateDeviceType>) 
         const deviceToUpdate = await getDeviceById(trx, id);
         await copyToHistoryTable(trx, deviceToUpdate);
         await trx
-            .update(device)
+            .update(deviceTable)
             .set({
                 name: data.name,
                 category: data.category,
             })
-            .where(eq(device.id, id));
+            .where(eq(deviceTable.id, id));
     });
 }
 
@@ -59,7 +64,7 @@ export async function deleteDevice(id: number, userId: string) {
         }
 
         await copyToHistoryTable(trx, deviceToDelete);
-        await trx.delete(device).where(eq(device.id, id));
+        await trx.delete(deviceTable).where(eq(deviceTable.id, id));
     });
 }
 
@@ -67,10 +72,10 @@ export async function updatePowerOfDevices(userId: string) {
     return db.transaction(async (trx) => {
         const devicesWithPeaks = await trx
             .select()
-            .from(device)
-            .leftJoin(deviceToPeak, eq(deviceToPeak.deviceId, device.id))
-            .leftJoin(sensorDataSequence, eq(sensorDataSequence.id, deviceToPeak.sensorDataSequenceId))
-            .where(eq(device.userId, userId));
+            .from(deviceTable)
+            .leftJoin(deviceToPeakTable, eq(deviceToPeakTable.deviceId, deviceTable.id))
+            .leftJoin(sensorDataSequenceTable, eq(sensorDataSequenceTable.id, deviceToPeakTable.sensorDataSequenceId))
+            .where(eq(deviceTable.userId, userId));
 
         const devices = Array.from(new Set(devicesWithPeaks.map((device) => device.device.id)));
         const flattenPeak = devicesWithPeaks
@@ -119,7 +124,10 @@ export async function updatePowerOfDevices(userId: string) {
             const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
             const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
             const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
-            await trx.update(device).set({ powerEstimation: correctedPowerEstimation }).where(eq(device.id, deviceId));
+            await trx
+                .update(deviceTable)
+                .set({ powerEstimation: correctedPowerEstimation })
+                .where(eq(deviceTable.id, deviceId));
         }
 
         // Calculate R^2
@@ -133,12 +141,15 @@ export async function updatePowerOfDevices(userId: string) {
         } else {
             rSquared = math.subtract(1, math.divide(SSR, SST)) as number;
         }
-        await trx.update(userData).set({ devicePowerEstimationRSquared: rSquared }).where(eq(userData.userId, userId));
+        await trx
+            .update(userDataTable)
+            .set({ devicePowerEstimationRSquared: rSquared })
+            .where(eq(userDataTable.userId, userId));
     });
 }
 
 async function getDeviceById(trx: DB, id: number) {
-    const query = await trx.select().from(device).where(eq(device.id, id));
+    const query = await trx.select().from(deviceTable).where(eq(deviceTable.id, id));
     if (query.length === 0) {
         throw new Error("Device not found");
     }
@@ -158,7 +169,7 @@ async function copyToHistoryTable(
         powerEstimation: number | null;
     },
 ) {
-    await trx.insert(deviceHistory).values({
+    await trx.insert(deviceHistoryTable).values({
         deviceId: device.id,
         userId: device.userId,
         name: device.name,

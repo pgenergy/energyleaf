@@ -5,17 +5,6 @@ import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import { getUserDataCookieStoreDefaults, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
-import {
-    type CreateUserType,
-    createUser,
-    getUserById,
-    getUserByMail,
-    logError,
-    trackAction,
-    updateMailSettings as updateMailSettingsDb,
-    updatePassword,
-} from "@energyleaf/db/query";
-import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import {
     sendAccountCreatedEmail,
@@ -23,6 +12,16 @@ import {
     sendPasswordChangedEmail,
     sendPasswordResetEmail,
 } from "@energyleaf/mail";
+import { logError, trackAction } from "@energyleaf/postgres/query/logs";
+import { updateMailSettings as updateMailSettingsDb } from "@energyleaf/postgres/query/mail";
+import {
+    type CreateUserType,
+    createUser,
+    getUserById,
+    getUserByMail,
+    updatePassword,
+} from "@energyleaf/postgres/query/user";
+import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/postgres/types";
 import { put } from "@energyleaf/storage";
 import * as jose from "jose";
 import type { Session } from "lucia";
@@ -31,7 +30,7 @@ import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
 import type { mailSettingsSchema } from "@/lib/schema/profile";
-import type { userData } from "@energyleaf/db/schema";
+import type { userDataTable } from "@energyleaf/postgres/schema/user";
 import { waitUntil } from "@vercel/functions";
 import type { z } from "zod";
 
@@ -55,7 +54,7 @@ export async function createAccount(data: FormData) {
     const pin = (data.get("pin") as string) === "true";
     const electricityMeterType = data.get(
         "electricityMeterType",
-    ) as (typeof userData.electricityMeterType.enumValues)[number];
+    ) as (typeof userDataTable.electricityMeterType.enumValues)[number];
     const electricityMeterNumber = data.get("electricityMeterNumber") as string;
     const participation = (data.get("participation") as string) === "true";
 

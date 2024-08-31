@@ -7,8 +7,8 @@ import MailSettingsFormFields from "@/components/settings/mail-settings-form-fie
 import UserGoalsFormFields from "@/components/settings/user-goals-form-fields";
 import { createMailSettingsSchema, createUserDataSchemaFromUserDataSelectType } from "@/lib/schema/conversion/profile";
 import { mailSettingsSchema, userDataSchema, userGoalSchema } from "@/lib/schema/profile";
-import type { MailConfig, UserDataSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
+import type { MailConfig, UserDataSelectType } from "@energyleaf/postgres/types";
 import { Button } from "@energyleaf/ui/button";
 import { Form } from "@energyleaf/ui/form";
 import { Wizard, WizardPage, useWizard } from "@energyleaf/ui/wizard";

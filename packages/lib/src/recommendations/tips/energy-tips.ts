@@ -1,4 +1,4 @@
-import { DeviceCategory, DeviceSuperCategory, getDeviceCategories } from "@energyleaf/db/types";
+import { DeviceCategory, DeviceSuperCategory, getDeviceCategories } from "@energyleaf/postgres/types";
 import { getEnergyTip } from "./energy-tip-definitions";
 import { type EnergyTipKey, EnergyTipKeyRegions, getEnergyTipsInRegion } from "./energy-tip-key";
 

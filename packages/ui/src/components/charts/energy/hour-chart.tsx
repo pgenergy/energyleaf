@@ -1,6 +1,6 @@
 "use client";
 
-import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSelectType } from "@energyleaf/postgres/types";
 import ChartSwitchButton from "@energyleaf/ui/charts/chart-switch-button";
 import { format } from "date-fns";
 import { CircleSlash2Icon } from "lucide-react";

@@ -2,7 +2,8 @@ import { SensorAlreadyExistsError, UserHasSensorOfSameType } from "@energyleaf/l
 import { and, eq, isNotNull, ne } from "drizzle-orm";
 import { db, genId } from "..";
 import { sensorDataTable, sensorHistoryTable, sensorTable, sensorTokenTable } from "../schema/sensor";
-import { type SensorInsertType, SensorType } from "../types/types";
+import { userTable } from "../schema/user";
+import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
 
 export async function getAllSensors(active?: boolean) {
     if (active) {
@@ -210,4 +211,12 @@ export async function getElectricitySensorIdForUser(userId: string) {
 
         return history[0].sensorId;
     });
+}
+
+export async function getSensorsWithUser(): Promise<SensorSelectTypeWithUser[]> {
+    return db.select().from(sensorTable).leftJoin(userTable, eq(userTable.id, sensorTable.userId));
+}
+
+export async function getSensorsByUser(userId: string) {
+    return db.select().from(sensorTable).where(eq(sensorTable.userId, userId));
 }

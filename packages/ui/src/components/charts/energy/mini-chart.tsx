@@ -1,6 +1,6 @@
 "use client";
 
-import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSelectType } from "@energyleaf/postgres/types";
 import { Area, AreaChart, XAxis, YAxis } from "recharts";
 import { type ChartConfig, ChartContainer } from "../../../ui/chart";
 

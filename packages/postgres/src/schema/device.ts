@@ -21,7 +21,7 @@ export const deviceTable = pgTable("device", {
     ...deviceFields,
 });
 
-export const deviceHistory = pgTable("history_device", {
+export const deviceHistoryTable = pgTable("history_device", {
     ...deviceFields,
     deviceId: integer("device_id").notNull(),
 });

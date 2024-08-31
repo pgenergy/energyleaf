@@ -1,6 +1,6 @@
 "use client";
-import { DeviceCategoryTitles, DeviceSuperCategoryTitles } from "@energyleaf/db/types";
 import { type EnergyTip, isDeviceCategory, isDeviceCategoryArray, isDeviceSuperCategory } from "@energyleaf/lib/tips";
+import { DeviceCategoryTitles, DeviceSuperCategoryTitles } from "@energyleaf/postgres/types";
 import { useMemo } from "react";
 
 interface Props {

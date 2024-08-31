@@ -1,6 +1,5 @@
 "use client";
 
-import { type DeviceCategory, DeviceCategoryTitles, type DeviceSelectType } from "@energyleaf/db/types";
 import {
     type DeviceCategoryPower,
     deviceCategoryPowerStateDescription,
@@ -8,6 +7,7 @@ import {
     getCategoryPowerState,
 } from "@energyleaf/lib";
 import type { EnergyTip } from "@energyleaf/lib/tips";
+import { type DeviceCategory, DeviceCategoryTitles, type DeviceSelectType } from "@energyleaf/postgres/types";
 import { Button } from "@energyleaf/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import type { ColumnDef } from "@tanstack/react-table";

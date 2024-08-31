@@ -1,8 +1,8 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserData } from "@/query/user";
-import type { SensorDataSelectType } from "@energyleaf/db/types";
 import { AggregationType, convertTZDate } from "@energyleaf/lib";
+import type { SensorDataSelectType } from "@energyleaf/postgres/types";
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { Alert, AlertDescription, AlertTitle } from "@energyleaf/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";

@@ -81,7 +81,7 @@ export async function getWeekdayEnergyForSensorInRange(
                     ? sql`AVG(${sensorDataDayTable.avgInserted})`.mapWith((value) => Number(value))
                     : sql`SUM(${sensorDataDayTable.sumInserted})`.mapWith((value) => Number(value)),
             timestamp: sql`MIN(${sensorDataDayTable.minTimestamp})`.mapWith((value) => new Date(`${value}+0000`)),
-            grouper: sql`EXTRACT(DOW FROM ${sensorDataDayTable.bucket} AT TIME ZONE 'Europe/Berlin')`.as("grouper"),
+            grouper: sql`EXTRACT(ISODOW FROM ${sensorDataDayTable.bucket} AT TIME ZONE 'Europe/Berlin')`.as("grouper"),
         })
         .from(sensorDataDayTable)
         .where(and(eq(sensorDataDayTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
@@ -313,4 +313,21 @@ export async function getEnergyLastEntry(sensorId: string): Promise<SensorDataSe
     }
 
     return query[0];
+}
+
+export async function getEnergySumForSensorInRange(start: Date, end: Date, sensorId: string) {
+    const data = await db
+        .select({
+            sum: sql`SUM(${sensorDataTable.value})`.mapWith((value) => Number(value)),
+        })
+        .from(sensorDataTable)
+        .where(and(eq(sensorDataTable.sensorId, sensorId), between(sensorDataTable.timestamp, start, end)))
+        .groupBy(sensorDataTable.sensorId)
+        .limit(1);
+
+    if (data.length === 0) {
+        return 0;
+    }
+
+    return data[0].sum;
 }

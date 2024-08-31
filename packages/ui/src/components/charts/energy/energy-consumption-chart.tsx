@@ -1,7 +1,7 @@
 "use client";
 
-import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
+import type { SensorDataSelectType, SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
 import clsx from "clsx";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -15,11 +15,11 @@ import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
 interface Props {
     data: SensorDataSelectType[];
-    peaks?: SensorDataSequenceType[];
+    peaks?: SensorDataSequenceSelectType[];
     cost?: number;
     showPeaks?: boolean;
     aggregation?: AggregationType;
-    peaksCallback?: (value: SensorDataSequenceType) => void;
+    peaksCallback?: (value: SensorDataSequenceSelectType) => void;
     zoomCallback?: (left: Date, right: Date) => void;
 }
 

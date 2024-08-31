@@ -2,16 +2,14 @@
 
 import { getActionSession } from "@/lib/auth/auth.action";
 import type { deviceSchema } from "@/lib/schema/device";
+import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import {
     createDevice as createDeviceDb,
     deleteDevice as deleteDeviceDb,
-    getUserById,
-    log,
-    logError,
-    trackAction,
     updateDevice as updateDeviceDb,
-} from "@energyleaf/db/query";
-import { UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
+} from "@energyleaf/postgres/query/device";
+import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
+import { getUserById } from "@energyleaf/postgres/query/user";
 import { revalidatePath } from "next/cache";
 import "server-only";
 import {

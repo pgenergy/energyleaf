@@ -1,9 +1,9 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences } from "@/query/energy";
 import { getUserData } from "@/query/user";
-import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import type { SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { redirect } from "next/navigation";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
@@ -53,7 +53,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         workingPrice && userData?.basePrice
             ? (userData.basePrice / (30 * 24 * 60 * 60)) * 15 + workingPrice
             : workingPrice;
-    const peaks: SensorDataSequenceType[] = showPeaks
+    const peaks: SensorDataSequenceSelectType[] = showPeaks
         ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
         : [];
 
