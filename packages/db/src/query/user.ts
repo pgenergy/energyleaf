@@ -1,5 +1,5 @@
 import { pickRandomTip } from "@energyleaf/lib/tips";
-import { and, between, desc, eq, gte } from "drizzle-orm";
+import { and, between, desc, eq, gte, or } from "drizzle-orm";
 import db, { genId } from "../";
 import type { EnergyTipKey } from "../../../lib/src/recommendations/tips/energy-tip-key";
 import {
@@ -95,6 +95,10 @@ export async function getUsersWhoRecieveSurveyMail(startDate: Date, endDate: Dat
                 eq(user.isActive, true),
                 eq(userExperimentData.usesProlific, false),
                 eq(userExperimentData.getsPaid, true),
+                or(
+                    eq(userExperimentData.experimentStatus, "first_finished"),
+                    eq(userExperimentData.experimentStatus, "second_finished"),
+                )
             ),
         );
 }
