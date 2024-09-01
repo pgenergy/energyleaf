@@ -75,7 +75,7 @@ export const sensorDataTable = pgTable(
             .$defaultFn(() => nanoid(35)),
         sensorId: text("sensor_id").notNull(),
         value: numericType("value").notNull(),
-        consumption: numericType("consumption"),
+        consumption: numericType("consumption").notNull(),
         valueOut: numericType("value_out"),
         inserted: numericType("inserted"),
         valueCurrent: numericType("value_current"),

@@ -367,34 +367,47 @@ interface Sequence {
     averagePowerIncludingBaseLoad: number;
 }
 
+export async function setDemoPeaks(cookies: ReadonlyRequestCookies) {
+    const peakCookie = cookies.get("demo_raw_peaks");
+    if (peakCookie) {
+        return;
+    }
+
+    const start = new Date();
+    start.setDate(start.getDate() - 20);
+    const end = new Date();
+    end.setDate(end.getDate() + 1);
+    const data = await getDemoSensorData(start, end, AggregationType.RAW);
+    if (data.length === 0) {
+        return;
+    }
+
+    const peaks = findPeaks(data, data);
+    const dataWithoutPeaks = data.filter(
+        (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
+    );
+    const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.value, 0) / dataWithoutPeaks.length;
+    cookies.set(
+        "demo_raw_peaks",
+        JSON.stringify({
+            peaks,
+            averageBaseLoad,
+        }),
+    );
+}
+
 export async function getDemoPeaks(
     start: Date,
     end: Date,
     cookies: ReadonlyRequestCookies,
 ): Promise<SensorDataSequenceSelectType[]> {
-    let peaks: Sequence[] = [];
-    let averageBaseLoad: number;
-
-    const cookiePeaks = cookies.get("demo_raw_peaks");
-    if (!cookiePeaks) {
-        const data = await getDemoSensorData(start, end, AggregationType.RAW);
-        peaks = findPeaks(data, data);
-        const dataWithoutPeaks = data.filter(
-            (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
-        );
-        averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.value, 0) / dataWithoutPeaks.length;
-        cookies.set(
-            "demo_raw_peaks",
-            JSON.stringify({
-                peaks,
-                averageBaseLoad,
-            }),
-        );
-    } else {
-        const cookieData = JSON.parse(cookiePeaks.value) as { peaks: Sequence[]; averageBaseLoad: number };
-        peaks = cookieData.peaks;
-        averageBaseLoad = cookieData.averageBaseLoad;
+    const peakCookie = cookies.get("demo_raw_peaks");
+    if (!peakCookie) {
+        return [];
     }
+    const cookieData = JSON.parse(peakCookie.value) as { peaks: Sequence[]; averageBaseLoad: number };
+    const peaks = cookieData.peaks;
+    const averageBaseLoad = cookieData.averageBaseLoad;
 
     return peaks
         .filter((peak) => {

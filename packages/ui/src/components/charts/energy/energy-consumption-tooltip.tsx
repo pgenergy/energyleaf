@@ -38,7 +38,7 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
         return format(date, formatOptions[aggregationType] || "dd.MM.yyyy HH:mm:ss", { locale: de });
     }, [data?.timestamp, aggregationType]);
 
-    if (!data?.value) {
+    if (!data?.consumption) {
         return null;
     }
 
@@ -50,29 +50,29 @@ export default function EnergyConsumptionTooltip({ aggregationType, tooltipProps
                     className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
                     style={
                         {
-                            "--color-bg": config.value.color,
+                            "--color-bg": config.consumption.color,
                         } as React.CSSProperties
                     }
                 />
                 <p className="text-sm">
                     <span className="text-muted-foreground">Verbrauch </span>
-                    <span className="font-medium font-mono">{data.value.toFixed(4)}</span>{" "}
+                    <span className="font-medium font-mono">{data.consumption.toFixed(4)}</span>{" "}
                     {computeTimestampLabel(aggregationType, true)}
                 </p>
             </div>
-            {data.valueOut ? (
+            {data.inserted ? (
                 <div className="flex flex-row items-center gap-1">
                     <div
                         className="h-2.5 w-2.5 shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]"
                         style={
                             {
-                                "--color-bg": config.valueOut.color,
+                                "--color-bg": config.inserted.color,
                             } as React.CSSProperties
                         }
                     />
                     <p className="text-sm">
                         <span className="text-muted-foreground">Eingespeist </span>
-                        <span className="font-medium font-mono">{data.valueOut.toFixed(4)}</span>{" "}
+                        <span className="font-medium font-mono">{data.inserted.toFixed(4)}</span>{" "}
                         {computeTimestampLabel(aggregationType, true)}
                     </p>
                 </div>

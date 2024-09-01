@@ -3,7 +3,7 @@
 import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
-import { getUserDataCookieStoreDefaults, isDemoUser } from "@/lib/demo/demo";
+import { getUserDataCookieStoreDefaults, isDemoUser, setDemoPeaks } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import {
@@ -161,8 +161,8 @@ export async function createAccount(data: FormData) {
             firstname,
             address,
             lastname,
-            phone,
-            comment,
+            phone: phone,
+            comment: comment,
             hasPower,
             hasWifi,
             email: mail,
@@ -435,6 +435,7 @@ export async function signInDemoAction() {
 
     const cookieStore = cookies();
 
+    await setDemoPeaks(cookieStore);
     cookieStore.set("demo_mode", "true");
     cookieStore.set("demo_data", JSON.stringify(getUserDataCookieStoreDefaults()));
     waitUntil(trackAction("demo-user-signed-in", "sign-in-demo", "web", {}));

@@ -197,6 +197,7 @@ export async function createUser(data: CreateUserType) {
             password: data.password,
             isParticipant: data.participation,
         });
+        console.log("OKAY");
         await trx.insert(userDataTable).values({
             userId,
             electricityMeterNumber: data.electricityMeterNumber,
@@ -206,16 +207,19 @@ export async function createUser(data: CreateUserType) {
             wifiAtElectricityMeter: data.hasWifi,
             installationComment: data.comment,
         });
+        console.log("HMMM");
         await trx.insert(reportConfigTable).values({
             userId,
             timestampLast: new Date(),
         });
+        console.log("LOL");
 
         if (data.participation) {
             await trx.insert(userExperimentDataTable).values({
                 userId,
                 getsPaid: true,
             });
+            console.log("YOOOO");
         }
     });
 }
@@ -253,8 +257,25 @@ export async function updateUserData(data: Partial<typeof userDataTable.$inferIn
         if (!oldUserData) {
             throw new Error("Old user data not found");
         }
-
-        await trx.insert(historyUserDataTable).values({ ...oldUserData });
+        await trx.insert(historyUserDataTable).values({
+            userId: oldUserData.userId,
+            basePrice: oldUserData.basePrice,
+            workingPrice: oldUserData.workingPrice,
+            tariff: oldUserData.tariff,
+            household: oldUserData.household,
+            property: oldUserData.property,
+            livingSpace: oldUserData.livingSpace,
+            hotWater: oldUserData.hotWater,
+            consumptionGoal: oldUserData.consumptionGoal,
+            monthlyPayment: oldUserData.monthlyPayment,
+            electricityMeterNumber: oldUserData.electricityMeterNumber,
+            electricityMeterType: oldUserData.electricityMeterType,
+            electricityMeterImgUrl: oldUserData.electricityMeterImgUrl,
+            powerAtElectricityMeter: oldUserData.powerAtElectricityMeter,
+            wifiAtElectricityMeter: oldUserData.wifiAtElectricityMeter,
+            installationComment: oldUserData.installationComment,
+            devicePowerEstimationRSquared: oldUserData.devicePowerEstimationRSquared,
+        });
         await trx.update(userDataTable).set(data).where(eq(userDataTable.userId, id));
     });
 }
