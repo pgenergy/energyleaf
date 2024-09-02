@@ -1,6 +1,6 @@
 "use client";
 
-import type { SensorSelectType } from "@energyleaf/db/types";
+import type { SensorSelectType } from "@energyleaf/postgres/types";
 import type React from "react";
 import { createContext, useContext, useState } from "react";
 

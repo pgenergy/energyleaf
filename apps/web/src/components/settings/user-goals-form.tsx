@@ -3,8 +3,8 @@
 import { updateUserGoals } from "@/actions/profile";
 import UserGoalsFormFields from "@/components/settings/user-goals-form-fields";
 import { userGoalSchema } from "@/lib/schema/profile";
-import type { UserDataSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
+import type { UserDataSelectType } from "@energyleaf/postgres/types";
 import { Button } from "@energyleaf/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { Form } from "@energyleaf/ui/form";

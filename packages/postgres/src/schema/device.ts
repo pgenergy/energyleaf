@@ -21,7 +21,7 @@ export const deviceTable = pgTable("device", {
     ...deviceFields,
 });
 
-export const deviceHistory = pgTable("history_device", {
+export const deviceHistoryTable = pgTable("history_device", {
     ...deviceFields,
     deviceId: integer("device_id").notNull(),
 });
@@ -41,3 +41,12 @@ export const deviceToPeakTable = pgTable(
         };
     },
 );
+
+/**
+ * Stores suggestions for device categories per peak provided by a ML model.
+ */
+export const deviceSuggestionsPeakTable = pgTable("device_suggestions_peak", {
+    id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity(),
+    sensorDataSequenceId: text("sensor_data_sequence_id").notNull(),
+    deviceCategory: text("device_category", { enum: Object.values(DeviceCategory) as [string, ...string[]] }).notNull(),
+});

@@ -1,13 +1,13 @@
 import { createDevice, updateDevice } from "@/actions/device";
 import { deviceSchema } from "@/lib/schema/device";
+import type { DefaultActionReturn } from "@energyleaf/lib";
 import {
     DeviceCategoryTitles,
     DeviceSuperCategory,
     DeviceSuperCategoryTitles,
     getDeviceCategories,
-} from "@energyleaf/db/types";
-import type { DeviceSelectType } from "@energyleaf/db/types";
-import type { DefaultActionReturn } from "@energyleaf/lib";
+} from "@energyleaf/postgres/types";
+import type { DeviceSelectType } from "@energyleaf/postgres/types";
 import { Button } from "@energyleaf/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";

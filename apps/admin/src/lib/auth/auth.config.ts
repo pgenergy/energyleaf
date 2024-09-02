@@ -1,5 +1,5 @@
 import { env } from "@/env.mjs";
-import { adapter } from "@energyleaf/db/adapter";
+import { adapter } from "@energyleaf/postgres/adapter";
 import { Lucia } from "lucia";
 
 export const lucia = new Lucia(adapter, {

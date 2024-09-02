@@ -1,5 +1,6 @@
-import { getDeviceCategoriesByUser, getTipOfTheDay } from "@energyleaf/db/query";
 import { getEnergyTip, getRelevantTips } from "@energyleaf/lib/tips";
+import { getDeviceCategoriesByUser } from "@energyleaf/postgres/query/device";
+import { getTipOfTheDay } from "@energyleaf/postgres/query/user";
 import { cache } from "react";
 
 export const getEnergyTips = cache(async (userId: string) => {

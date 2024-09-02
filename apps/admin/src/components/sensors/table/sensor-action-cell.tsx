@@ -1,7 +1,7 @@
 "use client";
 
 import { useSensorContext } from "@/hooks/sensor-hook";
-import type { SensorSelectType } from "@energyleaf/db/types";
+import type { SensorSelectType } from "@energyleaf/postgres/types";
 import { Button } from "@energyleaf/ui/button";
 import {
     DropdownMenu,

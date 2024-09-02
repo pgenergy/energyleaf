@@ -3,9 +3,9 @@
 import { createAccount } from "@/actions/auth";
 import SubmitButton from "@/components/auth/submit-button";
 import { signupSchema } from "@/lib/schema/auth";
-import { userData } from "@energyleaf/db/schema";
-import { userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
+import { userDataTable } from "@energyleaf/postgres/schema/user";
+import { userDataElectricityMeterTypeEnums } from "@energyleaf/postgres/types";
 import { buttonVariants } from "@energyleaf/ui/button";
 import { Checkbox } from "@energyleaf/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
@@ -212,7 +212,7 @@ export default function SignUpForm() {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {userData.electricityMeterType.enumValues.map((value) => (
+                                        {userDataTable.electricityMeterType.enumValues.map((value) => (
                                             <SelectItem value={value} key={value}>
                                                 {userDataElectricityMeterTypeEnums[value]}
                                             </SelectItem>

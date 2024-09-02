@@ -7,10 +7,8 @@ export const env = createEnv({
         HASH_SECRET: z.string(),
         CRON_SECRET: z.string().optional(),
 
-        DATABASE_HOST: z.string(),
-        DATABASE_USERNAME: z.string(),
-        DATABASE_PASSWORD: z.string(),
-        DATABASE_NAME: z.string(),
+        ML_API_URL: z.string(),
+        ML_API_KEY: z.string(),
 
         PG_CONNECTION: z.string(),
         PG_DIRECT: z.string(),

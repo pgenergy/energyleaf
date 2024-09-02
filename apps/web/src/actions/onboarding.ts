@@ -1,8 +1,9 @@
 "use server";
 
 import { getActionSession } from "@/lib/auth/auth.action";
-import { log, logError, trackAction, updateUser } from "@energyleaf/db/query";
 import { UserNotLoggedInError } from "@energyleaf/lib";
+import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
+import { updateUser } from "@energyleaf/postgres/query/user";
 import { redirect } from "next/navigation";
 import "server-only";
 import { waitUntil } from "@vercel/functions";

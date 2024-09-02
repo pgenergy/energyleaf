@@ -2,8 +2,14 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { customAlphabet } from "nanoid";
 import postgres from "postgres";
 
-const connection = postgres(process.env.PG_CONNECTION as string, { prepare: false });
+const globalPgClient = globalThis as unknown as { pgClient: ReturnType<typeof postgres> };
+
+const connection = globalPgClient.pgClient || postgres(process.env.PG_CONNECTION as string, { prepare: false });
 export const db = drizzle(connection);
+
+if (!process.env.VERCEL_ENV) {
+    globalPgClient.pgClient = connection;
+}
 
 export const genId = (length = 30) => {
     const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890");

@@ -6,12 +6,6 @@
   ],
   "globalEnv": [
     "HASH_SECRET",
-    "DATABASE_HOST",
-    "DATABASE_USERNAME",
-    "DATABASE_PASSWORD",
-    "DATABASE_NAME",
-    "DATABASE_LOCAL_URL",
-    "DATABASE_PUSH_URL",
     "RESEND_API_MAIL",
     "RESEND_API_KEY",
     "ADMIN_MAIL",

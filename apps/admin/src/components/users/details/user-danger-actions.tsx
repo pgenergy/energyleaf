@@ -1,7 +1,7 @@
 "use client";
 
 import { useUserContext } from "@/hooks/user-hook";
-import type { UserSelectType } from "@energyleaf/db/types";
+import type { UserSelectType } from "@energyleaf/postgres/types";
 import { Button } from "@energyleaf/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 

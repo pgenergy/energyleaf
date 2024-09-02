@@ -10,25 +10,23 @@ import type {
     userDataSchema,
     userGoalSchema,
 } from "@/lib/schema/profile";
-import {
-    deleteSessionsOfUser,
-    deleteUser,
-    getUserById,
-    log,
-    logError,
-    trackAction,
-    updateMailSettings,
-    updatePassword,
-    updateUser,
-    updateUserData,
-} from "@energyleaf/db/query";
-import type { UserDataType } from "@energyleaf/db/types";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
+import type { UserWithDataSelectType } from "@energyleaf/postgres/types";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
+import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
+import { updateMailSettings } from "@energyleaf/postgres/query/mail";
+import {
+    deleteSessionsOfUser,
+    deleteUser,
+    getUserById,
+    updatePassword,
+    updateUser,
+    updateUserData,
+} from "@energyleaf/postgres/query/user";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 import { redirect } from "next/navigation";
@@ -238,7 +236,7 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
                     household: data.people,
                     property: data.houseType,
                 },
-            } as Partial<UserDataType>);
+            } as Partial<UserWithDataSelectType>);
             waitUntil(trackAction("user/update-data-demo ", "update-user-data", "web", { session }));
             return;
         }
@@ -305,7 +303,7 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
                     timestamp: new Date(),
                     consumptionGoal: data.goalValue,
                 },
-            } as Partial<UserDataType>);
+            } as Partial<UserWithDataSelectType>);
             waitUntil(trackAction("user/update-goals-demo", "update-user-goals", "web", { data, session }));
             revalidateUserDataPaths();
             return;

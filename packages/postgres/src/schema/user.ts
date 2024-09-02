@@ -25,15 +25,15 @@ const userFields = {
     activationDate: timestamp("activation_date", { mode: "date", withTimezone: true }),
 };
 
-export const user = pgTable("user", {
+export const userTable = pgTable("user", {
     ...userFields,
 });
 
-export const historyUser = pgTable("history_user", {
+export const historyUserTable = pgTable("history_user", {
     ...userFields,
 });
 
-export const userExperimentData = pgTable("user_experiment_data", {
+export const userExperimentDataTable = pgTable("user_experiment_data", {
     userId: text("user_id").notNull().primaryKey(),
     experimentStatus: text("experiment_status", {
         enum: [
@@ -81,27 +81,27 @@ const userDataFields = {
     devicePowerEstimationRSquared: doublePrecision("device_power_estimation_r_squared"),
 };
 
-export const userData = pgTable("user_data", {
+export const userDataTable = pgTable("user_data", {
     ...userDataFields,
 });
 
-export const historyUserData = pgTable("history_user_data", {
+export const historyUserDataTable = pgTable("history_user_data", {
     ...userDataFields,
 });
 
-export const userTipOfTheDay = pgTable("user_tip_of_the_day", {
+export const userTipOfTheDayTable = pgTable("user_tip_of_the_day", {
     userId: text("user_id").primaryKey().notNull(),
     tipId: integer("tip_id").notNull(),
     timestamp: timestamp("date", { mode: "date", withTimezone: true }).notNull(),
 });
 
-export const session = pgTable("session", {
+export const sessionTable = pgTable("session", {
     id: text("id").primaryKey(),
     userId: text("user_id").notNull(),
     expiresAt: timestamp("expires_at", { mode: "date", withTimezone: true }).notNull(),
 });
 
-export const token = pgTable("token", {
+export const tokenTable = pgTable("token", {
     token: text("id")
         .primaryKey()
         .$defaultFn(() => nanoid(30)),

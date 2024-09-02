@@ -1,4 +1,4 @@
-import { DeviceCategory, DeviceSuperCategory } from "@energyleaf/db/types";
+import { DeviceCategory, DeviceSuperCategory } from "@energyleaf/postgres/types";
 
 export function isDeviceCategory(
     value: DeviceCategory | DeviceCategory[] | DeviceSuperCategory,

@@ -1,5 +1,5 @@
-import type { DeviceCategory } from "@energyleaf/db/types";
 import { formatNumber } from "@energyleaf/lib";
+import type { DeviceCategory } from "@energyleaf/postgres/types";
 import { cn } from "@energyleaf/tailwindcss/utils";
 import { DivButton } from "@energyleaf/ui/button";
 import { Input } from "@energyleaf/ui/input";

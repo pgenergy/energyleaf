@@ -1,5 +1,10 @@
+import { classifyAndSaveDevicesForPeaks } from "@/actions/ml";
 import { env } from "@/env.mjs";
-import { findAndMark, getAllSensors, log, logError } from "@energyleaf/db/query";
+import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import { log, logError } from "@energyleaf/postgres/query/logs";
+import { findAndMark, getSequencesBySensor } from "@energyleaf/postgres/query/peaks";
+import { getAllSensors } from "@energyleaf/postgres/query/sensor";
+import { getUserBySensorId } from "@energyleaf/postgres/query/user";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -38,6 +43,30 @@ export const GET = async (req: NextRequest) => {
                     );
                     startDate = result.start;
                     endDate = result.end;
+
+                    if (!startDate || !endDate) {
+                        throw new Error("Start date or end date is undefined.");
+                    }
+
+                    const user = await getUserBySensorId(sensorId);
+
+                    if (user && fulfills(user.appVersion, Versions.support)) {
+                        const peaks = await getSequencesBySensor(sensorId, { start: startDate, end: endDate });
+
+                        const peaksToClassify = await Promise.all(
+                            peaks.map(async (peak) => {
+                                return {
+                                    id: peak.id,
+                                    electricity: peak.sensorData.map((data) => ({
+                                        timestamp: data.timestamp.toISOString(),
+                                        power: data.consumption / 1000,
+                                    })),
+                                };
+                            }),
+                        );
+
+                        waitUntil(classifyAndSaveDevicesForPeaks(peaksToClassify, user.userId));
+                    }
                 } catch (err) {
                     waitUntil(
                         logError(
@@ -60,7 +89,7 @@ export const GET = async (req: NextRequest) => {
 
         // use allSettled so we dont abort if one fails
         await Promise.allSettled(promises);
-        return NextResponse.json({ statusMessage: "Peaks successfully marked." });
+        return NextResponse.json({ statusMessage: "Peaks successfully marked and classified where applicable." });
     } catch (err) {
         waitUntil(
             logError(

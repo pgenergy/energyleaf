@@ -1,14 +1,11 @@
-import { and, desc, eq, gt, lt, lte, or, sql } from "drizzle-orm";
-
 import type { LastReport, ReportProps } from "@energyleaf/lib";
-import { db as pgDb } from "@energyleaf/postgres";
-import { reportsDayStatisticsTable, reportsTable } from "@energyleaf/postgres/schema/reports";
-import db, { type DB, genId } from "../";
-import { reportConfig, reports, reportsDayStatistics } from "../schema/reports";
-import { user } from "../schema/user";
+import { and, desc, eq, gt, lt, lte, or, sql } from "drizzle-orm";
+import { type DB, db, genId } from "../";
+import { reportConfigTable, reportsDayStatisticsTable, reportsTable } from "../schema/reports";
+import { userTable } from "../schema/user";
 
 export async function getReportConfigByUserId(trx: DB, id: string) {
-    const data = await trx.select().from(reportConfig).where(eq(reportConfig.userId, id));
+    const data = await trx.select().from(reportConfigTable).where(eq(reportConfigTable.userId, id));
 
     if (data.length === 0) {
         return null;
@@ -18,7 +15,7 @@ export async function getReportConfigByUserId(trx: DB, id: string) {
 }
 
 export async function updateLastReportTimestamp(userId: string) {
-    return db.update(reportConfig).set({ timestampLast: new Date() }).where(eq(reportConfig.userId, userId));
+    return db.update(reportConfigTable).set({ timestampLast: new Date() }).where(eq(reportConfigTable.userId, userId));
 }
 
 /**
@@ -31,25 +28,31 @@ export async function updateLastReportTimestamp(userId: string) {
 export async function getUsersWitDueReport() {
     return db
         .select({
-            userId: user.id,
-            userName: user.username,
-            appVersion: user.appVersion,
-            email: user.email,
-            receiveMails: reportConfig.receiveMails,
-            interval: reportConfig.interval,
+            userId: userTable.id,
+            userName: userTable.username,
+            appVersion: userTable.appVersion,
+            email: userTable.email,
+            receiveMails: reportConfigTable.receiveMails,
+            interval: reportConfigTable.interval,
         })
-        .from(reportConfig)
-        .innerJoin(user, eq(user.id, reportConfig.userId))
+        .from(reportConfigTable)
+        .innerJoin(userTable, eq(userTable.id, reportConfigTable.userId))
         .where(
             and(
                 or(
-                    gt(sql`DATEDIFF(NOW(), report_config.timestamp_last)`, reportConfig.interval),
+                    gt(
+                        sql`DATE_PART('day', NOW()::timestamp - ${reportConfigTable.timestampLast})`,
+                        reportConfigTable.interval,
+                    ),
                     and(
-                        eq(sql`DATEDIFF(NOW(), report_config.timestamp_last)`, reportConfig.interval),
-                        lte(reportConfig.time, new Date().getHours()),
+                        eq(
+                            sql`DATE_PART('day', NOW()::timestamp - ${reportConfigTable.timestampLast})`,
+                            reportConfigTable.interval,
+                        ),
+                        lte(reportConfigTable.time, new Date().getHours()),
                     ),
                 ),
-                eq(user.isActive, true),
+                eq(userTable.isActive, true),
             ),
         );
 }
@@ -57,22 +60,22 @@ export async function getUsersWitDueReport() {
 export async function getLastReportForUser(userId: string): Promise<LastReport | null> {
     const userReports = await db
         .select({
-            totalEnergyConsumption: reports.totalEnergyConsumption,
-            avgEnergyConsumptionPerDay: reports.avgEnergyConsumptionPerDay,
-            totalEnergyCost: reports.totalEnergyCost,
-            avgEnergyCost: reports.avgEnergyCost,
+            totalEnergyConsumption: reportsTable.totalEnergyConsumption,
+            avgEnergyConsumptionPerDay: reportsTable.avgEnergyConsumptionPerDay,
+            totalEnergyCost: reportsTable.totalEnergyCost,
+            avgEnergyCost: reportsTable.avgEnergyCost,
             bestDay: {
-                day: reports.bestDay,
-                consumption: reports.bestDayConsumption,
+                day: reportsTable.bestDay,
+                consumption: reportsTable.bestDayConsumption,
             },
             worstDay: {
-                day: reports.worstDay,
-                consumption: reports.worstDayConsumption,
+                day: reportsTable.worstDay,
+                consumption: reportsTable.worstDayConsumption,
             },
         })
-        .from(reports)
-        .where(eq(reports.userId, userId))
-        .orderBy(desc(reports.timestamp))
+        .from(reportsTable)
+        .where(eq(reportsTable.userId, userId))
+        .orderBy(desc(reportsTable.timestamp))
         .limit(1);
 
     if (!userReports || userReports.length === 0) {
@@ -101,22 +104,22 @@ export async function getLastReportForUser(userId: string): Promise<LastReport |
 export async function getMetaDataOfAllReportsForUser(userId: string, limit: number) {
     return db
         .select({
-            id: reports.id,
-            dateFrom: reports.dateFrom,
-            dateTo: reports.dateTo,
+            id: reportsTable.id,
+            dateFrom: reportsTable.dateFrom,
+            dateTo: reportsTable.dateTo,
         })
-        .from(reports)
-        .where(eq(reports.userId, userId))
-        .orderBy(desc(reports.timestamp))
+        .from(reportsTable)
+        .where(eq(reportsTable.userId, userId))
+        .orderBy(desc(reportsTable.timestamp))
         .limit(limit);
 }
 
 export async function getLastReportIdByUser(userId: string) {
     const result = await db
-        .select({ id: reports.id })
-        .from(reports)
-        .where(eq(reports.userId, userId))
-        .orderBy(desc(reports.timestamp))
+        .select({ id: reportsTable.id })
+        .from(reportsTable)
+        .where(eq(reportsTable.userId, userId))
+        .orderBy(desc(reportsTable.timestamp))
         .limit(1);
 
     return result.length > 0 ? result[0].id : undefined;
@@ -125,21 +128,21 @@ export async function getLastReportIdByUser(userId: string) {
 export async function getReportByIdAndUser(reportId: string, userId: string): Promise<ReportProps | null> {
     const report = await db
         .select({
-            id: reports.id,
-            dateFrom: reports.dateFrom,
-            dateTo: reports.dateTo,
-            totalEnergyConsumption: reports.totalEnergyConsumption,
-            avgEnergyConsumptionPerDay: reports.avgEnergyConsumptionPerDay,
-            totalEnergyCost: reports.totalEnergyCost,
-            avgEnergyCost: reports.avgEnergyCost,
-            bestDay: reports.bestDay,
-            bestDayConsumption: reports.bestDayConsumption,
-            worstDay: reports.worstDay,
-            worstDayConsumption: reports.worstDayConsumption,
-            timestamp: reports.timestamp,
+            id: reportsTable.id,
+            dateFrom: reportsTable.dateFrom,
+            dateTo: reportsTable.dateTo,
+            totalEnergyConsumption: reportsTable.totalEnergyConsumption,
+            avgEnergyConsumptionPerDay: reportsTable.avgEnergyConsumptionPerDay,
+            totalEnergyCost: reportsTable.totalEnergyCost,
+            avgEnergyCost: reportsTable.avgEnergyCost,
+            bestDay: reportsTable.bestDay,
+            bestDayConsumption: reportsTable.bestDayConsumption,
+            worstDay: reportsTable.worstDay,
+            worstDayConsumption: reportsTable.worstDayConsumption,
+            timestamp: reportsTable.timestamp,
         })
-        .from(reports)
-        .where(and(eq(reports.userId, userId), eq(reports.id, reportId)));
+        .from(reportsTable)
+        .where(and(eq(reportsTable.userId, userId), eq(reportsTable.id, reportId)));
 
     if (report.length === 0) {
         return null;
@@ -147,23 +150,23 @@ export async function getReportByIdAndUser(reportId: string, userId: string): Pr
 
     const reportBefore = await db
         .select({
-            id: reports.id,
-            totalEnergyConsumption: reports.totalEnergyConsumption,
-            avgEnergyConsumptionPerDay: reports.avgEnergyConsumptionPerDay,
-            totalEnergyCost: reports.totalEnergyCost,
-            avgEnergyCost: reports.avgEnergyCost,
+            id: reportsTable.id,
+            totalEnergyConsumption: reportsTable.totalEnergyConsumption,
+            avgEnergyConsumptionPerDay: reportsTable.avgEnergyConsumptionPerDay,
+            totalEnergyCost: reportsTable.totalEnergyCost,
+            avgEnergyCost: reportsTable.avgEnergyCost,
             bestDay: {
-                day: reports.bestDay,
-                consumption: reports.bestDayConsumption,
+                day: reportsTable.bestDay,
+                consumption: reportsTable.bestDayConsumption,
             },
             worstDay: {
-                day: reports.worstDay,
-                consumption: reports.worstDayConsumption,
+                day: reportsTable.worstDay,
+                consumption: reportsTable.worstDayConsumption,
             },
         })
-        .from(reports)
-        .where(and(eq(reports.userId, userId), lt(reports.timestamp, report[0].timestamp)))
-        .orderBy(desc(reports.timestamp))
+        .from(reportsTable)
+        .where(and(eq(reportsTable.userId, userId), lt(reportsTable.timestamp, report[0].timestamp)))
+        .orderBy(desc(reportsTable.timestamp))
         .limit(1);
 
     let lastReport: LastReport | undefined = undefined;
@@ -187,15 +190,15 @@ export async function getReportByIdAndUser(reportId: string, userId: string): Pr
 
     const dayStatistics = await db
         .select({
-            date: reportsDayStatistics.date,
-            dailyConsumption: reportsDayStatistics.dailyConsumption,
-            dailyGoal: reportsDayStatistics.dailyGoal,
-            exceeded: reportsDayStatistics.exceeded,
-            progress: reportsDayStatistics.progress,
+            date: reportsDayStatisticsTable.date,
+            dailyConsumption: reportsDayStatisticsTable.dailyConsumption,
+            dailyGoal: reportsDayStatisticsTable.dailyGoal,
+            exceeded: reportsDayStatisticsTable.exceeded,
+            progress: reportsDayStatisticsTable.progress,
         })
-        .from(reportsDayStatistics)
-        .where(eq(reportsDayStatistics.reportId, reportId))
-        .orderBy(reportsDayStatistics.date);
+        .from(reportsDayStatisticsTable)
+        .where(eq(reportsDayStatisticsTable.reportId, reportId))
+        .orderBy(reportsDayStatisticsTable.date);
 
     return {
         ...report[0],
@@ -224,22 +227,7 @@ export async function getReportByIdAndUser(reportId: string, userId: string): Pr
 export async function saveReport(reportProps: ReportProps, userId: string) {
     return db.transaction(async (trx) => {
         const reportId = genId(35);
-        await trx.insert(reports).values({
-            id: reportId,
-            timestamp: new Date(),
-            dateFrom: reportProps.dateFrom,
-            dateTo: reportProps.dateTo,
-            userId: userId,
-            totalEnergyConsumption: reportProps.totalEnergyConsumption,
-            avgEnergyConsumptionPerDay: reportProps.avgEnergyConsumptionPerDay,
-            totalEnergyCost: reportProps.totalEnergyCost,
-            avgEnergyCost: reportProps.avgEnergyCost,
-            bestDay: reportProps.bestDay.day,
-            bestDayConsumption: reportProps.bestDay.consumption,
-            worstDay: reportProps.worstDay.day,
-            worstDayConsumption: reportProps.worstDay.consumption,
-        });
-        await pgDb.insert(reportsTable).values({
+        await trx.insert(reportsTable).values({
             id: reportId,
             timestamp: new Date(),
             dateFrom: reportProps.dateFrom,
@@ -257,16 +245,7 @@ export async function saveReport(reportProps: ReportProps, userId: string) {
 
         for (const dayStat of reportProps.dayEnergyStatistics ?? []) {
             const id = genId(35);
-            await trx.insert(reportsDayStatistics).values({
-                id,
-                date: dayStat.day,
-                dailyConsumption: dayStat.dailyConsumption,
-                progress: dayStat.progress,
-                exceeded: dayStat.exceeded,
-                dailyGoal: dayStat.dailyGoal,
-                reportId: reportId,
-            });
-            await pgDb.insert(reportsDayStatisticsTable).values({
+            await trx.insert(reportsDayStatisticsTable).values({
                 id,
                 date: dayStat.day,
                 dailyConsumption: dayStat.dailyConsumption,

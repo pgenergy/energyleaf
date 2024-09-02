@@ -1,6 +1,6 @@
 "use client";
 
-import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSelectType } from "@energyleaf/postgres/types";
 import {
     type ChartConfig,
     ChartContainer,

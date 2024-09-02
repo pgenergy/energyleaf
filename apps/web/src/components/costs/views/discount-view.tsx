@@ -44,13 +44,13 @@ export default async function CostDiscountView() {
     const totalBaseCost = userData.basePrice ? userData.basePrice / 30 : 0;
     const workingPrice = userData.workingPrice;
     const processedData = data.map((entry, i) => {
-        const energyBefore = data.slice(0, i).reduce((acc, cur) => acc + cur.value, 0);
+        const energyBefore = data.slice(0, i).reduce((acc, cur) => acc + cur.consumption, 0);
         return {
             ...entry,
             cost:
                 i === 0
-                    ? entry.value * workingPrice + totalBaseCost
-                    : (entry.value + energyBefore) * workingPrice + totalBaseCost,
+                    ? entry.consumption * workingPrice + totalBaseCost
+                    : (entry.consumption + energyBefore) * workingPrice + totalBaseCost,
         };
     });
     const dailyCost = userData.monthlyPayment / 30;

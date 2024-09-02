@@ -1,21 +1,19 @@
 import { pickRandomTip } from "@energyleaf/lib/tips";
+import type { EnergyTipKey } from "@energyleaf/lib/tips";
 import { and, between, desc, eq, gte, or } from "drizzle-orm";
-import db, { genId } from "../";
-import type { EnergyTipKey } from "../../../lib/src/recommendations/tips/energy-tip-key";
+import { db, genId } from "../";
+import { historyReportConfigTable, reportConfigTable } from "../schema/reports";
+import { sensorHistoryTable, sensorTable } from "../schema/sensor";
 import {
-    historyReportConfig,
-    historyUser,
-    historyUserData,
-    reportConfig,
-    sensor,
-    sensorHistory,
-    session,
-    token,
-    user,
-    userData,
-    userExperimentData,
-    userTipOfTheDay,
-} from "../schema";
+    historyUserDataTable,
+    historyUserTable,
+    sessionTable,
+    tokenTable,
+    userDataTable,
+    userExperimentDataTable,
+    userTable,
+    userTipOfTheDayTable,
+} from "../schema/user";
 import type { UserDataSelectType, UserSelectType } from "../types/types";
 import { getDeviceCategoriesByUser } from "./device";
 
@@ -27,7 +25,7 @@ import { getDeviceCategoriesByUser } from "./device";
  * @returns The user or null if not found
  */
 export async function getUserById(id: string) {
-    const query = await db.select().from(user).where(eq(user.id, id));
+    const query = await db.select().from(userTable).where(eq(userTable.id, id));
     if (query.length === 0) {
         return null;
     }
@@ -40,7 +38,7 @@ export async function getUserById(id: string) {
  * @param id<string> The id of the user
  */
 export async function deleteSessionsOfUser(id: string) {
-    return await db.delete(session).where(eq(session.userId, id));
+    return await db.delete(sessionTable).where(eq(sessionTable.userId, id));
 }
 
 /**
@@ -49,7 +47,7 @@ export async function deleteSessionsOfUser(id: string) {
  * @param userId<string> The id of the user
  */
 export async function getUserExperimentData(userId: string) {
-    const data = await db.select().from(userExperimentData).where(eq(userExperimentData.userId, userId));
+    const data = await db.select().from(userExperimentDataTable).where(eq(userExperimentDataTable.userId, userId));
     if (!data || data.length === 0) {
         return null;
     }
@@ -60,8 +58,8 @@ export async function getUserExperimentData(userId: string) {
 /**
  * Create experiment data for a user
  */
-export async function createExperimentDataForUser(data: typeof userExperimentData.$inferInsert) {
-    return await db.insert(userExperimentData).values({
+export async function createExperimentDataForUser(data: typeof userExperimentDataTable.$inferInsert) {
+    return await db.insert(userExperimentDataTable).values({
         ...data,
     });
 }
@@ -69,15 +67,18 @@ export async function createExperimentDataForUser(data: typeof userExperimentDat
 /**
  * Update experiment data for a user
  */
-export async function updateExperimentDataForUser(data: Partial<typeof userExperimentData.$inferInsert>, id: string) {
-    return await db.update(userExperimentData).set(data).where(eq(userExperimentData.userId, id));
+export async function updateExperimentDataForUser(
+    data: Partial<typeof userExperimentDataTable.$inferInsert>,
+    id: string,
+) {
+    return await db.update(userExperimentDataTable).set(data).where(eq(userExperimentDataTable.userId, id));
 }
 
 /**
  * Delete experiment data for a user
  */
 export async function deleteExperimentDataForUser(id: string) {
-    return await db.delete(userExperimentData).where(eq(userExperimentData.userId, id));
+    return await db.delete(userExperimentDataTable).where(eq(userExperimentDataTable.userId, id));
 }
 
 /**
@@ -86,19 +87,19 @@ export async function deleteExperimentDataForUser(id: string) {
 export async function getUsersWhoRecieveSurveyMail(startDate: Date, endDate: Date) {
     return await db
         .select()
-        .from(user)
-        .innerJoin(userExperimentData, eq(user.id, userExperimentData.userId))
+        .from(userTable)
+        .innerJoin(userExperimentDataTable, eq(userTable.id, userExperimentDataTable.userId))
         .where(
             and(
-                between(userExperimentData.installationDate, startDate, endDate),
-                eq(user.isParticipant, true),
-                eq(user.isActive, true),
-                eq(userExperimentData.usesProlific, false),
-                eq(userExperimentData.getsPaid, true),
+                between(userExperimentDataTable.installationDate, startDate, endDate),
+                eq(userTable.isParticipant, true),
+                eq(userTable.isActive, true),
+                eq(userExperimentDataTable.usesProlific, false),
+                eq(userExperimentDataTable.getsPaid, true),
                 or(
-                    eq(userExperimentData.experimentStatus, "first_finished"),
-                    eq(userExperimentData.experimentStatus, "second_finished"),
-                )
+                    eq(userExperimentDataTable.experimentStatus, "first_finished"),
+                    eq(userExperimentDataTable.experimentStatus, "second_finished"),
+                ),
             ),
         );
 }
@@ -110,10 +111,10 @@ export async function getUserDataHistory(id: string) {
     return await db.transaction(async (trx) => {
         return trx
             .select()
-            .from(historyUserData)
-            .where(eq(historyUserData.userId, id))
-            .union(trx.select().from(userData).where(eq(userData.userId, id)))
-            .orderBy(historyUserData.timestamp);
+            .from(historyUserDataTable)
+            .where(eq(historyUserDataTable.userId, id))
+            .union(trx.select().from(userDataTable).where(eq(userDataTable.userId, id)))
+            .orderBy(historyUserDataTable.timestamp);
     });
 }
 
@@ -123,9 +124,9 @@ export async function getUserDataHistory(id: string) {
 export async function getUsersWhoRecieveAnomalyMail() {
     return await db
         .select()
-        .from(user)
-        .innerJoin(sensor, eq(sensor.userId, user.id))
-        .where(eq(user.receiveAnomalyMails, true));
+        .from(userTable)
+        .innerJoin(sensorTable, eq(sensorTable.userId, userTable.id))
+        .where(eq(userTable.receiveAnomalyMails, true));
 }
 
 /**
@@ -134,13 +135,13 @@ export async function getUsersWhoRecieveAnomalyMail() {
 export async function getAllExperimentUsers() {
     return await db
         .select()
-        .from(user)
-        .innerJoin(userExperimentData, eq(user.id, userExperimentData.userId))
+        .from(userTable)
+        .innerJoin(userExperimentDataTable, eq(userTable.id, userExperimentDataTable.userId))
         .where(
             and(
-                eq(user.isParticipant, true),
-                eq(userExperimentData.experimentStatus, "approved"),
-                gte(userExperimentData.experimentNumber, 0),
+                eq(userTable.isParticipant, true),
+                eq(userExperimentDataTable.experimentStatus, "approved"),
+                gte(userExperimentDataTable.experimentNumber, 0),
             ),
         );
 }
@@ -153,7 +154,7 @@ export async function getAllExperimentUsers() {
  * @returns The user or null if not found
  */
 export async function getUserByMail(email: string) {
-    const query = await db.select().from(user).where(eq(user.email, email));
+    const query = await db.select().from(userTable).where(eq(userTable.email, email));
     if (query.length === 0) {
         return null;
     }
@@ -171,7 +172,7 @@ export type CreateUserType = {
     email: string;
     password: string;
     username: string;
-    electricityMeterType: (typeof userData.electricityMeterType.enumValues)[number];
+    electricityMeterType: (typeof userDataTable.electricityMeterType.enumValues)[number];
     electricityMeterNumber: string;
     participation: boolean;
     meterImgUrl?: string;
@@ -182,14 +183,14 @@ export type CreateUserType = {
  */
 export async function createUser(data: CreateUserType) {
     return db.transaction(async (trx) => {
-        const check = await trx.select().from(user).where(eq(user.email, data.email));
+        const check = await trx.select().from(userTable).where(eq(userTable.email, data.email));
 
         if (check.length > 0) {
             throw new Error("User already exists");
         }
         const userId = genId(30);
 
-        await trx.insert(user).values({
+        await trx.insert(userTable).values({
             id: userId,
             firstname: data.firstname,
             lastname: data.lastname,
@@ -200,7 +201,7 @@ export async function createUser(data: CreateUserType) {
             password: data.password,
             isParticipant: data.participation,
         });
-        await trx.insert(userData).values({
+        await trx.insert(userDataTable).values({
             userId,
             electricityMeterNumber: data.electricityMeterNumber,
             electricityMeterType: data.electricityMeterType,
@@ -209,13 +210,13 @@ export async function createUser(data: CreateUserType) {
             wifiAtElectricityMeter: data.hasWifi,
             installationComment: data.comment,
         });
-        await trx.insert(reportConfig).values({
+        await trx.insert(reportConfigTable).values({
             userId,
             timestampLast: new Date(),
         });
 
         if (data.participation) {
-            await trx.insert(userExperimentData).values({
+            await trx.insert(userExperimentDataTable).values({
                 userId,
                 getsPaid: true,
             });
@@ -227,7 +228,7 @@ export async function createUser(data: CreateUserType) {
  * Get the current user data from the database
  */
 export async function getUserData(id: string): Promise<UserDataSelectType | null> {
-    const data = await db.select().from(userData).where(eq(userData.userId, id));
+    const data = await db.select().from(userDataTable).where(eq(userDataTable.userId, id));
 
     if (data.length === 0) {
         return null;
@@ -240,30 +241,47 @@ export async function getUserData(id: string): Promise<UserDataSelectType | null
  * Update the user data in the database
  */
 export async function updateUser(data: Partial<UserSelectType>, id: string) {
-    return db.update(user).set(data).where(eq(user.id, id));
+    return db.update(userTable).set(data).where(eq(userTable.id, id));
 }
 
 /**
  * Update the user's password in the database
  */
 export async function updatePassword(data: Partial<CreateUserType>, id: string) {
-    return db.update(user).set(data).where(eq(user.id, id));
+    return db.update(userTable).set(data).where(eq(userTable.id, id));
 }
 
-export async function updateUserData(data: Partial<typeof userData.$inferInsert>, id: string) {
+export async function updateUserData(data: Partial<typeof userDataTable.$inferInsert>, id: string) {
     return db.transaction(async (trx) => {
         const oldUserData = await getUserDataByUserId(id);
         if (!oldUserData) {
             throw new Error("Old user data not found");
         }
-
-        await trx.insert(historyUserData).values({ ...oldUserData, id: undefined });
-        await trx.update(userData).set(data).where(eq(userData.userId, id));
+        await trx.insert(historyUserDataTable).values({
+            userId: oldUserData.userId,
+            basePrice: oldUserData.basePrice,
+            workingPrice: oldUserData.workingPrice,
+            tariff: oldUserData.tariff,
+            household: oldUserData.household,
+            property: oldUserData.property,
+            livingSpace: oldUserData.livingSpace,
+            hotWater: oldUserData.hotWater,
+            consumptionGoal: oldUserData.consumptionGoal,
+            monthlyPayment: oldUserData.monthlyPayment,
+            electricityMeterNumber: oldUserData.electricityMeterNumber,
+            electricityMeterType: oldUserData.electricityMeterType,
+            electricityMeterImgUrl: oldUserData.electricityMeterImgUrl,
+            powerAtElectricityMeter: oldUserData.powerAtElectricityMeter,
+            wifiAtElectricityMeter: oldUserData.wifiAtElectricityMeter,
+            installationComment: oldUserData.installationComment,
+            devicePowerEstimationRSquared: oldUserData.devicePowerEstimationRSquared,
+        });
+        await trx.update(userDataTable).set(data).where(eq(userDataTable.userId, id));
     });
 }
 
 export async function getUserDataByUserId(id: string) {
-    const data = await db.select().from(userData).where(eq(userData.userId, id));
+    const data = await db.select().from(userDataTable).where(eq(userDataTable.userId, id));
 
     if (data.length === 0) {
         return null;
@@ -276,16 +294,16 @@ export async function deleteUser(id: string) {
     return db.transaction(async (trx) => {
         const currentData = await trx
             .select()
-            .from(user)
-            .leftJoin(reportConfig, eq(reportConfig.userId, user.id))
-            .where(eq(user.id, id));
+            .from(userTable)
+            .leftJoin(reportConfigTable, eq(reportConfigTable.userId, userTable.id))
+            .where(eq(userTable.id, id));
         if (currentData.length <= 0) {
             return;
         }
         const data = currentData[0];
 
         // delete user and remove private data
-        await trx.insert(historyUser).values({
+        await trx.insert(historyUserTable).values({
             ...data.user,
             firstname: "",
             lastname: "",
@@ -295,30 +313,30 @@ export async function deleteUser(id: string) {
             email: "",
             password: "",
         });
-        await trx.delete(user).where(eq(user.id, id));
+        await trx.delete(userTable).where(eq(userTable.id, id));
 
         if (data.report_config) {
             // delete reports
-            await trx.insert(historyReportConfig).values({
+            await trx.insert(historyReportConfigTable).values({
                 ...data.report_config,
             });
-            await trx.delete(reportConfig).where(eq(reportConfig.userId, data.report_config.userId));
+            await trx.delete(reportConfigTable).where(eq(reportConfigTable.userId, data.report_config.userId));
         }
 
         // sensor actions
-        const sensorDb = await trx.select().from(sensor).where(eq(sensor.userId, data.user.id));
+        const sensorDb = await trx.select().from(sensorTable).where(eq(sensorTable.userId, data.user.id));
 
         if (sensorDb.length <= 0) {
             return;
         }
 
         // remove user id from sensor and give new id
-        await trx.update(sensor).set({
+        await trx.update(sensorTable).set({
             id: genId(30),
             userId: null,
         });
 
-        await trx.insert(sensorHistory).values({
+        await trx.insert(sensorHistoryTable).values({
             userId: data.user.id,
             sensorType: sensorDb[0].sensorType,
             sensorId: sensorDb[0].id,
@@ -328,33 +346,33 @@ export async function deleteUser(id: string) {
 }
 
 export async function getAllUsers() {
-    return db.select().from(user);
+    return db.select().from(userTable);
 }
 
 export async function setUserActive(id: string, isActive: boolean, date: Date) {
-    return db.update(user).set({ isActive, activationDate: date }).where(eq(user.id, id));
+    return db.update(userTable).set({ isActive, activationDate: date }).where(eq(userTable.id, id));
 }
 
 export async function setUserAdmin(id: string, isAdmin: boolean) {
-    return db.update(user).set({ isAdmin }).where(eq(user.id, id));
+    return db.update(userTable).set({ isAdmin }).where(eq(userTable.id, id));
 }
 
 export async function createToken(userId: string) {
     return db.transaction(async (trx) => {
-        await trx.insert(token).values({ userId });
+        await trx.insert(tokenTable).values({ userId });
 
         const createdToken = await trx
             .select()
-            .from(token)
-            .where(and(eq(token.userId, userId)))
-            .orderBy(desc(token.createdTimestamp))
+            .from(tokenTable)
+            .where(and(eq(tokenTable.userId, userId)))
+            .orderBy(desc(tokenTable.createdTimestamp))
             .limit(1);
         return createdToken[0].token;
     });
 }
 
 export async function getUserIdByToken(givenToken: string) {
-    const data = await db.select().from(token).where(eq(token.token, givenToken));
+    const data = await db.select().from(tokenTable).where(eq(tokenTable.token, givenToken));
     if (data.length === 0) {
         return null;
     }
@@ -363,7 +381,10 @@ export async function getUserIdByToken(givenToken: string) {
 
 export async function getTipOfTheDay(userId: string) {
     return db.transaction(async (trx) => {
-        const currentValue = await trx.select().from(userTipOfTheDay).where(eq(userTipOfTheDay.userId, userId));
+        const currentValue = await trx
+            .select()
+            .from(userTipOfTheDayTable)
+            .where(eq(userTipOfTheDayTable.userId, userId));
         const isFirstTip = currentValue.length === 0;
         const isTipOutdated =
             currentValue.length > 0 && currentValue[0].timestamp < new Date(new Date().setHours(0, 0, 0, 0));
@@ -373,7 +394,7 @@ export async function getTipOfTheDay(userId: string) {
                 : currentValue[0].tipId;
 
         if (isFirstTip) {
-            await trx.insert(userTipOfTheDay).values({
+            await trx.insert(userTipOfTheDayTable).values({
                 userId,
                 tipId: tip,
                 timestamp: new Date(),
@@ -382,14 +403,30 @@ export async function getTipOfTheDay(userId: string) {
 
         if (isTipOutdated) {
             await trx
-                .update(userTipOfTheDay)
+                .update(userTipOfTheDayTable)
                 .set({
                     tipId: tip,
                     timestamp: new Date(),
                 })
-                .where(eq(userTipOfTheDay.userId, userId));
+                .where(eq(userTipOfTheDayTable.userId, userId));
         }
 
         return tip;
     });
+}
+
+export async function getUserBySensorId(sensorId: string) {
+    const query = await db
+        .select({
+            userId: userTable.id,
+            appVersion: userTable.appVersion,
+        })
+        .from(sensorTable)
+        .innerJoin(userTable, eq(sensorTable.userId, userTable.id))
+        .where(eq(sensorTable.id, sensorId));
+
+    if (query.length === 0) {
+        return null;
+    }
+    return query[0];
 }

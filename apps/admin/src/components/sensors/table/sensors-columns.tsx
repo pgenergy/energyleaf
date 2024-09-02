@@ -2,8 +2,8 @@
 
 import SensorUserAssignmentForm from "@/components/sensors/sensor-user-assignment-form";
 import SensorActionCell from "@/components/sensors/table/sensor-action-cell";
-import type { SensorSelectTypeWithUser } from "@energyleaf/db/types";
-import { SensorTypeMap } from "@energyleaf/db/types";
+import type { SensorSelectTypeWithUser } from "@energyleaf/postgres/types";
+import { SensorTypeMap } from "@energyleaf/postgres/types";
 import { Button } from "@energyleaf/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon } from "lucide-react";

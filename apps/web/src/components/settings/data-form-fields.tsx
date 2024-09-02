@@ -1,8 +1,8 @@
 "use client";
 
 import type { userDataSchema } from "@/lib/schema/profile";
-import { userData } from "@energyleaf/db/schema";
-import { userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/db/types";
+import { userDataTable } from "@energyleaf/postgres/schema/user";
+import { userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/postgres/types";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
@@ -34,7 +34,7 @@ export default function DataFormFields({ form, disabled }: Props) {
                                     <SelectValue placeholder="Hausart wählen" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {userData.property.enumValues.map((value) => (
+                                    {userDataTable.property.enumValues.map((value) => (
                                         <SelectItem key={value} value={value}>
                                             {userDataPropertyEnums[value]}
                                         </SelectItem>
@@ -58,7 +58,7 @@ export default function DataFormFields({ form, disabled }: Props) {
                                     <SelectValue placeholder="Warmwasser wählen" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {userData.hotWater.enumValues.map((value) => (
+                                    {userDataTable.hotWater.enumValues.map((value) => (
                                         <SelectItem key={value} value={value}>
                                             {userDataHotWaterEnums[value]}
                                         </SelectItem>
@@ -82,7 +82,7 @@ export default function DataFormFields({ form, disabled }: Props) {
                                     <SelectValue placeholder="Tarif wählen" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {userData.tariff.enumValues.map((value) => (
+                                    {userDataTable.tariff.enumValues.map((value) => (
                                         <SelectItem key={value} value={value}>
                                             {userDataTariffEnums[value]}
                                         </SelectItem>

@@ -2,7 +2,7 @@
 
 import { env } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
-import { trackAction } from "@energyleaf/db/query";
+import { trackAction } from "@energyleaf/postgres/query/logs";
 import { waitUntil } from "@vercel/functions";
 
 interface ClientTrackingProps {

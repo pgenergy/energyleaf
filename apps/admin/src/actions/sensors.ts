@@ -2,19 +2,19 @@
 
 import { checkIfAdmin } from "@/lib/auth/auth.action";
 import type { assignUserToSensorSchema } from "@/lib/schema/sensor";
+import { type AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
+import { getEnergyForSensorInRange } from "@energyleaf/postgres/query/energy-get";
+import { insertRawEnergyValue } from "@energyleaf/postgres/query/energy-insert";
 import {
     assignSensorToUser as assignSensorToUserDb,
     createSensor as createSensorDb,
     resetSensorValues as dbResetSensorValues,
     deleteSensor as deleteSensorDb,
     getElectricitySensorIdForUser,
-    getEnergyForSensorInRange,
-    insertRawSensorValue,
     sensorExists,
     updateSensor as updateSensorDb,
-} from "@energyleaf/db/query";
-import type { SensorInsertType, SensorType } from "@energyleaf/db/types";
-import { type AggregationType, UserHasSensorOfSameType } from "@energyleaf/lib";
+} from "@energyleaf/postgres/query/sensor";
+import type { SensorInsertType, SensorType } from "@energyleaf/postgres/types";
 import { revalidatePath } from "next/cache";
 import "server-only";
 import type { z } from "zod";
@@ -177,7 +177,7 @@ export async function insertSensorValue(sensorId: string, value: number) {
                 message: "Keine Berechtigung.",
             };
         }
-        await insertRawSensorValue(sensorId, value);
+        await insertRawEnergyValue(sensorId, value);
     } catch (err) {
         return {
             success: false,

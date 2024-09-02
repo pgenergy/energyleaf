@@ -1,7 +1,7 @@
-import { userData, userExperimentData } from "@energyleaf/db/schema";
-import { ExperimentNumberEnum } from "@energyleaf/db/types";
 import { DismissedReasonEnum } from "@energyleaf/lib";
 import { Versions } from "@energyleaf/lib/versioning";
+import { userDataTable, userExperimentDataTable } from "@energyleaf/postgres/schema/user";
+import { ExperimentNumberEnum } from "@energyleaf/postgres/types";
 import { z } from "zod";
 
 export const userStateSchema = z
@@ -10,7 +10,7 @@ export const userStateSchema = z
         isAdmin: z.boolean().default(false),
         isParticipant: z.boolean().default(false),
         appVersion: z.nativeEnum(Versions),
-        experimentStatus: z.enum(userExperimentData.experimentStatus.enumValues).optional(),
+        experimentStatus: z.enum(userExperimentDataTable.experimentStatus.enumValues).optional(),
         dismissedReason: z.nativeEnum(DismissedReasonEnum).optional(),
         installationDate: z.date().optional(),
         deinstallationDate: z.date().optional(),
@@ -55,7 +55,7 @@ export const userOnboardingFormSchema = z.object({
         .optional(),
     hasWifi: z.boolean().default(false),
     hasPower: z.boolean().default(false),
-    meterType: z.enum([...userData.electricityMeterType.enumValues], {
+    meterType: z.enum([...userDataTable.electricityMeterType.enumValues], {
         message: "Bitte wählen Sie die Art ihres Zählers aus.",
     }),
 });

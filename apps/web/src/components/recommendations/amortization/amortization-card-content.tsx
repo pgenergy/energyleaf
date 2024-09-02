@@ -2,8 +2,8 @@
 
 import DevicesBadPowerEstimationAlert from "@/components/devices/devices-bad-power-estimation-alert";
 import { evaluatePowerEstimation } from "@/lib/devices/power-estimation";
-import type { DeviceCategory } from "@energyleaf/db/types";
 import { formatNumber, getReferencePowerDataForDeviceCategory } from "@energyleaf/lib";
+import type { DeviceCategory } from "@energyleaf/postgres/types";
 import { AmortizationChart } from "@energyleaf/ui/charts/amortization-chart";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";

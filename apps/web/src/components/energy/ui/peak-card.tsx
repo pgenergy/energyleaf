@@ -1,8 +1,8 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getDevicesByPeak } from "@/query/device";
 import { getEnergyDataForSensor } from "@/query/energy";
-import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType, convertTZDate } from "@energyleaf/lib";
+import type { SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
 import { Badge } from "@energyleaf/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import EnergyMiniChart from "@energyleaf/ui/charts/energy/mini-chart";
@@ -11,7 +11,7 @@ import { de } from "date-fns/locale";
 import { PeakAssignmentDialog } from "./peak-assign-button";
 
 interface Props {
-    sequence: SensorDataSequenceType;
+    sequence: SensorDataSequenceSelectType;
 }
 
 export default async function PeakCard(props: Props) {
@@ -55,7 +55,7 @@ export default async function PeakCard(props: Props) {
                         </CardDescription>
                     </div>
                     <div className="w-1/3">
-                        <EnergyMiniChart data={data} display="value" />
+                        <EnergyMiniChart data={data} display="consumption" />
                     </div>
                 </div>
             </CardHeader>

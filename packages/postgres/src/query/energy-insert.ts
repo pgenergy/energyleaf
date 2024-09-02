@@ -6,6 +6,7 @@ export async function insertRawEnergyValues(
     data: {
         id: string;
         value: number;
+        consumption: number;
         timestamp: Date;
         sensorId: string;
     }[],
@@ -19,6 +20,7 @@ export async function insertRawEnergyValue(sensorId: string, value: number) {
             id: genId(30),
             value,
             sensorId,
+            consumption: 0,
             timestamp: new Date(),
         },
     ]);

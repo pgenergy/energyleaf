@@ -1,4 +1,4 @@
-import { DeviceCategory } from "@energyleaf/db/types";
+import { DeviceCategory } from "@energyleaf/postgres/types";
 import { cn } from "@energyleaf/tailwindcss/utils";
 import {
     coffeemaker,

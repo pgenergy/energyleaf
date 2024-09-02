@@ -1,8 +1,9 @@
 import { eq } from "drizzle-orm";
-import db from "..";
-import { historyReportConfig, reportConfig, user } from "../schema";
+import { db } from "..";
+import { historyReportConfigTable, reportConfigTable } from "../schema/reports";
+import { userTable } from "../schema/user";
 import type { AnomalyConfig, MailConfig } from "../types/types";
-import { getReportConfigByUserId } from "./reports";
+import { getReportConfigByUserId } from "./report";
 
 interface MailConfigUpdateType {
     reportConfig: {
@@ -22,7 +23,7 @@ export async function updateMailSettings(
         if (!oldReportData) {
             throw new Error("Old user data not found");
         }
-        await trx.insert(historyReportConfig).values({
+        await trx.insert(historyReportConfigTable).values({
             userId: oldReportData.userId,
             receiveMails: oldReportData.receiveMails,
             interval: oldReportData.interval,
@@ -32,16 +33,19 @@ export async function updateMailSettings(
         });
 
         await trx
-            .update(reportConfig)
+            .update(reportConfigTable)
             .set({
                 receiveMails: reportConf.receiveMails,
                 interval: reportConf.interval,
                 time: reportConf.time,
                 createdTimestamp: new Date(),
             })
-            .where(eq(reportConfig.userId, userId));
+            .where(eq(reportConfigTable.userId, userId));
 
-        await trx.update(user).set({ receiveAnomalyMails: anomalyConfig.receiveMails }).where(eq(user.id, userId));
+        await trx
+            .update(userTable)
+            .set({ receiveAnomalyMails: anomalyConfig.receiveMails })
+            .where(eq(userTable.id, userId));
     });
 }
 
@@ -52,7 +56,7 @@ export async function getMailSettings(userId: string): Promise<MailConfig> {
             throw new Error("Report config not found");
         }
 
-        const userEntry = await trx.select().from(user).where(eq(user.id, userId));
+        const userEntry = await trx.select().from(userTable).where(eq(userTable.id, userId));
         if (!reportConfig || !userEntry) {
             throw new Error("User not found");
         }

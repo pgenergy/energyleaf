@@ -1,11 +1,19 @@
+import { getSession } from "@/lib/auth/auth.server";
 import { buttonVariants } from "@energyleaf/ui/button";
 import { Card, CardHeader } from "@energyleaf/ui/card";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import bg from "../../../public/image/bg/login.png";
 import logo from "../../../public/image/logo/logo.png";
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+    const { session } = await getSession();
+
+    if (session) {
+        redirect("/dashboard");
+    }
+
     return (
         <>
             <main className="flex w-screen flex-col justify-center">

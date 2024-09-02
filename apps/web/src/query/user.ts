@@ -1,13 +1,13 @@
 import { getDemoUserData } from "@/lib/demo/demo";
+import { Versions } from "@energyleaf/lib/versioning";
+import { getMailSettings as getDbMailSettings } from "@energyleaf/postgres/query/mail";
 import {
-    getMailSettings as getDbMailSettings,
     getUserById as getDbUserById,
     getUserData as getDbUserDataById,
     getUserDataHistory as getDbUserDataHistoryById,
     getUserIdByToken as getDbUserIdByToken,
-} from "@energyleaf/db/query";
-import type { UserDataSelectType } from "@energyleaf/db/types";
-import { Versions } from "@energyleaf/lib/versioning";
+} from "@energyleaf/postgres/query/user";
+import type { UserDataSelectType } from "@energyleaf/postgres/types";
 import { cache } from "react";
 import "server-only";
 

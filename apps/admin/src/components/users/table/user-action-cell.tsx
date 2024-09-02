@@ -3,8 +3,8 @@
 import { resetUserPassword } from "@/actions/auth";
 import { setUserActive, setUserAdmin } from "@/actions/user";
 import { useUserContext } from "@/hooks/user-hook";
-import type { UserSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
+import type { UserSelectType } from "@energyleaf/postgres/types";
 import { Button } from "@energyleaf/ui/button";
 import {
     DropdownMenu,

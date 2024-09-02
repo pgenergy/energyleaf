@@ -1,4 +1,4 @@
-import { DeviceCategory, DeviceCategoryPowerState } from "@energyleaf/db/types";
+import { DeviceCategory, DeviceCategoryPowerState } from "@energyleaf/postgres/types";
 import type { DeviceCategoryPower } from "../types";
 
 /**

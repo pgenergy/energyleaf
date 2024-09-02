@@ -3,6 +3,15 @@
 import { env } from "@/env.mjs";
 import { checkIfAdmin } from "@/lib/auth/auth.action";
 import type { userOnboardingFormSchema, userStateSchema } from "@/lib/schema/user";
+import type { baseInformationSchema } from "@energyleaf/lib";
+import {
+    sendAccountActivatedEmail,
+    sendExperimentDoneEmail,
+    sendExperimentRemovedEmail,
+    sendSurveyInviteEmail,
+} from "@energyleaf/mail";
+import { logError } from "@energyleaf/postgres/query/logs";
+import { updateLastReportTimestamp } from "@energyleaf/postgres/query/report";
 import {
     createExperimentDataForUser,
     deleteExperimentDataForUser,
@@ -11,21 +20,12 @@ import {
     getAllUsers as getAllUsersDb,
     getUserById,
     getUserExperimentData,
-    logError,
     setUserActive as setUserActiveDb,
     setUserAdmin as setUserAdminDb,
     updateExperimentDataForUser,
-    updateLastReportTimestamp,
     updateUserData,
     updateUser as updateUserDb,
-} from "@energyleaf/db/query";
-import type { baseInformationSchema } from "@energyleaf/lib";
-import {
-    sendAccountActivatedEmail,
-    sendExperimentDoneEmail,
-    sendExperimentRemovedEmail,
-    sendSurveyInviteEmail,
-} from "@energyleaf/mail";
+} from "@energyleaf/postgres/query/user";
 import { put } from "@energyleaf/storage";
 import { waitUntil } from "@vercel/functions";
 import { revalidatePath } from "next/cache";

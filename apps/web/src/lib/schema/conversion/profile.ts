@@ -1,4 +1,4 @@
-import type { MailConfig, UserDataSelectType } from "@energyleaf/db/types";
+import type { MailConfig, UserDataSelectType } from "@energyleaf/postgres/types";
 import type { z } from "zod";
 import type { mailSettingsSchema } from "../profile";
 

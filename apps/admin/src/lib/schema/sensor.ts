@@ -1,4 +1,4 @@
-import { SensorType } from "@energyleaf/db/types";
+import { SensorType } from "@energyleaf/postgres/types";
 import { z } from "zod";
 
 export const addSensorSchema = z.object({
