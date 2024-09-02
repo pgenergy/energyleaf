@@ -3,6 +3,7 @@ import { and, eq, isNotNull, ne, sql } from "drizzle-orm";
 import { db, genId } from "..";
 import { sensorDataTable, sensorHistoryTable, sensorTable, sensorTokenTable } from "../schema/sensor";
 import { userTable } from "../schema/user";
+import { lower } from "../types/dbTypes";
 import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
 import { lower } from "../types/dbTypes";
 
