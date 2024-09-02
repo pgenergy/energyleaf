@@ -1,5 +1,5 @@
 import { SensorAlreadyExistsError, UserHasSensorOfSameType } from "@energyleaf/lib/errors/sensor";
-import { and, eq, isNotNull, ne } from "drizzle-orm";
+import { and, eq, isNotNull, ne, sql } from "drizzle-orm";
 import { db, genId } from "..";
 import { sensorDataTable, sensorHistoryTable, sensorTable, sensorTokenTable } from "../schema/sensor";
 import { userTable } from "../schema/user";
@@ -83,7 +83,7 @@ export async function getSensorDataByClientId(clientId: string) {
             needsScript: sensorTable.needsScript,
         })
         .from(sensorTable)
-        .where(eq(sensorTable.clientId, clientId))
+        .where(eq(sql`lower(${sensorTable.clientId})`, clientId.toLowerCase()))
         .limit(1);
 
     if (query.length === 0) {
