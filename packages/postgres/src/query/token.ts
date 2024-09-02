@@ -1,10 +1,13 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db, genId } from "..";
 import { sensorTable, sensorTokenTable } from "../schema/sensor";
 
 export async function createSensorToken(clientId: string) {
     const dbReturn = await db.transaction(async (trx) => {
-        const sensorData = await trx.select().from(sensorTable).where(eq(sensorTable.clientId, clientId));
+        const sensorData = await trx
+            .select()
+            .from(sensorTable)
+            .where(eq(sql`lower(${sensorTable.clientId}`, clientId.toLowerCase()));
         if (sensorData.length === 0) {
             return {
                 error: "sensor/not-found",
