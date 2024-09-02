@@ -4,6 +4,7 @@ import { db, genId } from "..";
 import { sensorDataTable, sensorHistoryTable, sensorTable, sensorTokenTable } from "../schema/sensor";
 import { userTable } from "../schema/user";
 import { type SensorInsertType, type SensorSelectTypeWithUser, SensorType } from "../types/types";
+import { lower } from "../types/dbTypes";
 
 export async function getAllSensors(active?: boolean) {
     if (active) {
@@ -83,7 +84,7 @@ export async function getSensorDataByClientId(clientId: string) {
             needsScript: sensorTable.needsScript,
         })
         .from(sensorTable)
-        .where(eq(sql`lower(${sensorTable.clientId})`, clientId.toLowerCase()))
+        .where(eq(lower(sensorTable.clientId), clientId.toLowerCase()))
         .limit(1);
 
     if (query.length === 0) {

@@ -1,4 +1,5 @@
-import { customType } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { type AnyPgColumn, customType } from "drizzle-orm/pg-core";
 
 /**
  * This type is needed because drizzle defaults to return decimal types as string
@@ -14,3 +15,7 @@ export const numericType = customType<{ data: number; driverData: string }>({
         return Number(data);
     },
 });
+
+export function lower(column: AnyPgColumn) {
+    return sql`lower(${column})`;
+}
