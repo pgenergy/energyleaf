@@ -61,7 +61,7 @@ export const userExperimentDataTable = pgTable("user_experiment_data", {
 
 const userDataFields = {
     id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity({
-        startWith: 124
+        startWith: 124,
     }),
     userId: text("user_id").notNull(),
     timestamp: timestamp("timestamp", { mode: "date", withTimezone: true }).default(sql`now()`).notNull(),

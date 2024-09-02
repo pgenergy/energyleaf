@@ -3,7 +3,7 @@ import { integer, json, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const logsTable = pgTable("logs", {
     id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity({
-        startWith: 81597
+        startWith: 81597,
     }),
     timestamp: timestamp("timestamp", { mode: "date", withTimezone: true }).default(sql`now()`),
     title: text("title").notNull(),
