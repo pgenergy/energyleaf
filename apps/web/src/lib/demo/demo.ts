@@ -1,14 +1,14 @@
-import { findPeaks } from "@energyleaf/db/query";
-import { getEnergyForSensorInRange, getEnergyLastEntry } from "@energyleaf/db/query";
+import { AggregationType, type ReportProps } from "@energyleaf/lib";
+import { getEnergyForSensorInRange, getEnergyLastEntry } from "@energyleaf/postgres/query/energy-get";
+import { findPeaks } from "@energyleaf/postgres/query/peaks";
 import {
     DeviceCategory,
     type DeviceSelectType,
     type SensorDataSelectType,
-    type SensorDataSequenceType,
+    type SensorDataSequenceSelectType,
     type SensorDeviceSequenceSelectType,
-    type UserDataType,
-} from "@energyleaf/db/types";
-import { AggregationType, type ReportProps } from "@energyleaf/lib";
+    type UserWithDataSelectType,
+} from "@energyleaf/postgres/types";
 import { differenceInDays } from "date-fns";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
@@ -32,13 +32,13 @@ export function getDemoUserData() {
         return getUserDataCookieStoreDefaults();
     }
 
-    const userData = JSON.parse(data) as UserDataType;
+    const userData = JSON.parse(data) as UserWithDataSelectType;
     userData.user_data.timestamp = new Date(userData.user_data.timestamp);
     return userData;
 }
 
 export function getUserDataCookieStoreDefaults() {
-    const data: UserDataType = {
+    const data: UserWithDataSelectType = {
         user_data: {
             id: 1,
             userId: "demo",
@@ -79,14 +79,14 @@ export function getUserDataCookieStoreDefaults() {
     return data;
 }
 
-export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data: Partial<UserDataType>) {
+export function updateUserDataCookieStore(cookies: ReadonlyRequestCookies, data: Partial<UserWithDataSelectType>) {
     const userData = cookies.get("demo_data");
     if (!userData) {
         return;
     }
 
-    const parsedData = JSON.parse(userData.value) as UserDataType;
-    const newData: UserDataType = {
+    const parsedData = JSON.parse(userData.value) as UserWithDataSelectType;
+    const newData: UserWithDataSelectType = {
         user_data: {
             ...parsedData.user_data,
             ...data.user_data,
@@ -212,7 +212,7 @@ export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyReque
     const start = new Date(0);
     const end = new Date();
     end.setDate(end.getDate() + 1);
-    const data = await getDemoPeaks(start, end);
+    const data = await getDemoPeaks(start, end, cookies);
 
     const deviceToPeaksRaw = cookies.get("demo_peaks");
     if (!deviceToPeaksRaw) {
@@ -312,7 +312,7 @@ export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyReque
         return;
     }
 
-    const parsedData = JSON.parse(userData.value) as UserDataType;
+    const parsedData = JSON.parse(userData.value) as UserWithDataSelectType;
     updateUserDataCookieStore(cookies, {
         user_data: {
             ...parsedData.user_data,
@@ -361,14 +361,54 @@ export async function getDemoSensorData(
     return processDemoDataDate(data);
 }
 
-export async function getDemoPeaks(start: Date, end: Date): Promise<SensorDataSequenceType[]> {
+interface Sequence {
+    start: Date;
+    end: Date;
+    isAtStart: boolean;
+    averagePowerIncludingBaseLoad: number;
+}
+
+export async function setDemoPeaks(cookies: ReadonlyRequestCookies) {
+    const peakCookie = cookies.get("demo_raw_peaks");
+    if (peakCookie) {
+        return;
+    }
+
+    const start = new Date();
+    start.setDate(start.getDate() - 20);
+    const end = new Date();
+    end.setDate(end.getDate() + 1);
     const data = await getDemoSensorData(start, end, AggregationType.RAW);
+    if (data.length === 0) {
+        return;
+    }
 
     const peaks = findPeaks(data, data);
     const dataWithoutPeaks = data.filter(
         (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
     );
-    const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.value, 0) / dataWithoutPeaks.length;
+    const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.consumption, 0) / dataWithoutPeaks.length;
+    cookies.set(
+        "demo_raw_peaks",
+        JSON.stringify({
+            peaks,
+            averageBaseLoad,
+        }),
+    );
+}
+
+export async function getDemoPeaks(
+    start: Date,
+    end: Date,
+    cookies: ReadonlyRequestCookies,
+): Promise<SensorDataSequenceSelectType[]> {
+    const peakCookie = cookies.get("demo_raw_peaks");
+    if (!peakCookie) {
+        return [];
+    }
+    const cookieData = JSON.parse(peakCookie.value) as { peaks: Sequence[]; averageBaseLoad: number };
+    const peaks = cookieData.peaks;
+    const averageBaseLoad = cookieData.averageBaseLoad;
 
     return peaks
         .filter((peak) => {
@@ -448,12 +488,12 @@ export async function getDemoReport(): Promise<ReportProps> {
     const userData = getDemoUserData();
 
     const data = await getDemoSensorData(dateFrom, dateTo, AggregationType.DAY);
-    const totalEnergyConsumption = data.reduce((acc, curr) => acc + curr.value, 0);
+    const totalEnergyConsumption = data.reduce((acc, curr) => acc + curr.consumption, 0);
     const avgEnergyConsumptionPerDay = totalEnergyConsumption / data.length;
     let totalEnergyCost: number | undefined = undefined;
     const worstDay = data.reduce(
         (acc, curr) => {
-            if (!acc || curr.value < acc.value) {
+            if (!acc || curr.consumption < acc.consumption) {
                 return curr;
             }
 
@@ -463,7 +503,7 @@ export async function getDemoReport(): Promise<ReportProps> {
     ) as SensorDataSelectType;
     const bestDay = data.reduce(
         (acc, curr) => {
-            if (!acc || curr.value > acc.value) {
+            if (!acc || curr.consumption > acc.consumption) {
                 return curr;
             }
             return acc;
@@ -483,11 +523,11 @@ export async function getDemoReport(): Promise<ReportProps> {
         avgEnergyConsumptionPerDay,
         bestDay: {
             day: bestDay.timestamp,
-            consumption: bestDay.value,
+            consumption: bestDay.consumption,
         },
         worstDay: {
             day: worstDay.timestamp,
-            consumption: worstDay.value,
+            consumption: worstDay.consumption,
         },
     };
 }

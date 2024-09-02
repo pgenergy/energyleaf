@@ -1,4 +1,4 @@
-import type { DeviceCategory } from "@energyleaf/db/types";
+import type { DeviceCategory } from "@energyleaf/postgres/types";
 
 export interface DeviceOption {
     id: string;

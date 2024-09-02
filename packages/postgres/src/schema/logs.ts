@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { integer, json, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
-export const logs = pgTable("logs", {
+export const logsTable = pgTable("logs", {
     id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity(),
     timestamp: timestamp("timestamp", { mode: "date", withTimezone: true }).default(sql`now()`),
     title: varchar("title", { length: 128 }).notNull(),

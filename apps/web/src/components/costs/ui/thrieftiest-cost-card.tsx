@@ -64,7 +64,7 @@ export default async function ThrieftiestCostCard(props: Props) {
 
     const processedData = data.slice(0, -1).map((d) => ({
         ...d,
-        cost: d.value * workingPrice + totalBaseCost,
+        cost: d.consumption * workingPrice + totalBaseCost,
     }));
     const cheapestValue = processedData.reduce((a, b) => (a.cost < b.cost ? a : b));
 

@@ -1,14 +1,14 @@
-import db from "../index";
-import { logs } from "../schema/logs";
+import { db } from "../";
+import { logsTable } from "../schema/logs";
 
 export async function log(
     title: string,
-    logType: (typeof logs.logType.enumValues)[number],
+    logType: (typeof logsTable.logType.enumValues)[number],
     appFunction: string,
-    appComponent: (typeof logs.appComponent.enumValues)[number],
+    appComponent: (typeof logsTable.appComponent.enumValues)[number],
     details: object,
 ) {
-    await db.insert(logs).values({
+    await db.insert(logsTable).values({
         title: title,
         logType: logType,
         appFunction: appFunction,
@@ -20,7 +20,7 @@ export async function log(
 export async function logError(
     title: string,
     appFunction: string,
-    appComponent: (typeof logs.appComponent.enumValues)[number],
+    appComponent: (typeof logsTable.appComponent.enumValues)[number],
     details: object,
     error: Error,
 ) {
@@ -39,7 +39,7 @@ export async function logError(
 export async function trackAction(
     title: string,
     appFunction: string,
-    appComponent: (typeof logs.appComponent.enumValues)[number],
+    appComponent: (typeof logsTable.appComponent.enumValues)[number],
     details: object,
 ) {
     console.info(title, appFunction, appComponent, details);

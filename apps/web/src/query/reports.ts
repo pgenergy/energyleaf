@@ -1,5 +1,9 @@
 import { getDemoMetaDataOfReports, getDemoReport, getDemoReportIds } from "@/lib/demo/demo";
-import { getLastReportIdByUser, getMetaDataOfAllReportsForUser, getReportByIdAndUser } from "@energyleaf/db/query";
+import {
+    getLastReportIdByUser,
+    getMetaDataOfAllReportsForUser,
+    getReportByIdAndUser,
+} from "@energyleaf/postgres/query/report";
 import { cache } from "react";
 import "server-only";
 

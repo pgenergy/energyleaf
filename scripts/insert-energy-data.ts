@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { findAndMark } from "@energyleaf/db/query";
 import { convertTZDate } from "@energyleaf/lib";
 import { db, genId } from "@energyleaf/postgres";
+import { findAndMark } from "@energyleaf/postgres/query/peaks";
 import { sensorDataTable as sensorData } from "@energyleaf/postgres/schema/sensor";
 import { differenceInDays } from "date-fns";
 import { and, between, eq } from "drizzle-orm";

@@ -1,7 +1,7 @@
 "use client";
 
-import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
+import type { SensorDataSelectType, SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
 import clsx from "clsx";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -15,20 +15,20 @@ import EnergyConsumptionTooltip from "./energy-consumption-tooltip";
 
 interface Props {
     data: SensorDataSelectType[];
-    peaks?: SensorDataSequenceType[];
+    peaks?: SensorDataSequenceSelectType[];
     cost?: number;
     showPeaks?: boolean;
     aggregation?: AggregationType;
-    peaksCallback?: (value: SensorDataSequenceType) => void;
+    peaksCallback?: (value: SensorDataSequenceSelectType) => void;
     zoomCallback?: (left: Date, right: Date) => void;
 }
 
 const chartConfig = {
-    value: {
+    consumption: {
         label: "Energieverbrauch (kWh)",
         color: "hsl(var(--primary))",
     },
-    valueOut: {
+    inserted: {
         label: "Einspeisung (kWh)",
         color: "hsl(var(--chart-3))",
     },
@@ -54,13 +54,13 @@ export function EnergyConsumptionChart({
     const [leftValue, setLeftValue] = useState<CategoricalChartState | null>(null);
     const [rightValue, setRightValue] = useState<CategoricalChartState | null>(null);
     const [mouseDown, setMouseDown] = useState(false);
-    const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
+    const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("consumption");
 
     const preparedData = useMemo(() => {
         return data.map((d) => ({
             ...d,
             timestamp: d.timestamp.toISOString(),
-            ...(cost ? { cost: d.value * cost } : {}),
+            ...(cost ? { cost: d.consumption * cost } : {}),
         }));
     }, [data, cost]);
 
@@ -168,15 +168,15 @@ export function EnergyConsumptionChart({
             {hasOutValues || hasCurrentValues || hasCost ? (
                 <div className="flex flex-row flex-wrap items-center justify-end gap-2">
                     <ChartSwitchButton
-                        active={activeChart === "value"}
-                        chart="value"
+                        active={activeChart === "consumption"}
+                        chart="consumption"
                         onClick={setActiveChart}
                         label="Verbrauch"
                     />
                     {hasOutValues ? (
                         <ChartSwitchButton
-                            active={activeChart === "valueOut"}
-                            chart="valueOut"
+                            active={activeChart === "inserted"}
+                            chart="inserted"
                             onClick={setActiveChart}
                             label="Einspeisung"
                         />
@@ -226,15 +226,15 @@ export function EnergyConsumptionChart({
                     }}
                 >
                     <defs>
-                        <linearGradient id="valueColor" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="var(--color-value)" stopOpacity={0.99} />
-                            <stop offset="50%" stopColor="var(--color-value)" stopOpacity={0.7} />
-                            <stop offset="95%" stopColor="var(--color-value)" stopOpacity={0.1} />
+                        <linearGradient id="consumptionColor" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--color-consumption)" stopOpacity={0.99} />
+                            <stop offset="50%" stopColor="var(--color-consumption)" stopOpacity={0.7} />
+                            <stop offset="95%" stopColor="var(--color-consumption)" stopOpacity={0.1} />
                         </linearGradient>
-                        <linearGradient id="valueOutColor" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="var(--color-valueOut)" stopOpacity={0.99} />
-                            <stop offset="50%" stopColor="var(--color-valueOut)" stopOpacity={0.7} />
-                            <stop offset="95%" stopColor="var(--color-valueOut)" stopOpacity={0.1} />
+                        <linearGradient id="insertedColor" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="var(--color-inserted)" stopOpacity={0.99} />
+                            <stop offset="50%" stopColor="var(--color-inserted)" stopOpacity={0.7} />
+                            <stop offset="95%" stopColor="var(--color-inserted)" stopOpacity={0.1} />
                         </linearGradient>
                         <linearGradient id="valueCurrentColor" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="var(--color-valueCurrent)" stopOpacity={0.99} />
@@ -275,21 +275,21 @@ export function EnergyConsumptionChart({
                         axisLine={false}
                     />
                     <YAxis dataKey={activeChart} tickLine={false} interval="equidistantPreserveStart" type="number" />
-                    {activeChart === "value" ? (
+                    {activeChart === "consumption" ? (
                         <Area
-                            dataKey="value"
-                            fill="url(#valueColor)"
+                            dataKey="consumption"
+                            fill="url(#consumptionColor)"
                             fillOpacity={1}
-                            stroke="var(--color-value)"
+                            stroke="var(--color-consumption)"
                             type="linear"
                         />
                     ) : null}
-                    {activeChart === "valueOut" ? (
+                    {activeChart === "inserted" ? (
                         <Area
                             dataKey="valueOut"
-                            fill="url(#valueOutColor)"
+                            fill="url(#insertedColor)"
                             fillOpacity={1}
-                            stroke="var(--color-valueOut)"
+                            stroke="var(--color-inserted)"
                             type="linear"
                         />
                     ) : null}

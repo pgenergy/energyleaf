@@ -41,7 +41,7 @@ export default async function CostHourChartView(props: Props) {
     const totalBaseCost = userData.basePrice ? userData.basePrice / 30 / 24 : 0;
     const processedData = data.map((d) => ({
         ...d,
-        cost: d.value * (userData.workingPrice as number) + totalBaseCost,
+        cost: d.consumption * (userData.workingPrice as number) + totalBaseCost,
     }));
 
     return (

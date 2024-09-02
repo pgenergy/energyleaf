@@ -1,4 +1,4 @@
-import { DeviceCategoryPowerState } from "@energyleaf/db/types";
+import { DeviceCategoryPowerState } from "@energyleaf/postgres/types";
 import {
     SquareArrowDown,
     SquareArrowDownRight,

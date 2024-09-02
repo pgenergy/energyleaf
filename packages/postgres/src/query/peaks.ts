@@ -1,28 +1,20 @@
-import { db as pgDb } from "@energyleaf/postgres";
-import { deviceToPeakTable } from "@energyleaf/postgres/schema/device";
-import { sensorDataSequenceTable, sensorSequenceMarkingLogTable } from "@energyleaf/postgres/schema/sensor";
 import { type SQLWrapper, and, asc, between, desc, eq, lte, or } from "drizzle-orm";
-import { nanoid } from "nanoid";
-import db, { type DB } from "..";
-import {
-    device,
-    deviceSuggestionsPeak,
-    deviceToPeak,
-    sensorData,
-    sensorDataSequence,
-    sensorSequenceMarkingLog,
-} from "../schema";
+import { type DB, db, genId } from "..";
+import { deviceSuggestionsPeakTable, deviceTable, deviceToPeakTable } from "../schema/device";
+import { sensorDataSequenceTable, sensorDataTable, sensorSequenceMarkingLogTable } from "../schema/sensor";
 import type {
     SensorDataSelectType,
-    SensorDataSequenceType,
-    SensorDataSequenceTypeWithSensorData,
+    SensorDataSequenceSelectType,
+    SensorDataSequenceWithSensorDataSelectType,
 } from "../types/types";
-import { getRawEnergyForSensorInRange } from "./sensor";
+import { getRawEnergyForSensorInRange } from "./energy-get";
 
 function calculateMedian(values: SensorDataSelectType[]) {
-    const sorted = [...values].sort((a, b) => a.value - b.value);
+    const sorted = [...values].sort((a, b) => a.consumption - b.consumption);
     const middle = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0 ? sorted[middle].value : (sorted[middle - 1].value + sorted[middle].value) / 2;
+    return sorted.length % 2 !== 0
+        ? sorted[middle].consumption
+        : (sorted[middle - 1].value + sorted[middle].consumption) / 2;
 }
 
 function calculateMAD(values: SensorDataSelectType[], scale = 1.4826, medValue?: number) {
@@ -32,7 +24,7 @@ function calculateMAD(values: SensorDataSelectType[], scale = 1.4826, medValue?:
     }
     const deviations = values.map((value) => ({
         ...value,
-        value: Math.abs(value.value - medianValue),
+        consumption: Math.abs(value.consumption - medianValue),
     }));
     return scale * calculateMedian(deviations);
 }
@@ -52,7 +44,7 @@ function calculateAveragePower(sensorData: SensorDataSelectType[]) {
         }
 
         const timeDiffInHours = (curr.timestamp.getTime() - sensorData[index - 1].timestamp.getTime()) / 1000 / 60 / 60;
-        return acc + (curr.value / timeDiffInHours) * 1000; // Add power in Watt
+        return acc + (curr.consumption / timeDiffInHours) * 1000; // Add power in Watt
     }, 0);
 
     return powerSum / sensorData.length;
@@ -150,7 +142,7 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
             const isStart = i === 0 || entry.timestamp.getTime() - values[0].timestamp.getTime() < 2 * 60 * 1000;
             let sequenceEnd = i + 1;
 
-            while (sequenceEnd < values.length && values[sequenceEnd].value > threshold) {
+            while (sequenceEnd < values.length && values[sequenceEnd].consumption > threshold) {
                 sequenceEnd++;
             }
 
@@ -205,7 +197,7 @@ export function findPeaks(
     const madValue = calculateMAD(thresholdValues, 1.4826, median);
     const processedValues = consideredValues.map((value) => ({
         ...value,
-        value: Math.abs(value.value - median),
+        consumption: Math.abs(value.consumption - median),
     }));
     return findSequences(processedValues, madValue * threshold);
 }
@@ -276,8 +268,13 @@ async function findAndMarkInPeriod(
 
     const sequencesBeforeConsideredPeriod = await trx
         .select()
-        .from(sensorDataSequence)
-        .where(and(eq(sensorDataSequence.sensorId, sensorId), between(sensorDataSequence.start, sequenceStart, end)));
+        .from(sensorDataSequenceTable)
+        .where(
+            and(
+                eq(sensorDataSequenceTable.sensorId, sensorId),
+                between(sensorDataSequenceTable.start, sequenceStart, end),
+            ),
+        );
 
     const peaksInDay = sequencesInConsideredPeriod
         .map((d) => ({ start: d.start, end: d.end }))
@@ -287,10 +284,10 @@ async function findAndMarkInPeriod(
     );
 
     const baseLoad = calculateAveragePower(calcDataWithoutPeaks);
-    let peaks: (SensorDataSequenceType & { isAtStart: boolean })[] = sequencesInConsideredPeriod
+    let peaks: (SensorDataSequenceSelectType & { isAtStart: boolean })[] = sequencesInConsideredPeriod
         .map((d) => ({
             ...d,
-            id: nanoid(30),
+            id: genId(30),
             averagePeakPower: d.averagePowerIncludingBaseLoad - baseLoad,
             type,
             sensorId,
@@ -338,17 +335,22 @@ async function getSequenceMarkingPeriod(sensorId: string, type: "peak" | "anomal
 async function getTimeOfLastMarking(sensorId: string, type: "peak" | "anomaly", db: DB) {
     const markingLog = await db
         .select()
-        .from(sensorSequenceMarkingLog)
-        .where(and(eq(sensorSequenceMarkingLog.sensorId, sensorId), eq(sensorSequenceMarkingLog.sequenceType, type)));
+        .from(sensorSequenceMarkingLogTable)
+        .where(
+            and(
+                eq(sensorSequenceMarkingLogTable.sensorId, sensorId),
+                eq(sensorSequenceMarkingLogTable.sequenceType, type),
+            ),
+        );
     if (markingLog.length > 0) {
         return markingLog[0].lastMarked;
     }
 
     const lastSequence = await db
         .select()
-        .from(sensorDataSequence)
-        .where(and(eq(sensorDataSequence.sensorId, sensorId), eq(sensorDataSequence.type, type)))
-        .orderBy(desc(sensorDataSequence.end))
+        .from(sensorDataSequenceTable)
+        .where(and(eq(sensorDataSequenceTable.sensorId, sensorId), eq(sensorDataSequenceTable.type, type)))
+        .orderBy(desc(sensorDataSequenceTable.end))
         .limit(1);
     if (lastSequence.length > 0) {
         return lastSequence[0].end;
@@ -360,18 +362,18 @@ async function getTimeOfLastMarking(sensorId: string, type: "peak" | "anomaly", 
 async function updateLastMarkingTime(sensorId: string, type: "peak" | "anomaly", date: Date, trx: DB) {
     const existing = await trx
         .select()
-        .from(sensorSequenceMarkingLog)
-        .where(and(eq(sensorSequenceMarkingLog.sensorId, sensorId), eq(sensorSequenceMarkingLog.sequenceType, type)));
+        .from(sensorSequenceMarkingLogTable)
+        .where(
+            and(
+                eq(sensorSequenceMarkingLogTable.sensorId, sensorId),
+                eq(sensorSequenceMarkingLogTable.sequenceType, type),
+            ),
+        );
     if (existing.length === 0) {
-        await trx.insert(sensorSequenceMarkingLog).values({ sensorId, sequenceType: type, lastMarked: date });
-        return pgDb.insert(sensorSequenceMarkingLogTable).values({ sensorId, sequenceType: type, lastMarked: date });
+        return trx.insert(sensorSequenceMarkingLogTable).values({ sensorId, sequenceType: type, lastMarked: date });
     }
 
-    await trx
-        .update(sensorSequenceMarkingLog)
-        .set({ lastMarked: date })
-        .where(and(eq(sensorSequenceMarkingLog.sensorId, sensorId), eq(sensorSequenceMarkingLog.sequenceType, type)));
-    return pgDb
+    return trx
         .update(sensorSequenceMarkingLogTable)
         .set({ lastMarked: date })
         .where(
@@ -383,7 +385,7 @@ async function updateLastMarkingTime(sensorId: string, type: "peak" | "anomaly",
 }
 
 async function saveSequences(
-    peaks: (SensorDataSequenceType & { isAtStart: boolean })[],
+    peaks: (SensorDataSequenceSelectType & { isAtStart: boolean })[],
     sensorId: string,
     type: "peak" | "anomaly",
     start: Date,
@@ -393,15 +395,15 @@ async function saveSequences(
     if (firstSequenceMergeable) {
         const lastSequenceOfSensorQuery = await trx
             .select()
-            .from(sensorDataSequence)
+            .from(sensorDataSequenceTable)
             .where(
                 and(
-                    eq(sensorDataSequence.sensorId, sensorId),
-                    lte(sensorDataSequence.end, start),
-                    eq(sensorDataSequence.type, type),
+                    eq(sensorDataSequenceTable.sensorId, sensorId),
+                    lte(sensorDataSequenceTable.end, start),
+                    eq(sensorDataSequenceTable.type, type),
                 ),
             )
-            .orderBy(desc(sensorDataSequence.end))
+            .orderBy(desc(sensorDataSequenceTable.end))
             .limit(1);
         const lastSequenceOfSensor = lastSequenceOfSensorQuery.length > 0 ? lastSequenceOfSensorQuery[0] : null;
 
@@ -413,22 +415,15 @@ async function saveSequences(
                 0.8
         ) {
             await trx
-                .update(sensorDataSequence)
+                .update(sensorDataSequenceTable)
                 .set({ end: peaks[0].end })
-                .where(eq(sensorDataSequence.id, lastSequenceOfSensor.id));
-            try {
-                await pgDb
-                    .update(sensorDataSequenceTable)
-                    .set({ end: peaks[0].end })
-                    .where(eq(sensorDataSequenceTable.id, lastSequenceOfSensor.id));
-            } catch (err) {}
+                .where(eq(sensorDataSequenceTable.id, lastSequenceOfSensor.id));
             peaks.shift();
         }
     }
 
     if (peaks.length > 0) {
-        await trx.insert(sensorDataSequence).values(peaks);
-        await pgDb.insert(sensorDataSequenceTable).values(peaks);
+        await trx.insert(sensorDataSequenceTable).values(peaks);
     }
 }
 
@@ -437,23 +432,18 @@ async function saveSequences(
  */
 export async function updateDevicesForPeak(sensorDataSequenceId: string, deviceIds: number[]) {
     return db.transaction(async (trx) => {
-        await trx.delete(deviceToPeak).where(eq(deviceToPeak.sensorDataSequenceId, sensorDataSequenceId));
+        await trx.delete(deviceToPeakTable).where(eq(deviceToPeakTable.sensorDataSequenceId, sensorDataSequenceId));
 
         for (const deviceId of deviceIds) {
-            await trx.insert(deviceToPeak).values({
+            await trx.insert(deviceToPeakTable).values({
                 deviceId,
                 sensorDataSequenceId,
             });
             const newWeeklyUsageEstimation = await calculateAverageWeeklyUsageTimeInHours(deviceId);
             await trx
-                .update(device)
+                .update(deviceTable)
                 .set({ weeklyUsageEstimation: newWeeklyUsageEstimation })
-                .where(eq(device.id, deviceId));
-
-            await pgDb.insert(deviceToPeakTable).values({
-                deviceId,
-                sensorDataSequenceId,
-            });
+                .where(eq(deviceTable.id, deviceId));
         }
     });
 }
@@ -464,24 +454,27 @@ interface ExtraQuerySequencesBySensorProps {
 }
 
 export async function getSequencesBySensor(sensorId: string, extra?: ExtraQuerySequencesBySensorProps) {
-    const wheres: (SQLWrapper | undefined)[] = [eq(sensorDataSequence.sensorId, sensorId)];
+    const wheres: (SQLWrapper | undefined)[] = [eq(sensorDataSequenceTable.sensorId, sensorId)];
     if (extra) {
         wheres.push(
             or(
-                between(sensorDataSequence.start, extra.start, extra.end),
-                between(sensorDataSequence.end, extra.start, extra.end),
+                between(sensorDataSequenceTable.start, extra.start, extra.end),
+                between(sensorDataSequenceTable.end, extra.start, extra.end),
             ),
         );
     }
 
     const rawData = await db
         .select()
-        .from(sensorDataSequence)
-        .innerJoin(sensorData, between(sensorData.timestamp, sensorDataSequence.start, sensorDataSequence.end))
+        .from(sensorDataSequenceTable)
+        .innerJoin(
+            sensorDataTable,
+            between(sensorDataTable.timestamp, sensorDataSequenceTable.start, sensorDataSequenceTable.end),
+        )
         .where(and(...wheres))
-        .orderBy(asc(sensorDataSequence.start), asc(sensorData.timestamp));
+        .orderBy(asc(sensorDataSequenceTable.start), asc(sensorDataTable.timestamp));
 
-    const groupedDataMap: Map<string, SensorDataSequenceTypeWithSensorData> = new Map();
+    const groupedDataMap: Map<string, SensorDataSequenceWithSensorDataSelectType> = new Map();
 
     for (const item of rawData) {
         const { sensor_data_sequence, sensor_data } = item;
@@ -501,31 +494,31 @@ export async function getSequencesBySensor(sensorId: string, extra?: ExtraQueryS
 export async function getDevicesByPeak(sensorDataSequenceId: string) {
     return db
         .select({
-            id: deviceToPeak.deviceId,
-            name: device.name,
-            category: device.category,
+            id: deviceToPeakTable.deviceId,
+            name: deviceTable.name,
+            category: deviceTable.category,
         })
-        .from(deviceToPeak)
-        .innerJoin(device, eq(device.id, deviceToPeak.deviceId))
-        .where(eq(deviceToPeak.sensorDataSequenceId, sensorDataSequenceId));
+        .from(deviceToPeakTable)
+        .innerJoin(deviceTable, eq(deviceTable.id, deviceToPeakTable.deviceId))
+        .where(eq(deviceToPeakTable.sensorDataSequenceId, sensorDataSequenceId));
 }
 
 export async function getDeviceSuggestionsByPeak(sensorDataSequenceId: string) {
     return db
         .select()
-        .from(deviceSuggestionsPeak)
-        .where(eq(deviceSuggestionsPeak.sensorDataSequenceId, sensorDataSequenceId));
+        .from(deviceSuggestionsPeakTable)
+        .where(eq(deviceSuggestionsPeakTable.sensorDataSequenceId, sensorDataSequenceId));
 }
 
 export async function getPeaksByDevice(deviceId: number) {
     return db
         .select({
-            id: sensorDataSequence.id,
-            start: sensorDataSequence.start,
-            end: sensorDataSequence.end,
+            id: sensorDataSequenceTable.id,
+            start: sensorDataSequenceTable.start,
+            end: sensorDataSequenceTable.end,
         })
-        .from(deviceToPeak)
-        .innerJoin(sensorDataSequence, eq(sensorDataSequence.id, deviceToPeak.sensorDataSequenceId))
-        .where(eq(deviceToPeak.deviceId, deviceId))
-        .orderBy(asc(sensorDataSequence.start));
+        .from(deviceToPeakTable)
+        .innerJoin(sensorDataSequenceTable, eq(sensorDataSequenceTable.id, deviceToPeakTable.sensorDataSequenceId))
+        .where(eq(deviceToPeakTable.deviceId, deviceId))
+        .orderBy(asc(sensorDataSequenceTable.start));
 }

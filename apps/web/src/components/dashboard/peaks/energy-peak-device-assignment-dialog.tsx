@@ -1,13 +1,12 @@
-import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { formatNumber } from "@energyleaf/lib";
-import {} from "@energyleaf/lib/versioning";
+import type { SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
 
 interface Props {
     open: boolean;
     setOpen: (open: boolean) => void;
-    value: SensorDataSequenceType;
+    value: SensorDataSequenceSelectType;
     userId: string;
     appVersion: number;
 }

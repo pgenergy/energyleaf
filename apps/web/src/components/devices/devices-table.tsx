@@ -1,9 +1,9 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getDevicesByUser } from "@/query/device";
-import type { DeviceCategory } from "@energyleaf/db/types";
 import { getReferencePowerDataForDeviceCategory } from "@energyleaf/lib";
 import { getTipsByDeviceCategory } from "@energyleaf/lib/tips";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import type { DeviceCategory } from "@energyleaf/postgres/types";
 import { devicesColumns } from "./table/devices-columns";
 import { DevicesDataTable } from "./table/devices-data-table";
 

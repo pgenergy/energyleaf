@@ -66,9 +66,9 @@ const navLinks = [
 ];
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-    const { user } = await getSession();
+    const { session, user } = await getSession();
 
-    if (!user) {
+    if (!session || !user) {
         redirect("/");
     }
 

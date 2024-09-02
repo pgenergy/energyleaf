@@ -3,9 +3,10 @@
 import { env } from "@/env.mjs";
 import { energyleaf_ml, parseReadableStream } from "@energyleaf/proto";
 
-import { getPeaksWithoutDevices, logError, saveDeviceSuggestionsToPeakDb } from "@energyleaf/db/query";
+import { getPeaksWithoutDevices, saveDeviceSuggestionsToPeakDb } from "@energyleaf/postgres/query/device";
+import { logError } from "@energyleaf/postgres/query/logs";
 import "server-only";
-import { DeviceCategory } from "@energyleaf/db/types";
+import { DeviceCategory } from "@energyleaf/postgres/types";
 import { waitUntil } from "@vercel/functions";
 
 const deviceCategoryMapping: Record<string, DeviceCategory> = {

@@ -1,8 +1,8 @@
 import { getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences } from "@/query/energy";
 import { getUserData } from "@/query/user";
-import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import type { SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
@@ -32,7 +32,7 @@ export default async function EnergyConsumptionCard({
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
+                    <p className="text-center font-bold font-mono">Keine Sensoren gefunden</p>
                 </CardContent>
             </Card>
         );
@@ -46,7 +46,7 @@ export default async function EnergyConsumptionCard({
     const data = await getEnergyDataForSensor(startDate.toISOString(), endDate.toISOString(), sensorId, aggregation);
 
     const showPeaks = fulfills(appVersion, Versions.self_reflection) && !hasAggregation;
-    const peaks: SensorDataSequenceType[] = showPeaks
+    const peaks: SensorDataSequenceSelectType[] = showPeaks
         ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
         : [];
 

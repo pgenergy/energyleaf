@@ -1,8 +1,8 @@
 import { createSensor, isSensorRegistered, updateSensor } from "@/actions/sensors";
 import { addSensorSchema } from "@/lib/schema/sensor";
-import type { SensorInsertType, SensorSelectType } from "@energyleaf/db/types";
-import { SensorType, SensorTypeMap } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
+import type { SensorInsertType, SensorSelectType } from "@energyleaf/postgres/types";
+import { SensorType, SensorTypeMap } from "@energyleaf/postgres/types";
 import { Button } from "@energyleaf/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";

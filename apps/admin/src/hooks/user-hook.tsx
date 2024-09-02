@@ -1,7 +1,7 @@
 "use client";
 
-import type { UserSelectType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
+import type { UserSelectType } from "@energyleaf/postgres/types";
 import type React from "react";
 import { createContext, useContext, useState } from "react";
 

@@ -2,17 +2,15 @@
 
 import { getActionSession } from "@/lib/auth/auth.action";
 import type { peakSchema } from "@/lib/schema/peak";
+import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
+import { updatePowerOfDevices } from "@energyleaf/postgres/query/device";
+import { createDevices } from "@energyleaf/postgres/query/device";
+import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
 import {
-    createDevices,
     getDeviceSuggestionsByPeak,
     getDevicesByPeak as getDevicesByPeakDb,
-    log,
-    logError,
-    trackAction,
     updateDevicesForPeak as updateDevicesForPeakDb,
-    updatePowerOfDevices,
-} from "@energyleaf/db/query";
-import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
+} from "@energyleaf/postgres/query/peaks";
 import { revalidatePath } from "next/cache";
 import "server-only";
 import {
@@ -22,10 +20,10 @@ import {
     updateDemoPowerEstimationForDevices,
 } from "@/lib/demo/demo";
 import type { DeviceOption, DeviceSelection } from "@/lib/devices/types";
-import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/db/query";
-import { type DeviceCategory, DeviceCategoryTitles } from "@energyleaf/db/types";
 import type { DefaultActionReturnPayload } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/postgres/query/device";
+import { type DeviceCategory, DeviceCategoryTitles } from "@energyleaf/postgres/types";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";

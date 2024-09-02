@@ -1,8 +1,8 @@
 "use client";
 
 import { updateUser } from "@/actions/user";
-import type { UserSelectType } from "@energyleaf/db/types";
 import type { DefaultActionReturn, baseInformationSchema } from "@energyleaf/lib";
+import type { UserSelectType } from "@energyleaf/postgres/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { UserBaseInformationForm } from "@energyleaf/ui/forms/user-base-information-form";
 import { useTransition } from "react";

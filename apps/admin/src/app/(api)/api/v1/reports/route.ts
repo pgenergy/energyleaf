@@ -3,7 +3,7 @@ export const maxDuration = 300; // This function can run for a maximum of 300 se
 import { join } from "node:path";
 import { env } from "@/env.mjs";
 import { createReportsAndSendMails } from "@/lib/reports/send-reports";
-import { log, logError } from "@energyleaf/db/query";
+import { log, logError } from "@energyleaf/postgres/query/logs";
 import { waitUntil } from "@vercel/functions";
 import { registerFont } from "canvas";
 import { type NextRequest, NextResponse } from "next/server";

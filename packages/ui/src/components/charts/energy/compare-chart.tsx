@@ -1,6 +1,6 @@
 "use client";
 
-import type { SensorDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSelectType } from "@energyleaf/postgres/types";
 import {
     type ChartConfig,
     ChartContainer,
@@ -26,19 +26,19 @@ export default function EnergyCompareChart(props: Props) {
     const chartConfig = useMemo(
         () =>
             ({
-                value: {
+                consumption: {
                     label: `${format(props.date, "PP")} - Verbrauch (kWh)`,
                     color: "hsl(var(--primary))",
                 },
-                valueCompare: {
+                consumptionCompare: {
                     label: `${format(props.compareDate, "PP")} - Verbrauch (kWh)`,
                     color: "hsl(var(--chart-3))",
                 },
-                valueOut: {
+                inserted: {
                     label: `${format(props.date, "PP")} - Eingespeist (kWh)`,
                     color: "hsl(var(--chart-4))",
                 },
-                valueOutCompare: {
+                insertedCompare: {
                     label: `${format(props.compareDate, "PP")} - Eingespeist (kWh)`,
                     color: "hsl(var(--chart-3))",
                 },
@@ -54,7 +54,7 @@ export default function EnergyCompareChart(props: Props) {
         [props.date, props.compareDate],
     );
 
-    const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
+    const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("consumption");
 
     function tickFormatter(value: Date) {
         const hour = format(value, "HH");
@@ -94,17 +94,17 @@ export default function EnergyCompareChart(props: Props) {
     const processedData = useMemo(() => {
         const results: (SensorDataSelectType & {
             valueCompare: number;
-            valueCompareConsumption: number;
+            consumptionCompare: number;
             valueOutCompare: number | null;
-            valueCompareInserted: number | null;
+            insertedCompare: number | null;
             valueCurrentCompare: number | null;
         })[] = [];
         for (let i = 0; i < fillArray.length; i++) {
             const result: SensorDataSelectType & {
                 valueCompare: number;
-                valueCompareConsumption: number;
+                consumptionCompare: number;
                 valueOutCompare: number | null;
-                valueCompareInserted: number | null;
+                insertedCompare: number | null;
                 valueCurrentCompare: number | null;
             } = {
                 id: "",
@@ -113,11 +113,11 @@ export default function EnergyCompareChart(props: Props) {
                 value: 0,
                 valueCompare: 0,
                 consumption: 0,
-                valueCompareConsumption: 0,
+                consumptionCompare: 0,
                 valueOut: null,
                 valueOutCompare: null,
                 inserted: null,
-                valueCompareInserted: null,
+                insertedCompare: null,
                 valueCurrent: null,
                 valueCurrentCompare: null,
             };
@@ -148,13 +148,11 @@ export default function EnergyCompareChart(props: Props) {
             if (compareDataIndex !== -1) {
                 const compareData = props.compareData[compareDataIndex];
                 result.valueCompare = compareData.value;
-                if (compareData.consumption) {
-                    result.valueCompareConsumption = compareData.consumption;
-                }
+                result.consumptionCompare = compareData.consumption;
 
                 if (compareData.valueOut) {
                     result.valueOutCompare = compareData.valueOut;
-                    result.valueCompareInserted = compareData.inserted;
+                    result.insertedCompare = compareData.inserted;
                 }
 
                 if (compareData.valueCurrent) {
@@ -173,14 +171,14 @@ export default function EnergyCompareChart(props: Props) {
             {hasOutValues || hasCurrentValues ? (
                 <div className="flex flex-row flex-wrap items-center justify-end gap-2">
                     <ChartSwitchButton
-                        active={activeChart === "value"}
+                        active={activeChart === "consumption"}
                         chart="value"
                         onClick={setActiveChart}
                         label="Verbrauch"
                     />
                     {hasOutValues ? (
                         <ChartSwitchButton
-                            active={activeChart === "valueOut"}
+                            active={activeChart === "inserted"}
                             chart="valueOut"
                             onClick={setActiveChart}
                             label="Einspeisung"
@@ -228,16 +226,16 @@ export default function EnergyCompareChart(props: Props) {
                         tickLine={false}
                         interval="equidistantPreserveStart"
                     />
-                    {activeChart === "value" ? (
+                    {activeChart === "consumption" ? (
                         <>
-                            <Bar dataKey="value" fill="var(--color-value)" radius={4} />
-                            <Bar dataKey="valueCompare" fill="var(--color-valueCompare)" radius={4} />
+                            <Bar dataKey="consumption" fill="var(--color-consumption)" radius={4} />
+                            <Bar dataKey="consumptionCompare" fill="var(--color-consumptionCompare)" radius={4} />
                         </>
                     ) : null}
-                    {activeChart === "valueOut" ? (
+                    {activeChart === "inserted" ? (
                         <>
-                            <Bar dataKey="valueOut" fill="var(--color-valueOut)" radius={4} />
-                            <Bar dataKey="valueOutCompare" fill="var(--color-valueOutCompare)" radius={4} />
+                            <Bar dataKey="inserted" fill="var(--color-inserted)" radius={4} />
+                            <Bar dataKey="insertedCompare" fill="var(--color-insertedCompare)" radius={4} />
                         </>
                     ) : null}
                     {activeChart === "valueCurrent" ? (

@@ -1,4 +1,4 @@
-import { DeviceCategory } from "@energyleaf/db/types";
+import { DeviceCategory } from "@energyleaf/postgres/types";
 import { z } from "zod";
 
 export const deviceSchema = z.object({

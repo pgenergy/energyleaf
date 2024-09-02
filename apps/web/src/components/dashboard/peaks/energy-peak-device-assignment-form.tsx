@@ -1,7 +1,7 @@
 import { getDeviceOptionsByPeak, updateDevicesForPeak } from "@/actions/peak";
 import { peakSchema } from "@/lib/schema/peak";
-import type { DeviceCategory } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
+import type { DeviceCategory } from "@energyleaf/postgres/types";
 import { Alert, AlertDescription, AlertTitle } from "@energyleaf/ui/alert";
 import {} from "@energyleaf/ui/alert-dialog";
 import { Button } from "@energyleaf/ui/button";

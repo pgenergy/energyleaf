@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import type { SensorDataSelectType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
+import type { SensorDataSelectType } from "@energyleaf/postgres/types";
 import { Alert, AlertDescription, AlertTitle } from "@energyleaf/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import EnergyMiniChart from "@energyleaf/ui/charts/energy/mini-chart";
@@ -48,19 +48,6 @@ export default async function EnergyAbsoluteChartView(props: Props) {
         "sum",
     );
     const hasValues = data.length > 0;
-    if (data.length === 1) {
-        const newFirst = {
-            id: data[0].id,
-            sensorId: data[0].sensorId,
-            value: data[0].value,
-            consumption: data[0].consumption,
-            valueOut: data[0].valueOut,
-            inserted: data[0].inserted,
-            valueCurrent: data[0].valueCurrent,
-            timestamp: new Date(data[0].timestamp.getTime() - 10),
-        } satisfies SensorDataSelectType;
-        data.unshift(newFirst);
-    }
 
     if (!hasValues) {
         if (props.hideAlert) {
@@ -78,14 +65,28 @@ export default async function EnergyAbsoluteChartView(props: Props) {
         );
     }
 
-    const total = data.reduce((acc, cur) => acc + cur.value, 0);
+    const total = data.reduce((acc, cur) => acc + cur.consumption, 0);
 
     const hasOutValues = data.some((d) => d.valueOut);
-    const totalOut = data.reduce((acc, cur) => acc + (cur.valueOut || 0), 0);
+    const totalOut = data.reduce((acc, cur) => acc + (cur.inserted || 0), 0);
 
     const hasPowerValues = data.some((d) => d.valueCurrent);
     const totalPower = data.reduce((acc, cur) => acc + (cur.valueCurrent || 0), 0);
     const averagePower = totalPower / data.length;
+
+    if (data.length === 1) {
+        const newFirst = {
+            id: data[0].id,
+            sensorId: data[0].sensorId,
+            value: data[0].value,
+            consumption: data[0].consumption,
+            valueOut: data[0].valueOut,
+            inserted: data[0].inserted,
+            valueCurrent: data[0].valueCurrent,
+            timestamp: new Date(data[0].timestamp.getTime() - 10),
+        } satisfies SensorDataSelectType;
+        data.unshift(newFirst);
+    }
 
     return (
         <>
@@ -97,7 +98,7 @@ export default async function EnergyAbsoluteChartView(props: Props) {
                 <CardContent className="grid grid-cols-1 md:grid-cols-2">
                     <p className="font-bold font-mono">{total.toFixed(2)} kWh</p>
                     <div className="hidden md:block">
-                        <EnergyMiniChart data={data} display="value" />
+                        <EnergyMiniChart data={data} display="consumption" />
                     </div>
                 </CardContent>
             </Card>
@@ -109,7 +110,7 @@ export default async function EnergyAbsoluteChartView(props: Props) {
                     <CardContent className="grid grid-cols-1 md:grid-cols-2">
                         <p className="font-bold font-mono">{totalOut.toFixed(2)} kWh</p>
                         <div className="hidden md:block">
-                            <EnergyMiniChart data={data} display="valueOut" />
+                            <EnergyMiniChart data={data} display="inserted" />
                         </div>
                     </CardContent>
                 </Card>
