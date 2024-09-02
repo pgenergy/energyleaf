@@ -1,8 +1,8 @@
-import { and, asc, between, desc, eq, lte, or } from "drizzle-orm";
+import { and, asc, between, desc, eq, lte, or, SQLWrapper } from "drizzle-orm";
 import { type DB, db, genId } from "..";
 import { deviceTable, deviceToPeakTable } from "../schema/device";
-import { sensorDataSequenceTable, sensorSequenceMarkingLogTable } from "../schema/sensor";
-import type { SensorDataSelectType, SensorDataSequenceSelectType } from "../types/types";
+import { sensorDataSequenceTable, sensorDataTable, sensorSequenceMarkingLogTable } from "../schema/sensor";
+import type { SensorDataSelectType, SensorDataSequenceSelectType, SensorDataSequenceWithSensorDataSelectType } from "../types/types";
 import { getRawEnergyForSensorInRange } from "./energy-get";
 
 function calculateMedian(values: SensorDataSelectType[]) {
@@ -450,22 +450,38 @@ interface ExtraQuerySequencesBySensorProps {
 }
 
 export async function getSequencesBySensor(sensorId: string, extra?: ExtraQuerySequencesBySensorProps) {
+    const wheres: (SQLWrapper | undefined)[] = [eq(sensorDataSequenceTable.sensorId, sensorId)];
     if (extra) {
-        return db
-            .select()
-            .from(sensorDataSequenceTable)
-            .where(
-                and(
-                    eq(sensorDataSequenceTable.sensorId, sensorId),
-                    or(
-                        between(sensorDataSequenceTable.start, extra.start, extra.end),
-                        between(sensorDataSequenceTable.end, extra.start, extra.end),
-                    ),
-                ),
-            );
+        wheres.push(
+            or(
+                between(sensorDataSequenceTable.start, extra.start, extra.end),
+                between(sensorDataSequenceTable.end, extra.start, extra.end),
+            ),
+        );
     }
 
-    return db.select().from(sensorDataSequenceTable).where(eq(sensorDataSequenceTable.sensorId, sensorId));
+    const rawData = await db
+        .select()
+        .from(sensorDataSequenceTable)
+        .innerJoin(sensorDataTable, between(sensorDataTable.timestamp, sensorDataSequenceTable.start, sensorDataSequenceTable.end))
+        .where(and(...wheres))
+        .orderBy(asc(sensorDataSequenceTable.start), asc(sensorDataTable.timestamp));
+
+    const groupedDataMap: Map<string, SensorDataSequenceWithSensorDataSelectType> = new Map();
+
+    for (const item of rawData) {
+        const { sensor_data_sequence, sensor_data } = item;
+        if (groupedDataMap.has(sensor_data_sequence.id)) {
+            groupedDataMap.get(sensor_data_sequence.id)?.sensorData.push(sensor_data);
+        } else {
+            groupedDataMap.set(sensor_data_sequence.id, {
+                ...sensor_data_sequence,
+                sensorData: [sensor_data],
+            });
+        }
+    }
+
+    return Array.from(groupedDataMap.values());
 }
 
 export async function getDevicesByPeak(sensorDataSequenceId: string) {
@@ -473,10 +489,18 @@ export async function getDevicesByPeak(sensorDataSequenceId: string) {
         .select({
             id: deviceToPeakTable.deviceId,
             name: deviceTable.name,
+            category: deviceTable.category,
         })
         .from(deviceToPeakTable)
         .innerJoin(deviceTable, eq(deviceTable.id, deviceToPeakTable.deviceId))
         .where(eq(deviceToPeakTable.sensorDataSequenceId, sensorDataSequenceId));
+}
+
+export async function getDeviceSuggestionsByPeak(sensorDataSequenceId: string) {
+    return db
+        .select()
+        .from(deviceSuggestionsPeak)
+        .where(eq(deviceSuggestionsPeak.sensorDataSequenceId, sensorDataSequenceId));
 }
 
 export async function getPeaksByDevice(deviceId: number) {

@@ -14,9 +14,18 @@ interface Props {
     showPeaks: boolean;
     userId: string;
     cost?: number;
+    appVersion: number;
 }
 
-export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost, peaks }: Props) {
+export default function EnergyConsumptionCardChart({
+    data,
+    aggregation,
+    userId,
+    showPeaks,
+    cost,
+    peaks,
+    appVersion,
+}: Props) {
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState<SensorDataSequenceSelectType | null>(null);
     const router = useRouter();
@@ -43,7 +52,13 @@ export default function EnergyConsumptionCardChart({ data, aggregation, userId, 
     return (
         <>
             {value ? (
-                <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} userId={userId} />
+                <EnergyPeakDeviceAssignmentDialog
+                    open={open}
+                    setOpen={setOpen}
+                    value={value}
+                    userId={userId}
+                    appVersion={appVersion}
+                />
             ) : null}
             <EnergyConsumptionChart
                 data={data}

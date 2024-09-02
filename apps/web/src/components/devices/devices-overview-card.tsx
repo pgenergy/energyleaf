@@ -2,6 +2,7 @@ import { DeviceContextProvider } from "@/hooks/device-hook";
 import { getSession } from "@/lib/auth/auth.server";
 import { evaluatePowerEstimation } from "@/lib/devices/power-estimation";
 import { getUserData } from "@/query/user";
+import {} from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";

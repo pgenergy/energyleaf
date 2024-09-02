@@ -191,7 +191,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                 <FormItem className="flex flex-row items-center justify-between rounded border border-border p-4">
                                     <div className="flex flex-col gap-2">
                                         <FormLabel>Wird bezahlt</FormLabel>
-                                        <FormDescription>Gibt an ob dieser Nutzer bezahlt wird.</FormDescription>
+                                        <FormDescription>Gibt an, ob dieser Nutzer bezahlt wird.</FormDescription>
                                     </div>
                                     <FormControl>
                                         <Switch aria-readonly checked={field.value} onCheckedChange={field.onChange} />
@@ -208,7 +208,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                     <div className="flex flex-col gap-2">
                                         <FormLabel>Bezahlung über Prolific</FormLabel>
                                         <FormDescription>
-                                            Gibt an ob dieser Nutzer über Prolific bezahlt wird.
+                                            Gibt an, ob dieser Nutzer über Prolific bezahlt wird.
                                         </FormDescription>
                                     </div>
                                     <FormControl>

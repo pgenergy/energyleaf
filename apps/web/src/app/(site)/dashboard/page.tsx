@@ -118,7 +118,13 @@ export default async function DashboardPage({
             </div>
             <ErrorBoundary fallback={EnergyConsumptionError}>
                 <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-                    <EnergyConsumptionCard aggregationType={aggregationType} endDate={endDate} startDate={startDate} />
+                    <EnergyConsumptionCard
+                        aggregationType={aggregationType}
+                        endDate={endDate}
+                        startDate={startDate}
+                        userId={user.id}
+                        appVersion={user.appVersion}
+                    />
                 </Suspense>
             </ErrorBoundary>
         </div>

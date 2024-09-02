@@ -40,7 +40,6 @@ export function PeakAssignmentDialog(props: Props) {
                 </DialogHeader>
                 <p>Leistung: {formatNumber(props.value.averagePeakPower)} Watt</p>
                 <EnergyPeakDeviceAssignmentForm
-                    userId={props.userId}
                     onInteract={() => {
                         setOpen(false);
                     }}

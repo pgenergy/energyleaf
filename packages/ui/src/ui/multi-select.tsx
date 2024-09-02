@@ -9,6 +9,7 @@ import { Spinner } from "./spinner";
 type Option = {
     value: string;
     label: string;
+    icon?: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
 };
 
 interface Props<T extends Option> {
@@ -101,6 +102,7 @@ export function MultiSelect<T extends Option>({
                     {selected.map((option) => {
                         return (
                             <Badge key={option.value} variant="secondary">
+                                {option.icon ? option.icon({ className: "h-4 w-4 mr-2" }) : null}
                                 {option.label}
                                 <button
                                     type="button"
@@ -161,9 +163,10 @@ export function MultiSelect<T extends Option>({
                                                     e.preventDefault();
                                                 }
                                             }}
-                                            className={"cursor-pointer"}
+                                            className={"flex cursor-pointer flex-row justify-between"}
                                         >
                                             {option.label}
+                                            {option.icon ? option.icon({ className: "h-4 w-4 mr-2" }) : null}
                                         </CommandItem>
                                     );
                                 })}

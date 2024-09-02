@@ -1,6 +1,6 @@
 import { pickRandomTip } from "@energyleaf/lib/tips";
 import type { EnergyTipKey } from "@energyleaf/lib/tips";
-import { and, between, desc, eq, gte } from "drizzle-orm";
+import { and, between, desc, eq, gte, or } from "drizzle-orm";
 import { db, genId } from "../";
 import { historyReportConfigTable, reportConfigTable } from "../schema/reports";
 import { sensorHistoryTable, sensorTable } from "../schema/sensor";
@@ -96,6 +96,10 @@ export async function getUsersWhoRecieveSurveyMail(startDate: Date, endDate: Dat
                 eq(userTable.isActive, true),
                 eq(userExperimentDataTable.usesProlific, false),
                 eq(userExperimentDataTable.getsPaid, true),
+                or(
+                    eq(userExperimentDataTable.experimentStatus, "first_finished"),
+                    eq(userExperimentDataTable.experimentStatus, "second_finished"),
+                )
             ),
         );
 }
@@ -409,4 +413,20 @@ export async function getTipOfTheDay(userId: string) {
 
         return tip;
     });
+}
+
+export async function getUserBySensorId(sensorId: string) {
+    const query = await db
+        .select({
+            userId: user.id,
+            appVersion: user.appVersion,
+        })
+        .from(sensor)
+        .innerJoin(user, eq(sensor.userId, user.id))
+        .where(eq(sensor.id, sensorId));
+
+    if (query.length === 0) {
+        return null;
+    }
+    return query[0];
 }

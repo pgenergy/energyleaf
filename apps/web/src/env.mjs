@@ -7,6 +7,9 @@ export const env = createEnv({
         HASH_SECRET: z.string(),
         CRON_SECRET: z.string().optional(),
 
+        ML_API_URL: z.string(),
+        ML_API_KEY: z.string(),
+
         PG_CONNECTION: z.string(),
         PG_DIRECT: z.string(),
 
