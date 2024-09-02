@@ -197,7 +197,6 @@ export async function createUser(data: CreateUserType) {
             password: data.password,
             isParticipant: data.participation,
         });
-        console.log("OKAY");
         await trx.insert(userDataTable).values({
             userId,
             electricityMeterNumber: data.electricityMeterNumber,
@@ -207,19 +206,16 @@ export async function createUser(data: CreateUserType) {
             wifiAtElectricityMeter: data.hasWifi,
             installationComment: data.comment,
         });
-        console.log("HMMM");
         await trx.insert(reportConfigTable).values({
             userId,
             timestampLast: new Date(),
         });
-        console.log("LOL");
 
         if (data.participation) {
             await trx.insert(userExperimentDataTable).values({
                 userId,
                 getsPaid: true,
             });
-            console.log("YOOOO");
         }
     });
 }

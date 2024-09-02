@@ -73,20 +73,6 @@ export default async function CostAbsoluteChartView(props: Props) {
         "sum",
     );
     const hasValues = data.length > 0;
-    if (data.length === 1) {
-        const newFirst = {
-            id: data[0].id,
-            sensorId: data[0].sensorId,
-            value: data[0].value,
-            consumption: data[0].consumption,
-            valueOut: data[0].valueOut,
-            inserted: data[0].inserted,
-            valueCurrent: data[0].valueCurrent,
-            timestamp: new Date(data[0].timestamp.getTime() - 10),
-            cost: 0,
-        } satisfies SensorDataSelectType & { cost: number };
-        data.unshift(newFirst);
-    }
 
     if (!hasValues) {
         if (props.hideAlert) {
@@ -103,7 +89,7 @@ export default async function CostAbsoluteChartView(props: Props) {
             </Alert>
         );
     }
-    const total = data.reduce((acc, cur) => acc + cur.value, 0);
+    const total = data.reduce((acc, cur) => acc + cur.consumption, 0);
     const workingCost = userData.workingPrice * total;
     let totalBaseCost = 0;
     let totalMissing = 0;
@@ -148,7 +134,7 @@ export default async function CostAbsoluteChartView(props: Props) {
         "sum",
     );
     const hasCompareData = compareData.length > 0;
-    const compareTotal = compareData.reduce((acc, cur) => acc + cur.value, 0);
+    const compareTotal = compareData.reduce((acc, cur) => acc + cur.consumption, 0);
     const compareWorkingCost = userData.workingPrice * compareTotal;
     const compareTotalCost = totalBaseCost * compareData.length + compareWorkingCost;
 
@@ -163,7 +149,22 @@ export default async function CostAbsoluteChartView(props: Props) {
     let predicitionCost = 0;
     if (totalMissing > 0 && hasCompareData && totalMissing < compareData.length) {
         const checkData = compareData.slice(compareData.length - totalMissing);
-        predicitionCost = checkData.reduce((acc, cur) => acc + cur.value, 0) + totalBaseCost * totalMissing;
+        predicitionCost = checkData.reduce((acc, cur) => acc + cur.consumption, 0) + totalBaseCost * totalMissing;
+    }
+
+    if (data.length === 1) {
+        const newFirst = {
+            id: data[0].id,
+            sensorId: data[0].sensorId,
+            value: data[0].value,
+            consumption: data[0].consumption,
+            valueOut: data[0].valueOut,
+            inserted: data[0].inserted,
+            valueCurrent: data[0].valueCurrent,
+            timestamp: new Date(data[0].timestamp.getTime() - 10),
+            cost: 0,
+        } satisfies SensorDataSelectType & { cost: number };
+        data.unshift(newFirst);
     }
 
     return (

@@ -21,11 +21,11 @@ interface Props {
 }
 
 const chartConfig = {
-    value: {
+    consumption: {
         label: "Verbrauch (kWh)",
         color: "hsl(var(--primary))",
     },
-    valueOut: {
+    inserted: {
         label: "Eingespeist (kWh)",
         color: "hsl(var(--chart-3))",
     },
@@ -36,7 +36,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function EnergyDayChart(props: Props) {
-    const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("value");
+    const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("consumption");
 
     function tickFormatter(value: Date) {
         const day = format(value, "EEEE", { locale: de });
@@ -102,15 +102,15 @@ export default function EnergyDayChart(props: Props) {
             {hasOutValues || hasCurrentValues ? (
                 <div className="flex flex-row flex-wrap items-center justify-end gap-2">
                     <ChartSwitchButton
-                        active={activeChart === "value"}
-                        chart="value"
+                        active={activeChart === "consumption"}
+                        chart="consumption"
                         onClick={setActiveChart}
                         label="Verbrauch"
                     />
                     {hasOutValues ? (
                         <ChartSwitchButton
-                            active={activeChart === "valueOut"}
-                            chart="valueOut"
+                            active={activeChart === "inserted"}
+                            chart="inserted"
                             onClick={setActiveChart}
                             label="Einspeisung"
                         />
@@ -157,9 +157,11 @@ export default function EnergyDayChart(props: Props) {
                         tickLine={false}
                         interval="equidistantPreserveStart"
                     />
-                    {activeChart === "value" ? <Bar dataKey="value" fill="var(--color-value)" radius={4} /> : null}
-                    {activeChart === "valueOut" ? (
-                        <Bar dataKey="valueOut" fill="var(--color-valueOut)" radius={4} />
+                    {activeChart === "consumption" ? (
+                        <Bar dataKey="consumption" fill="var(--color-consumption)" radius={4} />
+                    ) : null}
+                    {activeChart === "inserted" ? (
+                        <Bar dataKey="inserted" fill="var(--color-inserted)" radius={4} />
                     ) : null}
                     {activeChart === "valueCurrent" ? (
                         <Bar dataKey="valueCurrent" fill="var(--color-valueCurrent)" radius={4} />

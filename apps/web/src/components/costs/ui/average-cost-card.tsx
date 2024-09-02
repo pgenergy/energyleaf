@@ -59,10 +59,10 @@ export default async function CostAverageCard(props: Props) {
     }
 
     const processedData = data
-        .filter((item) => item.value > 0.02)
+        .filter((item) => item.consumption > 0.02)
         .map((item) => ({
             ...item,
-            cost: item.value * workingPrice + totalBaseCost,
+            cost: item.consumption * workingPrice + totalBaseCost,
         }));
     const average = processedData.reduce((acc, cur) => acc + cur.cost, 0) / processedData.length;
 

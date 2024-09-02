@@ -55,7 +55,7 @@ export default async function PeakCard(props: Props) {
                         </CardDescription>
                     </div>
                     <div className="w-1/3">
-                        <EnergyMiniChart data={data} display="value" />
+                        <EnergyMiniChart data={data} display="consumption" />
                     </div>
                 </div>
             </CardHeader>

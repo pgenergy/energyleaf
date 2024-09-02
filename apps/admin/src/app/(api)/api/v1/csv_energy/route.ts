@@ -72,9 +72,23 @@ export async function POST(req: NextRequest) {
 
         try {
             const energyData = await getEnergyForSensorInRange(startDate, endDate, sensorId);
-            const parsedData = energyData.map((e) => [e.value, e.valueOut, e.valueCurrent, e.timestamp.toISOString()]);
+            const parsedData = energyData.map((e) => [
+                e.value,
+                e.consumption,
+                e.valueOut,
+                e.inserted,
+                e.valueCurrent,
+                e.timestamp.toISOString(),
+            ]);
             const csvData = csv.stringify([
-                ["Verbrauch in kWh", "Erzeugt in kWh", "Leistung in Watt", "Zeitstempel"],
+                [
+                    "Zählerstand (Verbraucht)",
+                    "Verbrauch in kWh",
+                    "Zählerstand (Eingespeißt)",
+                    "Erzeugt in kWh",
+                    "Leistung in Watt",
+                    "Zeitstempel",
+                ],
                 ...parsedData,
             ]);
 

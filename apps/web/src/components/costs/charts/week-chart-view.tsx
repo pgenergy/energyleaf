@@ -41,7 +41,7 @@ export default async function CostWeekChartView(props: Props) {
     const totalBaseCost = userData.basePrice ? userData.basePrice / 4 : 0;
     const processedData = data.map((d) => ({
         ...d,
-        cost: d.value * workingPrice + totalBaseCost,
+        cost: d.consumption * workingPrice + totalBaseCost,
     }));
 
     return (

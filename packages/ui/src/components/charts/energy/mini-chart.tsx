@@ -6,14 +6,14 @@ import { type ChartConfig, ChartContainer } from "../../../ui/chart";
 
 interface Props {
     data: SensorDataSelectType[];
-    display: "value" | "valueOut" | "valueCurrent";
+    display: "consumption" | "inserted" | "valueCurrent";
 }
 
 const chartConfig = {
-    value: {
+    consumption: {
         color: "hsl(var(--primary))",
     },
-    valueOut: {
+    inserted: {
         color: "hsl(var(--chart-3))",
     },
     valueCurrent: {
@@ -26,15 +26,15 @@ export default function EnergyMiniChart(props: Props) {
         <ChartContainer className="max-h-8 min-h-8 w-full" config={chartConfig}>
             <AreaChart data={props.data}>
                 <defs>
-                    <linearGradient id="valueColor" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-value)" stopOpacity={0.99} />
-                        <stop offset="50%" stopColor="var(--color-value)" stopOpacity={0.7} />
-                        <stop offset="95%" stopColor="var(--color-value)" stopOpacity={0.1} />
+                    <linearGradient id="consumptionColor" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-consumption)" stopOpacity={0.99} />
+                        <stop offset="50%" stopColor="var(--color-consumption)" stopOpacity={0.7} />
+                        <stop offset="95%" stopColor="var(--color-consumption)" stopOpacity={0.1} />
                     </linearGradient>
-                    <linearGradient id="valueOutColor" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-valueOut)" stopOpacity={0.99} />
-                        <stop offset="50%" stopColor="var(--color-valueOut)" stopOpacity={0.7} />
-                        <stop offset="95%" stopColor="var(--color-valueOut)" stopOpacity={0.1} />
+                    <linearGradient id="insertedColor" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-inserted)" stopOpacity={0.99} />
+                        <stop offset="50%" stopColor="var(--color-inserted)" stopOpacity={0.7} />
+                        <stop offset="95%" stopColor="var(--color-inserted)" stopOpacity={0.1} />
                     </linearGradient>
                     <linearGradient id="valueCurrentColor" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="var(--color-valueCurrent)" stopOpacity={0.99} />
@@ -44,23 +44,23 @@ export default function EnergyMiniChart(props: Props) {
                 </defs>
                 <XAxis dataKey="timestamp" tickLine={false} tick={false} hide axisLine={false} />
                 <YAxis dataKey={props.display} tickLine={false} tick={false} hide axisLine={false} />
-                {props.display === "value" ? (
+                {props.display === "consumption" ? (
                     <Area
-                        dataKey="value"
+                        dataKey="consumption"
                         connectNulls
-                        fill="url(#valueColor)"
+                        fill="url(#consumptionColor)"
                         fillOpacity={1}
-                        stroke="var(--color-value)"
+                        stroke="var(--color-consumption)"
                         type="linear"
                     />
                 ) : null}
-                {props.display === "valueOut" ? (
+                {props.display === "inserted" ? (
                     <Area
-                        dataKey="valueOut"
+                        dataKey="inserted"
                         connectNulls
-                        fill="url(#valueOutColor)"
+                        fill="url(#insertedColor)"
                         fillOpacity={1}
-                        stroke="var(--color-valueOut)"
+                        stroke="var(--color-inserted)"
                         type="linear"
                     />
                 ) : null}

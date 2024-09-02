@@ -1,5 +1,5 @@
 import { env } from "@/env.mjs";
-import { buildUnsubscribeUrl } from "@energyleaf/lib";
+import { buildUnsubscribeUrl, convertTZDate } from "@energyleaf/lib";
 import type { DailyConsumption, DailyGoalProgress, DailyGoalStatistic, ReportProps } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { sendReport } from "@energyleaf/mail";
@@ -112,12 +112,14 @@ export async function createReportsAndSendMails() {
 }
 
 export async function createReportData(user: UserReportData): Promise<ReportProps> {
-    const dateFrom = new Date();
-    dateFrom.setDate(dateFrom.getDate() - user.interval);
-    dateFrom.setHours(0, 0, 0, 0);
-    const dateTo = new Date();
-    dateTo.setDate(dateTo.getDate() - 1);
-    dateTo.setHours(23, 59, 59, 999);
+    const serverDateFrom = new Date();
+    serverDateFrom.setDate(serverDateFrom.getDate() - user.interval);
+    serverDateFrom.setHours(0, 0, 0, 0);
+    const dateFrom = convertTZDate(serverDateFrom);
+    const serverDateTo = new Date();
+    serverDateTo.setDate(serverDateTo.getDate() - 1);
+    serverDateTo.setHours(23, 59, 59, 999);
+    const dateTo = convertTZDate(serverDateTo);
     const sensor = await getElectricitySensorIdForUser(user.userId);
     if (!sensor) {
         throw new Error("No electricity sensor found for User");
@@ -172,11 +174,12 @@ async function getDailyConsumption(sensor: string, dateFrom: Date, interval: num
         const date = new Date(dateFrom);
         date.setDate(date.getDate() + index);
         date.setHours(0, 0, 0, 0);
-        return date;
+        return convertTZDate(date);
     });
     const tasks: Promise<DailyConsumption>[] = dates.map(async (date) => {
-        const endDate = new Date(date);
-        endDate.setHours(23, 59, 59, 999);
+        const serverEndDate = new Date(date);
+        serverEndDate.setHours(23, 59, 59, 999);
+        const endDate = convertTZDate(serverEndDate);
 
         const sumOfDay = await getEnergySumForSensorInRange(date, endDate, sensor);
 

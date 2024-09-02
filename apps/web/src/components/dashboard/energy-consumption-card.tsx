@@ -33,7 +33,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
+                    <p className="text-center font-bold font-mono">Keine Sensoren gefunden</p>
                 </CardContent>
             </Card>
         );

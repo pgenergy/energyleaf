@@ -386,7 +386,7 @@ export async function setDemoPeaks(cookies: ReadonlyRequestCookies) {
     const dataWithoutPeaks = data.filter(
         (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
     );
-    const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.value, 0) / dataWithoutPeaks.length;
+    const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.consumption, 0) / dataWithoutPeaks.length;
     cookies.set(
         "demo_raw_peaks",
         JSON.stringify({
@@ -487,12 +487,12 @@ export async function getDemoReport(): Promise<ReportProps> {
     const userData = getDemoUserData();
 
     const data = await getDemoSensorData(dateFrom, dateTo, AggregationType.DAY);
-    const totalEnergyConsumption = data.reduce((acc, curr) => acc + curr.value, 0);
+    const totalEnergyConsumption = data.reduce((acc, curr) => acc + curr.consumption, 0);
     const avgEnergyConsumptionPerDay = totalEnergyConsumption / data.length;
     let totalEnergyCost: number | undefined = undefined;
     const worstDay = data.reduce(
         (acc, curr) => {
-            if (!acc || curr.value < acc.value) {
+            if (!acc || curr.consumption < acc.consumption) {
                 return curr;
             }
 
@@ -502,7 +502,7 @@ export async function getDemoReport(): Promise<ReportProps> {
     ) as SensorDataSelectType;
     const bestDay = data.reduce(
         (acc, curr) => {
-            if (!acc || curr.value > acc.value) {
+            if (!acc || curr.consumption > acc.consumption) {
                 return curr;
             }
             return acc;
@@ -522,11 +522,11 @@ export async function getDemoReport(): Promise<ReportProps> {
         avgEnergyConsumptionPerDay,
         bestDay: {
             day: bestDay.timestamp,
-            consumption: bestDay.value,
+            consumption: bestDay.consumption,
         },
         worstDay: {
             day: worstDay.timestamp,
-            consumption: worstDay.value,
+            consumption: worstDay.consumption,
         },
     };
 }

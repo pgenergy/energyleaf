@@ -6,9 +6,11 @@ import type { SensorDataSelectType, SensorDataSequenceSelectType } from "../type
 import { getRawEnergyForSensorInRange } from "./energy-get";
 
 function calculateMedian(values: SensorDataSelectType[]) {
-    const sorted = [...values].sort((a, b) => a.value - b.value);
+    const sorted = [...values].sort((a, b) => a.consumption - b.consumption);
     const middle = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0 ? sorted[middle].value : (sorted[middle - 1].value + sorted[middle].value) / 2;
+    return sorted.length % 2 !== 0
+        ? sorted[middle].consumption
+        : (sorted[middle - 1].value + sorted[middle].consumption) / 2;
 }
 
 function calculateMAD(values: SensorDataSelectType[], scale = 1.4826, medValue?: number) {
@@ -18,7 +20,7 @@ function calculateMAD(values: SensorDataSelectType[], scale = 1.4826, medValue?:
     }
     const deviations = values.map((value) => ({
         ...value,
-        value: Math.abs(value.value - medianValue),
+        consumption: Math.abs(value.consumption - medianValue),
     }));
     return scale * calculateMedian(deviations);
 }
@@ -38,7 +40,7 @@ function calculateAveragePower(sensorData: SensorDataSelectType[]) {
         }
 
         const timeDiffInHours = (curr.timestamp.getTime() - sensorData[index - 1].timestamp.getTime()) / 1000 / 60 / 60;
-        return acc + (curr.value / timeDiffInHours) * 1000; // Add power in Watt
+        return acc + (curr.consumption / timeDiffInHours) * 1000; // Add power in Watt
     }, 0);
 
     return powerSum / sensorData.length;
@@ -136,7 +138,7 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
             const isStart = i === 0 || entry.timestamp.getTime() - values[0].timestamp.getTime() < 2 * 60 * 1000;
             let sequenceEnd = i + 1;
 
-            while (sequenceEnd < values.length && values[sequenceEnd].value > threshold) {
+            while (sequenceEnd < values.length && values[sequenceEnd].consumption > threshold) {
                 sequenceEnd++;
             }
 
@@ -191,7 +193,7 @@ export function findPeaks(
     const madValue = calculateMAD(thresholdValues, 1.4826, median);
     const processedValues = consideredValues.map((value) => ({
         ...value,
-        value: Math.abs(value.value - median),
+        consumption: Math.abs(value.consumption - median),
     }));
     return findSequences(processedValues, madValue * threshold);
 }

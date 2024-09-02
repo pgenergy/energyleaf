@@ -48,10 +48,15 @@ export async function getHourEnergyForSensorInRange(
                     ? sql`AVG(${sensorDataHourTable.avgInserted})`.mapWith((value) => Number(value))
                     : sql`SUM(${sensorDataHourTable.sumInserted})`.mapWith((value) => Number(value)),
             timestamp: sql`MIN(${sensorDataHourTable.minTimestamp})`.mapWith((value) => new Date(`${value}+0000`)),
-            grouper: sql`EXTRACT(HOUR FROM ${sensorDataHourTable.bucket} AT TIME ZONE 'Europe/Berlin')`.as("grouper"),
+            grouper: sql`EXTRACT(HOUR FROM ${sensorDataHourTable.bucket})`.as("grouper"),
         })
         .from(sensorDataHourTable)
-        .where(and(eq(sensorDataHourTable.sensorId, sensorId), between(sensorDataHourTable.bucket, start, end)))
+        .where(
+            and(
+                eq(sensorDataHourTable.sensorId, sensorId),
+                between(sensorDataHourTable.bucket, start.toISOString(), end.toISOString()),
+            ),
+        )
         .groupBy(sensorDataHourTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -81,10 +86,15 @@ export async function getWeekdayEnergyForSensorInRange(
                     ? sql`AVG(${sensorDataDayTable.avgInserted})`.mapWith((value) => Number(value))
                     : sql`SUM(${sensorDataDayTable.sumInserted})`.mapWith((value) => Number(value)),
             timestamp: sql`MIN(${sensorDataDayTable.minTimestamp})`.mapWith((value) => new Date(`${value}+0000`)),
-            grouper: sql`EXTRACT(ISODOW FROM ${sensorDataDayTable.bucket} AT TIME ZONE 'Europe/Berlin')`.as("grouper"),
+            grouper: sql`EXTRACT(ISODOW FROM ${sensorDataDayTable.bucket})`.as("grouper"),
         })
         .from(sensorDataDayTable)
-        .where(and(eq(sensorDataDayTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
+        .where(
+            and(
+                eq(sensorDataDayTable.sensorId, sensorId),
+                between(sensorDataDayTable.bucket, start.toISOString(), end.toISOString()),
+            ),
+        )
         .groupBy(sensorDataDayTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -114,10 +124,15 @@ export async function getDayEnergyForSensorInRange(
                     ? sql`AVG(${sensorDataDayTable.avgInserted})`.mapWith((value) => Number(value))
                     : sql`SUM(${sensorDataDayTable.sumInserted})`.mapWith((value) => Number(value)),
             timestamp: sql`MIN(${sensorDataDayTable.minTimestamp})`.mapWith((value) => new Date(`${value}+0000`)),
-            grouper: sql`EXTRACT(DAY FROM ${sensorDataDayTable.bucket} AT TIME ZONE 'Europe/Berlin')`.as("grouper"),
+            grouper: sql`EXTRACT(DAY FROM ${sensorDataDayTable.bucket})`.as("grouper"),
         })
         .from(sensorDataDayTable)
-        .where(and(eq(sensorDataDayTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
+        .where(
+            and(
+                eq(sensorDataDayTable.sensorId, sensorId),
+                between(sensorDataDayTable.bucket, start.toISOString(), end.toISOString()),
+            ),
+        )
         .groupBy(sensorDataDayTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -147,10 +162,15 @@ export async function getWeekEnergyForSensorInRange(
                     ? sql`AVG(${sensorDataWeekTable.avgInserted})`.mapWith((value) => Number(value))
                     : sql`SUM(${sensorDataWeekTable.sumInserted})`.mapWith((value) => Number(value)),
             timestamp: sql`MIN(${sensorDataWeekTable.minTimestamp})`.mapWith((value) => new Date(`${value}+0000`)),
-            grouper: sql`EXTRACT(WEEK FROM ${sensorDataWeekTable.bucket} AT TIME ZONE 'Europe/Berlin')`.as("grouper"),
+            grouper: sql`EXTRACT(WEEK FROM ${sensorDataWeekTable.bucket})`.as("grouper"),
         })
         .from(sensorDataWeekTable)
-        .where(and(eq(sensorDataWeekTable.sensorId, sensorId), between(sensorDataWeekTable.bucket, start, end)))
+        .where(
+            and(
+                eq(sensorDataWeekTable.sensorId, sensorId),
+                between(sensorDataWeekTable.bucket, start.toISOString(), end.toISOString()),
+            ),
+        )
         .groupBy(sensorDataWeekTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -182,12 +202,17 @@ export async function getWeekOfMonthEnergyForSensorInRange(
             timestamp: sql`MIN(${sensorDataDayTable.minTimestamp})`.mapWith((value) => new Date(`${value}+0000`)),
             grouper: sql`
                     CEILING((
-                        DATE_PART('day', ${sensorDataWeekTable.bucket} AT TIME ZONE 'Europe/Berlin') -
-                        DATE_PART('dow', ${sensorDataWeekTable.bucket} AT TIME ZONE 'Europe/Berlin')
+                        DATE_PART('day', ${sensorDataWeekTable.bucket}) -
+                        DATE_PART('dow', ${sensorDataWeekTable.bucket})
                     ) / 7)`.as("grouper"),
         })
         .from(sensorDataDayTable)
-        .where(and(eq(sensorDataDayTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
+        .where(
+            and(
+                eq(sensorDataDayTable.sensorId, sensorId),
+                between(sensorDataDayTable.bucket, start.toISOString(), end.toISOString()),
+            ),
+        )
         .groupBy(sensorDataDayTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -217,10 +242,15 @@ export async function getMonthEnergyForSensorInRange(
                     ? sql`AVG(${sensorDataMonthTable.avgInserted})`.mapWith((value) => Number(value))
                     : sql`SUM(${sensorDataMonthTable.sumInserted})`.mapWith((value) => Number(value)),
             timestamp: sql`MIN(${sensorDataMonthTable.minTimestamp})`.mapWith((value) => new Date(`${value}+0000`)),
-            grouper: sql`EXTRACT(MONTH FROM ${sensorDataWeekTable.bucket} AT TIME ZONE 'Europe/Berlin')`.as("grouper"),
+            grouper: sql`EXTRACT(MONTH FROM ${sensorDataWeekTable.bucket})`.as("grouper"),
         })
         .from(sensorDataMonthTable)
-        .where(and(eq(sensorDataMonthTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
+        .where(
+            and(
+                eq(sensorDataMonthTable.sensorId, sensorId),
+                between(sensorDataDayTable.bucket, start.toISOString(), end.toISOString()),
+            ),
+        )
         .groupBy(sensorDataMonthTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -250,10 +280,15 @@ export async function getYearEnergyForSensorInRange(
                     ? sql`AVG(${sensorDataMonthTable.avgInserted})`.mapWith((value) => Number(value))
                     : sql`SUM(${sensorDataMonthTable.sumInserted})`.mapWith((value) => Number(value)),
             timestamp: sql`MIN(${sensorDataMonthTable.minTimestamp})`.mapWith((value) => new Date(`${value}+0000`)),
-            grouper: sql`EXTRACT(YEAR FROM ${sensorDataWeekTable.bucket} AT TIME ZONE 'Europe/Berlin')`.as("grouper"),
+            grouper: sql`EXTRACT(YEAR FROM ${sensorDataWeekTable.bucket})`.as("grouper"),
         })
         .from(sensorDataMonthTable)
-        .where(and(eq(sensorDataMonthTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
+        .where(
+            and(
+                eq(sensorDataMonthTable.sensorId, sensorId),
+                between(sensorDataDayTable.bucket, start.toISOString(), end.toISOString()),
+            ),
+        )
         .groupBy(sensorDataMonthTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -318,7 +353,7 @@ export async function getEnergyLastEntry(sensorId: string): Promise<SensorDataSe
 export async function getEnergySumForSensorInRange(start: Date, end: Date, sensorId: string) {
     const data = await db
         .select({
-            sum: sql`SUM(${sensorDataTable.value})`.mapWith((value) => Number(value)),
+            sum: sql`SUM(${sensorDataTable.consumption})`.mapWith((value) => Number(value)),
         })
         .from(sensorDataTable)
         .where(and(eq(sensorDataTable.sensorId, sensorId), between(sensorDataTable.timestamp, start, end)))
