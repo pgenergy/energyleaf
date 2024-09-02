@@ -29,6 +29,13 @@
       "when": 1725211730190,
       "tag": "0003_consumption_not_null",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1725282561974,
+      "tag": "0004_ml_suggestions",
+      "breakpoints": true
     }
   ]
 }
