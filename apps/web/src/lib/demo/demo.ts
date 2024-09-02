@@ -212,7 +212,7 @@ export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyReque
     const start = new Date(0);
     const end = new Date();
     end.setDate(end.getDate() + 1);
-    const data = await getDemoPeaks(start, end, cookies);
+    const data = await getDemoPeaks(start, end);
 
     const deviceToPeaksRaw = cookies.get("demo_peaks");
     if (!deviceToPeaksRaw) {
@@ -361,26 +361,16 @@ export async function getDemoSensorData(
     return processDemoDataDate(data);
 }
 
-interface Sequence {
-    start: Date;
-    end: Date;
-    isAtStart: boolean;
-    averagePowerIncludingBaseLoad: number;
-}
-
-export async function setDemoPeaks(cookies: ReadonlyRequestCookies) {
-    const peakCookie = cookies.get("demo_raw_peaks");
-    if (peakCookie) {
-        return;
-    }
-
-    const start = new Date();
-    start.setDate(start.getDate() - 20);
-    const end = new Date();
-    end.setDate(end.getDate() + 1);
-    const data = await getDemoSensorData(start, end, AggregationType.RAW);
+export async function getDemoPeaks(start: Date, end: Date): Promise<SensorDataSequenceSelectType[]> {
+    const peaksStart = new Date();
+    peaksStart.setDate(peaksStart.getDate() - 20);
+    peaksStart.setHours(0, 0, 0);
+    const peaksEnd = new Date();
+    peaksEnd.setDate(peaksEnd.getDate() + 1);
+    peaksEnd.setHours(23, 59, 59);
+    const data = await getDemoSensorData(peaksStart, peaksEnd, AggregationType.RAW);
     if (data.length === 0) {
-        return;
+        return [];
     }
 
     const peaks = findPeaks(data, data);
@@ -388,27 +378,6 @@ export async function setDemoPeaks(cookies: ReadonlyRequestCookies) {
         (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
     );
     const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.consumption, 0) / dataWithoutPeaks.length;
-    cookies.set(
-        "demo_raw_peaks",
-        JSON.stringify({
-            peaks,
-            averageBaseLoad,
-        }),
-    );
-}
-
-export async function getDemoPeaks(
-    start: Date,
-    end: Date,
-    cookies: ReadonlyRequestCookies,
-): Promise<SensorDataSequenceSelectType[]> {
-    const peakCookie = cookies.get("demo_raw_peaks");
-    if (!peakCookie) {
-        return [];
-    }
-    const cookieData = JSON.parse(peakCookie.value) as { peaks: Sequence[]; averageBaseLoad: number };
-    const peaks = cookieData.peaks;
-    const averageBaseLoad = cookieData.averageBaseLoad;
 
     return peaks
         .filter((peak) => {

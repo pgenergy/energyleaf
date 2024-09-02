@@ -6,7 +6,6 @@ import {
 } from "@energyleaf/postgres/query/energy-get";
 import { getSequencesBySensor } from "@energyleaf/postgres/query/peaks";
 import { getElectricitySensorIdForUser as getDbElectricitySensorIdForUser } from "@energyleaf/postgres/query/sensor";
-import { cookies } from "next/headers";
 import { cache } from "react";
 import "server-only";
 
@@ -52,7 +51,7 @@ export const getSensorDataSequences = cache(async (sensorId: string, extra?: Ext
         if (!extra) {
             return [];
         }
-        return getDemoPeaks(extra.start, extra.end, cookies());
+        return getDemoPeaks(extra.start, extra.end);
     }
 
     return getSequencesBySensor(sensorId, extra);
