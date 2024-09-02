@@ -4,7 +4,9 @@ import { numericType } from "../types/dbTypes";
 import { DeviceCategory } from "../types/types";
 
 const deviceFields = {
-    id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity(),
+    id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity({
+        startWith: 48,
+    }),
     userId: text("user_id").notNull(),
     name: text("name").notNull(),
     category: text("category", { enum: Object.values(DeviceCategory) as [string, ...string[]] }).notNull(),

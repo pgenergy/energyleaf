@@ -3,7 +3,9 @@ import { boolean, doublePrecision, integer, pgTable, text, timestamp } from "dri
 import { nanoid } from "nanoid";
 
 const reportConfigFields = {
-    id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity(),
+    id: integer("id").primaryKey().notNull().generatedAlwaysAsIdentity({
+        startWith: 106
+    }),
     userId: text("user_id").notNull(),
     receiveMails: boolean("receive_mails").default(true).notNull(),
     interval: integer("interval").default(3).notNull(),
