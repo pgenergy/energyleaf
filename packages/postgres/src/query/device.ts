@@ -1,7 +1,7 @@
 import { type SQLWrapper, and, eq, inArray, sql } from "drizzle-orm";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import { type DB, db } from "../";
-import { deviceHistoryTable, deviceTable, deviceToPeakTable } from "../schema/device";
+import { deviceHistoryTable, deviceSuggestionsPeakTable, deviceTable, deviceToPeakTable } from "../schema/device";
 import { sensorDataSequenceTable } from "../schema/sensor";
 import { userDataTable } from "../schema/user";
 import type { DeviceCategory } from "../types/types";
@@ -47,7 +47,7 @@ async function createDeviceInternal(data: CreateDeviceType[], trx: DB) {
     return trx
         .insert(deviceTable)
         .values([...data])
-        .returning()
+        .returning();
 }
 
 export async function updateDevice(id: number, data: Partial<CreateDeviceType>) {
@@ -190,7 +190,7 @@ async function copyToHistoryTable(
 
 export async function saveDeviceSuggestionsToPeakDb(sensorDataSequenceId: string, suggestions: DeviceCategory[]) {
     await db
-        .insert(deviceSuggestionsPeak)
+        .insert(deviceSuggestionsPeakTable)
         .values(suggestions.map((category) => ({ sensorDataSequenceId, deviceCategory: category })));
 }
 
@@ -198,9 +198,9 @@ export async function getPeaksWithoutDevices(peaks: { id: string }[]) {
     const peakIds = peaks.map((peak) => peak.id);
 
     const existingAssignments = await db
-        .select({ id: deviceToPeak.sensorDataSequenceId })
-        .from(deviceToPeak)
-        .where(inArray(deviceToPeak.sensorDataSequenceId, peakIds));
+        .select({ id: deviceToPeakTable.sensorDataSequenceId })
+        .from(deviceToPeakTable)
+        .where(inArray(deviceToPeakTable.sensorDataSequenceId, peakIds));
     const existingIds = new Set(existingAssignments.map((assign) => assign.id));
 
     return peaks.filter((peak) => !existingIds.has(peak.id));

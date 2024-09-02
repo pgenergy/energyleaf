@@ -46,7 +46,7 @@ export default async function EnergyConsumptionCard({
     const data = await getEnergyDataForSensor(startDate.toISOString(), endDate.toISOString(), sensorId, aggregation);
 
     const showPeaks = fulfills(appVersion, Versions.self_reflection) && !hasAggregation;
-    const peaks: SensorDataSequenceType[] = showPeaks
+    const peaks: SensorDataSequenceSelectType[] = showPeaks
         ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
         : [];
 

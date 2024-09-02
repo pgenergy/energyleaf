@@ -1,6 +1,5 @@
 import { formatNumber } from "@energyleaf/lib";
 import type { SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
-import {} from "@energyleaf/lib/versioning";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@energyleaf/ui/dialog";
 import { EnergyPeakDeviceAssignmentForm } from "./energy-peak-device-assignment-form";
 

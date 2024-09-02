@@ -1,9 +1,10 @@
 import { classifyAndSaveDevicesForPeaks } from "@/actions/ml";
 import { env } from "@/env.mjs";
-import { log, logError } from "@energyleaf/postgres/query/logs";
-import { findAndMark } from "@energyleaf/postgres/query/peaks";
-import { getAllSensors } from "@energyleaf/postgres/query/sensor";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import { log, logError } from "@energyleaf/postgres/query/logs";
+import { findAndMark, getSequencesBySensor } from "@energyleaf/postgres/query/peaks";
+import { getAllSensors } from "@energyleaf/postgres/query/sensor";
+import { getUserBySensorId } from "@energyleaf/postgres/query/user";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -58,7 +59,7 @@ export const GET = async (req: NextRequest) => {
                                     id: peak.id,
                                     electricity: peak.sensorData.map((data) => ({
                                         timestamp: data.timestamp.toISOString(),
-                                        power: (data.consumption ?? 0) / 1000, // Normally shouldn't be null
+                                        power: data.consumption / 1000,
                                     })),
                                 };
                             }),

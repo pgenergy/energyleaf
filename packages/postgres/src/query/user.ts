@@ -99,7 +99,7 @@ export async function getUsersWhoRecieveSurveyMail(startDate: Date, endDate: Dat
                 or(
                     eq(userExperimentDataTable.experimentStatus, "first_finished"),
                     eq(userExperimentDataTable.experimentStatus, "second_finished"),
-                )
+                ),
             ),
         );
 }
@@ -418,12 +418,12 @@ export async function getTipOfTheDay(userId: string) {
 export async function getUserBySensorId(sensorId: string) {
     const query = await db
         .select({
-            userId: user.id,
-            appVersion: user.appVersion,
+            userId: userTable.id,
+            appVersion: userTable.appVersion,
         })
-        .from(sensor)
-        .innerJoin(user, eq(sensor.userId, user.id))
-        .where(eq(sensor.id, sensorId));
+        .from(sensorTable)
+        .innerJoin(userTable, eq(sensorTable.userId, userTable.id))
+        .where(eq(sensorTable.id, sensorId));
 
     if (query.length === 0) {
         return null;

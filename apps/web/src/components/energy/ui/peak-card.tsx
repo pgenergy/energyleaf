@@ -72,7 +72,7 @@ export default async function PeakCard(props: Props) {
                             </Badge>
                         ))
                     ) : (
-                        <PeakAssignmentDialog value={props.sequence} />
+                        <PeakAssignmentDialog value={props.sequence} userId={user.id} />
                     )}
                 </div>
             </CardContent>

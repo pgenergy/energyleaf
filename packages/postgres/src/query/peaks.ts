@@ -1,8 +1,12 @@
-import { and, asc, between, desc, eq, lte, or, SQLWrapper } from "drizzle-orm";
+import { type SQLWrapper, and, asc, between, desc, eq, lte, or } from "drizzle-orm";
 import { type DB, db, genId } from "..";
-import { deviceTable, deviceToPeakTable } from "../schema/device";
+import { deviceSuggestionsPeakTable, deviceTable, deviceToPeakTable } from "../schema/device";
 import { sensorDataSequenceTable, sensorDataTable, sensorSequenceMarkingLogTable } from "../schema/sensor";
-import type { SensorDataSelectType, SensorDataSequenceSelectType, SensorDataSequenceWithSensorDataSelectType } from "../types/types";
+import type {
+    SensorDataSelectType,
+    SensorDataSequenceSelectType,
+    SensorDataSequenceWithSensorDataSelectType,
+} from "../types/types";
 import { getRawEnergyForSensorInRange } from "./energy-get";
 
 function calculateMedian(values: SensorDataSelectType[]) {
@@ -463,7 +467,10 @@ export async function getSequencesBySensor(sensorId: string, extra?: ExtraQueryS
     const rawData = await db
         .select()
         .from(sensorDataSequenceTable)
-        .innerJoin(sensorDataTable, between(sensorDataTable.timestamp, sensorDataSequenceTable.start, sensorDataSequenceTable.end))
+        .innerJoin(
+            sensorDataTable,
+            between(sensorDataTable.timestamp, sensorDataSequenceTable.start, sensorDataSequenceTable.end),
+        )
         .where(and(...wheres))
         .orderBy(asc(sensorDataSequenceTable.start), asc(sensorDataTable.timestamp));
 
@@ -499,8 +506,8 @@ export async function getDevicesByPeak(sensorDataSequenceId: string) {
 export async function getDeviceSuggestionsByPeak(sensorDataSequenceId: string) {
     return db
         .select()
-        .from(deviceSuggestionsPeak)
-        .where(eq(deviceSuggestionsPeak.sensorDataSequenceId, sensorDataSequenceId));
+        .from(deviceSuggestionsPeakTable)
+        .where(eq(deviceSuggestionsPeakTable.sensorDataSequenceId, sensorDataSequenceId));
 }
 
 export async function getPeaksByDevice(deviceId: number) {
