@@ -9,7 +9,7 @@ import {
     type SensorDeviceSequenceSelectType,
     type UserWithDataSelectType,
 } from "@energyleaf/postgres/types";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, getDay, getMonth, getWeek, getWeekOfMonth, getYear } from "date-fns";
 import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
@@ -326,11 +326,14 @@ export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyReque
 function processDemoDataDate(data: SensorDataSelectType[]): SensorDataSelectType[] {
     const current = new Date();
     const lastEntry = data[data.length - 1];
+    if (!lastEntry) {
+        return [];
+    }
     const dayDiff = differenceInDays(current, lastEntry.timestamp);
 
     const processedData = data.map((item) => {
         const dataDate = new Date(item.timestamp);
-        dataDate.setDate(dataDate.getDate() + dayDiff + 1);
+        dataDate.setDate(dataDate.getDate() + dayDiff);
 
         return {
             ...item,
@@ -357,68 +360,194 @@ export async function getDemoSensorData(
     const queryEnd = new Date(end);
     queryEnd.setDate(queryEnd.getDate() - dayDiff);
 
-    const data = await getEnergyForSensorInRange(queryStart, queryEnd, "demo_sensor", agg, type);
-    return processDemoDataDate(data);
+    let data: SensorDataSelectType[];
+    if (agg === AggregationType.RAW || agg === AggregationType.HOUR || agg === AggregationType.DAY) {
+        data = await getEnergyForSensorInRange(queryStart, queryEnd, "demo_sensor", agg, type);
+    } else {
+        data = await getEnergyForSensorInRange(queryStart, queryEnd, "demo_sensor", AggregationType.DAY, type);
+    }
+    const processedData = processDemoDataDate(data);
+    switch (agg) {
+        case AggregationType.WEEKDAY:
+            return processedData.reduce((acc, cur) => {
+                const week = getDay(cur.timestamp);
+                const index = acc.findIndex((item) => getDay(item.timestamp) === week);
+                if (index !== -1) {
+                    const existing = acc[index];
+                    existing.consumption += cur.consumption;
+
+                    if (!existing.valueOut && cur.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                    } else if (existing.valueOut && cur.valueOut && existing.valueOut < cur.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                    }
+
+                    if (existing.value < cur.value) {
+                        existing.value = cur.value;
+                    }
+
+                    if (!existing.valueCurrent && cur.valueCurrent) {
+                        existing.valueCurrent = cur.valueCurrent;
+                    } else if (existing.valueCurrent && cur.valueCurrent) {
+                        existing.valueCurrent = (existing.valueCurrent + cur.valueCurrent) / 2;
+                    }
+
+                    return acc;
+                }
+
+                acc.push(cur);
+                return acc;
+            }, [] as SensorDataSelectType[]);
+        case AggregationType.CALENDAR_WEEK:
+            return processedData.reduce((acc, cur) => {
+                const week = getWeek(cur.timestamp);
+                const index = acc.findIndex((item) => getWeek(item.timestamp) === week);
+                if (index !== -1) {
+                    const existing = acc[index];
+                    existing.consumption += cur.consumption;
+
+                    if (!existing.valueOut && cur.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                    } else if (existing.valueOut && cur.valueOut && existing.valueOut < cur.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                    }
+
+                    if (existing.value < cur.value) {
+                        existing.value = cur.value;
+                    }
+
+                    if (!existing.valueCurrent && cur.valueCurrent) {
+                        existing.valueCurrent = cur.valueCurrent;
+                    } else if (existing.valueCurrent && cur.valueCurrent) {
+                        existing.valueCurrent = (existing.valueCurrent + cur.valueCurrent) / 2;
+                    }
+
+                    return acc;
+                }
+
+                acc.push(cur);
+                return acc;
+            }, [] as SensorDataSelectType[]);
+        case AggregationType.WEEK:
+            return processedData.reduce((acc, cur) => {
+                const week = getWeekOfMonth(cur.timestamp);
+                const index = acc.findIndex((item) => getWeekOfMonth(item.timestamp) === week);
+                if (index !== -1) {
+                    const existing = acc[index];
+                    existing.consumption += cur.consumption;
+
+                    if (!existing.valueOut && cur.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                    } else if (existing.valueOut && cur.valueOut && existing.valueOut < cur.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                    }
+
+                    if (existing.value < cur.value) {
+                        existing.value = cur.value;
+                    }
+
+                    if (!existing.valueCurrent && cur.valueCurrent) {
+                        existing.valueCurrent = cur.valueCurrent;
+                    } else if (existing.valueCurrent && cur.valueCurrent) {
+                        existing.valueCurrent = (existing.valueCurrent + cur.valueCurrent) / 2;
+                    }
+
+                    return acc;
+                }
+
+                acc.push(cur);
+                return acc;
+            }, [] as SensorDataSelectType[]);
+        case AggregationType.MONTH:
+            return processedData.reduce((acc, cur) => {
+                const week = getMonth(cur.timestamp);
+                const index = acc.findIndex((item) => getMonth(item.timestamp) === week);
+                if (index !== -1) {
+                    const existing = acc[index];
+                    existing.consumption += cur.consumption;
+
+                    if (!existing.valueOut && cur.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                    } else if (existing.valueOut && cur.valueOut && existing.valueOut < cur.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                    }
+
+                    if (existing.value < cur.value) {
+                        existing.value = cur.value;
+                    }
+
+                    if (!existing.valueCurrent && cur.valueCurrent) {
+                        existing.valueCurrent = cur.valueCurrent;
+                    } else if (existing.valueCurrent && cur.valueCurrent) {
+                        existing.valueCurrent = (existing.valueCurrent + cur.valueCurrent) / 2;
+                    }
+
+                    return acc;
+                }
+
+                acc.push(cur);
+                return acc;
+            }, [] as SensorDataSelectType[]);
+        case AggregationType.YEAR:
+            return processedData.reduce((acc, cur) => {
+                const week = getYear(cur.timestamp);
+                const index = acc.findIndex((item) => getYear(item.timestamp) === week);
+                if (index !== -1) {
+                    const existing = acc[index];
+                    existing.consumption += cur.consumption;
+
+                    if (!existing.valueOut && cur.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                    } else if (existing.valueOut && cur.valueOut && existing.valueOut < cur.valueOut) {
+                        existing.valueOut = cur.valueOut;
+                    }
+
+                    if (existing.value < cur.value) {
+                        existing.value = cur.value;
+                    }
+
+                    if (!existing.valueCurrent && cur.valueCurrent) {
+                        existing.valueCurrent = cur.valueCurrent;
+                    } else if (existing.valueCurrent && cur.valueCurrent) {
+                        existing.valueCurrent = (existing.valueCurrent + cur.valueCurrent) / 2;
+                    }
+
+                    return acc;
+                }
+
+                acc.push(cur);
+                return acc;
+            }, [] as SensorDataSelectType[]);
+        default:
+            return processedData;
+    }
 }
 
 export async function getDemoPeaks(start: Date, end: Date): Promise<SensorDataSequenceSelectType[]> {
-    const peaksStart = new Date();
-    peaksStart.setDate(peaksStart.getDate() - 20);
-    peaksStart.setHours(0, 0, 0);
-    const peaksEnd = new Date();
-    peaksEnd.setDate(peaksEnd.getDate() + 1);
-    peaksEnd.setHours(23, 59, 59);
+    const peaksStart = new Date(start);
+    peaksStart.setHours(start.getHours() - 20);
+    const peaksEnd = new Date(end);
     const data = await getDemoSensorData(peaksStart, peaksEnd, AggregationType.RAW);
+    const checkData = await getDemoSensorData(start, end, AggregationType.RAW);
     if (data.length === 0) {
         return [];
     }
 
-    const peaks = findPeaks(data, data);
+    const peaks = findPeaks(data, checkData);
+    console.log(peaks);
     const dataWithoutPeaks = data.filter(
         (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
     );
     const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.consumption, 0) / dataWithoutPeaks.length;
 
-    return peaks
-        .filter((peak) => {
-            // start is before start date and end is between start and end date
-            if (
-                peak.start.getTime() < start.getTime() &&
-                peak.end.getTime() > start.getTime() &&
-                peak.end.getTime() <= end.getTime()
-            ) {
-                return true;
-            }
-
-            // start is between start and end date and end is after end date
-            if (
-                peak.start.getTime() >= start.getTime() &&
-                peak.start.getTime() <= end.getTime() &&
-                peak.end.getTime() > end.getTime()
-            ) {
-                return true;
-            }
-
-            // start and end are between start and end date
-            if (peak.start.getTime() >= start.getTime() && peak.end.getTime() <= end.getTime()) {
-                return true;
-            }
-
-            // start is before and end is after
-            if (peak.start.getTime() < start.getTime() && peak.end.getTime() > end.getTime()) {
-                return true;
-            }
-
-            return false;
-        })
-        .map((peak) => ({
-            id: Buffer.from(peak.start.getTime().toString()).toString("base64"),
-            sensorId: "demo_sensor",
-            start: peak.start,
-            end: peak.end,
-            averagePeakPower: peak.averagePowerIncludingBaseLoad - averageBaseLoad,
-            type: "peak",
-        }));
+    return peaks.map((peak) => ({
+        id: Buffer.from(peak.start.getTime().toString()).toString("base64"),
+        sensorId: "demo_sensor",
+        start: peak.start,
+        end: peak.end,
+        averagePeakPower: peak.averagePowerIncludingBaseLoad - averageBaseLoad,
+        type: "peak",
+    }));
 }
 
 export async function getDemoLastEnergyEntry() {
