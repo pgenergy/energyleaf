@@ -58,21 +58,21 @@ export const peakSuggestionsEvaluationTable = pgView("peak_suggestions_evaluatio
     return qb
         .select({
             sensorDataSequenceId: sensorDataSequenceTable.id,
-            correct: sql<DeviceCategory[]>`
+            correct: sql<DeviceCategory[]>` // Suggestions that were kept by the user
                 ARRAY(
                     SELECT UNNEST(array_remove(array_agg(d.category), NULL))
                     INTERSECT
                     SELECT UNNEST(array_remove(array_agg(device_category), NULL))
                 )
             `.as("correct"),
-            wrong: sql<DeviceCategory[]>`
+            wrong: sql<DeviceCategory[]>` // Suggestions that were not kept by the user
                 ARRAY(
                     SELECT UNNEST(array_remove(array_agg(device_category), NULL))
                     EXCEPT
                     SELECT UNNEST(array_remove(array_agg(d.category), NULL))
                 )
             `.as("wrong"),
-            missing: sql<DeviceCategory[]>`
+            missing: sql<DeviceCategory[]>` // Categories that the user selected but were not suggested
                 ARRAY(
                     SELECT UNNEST(array_remove(array_agg(d.category), NULL))
                     EXCEPT
