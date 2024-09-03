@@ -17,7 +17,7 @@ export const metadata = {
 
 export default async function RecommendationsPage() {
     const { user } = await getSession();
-    if (!user || !fulfills(Versions.support, user?.appVersion)) {
+    if (!user || !fulfills(user?.appVersion, Versions.support)) {
         redirect("/dashboard");
     }
 
