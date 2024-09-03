@@ -10,7 +10,7 @@ export const metadata = {
 export default async function DevicesPage() {
     const { user } = await getSession();
 
-    if (!user || !fulfills(user?.appVersion, Versions.self_reflection)) {
+    if (!user || !fulfills(user.appVersion, Versions.self_reflection)) {
         redirect("/dashboard");
     }
 
