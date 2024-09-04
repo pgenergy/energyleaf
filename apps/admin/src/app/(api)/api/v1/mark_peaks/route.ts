@@ -40,6 +40,7 @@ export const GET = async (req: NextRequest) => {
                         }),
                     });
                 } catch (err) {
+                    console.error(err);
                     waitUntil(logError("mark-peaks/failed", "mark-peaks", "api", { sensorId }, err));
                 }
             };
