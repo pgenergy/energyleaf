@@ -53,10 +53,10 @@ export default async function ReportsPageLayout({ children, params }: Props) {
 
     const toDate = convertTZDate(report.dateTo);
     const fromDate = convertTZDate(report.dateFrom);
-    const reportHasMoreThanOneDay = !(differenceInDays(toDate, fromDate) === 1);
+    const reportHasMoreThanOneDay = !(differenceInDays(convertTZDate(toDate, "client"), convertTZDate(fromDate, "client")) === 1);
     const stringEnd = reportHasMoreThanOneDay
-        ? `${formatDate(convertTZDate(fromDate, "client"))} - ${formatDate(convertTZDate(fromDate, "client"))}`
-        : ` vom ${formatDate(convertTZDate(fromDate, "client"))}`;
+        ? `${formatDate(convertTZDate(report.dateTo, "client"))} - ${formatDate(convertTZDate(report.dateFrom, "client"))}`
+        : ` vom ${formatDate(convertTZDate(report.dateTo, "client"))}`;
 
     const currentIndex = last20Reports.findIndex((r) => r.id === reportId);
     const reportIdBefore = currentIndex < last20Reports.length - 1 ? last20Reports[currentIndex + 1].id : undefined;
