@@ -1,10 +1,6 @@
-import { classifyAndSaveDevicesForPeaks } from "@/actions/ml";
 import { env } from "@/env.mjs";
-import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { log, logError } from "@energyleaf/postgres/query/logs";
-import { findAndMark, getSequencesBySensor } from "@energyleaf/postgres/query/peaks";
 import { getAllSensors } from "@energyleaf/postgres/query/sensor";
-import { getUserBySensorId } from "@energyleaf/postgres/query/user";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -27,63 +23,22 @@ export const GET = async (req: NextRequest) => {
                 numberOfSensors: sensorIds.length,
             }),
         );
+        const processEndpoint = new URL("/api/v1/process_peaks", req.url).toString();
         for (let i = 0; i < sensorIds.length; i++) {
             const sensorId = sensorIds[i];
 
             const fn = async () => {
-                let startDate: Date | null = null;
-                let endDate: Date | null = null;
-                try {
-                    const result = await findAndMark(
-                        {
-                            sensorId,
-                            type: "peak",
-                        },
-                        10,
-                    );
-                    startDate = result.start;
-                    endDate = result.end;
-
-                    if (!startDate || !endDate) {
-                        throw new Error("Start date or end date is undefined.");
-                    }
-
-                    const user = await getUserBySensorId(sensorId);
-
-                    if (user && fulfills(user.appVersion, Versions.support)) {
-                        const peaks = await getSequencesBySensor(sensorId, { start: startDate, end: endDate });
-
-                        const peaksToClassify = await Promise.all(
-                            peaks.map(async (peak) => {
-                                return {
-                                    id: peak.id,
-                                    electricity: peak.sensorData.map((data) => ({
-                                        timestamp: data.timestamp.toISOString(),
-                                        power: data.consumption / 1000,
-                                    })),
-                                };
-                            }),
-                        );
-
-                        waitUntil(classifyAndSaveDevicesForPeaks(peaksToClassify, user.userId));
-                    }
-                } catch (err) {
-                    waitUntil(
-                        logError(
-                            "mark-peaks/user-error",
-                            "mark-peaks",
-                            "api",
-                            {
-                                sensorId,
-                                start: startDate?.toISOString(),
-                                end: (endDate ?? new Date()).toISOString(),
-                            },
-                            new Error(err),
-                        ),
-                    );
-                }
+                fetch(processEndpoint, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        secret: cronSecret,
+                        sensorId,
+                    }),
+                });
             };
-
             promises.push(fn());
         }
 
