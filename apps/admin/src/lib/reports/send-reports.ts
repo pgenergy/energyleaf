@@ -1,20 +1,13 @@
 import { env } from "@/env.mjs";
-import { buildUnsubscribeUrl, convertTZDate } from "@energyleaf/lib";
+import { convertTZDate } from "@energyleaf/lib";
 import type { DailyConsumption, DailyGoalProgress, DailyGoalStatistic, ReportProps } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { sendReport } from "@energyleaf/mail";
 import { getEnergySumForSensorInRange } from "@energyleaf/postgres/query/energy-get";
-import { logError, trackAction } from "@energyleaf/postgres/query/logs";
-import {
-    getLastReportForUser,
-    getUsersWitDueReport,
-    saveReport,
-    updateLastReportTimestamp,
-} from "@energyleaf/postgres/query/report";
+import { getLastReportForUser } from "@energyleaf/postgres/query/report";
 import { getElectricitySensorIdForUser } from "@energyleaf/postgres/query/sensor";
-import { createToken, getUserDataByUserId } from "@energyleaf/postgres/query/user";
+import { getUserDataByUserId } from "@energyleaf/postgres/query/user";
 import type { UserDataSelectType } from "@energyleaf/postgres/types";
-import { waitUntil } from "@vercel/functions";
 import { renderDailyConsumptionChart, renderDailyStatistic } from "./graphs";
 import { renderImage } from "./image";
 
@@ -25,90 +18,6 @@ interface UserReportData {
     email: string;
     receiveMails: boolean;
     interval: number;
-}
-
-export async function createReportsAndSendMails() {
-    const usersWithDueReport: UserReportData[] = await getUsersWitDueReport();
-    waitUntil(trackAction("users/start-due-reports-check", "reports", "api", usersWithDueReport));
-
-    const totalReports = usersWithDueReport.length;
-    let successfulReports = 0;
-
-    for (const userWithDueReport of usersWithDueReport) {
-        let thisReportIsSuccessful = 1;
-
-        let reportProps: ReportProps | null = null;
-        let unsubscribeLink = "";
-        try {
-            reportProps = await createReportData(userWithDueReport);
-            const unsubscribeToken = await createToken(userWithDueReport.userId);
-            unsubscribeLink = buildUnsubscribeUrl({ baseUrl: env.NEXT_PUBLIC_APP_URL, token: unsubscribeToken });
-        } catch (e) {
-            waitUntil(
-                logError(
-                    "create-reports/failed",
-                    "reports",
-                    "api",
-                    { userWithDueReport, reportProps, unsubscribeLink },
-                    e,
-                ),
-            );
-            thisReportIsSuccessful = 0;
-            continue;
-        }
-
-        if (userWithDueReport.receiveMails) {
-            try {
-                await sendReportMail(userWithDueReport, reportProps, unsubscribeLink);
-            } catch (e) {
-                waitUntil(
-                    logError(
-                        "send-reports/failed",
-                        "reports",
-                        "api",
-                        { userWithDueReport, reportProps, unsubscribeLink },
-                        e,
-                    ),
-                );
-                thisReportIsSuccessful = 0;
-                continue;
-            }
-        }
-
-        try {
-            await saveReport(reportProps, userWithDueReport.userId);
-        } catch (e) {
-            waitUntil(
-                logError(
-                    "save-reports-in-db/failed",
-                    "reports",
-                    "api",
-                    { userWithDueReport, reportProps, unsubscribeLink },
-                    e,
-                ),
-            );
-            thisReportIsSuccessful = 0;
-        }
-
-        try {
-            await updateLastReportTimestamp(userWithDueReport.userId);
-        } catch (e) {
-            waitUntil(
-                logError(
-                    "update-last-reports-timestamp/failed",
-                    "reports-creation",
-                    "api",
-                    { userWithDueReport, reportProps, unsubscribeLink },
-                    e,
-                ),
-            );
-            thisReportIsSuccessful = 0;
-        }
-
-        successfulReports += thisReportIsSuccessful;
-    }
-
-    waitUntil(trackAction("users/end-due-reports-check", "reports", "api", { totalReports, successfulReports }));
 }
 
 export async function createReportData(user: UserReportData): Promise<ReportProps> {

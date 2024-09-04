@@ -1,12 +1,20 @@
-export const maxDuration = 300; // This function can run for a maximum of 300 seconds
-
-import { join } from "node:path";
 import { env } from "@/env.mjs";
-import { createReportsAndSendMails } from "@/lib/reports/send-reports";
-import { log, logError } from "@energyleaf/postgres/query/logs";
+import type { Versions } from "@energyleaf/lib/versioning";
+import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
+import { getUsersWitDueReport } from "@energyleaf/postgres/query/report";
 import { waitUntil } from "@vercel/functions";
-import { registerFont } from "canvas";
 import { type NextRequest, NextResponse } from "next/server";
+
+export const maxDuration = 300;
+
+interface UserReportData {
+    userId: string;
+    userName: string;
+    appVersion: Versions;
+    email: string;
+    receiveMails: boolean;
+    interval: number;
+}
 
 export const GET = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
@@ -16,9 +24,33 @@ export const GET = async (req: NextRequest) => {
     }
 
     try {
-        registerFont(join(process.cwd(), "/fonts/ARIAL.TTF"), { family: "Arial" });
+        const usersWithDueReport: UserReportData[] = await getUsersWitDueReport();
+        waitUntil(trackAction("users/start-due-reports-check", "reports", "api", usersWithDueReport));
+        const processEndpoint = new URL("/api/v1/process_reports", req.url).toString();
+        const promises: Promise<void>[] = [];
+        for (const userWithDueReport of usersWithDueReport) {
+            const fn = async () => {
+                try {
+                    await fetch(processEndpoint, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            secret: cronSecret,
+                            user: userWithDueReport,
+                        }),
+                    });
+                } catch (err) {
+                    waitUntil(
+                        logError("reports-creation/failed", "reports-creation", "api", { userWithDueReport }, err),
+                    );
+                }
+            };
 
-        await createReportsAndSendMails();
+            promises.push(fn());
+        }
+        await Promise.allSettled(promises);
         return NextResponse.json({ status: 200, statusMessage: "Reports created and sent" });
     } catch (e) {
         waitUntil(logError("unhandled-crash/failed-in-process-not-finished", "reports-creation", "api", req, e));
