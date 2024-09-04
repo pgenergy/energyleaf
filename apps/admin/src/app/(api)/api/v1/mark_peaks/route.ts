@@ -28,16 +28,20 @@ export const GET = async (req: NextRequest) => {
             const sensorId = sensorIds[i];
 
             const fn = async () => {
-                fetch(processEndpoint, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        secret: cronSecret,
-                        sensorId,
-                    }),
-                });
+                try {
+                    await fetch(processEndpoint, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            secret: cronSecret,
+                            sensorId,
+                        }),
+                    });
+                } catch (err) {
+                    waitUntil(logError("mark-peaks/failed", "mark-peaks", "api", { sensorId }, err));
+                }
             };
             promises.push(fn());
         }
