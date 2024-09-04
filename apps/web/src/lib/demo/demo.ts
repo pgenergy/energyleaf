@@ -534,7 +534,6 @@ export async function getDemoPeaks(start: Date, end: Date): Promise<SensorDataSe
     }
 
     const peaks = findPeaks(data, checkData);
-    console.log(peaks);
     const dataWithoutPeaks = data.filter(
         (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
     );
