@@ -23,7 +23,7 @@ const chartConfig = {
 
 export default function EnergyMiniChart(props: Props) {
     return (
-        <ChartContainer className="max-h-8 min-h-8 w-full" config={chartConfig}>
+        <ChartContainer className="h-8 max-h-8 min-h-8 w-full" config={chartConfig}>
             <AreaChart data={props.data}>
                 <defs>
                     <linearGradient id="consumptionColor" x1="0" y1="0" x2="0" y2="1">

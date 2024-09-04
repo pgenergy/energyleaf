@@ -69,7 +69,7 @@ export default function CostWeekChart(props: Props) {
     }, [fillArray, props.data]);
 
     return (
-        <ChartContainer config={chartConfig} className="max-h-96 min-h-52 w-full">
+        <ChartContainer config={chartConfig} className="h-52 min-h-52 w-full md:h-96">
             <BarChart
                 data={processedData}
                 accessibilityLayer
