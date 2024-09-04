@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env, getUrl } from "@/env.mjs";
 import { log, logError } from "@energyleaf/postgres/query/logs";
 import { getAllSensors } from "@energyleaf/postgres/query/sensor";
 import { waitUntil } from "@vercel/functions";
@@ -23,7 +23,7 @@ export const GET = async (req: NextRequest) => {
                 numberOfSensors: sensorIds.length,
             }),
         );
-        const processEndpoint = new URL("/api/v1/process_peaks", req.url).toString();
+        const processEndpoint = `https://${getUrl(env)}/api/v1/process_peaks`;
         for (let i = 0; i < sensorIds.length; i++) {
             const sensorId = sensorIds[i];
 

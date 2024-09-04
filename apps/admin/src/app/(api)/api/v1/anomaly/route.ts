@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env, getUrl } from "@/env.mjs";
 import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
 import { getUsersWhoRecieveAnomalyMail } from "@energyleaf/postgres/query/user";
 import { waitUntil } from "@vercel/functions";
@@ -18,7 +18,7 @@ export const GET = async (req: NextRequest) => {
         waitUntil(trackAction("all-users/start-anomalies-check", "anomaly-check", "api", { timestamp: now }));
         const userData = await getUsersWhoRecieveAnomalyMail();
         const promises: Promise<void>[] = [];
-        const processEndpoint = new URL("/api/v1/process_anomaly", req.url).toString();
+        const processEndpoint = `https://${getUrl(env)}/api/v1/process_anomaly`;
         for (const data of userData) {
             const { user, sensor } = data;
             const fn = async () => {
