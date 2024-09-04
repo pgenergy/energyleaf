@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+import { env, getUrl } from "@/env.mjs";
 import type { Versions } from "@energyleaf/lib/versioning";
 import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
 import { getUsersWitDueReport } from "@energyleaf/postgres/query/report";
@@ -26,7 +26,7 @@ export const GET = async (req: NextRequest) => {
     try {
         const usersWithDueReport: UserReportData[] = await getUsersWitDueReport();
         waitUntil(trackAction("users/start-due-reports-check", "reports", "api", usersWithDueReport));
-        const processEndpoint = new URL("/api/v1/process_reports", req.url).toString();
+        const processEndpoint = `https://${getUrl(env)}/api/v1/process_reports`;
         const promises: Promise<void>[] = [];
         for (const userWithDueReport of usersWithDueReport) {
             const fn = async () => {
