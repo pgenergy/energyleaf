@@ -14,7 +14,7 @@ const deviceFields = {
     created: timestamp("created", { mode: "date", withTimezone: true }).default(sql`now()`),
     timestamp: timestamp("timestamp", { mode: "date", withTimezone: true })
         .default(sql`now()`)
-        .$onUpdateFn(() => sql`now()`)
+        .$onUpdateFn(() => new Date())
         .notNull(),
     power: numericType("power"),
     isPowerEstimated: boolean("is_power_estimated").default(true).notNull(),

@@ -49,7 +49,7 @@ const fn = async (sensorId: string) => {
                 }),
             );
 
-            classifyAndSaveDevicesForPeaks(peaksToClassify, user.userId);
+            await classifyAndSaveDevicesForPeaks(peaksToClassify, user.userId);
         }
     } catch (err) {
         logError(
