@@ -43,6 +43,13 @@
       "when": 1725301162604,
       "tag": "0005_auto_increment_offset",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1725371134484,
+      "tag": "0006_suggestions_evaluation_view",
+      "breakpoints": true
     }
   ]
 }
