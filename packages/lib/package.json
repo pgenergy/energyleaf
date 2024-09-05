@@ -9,7 +9,8 @@
 		"./errors/sensor": "./src/errors/sensor-errors.ts",
 		"./versioning": "./src/versioning/versions.ts",
 		"./utils/*": "./src/utils/*.ts",
-		"./tips": "./src/recommendations/tips/index.ts"
+		"./tips": "./src/recommendations/tips/index.ts",
+		"./math/*": "./src/math/*.ts"
 	},
 	"scripts": {
 		"clean": "git clean -xdf node_modules"
@@ -18,7 +19,8 @@
 		"@energyleaf/tsconfig": "workspace:^",
 		"@types/jsdom": "^21.1.7",
 		"@types/node": "^22.5.2",
-		"typescript": "^5.5.4"
+		"typescript": "^5.5.4",
+		"mathjs": "^13.1.1"
 	},
 	"dependencies": {
 		"canvas": "^2.11.2",

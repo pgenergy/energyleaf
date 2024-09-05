@@ -1,5 +1,5 @@
+import { estimateDevicePowers } from "@energyleaf/lib/math/device-power-estimation";
 import { type SQLWrapper, and, eq, inArray, sql } from "drizzle-orm";
-import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import { type DB, db } from "../";
 import { deviceHistoryTable, deviceSuggestionsPeakTable, deviceTable, deviceToPeakTable } from "../schema/device";
 import { sensorDataSequenceTable } from "../schema/sensor";
@@ -110,70 +110,21 @@ export async function updatePowerOfDevices(userId: string) {
             });
         };
 
-        const devicesWithFixedPower = removeDuplicatesById(
-            devicesWithPeaks.filter((device) => !device.device.isPowerEstimated).map((device) => device.device),
-        );
-        const deviceIdsWithFixedPower = devicesWithFixedPower.map((device) => device.id);
-
-        const devicesWhosePowerNeedsToBeEstimated = removeDuplicatesById(
-            devicesWithPeaks.filter((device) => device.device.isPowerEstimated).map((device) => device.device),
-        );
-        const deviceIdsWhosePowerNeedsToBeEstimated = devicesWhosePowerNeedsToBeEstimated.map((device) => device.id);
-
-        const peaksWithoutFixedPower = peaks
-            .filter((peak) => !peak.devices.every((device) => deviceIdsWithFixedPower.includes(device)))
-            .map((peak) => {
-                let powerAdjustment = 0;
-                for (const fixedDevice of devicesWithFixedPower) {
-                    if (peak.devices.includes(fixedDevice.id)) {
-                        powerAdjustment += fixedDevice.power ?? 0;
-                    }
-                }
-                return { ...peak, power: peak.power - powerAdjustment }; // Remove power of fixed devices from the peak power.
-            });
-
-        if (peaksWithoutFixedPower.length === 0) {
+        const devices = removeDuplicatesById(devicesWithPeaks.map((device) => device.device));
+        const powerEstimationResult = estimateDevicePowers(devices, peaks);
+        if (!powerEstimationResult) {
             return;
         }
 
-        const math = create(all, {});
+        const { result, rSquared, estimatedDeviceIds } = powerEstimationResult;
 
-        // Extract matrices. A is a matrix of 0s and 1s, where each row corresponds to a peak and each column to a device. b is a matrix of power values for each peak.
-        const A = math.matrix(
-            peaksWithoutFixedPower.map((dp) => {
-                return deviceIdsWhosePowerNeedsToBeEstimated.map((device) => (dp.devices.includes(device) ? 1 : 0));
-            }),
-        );
-        const b = math.matrix(peaksWithoutFixedPower.map((dp) => [dp.power]));
-
-        // Solve the least squares problem: (A^T A) x = A^T b
-        const At = math.transpose(A);
-        const AtA = math.multiply(At, A);
-        const Atb = math.multiply(At, b);
-        const solution = math.lusolve(AtA, Atb);
-
-        // Extract the solution values and save them to the database
-        const result = solution.toArray().map((value, index) => ({
-            [deviceIdsWhosePowerNeedsToBeEstimated[index]]: (value as MathNumericType[])[0],
-        }));
-        for (const deviceId of deviceIdsWhosePowerNeedsToBeEstimated) {
+        for (const deviceId of estimatedDeviceIds) {
             const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
             const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
             const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
             await trx.update(deviceTable).set({ power: correctedPowerEstimation }).where(eq(deviceTable.id, deviceId));
         }
 
-        // Calculate R^2
-        const residuals = math.subtract(b, math.multiply(A, solution));
-        const subtraction = math.subtract(b, math.mean(b)) as Matrix;
-        const SST = math.sum(math.map(subtraction, math.square));
-        const SSR = math.sum(math.map(residuals, math.square));
-        let rSquared: number;
-        if (SST === 0) {
-            rSquared = SSR === 0 ? 1 : 0;
-        } else {
-            rSquared = math.subtract(1, math.divide(SSR, SST)) as number;
-        }
         await trx
             .update(userDataTable)
             .set({ devicePowerEstimationRSquared: rSquared })

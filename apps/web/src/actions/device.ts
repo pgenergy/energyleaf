@@ -45,8 +45,8 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
                 created: new Date(),
                 timestamp: new Date(),
                 userId: "demo",
-                power: null,
-                isPowerEstimated: true,
+                power: data.power,
+                isPowerEstimated: data.isPowerEstimated,
                 weeklyUsageEstimation: null,
             });
             revalidatePath("/devices");
@@ -126,6 +126,8 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
                 ...device,
                 name: data.deviceName,
                 category: data.category,
+                power: data.power,
+                isPowerEstimated: data.isPowerEstimated,
             });
             revalidatePath("/devices");
             return;
