@@ -45,7 +45,8 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
                 created: new Date(),
                 timestamp: new Date(),
                 userId: "demo",
-                powerEstimation: null,
+                power: null,
+                isPowerEstimated: true,
                 weeklyUsageEstimation: null,
             });
             revalidatePath("/devices");

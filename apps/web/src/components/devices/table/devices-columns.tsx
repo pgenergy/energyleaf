@@ -100,7 +100,7 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
         },
     },
     {
-        accessorKey: "powerEstimation",
+        accessorKey: "power",
         header: ({ column }) => {
             return (
                 <Button
@@ -121,7 +121,7 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
             );
         },
         cell: ({ row }) => {
-            const powerValue = row.getValue("powerEstimation");
+            const powerValue = row.getValue("power");
             if (!powerValue) {
                 return (
                     <div
@@ -140,14 +140,14 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
         accessorKey: "categoryReferenceData",
         header: "Vergleich zu Referenz",
         cell: ({ row }) => {
-            const powerEstimation = row.getValue<number | null>("powerEstimation");
-            if (!powerEstimation) {
+            const power = row.getValue<number | null>("power");
+            if (!power) {
                 return null;
             }
 
             const deviceCategoryPower = row.getValue<DeviceCategoryPower>("categoryReferenceData");
             const { minimumPower, maximumPower, linkToSource } = deviceCategoryPower;
-            const state = getCategoryPowerState(deviceCategoryPower, powerEstimation);
+            const state = getCategoryPowerState(deviceCategoryPower, power);
             const stateDeterminationDescription = deviceCategoryPowerStateDescription[state];
 
             return (

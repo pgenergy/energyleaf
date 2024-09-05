@@ -236,21 +236,21 @@ export function getReferencePowerDataForDeviceCategory(deviceCategory: DeviceCat
     }
 }
 
-export function getCategoryPowerState(deviceCategoryPower: DeviceCategoryPower, powerEstimationInWatts: number) {
+export function getCategoryPowerState(deviceCategoryPower: DeviceCategoryPower, powerInWatts: number) {
     const { minimumPower, maximumPower } = deviceCategoryPower;
     const oneThirdBound = minimumPower + (maximumPower - minimumPower) / 3;
     const twoThirdBound = minimumPower + (2 * (maximumPower - minimumPower)) / 3;
 
-    if (powerEstimationInWatts < minimumPower) {
+    if (powerInWatts < minimumPower) {
         return DeviceCategoryPowerState.VERY_FRUGAL;
     }
-    if (powerEstimationInWatts >= minimumPower && powerEstimationInWatts < oneThirdBound) {
+    if (powerInWatts >= minimumPower && powerInWatts < oneThirdBound) {
         return DeviceCategoryPowerState.FRUGAL;
     }
-    if (powerEstimationInWatts >= oneThirdBound && powerEstimationInWatts < twoThirdBound) {
+    if (powerInWatts >= oneThirdBound && powerInWatts < twoThirdBound) {
         return DeviceCategoryPowerState.MEDIUM;
     }
-    if (powerEstimationInWatts >= twoThirdBound && powerEstimationInWatts <= maximumPower) {
+    if (powerInWatts >= twoThirdBound && powerInWatts <= maximumPower) {
         return DeviceCategoryPowerState.ABOVE_AVERAGE;
     }
     return DeviceCategoryPowerState.HIGH;

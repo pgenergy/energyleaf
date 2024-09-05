@@ -1,5 +1,5 @@
 import { eq, sql } from "drizzle-orm";
-import { integer, pgTable, pgView, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, pgView, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { numericType } from "../types/dbTypes";
 import { DeviceCategory } from "../types/types";
 import { sensorDataSequenceTable } from "./sensor";
@@ -16,7 +16,8 @@ const deviceFields = {
         .default(sql`now()`)
         .$onUpdateFn(() => sql`now()`)
         .notNull(),
-    powerEstimation: numericType("power_estimation"),
+    power: numericType("power"),
+    isPowerEstimated: boolean("is_power_estimated").default(true).notNull(),
     weeklyUsageEstimation: numericType("weekly_usage_estimation"),
 };
 

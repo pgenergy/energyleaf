@@ -132,10 +132,7 @@ export async function updatePowerOfDevices(userId: string) {
             const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
             const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
             const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
-            await trx
-                .update(deviceTable)
-                .set({ powerEstimation: correctedPowerEstimation })
-                .where(eq(deviceTable.id, deviceId));
+            await trx.update(deviceTable).set({ power: correctedPowerEstimation }).where(eq(deviceTable.id, deviceId));
         }
 
         // Calculate R^2
@@ -174,7 +171,8 @@ async function copyToHistoryTable(
         created: Date | null;
         timestamp: Date;
         category: string;
-        powerEstimation: number | null;
+        power: number | null;
+        isPowerEstimated: boolean;
     },
 ) {
     await trx.insert(deviceHistoryTable).values({
@@ -184,7 +182,8 @@ async function copyToHistoryTable(
         created: device.created,
         timestamp: device.timestamp,
         category: device.category,
-        powerEstimation: device.powerEstimation,
+        power: device.power,
+        isPowerEstimated: device.isPowerEstimated,
     });
 }
 

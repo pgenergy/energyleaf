@@ -291,7 +291,7 @@ export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyReque
         const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
         addOrUpdateDemoDeviceToCookieStore(cookies, {
             ...device,
-            powerEstimation: correctedPowerEstimation,
+            power: correctedPowerEstimation,
         });
     }
 

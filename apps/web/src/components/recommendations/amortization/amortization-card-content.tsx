@@ -88,13 +88,13 @@ export default function AmortizationCardContent({ devices, workingPrice, powerEs
                 const referencePower = referenceData.averagePower;
                 const referencePurchasePrice = referenceData.purchasePrice;
                 const weeklyUsage = device.weeklyUsage ?? 0;
-                const powerEstimation = device.powerEstimation ?? 0;
+                const power = device.power ?? 0;
 
                 acc.totalAcquisitionCostInEuros += referencePurchasePrice;
-                acc.totalWeeklyConsumptionBeforeInWatt += powerEstimation * weeklyUsage;
+                acc.totalWeeklyConsumptionBeforeInWatt += power * weeklyUsage;
                 acc.totalWeeklyConsumptionAfterInWatt += referencePower * weeklyUsage;
-                if (powerEstimation !== 0) {
-                    acc.totalSavedPowerConsumptionInKWh += 1 - referencePower / powerEstimation;
+                if (power !== 0) {
+                    acc.totalSavedPowerConsumptionInKWh += 1 - referencePower / power;
                 }
 
                 return acc;
