@@ -79,7 +79,7 @@ export async function updatePowerOfDevices(userId: string) {
             .leftJoin(sensorDataSequenceTable, eq(sensorDataSequenceTable.id, deviceToPeakTable.sensorDataSequenceId))
             .where(eq(deviceTable.userId, userId));
 
-        const devices = Array.from(new Set(devicesWithPeaks.map((device) => device.device.id)));
+        // const devices = Array.from(new Set(devicesWithPeaks.map((device) => device.device.id)));
         const flattenPeak = devicesWithPeaks
             .filter((x) => x.device_to_peak && x.sensor_data_sequence)
             .map((device) => ({
@@ -101,16 +101,50 @@ export async function updatePowerOfDevices(userId: string) {
             ),
         );
 
+        const removeDuplicatesById = (devices: DeviceSelectType[]) => {
+            const seen = new Set();
+            return devices.filter((device) => {
+                const isDuplicate = seen.has(device.id);
+                seen.add(device.id);
+                return !isDuplicate;
+            });
+        };
+
+        const devicesWithFixedPower = removeDuplicatesById(
+            devicesWithPeaks.filter((device) => !device.device.isPowerEstimated).map((device) => device.device),
+        );
+        const deviceIdsWithFixedPower = devicesWithFixedPower.map((device) => device.id);
+
+        const devicesWhosePowerNeedsToBeEstimated = removeDuplicatesById(
+            devicesWithPeaks.filter((device) => device.device.isPowerEstimated).map((device) => device.device),
+        );
+        const deviceIdsWhosePowerNeedsToBeEstimated = devicesWhosePowerNeedsToBeEstimated.map((device) => device.id);
+
+        const peaksWithoutFixedPower = peaks
+            .filter((peak) => !peak.devices.every((device) => deviceIdsWithFixedPower.includes(device)))
+            .map((peak) => {
+                let powerAdjustment = 0;
+                for (const fixedDevice of devicesWithFixedPower) {
+                    if (peak.devices.includes(fixedDevice.id)) {
+                        powerAdjustment += fixedDevice.power ?? 0;
+                    }
+                }
+                return { ...peak, power: peak.power - powerAdjustment }; // Remove power of fixed devices from the peak power.
+            });
+
+        if (peaksWithoutFixedPower.length === 0) {
+            return;
+        }
+
         const math = create(all, {});
 
         // Extract matrices. A is a matrix of 0s and 1s, where each row corresponds to a peak and each column to a device. b is a matrix of power values for each peak.
         const A = math.matrix(
-            peaks.map((dp) => {
-                const row = devices.map((device) => (dp.devices.includes(device) ? 1 : 0));
-                return row;
+            peaksWithoutFixedPower.map((dp) => {
+                return deviceIdsWhosePowerNeedsToBeEstimated.map((device) => (dp.devices.includes(device) ? 1 : 0));
             }),
         );
-        const b = math.matrix(peaks.map((dp) => [dp.power]));
+        const b = math.matrix(peaksWithoutFixedPower.map((dp) => [dp.power]));
 
         // Solve the least squares problem: (A^T A) x = A^T b
         const At = math.transpose(A);
@@ -119,10 +153,10 @@ export async function updatePowerOfDevices(userId: string) {
         const solution = math.lusolve(AtA, Atb);
 
         // Extract the solution values and save them to the database
-        const result = solution
-            .toArray()
-            .map((value, index) => ({ [devices[index]]: (value as MathNumericType[])[0] }));
-        for (const deviceId of devices) {
+        const result = solution.toArray().map((value, index) => ({
+            [deviceIdsWhosePowerNeedsToBeEstimated[index]]: (value as MathNumericType[])[0],
+        }));
+        for (const deviceId of deviceIdsWhosePowerNeedsToBeEstimated) {
             const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
             const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
             const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
