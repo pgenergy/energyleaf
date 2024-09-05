@@ -51,7 +51,7 @@ export default function AmortizationCardContent({ devices, workingPrice, powerEs
         return (
             <div className="flex w-full flex-col items-center justify-center gap-2 text-center text-muted-foreground">
                 Die geschätzten Leistungen der Geräte sind zu ungenau für eine Amortisationsrechnung. Bitte weisen Sie
-                weitere Geräte zu Peaks zu, um die Amortisationsrechnung nutzen zu können.
+                weitere Geräte zu Verbrauchsausschlägen zu, um die Amortisationsrechnung nutzen zu können.
             </div>
         );
     }

@@ -71,8 +71,8 @@ export default function AmortizationSelectItem({ device, isSelected, onClick, on
                                 <InfoIcon className="h-6 w-6" />
                             </PopoverTrigger>
                             <PopoverContent>
-                                Dieser Wert wurde anhand Ihrer Peaks geschätzt. Sie können ihn hier für die
-                                Amortisationsrechnung anpassen.
+                                Dieser Wert wurde anhand Ihrer Verbrauchsausschläge geschätzt. Sie können ihn hier für
+                                die Amortisationsrechnung anpassen.
                             </PopoverContent>
                         </Popover>
                     </div>

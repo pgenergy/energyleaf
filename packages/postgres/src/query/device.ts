@@ -4,7 +4,7 @@ import { type DB, db } from "../";
 import { deviceHistoryTable, deviceSuggestionsPeakTable, deviceTable, deviceToPeakTable } from "../schema/device";
 import { sensorDataSequenceTable } from "../schema/sensor";
 import { userDataTable } from "../schema/user";
-import type { DeviceCategory } from "../types/types";
+import type { DeviceCategory, DeviceSelectType } from "../types/types";
 
 export async function getDevicesByUser(userId: string, search?: string) {
     const conditions: SQLWrapper[] = [eq(deviceTable.userId, userId)];
@@ -50,17 +50,11 @@ async function createDeviceInternal(data: CreateDeviceType[], trx: DB) {
         .returning();
 }
 
-export async function updateDevice(id: number, data: Partial<CreateDeviceType>) {
+export async function updateDevice(id: number, data: Partial<DeviceSelectType>) {
     await db.transaction(async (trx) => {
         const deviceToUpdate = await getDeviceById(trx, id);
         await copyToHistoryTable(trx, deviceToUpdate);
-        await trx
-            .update(deviceTable)
-            .set({
-                name: data.name,
-                category: data.category,
-            })
-            .where(eq(deviceTable.id, id));
+        await trx.update(deviceTable).set(data).where(eq(deviceTable.id, id));
     });
 }
 

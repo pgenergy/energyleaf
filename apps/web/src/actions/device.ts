@@ -142,6 +142,8 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
                 name: data.deviceName,
                 userId: userId,
                 category: data.category,
+                power: data.power,
+                isPowerEstimated: data.isPowerEstimated,
             });
             waitUntil(trackAction("device/update", "update-device", "web", { data, deviceId, session }));
         } catch (error) {

@@ -126,7 +126,7 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
                 return (
                     <div
                         className="flex flex-row items-center"
-                        title="Die Leistung dieses Gerätes kann noch nicht geschätzt werden. Bitte markieren Sie weitere Peaks, um eine Schätzung zu erhalten."
+                        title="Die Leistung dieses Gerätes kann noch nicht geschätzt werden. Bitte markieren Sie weitere Verbrauchsausschläge, um eine Schätzung zu erhalten."
                     >
                         <CircleAlert className="mr-2 h-5 w-5 text-warning" />
                         Nicht verfügbar

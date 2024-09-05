@@ -91,7 +91,7 @@ export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInterac
 
     function onSubmit(data: z.infer<typeof peakSchema>) {
         toast.promise(addOrUpdatePeakCallback(data), {
-            loading: "Peak zuweisen...",
+            loading: "Verbrauchsausschlag zuweisen...",
             success: "Erfolgreich zugewiesen",
             error: (err: Error) => err.message,
         });
