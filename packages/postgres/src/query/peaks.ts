@@ -1,4 +1,4 @@
-import { type SQLWrapper, and, asc, between, desc, eq, lte, or } from "drizzle-orm";
+import { type SQLWrapper, and, asc, between, desc, eq, lte, max, or } from "drizzle-orm";
 import { type DB, db, genId } from "..";
 import { deviceSuggestionsPeakTable, deviceTable, deviceToPeakTable } from "../schema/device";
 import { sensorDataSequenceTable, sensorDataTable, sensorSequenceMarkingLogTable } from "../schema/sensor";
@@ -320,9 +320,18 @@ async function findAndMarkInPeriod(
 async function getSequenceMarkingPeriod(sensorId: string, type: "peak" | "anomaly", db: DB) {
     const end = new Date();
 
+    const lastSequenceEnd = await getEndOfLastSequence(sensorId, type, db);
+
     const lastMarking = await getTimeOfLastMarking(sensorId, type, db);
     if (lastMarking) {
-        const start = new Date(lastMarking);
+        const laterDate = lastSequenceEnd && lastSequenceEnd > lastMarking ? lastSequenceEnd : lastMarking;
+        const start = new Date(laterDate);
+        start.setMilliseconds(start.getMilliseconds() + 1); // Add one milliseconds so that the periods don't overlap
+        return { start: start <= end ? start : end, end };
+    }
+
+    if (lastSequenceEnd) {
+        const start = new Date(lastSequenceEnd);
         start.setMilliseconds(start.getMilliseconds() + 1); // Add one milliseconds so that the periods don't overlap
         return { start: start <= end ? start : end, end };
     }
@@ -346,14 +355,17 @@ async function getTimeOfLastMarking(sensorId: string, type: "peak" | "anomaly", 
         return markingLog[0].lastMarked;
     }
 
+    return null;
+}
+
+async function getEndOfLastSequence(sensorId: string, type: "peak" | "anomaly", db: DB) {
     const lastSequence = await db
-        .select()
+        .select({ time: max(sensorDataSequenceTable.end) })
         .from(sensorDataSequenceTable)
         .where(and(eq(sensorDataSequenceTable.sensorId, sensorId), eq(sensorDataSequenceTable.type, type)))
-        .orderBy(desc(sensorDataSequenceTable.end))
         .limit(1);
     if (lastSequence.length > 0) {
-        return lastSequence[0].end;
+        return lastSequence[0].time;
     }
 
     return null;
