@@ -362,8 +362,7 @@ async function getEndOfLastSequence(sensorId: string, type: "peak" | "anomaly", 
     const lastSequence = await db
         .select({ time: max(sensorDataSequenceTable.end) })
         .from(sensorDataSequenceTable)
-        .where(and(eq(sensorDataSequenceTable.sensorId, sensorId), eq(sensorDataSequenceTable.type, type)))
-        .limit(1);
+        .where(and(eq(sensorDataSequenceTable.sensorId, sensorId), eq(sensorDataSequenceTable.type, type)));
     if (lastSequence.length > 0) {
         return lastSequence[0].time;
     }
