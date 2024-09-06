@@ -20,6 +20,7 @@ import {
     ExternalLink,
     Info,
     LightbulbIcon,
+    PinIcon,
 } from "lucide-react";
 import { Fragment } from "react";
 import DeviceCategoryIcon from "../device-category-icon";
@@ -109,7 +110,7 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
                     }}
                     variant="ghost"
                 >
-                    Geschätzte Leistung
+                    Leistung
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
                     ) : column.getIsSorted() === "desc" ? (
@@ -122,6 +123,8 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
         },
         cell: ({ row }) => {
             const powerValue = row.getValue("power");
+            const isEstimated = row.original.isPowerEstimated;
+
             if (!powerValue) {
                 return (
                     <div
@@ -133,7 +136,23 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
                     </div>
                 );
             }
-            return `${formatNumber(Number(powerValue))} Watt`;
+
+            return (
+                <div className="flex flex-row items-center">
+                    {formatNumber(Number(powerValue))} Watt
+                    {!isEstimated && (
+                        <Popover>
+                            <PopoverTrigger>
+                                <PinIcon className="ml-2 h-5 w-5" />
+                            </PopoverTrigger>
+                            <PopoverContent>
+                                Sie haben die Leistung dieses Gerätes manuell festgelegt, sodass sie nicht mehr
+                                geschätzt wird.
+                            </PopoverContent>
+                        </Popover>
+                    )}
+                </div>
+            );
         },
     },
     {
