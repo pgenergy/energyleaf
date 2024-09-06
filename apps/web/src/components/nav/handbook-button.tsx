@@ -1,6 +1,6 @@
 "use client";
 
-import { BookIcon } from "lucide-react";
+import { BookOpenTextIcon } from "lucide-react";
 
 interface Props {
     endpoint: string | null;
@@ -13,7 +13,7 @@ export default function HandbookButton({ endpoint }: Props) {
 
     return (
         <a href={endpoint}>
-            <BookIcon className="h-6 w-6" />
+            <BookOpenTextIcon className="h-6 w-6" />
         </a>
     );
 }
