@@ -1,6 +1,5 @@
 import { AggregationType, type ReportProps } from "@energyleaf/lib";
 import { getEnergyForSensorInRange, getEnergyLastEntry } from "@energyleaf/postgres/query/energy-get";
-import { findPeaks } from "@energyleaf/postgres/query/peaks";
 import {
     DeviceCategory,
     type DeviceSelectType,
@@ -16,6 +15,7 @@ import { cookies } from "next/headers";
 import { getActionSession } from "../auth/auth.action";
 import "server-only";
 import { estimateDevicePowers } from "@energyleaf/lib/math/device-power-estimation";
+import { getSequencesBySensor } from "@energyleaf/postgres/query/peaks";
 
 export async function isDemoUser() {
     const { session, user } = await getActionSession();
@@ -132,6 +132,7 @@ export function addOrUpdateDemoDeviceToCookieStore(cookies: ReadonlyRequestCooki
             return d;
         });
         cookies.set("demo_devices", JSON.stringify(newDevices));
+        console.log("New cookie value", getDemoDevicesCookieStore(cookies));
         return;
     }
     const newDevices = [...devices, device];
@@ -495,29 +496,30 @@ export async function getDemoSensorData(
 }
 
 export async function getDemoPeaks(start: Date, end: Date): Promise<SensorDataSequenceSelectType[]> {
-    const peaksStart = new Date(start);
-    peaksStart.setHours(start.getHours() - 20);
-    const peaksEnd = new Date(end);
-    const data = await getDemoSensorData(peaksStart, peaksEnd, AggregationType.RAW);
-    const checkData = await getDemoSensorData(start, end, AggregationType.RAW);
-    if (data.length === 0) {
+    const lastEntry = await getDemoLastEnergyEntry();
+    if (!lastEntry) {
         return [];
     }
+    const dayDiff = differenceInDays(lastEntry.timestamp, new Date()) - 1;
+    const queryStart = new Date(start);
+    queryStart.setDate(queryStart.getDate() + dayDiff);
+    const queryEnd = new Date(end);
+    queryEnd.setDate(queryEnd.getDate() + dayDiff);
 
-    const peaks = findPeaks(data, checkData);
-    const dataWithoutPeaks = data.filter(
-        (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
-    );
-    const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.consumption, 0) / dataWithoutPeaks.length;
+    const queryData = await getSequencesBySensor("demo_sensor", { start: queryStart, end: queryEnd });
+    return queryData.map((item) => {
+        const seqDayDiff = differenceInDays(new Date(), item.start);
+        const sequenceStart = new Date(item.start);
+        sequenceStart.setDate(sequenceStart.getDate() + seqDayDiff);
+        const sequenceEnd = new Date(item.end);
+        sequenceEnd.setDate(sequenceEnd.getDate() + seqDayDiff);
 
-    return peaks.map((peak) => ({
-        id: Buffer.from(peak.start.getTime().toString()).toString("base64"),
-        sensorId: "demo_sensor",
-        start: peak.start,
-        end: peak.end,
-        averagePeakPower: peak.averagePowerIncludingBaseLoad - averageBaseLoad,
-        type: "peak",
-    }));
+        return {
+            ...item,
+            start: sequenceStart,
+            end: sequenceEnd,
+        };
+    });
 }
 
 export async function getDemoLastEnergyEntry() {
