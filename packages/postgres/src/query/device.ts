@@ -79,7 +79,6 @@ export async function updatePowerOfDevices(userId: string) {
             .leftJoin(sensorDataSequenceTable, eq(sensorDataSequenceTable.id, deviceToPeakTable.sensorDataSequenceId))
             .where(eq(deviceTable.userId, userId));
 
-        // const devices = Array.from(new Set(devicesWithPeaks.map((device) => device.device.id)));
         const flattenPeak = devicesWithPeaks
             .filter((x) => x.device_to_peak && x.sensor_data_sequence)
             .map((device) => ({
