@@ -1,8 +1,10 @@
-import { env } from "@/env.mjs";
-import { findAndMark, getAllSensors, log, logError } from "@energyleaf/db/query";
-import type { SensorDataSequenceType } from "@energyleaf/db/types";
+import { env, getUrl } from "@/env.mjs";
+import { log, logError } from "@energyleaf/postgres/query/logs";
+import { getAllSensors } from "@energyleaf/postgres/query/sensor";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
+
+export const maxDuration = 300;
 
 export const GET = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
@@ -11,68 +13,43 @@ export const GET = async (req: NextRequest) => {
         return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
     }
 
-    const startDate = new Date();
-    const endDate = new Date();
-
-    //TODO PGE-218: Safe last end date in db and load it again as start date here
-
-    // shift date back by half an hour to not mark and perform on newest values
-    if (startDate.getMinutes() >= 30) {
-        startDate.setHours(startDate.getHours() - 1, 30, 0, 0);
-        endDate.setHours(endDate.getHours() - 1, 59, 59, 999);
-    } else {
-        startDate.setHours(startDate.getHours() - 1, 0, 0, 0);
-        endDate.setHours(endDate.getHours() - 1, 29, 59, 59);
-    }
-
     try {
         const sensors = await getAllSensors(true);
         const sensorIds = sensors.map((d) => d.id);
 
-        const promises: Promise<SensorDataSequenceType[]>[] = [];
+        const promises: Promise<void>[] = [];
         waitUntil(
             log("mark-peaks/length", "info", "mark-peaks", "api", {
                 numberOfSensors: sensorIds.length,
             }),
         );
+        const processEndpoint = `https://${getUrl(env)}/api/v1/process_peaks`;
         for (let i = 0; i < sensorIds.length; i++) {
             const sensorId = sensorIds[i];
 
-            promises.push(
-                findAndMark(
-                    {
-                        sensorId,
-                        start: startDate,
-                        end: endDate,
-                        type: "peak",
-                    },
-                    10,
-                ),
-            );
+            const fn = async () => {
+                try {
+                    await fetch(processEndpoint, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            secret: cronSecret,
+                            sensorId,
+                        }),
+                    });
+                } catch (err) {
+                    console.error(err);
+                    waitUntil(logError("mark-peaks/failed", "mark-peaks", "api", { sensorId }, err));
+                }
+            };
+            promises.push(fn());
         }
 
         // use allSettled so we dont abort if one fails
-        const results = await Promise.allSettled(promises);
-        for (let i = 0; i < results.length; i++) {
-            const result = results[i];
-            const sensorId = sensorIds[i];
-            if (result.status === "rejected") {
-                waitUntil(
-                    logError(
-                        "mark-peaks/user-error",
-                        "mark-peaks",
-                        "api",
-                        {
-                            sensorId,
-                            start: startDate.toISOString(),
-                            end: endDate.toISOString(),
-                        },
-                        new Error(result.reason),
-                    ),
-                );
-            }
-        }
-        return NextResponse.json({ statusMessage: "Peaks successfully marked." });
+        await Promise.allSettled(promises);
+        return NextResponse.json({ statusMessage: "Peaks successfully marked and classified where applicable." });
     } catch (err) {
         waitUntil(
             logError(
@@ -80,8 +57,7 @@ export const GET = async (req: NextRequest) => {
                 "mark-peaks",
                 "api",
                 {
-                    startDate,
-                    endDate,
+                    time: new Date().toISOString(),
                     req,
                 },
                 err,

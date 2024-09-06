@@ -9,6 +9,7 @@ import { Spinner } from "./spinner";
 type Option = {
     value: string;
     label: string;
+    icon?: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
 };
 
 interface Props<T extends Option> {
@@ -67,24 +68,30 @@ export function MultiSelect<T extends Option>({
         [selected, onSelectedChange],
     );
 
-    const handleKeyDown = React.useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-        const input = inputRef.current;
-        if (input) {
-            if (e.key === "Delete" || e.key === "Backspace") {
-                if (input.value === "") {
-                    setSelected((prev) => {
-                        const newSelected = [...prev];
+    const handleKeyDown = React.useCallback(
+        (e: React.KeyboardEvent<HTMLDivElement>) => {
+            const input = inputRef.current;
+            if (input) {
+                if (e.key === "Delete" || e.key === "Backspace") {
+                    if (input.value === "") {
+                        const newSelected = [...selected];
                         newSelected.pop();
-                        return newSelected;
-                    });
+                        setSelected((prev) => {
+                            const newSelected = [...prev];
+                            newSelected.pop();
+                            return newSelected;
+                        });
+                        onSelectedChange(newSelected);
+                    }
+                }
+                // This is not a default behaviour of the <input /> field
+                if (e.key === "Escape") {
+                    input.blur();
                 }
             }
-            // This is not a default behaviour of the <input /> field
-            if (e.key === "Escape") {
-                input.blur();
-            }
-        }
-    }, []);
+        },
+        [onSelectedChange, selected],
+    );
 
     const selectables = options?.filter((option) => !selected.some((d) => d.value === option.value));
 
@@ -95,6 +102,7 @@ export function MultiSelect<T extends Option>({
                     {selected.map((option) => {
                         return (
                             <Badge key={option.value} variant="secondary">
+                                {option.icon ? option.icon({ className: "h-4 w-4 mr-2" }) : null}
                                 {option.label}
                                 <button
                                     type="button"
@@ -155,9 +163,10 @@ export function MultiSelect<T extends Option>({
                                                     e.preventDefault();
                                                 }
                                             }}
-                                            className={"cursor-pointer"}
+                                            className={"flex cursor-pointer flex-row justify-between"}
                                         >
                                             {option.label}
+                                            {option.icon ? option.icon({ className: "h-4 w-4 mr-2" }) : null}
                                         </CommandItem>
                                     );
                                 })}

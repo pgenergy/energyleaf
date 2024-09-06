@@ -1,11 +1,9 @@
-import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor, getSensorDataSequences } from "@/query/energy";
 import { getUserData } from "@/query/user";
-import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
+import type { SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { redirect } from "next/navigation";
 import DashboardEnergyAggregation from "./energy-aggregation-option";
 import EnergyConsumptionCardChart from "./energy-consumption-card-chart";
 
@@ -13,27 +11,28 @@ interface Props {
     startDate: Date;
     endDate: Date;
     aggregationType: string | undefined;
+    userId: string;
+    appVersion: number;
 }
 
-export default async function EnergyConsumptionCard({ startDate, endDate, aggregationType }: Props) {
-    const { user } = await getSession();
-
-    if (!user) {
-        redirect("/");
-    }
-
-    const userId = user.id;
+export default async function EnergyConsumptionCard({
+    startDate,
+    endDate,
+    aggregationType,
+    userId,
+    appVersion,
+}: Props) {
     const sensorId = await getElectricitySensorIdForUser(userId);
 
     if (!sensorId) {
         return (
             <Card className="w-full">
                 <CardHeader>
-                    <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
+                    <CardTitle>Verbrauch, Leistung, Einspeisung und Kosten</CardTitle>
                     <CardDescription>Ihr Sensor konnte nicht gefunden werden.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1 className="text-center font-bold text-2xl text-primary">Keine Sensoren gefunden</h1>
+                    <p className="text-center font-bold font-mono">Keine Sensoren gefunden</p>
                 </CardContent>
             </Card>
         );
@@ -44,27 +43,28 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
         aggregation = AggregationType[aggregationType.toUpperCase() as keyof typeof AggregationType];
     }
     const hasAggregation = aggregation !== AggregationType.RAW;
-    const data = await getEnergyDataForSensor(startDate, endDate, sensorId, aggregation);
-    const showPeaks = fulfills(user.appVersion, Versions.self_reflection) && !hasAggregation;
+    const data = await getEnergyDataForSensor(startDate.toISOString(), endDate.toISOString(), sensorId, aggregation);
 
-    const userData = await getUserData(user.id);
+    const showPeaks = fulfills(appVersion, Versions.self_reflection) && !hasAggregation;
+    const peaks: SensorDataSequenceSelectType[] = showPeaks
+        ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
+        : [];
+
+    const userData = await getUserData(userId);
     const workingPrice = userData?.workingPrice ?? undefined;
     const cost =
         workingPrice && userData?.basePrice
             ? (userData.basePrice / (30 * 24 * 60 * 60)) * 15 + workingPrice
             : workingPrice;
-    const peaks: SensorDataSequenceType[] = showPeaks
-        ? await getSensorDataSequences(sensorId, { start: startDate, end: endDate })
-        : [];
 
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-col justify-start">
-                <CardTitle>Verbrauch / Leistung / Einspeisung</CardTitle>
+                <CardTitle>Verbrauch, Leistung, Einspeisung und Kosten</CardTitle>
                 <CardDescription>Im ausgewählten Zeitraum</CardDescription>
-                {user.id !== "demo" ? (
+                {userId !== "demo" ? (
                     <div className="flex flex-row gap-4">
-                        <DashboardEnergyAggregation selected={aggregation} />
+                        <DashboardEnergyAggregation selected={aggregation} startDate={startDate} endDate={endDate} />
                     </div>
                 ) : null}
             </CardHeader>
@@ -80,6 +80,7 @@ export default async function EnergyConsumptionCard({ startDate, endDate, aggreg
                             peaks={peaks}
                             aggregation={aggregation}
                             userId={userId}
+                            appVersion={appVersion}
                             cost={cost}
                             showPeaks={showPeaks}
                         />

@@ -5,17 +5,6 @@ import { getActionSession } from "@/lib/auth/auth.action";
 import { lucia } from "@/lib/auth/auth.config";
 import { getUserDataCookieStoreDefaults, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
-import {
-    type CreateUserType,
-    createUser,
-    getUserById,
-    getUserByMail,
-    logError,
-    trackAction,
-    updateMailSettings as updateMailSettingsDb,
-    updatePassword,
-} from "@energyleaf/db/query";
-import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import {
     sendAccountCreatedEmail,
@@ -23,6 +12,16 @@ import {
     sendPasswordChangedEmail,
     sendPasswordResetEmail,
 } from "@energyleaf/mail";
+import { logError, trackAction } from "@energyleaf/postgres/query/logs";
+import { updateMailSettings as updateMailSettingsDb } from "@energyleaf/postgres/query/mail";
+import {
+    type CreateUserType,
+    createUser,
+    getUserById,
+    getUserByMail,
+    updatePassword,
+} from "@energyleaf/postgres/query/user";
+import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/postgres/types";
 import { put } from "@energyleaf/storage";
 import * as jose from "jose";
 import type { Session } from "lucia";
@@ -31,7 +30,7 @@ import { redirect } from "next/navigation";
 import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
 import type { mailSettingsSchema } from "@/lib/schema/profile";
-import type { userData } from "@energyleaf/db/schema";
+import type { userDataTable } from "@energyleaf/postgres/schema/user";
 import { waitUntil } from "@vercel/functions";
 import type { z } from "zod";
 
@@ -55,7 +54,7 @@ export async function createAccount(data: FormData) {
     const pin = (data.get("pin") as string) === "true";
     const electricityMeterType = data.get(
         "electricityMeterType",
-    ) as (typeof userData.electricityMeterType.enumValues)[number];
+    ) as (typeof userDataTable.electricityMeterType.enumValues)[number];
     const electricityMeterNumber = data.get("electricityMeterNumber") as string;
     const participation = (data.get("participation") as string) === "true";
 
@@ -162,8 +161,8 @@ export async function createAccount(data: FormData) {
             firstname,
             address,
             lastname,
-            phone,
-            comment,
+            phone: phone,
+            comment: comment,
             hasPower,
             hasWifi,
             email: mail,
@@ -345,10 +344,10 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
 /**
  * Server action to sign a user in
  */
-export async function signInAction(email: string, password: string) {
+export async function signInAction(email: string, password: string, next?: string) {
     const { session } = await getActionSession();
     if (session) {
-        await handleSignIn(session, null);
+        await handleSignIn(session, null, next);
     }
 
     const user = await getUserByMail(email);
@@ -403,11 +402,11 @@ export async function signInAction(email: string, password: string) {
     const newSession = await lucia.createSession(user.id, {});
     const cookie = lucia.createSessionCookie(newSession.id);
     cookies().set(cookie.name, cookie.value, cookie.attributes);
-    await handleSignIn(newSession, user);
+    await handleSignIn(newSession, user, next);
     waitUntil(trackAction("user-signed-in", "sign-in", "web", { email, userId: user.id }));
 }
 
-async function handleSignIn(session: Session, user: UserSelectType | null) {
+async function handleSignIn(session: Session, user: UserSelectType | null, next?: string) {
     let userData = user;
     if (!userData) {
         userData = await getUserById(session.userId);
@@ -418,7 +417,11 @@ async function handleSignIn(session: Session, user: UserSelectType | null) {
         redirect("/onboarding");
     }
 
-    redirect("/dashboard");
+    if (next) {
+        redirect(next);
+    } else {
+        redirect("/dashboard");
+    }
 }
 
 /**
@@ -472,7 +475,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
     const { user, session } = await getActionSession();
     if (!id) {
         if (!user) {
-            waitUntil(trackAction("user/not-logged-in", "update-report-config", "web", { data, session }));
+            waitUntil(trackAction("user/not-logged-in", "update-reports-config", "web", { data, session }));
             return {
                 success: false,
                 message: "Nicht eingeloggt.",
@@ -484,7 +487,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
 
     const dbUser = await getUserById(id);
     if (!dbUser) {
-        waitUntil(trackAction("user/not-found-in-db", "update-report-config", "web", { data, session }));
+        waitUntil(trackAction("user/not-found-in-db", "update-reports-config", "web", { data, session }));
         return {
             success: false,
             message: "Nutzer nicht gefunden.",
@@ -492,7 +495,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
     }
 
     try {
-        waitUntil(trackAction("report-config-updated", "update-report-config", "web", { data, session }));
+        waitUntil(trackAction("reports-config-updated", "update-reports-config", "web", { data, session }));
         await updateMailSettingsDb(
             {
                 reportConfig: {
@@ -507,7 +510,7 @@ export async function updateMailSettings(data: z.infer<typeof mailSettingsSchema
             id,
         );
     } catch (e) {
-        waitUntil(logError("report-config-update-error", "update-report-config", "web", { data, session }, e));
+        waitUntil(logError("reports-config-update-error", "update-reports-config", "web", { data, session }, e));
         return {
             success: false,
             message: "Fehler beim Speichern der Einstellungen.",

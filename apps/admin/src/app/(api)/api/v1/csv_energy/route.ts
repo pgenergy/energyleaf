@@ -1,12 +1,8 @@
 import { createHash } from "node:crypto";
 import { env } from "@/env.mjs";
-import {
-    getElectricitySensorIdForUser,
-    getEnergyForSensorInRange,
-    log,
-    logError,
-    trackAction,
-} from "@energyleaf/db/query";
+import { getEnergyForSensorInRange } from "@energyleaf/postgres/query/energy-get";
+import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
+import { getElectricitySensorIdForUser } from "@energyleaf/postgres/query/sensor";
 import { waitUntil } from "@vercel/functions";
 import * as csv from "csv/sync";
 import { type NextRequest, NextResponse } from "next/server";
@@ -76,9 +72,23 @@ export async function POST(req: NextRequest) {
 
         try {
             const energyData = await getEnergyForSensorInRange(startDate, endDate, sensorId);
-            const parsedData = energyData.map((e) => [e.value, e.valueOut, e.valueCurrent, e.timestamp.toISOString()]);
+            const parsedData = energyData.map((e) => [
+                e.value,
+                e.consumption,
+                e.valueOut,
+                e.inserted,
+                e.valueCurrent,
+                e.timestamp.toISOString(),
+            ]);
             const csvData = csv.stringify([
-                ["Verbrauch in kWh", "Erzeugt in kWh", "Leistung in Watt", "Zeitstempel"],
+                [
+                    "Zählerstand (Verbraucht)",
+                    "Verbrauch in kWh",
+                    "Zählerstand (Eingespeißt)",
+                    "Erzeugt in kWh",
+                    "Leistung in Watt",
+                    "Zeitstempel",
+                ],
                 ...parsedData,
             ]);
 

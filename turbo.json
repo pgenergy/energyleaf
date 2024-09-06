@@ -6,12 +6,6 @@
   ],
   "globalEnv": [
     "HASH_SECRET",
-    "DATABASE_HOST",
-    "DATABASE_USERNAME",
-    "DATABASE_PASSWORD",
-    "DATABASE_NAME",
-    "DATABASE_LOCAL_URL",
-    "DATABASE_PUSH_URL",
     "RESEND_API_MAIL",
     "RESEND_API_KEY",
     "ADMIN_MAIL",
@@ -26,7 +20,9 @@
     "AWS_REGION",
     "AWS_ENDPOINT_URL_S3",
     "BUCKET_NAME",
-    "FILE_URL"
+    "FILE_URL",
+    "PG_CONNECTION",
+    "PG_DIRECT"
   ],
   "tasks": {
     "build": {

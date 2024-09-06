@@ -3,8 +3,8 @@
 import { lookupGeoLocation } from "@/actions/geo";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { getUserData } from "@/query/user";
-import { log, logError } from "@energyleaf/db/query";
 import { type DefaultActionReturnPayload, UserNotLoggedInError } from "@energyleaf/lib";
+import { logError, trackAction } from "@energyleaf/postgres/query/logs";
 import { waitUntil } from "@vercel/functions";
 import type { Session, User } from "lucia";
 
@@ -28,6 +28,7 @@ export interface SolarResultDetailsProps {
 export async function calculateSolar(watts: number): Promise<DefaultActionReturnPayload<SolarResultProps>> {
     let session: Session | null = null;
     try {
+<<<<<<< HEAD
         let user: User | null;
         ({ session, user } = await getActionSession());
         if (!session) {
@@ -38,6 +39,16 @@ export async function calculateSolar(watts: number): Promise<DefaultActionReturn
         }
 
         const { lat, lon, display_name } = await lookupGeoLocation(user.address);
+=======
+        const { session: actionSession, user } = await getActionSession();
+        session = actionSession;
+
+        if (!session || !user) {
+            throw new UserNotLoggedInError();
+        }
+
+        const { lat, lon, display_name } = await lookupLocation(user.address);
+>>>>>>> origin/development
         const weatherData = await getWeather(lat, lon);
 
         const userData = await getUserData(user.id);
@@ -59,8 +70,14 @@ export async function calculateSolar(watts: number): Promise<DefaultActionReturn
         const payload: SolarResultProps = { next24h, last30d, location: display_name };
         const success = !!userData.workingPrice;
         const message = success ? "" : "Es wurde kein Preis hinterlegt";
+<<<<<<< HEAD
 
         waitUntil(log("solar/success", "info", "calculate-solar", "web", { success, message, payload }));
+=======
+        waitUntil(
+            trackAction("calculate-result", "calculate-solar", "web", { session, watts, success, message, payload }),
+        );
+>>>>>>> origin/development
         return { success, message, payload };
     } catch (err) {
         if (err instanceof UserNotLoggedInError) {

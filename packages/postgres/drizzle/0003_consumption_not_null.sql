@@ -1,0 +1,1 @@
+ALTER TABLE "sensor_data" ALTER COLUMN "consumption" SET NOT NULL;

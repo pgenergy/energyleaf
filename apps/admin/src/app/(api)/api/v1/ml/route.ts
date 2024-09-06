@@ -1,5 +1,5 @@
 import { env } from "@/env.mjs";
-import { log } from "@energyleaf/db/query";
+import { log } from "@energyleaf/postgres/query/logs";
 import { energyleaf_ml, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";

@@ -2,9 +2,9 @@
 
 import { updateUserOnboardingData } from "@/actions/user";
 import { userOnboardingFormSchema } from "@/lib/schema/user";
-import { userData } from "@energyleaf/db/schema";
-import { userDataElectricityMeterTypeEnums } from "@energyleaf/db/types";
 import type { DefaultActionReturn } from "@energyleaf/lib";
+import { userDataTable } from "@energyleaf/postgres/schema/user";
+import { userDataElectricityMeterTypeEnums } from "@energyleaf/postgres/types";
 import { Button, buttonVariants } from "@energyleaf/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
@@ -173,7 +173,7 @@ export default function UserOnboardingForm(props: Props) {
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    {userData.electricityMeterType.enumValues.map((value) => (
+                                    {userDataTable.electricityMeterType.enumValues.map((value) => (
                                         <SelectItem value={value} key={value}>
                                             {userDataElectricityMeterTypeEnums[value]}
                                         </SelectItem>

@@ -8,7 +8,7 @@ import { isDemoUser } from "@/lib/demo/demo";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Navbar } from "@energyleaf/ui/nav/navbar";
 import { Sidebar } from "@energyleaf/ui/nav/sidebar";
-import { DollarSignIcon, HomeIcon, HousePlugIcon, LightbulbIcon, MicrowaveIcon, SettingsIcon } from "lucide-react";
+import { DollarSignIcon, HomeIcon, LampIcon, LightbulbIcon, MailsIcon, SettingsIcon, ZapIcon } from "lucide-react";
 
 import { redirect } from "next/navigation";
 import type React from "react";
@@ -25,23 +25,30 @@ const navLinks = [
         icon: <HomeIcon className="mr-2 h-4 w-4" />,
     },
     {
+        slug: "energy",
+        title: "Strom",
+        path: "/energy",
+        icon: <ZapIcon className="mr-2 h-4 w-4" />,
+    },
+    {
         slug: "costs",
         title: "Kosten",
         path: "/costs",
         icon: <DollarSignIcon className="mr-2 h-4 w-4" />,
     },
     {
-        slug: "energy",
-        title: "Strom",
-        path: "/energy",
-        icon: <HousePlugIcon className="mr-2 h-4 w-4" />,
-    },
-    {
         slug: "devices",
         title: "Geräte",
         path: "/devices",
-        icon: <MicrowaveIcon className="mr-2 h-4 w-4" />,
+        icon: <LampIcon className="mr-2 h-4 w-4" />,
         appVersion: Versions.self_reflection,
+    },
+    {
+        slug: "reports",
+        title: "Berichte",
+        path: "/reports",
+        icon: <MailsIcon className="mr-2 h-4 w-4" />,
+        appVersion: Versions.support,
     },
     {
         slug: "recommendations",
@@ -50,13 +57,6 @@ const navLinks = [
         icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
         appVersion: Versions.support,
     },
-    // {
-    //     slug: "report",
-    //     title: "Berichte",
-    //     path: "/report",
-    //     icon: <AreaChartIcon className="mr-2 h-4 w-4" />,
-    //     appVersion: Versions.support, // TODO: Remove this line when the page is ready (PGE-101)
-    // },
     {
         slug: "settings",
         title: "Einstellungen",
@@ -66,9 +66,9 @@ const navLinks = [
 ];
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-    const { user } = await getSession();
+    const { session, user } = await getSession();
 
-    if (!user) {
+    if (!session || !user) {
         redirect("/");
     }
 

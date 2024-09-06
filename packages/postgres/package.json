@@ -1,0 +1,35 @@
+{
+    "name": "@energyleaf/postgres",
+    "version": "0.0.1",
+    "description": "Postgres database module for energyleaf",
+    "type": "module",
+    "private": true,
+    "exports": {
+        ".": "./src/index.ts",
+        "./schema/*": "./src/schema/*.ts",
+        "./query/*": "./src/query/*.ts",
+        "./adapter": "./src/adapter.ts",
+        "./types": "./src/types/types.ts"
+    },
+    "scripts": {
+        "generate": "drizzle-kit generate",
+        "generate:empty": "drizzle-kit generate --custom",
+        "migrate": "drizzle-kit migrate",
+        "studio": "drizzle-kit studio"
+    },
+    "dependencies": {
+        "@energyleaf/lib": "workspace:^",
+        "@lucia-auth/adapter-drizzle": "^1.1.0",
+        "drizzle-orm": "^0.33.0",
+        "mathjs": "^13.1.1",
+        "nanoid": "^5.0.7",
+        "postgres": "^3.4.4"
+    },
+    "devDependencies": {
+        "@energyleaf/tsconfig": "workspace:^",
+        "@types/node": "^22.5.2",
+        "drizzle-kit": "^0.24.2",
+        "mysql2": "^3.11.0",
+        "typescript": "^5.5.4"
+    }
+}

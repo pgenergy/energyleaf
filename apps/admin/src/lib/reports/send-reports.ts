@@ -1,22 +1,13 @@
 import { env } from "@/env.mjs";
-import {
-    createToken,
-    getElectricitySensorIdForUser,
-    getEnergySumForSensorInRange,
-    getLastReportForUser,
-    getUserDataByUserId,
-    getUsersWitDueReport,
-    logError,
-    saveReport,
-    trackAction,
-    updateLastReportTimestamp,
-} from "@energyleaf/db/query";
-import type { UserDataSelectType } from "@energyleaf/db/types";
-import { buildUnsubscribeUrl } from "@energyleaf/lib";
+import { convertTZDate } from "@energyleaf/lib";
 import type { DailyConsumption, DailyGoalProgress, DailyGoalStatistic, ReportProps } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { sendReport } from "@energyleaf/mail";
-import { waitUntil } from "@vercel/functions";
+import { getEnergySumForSensorInRange } from "@energyleaf/postgres/query/energy-get";
+import { getLastReportForUser } from "@energyleaf/postgres/query/report";
+import { getElectricitySensorIdForUser } from "@energyleaf/postgres/query/sensor";
+import { getUserDataByUserId } from "@energyleaf/postgres/query/user";
+import type { UserDataSelectType } from "@energyleaf/postgres/types";
 import { renderDailyConsumptionChart, renderDailyStatistic } from "./graphs";
 import { renderImage } from "./image";
 
@@ -29,97 +20,15 @@ interface UserReportData {
     interval: number;
 }
 
-export async function createReportsAndSendMails() {
-    const usersWithDueReport: UserReportData[] = await getUsersWitDueReport();
-    waitUntil(trackAction("users/start-due-reports-check", "report", "api", usersWithDueReport));
-
-    const totalReports = usersWithDueReport.length;
-    let successfulReports = 0;
-
-    for (const userWithDueReport of usersWithDueReport) {
-        let thisReportIsSuccessful = 1;
-
-        let reportProps: ReportProps | null = null;
-        let unsubscribeLink = "";
-        try {
-            reportProps = await createReportData(userWithDueReport);
-            const unsubscribeToken = await createToken(userWithDueReport.userId);
-            unsubscribeLink = buildUnsubscribeUrl({ baseUrl: env.NEXT_PUBLIC_APP_URL, token: unsubscribeToken });
-        } catch (e) {
-            waitUntil(
-                logError(
-                    "create-report/failed",
-                    "report",
-                    "api",
-                    { userWithDueReport, reportProps, unsubscribeLink },
-                    e,
-                ),
-            );
-            thisReportIsSuccessful = 0;
-            continue;
-        }
-
-        if (userWithDueReport.receiveMails) {
-            try {
-                await sendReportMail(userWithDueReport, reportProps, unsubscribeLink);
-            } catch (e) {
-                waitUntil(
-                    logError(
-                        "send-report/failed",
-                        "report",
-                        "api",
-                        { userWithDueReport, reportProps, unsubscribeLink },
-                        e,
-                    ),
-                );
-                thisReportIsSuccessful = 0;
-                continue;
-            }
-        }
-
-        try {
-            await saveReport(reportProps, userWithDueReport.userId);
-        } catch (e) {
-            waitUntil(
-                logError(
-                    "save-report-in-db/failed",
-                    "report",
-                    "api",
-                    { userWithDueReport, reportProps, unsubscribeLink },
-                    e,
-                ),
-            );
-            thisReportIsSuccessful = 0;
-        }
-
-        try {
-            await updateLastReportTimestamp(userWithDueReport.userId);
-        } catch (e) {
-            waitUntil(
-                logError(
-                    "update-last-report-timestamp/failed",
-                    "report-creation",
-                    "api",
-                    { userWithDueReport, reportProps, unsubscribeLink },
-                    e,
-                ),
-            );
-            thisReportIsSuccessful = 0;
-        }
-
-        successfulReports += thisReportIsSuccessful;
-    }
-
-    waitUntil(trackAction("users/end-due-reports-check", "report", "api", { totalReports, successfulReports }));
-}
-
 export async function createReportData(user: UserReportData): Promise<ReportProps> {
-    const dateFrom = new Date();
-    dateFrom.setDate(dateFrom.getDate() - user.interval);
-    dateFrom.setHours(0, 0, 0, 0);
-    const dateTo = new Date();
-    dateTo.setDate(dateTo.getDate() - 1);
-    dateTo.setHours(23, 59, 59, 999);
+    const serverDateFrom = new Date();
+    serverDateFrom.setDate(serverDateFrom.getDate() - user.interval);
+    serverDateFrom.setHours(0, 0, 0, 0);
+    const dateFrom = convertTZDate(serverDateFrom);
+    const serverDateTo = new Date();
+    serverDateTo.setDate(serverDateTo.getDate() - 1);
+    serverDateTo.setHours(23, 59, 59, 999);
+    const dateTo = convertTZDate(serverDateTo);
     const sensor = await getElectricitySensorIdForUser(user.userId);
     if (!sensor) {
         throw new Error("No electricity sensor found for User");
@@ -174,11 +83,12 @@ async function getDailyConsumption(sensor: string, dateFrom: Date, interval: num
         const date = new Date(dateFrom);
         date.setDate(date.getDate() + index);
         date.setHours(0, 0, 0, 0);
-        return date;
+        return convertTZDate(date);
     });
     const tasks: Promise<DailyConsumption>[] = dates.map(async (date) => {
-        const endDate = new Date(date);
-        endDate.setHours(23, 59, 59, 999);
+        const serverEndDate = new Date(date);
+        serverEndDate.setHours(23, 59, 59, 999);
+        const endDate = convertTZDate(serverEndDate);
 
         const sumOfDay = await getEnergySumForSensorInRange(date, endDate, sensor);
 
@@ -231,6 +141,7 @@ export async function sendReportMail(userReport: UserReportData, reportProps: Re
             from: env.RESEND_API_MAIL,
             to: userReport.email,
             unsubscribeLink: unsubscribeLink,
+            reportPageLink: `${env.NEXT_PUBLIC_APP_URL}/reports`,
             apiKey: env.RESEND_API_KEY,
         });
     }

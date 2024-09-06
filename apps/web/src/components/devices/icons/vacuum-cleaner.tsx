@@ -1,3 +1,9 @@
-export default function VacuumCleaner() {
-    return <span className="icon-[icon-park-outline--vacuum-cleaner]" style={{ width: "24px", height: "24px" }} />;
+import { cn } from "@energyleaf/tailwindcss/utils";
+
+interface Props {
+    className?: string;
+}
+
+export default function VacuumCleaner({ className }: Props) {
+    return <span className={cn("icon-[icon-park-outline--vacuum-cleaner]", className)} />;
 }

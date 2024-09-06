@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeviceContext } from "@/hooks/device-hook";
-import type { DeviceSelectType } from "@energyleaf/db/types";
+import type { DeviceSelectType } from "@energyleaf/postgres/types";
 import { Button } from "@energyleaf/ui/button";
 import {
     DropdownMenu,

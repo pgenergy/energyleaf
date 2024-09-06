@@ -1,20 +1,27 @@
 "use client";
 
+import type { AggregationType } from "@energyleaf/lib";
 import { calculateAggregationOptions } from "@energyleaf/lib/utils/use-aggregation-options";
 import { AggregationOption } from "@energyleaf/ui/utils/aggregation-option";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useMemo } from "react";
 
-export default function EnergyAggregation({ selected }) {
+interface Props {
+    selected?: AggregationType;
+    startDate: Date;
+    endDate: Date;
+}
+
+export default function EnergyAggregation({ selected, startDate, endDate }: Props) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
     const availableOptions = useMemo(() => {
-        const startDateStr = searchParams.get("start");
-        const endDateStr = searchParams.get("end");
+        const startDateStr = searchParams.get("start") ?? startDate.toISOString();
+        const endDateStr = searchParams.get("end") ?? endDate.toISOString();
         return calculateAggregationOptions(startDateStr, endDateStr);
-    }, [searchParams]);
+    }, [searchParams, startDate, endDate]);
 
     if (availableOptions.length <= 1) {
         return null;

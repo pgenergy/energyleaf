@@ -16,9 +16,10 @@ import { useState } from "react";
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    showTips?: boolean;
 }
 
-export function DevicesDataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DevicesDataTable<TData, TValue>({ columns, data, showTips }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -33,6 +34,9 @@ export function DevicesDataTable<TData, TValue>({ columns, data }: DataTableProp
         state: {
             sorting,
             columnFilters,
+            columnVisibility: {
+                tips: showTips ?? false,
+            },
         },
     });
 
@@ -65,7 +69,7 @@ export function DevicesDataTable<TData, TValue>({ columns, data }: DataTableProp
                     <TableBody>
                         {table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow data-state={row.getIsSelected() && "selected"} key={row.id}>
+                                <TableRow dafta-state={row.getIsSelected() && "selected"} key={row.id}>
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}

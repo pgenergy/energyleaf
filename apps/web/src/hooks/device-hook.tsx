@@ -1,6 +1,6 @@
 "use client";
 
-import type { DeviceSelectType } from "@energyleaf/db/types";
+import type { DeviceSelectType } from "@energyleaf/postgres/types";
 import { createContext, useContext, useState } from "react";
 
 export type DeviceContextType = {

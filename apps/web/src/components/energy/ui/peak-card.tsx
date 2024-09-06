@@ -1,17 +1,17 @@
 import { getSession } from "@/lib/auth/auth.server";
 import { getDevicesByPeak } from "@/query/device";
 import { getEnergyDataForSensor } from "@/query/energy";
-import type { SensorDataSequenceType } from "@energyleaf/db/types";
 import { AggregationType, convertTZDate } from "@energyleaf/lib";
+import type { SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
 import { Badge } from "@energyleaf/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import MiniChart from "@energyleaf/ui/charts/mini-chart";
+import EnergyMiniChart from "@energyleaf/ui/charts/energy/mini-chart";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { PeakAssignmentDialog } from "./peak-assign-button";
 
 interface Props {
-    sequence: SensorDataSequenceType;
+    sequence: SensorDataSequenceSelectType;
 }
 
 export default async function PeakCard(props: Props) {
@@ -20,20 +20,25 @@ export default async function PeakCard(props: Props) {
         return null;
     }
 
-    const sequenceStart = convertTZDate(props.sequence.start);
-    const sequenceEnd = convertTZDate(props.sequence.end);
-
-    const queryStart = new Date(sequenceStart);
+    const queryStart = new Date(props.sequence.start);
     queryStart.setMinutes(queryStart.getMinutes() - 1);
-    const queryEnd = new Date(sequenceEnd);
+    const queryEnd = new Date(props.sequence.end);
     queryEnd.setMinutes(queryEnd.getMinutes() + 1);
 
-    const data = await getEnergyDataForSensor(queryStart, queryEnd, props.sequence.sensorId, AggregationType.RAW);
+    const sequenceStart = convertTZDate(props.sequence.start, "client");
+    const sequenceEnd = convertTZDate(props.sequence.end, "client");
+
+    const data = await getEnergyDataForSensor(
+        queryStart.toISOString(),
+        queryEnd.toISOString(),
+        props.sequence.sensorId,
+        AggregationType.RAW,
+    );
     if (!data || data.length === 0) {
         return null;
     }
-    const devices = await getDevicesByPeak(props.sequence.id);
-    const isSameDay = sequenceStart.getDate() === sequenceEnd.getDate();
+    const devices = await getDevicesByPeak(props.sequence.id, user.id);
+    const isSameDay = queryStart.getDate() === sequenceEnd.getDate();
 
     return (
         <Card className="col-span-1">
@@ -41,7 +46,7 @@ export default async function PeakCard(props: Props) {
                 <div className="flex flex-row items-center justify-between">
                     <div className="flex flex-col gap-1">
                         <CardTitle>
-                            {format(sequenceStart, "HH:mm")} - {format(sequenceStart, "HH:mm")}
+                            {format(sequenceStart, "HH:mm")} - {format(sequenceEnd, "HH:mm")}
                         </CardTitle>
                         <CardDescription>
                             {isSameDay
@@ -50,7 +55,7 @@ export default async function PeakCard(props: Props) {
                         </CardDescription>
                     </div>
                     <div className="w-1/3">
-                        <MiniChart data={data} display="value" />
+                        <EnergyMiniChart data={data} display="consumption" />
                     </div>
                 </div>
             </CardHeader>

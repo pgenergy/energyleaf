@@ -1,8 +1,10 @@
 export enum AggregationType {
     RAW = "RAW",
     HOUR = "HOUR",
+    WEEKDAY = "WEEKDAY",
     DAY = "DAY",
     WEEK = "WEEK",
+    CALENDAR_WEEK = "CALENDAR_WEEK",
     MONTH = "MONTH",
     YEAR = "YEAR",
 }

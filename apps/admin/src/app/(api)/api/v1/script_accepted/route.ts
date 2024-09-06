@@ -1,4 +1,6 @@
-import { getSensorIdFromSensorToken, log, logError, updateNeedsScript } from "@energyleaf/db/query";
+import { log, logError } from "@energyleaf/postgres/query/logs";
+import { updateNeedsScript } from "@energyleaf/postgres/query/sensor";
+import { getSensorIdFromSensorToken } from "@energyleaf/postgres/query/token";
 import { energyleaf, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
 import type { NextRequest } from "next/server";

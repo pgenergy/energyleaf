@@ -7,12 +7,11 @@ export const env = createEnv({
         HASH_SECRET: z.string(),
         CRON_SECRET: z.string().optional(),
 
-        VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
+        ML_API_URL: z.string(),
+        ML_API_KEY: z.string(),
 
-        DATABASE_HOST: z.string(),
-        DATABASE_USERNAME: z.string(),
-        DATABASE_PASSWORD: z.string(),
-        DATABASE_NAME: z.string(),
+        PG_CONNECTION: z.string(),
+        PG_DIRECT: z.string(),
 
         RESEND_API_KEY: z.string().optional(),
         RESEND_API_MAIL: z.string().email().optional(),

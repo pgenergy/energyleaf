@@ -6,12 +6,8 @@ export const env = createEnv({
     server: {
         HASH_SECRET: z.string(),
 
-        VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
-
-        DATABASE_HOST: z.string(),
-        DATABASE_USERNAME: z.string(),
-        DATABASE_PASSWORD: z.string(),
-        DATABASE_NAME: z.string(),
+        PG_CONNECTION: z.string(),
+        PG_DIRECT: z.string(),
 
         RESEND_API_KEY: z.string().optional(),
         RESEND_API_MAIL: z.string().email().optional(),

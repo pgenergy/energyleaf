@@ -1,8 +1,9 @@
-import { getUserData } from "@/query/user";
 import { GoalState, GoalStatus } from "@/types/goals";
-import { getEnergySumForSensorInRange } from "@energyleaf/db/query";
+import { AggregationType, convertTZDate } from "@energyleaf/lib";
 import { endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek } from "date-fns";
 import { cache } from "react";
+import { getEnergyDataForSensor } from "./energy";
+import { getUserData } from "./user";
 
 export const getGoalStatus = cache(async (userId: string, sensorId: string) => {
     const dateNow = new Date();
@@ -24,27 +25,57 @@ export const getGoalStatus = cache(async (userId: string, sensorId: string) => {
 });
 
 async function dailyGoalStatus(sensorId: string, dailyLimit: number, dateNow: Date): Promise<GoalStatus> {
-    const start = startOfDay(dateNow);
-    const end = endOfDay(dateNow);
+    const serverStart = startOfDay(dateNow);
+    const serverEnd = endOfDay(dateNow);
 
-    const sumOfDay = await getEnergySumForSensorInRange(start, end, sensorId);
+    const start = convertTZDate(serverStart);
+    const end = convertTZDate(serverEnd);
+
+    const data = await getEnergyDataForSensor(
+        start.toISOString(),
+        end.toISOString(),
+        sensorId,
+        AggregationType.DAY,
+        "sum",
+    );
+    const sumOfDay = data.reduce((acc, cur) => acc + cur.consumption, 0);
     return new GoalStatus(dailyLimit, sumOfDay, calculateState(sumOfDay, dailyLimit, dateNow.getHours(), 24), "Tag");
 }
 
 async function weeklyGoalStatus(sensorId: string, dailyLimit: number, dateNow: Date): Promise<GoalStatus> {
-    const start = startOfWeek(dateNow, { weekStartsOn: 1 });
-    const end = endOfWeek(dateNow, { weekStartsOn: 1 });
+    const serverStart = startOfWeek(dateNow, { weekStartsOn: 1 });
+    const serverEnd = endOfWeek(dateNow, { weekStartsOn: 1 });
 
-    const sumOfWeek = await getEnergySumForSensorInRange(start, end, sensorId);
+    const start = convertTZDate(serverStart);
+    const end = convertTZDate(serverEnd);
+
+    const data = await getEnergyDataForSensor(
+        start.toISOString(),
+        end.toISOString(),
+        sensorId,
+        AggregationType.WEEK,
+        "sum",
+    );
+    const sumOfWeek = data.reduce((acc, cur) => acc + cur.consumption, 0);
     const weeklyLimit = dailyLimit * 7;
     return new GoalStatus(weeklyLimit, sumOfWeek, calculateState(sumOfWeek, weeklyLimit, dateNow.getDay(), 7), "Woche");
 }
 
 async function monthlyGoalStatus(sensorId: string, dailyLimit: number, dateNow: Date): Promise<GoalStatus> {
-    const start = startOfMonth(dateNow);
-    const end = endOfMonth(dateNow);
+    const serverStart = startOfMonth(dateNow);
+    const serverEnd = endOfMonth(dateNow);
 
-    const sumOfMonth = await getEnergySumForSensorInRange(start, end, sensorId);
+    const start = convertTZDate(serverStart);
+    const end = convertTZDate(serverEnd);
+
+    const data = await getEnergyDataForSensor(
+        start.toISOString(),
+        end.toISOString(),
+        sensorId,
+        AggregationType.MONTH,
+        "sum",
+    );
+    const sumOfMonth = data.reduce((acc, cur) => acc + cur.consumption, 0);
     const monthlyLimit = dailyLimit * new Date(dateNow.getFullYear(), dateNow.getMonth() + 1, 0).getDate();
     return new GoalStatus(
         monthlyLimit,

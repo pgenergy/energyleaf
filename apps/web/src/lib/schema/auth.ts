@@ -1,4 +1,4 @@
-import { userData } from "@energyleaf/db/schema";
+import { userDataTable } from "@energyleaf/postgres/schema/user";
 import { z } from "zod";
 
 const mailNonemptyMsg = "Bitte geben Sie eine E-Mail an.";
@@ -27,11 +27,11 @@ export const signupSchema = z
         address: z.string().min(1, { message: "Geben sie eine Adresse ein" }),
         password: z.string().min(8, { message: "Ihr Passwort muss eine Länge von mindestes 8 Zeichen haben." }),
         passwordRepeat: z.string().min(8, { message: "Ihr Passwort muss eine Länge von mindestesn 8 Zeichen haben." }),
-        hasPower: z.boolean().default(false),
-        hasWifi: z.boolean().default(false),
+        hasWifi: z.boolean({ required_error: "Bitte treffen Sie eine Auswahl" }),
+        hasPower: z.boolean({ required_error: "Bitte treffen Sie eine Auswahl" }),
         comment: z.string().optional(),
         electricityMeterNumber: z.string().min(1, { message: "Bitte geben Sie einen Zählernummer an" }),
-        electricityMeterType: z.enum([...userData.electricityMeterType.enumValues], {
+        electricityMeterType: z.enum([...userDataTable.electricityMeterType.enumValues], {
             message: "Bitte wählen Sie die Art ihres Zählers aus.",
         }),
         file: z

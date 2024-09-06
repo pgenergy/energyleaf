@@ -8,6 +8,8 @@ interface Props {
     };
 }
 
+export const maxDuration = 120;
+
 export default function EnergyCustomPage(props: Props) {
     if (!props.searchParams?.date) {
         redirect("/energy");

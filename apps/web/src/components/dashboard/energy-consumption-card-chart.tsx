@@ -1,29 +1,38 @@
 "use client";
 
-import type { SensorDataSelectType, SensorDataSequenceType } from "@energyleaf/db/types";
 import type { AggregationType } from "@energyleaf/lib";
-import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy-consumption-chart";
+import type { SensorDataSelectType, SensorDataSequenceSelectType } from "@energyleaf/postgres/types";
+import { EnergyConsumptionChart } from "@energyleaf/ui/charts/energy/energy-consumption-chart";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { EnergyPeakDeviceAssignmentDialog } from "./peaks/energy-peak-device-assignment-dialog";
 
 interface Props {
     data: SensorDataSelectType[];
-    peaks?: SensorDataSequenceType[];
+    peaks?: SensorDataSequenceSelectType[];
     aggregation?: AggregationType;
     showPeaks: boolean;
     userId: string;
     cost?: number;
+    appVersion: number;
 }
 
-export default function EnergyConsumptionCardChart({ data, aggregation, userId, showPeaks, cost, peaks }: Props) {
+export default function EnergyConsumptionCardChart({
+    data,
+    aggregation,
+    userId,
+    showPeaks,
+    cost,
+    peaks,
+    appVersion,
+}: Props) {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState<SensorDataSequenceType | null>(null);
+    const [value, setValue] = useState<SensorDataSequenceSelectType | null>(null);
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const clickCallback = useCallback((callbackData: SensorDataSequenceType) => {
+    const clickCallback = useCallback((callbackData: SensorDataSequenceSelectType) => {
         setValue(callbackData);
         setOpen(true);
     }, []);
@@ -43,7 +52,13 @@ export default function EnergyConsumptionCardChart({ data, aggregation, userId, 
     return (
         <>
             {value ? (
-                <EnergyPeakDeviceAssignmentDialog open={open} setOpen={setOpen} value={value} userId={userId} />
+                <EnergyPeakDeviceAssignmentDialog
+                    open={open}
+                    setOpen={setOpen}
+                    value={value}
+                    userId={userId}
+                    appVersion={appVersion}
+                />
             ) : null}
             <EnergyConsumptionChart
                 data={data}

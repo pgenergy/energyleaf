@@ -1,10 +1,10 @@
-import { env } from "@/env.mjs";
-import { createToken, findAndMark, getUsersWhoRecieveAnomalyMail } from "@energyleaf/db/query";
-import { log, logError, trackAction } from "@energyleaf/db/query";
-import { buildUnsubscribeUrl } from "@energyleaf/lib";
-import { sendAnomalyEmail } from "@energyleaf/mail";
+import { env, getUrl } from "@/env.mjs";
+import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
+import { getUsersWhoRecieveAnomalyMail } from "@energyleaf/postgres/query/user";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
+
+export const maxDuration = 300;
 
 export const GET = async (req: NextRequest) => {
     const cronSecret = env.CRON_SECRET;
@@ -13,77 +13,38 @@ export const GET = async (req: NextRequest) => {
         return NextResponse.json({ statusMessage: "Unauthorized" }, { status: 401 });
     }
 
-    const start = new Date();
-    const end = new Date();
-
-    if (start.getMinutes() >= 30) {
-        start.setHours(start.getHours(), 0, 0, 0);
-        end.setHours(end.getHours(), 30, 59, 999);
-    } else {
-        start.setHours(start.getHours() - 1, 30, 0, 0);
-        end.setHours(end.getHours() - 1, 59, 59, 999);
-    }
-
     try {
-        waitUntil(trackAction("all-users/start-anomalies-check", "anomaly-check", "api", { start, end }));
+        const now = new Date();
+        waitUntil(trackAction("all-users/start-anomalies-check", "anomaly-check", "api", { timestamp: now }));
         const userData = await getUsersWhoRecieveAnomalyMail();
         const promises: Promise<void>[] = [];
+        const processEndpoint = `https://${getUrl(env)}/api/v1/process_anomaly`;
         for (const data of userData) {
             const { user, sensor } = data;
             const fn = async () => {
                 try {
-                    const anomalies = await findAndMark(
-                        {
-                            sensorId: sensor.id,
-                            start,
-                            end,
-                            type: "anomaly",
+                    await fetch(processEndpoint, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
                         },
-                        5000, // set the multiplier to 5000 that must be enough so it wont trigger on normal peaks
-                    );
-                    if (anomalies.length > 0) {
-                        const link =
-                            env.VERCEL_ENV === "production" || env.VERCEL_ENV === "preview"
-                                ? `https://${env.NEXT_PUBLIC_APP_URL}`
-                                : `http://${env.NEXT_PUBLIC_APP_URL}`;
-                        if (env.RESEND_API_KEY && env.RESEND_API_MAIL) {
-                            const unsubscribeToken = await createToken(user.id);
-                            const unsubscribeLink = buildUnsubscribeUrl({
-                                baseUrl: env.NEXT_PUBLIC_APP_URL,
-                                token: unsubscribeToken,
-                            });
-
-                            await sendAnomalyEmail({
-                                to: user.email,
-                                name: user.username,
-                                from: env.RESEND_API_MAIL,
-                                apiKey: env.RESEND_API_KEY,
-                                unsubscribeLink: unsubscribeLink,
-                                link: link,
-                            });
-                            waitUntil(
-                                trackAction("mail-sent", "anomaly-check", "api", {
-                                    userId: user.id,
-                                    email: user.email,
-                                    link,
-                                    unsubscribeLink,
-                                }),
-                            );
-                        }
-                    }
+                        body: JSON.stringify({
+                            secret: cronSecret,
+                            sensorId: sensor.id,
+                            user: {
+                                id: user.id,
+                                username: user.username,
+                                email: user.email,
+                            },
+                        }),
+                    });
                 } catch (err) {
                     waitUntil(
                         logError(
                             "anomaly-check/failed",
                             "anomaly-check",
                             "api",
-                            {
-                                userId: user.id,
-                                sesnorId: sensor.id,
-                                start,
-                                end,
-                                type: "anomaly",
-                            },
+                            { userId: user.id, sensorId: sensor.id },
                             err,
                         ),
                     );

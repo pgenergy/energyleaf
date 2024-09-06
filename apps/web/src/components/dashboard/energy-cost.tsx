@@ -1,4 +1,4 @@
-import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/db/types";
+import type { SensorDataSelectType, UserDataSelectType } from "@energyleaf/postgres/types";
 
 interface EnergyEntryWithUserData {
     energyData: SensorDataSelectType;
@@ -33,7 +33,7 @@ export function calculateCosts(userData: UserDataSelectType[], sensorData: Senso
 
     const totalWorkingCost = joinedData.reduce((acc, cur) => {
         const workingPrice = cur.userData?.workingPrice ?? 0;
-        return acc + cur.energyData.value * workingPrice;
+        return acc + cur.energyData.consumption * workingPrice;
     }, 0);
 
     const totalBasePrice = joinedData.length > 0 ? ((joinedData[0].userData?.basePrice ?? 0) / 30) * numDays : 0;
@@ -98,7 +98,7 @@ export function getCalculatedTotalConsumptionCurrentMonth(data: SensorDataSelect
         const entryDate = new Date(entry.timestamp);
         return entryDate.getMonth() === currentDate.getMonth() && entryDate.getFullYear() === currentDate.getFullYear();
     });
-    return currentMonthConsumptions.reduce((total, entry) => total + entry.value, 0);
+    return currentMonthConsumptions.reduce((total, entry) => total + entry.consumption, 0);
 }
 
 export function getPredictedCost(userData: UserDataSelectType[], energyData: SensorDataSelectType[]): number {

@@ -15,6 +15,8 @@ import EnergyCostCard from "@/components/dashboard/energy-cost-card";
 import EnergyCostError from "@/components/dashboard/energy-cost-card-error";
 import GoalsCard from "@/components/dashboard/goals/goals-card";
 import GoalsCardError from "@/components/dashboard/goals/goals-card-error";
+import TipOfTheDayCard from "@/components/dashboard/tip-of-the-day-card";
+import TipOfTheDayCardError from "@/components/dashboard/tip-of-the-day-card-error";
 import { env } from "@/env.mjs";
 import { getSession } from "@/lib/auth/auth.server";
 import { convertTZDate } from "@energyleaf/lib";
@@ -26,6 +28,7 @@ import { Suspense } from "react";
 export const metadata = {
     title: "Dashboard | Energyleaf",
 };
+export const maxDuration = 120;
 
 export default async function DashboardPage({
     searchParams,
@@ -42,8 +45,9 @@ export default async function DashboardPage({
     const aggregationType = searchParams.aggregation;
 
     const serverStart = new Date();
-    serverStart.setHours(serverStart.getHours() - 3, 0, 0, 0);
+    serverStart.setHours(0, 0, 0, 0);
     const serverEnd = new Date();
+    serverEnd.setHours(23, 59, 59, 999);
 
     const startDate = startDateString ? new Date(startDateString) : convertTZDate(serverStart);
     const endDate = endDateString ? new Date(endDateString) : convertTZDate(serverEnd);
@@ -63,13 +67,6 @@ export default async function DashboardPage({
                 <div className="col-span-1 md:col-span-3">
                     <h1 className="font-bold text-2xl">Übersicht</h1>
                 </div>
-                {fulfills(user.appVersion, Versions.self_reflection) && (
-                    <ErrorBoundary fallback={GoalsCardError}>
-                        <Suspense fallback={<Skeleton className="col-span-1 h-72 w-full md:col-span-3" />}>
-                            <GoalsCard />
-                        </Suspense>
-                    </ErrorBoundary>
-                )}
                 <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                     <CurrentMeterNumberCard />
                 </Suspense>
@@ -79,10 +76,24 @@ export default async function DashboardPage({
                 <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                     <CurrentMeterPowerCard />
                 </Suspense>
+                {fulfills(user.appVersion, Versions.self_reflection) && (
+                    <ErrorBoundary fallback={GoalsCardError}>
+                        <Suspense fallback={<Skeleton className="col-span-1 h-72 w-full md:col-span-3" />}>
+                            <GoalsCard />
+                        </Suspense>
+                    </ErrorBoundary>
+                )}
+                {fulfills(user.appVersion, Versions.support) && user.id !== "demo" ? (
+                    <ErrorBoundary fallback={TipOfTheDayCardError}>
+                        <Suspense fallback={<Skeleton className="col-span-1 h-72 w-full md:col-span-3" />}>
+                            <TipOfTheDayCard />
+                        </Suspense>
+                    </ErrorBoundary>
+                ) : null}
                 <div className="col-span-1 mt-8 flex flex-col gap-4 md:col-span-3 md:mt-16">
                     <h1 className="font-bold text-2xl">Werte im Zeitraum</h1>
                     <div className="flex flex-col gap-2 md:flex-row">
-                        {user.id !== "demo" ? <DashboardDateRange endDate={endDate} startDate={startDate} /> : null}
+                        <DashboardDateRange endDate={endDate} startDate={startDate} />
                         <DashboardTimeRange startDate={startDate} endDate={endDate} />
                         <div className="hidden flex-1 md:block" />
                         {user.id !== "demo" ? (
@@ -114,7 +125,13 @@ export default async function DashboardPage({
             </div>
             <ErrorBoundary fallback={EnergyConsumptionError}>
                 <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-                    <EnergyConsumptionCard aggregationType={aggregationType} endDate={endDate} startDate={startDate} />
+                    <EnergyConsumptionCard
+                        aggregationType={aggregationType}
+                        endDate={endDate}
+                        startDate={startDate}
+                        userId={user.id}
+                        appVersion={user.appVersion}
+                    />
                 </Suspense>
             </ErrorBoundary>
         </div>

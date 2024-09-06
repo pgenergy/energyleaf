@@ -2,7 +2,7 @@ import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { AggregationType } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import WeekChart from "@energyleaf/ui/charts/week-chart";
+import WeekChart from "@energyleaf/ui/charts/energy/week-chart";
 
 interface Props {
     startDate: Date;
@@ -22,7 +22,13 @@ export default async function WeekChartView(props: Props) {
         return null;
     }
 
-    const data = await getEnergyDataForSensor(props.startDate, props.endDate, sensorId, AggregationType.WEEK, "sum");
+    const data = await getEnergyDataForSensor(
+        props.startDate.toISOString(),
+        props.endDate.toISOString(),
+        sensorId,
+        AggregationType.WEEK,
+        "sum",
+    );
     if (!data || data.length === 0) {
         return null;
     }

@@ -1,7 +1,8 @@
 import { getSession } from "@/lib/auth/auth.server";
-import { getDevicesByUser, getUserData } from "@energyleaf/db/query";
-import type { DeviceCategory } from "@energyleaf/db/types";
 import { getReferencePowerDataForDeviceCategory } from "@energyleaf/lib";
+import { getDevicesByUser } from "@energyleaf/postgres/query/device";
+import { getUserData } from "@energyleaf/postgres/query/user";
+import type { DeviceCategory } from "@energyleaf/postgres/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import { Info } from "lucide-react";
