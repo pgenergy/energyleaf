@@ -41,7 +41,7 @@ export function estimateDevicePowers(devices: Device[], peaks: Peak[]) {
     const b = peaksWithoutFixedPower.map((dp) => [dp.power]);
     const { solution, rSquared } = linearRegression(A, b);
 
-    // Extract the solution values and save them to the database
+    // Extract the solution values
     const result = solution.map((value, index) => ({
         [deviceIdsWhosePowerNeedsToBeEstimated[index]]: (value as number[])[0],
     }));
