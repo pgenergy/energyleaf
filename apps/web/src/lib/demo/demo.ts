@@ -132,7 +132,6 @@ export function addOrUpdateDemoDeviceToCookieStore(cookies: ReadonlyRequestCooki
             return d;
         });
         cookies.set("demo_devices", JSON.stringify(newDevices));
-        console.log("New cookie value", getDemoDevicesCookieStore(cookies));
         return;
     }
     const newDevices = [...devices, device];
