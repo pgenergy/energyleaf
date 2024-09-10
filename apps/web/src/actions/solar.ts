@@ -3,8 +3,8 @@
 import { lookupGeoLocation } from "@/actions/geo";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { getUserData } from "@/query/user";
-import { type DefaultActionReturnPayload, UserNotLoggedInError } from "@energyleaf/lib";
-import { logError, trackAction } from "@energyleaf/postgres/query/logs";
+import type { DefaultActionReturnPayload } from "@energyleaf/lib";
+import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 
@@ -32,10 +32,18 @@ export async function calculateSolar(watts: number): Promise<DefaultActionReturn
         session = actionSession;
 
         if (!session || !user) {
-            throw new UserNotLoggedInError();
+            waitUntil(log("user/not-logged-in", "error", "calculate-solar", "web", { session }));
+            return {
+                success: false,
+                message: "Sie müssen angemeldet sein, um dies zu bearbeiten.",
+            };
         }
 
-        const { lat, lon, display_name } = await lookupGeoLocation(user.address);
+        const geoLocation = await lookupGeoLocation(user.address);
+        if (!geoLocation.success || !geoLocation.payload) {
+            throw new Error("An error occurred during looking up the geo location.");
+        }
+        const { lat, lon, display_name } = geoLocation.payload;
         const weatherData = await getWeather(lat, lon);
 
         const userData = await getUserData(user.id);
@@ -62,13 +70,6 @@ export async function calculateSolar(watts: number): Promise<DefaultActionReturn
         );
         return { success, message, payload };
     } catch (err) {
-        if (err instanceof UserNotLoggedInError) {
-            waitUntil(logError("user/not-logged-in", "calculate-solar", "web", { session }, err));
-            return {
-                success: false,
-                message: "Sie müssen angemeldet sein, um dies zu bearbeiten.",
-            };
-        }
         waitUntil(logError("solar/error", "calculate-solar", "web", { session }, err));
         return {
             success: false,

@@ -1,4 +1,6 @@
-import { cache } from "react";
+import type { IDefaultActionReturnPayload } from "@energyleaf/lib";
+import { log } from "@energyleaf/postgres/query/logs";
+import { waitUntil } from "@vercel/functions";
 
 export interface OpenStreetMapProps {
     lat: number;
@@ -6,7 +8,7 @@ export interface OpenStreetMapProps {
     display_name: string;
 }
 
-export const lookupGeoLocation = cache(async (address: string) => {
+export const lookupGeoLocation = async (address: string): Promise<IDefaultActionReturnPayload<OpenStreetMapProps>> => {
     const osmReq = await fetch(
         `https://nominatim.openstreetmap.org/search.php?q=${address}&accept-language=de&format=jsonv2`,
     );
@@ -14,8 +16,16 @@ export const lookupGeoLocation = cache(async (address: string) => {
     const body = (await osmReq.json()) as OpenStreetMapProps[];
 
     if (!osmReq.ok || !!body) {
-        throw { message: "OpenStreetMap Request Error", osmReq };
+        waitUntil(log("geo/lookup", "error", "geo", "web", osmReq));
+        return {
+            success: false,
+            message: "OpenStreetMap Request Error",
+        };
     }
 
-    return body[0];
-});
+    return {
+        success: true,
+        message: "OK",
+        payload: body[0],
+    };
+};
