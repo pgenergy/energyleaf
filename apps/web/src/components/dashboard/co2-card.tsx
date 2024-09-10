@@ -18,7 +18,7 @@ export default async function CO2Card({ startDate, endDate }: Props) {
         redirect("/");
     }
 
-    const result = await calculateCO2eqEmissions(startDate, endDate);
+    const result = await calculateCO2eqEmissions(startDate.toISOString(), endDate.toISOString());
     if (!result.payload) {
         throw new Error(result.message);
     }

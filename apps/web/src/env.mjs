@@ -24,8 +24,6 @@ export const env = createEnv({
         AWS_REGION: z.string().optional(),
         BUCKET_NAME: z.string().optional(),
         FILE_URL: z.string().optional(),
-
-        CO2_API_KEY: z.string(),
     },
     client: {
         NEXT_PUBLIC_ADMIN_URL: z.string(),
