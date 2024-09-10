@@ -3,8 +3,8 @@
 import { env } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import { logError, trackAction } from "@energyleaf/postgres/query/logs";
 import { type IDefaultActionReturnPayload, UserNotLoggedInError } from "@energyleaf/lib";
+import { logError, trackAction } from "@energyleaf/postgres/query/logs";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 
@@ -13,7 +13,10 @@ interface Co2PredictionOutput {
     value: number;
 }
 
-export const calculateCO2eqEmissions = async (startDate: string, endDate: string): Promise<IDefaultActionReturnPayload<number>> => {
+export const calculateCO2eqEmissions = async (
+    startDate: string,
+    endDate: string,
+): Promise<IDefaultActionReturnPayload<number>> => {
     let session: Session | null = null;
     try {
         const { session: actionSession, user } = await getActionSession();
@@ -53,18 +56,14 @@ export const calculateCO2eqEmissions = async (startDate: string, endDate: string
     }
 };
 
-const getCO2Emissions = async (energyData: { timestamp: Date, value: number }[]) => {
-
-    const response = await fetch(
-        `${env.ML_API_URL}/v1/co2prediction`,
-        {
-            method: "POST",
-            headers: {
-                "x-api-key": env.ML_API_KEY,
-            },
-            body: JSON.stringify(energyData.map(x => ({ timestamp: x.timestamp, value: x.value }))),
+const getCO2Emissions = async (energyData: { timestamp: Date; value: number }[]) => {
+    const response = await fetch(`${env.ML_API_URL}/v1/co2prediction`, {
+        method: "POST",
+        headers: {
+            "x-api-key": env.ML_API_KEY,
         },
-    );
+        body: JSON.stringify(energyData.map((x) => ({ timestamp: x.timestamp, value: x.value }))),
+    });
 
     return (await response.json()).data as Co2PredictionOutput[];
 };
