@@ -3,7 +3,7 @@ import { convertTZDate } from "@energyleaf/lib";
 import type { DailyConsumption, DailyGoalProgress, DailyGoalStatistic, ReportProps } from "@energyleaf/lib";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { sendReport } from "@energyleaf/mail";
-import { getEnergySumForSensorInRange } from "@energyleaf/postgres/query/energy-get";
+import { getDayEnergyForSensorInRange, getEnergySumForSensorInRange } from "@energyleaf/postgres/query/energy-get";
 import { getLastReportForUser } from "@energyleaf/postgres/query/report";
 import { getElectricitySensorIdForUser } from "@energyleaf/postgres/query/sensor";
 import { getUserDataByUserId } from "@energyleaf/postgres/query/user";
@@ -85,18 +85,17 @@ async function getDailyConsumption(sensor: string, dateFrom: Date, interval: num
         date.setHours(0, 0, 0, 0);
         return convertTZDate(date);
     });
-    const tasks: Promise<DailyConsumption>[] = dates.map(async (date) => {
-        const serverEndDate = new Date(date);
-        serverEndDate.setHours(23, 59, 59, 999);
-        const endDate = convertTZDate(serverEndDate);
 
-        const sumOfDay = await getEnergySumForSensorInRange(date, endDate, sensor);
+    const tasks: Promise<DailyConsumption>[] = dates.map(async (date) => {
+        const dailyEnergy = await getDayEnergyForSensorInRange(date, date, sensor, "sum");
+        const sumOfDay = dailyEnergy.length > 0 ? dailyEnergy[0]?.consumption ?? 0 : 0;
 
         return {
             day: date,
             consumption: sumOfDay,
         };
     });
+
     return await Promise.all(tasks);
 }
 
