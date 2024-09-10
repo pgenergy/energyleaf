@@ -12,7 +12,7 @@ export default function HandbookButton({ endpoint }: Props) {
     }
 
     return (
-        <a href={endpoint}>
+        <a href={endpoint} target="_blank" rel="noopener noreferrer">
             <BookOpenTextIcon className="h-6 w-6" />
         </a>
     );
