@@ -1,15 +1,16 @@
 import DemoBanner from "@/components/footer/demo-banner";
 import Footer from "@/components/footer/footer";
+import HandbookButton from "@/components/nav/handbook-button";
 import NavbarAvatar from "@/components/nav/navbar-avatar";
 import ThemeSwitcher from "@/components/nav/theme-switcher";
 import PageView from "@/components/tracking/page-view";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
+import { getHandbookUrl } from "@/lib/help/handbook";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { Navbar } from "@energyleaf/ui/nav/navbar";
 import { Sidebar } from "@energyleaf/ui/nav/sidebar";
 import { DollarSignIcon, HomeIcon, LampIcon, LightbulbIcon, MailsIcon, SettingsIcon, ZapIcon } from "lucide-react";
-
 import { redirect } from "next/navigation";
 import type React from "react";
 
@@ -76,11 +77,14 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
     const filteredNavLinks = navLinks.filter((link) => !link.appVersion || fulfills(user.appVersion, link.appVersion));
 
+    const handbookEndpoint = getHandbookUrl(user.appVersion);
+
     return (
         <>
             <Navbar
                 actions={
                     <>
+                        <HandbookButton endpoint={handbookEndpoint} />
                         <ThemeSwitcher />
                         <NavbarAvatar user={{ ...user, phone: user.phone || null }} />
                     </>
