@@ -1,5 +1,5 @@
-import { calculateCO2eqEmissions } from "@/actions/co2";
 import { getSession } from "@/lib/auth/auth.server";
+import { calculateCO2eqEmissions } from "@/query/co2";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
@@ -41,8 +41,10 @@ export default async function CO2Card({ startDate, endDate }: Props) {
                             <Info className="ml-2 h-6 w-6" />
                         </PopoverTrigger>
                         <PopoverContent>
-                            CO2-Äquivalente, auch CO2e oder CO2eq sind eine Masseinheit, um die Klimawirkung
-                            unterschiedlicher Treibhausgase zu vergleichen.
+                            CO<sub>2</sub>-Äquivalente, kurz: CO<sub>2</sub>eq sind eine Masseinheit, um die
+                            Klimawirkung unterschiedlicher Treibhausgase zu vergleichen. Durch Ihren Energieverbrauch
+                            wurde diese Menge CO<sub>2</sub>eq freigesetzt. Als Berechnungsgrundlage werden historische
+                            Daten aus der Stromproduktion verwendet.
                         </PopoverContent>
                     </Popover>
                 </h1>
