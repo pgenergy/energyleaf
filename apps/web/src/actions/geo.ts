@@ -7,14 +7,6 @@ export interface OpenStreetMapProps {
 }
 
 export const lookupGeoLocation = cache(async (address: string) => {
-    if (address === "Demo Adresse") {
-        return {
-            lat: 53.1389753,
-            lon: 8.2146017,
-            display_name: "Oldenburg",
-        };
-    }
-
     const osmReq = await fetch(
         `https://nominatim.openstreetmap.org/search.php?q=${address}&accept-language=de&format=jsonv2`,
     );

@@ -1,18 +1,12 @@
 "use server";
 
+import { lookupGeoLocation } from "@/actions/geo";
 import { getActionSession } from "@/lib/auth/auth.action";
 import { getUserData } from "@/query/user";
 import { type DefaultActionReturnPayload, UserNotLoggedInError } from "@energyleaf/lib";
 import { logError, trackAction } from "@energyleaf/postgres/query/logs";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
-import { cache } from "react";
-
-interface OpenStreetMapProps {
-    lat: number;
-    lon: number;
-    display_name: string;
-}
 
 interface WeatherProps {
     timestamp: string;
@@ -41,7 +35,7 @@ export async function calculateSolar(watts: number): Promise<DefaultActionReturn
             throw new UserNotLoggedInError();
         }
 
-        const { lat, lon, display_name } = await lookupLocation(user.address);
+        const { lat, lon, display_name } = await lookupGeoLocation(user.address);
         const weatherData = await getWeather(lat, lon);
 
         const userData = await getUserData(user.id);
@@ -92,20 +86,6 @@ function calculate(weatherData: WeatherProps[], watts: number, workingPrice: num
     return { solar, result, price };
 }
 
-const lookupLocation = cache(async (loc: string) => {
-    const osmReq = await fetch(
-        `https://nominatim.openstreetmap.org/search.php?q=${loc}&accept-language=de&format=jsonv2`,
-    );
-
-    const body = (await osmReq.json()) as OpenStreetMapProps[];
-
-    if (!osmReq.ok || !body) {
-        throw { message: "OpenStreetMap Request Error", osmReq };
-    }
-
-    return body[0];
-});
-
 const getWeather = async (lat: number, lon: number) => {
     let d = new Date();
     d.setDate(new Date().getDate() - 30);
@@ -117,8 +97,11 @@ const getWeather = async (lat: number, lon: number) => {
     d.setMinutes(0, 0, 0);
     const last_date = d.toISOString();
 
+    const lat_ = lat.toFixed(2);
+    const lon_ = lon.toFixed(2);
+
     const weatherReq = await fetch(
-        `https://api.brightsky.dev/weather?date=${date}&last_date=${last_date}&lat=${lat}&lon=${lon}`,
+        `https://api.brightsky.dev/weather?date=${date}&last_date=${last_date}&lat=${lat_}&lon=${lon_}`,
         {
             headers: {
                 Accept: "application/json",
