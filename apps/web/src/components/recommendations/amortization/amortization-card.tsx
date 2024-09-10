@@ -13,7 +13,7 @@ export class DeviceItem {
     category: DeviceCategory;
     id: number;
     name: string;
-    powerEstimation: number;
+    power: number;
     weeklyUsageEstimation: number;
     weeklyUsage: number;
 }
@@ -30,17 +30,17 @@ export default async function AmortizationCard() {
 
     const devices = await getDevicesByUser(user.id);
     const mappedDevices: DeviceItem[] = devices
-        .filter((device) => device.powerEstimation && device.weeklyUsageEstimation)
+        .filter((device) => device.power && device.weeklyUsageEstimation)
         .map((device) => {
             const referenceData = getReferencePowerDataForDeviceCategory(device.category as DeviceCategory);
             return {
                 category: device.category as DeviceCategory,
                 id: device.id,
                 name: device.name,
-                powerEstimation: device.powerEstimation ?? 0,
+                power: device.power ?? 0,
                 weeklyUsageEstimation: device.weeklyUsageEstimation ?? 0,
                 weeklyUsage: device.weeklyUsageEstimation ?? 0,
-                diffToAveragePower: (device.powerEstimation ?? 0) - referenceData.averagePower,
+                diffToAveragePower: (device.power ?? 0) - referenceData.averagePower,
             };
         })
         .filter((d) => d.diffToAveragePower > 0)

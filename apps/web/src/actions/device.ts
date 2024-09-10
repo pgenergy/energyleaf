@@ -45,7 +45,8 @@ export async function createDevice(data: z.infer<typeof deviceSchema>) {
                 created: new Date(),
                 timestamp: new Date(),
                 userId: "demo",
-                powerEstimation: null,
+                power: data.power,
+                isPowerEstimated: data.isPowerEstimated,
                 weeklyUsageEstimation: null,
             });
             revalidatePath("/devices");
@@ -125,6 +126,8 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
                 ...device,
                 name: data.deviceName,
                 category: data.category,
+                power: data.power,
+                isPowerEstimated: data.isPowerEstimated,
             });
             revalidatePath("/devices");
             return;
@@ -141,6 +144,8 @@ export async function updateDevice(data: z.infer<typeof deviceSchema>, deviceId:
                 name: data.deviceName,
                 userId: userId,
                 category: data.category,
+                power: data.power,
+                isPowerEstimated: data.isPowerEstimated,
             });
             waitUntil(trackAction("device/update", "update-device", "web", { data, deviceId, session }));
         } catch (error) {

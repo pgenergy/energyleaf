@@ -46,7 +46,7 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         if (user.id === "demo") {
             // No devices need to be added since suggestions are not part of the demo.
             assignDemoDevicesToPeaks(cookies(), sensorDataId, devices);
-            updateDemoPowerEstimationForDevices(cookies());
+            await updateDemoPowerEstimationForDevices(cookies());
             revalidatePath("/dashboard");
             revalidatePath("/devices");
             revalidatePath("/energy");
