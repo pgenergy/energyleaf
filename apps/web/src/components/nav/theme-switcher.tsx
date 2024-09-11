@@ -22,7 +22,7 @@ export default function ThemeSwitcher() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost">
+                <Button size="icon" variant="ghost" className="hidden md:flex">
                     <SunMoonIcon className="h-6 w-6" />
                 </Button>
             </DropdownMenuTrigger>
