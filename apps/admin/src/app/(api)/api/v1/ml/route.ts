@@ -28,7 +28,7 @@ export const POST = async (req: NextRequest) => {
             return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
         }
 
-        const ml_res = await fetch(`${env.ML_API_URL}/classify_devices`, {
+        const ml_res = await fetch(`${env.ML_API_URL}/v4/classify_devices`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-protobuf",

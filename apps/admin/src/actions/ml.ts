@@ -36,7 +36,7 @@ const mlApi = async (body: RequestProps) => {
 
     const mlReq = DeviceClassificationPeakRequest.create(body);
 
-    const mlRes = await fetch(`${env.ML_API_URL}/classify_devices`, {
+    const mlRes = await fetch(`${env.ML_API_URL}/v4/classify_devices`, {
         method: "POST",
         headers: {
             "Content-Type": "application/x-protobuf",
