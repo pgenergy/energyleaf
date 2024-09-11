@@ -41,10 +41,10 @@ export default async function CO2Card({ startDate, endDate }: Props) {
                             <Info className="ml-2 h-6 w-6" />
                         </PopoverTrigger>
                         <PopoverContent>
-                            CO<sub>2</sub>-Äquivalente, kurz: CO<sub>2</sub>eq sind eine Maßeinheit, um die
-                            Klimawirkung unterschiedlicher Treibhausgase zu vergleichen. Durch Ihren Energieverbrauch
-                            wurde diese Menge CO<sub>2</sub>eq freigesetzt. Als Berechnungsgrundlage werden historische
-                            Daten aus der Stromproduktion verwendet.
+                            CO<sub>2</sub>-Äquivalente, kurz: CO<sub>2</sub>eq sind eine Maßeinheit, um die Klimawirkung
+                            unterschiedlicher Treibhausgase zu vergleichen. Durch Ihren Energieverbrauch wurde diese
+                            Menge CO<sub>2</sub>eq freigesetzt. Als Berechnungsgrundlage werden historische Daten aus
+                            der Stromproduktion verwendet.
                         </PopoverContent>
                     </Popover>
                 </h1>
