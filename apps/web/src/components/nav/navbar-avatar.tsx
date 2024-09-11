@@ -106,7 +106,7 @@ export default function NavbarAvatar({ user, guide }: Props) {
                 <DropdownMenuSeparator />
                 {guide ? (
                     <DropdownMenuItem asChild className="cursor-pointer">
-                        <Link href="/faq">
+                        <Link href={guide}>
                             <BookOpenIcon className="mr-2 h-4 w-4" />
                             Handbuch
                         </Link>
