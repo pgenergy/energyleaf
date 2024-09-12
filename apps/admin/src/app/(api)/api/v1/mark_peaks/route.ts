@@ -17,38 +17,32 @@ export const GET = async (req: NextRequest) => {
         const sensors = await getAllSensors(true);
         const sensorIds = sensors.map((d) => d.id);
 
-        const promises: Promise<void>[] = [];
         waitUntil(
             log("mark-peaks/length", "info", "mark-peaks", "api", {
                 numberOfSensors: sensorIds.length,
             }),
         );
-        const processEndpoint = `https://${getUrl(env)}/api/v1/process_peaks`;
+        const processEndpoint = `http://${getUrl(env)}/api/v1/process_peaks`;
         for (let i = 0; i < sensorIds.length; i++) {
             const sensorId = sensorIds[i];
 
-            const fn = async () => {
-                try {
-                    await fetch(processEndpoint, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            secret: cronSecret,
-                            sensorId,
-                        }),
-                    });
-                } catch (err) {
-                    console.error(err);
-                    waitUntil(logError("mark-peaks/failed", "mark-peaks", "api", { sensorId }, err));
-                }
-            };
-            promises.push(fn());
+            try {
+                await fetch(processEndpoint, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        secret: cronSecret,
+                        sensorId,
+                    }),
+                });
+            } catch (err) {
+                console.error(err);
+                waitUntil(logError("mark-peaks/failed", "mark-peaks", "api", { sensorId }, err));
+            }
         }
 
-        // use allSettled so we dont abort if one fails
-        await Promise.allSettled(promises);
         return NextResponse.json({ statusMessage: "Peaks successfully marked and classified where applicable." });
     } catch (err) {
         waitUntil(
