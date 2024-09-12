@@ -28,7 +28,6 @@
         "@energyleaf/tsconfig": "workspace:^",
         "@types/node": "^22.5.4",
         "drizzle-kit": "^0.24.2",
-        "mysql2": "^3.11.0",
-        "typescript": "^5.5.4"
+        "typescript": "^5.6.2"
     }
 }
