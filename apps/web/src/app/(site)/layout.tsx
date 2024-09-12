@@ -86,7 +86,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                     <>
                         <HandbookButton endpoint={handbookEndpoint} />
                         <ThemeSwitcher />
-                        <NavbarAvatar user={{ ...user, phone: user.phone || null }} />
+                        <NavbarAvatar user={{ ...user, phone: user.phone || null }} guide={handbookEndpoint} />
                     </>
                 }
                 links={filteredNavLinks}

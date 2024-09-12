@@ -1,5 +1,7 @@
 "use client";
 
+import { cn } from "@energyleaf/tailwindcss/utils";
+import { buttonVariants } from "@energyleaf/ui/button";
 import { BookOpenTextIcon } from "lucide-react";
 
 interface Props {
@@ -12,7 +14,12 @@ export default function HandbookButton({ endpoint }: Props) {
     }
 
     return (
-        <a href={endpoint} target="_blank" rel="noopener noreferrer">
+        <a
+            href={endpoint}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "hidden md:flex")}
+        >
             <BookOpenTextIcon className="h-6 w-6" />
         </a>
     );

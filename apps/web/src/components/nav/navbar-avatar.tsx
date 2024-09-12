@@ -9,10 +9,23 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@energyleaf/ui/dropdown-menu";
 import type { User } from "lucia";
-import { LightbulbIcon, LogOutIcon, SettingsIcon } from "lucide-react";
+import {
+    BookOpenIcon,
+    ComputerIcon,
+    LightbulbIcon,
+    LogOutIcon,
+    MoonIcon,
+    SettingsIcon,
+    SunIcon,
+    SunMoonIcon,
+} from "lucide-react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -20,11 +33,17 @@ import { toast } from "sonner";
 
 interface Props {
     user: User;
+    guide: string | null;
 }
 
-export default function NavbarAvatar({ user }: Props) {
+export default function NavbarAvatar({ user, guide }: Props) {
     const [_isPending, startTransition] = useTransition();
     const router = useRouter();
+    const theme = useTheme();
+
+    function switchTheme(value: string) {
+        theme.setTheme(value);
+    }
 
     function onDemoExit() {
         startTransition(() => {
@@ -84,6 +103,35 @@ export default function NavbarAvatar({ user }: Props) {
                         </Link>
                     </DropdownMenuItem>
                 ) : null}
+                <DropdownMenuSeparator />
+                {guide ? (
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link href={guide}>
+                            <BookOpenIcon className="mr-2 h-4 w-4" />
+                            Handbuch
+                        </Link>
+                    </DropdownMenuItem>
+                ) : null}
+                <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                        <SunMoonIcon className="mr-2 h-4 w-4" />
+                        Darstellung
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                        <DropdownMenuItem className="cursor-pointer" onClick={() => switchTheme("light")}>
+                            <SunIcon className="mr-2 h-4 w-4" />
+                            Hell
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer" onClick={() => switchTheme("dark")}>
+                            <MoonIcon className="mr-2 h-4 w-4" />
+                            Dunkel
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer" onClick={() => switchTheme("system")}>
+                            <ComputerIcon className="mr-2 h-4 w-4" />
+                            System
+                        </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                </DropdownMenuSub>
                 <DropdownMenuSeparator />
                 {user.id === "demo" ? (
                     <DropdownMenuItem className="cursor-pointer text-destructive" onClick={onDemoExit}>
