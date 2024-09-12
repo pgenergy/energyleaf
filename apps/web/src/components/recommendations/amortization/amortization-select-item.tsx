@@ -42,7 +42,7 @@ export default function AmortizationSelectItem({ device, isSelected, onClick, on
                 <div className="grid grid-cols-2 items-center text-left text-xs">
                     <span className="font-semibold">Geschätzte Leistung:</span>
                     <span>Wöchentl. Nutzungsdauer (in Stunden):</span>
-                    <span>{formatNumber(device.powerEstimation ?? 0)} W</span>
+                    <span>{formatNumber(device.power ?? 0)} W</span>
                     <div className="flex flex-row items-center gap-1">
                         <Input
                             type="number"
@@ -71,8 +71,8 @@ export default function AmortizationSelectItem({ device, isSelected, onClick, on
                                 <InfoIcon className="h-6 w-6" />
                             </PopoverTrigger>
                             <PopoverContent>
-                                Dieser Wert wurde anhand Ihrer Peaks geschätzt. Sie können ihn hier für die
-                                Amortisationsrechnung anpassen.
+                                Dieser Wert wurde anhand Ihrer Verbrauchsausschläge geschätzt. Sie können ihn hier für
+                                die Amortisationsrechnung anpassen.
                             </PopoverContent>
                         </Popover>
                     </div>

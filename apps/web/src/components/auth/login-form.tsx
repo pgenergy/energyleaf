@@ -72,7 +72,7 @@ export default function LoginForm(props: Props) {
             <p className="font-bold text-xl">Willkommen bei Energyleaf!</p>
             <p className="mb-2 text-muted-foreground">Bitte loggen Sie sich ein, um fortzufahren.</p>
             <Form {...form}>
-                <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+                <form method="POST" className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
                         control={form.control}
                         name="mail"

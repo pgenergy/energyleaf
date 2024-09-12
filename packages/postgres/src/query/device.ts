@@ -1,10 +1,10 @@
+import { estimateDevicePowers } from "@energyleaf/lib/math/device-power-estimation";
 import { type SQLWrapper, and, eq, inArray, sql } from "drizzle-orm";
-import { type MathNumericType, type Matrix, all, create } from "mathjs";
 import { type DB, db } from "../";
 import { deviceHistoryTable, deviceSuggestionsPeakTable, deviceTable, deviceToPeakTable } from "../schema/device";
 import { sensorDataSequenceTable } from "../schema/sensor";
 import { userDataTable } from "../schema/user";
-import type { DeviceCategory } from "../types/types";
+import type { DeviceCategory, DeviceSelectType } from "../types/types";
 
 export async function getDevicesByUser(userId: string, search?: string) {
     const conditions: SQLWrapper[] = [eq(deviceTable.userId, userId)];
@@ -50,17 +50,11 @@ async function createDeviceInternal(data: CreateDeviceType[], trx: DB) {
         .returning();
 }
 
-export async function updateDevice(id: number, data: Partial<CreateDeviceType>) {
+export async function updateDevice(id: number, data: Partial<DeviceSelectType>) {
     await db.transaction(async (trx) => {
         const deviceToUpdate = await getDeviceById(trx, id);
         await copyToHistoryTable(trx, deviceToUpdate);
-        await trx
-            .update(deviceTable)
-            .set({
-                name: data.name,
-                category: data.category,
-            })
-            .where(eq(deviceTable.id, id));
+        await trx.update(deviceTable).set(data).where(eq(deviceTable.id, id));
     });
 }
 
@@ -85,7 +79,6 @@ export async function updatePowerOfDevices(userId: string) {
             .leftJoin(sensorDataSequenceTable, eq(sensorDataSequenceTable.id, deviceToPeakTable.sensorDataSequenceId))
             .where(eq(deviceTable.userId, userId));
 
-        const devices = Array.from(new Set(devicesWithPeaks.map((device) => device.device.id)));
         const flattenPeak = devicesWithPeaks
             .filter((x) => x.device_to_peak && x.sensor_data_sequence)
             .map((device) => ({
@@ -107,48 +100,30 @@ export async function updatePowerOfDevices(userId: string) {
             ),
         );
 
-        const math = create(all, {});
+        const removeDuplicatesById = (devices: DeviceSelectType[]) => {
+            const seen = new Set();
+            return devices.filter((device) => {
+                const isDuplicate = seen.has(device.id);
+                seen.add(device.id);
+                return !isDuplicate;
+            });
+        };
 
-        // Extract matrices. A is a matrix of 0s and 1s, where each row corresponds to a peak and each column to a device. b is a matrix of power values for each peak.
-        const A = math.matrix(
-            peaks.map((dp) => {
-                const row = devices.map((device) => (dp.devices.includes(device) ? 1 : 0));
-                return row;
-            }),
-        );
-        const b = math.matrix(peaks.map((dp) => [dp.power]));
+        const devices = removeDuplicatesById(devicesWithPeaks.map((device) => device.device));
+        const powerEstimationResult = estimateDevicePowers(devices, peaks);
+        if (!powerEstimationResult) {
+            return;
+        }
 
-        // Solve the least squares problem: (A^T A) x = A^T b
-        const At = math.transpose(A);
-        const AtA = math.multiply(At, A);
-        const Atb = math.multiply(At, b);
-        const solution = math.lusolve(AtA, Atb);
+        const { result, rSquared, estimatedDeviceIds } = powerEstimationResult;
 
-        // Extract the solution values and save them to the database
-        const result = solution
-            .toArray()
-            .map((value, index) => ({ [devices[index]]: (value as MathNumericType[])[0] }));
-        for (const deviceId of devices) {
+        for (const deviceId of estimatedDeviceIds) {
             const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
             const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
             const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
-            await trx
-                .update(deviceTable)
-                .set({ powerEstimation: correctedPowerEstimation })
-                .where(eq(deviceTable.id, deviceId));
+            await trx.update(deviceTable).set({ power: correctedPowerEstimation }).where(eq(deviceTable.id, deviceId));
         }
 
-        // Calculate R^2
-        const residuals = math.subtract(b, math.multiply(A, solution));
-        const subtraction = math.subtract(b, math.mean(b)) as Matrix;
-        const SST = math.sum(math.map(subtraction, math.square));
-        const SSR = math.sum(math.map(residuals, math.square));
-        let rSquared: number;
-        if (SST === 0) {
-            rSquared = SSR === 0 ? 1 : 0;
-        } else {
-            rSquared = math.subtract(1, math.divide(SSR, SST)) as number;
-        }
         await trx
             .update(userDataTable)
             .set({ devicePowerEstimationRSquared: rSquared })
@@ -174,7 +149,8 @@ async function copyToHistoryTable(
         created: Date | null;
         timestamp: Date;
         category: string;
-        powerEstimation: number | null;
+        power: number | null;
+        isPowerEstimated: boolean;
     },
 ) {
     await trx.insert(deviceHistoryTable).values({
@@ -184,7 +160,8 @@ async function copyToHistoryTable(
         created: device.created,
         timestamp: device.timestamp,
         category: device.category,
-        powerEstimation: device.powerEstimation,
+        power: device.power,
+        isPowerEstimated: device.isPowerEstimated,
     });
 }
 

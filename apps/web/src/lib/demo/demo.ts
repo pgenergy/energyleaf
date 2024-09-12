@@ -1,6 +1,5 @@
 import { AggregationType, type ReportProps } from "@energyleaf/lib";
 import { getEnergyForSensorInRange, getEnergyLastEntry } from "@energyleaf/postgres/query/energy-get";
-import { findPeaks } from "@energyleaf/postgres/query/peaks";
 import {
     DeviceCategory,
     type DeviceSelectType,
@@ -10,11 +9,13 @@ import {
     type UserWithDataSelectType,
 } from "@energyleaf/postgres/types";
 import { differenceInDays, getDay, getMonth, getWeek, getWeekOfMonth, getYear } from "date-fns";
-import { type MathNumericType, type Matrix, all, create } from "mathjs";
+import {} from "mathjs";
 import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { cookies } from "next/headers";
 import { getActionSession } from "../auth/auth.action";
 import "server-only";
+import { estimateDevicePowers } from "@energyleaf/lib/math/device-power-estimation";
+import { getSequencesBySensor } from "@energyleaf/postgres/query/peaks";
 
 export async function isDemoUser() {
     const { session, user } = await getActionSession();
@@ -226,12 +227,8 @@ export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyReque
     const deviceToPeaks = JSON.parse(deviceToPeaksRaw.value) as SensorDeviceSequenceSelectType[];
     const devicesWithPeaks = deviceToPeaks.map((d) => {
         const peak = data.find((p) => p.id === d.sensorDataSequenceId);
-        const device = rawDevices.find((di) => di.id === d.deviceId);
 
         return {
-            device: {
-                ...device,
-            },
             device_to_peak: {
                 ...d,
             },
@@ -241,7 +238,6 @@ export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyReque
         };
     });
 
-    const devices = Array.from(new Set(devicesWithPeaks.map((device) => device.device.id))) as number[];
     const flattenPeak = devicesWithPeaks
         .filter((x) => x.device_to_peak && x.sensor_data_sequence)
         .map((device) => ({
@@ -263,48 +259,23 @@ export async function updateDemoPowerEstimationForDevices(cookies: ReadonlyReque
         ),
     );
 
-    const math = create(all, {});
+    const estimationResult = estimateDevicePowers(rawDevices, peaks);
+    if (!estimationResult) {
+        return;
+    }
 
-    // Extract matrices. A is a matrix of 0s and 1s, where each row corresponds to a peak and each column to a device. b is a matrix of power values for each peak.
-    const A = math.matrix(
-        peaks.map((dp) => {
-            const row = devices.map((device) => (dp.devices.includes(device) ? 1 : 0));
-            return row;
-        }),
-    );
-    const b = math.matrix(peaks.map((dp) => [dp.power]));
-
-    // Solve the least squares problem: (A^T A) x = A^T b
-    const At = math.transpose(A);
-    const AtA = math.multiply(At, A);
-    const Atb = math.multiply(At, b);
-    const solution = math.lusolve(AtA, Atb);
+    const { result, rSquared, estimatedDeviceIds } = estimationResult;
 
     // Extract the solution values and save them to the database
-    const result = solution.toArray().map((value: MathNumericType[] | MathNumericType, index: number) => ({
-        [devices[index]]: (value as MathNumericType[])[0],
-    }));
-    for (const deviceId of devices) {
+    for (const deviceId of estimatedDeviceIds) {
         const device = rawDevices.find((d) => d.id === deviceId) as DeviceSelectType;
         const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
         const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
         const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
         addOrUpdateDemoDeviceToCookieStore(cookies, {
             ...device,
-            powerEstimation: correctedPowerEstimation,
+            power: correctedPowerEstimation,
         });
-    }
-
-    // Calculate R^2
-    const residuals = math.subtract(b, math.multiply(A, solution));
-    const subtraction = math.subtract(b, math.mean(b)) as Matrix;
-    const SST = math.sum(math.map(subtraction, math.square));
-    const SSR = math.sum(math.map(residuals, math.square));
-    let rSquared: number;
-    if (SST === 0) {
-        rSquared = SSR === 0 ? 1 : 0;
-    } else {
-        rSquared = math.subtract(1, math.divide(SSR, SST)) as number;
     }
 
     const userData = cookies.get("demo_data");
@@ -524,29 +495,30 @@ export async function getDemoSensorData(
 }
 
 export async function getDemoPeaks(start: Date, end: Date): Promise<SensorDataSequenceSelectType[]> {
-    const peaksStart = new Date(start);
-    peaksStart.setHours(start.getHours() - 20);
-    const peaksEnd = new Date(end);
-    const data = await getDemoSensorData(peaksStart, peaksEnd, AggregationType.RAW);
-    const checkData = await getDemoSensorData(start, end, AggregationType.RAW);
-    if (data.length === 0) {
+    const lastEntry = await getDemoLastEnergyEntry();
+    if (!lastEntry) {
         return [];
     }
+    const dayDiff = differenceInDays(lastEntry.timestamp, new Date()) - 1;
+    const queryStart = new Date(start);
+    queryStart.setDate(queryStart.getDate() + dayDiff);
+    const queryEnd = new Date(end);
+    queryEnd.setDate(queryEnd.getDate() + dayDiff);
 
-    const peaks = findPeaks(data, checkData);
-    const dataWithoutPeaks = data.filter(
-        (item) => !peaks.some((peak) => item.timestamp >= peak.start && item.timestamp <= peak.end),
-    );
-    const averageBaseLoad = dataWithoutPeaks.reduce((acc, curr) => acc + curr.consumption, 0) / dataWithoutPeaks.length;
+    const queryData = await getSequencesBySensor("demo_sensor", { start: queryStart, end: queryEnd });
+    return queryData.map((item) => {
+        const seqDayDiff = differenceInDays(new Date(), item.start);
+        const sequenceStart = new Date(item.start);
+        sequenceStart.setDate(sequenceStart.getDate() + seqDayDiff);
+        const sequenceEnd = new Date(item.end);
+        sequenceEnd.setDate(sequenceEnd.getDate() + seqDayDiff);
 
-    return peaks.map((peak) => ({
-        id: Buffer.from(peak.start.getTime().toString()).toString("base64"),
-        sensorId: "demo_sensor",
-        start: peak.start,
-        end: peak.end,
-        averagePeakPower: peak.averagePowerIncludingBaseLoad - averageBaseLoad,
-        type: "peak",
-    }));
+        return {
+            ...item,
+            start: sequenceStart,
+            end: sequenceEnd,
+        };
+    });
 }
 
 export async function getDemoLastEnergyEntry() {

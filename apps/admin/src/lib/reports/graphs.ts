@@ -1,4 +1,10 @@
-import { type DailyConsumption, type DailyGoalProgress, formatDate, formatNumber } from "@energyleaf/lib";
+import {
+    type DailyConsumption,
+    type DailyGoalProgress,
+    convertTZDate,
+    formatDate,
+    formatNumber,
+} from "@energyleaf/lib";
 import { renderChart } from "@energyleaf/lib/utils/chart-to-png";
 import type { ChartConfiguration, ChartOptions } from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";
@@ -11,7 +17,7 @@ export function renderDailyConsumptionChart(dayStatistics: DailyConsumption[]) {
         {
             type: "bar",
             data: {
-                labels: dayStatistics.map((x) => formatDate(x.day)),
+                labels: dayStatistics.map((x) => formatDate(convertTZDate(x.day, "client"))),
                 datasets: [
                     {
                         label: "Täglicher Verbrauch in kWh",
