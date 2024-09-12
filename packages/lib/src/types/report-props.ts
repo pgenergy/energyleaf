@@ -1,3 +1,5 @@
+import { convertTZDate } from "../utils/util";
+
 export interface DailyGoalProgress {
     day: Date;
     dailyConsumption: number;
@@ -48,4 +50,24 @@ export interface ReportProps {
      * The values of the last report to compare with the new report
      */
     lastReport?: LastReport;
+}
+
+export function reportPropsLocalTime(props: ReportProps) {
+    return {
+        ...props,
+        dateFrom: convertTZDate(props.dateFrom, "client"),
+        dateTo: convertTZDate(props.dateTo, "client"),
+        dayEnergyStatistics: props.dayEnergyStatistics?.map((stat) => ({
+            ...stat,
+            day: convertTZDate(stat.day, "client"),
+        })),
+        bestDay: {
+            ...props.bestDay,
+            day: convertTZDate(props.bestDay.day, "client"),
+        },
+        worstDay: {
+            ...props.worstDay,
+            day: convertTZDate(props.worstDay.day, "client"),
+        },
+    };
 }
