@@ -22,7 +22,7 @@ export const GET = async (req: NextRequest) => {
                 numberOfSensors: sensorIds.length,
             }),
         );
-        const processEndpoint = `http://${getUrl(env)}/api/v1/process_peaks`;
+        const processEndpoint = `https://${getUrl(env)}/api/v1/process_peaks`;
         for (let i = 0; i < sensorIds.length; i++) {
             const sensorId = sensorIds[i];
 
