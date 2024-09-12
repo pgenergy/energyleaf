@@ -1,4 +1,4 @@
-import { DismissedReasonEnum, type ReportProps, formatDate } from "@energyleaf/lib";
+import { DismissedReasonEnum, type ReportProps, convertTZDate, formatDate } from "@energyleaf/lib";
 import type * as React from "react";
 import { Resend } from "resend";
 import AccountActivatedTemplate from "../templates/account-activated";
@@ -254,11 +254,33 @@ export async function sendReport(options: ReportMailOptions) {
     }
     const resend = createResend(options.apiKey);
 
+    const optionsWithClientDates = {
+        ...options,
+        dateFrom: convertTZDate(options.dateFrom, "client"),
+        dateTo: convertTZDate(options.dateTo, "client"),
+        dayEnergyStatistics: options.dayEnergyStatistics?.map((stat) => ({
+            ...stat,
+            day: convertTZDate(stat.day, "client"),
+        })),
+        bestDay: {
+            ...options.bestDay,
+            day: convertTZDate(options.bestDay.day, "client"),
+        },
+        worstDay: {
+            ...options.worstDay,
+            day: convertTZDate(options.worstDay.day, "client"),
+        },
+    };
+
     const resp = await resend.emails.send({
-        to: options.to,
-        from: options.from,
-        subject: `Energyleaf: Bericht von ${formatDate(options.dateFrom)} bis ${formatDate(options.dateTo)}`,
-        react: ReportTemplate(options, options.unsubscribeLink, options.reportPageLink),
+        to: optionsWithClientDates.to,
+        from: optionsWithClientDates.from,
+        subject: `Energyleaf: Bericht von ${formatDate(optionsWithClientDates.dateFrom)} bis ${formatDate(optionsWithClientDates.dateTo)}`,
+        react: ReportTemplate(
+            optionsWithClientDates,
+            optionsWithClientDates.unsubscribeLink,
+            optionsWithClientDates.reportPageLink,
+        ),
     });
 
     if (resp.error) {
