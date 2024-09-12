@@ -82,8 +82,7 @@ async function getDailyConsumption(sensor: string, dateFrom: Date, interval: num
     const dates = new Array(interval).fill(null).map((_, index) => {
         const date = new Date(dateFrom);
         date.setDate(date.getDate() + index);
-        date.setHours(0, 0, 0, 0);
-        return convertTZDate(date);
+        return date;
     });
 
     const tasks: Promise<DailyConsumption>[] = dates.map(async (date) => {
