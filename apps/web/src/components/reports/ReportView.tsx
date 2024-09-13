@@ -1,5 +1,6 @@
 import KeyFiguresOverviewCard from "@/components/reports/key-figures-overview-card";
 import { getReportById } from "@/query/reports";
+import { reportPropsLocalTime } from "@energyleaf/lib";
 import React from "react";
 import DailyAbsoluteEnergyCard from "./daily-absolute-energy-card";
 import DayStatisticsCard from "./day-statistics-card";
@@ -10,11 +11,13 @@ interface Props {
 }
 
 export default async function ReportView(props: Props) {
-    const report = await getReportById(props.reportId, props.userId);
+    let report = await getReportById(props.reportId, props.userId);
 
     if (!report) {
         return null;
     }
+
+    report = reportPropsLocalTime(report);
 
     return (
         <div className="flex flex-col gap-4">

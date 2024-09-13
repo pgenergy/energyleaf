@@ -20,6 +20,7 @@ import {
     ExternalLink,
     Info,
     LightbulbIcon,
+    PinIcon,
 } from "lucide-react";
 import { Fragment } from "react";
 import DeviceCategoryIcon from "../device-category-icon";
@@ -100,7 +101,7 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
         },
     },
     {
-        accessorKey: "powerEstimation",
+        accessorKey: "power",
         header: ({ column }) => {
             return (
                 <Button
@@ -109,7 +110,7 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
                     }}
                     variant="ghost"
                 >
-                    Geschätzte Leistung
+                    Leistung
                     {column.getIsSorted() === "asc" ? (
                         <ChevronUpIcon className="ml-2 h-4 w-4" />
                     ) : column.getIsSorted() === "desc" ? (
@@ -121,33 +122,51 @@ export const devicesColumns: ColumnDef<DeviceColumnsType>[] = [
             );
         },
         cell: ({ row }) => {
-            const powerValue = row.getValue("powerEstimation");
+            const powerValue = row.getValue("power");
+            const isEstimated = row.original.isPowerEstimated;
+
             if (!powerValue) {
                 return (
                     <div
                         className="flex flex-row items-center"
-                        title="Die Leistung dieses Gerätes kann noch nicht geschätzt werden. Bitte markieren Sie weitere Peaks, um eine Schätzung zu erhalten."
+                        title="Die Leistung dieses Gerätes kann noch nicht geschätzt werden. Bitte markieren Sie weitere Verbrauchsausschläge, um eine Schätzung zu erhalten."
                     >
                         <CircleAlert className="mr-2 h-5 w-5 text-warning" />
                         Nicht verfügbar
                     </div>
                 );
             }
-            return `${formatNumber(Number(powerValue))} Watt`;
+
+            return (
+                <div className="flex flex-row items-center">
+                    {formatNumber(Number(powerValue))} Watt
+                    {!isEstimated && (
+                        <Popover>
+                            <PopoverTrigger>
+                                <PinIcon className="ml-2 h-5 w-5" />
+                            </PopoverTrigger>
+                            <PopoverContent>
+                                Sie haben die Leistung dieses Gerätes manuell festgelegt, sodass sie nicht mehr
+                                geschätzt wird.
+                            </PopoverContent>
+                        </Popover>
+                    )}
+                </div>
+            );
         },
     },
     {
         accessorKey: "categoryReferenceData",
         header: "Vergleich zu Referenz",
         cell: ({ row }) => {
-            const powerEstimation = row.getValue<number | null>("powerEstimation");
-            if (!powerEstimation) {
+            const power = row.getValue<number | null>("power");
+            if (!power) {
                 return null;
             }
 
             const deviceCategoryPower = row.getValue<DeviceCategoryPower>("categoryReferenceData");
             const { minimumPower, maximumPower, linkToSource } = deviceCategoryPower;
-            const state = getCategoryPowerState(deviceCategoryPower, powerEstimation);
+            const state = getCategoryPowerState(deviceCategoryPower, power);
             const stateDeterminationDescription = deviceCategoryPowerStateDescription[state];
 
             return (

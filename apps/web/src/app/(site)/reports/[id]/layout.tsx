@@ -51,11 +51,8 @@ export default async function ReportsPageLayout({ children, params }: Props) {
         );
     }
 
-    const toDate = convertTZDate(report.dateTo);
-    const fromDate = convertTZDate(report.dateFrom);
-    const reportHasMoreThanOneDay = !(
-        differenceInDays(convertTZDate(toDate, "client"), convertTZDate(fromDate, "client")) === 1
-    );
+    const reportHasMoreThanOneDay =
+        differenceInDays(convertTZDate(report.dateTo, "client"), convertTZDate(report.dateFrom, "client")) > 0;
     const stringEnd = reportHasMoreThanOneDay
         ? `${formatDate(convertTZDate(report.dateFrom, "client"))} - ${formatDate(convertTZDate(report.dateTo, "client"))}`
         : ` vom ${formatDate(convertTZDate(report.dateTo, "client"))}`;

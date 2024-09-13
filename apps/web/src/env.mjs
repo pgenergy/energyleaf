@@ -24,6 +24,10 @@ export const env = createEnv({
         AWS_REGION: z.string().optional(),
         BUCKET_NAME: z.string().optional(),
         FILE_URL: z.string().optional(),
+
+        HANDBOOK_TRANSPARENCY_VERSION_KEY: z.string().optional(),
+        HANDBOOK_SELF_REFLECTION_VERSION_KEY: z.string().optional(),
+        HANDBOOK_SUPPORT_VERSION_KEY: z.string().optional(),
     },
     client: {
         NEXT_PUBLIC_ADMIN_URL: z.string(),

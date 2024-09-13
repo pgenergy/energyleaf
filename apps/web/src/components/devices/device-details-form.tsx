@@ -8,9 +8,12 @@ import {
     getDeviceCategories,
 } from "@energyleaf/postgres/types";
 import type { DeviceSelectType } from "@energyleaf/postgres/types";
+import {} from "@energyleaf/ui/alert";
 import { Button } from "@energyleaf/ui/button";
+import { Checkbox } from "@energyleaf/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import {
     Select,
     SelectContent,
@@ -22,6 +25,7 @@ import {
     SelectValue,
 } from "@energyleaf/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleAlert, InfoIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -38,6 +42,8 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
         defaultValues: {
             deviceName: device?.name ?? "",
             category: device?.category ?? "",
+            power: device?.power ?? null,
+            isPowerEstimated: device?.isPowerEstimated ?? true,
         },
     });
 
@@ -131,6 +137,76 @@ export default function DeviceDetailsForm({ device, onCallback }: Props) {
                             <FormMessage />
                         </FormItem>
                     )}
+                />
+                <div className="pb-4" />
+                <p className="font-medium text-lg">Leistung (in Watt)</p>
+                <FormField
+                    control={form.control}
+                    name="isPowerEstimated"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center gap-2 space-y-0">
+                            <FormControl>
+                                <Checkbox
+                                    checked={!field.value}
+                                    onCheckedChange={(e) => {
+                                        field.onChange(!e);
+                                        if (!e) {
+                                            form.resetField("power");
+                                        }
+                                    }}
+                                />
+                            </FormControl>
+                            <FormLabel className="text-sm">Leistung manuell festlegen</FormLabel>
+                            <Popover>
+                                <PopoverTrigger>
+                                    <InfoIcon className="h-4 w-4" />
+                                </PopoverTrigger>
+                                <PopoverContent>
+                                    Wenn Sie diese Einstellung aktivieren, wird der angegebene Wert für die Leistung
+                                    festgesetzt. Dadurch wird die Leistung des Gerätes nicht mehr auf Basis der
+                                    Verbrauchsausschläge geschätzt.
+                                </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="power"
+                    render={({ field }) => {
+                        const isPowerEstimated = form.getValues().isPowerEstimated;
+                        return (
+                            <FormItem>
+                                <FormControl>
+                                    <div className="flex flex-row items-center gap-1">
+                                        {field.value === null && isPowerEstimated && (
+                                            <Popover>
+                                                <PopoverTrigger>
+                                                    <CircleAlert className="mr-2 h-5 w-5 text-warning" />
+                                                </PopoverTrigger>
+                                                <PopoverContent>
+                                                    Die Leistung dieses Gerätes kann noch nicht geschätzt werden. Bitte
+                                                    markieren Sie weitere Verbrauchsausschläge, um eine Schätzung zu
+                                                    erhalten.
+                                                </PopoverContent>
+                                            </Popover>
+                                        )}
+                                        <Input
+                                            type="number"
+                                            {...field}
+                                            value={field.value ?? undefined}
+                                            onChange={(e) => {
+                                                field.onChange(Number(e.target.value));
+                                            }}
+                                            disabled={isPowerEstimated}
+                                        />
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        );
+                    }}
                 />
                 <Button className="mt-4" disabled={device !== undefined && !form.formState.isDirty} type="submit">
                     Speichern

@@ -326,13 +326,13 @@ async function getSequenceMarkingPeriod(sensorId: string, type: "peak" | "anomal
     if (lastMarking) {
         const laterDate = lastSequenceEnd && lastSequenceEnd > lastMarking ? lastSequenceEnd : lastMarking;
         const start = new Date(laterDate);
-        start.setMilliseconds(start.getMilliseconds() + 1); // Add one milliseconds so that the periods don't overlap
+        start.setMilliseconds(start.getMilliseconds() + 1000); // Add one second so that the periods don't overlap
         return { start: start <= end ? start : end, end };
     }
 
     if (lastSequenceEnd) {
         const start = new Date(lastSequenceEnd);
-        start.setMilliseconds(start.getMilliseconds() + 1); // Add one milliseconds so that the periods don't overlap
+        start.setMilliseconds(start.getMilliseconds() + 1000); // Add one second so that the periods don't overlap
         return { start: start <= end ? start : end, end };
     }
 
