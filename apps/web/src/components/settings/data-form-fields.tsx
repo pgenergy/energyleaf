@@ -118,8 +118,8 @@ export default function DataFormFields({ form, disabled }: Props) {
                     <FormItem>
                         <FormLabel>Strompreis (in €/kWh)</FormLabel>
                         <FormDescription>
-                            An Stromanbieter zu entrichtender Preis pro Kilowattstunde und enthält Grundpreis,
-                            Arbeitspreis und Steuern.
+                            An den Stromanbieter zu entrichtender Preis pro Kilowattstunde, der den Grundpreis,
+                            Arbeitspreis und Steuern enthält.
                         </FormDescription>
 
                         <FormControl>
