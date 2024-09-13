@@ -56,7 +56,7 @@ export const calculateCO2eqEmissions = async (
     }
 };
 
-const getCO2Emissions = async (energyData: { timestamp: Date; value: number }[]) => {
+const getCO2Emissions = async (energyData: { timestamp: Date; consumption: number }[]) => {
     const response = await fetch(`${env.ML_API_URL}/v1/co2prediction`, {
         method: "POST",
         headers: {
@@ -64,7 +64,7 @@ const getCO2Emissions = async (energyData: { timestamp: Date; value: number }[])
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            data: energyData.map((x) => ({ timestamp: x.timestamp, value: x.value })),
+            data: energyData.map((x) => ({ timestamp: x.timestamp, value: x.consumption })),
         }),
     });
 
