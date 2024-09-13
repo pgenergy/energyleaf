@@ -199,7 +199,7 @@ export default async function FaqPage() {
                             <AccordionContent>
                                 <p>
                                     Der <span className="font-semibold">Strompreis</span> ist ein an den Stromanbieter
-                                    zu entrichtenden Preis pro Kilowattstunde, der den Grundpreis, Arbeitspreis und
+                                    zu entrichtender Preis pro Kilowattstunde, der den Grundpreis, Arbeitspreis und
                                     Steuern enthält.
                                 </p>
                                 <p>
