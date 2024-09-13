@@ -88,7 +88,7 @@ export default function SignUpForm() {
             <p className="font-bold text-xl">Das Abenteuer beginnt hier!</p>
             <p className="mb-2 text-muted-foreground">Verständnis über den eigenen Energieverbrauch aufbauen.</p>
             <Form {...form}>
-                <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+                <form method="POST" className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                     {/* Personal Info */}
                     <p className="font-medium text-lg">Persönliche Informationen</p>
                     <Separator />

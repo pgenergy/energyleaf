@@ -23,6 +23,7 @@ export default async function FaqPage() {
                     auf die Frage, um die Antwort angezeigt zu bekommen.
                 </CardDescription>
                 <CardContent>
+                    <h2 className="mt-6 font-extrabold text-xl">Über Energyleaf</h2>
                     <Accordion collapsible type="single">
                         <AccordionItem value="item-1">
                             <AccordionTrigger>Was bringt mir die Nutzung von Energyleaf?</AccordionTrigger>
@@ -56,6 +57,10 @@ export default async function FaqPage() {
                                 philipp.staudt@uni-oldenburg.de erreichen können.
                             </AccordionContent>
                         </AccordionItem>
+                    </Accordion>
+
+                    <h2 className="mt-6 font-extrabold text-xl">Energyleaf bedienen</h2>
+                    <Accordion collapsible type="single">
                         <AccordionItem value="item-4">
                             <AccordionTrigger>
                                 Wie kann ich meinen aktuellen Energieverbrauch in Echtzeit überwachen?
@@ -124,6 +129,10 @@ export default async function FaqPage() {
                                 </AccordionItem>
                             </div>
                         )}
+                    </Accordion>
+
+                    <h2 className="mt-6 font-extrabold text-xl">Weitere Informationen</h2>
+                    <Accordion collapsible type="single">
                         <AccordionItem value="item-10">
                             <AccordionTrigger>Wo finde ich weitere Stromsparhilfen?</AccordionTrigger>
                             <AccordionContent>
@@ -154,6 +163,53 @@ export default async function FaqPage() {
                                     https://www.awattar.de
                                 </a>{" "}
                                 Dies könnte bei einem flexiblen Stromtarif von Vorteil sein.
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+
+                    <h2 className="mt-6 font-extrabold text-xl">Einheiten und Größen</h2>
+                    <Accordion collapsible type="single">
+                        <AccordionItem value="item-12">
+                            <AccordionTrigger>Was ist eine Kilowattstunde?</AccordionTrigger>
+                            <AccordionContent>
+                                <p>
+                                    Eine Kilowattstunde (kWh) ist eine Maßeinheit für Energie. Sie sagt aus, wie viel
+                                    Energie ein Gerät verbraucht, das eine Leistung von{" "}
+                                    <span className="font-semibold">1 Kilowatt (1000 Watt)</span> hat, wenn es{" "}
+                                    <span className="font-semibold">eine Stunde</span> lang läuft.
+                                </p>
+                                <p>
+                                    Beispiel: Ein Gerät mit 1000 Watt muss eine Stunde lang benutzt werden, bis 1 kWh
+                                    verbraucht wird. Aber ein Gerät mit 2000 Watt benötigt nur eine halbe Stunde, um 1
+                                    kWh zu verbrauchen, weil es doppelt so viel Leistung hat.
+                                </p>
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-13">
+                            <AccordionTrigger>Was ist (elektrische) Leistung?</AccordionTrigger>
+                            <AccordionContent>
+                                Elektrische Leistung ist ein Maß dafür, wie viel elektrische Energie ein Gerät in einer
+                                bestimmten Zeit nutzt. Sie gibt an, wie „stark“ oder „schnell“ ein Gerät Energie
+                                verbraucht oder abgibt. Die elektrische Leistung wird in Watt (W) gemessen und wird vom
+                                Elektrogerät angegeben.
+                            </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-14">
+                            <AccordionTrigger>Welche Kosten gibt es beim Strom?</AccordionTrigger>
+                            <AccordionContent>
+                                <p>
+                                    Der <span className="font-semibold">Strompreis</span> ist ein an den Stromanbieter
+                                    zu entrichtenden Preis pro Kilowattstunde, der den Grundpreis, Arbeitspreis und
+                                    Steuern enthält.
+                                </p>
+                                <p>
+                                    Der <span className="font-semibold">Strom-Grundpreis</span> ist eine
+                                    verbrauchsunabhängige Gebühr (in €) pro Monat, entspricht dem Arbeitspreis.
+                                </p>
+                                <p>
+                                    Der <span className="font-semibold">monatliche Abschlag</span> ist ein an den
+                                    Energielieferanten pro Monat zu zahlender Betrag.
+                                </p>
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>

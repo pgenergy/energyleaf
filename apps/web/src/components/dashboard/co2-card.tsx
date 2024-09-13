@@ -19,7 +19,7 @@ export default async function CO2Card({ startDate, endDate }: Props) {
     }
 
     const result = await calculateCO2eqEmissions(startDate.toISOString(), endDate.toISOString());
-    if (!result.success || !result.payload) {
+    if (!result.success || result.payload === undefined) {
         throw new Error(result.message);
     }
 
@@ -32,13 +32,11 @@ export default async function CO2Card({ startDate, endDate }: Props) {
                 <CardDescription>Im ausgewählten Zeitraum</CardDescription>
             </CardHeader>
             <CardContent>
-                <h1 className="text-center font-bold text-2xl">
-                    <span className="text-primary">
-                        {formatNumber(result.payload)} g CO<sub>2</sub>eq
-                    </span>
+                <h1 className="text-center font-bold font-mono">
+                    {formatNumber(result.payload)} g CO<sub>2</sub>eq
                     <Popover>
                         <PopoverTrigger className="text-s">
-                            <Info className="ml-2 h-6 w-6" />
+                            <Info className="ml-2 h-5 w-5" />
                         </PopoverTrigger>
                         <PopoverContent>
                             CO<sub>2</sub>-Äquivalente, kurz: CO<sub>2</sub>eq sind eine Maßeinheit, um die Klimawirkung

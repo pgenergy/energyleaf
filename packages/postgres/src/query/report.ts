@@ -41,12 +41,12 @@ export async function getUsersWitDueReport() {
             and(
                 or(
                     gt(
-                        sql`DATE_PART('day', NOW()::timestamp - ${reportConfigTable.timestampLast})`,
+                        sql`DATE_PART('day', NOW()::timestamp - DATE_TRUNC('day', ${reportConfigTable.timestampLast}))`,
                         reportConfigTable.interval,
                     ),
                     and(
                         eq(
-                            sql`DATE_PART('day', NOW()::timestamp - ${reportConfigTable.timestampLast})`,
+                            sql`DATE_PART('day', NOW()::timestamp - DATE_TRUNC('day', ${reportConfigTable.timestampLast}))`,
                             reportConfigTable.interval,
                         ),
                         lte(reportConfigTable.time, new Date().getHours()),

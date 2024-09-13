@@ -71,7 +71,7 @@ export default function ResetForm() {
             <p className="font-bold text-xl">Passwort zurücksetzen</p>
 
             <Form {...form}>
-                <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+                <form method="POST" className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
                     <FormField
                         control={form.control}
                         name="password"

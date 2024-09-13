@@ -1,6 +1,6 @@
 "use client";
 
-import { formatDate } from "@energyleaf/lib";
+import { convertTZDate, formatDate } from "@energyleaf/lib";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
 import { differenceInDays } from "date-fns";
 import { useRouter } from "next/navigation";
@@ -26,10 +26,13 @@ export default function ReportSelector({ last20Reports, reportId }: ReportSelect
                 </SelectTrigger>
                 <SelectContent>
                     {last20Reports.map((report) => {
-                        const reportHasMoreThanOneDay = !(differenceInDays(report.dateTo, report.dateFrom) === 1);
+                        const from = convertTZDate(report.dateFrom, "client");
+                        const to = convertTZDate(report.dateTo, "client");
+
+                        const reportHasMoreThanOneDay = differenceInDays(to, from) > 0;
                         const dateString = reportHasMoreThanOneDay
-                            ? `Bericht ${formatDate(report.dateFrom)} - ${formatDate(report.dateTo)}`
-                            : `Bericht vom ${formatDate(report.dateFrom)}`;
+                            ? `Bericht ${formatDate(from)} - ${formatDate(to)}`
+                            : `Bericht vom ${formatDate(from)}`;
                         return (
                             <SelectItem key={report.id} value={report.id}>
                                 {dateString}

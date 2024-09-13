@@ -28,26 +28,20 @@ const fn = async (sensorId: string) => {
         startDate = result.start;
         endDate = result.end;
 
-        if (!startDate || !endDate) {
-            throw new Error("Start date or end date is undefined.");
-        }
-
         const user = await getUserBySensorId(sensorId);
 
         if (user && fulfills(user.appVersion, Versions.support)) {
             const peaks = await getSequencesBySensor(sensorId, { start: startDate, end: endDate });
 
-            const peaksToClassify = await Promise.all(
-                peaks.map(async (peak) => {
-                    return {
-                        id: peak.id,
-                        electricity: peak.sensorData.map((data) => ({
-                            timestamp: data.timestamp.toISOString(),
-                            power: data.consumption / 1000,
-                        })),
-                    };
-                }),
-            );
+            const peaksToClassify = peaks.map((peak) => {
+                return {
+                    id: peak.id,
+                    electricity: peak.sensorData.map((data) => ({
+                        timestamp: data.timestamp.toISOString(),
+                        power: data.consumption / 1000,
+                    })),
+                };
+            });
 
             await classifyAndSaveDevicesForPeaks(peaksToClassify, user.userId);
         }
