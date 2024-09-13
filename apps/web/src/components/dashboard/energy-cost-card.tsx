@@ -50,24 +50,24 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Energiekosten</CardTitle>
+                <div className="flex flex-row items-center gap-2">
+                    <CardTitle>Energiekosten</CardTitle>
+                    <Popover>
+                        <PopoverTrigger>
+                            <Info className="h-5 w-5" />
+                        </PopoverTrigger>
+                        <PopoverContent className="text-s">
+                            Der Preis setzt sich aus den in diesen Zeitraum fälligen Grundkosten (
+                            {formatNumber(parsedTotalBaseCost)} €) und den eigentlichen Kosten für den Verbrauch (
+                            {formatNumber(parsedTotalWorkingCost)} €) zusammen.
+                        </PopoverContent>
+                    </Popover>
+                </div>
                 <CardDescription>Im ausgewählten Zeitraum</CardDescription>
             </CardHeader>
             <CardContent>
                 {parsedTotalCost > 0 ? (
-                    <h1 className="text-center font-bold font-mono">
-                        {formatNumber(parsedTotalCost)} €
-                        <Popover>
-                            <PopoverTrigger>
-                                <Info className="ml-2 h-5 w-5" />
-                            </PopoverTrigger>
-                            <PopoverContent className="text-s">
-                                Der Preis setzt sich aus den in diesen Zeitraum fälligen Grundkosten (
-                                {formatNumber(parsedTotalBaseCost)} €) und den eigentlichen Kosten für den Verbrauch (
-                                {formatNumber(parsedTotalWorkingCost)} €) zusammen.
-                            </PopoverContent>
-                        </Popover>
-                    </h1>
+                    <h1 className="text-center font-bold font-mono">{formatNumber(parsedTotalCost)} €</h1>
                 ) : (
                     <Link
                         href="/settings"
