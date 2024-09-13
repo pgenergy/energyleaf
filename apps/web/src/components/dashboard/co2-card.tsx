@@ -26,17 +26,13 @@ export default async function CO2Card({ startDate, endDate }: Props) {
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>
-                    CO<sub>2</sub> Emissionen
-                </CardTitle>
-                <CardDescription>Im ausgewählten Zeitraum</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <h1 className="text-center font-bold font-mono">
-                    {formatNumber(result.payload)} g CO<sub>2</sub>eq
+                <div className="flex flex-row items-center gap-2">
+                    <CardTitle>
+                        CO<sub>2</sub> Emissionen
+                    </CardTitle>
                     <Popover>
                         <PopoverTrigger className="text-s">
-                            <Info className="ml-2 h-5 w-5" />
+                            <Info className="h-5 w-5" />
                         </PopoverTrigger>
                         <PopoverContent>
                             CO<sub>2</sub>-Äquivalente, kurz: CO<sub>2</sub>eq sind eine Maßeinheit, um die Klimawirkung
@@ -45,6 +41,12 @@ export default async function CO2Card({ startDate, endDate }: Props) {
                             der Stromproduktion verwendet.
                         </PopoverContent>
                     </Popover>
+                </div>
+                <CardDescription>Im ausgewählten Zeitraum</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <h1 className="text-center font-bold font-mono">
+                    {formatNumber(result.payload)} g CO<sub>2</sub>eq
                 </h1>
             </CardContent>
         </Card>

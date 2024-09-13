@@ -4,7 +4,8 @@ import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/e
 import { getUserDataHistory } from "@/query/user";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { ArrowRightIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
+import { ArrowRightIcon, Info } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -41,20 +42,32 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
 
     const userData = await getUserDataHistory(userId);
 
-    const rawCosts = calculateCosts(userData, energyDataRaw);
-    const cost = rawCosts.toFixed(2);
-    const parsedCost = Number.parseFloat(cost);
-    const formattedCost = formatNumber(parsedCost);
+    const { totalCost, totalWorkingCost, totalBasePrice } = calculateCosts(userData, energyDataRaw);
+    const parsedTotalCost = Number.parseFloat(totalCost.toFixed(2));
+    const parsedTotalWorkingCost = Number.parseFloat(totalWorkingCost.toFixed(2));
+    const parsedTotalBaseCost = Number.parseFloat(totalBasePrice.toFixed(2));
 
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>Energiekosten</CardTitle>
+                <div className="flex flex-row items-center gap-2">
+                    <CardTitle>Energiekosten</CardTitle>
+                    <Popover>
+                        <PopoverTrigger>
+                            <Info className="h-5 w-5" />
+                        </PopoverTrigger>
+                        <PopoverContent className="text-s">
+                            Der Preis setzt sich aus den in diesen Zeitraum fälligen Grundkosten (
+                            {formatNumber(parsedTotalBaseCost)} €) und den eigentlichen Kosten für den Verbrauch (
+                            {formatNumber(parsedTotalWorkingCost)} €) zusammen.
+                        </PopoverContent>
+                    </Popover>
+                </div>
                 <CardDescription>Im ausgewählten Zeitraum</CardDescription>
             </CardHeader>
             <CardContent>
-                {parsedCost > 0 ? (
-                    <p className="text-center font-bold font-mono">{formattedCost} €</p>
+                {parsedTotalCost > 0 ? (
+                    <h1 className="text-center font-bold font-mono">{formatNumber(parsedTotalCost)} €</h1>
                 ) : (
                     <Link
                         href="/settings"
