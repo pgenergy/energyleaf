@@ -1,4 +1,3 @@
-import { calculateCosts } from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth.server";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserDataHistory } from "@/query/user";
@@ -42,7 +41,11 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
 
     const userData = await getUserDataHistory(userId);
 
-    const { totalCost, totalWorkingCost, totalBasePrice } = { totalCost: .69, totalWorkingCost: .1, totalBasePrice: .3 }//calculateCosts(userData, energyDataRaw);
+    const { totalCost, totalWorkingCost, totalBasePrice } = {
+        totalCost: 0.69,
+        totalWorkingCost: 0.1,
+        totalBasePrice: 0.3,
+    }; //calculateCosts(userData, energyDataRaw);
     const parsedTotalCost = Number.parseFloat(totalCost.toFixed(2));
     const parsedTotalWorkingCost = Number.parseFloat(totalWorkingCost.toFixed(2));
     const parsedTotalBaseCost = Number.parseFloat(totalBasePrice.toFixed(2));

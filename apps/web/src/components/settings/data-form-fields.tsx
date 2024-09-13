@@ -5,7 +5,9 @@ import { userDataTable } from "@energyleaf/postgres/schema/user";
 import { userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/postgres/types";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
+import { Info } from "lucide-react";
 import React from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type { z } from "zod";
@@ -100,6 +102,15 @@ export default function DataFormFields({ form, disabled }: Props) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Strom-Grundpreis (in €)</FormLabel>
+                        <Popover>
+                            <PopoverTrigger>
+                                <Info className="ml-2 h-4 w-4" />
+                            </PopoverTrigger>
+                            <PopoverContent className="text-s">
+                                Verbrauchsunabhängige Gebühr pro Monat, entspricht dem Arbeitspreis.
+                            </PopoverContent>
+                        </Popover>
+
                         <FormControl>
                             <Input type="number" {...field} disabled={disabled} />
                         </FormControl>
@@ -113,6 +124,16 @@ export default function DataFormFields({ form, disabled }: Props) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Strompreis (in €/kWh)</FormLabel>
+                        <Popover>
+                            <PopoverTrigger>
+                                <Info className="ml-2 h-4 w-4" />
+                            </PopoverTrigger>
+                            <PopoverContent className="text-s">
+                                An Stromanbieter zu entrichtender Preis pro Kilowattstunde und enthält Grundpreis,
+                                Arbeitspreis und Steuern.
+                            </PopoverContent>
+                        </Popover>
+
                         <FormControl>
                             <Input type="number" {...field} disabled={disabled} />
                         </FormControl>
@@ -126,6 +147,15 @@ export default function DataFormFields({ form, disabled }: Props) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Monatlicher Abschlag (in €)</FormLabel>
+                        <Popover>
+                            <PopoverTrigger>
+                                <Info className="ml-2 h-4 w-4" />
+                            </PopoverTrigger>
+                            <PopoverContent className="text-s">
+                                An Energielieferanten zu zahlender Betrag
+                            </PopoverContent>
+                        </Popover>
+
                         <FormControl>
                             <Input type="number" {...field} disabled={disabled} />
                         </FormControl>
