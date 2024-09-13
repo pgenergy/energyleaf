@@ -87,7 +87,7 @@ async function getDailyConsumption(sensor: string, dateFrom: Date, interval: num
 
     const tasks: Promise<DailyConsumption>[] = dates.map(async (date) => {
         const dailyEnergy = await getDayEnergyForSensorInRange(date, date, sensor, "sum");
-        const sumOfDay = dailyEnergy.length > 0 ? dailyEnergy[0]?.consumption ?? 0 : 0;
+        const sumOfDay = dailyEnergy.length > 0 ? (dailyEnergy[0]?.consumption ?? 0) : 0;
 
         return {
             day: date,

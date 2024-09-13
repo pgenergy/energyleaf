@@ -142,7 +142,7 @@ function GoalStep({ userData }: UserDataStepProps) {
     const form = useForm<z.infer<typeof userGoalSchema>>({
         resolver: zodResolver(userGoalSchema),
         defaultValues: {
-            goalValue: goalCalculated ? calculateGoal() : userData.consumptionGoal ?? 0,
+            goalValue: goalCalculated ? calculateGoal() : (userData.consumptionGoal ?? 0),
         },
     });
 
