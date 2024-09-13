@@ -21,7 +21,7 @@ export function energyDataJoinUserData(
     });
 }
 
-export function calculateCosts(userData: UserDataSelectType[], sensorData: SensorDataSelectType[]): number {
+export function calculateCosts(userData: UserDataSelectType[], sensorData: SensorDataSelectType[]) {
     const joinedData = energyDataJoinUserData(sensorData, userData);
 
     const timestamps = sensorData.map((data) => new Date(data.timestamp));
@@ -38,7 +38,7 @@ export function calculateCosts(userData: UserDataSelectType[], sensorData: Senso
 
     const totalBasePrice = joinedData.length > 0 ? ((joinedData[0].userData?.basePrice ?? 0) / 30) * numDays : 0;
     const totalCost = totalWorkingCost + totalBasePrice;
-    return totalCost;
+    return { totalCost, totalWorkingCost, totalBasePrice };
 }
 
 export function getCalculatedPayment(
