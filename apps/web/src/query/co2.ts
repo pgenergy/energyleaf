@@ -61,8 +61,11 @@ const getCO2Emissions = async (energyData: { timestamp: Date; value: number }[])
         method: "POST",
         headers: {
             "x-api-key": env.ML_API_KEY,
+            "Content-Type": "application/json",
         },
-        body: JSON.stringify(energyData.map((x) => ({ timestamp: x.timestamp, value: x.value }))),
+        body: JSON.stringify({
+            data: energyData.map((x) => ({ timestamp: x.timestamp, value: x.value })),
+        }),
     });
 
     return (await response.json()).data as Co2PredictionOutput[];
