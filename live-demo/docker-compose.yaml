@@ -1,0 +1,61 @@
+services:
+  postgres-db:
+    image: timescale/timescaledb-ha:pg16
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: energyleaf
+    ports:
+      - 5432:5432
+    volumes:
+      - ../data/postgres2:/home/postgres/pgdata/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  db-migrate:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: db-migrate
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    environment:
+      PG_CONNECTION: postgres://postgres:postgres@postgres-db:5432/energyleaf
+      PG_DIRECT: postgres://postgres:postgres@postgres-db:5432/energyleaf
+
+  admin:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: admin
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+    environment:
+      PG_CONNECTION: postgres://postgres:postgres@postgres-db:5432/energyleaf
+      PG_DIRECT: postgres://postgres:postgres@postgres-db:5432/energyleaf
+    ports:
+      - 3001:3001
+  
+  web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: web
+    ports:
+      - 3000:3000
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+      admin:
+        condition: service_started
+    environment:
+      PG_CONNECTION: postgres://postgres:postgres@postgres-db:5432/energyleaf
+      PG_DIRECT: postgres://postgres:postgres@postgres-db:5432/energyleaf
+
