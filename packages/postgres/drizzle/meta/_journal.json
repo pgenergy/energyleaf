@@ -57,6 +57,13 @@
       "when": 1725529491320,
       "tag": "0007_device_manual_power",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1726398894416,
+      "tag": "0008_drop_sequence_marking_table",
+      "breakpoints": true
     }
   ]
 }

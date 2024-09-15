@@ -1,7 +1,7 @@
-import { type SQLWrapper, and, asc, between, desc, eq, lte, max, or } from "drizzle-orm";
+import { type SQLWrapper, and, asc, between, desc, eq, lte, or } from "drizzle-orm";
 import { type DB, db, genId } from "..";
 import { deviceSuggestionsPeakTable, deviceTable, deviceToPeakTable } from "../schema/device";
-import { sensorDataSequenceTable, sensorDataTable, sensorSequenceMarkingLogTable } from "../schema/sensor";
+import { sensorDataSequenceTable, sensorDataTable } from "../schema/sensor";
 import type {
     SensorDataSelectType,
     SensorDataSequenceSelectType,
@@ -153,13 +153,11 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
                 const avgPeakPower = calculateAveragePower(values.slice(i, sequenceEnd));
 
                 // if sequences are only 2min apart, mark as one sequence, because could be of device variance
-                // and only mark a new peak if at least 5min apart from previous
+                // and only mark a new peak if at least 2 min apart from previous
                 if (
                     sequences.length > 0 &&
                     entry.timestamp.getTime() - sequences[sequences.length - 1].end.getTime() < 2 * 60 * 1000 &&
-                    Math.min(sequences[sequences.length - 1].averagePowerIncludingBaseLoad, avgPeakPower) /
-                        Math.max(sequences[sequences.length - 1].averagePowerIncludingBaseLoad, avgPeakPower) >
-                        0.8
+                    avgPeakPower > sequences[sequences.length - 1].averagePowerIncludingBaseLoad / 2
                 ) {
                     sequences[sequences.length - 1].end = values[sequenceEnd - 1].timestamp;
                 } else {
@@ -204,7 +202,8 @@ export function findPeaks(
 
 interface FindAndMarkPeaksProps {
     sensorId: string;
-    timePeriod?: { start: Date; end: Date } | undefined;
+    start: Date;
+    end: Date;
     type: "peak" | "anomaly";
 }
 
@@ -215,15 +214,12 @@ export interface FindAndMarkPeaksResult {
 }
 
 export async function findAndMark(props: FindAndMarkPeaksProps, threshold = 5): Promise<FindAndMarkPeaksResult> {
-    const { sensorId, timePeriod, type } = props;
+    const { sensorId, start, end, type } = props;
 
     return await db.transaction(async (trx) => {
-        const { start, end } = timePeriod || (await getSequenceMarkingPeriod(sensorId, type, trx));
-
         let resultCount = 0;
         try {
             resultCount = await findAndMarkInPeriod(sensorId, start, end, type, threshold, trx);
-            await updateLastMarkingTime(sensorId, type, end, trx);
         } catch (err) {
             resultCount = resultCount > 0 ? resultCount : 0;
         }
@@ -244,7 +240,7 @@ async function findAndMarkInPeriod(
     threshold: number,
     trx: DB,
 ) {
-    // we shift the start 12 hours back, so we have a bigger sample for the threshold
+    // we shift the start 24 hours back, so we have a bigger sample for the threshold
     const sequenceStart = new Date(start);
     sequenceStart.setHours(sequenceStart.getHours() - 24, 0, 0, 0);
 
@@ -317,84 +313,6 @@ async function findAndMarkInPeriod(
     return peaks.length;
 }
 
-async function getSequenceMarkingPeriod(sensorId: string, type: "peak" | "anomaly", db: DB) {
-    const end = new Date();
-
-    const lastSequenceEnd = await getEndOfLastSequence(sensorId, type, db);
-
-    const lastMarking = await getTimeOfLastMarking(sensorId, type, db);
-    if (lastMarking) {
-        const laterDate = lastSequenceEnd && lastSequenceEnd > lastMarking ? lastSequenceEnd : lastMarking;
-        const start = new Date(laterDate);
-        start.setMilliseconds(start.getMilliseconds() + 1000); // Add one second so that the periods don't overlap
-        return { start: start <= end ? start : end, end };
-    }
-
-    if (lastSequenceEnd) {
-        const start = new Date(lastSequenceEnd);
-        start.setMilliseconds(start.getMilliseconds() + 1000); // Add one second so that the periods don't overlap
-        return { start: start <= end ? start : end, end };
-    }
-
-    const start = new Date(end);
-    start.setHours(end.getHours(), 0, 0, 0);
-    return { start, end };
-}
-
-async function getTimeOfLastMarking(sensorId: string, type: "peak" | "anomaly", db: DB) {
-    const markingLog = await db
-        .select()
-        .from(sensorSequenceMarkingLogTable)
-        .where(
-            and(
-                eq(sensorSequenceMarkingLogTable.sensorId, sensorId),
-                eq(sensorSequenceMarkingLogTable.sequenceType, type),
-            ),
-        );
-    if (markingLog.length > 0) {
-        return markingLog[0].lastMarked;
-    }
-
-    return null;
-}
-
-async function getEndOfLastSequence(sensorId: string, type: "peak" | "anomaly", db: DB) {
-    const lastSequence = await db
-        .select({ time: max(sensorDataSequenceTable.end) })
-        .from(sensorDataSequenceTable)
-        .where(and(eq(sensorDataSequenceTable.sensorId, sensorId), eq(sensorDataSequenceTable.type, type)));
-    if (lastSequence.length > 0) {
-        return lastSequence[0].time;
-    }
-
-    return null;
-}
-
-async function updateLastMarkingTime(sensorId: string, type: "peak" | "anomaly", date: Date, trx: DB) {
-    const existing = await trx
-        .select()
-        .from(sensorSequenceMarkingLogTable)
-        .where(
-            and(
-                eq(sensorSequenceMarkingLogTable.sensorId, sensorId),
-                eq(sensorSequenceMarkingLogTable.sequenceType, type),
-            ),
-        );
-    if (existing.length === 0) {
-        return trx.insert(sensorSequenceMarkingLogTable).values({ sensorId, sequenceType: type, lastMarked: date });
-    }
-
-    return trx
-        .update(sensorSequenceMarkingLogTable)
-        .set({ lastMarked: date })
-        .where(
-            and(
-                eq(sensorSequenceMarkingLogTable.sensorId, sensorId),
-                eq(sensorSequenceMarkingLogTable.sequenceType, type),
-            ),
-        );
-}
-
 async function saveSequences(
     peaks: (SensorDataSequenceSelectType & { isAtStart: boolean })[],
     sensorId: string,
@@ -421,9 +339,7 @@ async function saveSequences(
         if (
             lastSequenceOfSensor &&
             peaks[0].start.getTime() - lastSequenceOfSensor.end.getTime() < 2 * 60 * 1000 &&
-            Math.min(lastSequenceOfSensor.averagePeakPower, peaks[0].averagePeakPower) /
-                Math.max(lastSequenceOfSensor.averagePeakPower, peaks[0].averagePeakPower) >
-                0.8
+            peaks[0].averagePeakPower > lastSequenceOfSensor.averagePeakPower / 2
         ) {
             await trx
                 .update(sensorDataSequenceTable)
