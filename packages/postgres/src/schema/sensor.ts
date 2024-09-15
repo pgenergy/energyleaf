@@ -196,17 +196,3 @@ export const sensorDataSequenceTable = pgTable(
         };
     },
 );
-
-export const sensorSequenceMarkingLogTable = pgTable(
-    "sensor_sequence_marking_log",
-    {
-        sensorId: text("sensor_id").notNull(),
-        sequenceType: text("sequence_type", { enum: sequenceTypes }).notNull(),
-        lastMarked: timestamp("last_marked", { mode: "date", withTimezone: true }).notNull().default(sql`now()`),
-    },
-    (table) => {
-        return {
-            pk: primaryKey({ columns: [table.sensorId, table.sequenceType] }),
-        };
-    },
-);

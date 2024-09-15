@@ -18,10 +18,21 @@ const fn = async (sensorId: string) => {
     let startDate: Date | null = null;
     let endDate: Date | null = null;
     try {
+        const checkStart = new Date();
+        const checkEnd = new Date();
+        if (checkStart.getMinutes() >= 30) {
+            checkStart.setHours(checkStart.getHours(), 0, 0, 0);
+            checkEnd.setHours(checkEnd.getHours(), 30, 0, 0);
+        } else {
+            checkStart.setHours(checkStart.getHours() - 1, 30, 0, 0);
+            checkEnd.setHours(checkEnd.getHours(), 0, 0, 0);
+        }
         const result = await findAndMark(
             {
                 sensorId,
                 type: "peak",
+                start: checkStart,
+                end: checkEnd,
             },
             10,
         );
