@@ -34,7 +34,7 @@ const fn = async (sensorId: string) => {
                 start: checkStart,
                 end: checkEnd,
             },
-            10,
+            5,
         );
         startDate = result.start;
         endDate = result.end;
