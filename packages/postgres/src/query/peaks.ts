@@ -14,7 +14,7 @@ function calculateMedian(values: SensorDataSelectType[]) {
     const middle = Math.floor(sorted.length / 2);
     return sorted.length % 2 !== 0
         ? sorted[middle].consumption
-        : (sorted[middle - 1].value + sorted[middle].consumption) / 2;
+        : (sorted[middle - 1].consumption + sorted[middle].consumption) / 2;
 }
 
 function calculateMAD(values: SensorDataSelectType[], scale = 1.4826, medValue?: number) {
@@ -137,7 +137,7 @@ function findSequences(values: SensorDataSelectType[], threshold: number) {
     while (i < values.length) {
         const entry = values[i];
 
-        if (entry.value > threshold) {
+        if (entry.consumption > threshold) {
             // check if either directly after start or 5 minutes after
             const isStart = i === 0 || entry.timestamp.getTime() - values[0].timestamp.getTime() < 2 * 60 * 1000;
             let sequenceEnd = i + 1;
