@@ -37,7 +37,9 @@
 		"dotenv-cli": "^7.4.2",
 		"react-error-boundary": "^4.0.13",
 		"typescript": "^5.6.2",
-		"zod": "^3.23.8"
+		"zod": "^3.23.8",
+		"mathjs": "13.1.1",
+		"oslo": "^1.2.1"
 	},
 	"pnpm": {
 		"patchedDependencies": {
