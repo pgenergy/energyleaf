@@ -55,16 +55,14 @@ export async function addLiveDemoData() {
         await db
             .select({ minDate: min(sensorDataTable.timestamp), maxDate: max(sensorDataTable.timestamp) })
             .from(sensorDataTable)
-            .where(eq(sensorDataTable.id, sensorId))
+            .where(eq(sensorDataTable.sensorId, sensorId))
     )[0];
     minDate?.setDate(minDate.getDate() + 2);
     const intervals = splitInto30MinIntervals(minDate || new Date(2000, 0, 1), maxDate || new Date());
     for (const interval of intervals) {
         await findAndMark({
-            timePeriod: {
-                start: interval[0],
-                end: interval[1],
-            },
+            start: interval[0],
+            end: interval[1],
             sensorId,
             type: "peak",
         });
