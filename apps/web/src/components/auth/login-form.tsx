@@ -16,6 +16,7 @@ import type { z } from "zod";
 
 interface Props {
     next?: string;
+    signupDisabled?: boolean;
 }
 
 export default function LoginForm(props: Props) {
@@ -100,12 +101,14 @@ export default function LoginForm(props: Props) {
                     <div className="flex flex-col items-center gap-4">
                         {error ? <p className="text-destructive text-sm">{error}</p> : null}
                         <SubmitButton pending={pending} text="Anmelden" />
-                        <p className="text-muted-foreground text-sm">
-                            Noch kein Konto?{" "}
-                            <Link className="underline hover:no-underline" href="/signup">
-                                Konto erstellen
-                            </Link>
-                        </p>
+                        {props.signupDisabled ? null : (
+                            <p className="text-muted-foreground text-sm">
+                                Noch kein Konto?{" "}
+                                <Link className="underline hover:no-underline" href="/signup">
+                                    Konto erstellen
+                                </Link>
+                            </p>
+                        )}
                         <p className="text-muted-foreground text-sm">
                             <Link className="underline hover:no-underline" href="/forgot">
                                 Passwort vergessen?
