@@ -20,8 +20,8 @@ export const env = createEnv({
 
         SIGNUP_DISABLED: z
             .string()
-            .transform((s) => s === "true" || s === "1")
-            .optional(),
+            .optional()
+            .transform((s) => s === "true" || s === "1"),
 
         AWS_ACCESS_KEY_ID: z.string().optional(),
         AWS_SECRET_ACCESS_KEY: z.string().optional(),
