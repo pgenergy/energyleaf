@@ -31,10 +31,21 @@ const fn = async (
     let startDate: Date | null = null;
     let endDate: Date | null = null;
     try {
+        const checkStart = new Date();
+        const checkEnd = new Date();
+        if (checkStart.getMinutes() >= 30) {
+            checkStart.setHours(checkStart.getHours(), 0, 0, 0);
+            checkEnd.setHours(checkEnd.getHours(), 30, 0, 0);
+        } else {
+            checkStart.setHours(checkStart.getHours() - 1, 30, 0, 0);
+            checkEnd.setHours(checkEnd.getHours(), 0, 0, 0);
+        }
         const result = await findAndMark(
             {
                 sensorId: sensorId,
                 type: "anomaly",
+                start: checkStart,
+                end: checkEnd,
             },
             5000, // set the multiplier to 5000 that must be enough so it wont trigger on normal peaks
         );

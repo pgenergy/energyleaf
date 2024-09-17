@@ -3,7 +3,7 @@
 import type { userDataSchema } from "@/lib/schema/profile";
 import { userDataTable } from "@energyleaf/postgres/schema/user";
 import { userDataHotWaterEnums, userDataPropertyEnums, userDataTariffEnums } from "@energyleaf/postgres/types";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { Input } from "@energyleaf/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@energyleaf/ui/select";
 import React from "react";
@@ -100,6 +100,10 @@ export default function DataFormFields({ form, disabled }: Props) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Strom-Grundpreis (in €)</FormLabel>
+                        <FormDescription>
+                            Verbrauchsunabhängige Gebühr pro Monat, entspricht dem Arbeitspreis.
+                        </FormDescription>
+
                         <FormControl>
                             <Input type="number" {...field} disabled={disabled} />
                         </FormControl>
@@ -113,6 +117,11 @@ export default function DataFormFields({ form, disabled }: Props) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Strompreis (in €/kWh)</FormLabel>
+                        <FormDescription>
+                            An den Stromanbieter zu entrichtender Preis pro Kilowattstunde, der den Grundpreis,
+                            Arbeitspreis und Steuern enthält.
+                        </FormDescription>
+
                         <FormControl>
                             <Input type="number" {...field} disabled={disabled} />
                         </FormControl>
@@ -126,6 +135,8 @@ export default function DataFormFields({ form, disabled }: Props) {
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Monatlicher Abschlag (in €)</FormLabel>
+                        <FormDescription>An Energielieferanten zu zahlender Betrag</FormDescription>
+
                         <FormControl>
                             <Input type="number" {...field} disabled={disabled} />
                         </FormControl>

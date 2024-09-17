@@ -12,7 +12,7 @@ interface DayTileProps {
 }
 
 function DayTile({ stats }: DayTileProps) {
-    const progVariant = stats.exceeded ?? false ? "destructive" : "default";
+    const progVariant = (stats.exceeded ?? false) ? "destructive" : "default";
 
     return (
         <div className="m-4 flex flex-col items-center gap-2 p-2">

@@ -1,0 +1,1 @@
+DROP TABLE "sensor_sequence_marking_log";
