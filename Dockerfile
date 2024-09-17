@@ -33,6 +33,7 @@ FROM base AS build
 COPY ./apps/ /usr/src/app/apps/
 COPY ./packages/ /usr/src/app/packages/
 COPY ./patches/ /usr/src/app/patches/
+COPY ./scripts/ /usr/src/app/scripts/
 COPY package.json /usr/src/app/package.json
 COPY turbo.json /usr/src/app/turbo.json
 COPY tsconfig.json /usr/src/app/tsconfig.json
@@ -44,6 +45,20 @@ RUN pnpm build
 RUN pnpm --filter=web --prod deploy /prod/web
 RUN pnpm --filter=admin --prod deploy /prod/admin
 RUN pnpm --filter=@energyleaf/postgres deploy /prod/postgres
+
+FROM base AS base_build
+COPY ./packages/ /usr/src/app/packages/
+COPY ./patches/ /usr/src/app/patches/
+COPY ./scripts/ /usr/src/app/scripts/
+COPY package.json /usr/src/app/package.json
+COPY turbo.json /usr/src/app/turbo.json
+COPY tsconfig.json /usr/src/app/tsconfig.json
+COPY pnpm-lock.yaml /usr/src/app/pnpm-lock.yaml
+COPY pnpm-workspace.yaml /usr/src/app/pnpm-workspace.yaml
+WORKDIR /usr/src/app
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm build
+RUN pnpm --filter=energyleaf deploy /prod/scripts
 
 FROM base AS web
 COPY --from=build /prod/web /prod/web
@@ -61,3 +76,8 @@ FROM base AS db-migrate
 COPY --from=build /prod/postgres /prod/postgres
 WORKDIR /prod/postgres
 CMD [ "pnpm", "migrate" ]
+
+FROM base AS scripts
+COPY --from=base_build /prod/scripts /prod/scripts
+WORKDIR /prod/scripts
+CMD [ "nodejs", "scripts/execute.cjs", "live-demo-data", "addLiveDemoData" ]

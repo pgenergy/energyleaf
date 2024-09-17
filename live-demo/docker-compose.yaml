@@ -29,6 +29,36 @@ services:
       PG_CONNECTION: postgres://postgres:postgres@postgres-db:5432/energyleaf
       PG_DIRECT: postgres://postgres:postgres@postgres-db:5432/energyleaf
 
+  # pg-client:
+  #   build:
+  #     context: .
+  #     dockerfile: PgClientDockerfile
+  #   environment:
+  #     PGDATABASE: energyleaf
+  #     PGHOST: postgres-db
+  #     PGPORT: 5432
+  #     PGUSER: postgres
+  #     PGPASSWORD: postgres
+  #   depends_on:
+  #     postgres-db:
+  #       condition: service_healthy
+  #   volumes:
+  #     - ./live-demo.sql:/query.sql
+
+  scripts:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: scripts
+    depends_on:
+      db-migrate:
+        condition: service_completed_successfully
+    environment:
+      PG_CONNECTION: postgres://postgres:postgres@postgres-db:5432/energyleaf
+      PG_DIRECT: postgres://postgres:postgres@postgres-db:5432/energyleaf
+    volumes:
+      - ../download.json:/prod/scripts/download.json
+
   admin:
     build:
       context: ..

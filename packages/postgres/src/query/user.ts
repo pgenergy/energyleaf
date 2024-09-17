@@ -221,6 +221,8 @@ export async function createUser(data: CreateUserType) {
                 getsPaid: true,
             });
         }
+
+        return userId;
     });
 }
 
