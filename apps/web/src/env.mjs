@@ -18,7 +18,10 @@ export const env = createEnv({
 
         ADMIN_MAIL: z.string().email().optional(),
 
-        SIGNUP_DISABLED: z.boolean().optional(),
+        SIGNUP_DISABLED: z
+            .string()
+            .transform((s) => s === "true" || s === "1")
+            .optional(),
 
         AWS_ACCESS_KEY_ID: z.string().optional(),
         AWS_SECRET_ACCESS_KEY: z.string().optional(),
