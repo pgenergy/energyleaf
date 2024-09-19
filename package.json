@@ -39,7 +39,10 @@
 		"typescript": "^5.6.2",
 		"zod": "^3.23.8",
 		"mathjs": "13.1.1",
-		"oslo": "^1.2.1"
+		"oslo": "^1.2.1",
+		"canvas": "^2.11.2",
+		"chart.js": "^4.4.4",
+		"chartjs-plugin-datalabels": "^2.2.0"
 	},
 	"pnpm": {
 		"patchedDependencies": {
