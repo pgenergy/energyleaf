@@ -1,8 +1,6 @@
 import { createHash } from "node:crypto";
 import AbsolutEnergyConsumptionCard from "@/components/dashboard/absolut-energy-consumption-card";
 import AbsolutEnergyConsumptionError from "@/components/dashboard/absolut-energy-consumption-card-error";
-import CO2Card from "@/components/dashboard/co2-card";
-import CO2CardError from "@/components/dashboard/co2-card-error";
 import CSVExportButton from "@/components/dashboard/csv-export-button";
 import CurrentMeterNumberCard from "@/components/dashboard/current-meter-number-card";
 import CurrentMeterOutCard from "@/components/dashboard/current-meter-out-card";
@@ -115,11 +113,6 @@ export default async function DashboardPage({
                 <ErrorBoundary fallback={EnergyCostError}>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <EnergyCostCard endDate={endDate} startDate={startDate} />
-                    </Suspense>
-                </ErrorBoundary>
-                <ErrorBoundary fallback={CO2CardError}>
-                    <Suspense fallback={<Skeleton className="h-40 w-full" />}>
-                        <CO2Card endDate={endDate} startDate={startDate} />
                     </Suspense>
                 </ErrorBoundary>
             </div>
