@@ -3,8 +3,8 @@ import { log } from "@energyleaf/postgres/query/logs";
 import { waitUntil } from "@vercel/functions";
 
 export interface OpenStreetMapProps {
-    lat: number;
-    lon: number;
+    lat: string;
+    lon: string;
     display_name: string;
 }
 
@@ -15,7 +15,7 @@ export const lookupGeoLocation = async (address: string): Promise<IDefaultAction
 
     const body = (await osmReq.json()) as OpenStreetMapProps[];
 
-    if (!osmReq.ok || !!body) {
+    if (!osmReq.ok || !body) {
         waitUntil(log("geo/lookup", "error", "geo", "web", osmReq));
         return {
             success: false,
