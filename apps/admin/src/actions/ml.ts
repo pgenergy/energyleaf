@@ -74,7 +74,7 @@ export async function classifyAndSaveDevicesForPeaks(
 
         for (const peak of response.peaks) {
             const devicesToSave = peak.devices
-                .filter((device) => device.confidence >= 0.9)
+                .filter((device) => device.confidence >= 0.75)
                 .map((device) => deviceCategoryMapping[device.name]);
 
             if (devicesToSave.length > 0) {
