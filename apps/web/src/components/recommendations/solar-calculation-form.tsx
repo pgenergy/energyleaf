@@ -1,8 +1,7 @@
 "use client";
 
-import { type SolarResultProps, calculateSolar } from "@/actions/solar";
+import { calculateSolar } from "@/actions/solar";
 import SubmitButton from "@/components/auth/submit-button";
-import type { DefaultActionReturnPayload } from "@energyleaf/lib";
 import { Alert, AlertDescription, AlertTitle } from "@energyleaf/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
@@ -40,16 +39,14 @@ export default function SolarCalculationForm() {
     }, []);
 
     const calculateSolarCallback = async (data: z.infer<typeof solarCalcSchema>) => {
-        let res: DefaultActionReturnPayload<SolarResultProps> = undefined;
-
         try {
-            res = await calculateSolar(Number(data.watts));
-        } catch (err) {
-            throw new Error("Ein Fehler ist aufgetreten.");
-        }
+            const res = await calculateSolar(Number(data.watts));
 
-        if (res) {
-            if (res?.payload) {
+            if (!res.success) {
+                throw new Error(res?.message);
+            }
+
+            if (res.payload) {
                 const { next24h, last30d, location } = res.payload;
 
                 setNext24hkWh(next24h.result.toFixed(2));
@@ -58,10 +55,8 @@ export default function SolarCalculationForm() {
                 setLast30dPrice(last30d.price?.toFixed(2) ?? "");
                 setLocation(location);
             }
-
-            if (!res?.success) {
-                throw new Error(res?.message);
-            }
+        } catch (err) {
+            throw new Error("Ein Fehler ist aufgetreten.");
         }
     };
 

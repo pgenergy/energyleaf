@@ -1,7 +1,7 @@
-import { calculateCosts } from "@/components/dashboard/energy-cost";
 import { getSession } from "@/lib/auth/auth.server";
+import { calculateCosts } from "@/lib/costs/energy-cost";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
-import { getUserDataHistory } from "@/query/user";
+import { getUserData } from "@/query/user";
 import { formatNumber } from "@energyleaf/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
@@ -39,8 +39,25 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     }
 
     const energyDataRaw = await getEnergyDataForSensor(startDate.toISOString(), endDate.toISOString(), sensorId);
-
-    const userData = await getUserDataHistory(userId);
+    const userData = await getUserData(userId);
+    if (!userData || !userData.workingPrice || !userData.basePrice || !userData.monthlyPayment) {
+        return (
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Energiekosten</CardTitle>
+                    <CardDescription>Bitte legen sie Preise im Profil fest</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Link
+                        href="/settings"
+                        className="flex flex-row items-center justify-center gap-2 text-muted-foreground text-sm"
+                    >
+                        Preis in den Einstellungen festlegen <ArrowRightIcon className="h-4 w-4" />
+                    </Link>
+                </CardContent>
+            </Card>
+        );
+    }
 
     const { totalCost, totalWorkingCost, totalBasePrice } = calculateCosts(userData, energyDataRaw);
     const parsedTotalCost = Number.parseFloat(totalCost.toFixed(2));
