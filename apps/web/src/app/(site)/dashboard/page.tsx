@@ -117,11 +117,11 @@ export default async function DashboardPage({
                         <EnergyCostCard endDate={endDate} startDate={startDate} />
                     </Suspense>
                 </ErrorBoundary>
-                <ErrorBoundary fallback={CO2CardError}>
+                {/*<ErrorBoundary fallback={CO2CardError}>
                     <Suspense fallback={<Skeleton className="h-40 w-full" />}>
                         <CO2Card endDate={endDate} startDate={startDate} />
                     </Suspense>
-                </ErrorBoundary>
+                </ErrorBoundary> */}
             </div>
             <ErrorBoundary fallback={EnergyConsumptionError}>
                 <Suspense fallback={<Skeleton className="h-96 w-full" />}>
