@@ -8,8 +8,9 @@ interface Props {
 }
 
 export default async function AuthLayout({ children }: Props) {
-    const { session } = await getSession();
-    if (session) {
+    const { session, user } = await getSession();
+
+    if (session && user.isAdmin) {
         redirect("/dashboard");
     }
 
