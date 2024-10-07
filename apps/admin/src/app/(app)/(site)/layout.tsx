@@ -34,9 +34,10 @@ const navLinks = [
 export default async function SiteLayout({ children }: Props) {
     const { session, user } = await getSession();
 
-    if (!session) {
+    if (!session || !user || !user.isAdmin) {
         redirect("/auth");
     }
+
     return (
         <>
             <Navbar
