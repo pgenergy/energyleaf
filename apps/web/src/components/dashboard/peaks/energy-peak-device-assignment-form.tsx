@@ -7,10 +7,9 @@ import {} from "@energyleaf/ui/alert-dialog";
 import { Button } from "@energyleaf/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@energyleaf/ui/form";
 import { MultiSelect } from "@energyleaf/ui/multi-select";
-import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { BotIcon, InfoIcon } from "lucide-react";
+import { BotIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -25,8 +24,6 @@ export interface Device {
     id: string;
     category: DeviceCategory;
     name: string;
-    isSuggested: boolean;
-    isDraft: boolean;
     deviceId?: number;
 }
 
@@ -34,8 +31,6 @@ export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInterac
     const queryClient = useQueryClient();
     const [devices, setDevices] = useState<Device[]>([]);
     const [selected, setSelected] = useState<Device[]>([]);
-    const [hasSuggestions, setHasSuggestions] = useState<boolean>(false);
-    const [draftDevicesSelected, setDraftDevicesSelected] = useState<boolean>(false);
 
     const {
         data: selectionData,
@@ -43,7 +38,7 @@ export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInterac
         refetch,
         isRefetching,
     } = useQuery({
-        queryKey: [`devices${sensorDataSequenceId}`],
+        queryKey: [`devices-${sensorDataSequenceId}`],
         queryFn: () => getDeviceOptionsByPeak(sensorDataSequenceId),
     });
 
@@ -57,7 +52,6 @@ export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInterac
     useEffect(() => {
         if (selected) {
             form.setValue("device", selected);
-            setDraftDevicesSelected(selected.some((x) => x.isDraft));
         }
     }, [selected, form]);
 
@@ -68,7 +62,6 @@ export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInterac
                 throw new Error("Geräte konnten nicht geladen werden.", { cause: message });
             }
 
-            setHasSuggestions(payload.hasSuggestions);
             setSelected(payload.options.filter((device) => device.isSelected) ?? []);
             setDevices(payload.options);
         }
@@ -79,7 +72,7 @@ export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInterac
 
         try {
             res = await updateDevicesForPeak(data, sensorDataSequenceId);
-            await queryClient.invalidateQueries({ queryKey: [`selectedDevices${sensorDataSequenceId}`] });
+            await queryClient.invalidateQueries({ queryKey: [`devices-${sensorDataSequenceId}`] });
         } catch (err) {
             throw new Error("Ein Fehler ist aufgetreten.");
         }
@@ -106,7 +99,7 @@ export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInterac
 
     return (
         <>
-            {!devicesLoading && !isRefetching && hasSuggestions ? (
+            {!devicesLoading && !isRefetching ? (
                 <Alert className="mt-4">
                     <BotIcon />
                     <AlertTitle>Vorschläge</AlertTitle>
@@ -132,9 +125,6 @@ export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInterac
                                                 name: device.name,
                                                 label: device.name,
                                                 value: device.id,
-                                                icon: device.isSuggested
-                                                    ? (props) => <BotIcon {...props} />
-                                                    : undefined,
                                             }))}
                                             loading={devicesLoading}
                                             refetching={isRefetching}
@@ -142,16 +132,12 @@ export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInterac
                                                 ...device,
                                                 label: device.name,
                                                 value: device.id,
-                                                icon: device.isSuggested
-                                                    ? (props) => <BotIcon {...props} />
-                                                    : undefined,
                                             }))}
                                             onSelectedChange={(e) => {
                                                 const selectedDevices = e
                                                     .map((x) => devices.find((d) => d.id === x.value))
                                                     .filter((x) => x !== undefined);
                                                 field.onChange(selectedDevices);
-                                                setDraftDevicesSelected(selectedDevices.some((x) => x.isDraft));
                                             }}
                                             placeholder="Geräte auswählen..."
                                         />
@@ -164,25 +150,6 @@ export function EnergyPeakDeviceAssignmentForm({ sensorDataSequenceId, onInterac
 
                     <div className="flex flex-row-reverse items-center justify-between">
                         <Button type="submit">Speichern</Button>
-                        {draftDevicesSelected ? (
-                            <Popover>
-                                <PopoverContent>
-                                    <p>Beim Speichern werden folgende Geräte für Sie hinzugefügt:</p>
-                                    {form
-                                        .getValues()
-                                        .device.filter((device) => device.isDraft)
-                                        .map((device) => device.name)
-                                        .join(", ")}
-                                </PopoverContent>
-
-                                <PopoverTrigger>
-                                    <div className="flex flex-row items-center gap-1 text-muted-foreground text-sm">
-                                        <InfoIcon className="h-4 w-4" />
-                                        Neue Geräte
-                                    </div>
-                                </PopoverTrigger>
-                            </Popover>
-                        ) : null}
                     </div>
                 </form>
             </Form>

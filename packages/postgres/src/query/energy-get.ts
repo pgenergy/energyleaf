@@ -51,12 +51,7 @@ export async function getHourEnergyForSensorInRange(
             grouper: sql`EXTRACT(HOUR FROM ${sensorDataHourTable.bucket})`.as("grouper"),
         })
         .from(sensorDataHourTable)
-        .where(
-            and(
-                eq(sensorDataHourTable.sensorId, sensorId),
-                between(sensorDataHourTable.bucket, start.toISOString(), end.toISOString()),
-            ),
-        )
+        .where(and(eq(sensorDataHourTable.sensorId, sensorId), between(sensorDataHourTable.bucket, start, end)))
         .groupBy(sensorDataHourTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -89,12 +84,7 @@ export async function getWeekdayEnergyForSensorInRange(
             grouper: sql`EXTRACT(ISODOW FROM ${sensorDataDayTable.bucket})`.as("grouper"),
         })
         .from(sensorDataDayTable)
-        .where(
-            and(
-                eq(sensorDataDayTable.sensorId, sensorId),
-                between(sensorDataDayTable.bucket, start.toISOString(), end.toISOString()),
-            ),
-        )
+        .where(and(eq(sensorDataDayTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
         .groupBy(sensorDataDayTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -127,12 +117,7 @@ export async function getDayEnergyForSensorInRange(
             grouper: sql`EXTRACT(DAY FROM ${sensorDataDayTable.bucket})`.as("grouper"),
         })
         .from(sensorDataDayTable)
-        .where(
-            and(
-                eq(sensorDataDayTable.sensorId, sensorId),
-                between(sensorDataDayTable.bucket, start.toISOString(), end.toISOString()),
-            ),
-        )
+        .where(and(eq(sensorDataDayTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
         .groupBy(sensorDataDayTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -165,12 +150,7 @@ export async function getWeekEnergyForSensorInRange(
             grouper: sql`EXTRACT(WEEK FROM ${sensorDataWeekTable.bucket})`.as("grouper"),
         })
         .from(sensorDataWeekTable)
-        .where(
-            and(
-                eq(sensorDataWeekTable.sensorId, sensorId),
-                between(sensorDataWeekTable.bucket, start.toISOString(), end.toISOString()),
-            ),
-        )
+        .where(and(eq(sensorDataWeekTable.sensorId, sensorId), between(sensorDataWeekTable.bucket, start, end)))
         .groupBy(sensorDataWeekTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -207,12 +187,7 @@ export async function getWeekOfMonthEnergyForSensorInRange(
                     ) / 7)`.as("grouper"),
         })
         .from(sensorDataDayTable)
-        .where(
-            and(
-                eq(sensorDataDayTable.sensorId, sensorId),
-                between(sensorDataDayTable.bucket, start.toISOString(), end.toISOString()),
-            ),
-        )
+        .where(and(eq(sensorDataDayTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
         .groupBy(sensorDataDayTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -245,12 +220,7 @@ export async function getMonthEnergyForSensorInRange(
             grouper: sql`EXTRACT(MONTH FROM ${sensorDataWeekTable.bucket})`.as("grouper"),
         })
         .from(sensorDataMonthTable)
-        .where(
-            and(
-                eq(sensorDataMonthTable.sensorId, sensorId),
-                between(sensorDataDayTable.bucket, start.toISOString(), end.toISOString()),
-            ),
-        )
+        .where(and(eq(sensorDataMonthTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
         .groupBy(sensorDataMonthTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({
@@ -283,12 +253,7 @@ export async function getYearEnergyForSensorInRange(
             grouper: sql`EXTRACT(YEAR FROM ${sensorDataWeekTable.bucket})`.as("grouper"),
         })
         .from(sensorDataMonthTable)
-        .where(
-            and(
-                eq(sensorDataMonthTable.sensorId, sensorId),
-                between(sensorDataDayTable.bucket, start.toISOString(), end.toISOString()),
-            ),
-        )
+        .where(and(eq(sensorDataMonthTable.sensorId, sensorId), between(sensorDataDayTable.bucket, start, end)))
         .groupBy(sensorDataMonthTable.sensorId, sql`grouper`);
 
     return data.map((row, index) => ({

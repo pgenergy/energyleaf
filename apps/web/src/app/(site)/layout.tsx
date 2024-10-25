@@ -1,16 +1,23 @@
-import DemoBanner from "@/components/footer/demo-banner";
-import Footer from "@/components/footer/footer";
-import HandbookButton from "@/components/nav/handbook-button";
-import NavbarAvatar from "@/components/nav/navbar-avatar";
-import ThemeSwitcher from "@/components/nav/theme-switcher";
+import MobileSidebarButton from "@/components/nav/mobile-nav-button";
+import AppSidebar from "@/components/nav/sidebar";
 import PageView from "@/components/tracking/page-view";
 import { getSession } from "@/lib/auth/auth.server";
 import { isDemoUser } from "@/lib/demo/demo";
 import { getHandbookUrl } from "@/lib/help/handbook";
 import { Versions, fulfills } from "@energyleaf/lib/versioning";
-import { Navbar } from "@energyleaf/ui/nav/navbar";
-import { Sidebar } from "@energyleaf/ui/nav/sidebar";
-import { DollarSignIcon, HomeIcon, LampIcon, LightbulbIcon, MailsIcon, SettingsIcon, ZapIcon } from "lucide-react";
+import { SidebarInset, SidebarProvider } from "@energyleaf/ui/sidebar";
+import {
+    BadgeInfoIcon,
+    DollarSignIcon,
+    HomeIcon,
+    LampIcon,
+    LightbulbIcon,
+    MailsIcon,
+    SettingsIcon,
+    ZapIcon,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import type React from "react";
 
@@ -23,81 +30,79 @@ const navLinks = [
         slug: "dashboard",
         title: "Übersicht",
         path: "/dashboard",
-        icon: <HomeIcon className="mr-2 h-4 w-4" />,
+        icon: <HomeIcon />,
     },
     {
         slug: "energy",
         title: "Strom",
         path: "/energy",
-        icon: <ZapIcon className="mr-2 h-4 w-4" />,
+        icon: <ZapIcon />,
     },
     {
         slug: "costs",
         title: "Kosten",
         path: "/costs",
-        icon: <DollarSignIcon className="mr-2 h-4 w-4" />,
+        icon: <DollarSignIcon />,
     },
     {
         slug: "devices",
         title: "Geräte",
         path: "/devices",
-        icon: <LampIcon className="mr-2 h-4 w-4" />,
+        icon: <LampIcon />,
         appVersion: Versions.self_reflection,
     },
     {
         slug: "reports",
         title: "Berichte",
         path: "/reports",
-        icon: <MailsIcon className="mr-2 h-4 w-4" />,
+        icon: <MailsIcon />,
         appVersion: Versions.support,
     },
     {
         slug: "recommendations",
         title: "Empfehlungen",
         path: "/recommendations",
-        icon: <LightbulbIcon className="mr-2 h-4 w-4" />,
+        icon: <LightbulbIcon />,
         appVersion: Versions.support,
+    },
+    {
+        slug: "faq",
+        title: "FAQ",
+        path: "/faq",
+        icon: <BadgeInfoIcon />,
     },
     {
         slug: "settings",
         title: "Einstellungen",
         path: "/settings",
-        icon: <SettingsIcon className="mr-2 h-4 w-4" />,
+        icon: <SettingsIcon />,
     },
 ];
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
     const { session, user } = await getSession();
-
     if (!session || !user) {
         redirect("/");
     }
 
     const isDemo = await isDemoUser();
-
     const filteredNavLinks = navLinks.filter((link) => !link.appVersion || fulfills(user.appVersion, link.appVersion));
-
     const handbookEndpoint = getHandbookUrl(user.appVersion);
 
     return (
-        <>
-            <Navbar
-                actions={
-                    <>
-                        <HandbookButton endpoint={handbookEndpoint} />
-                        <ThemeSwitcher />
-                        <NavbarAvatar user={{ ...user, phone: user.phone || null }} guide={handbookEndpoint} />
-                    </>
-                }
-                links={filteredNavLinks}
-                title="Energyleaf"
-                titleLink="/dashboard"
-            />
-            <Sidebar links={filteredNavLinks} />
+        <SidebarProvider>
             <PageView />
-            <main className="mt-14 ml-0 px-8 py-8 md:ml-[13%]">{children}</main>
-            <Footer />
-            {isDemo ? <DemoBanner /> : null}
-        </>
+            <AppSidebar links={filteredNavLinks} user={user} isDemo={isDemo} handbookLink={handbookEndpoint} />
+            <SidebarInset>
+                <nav className="flex w-full flex-row items-center gap-4 border-border border-b px-2 py-2">
+                    <MobileSidebarButton />
+                    <Link className="flex flex-row items-center gap-2" href="/dashboard">
+                        <Image alt="logo" className="h-10 w-10" height={499} src="/image/logo/logo.png" width={499} />
+                        <h1 className="font-bold text-2xl">Energyleaf</h1>
+                    </Link>
+                </nav>
+                <main className="px-8 py-8">{children}</main>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }

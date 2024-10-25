@@ -89,89 +89,38 @@ export const sensorDataTable = pgTable(
 );
 
 const sensorDataAggFields = {
-    sensorId: sensorDataTable.sensorId,
-    maxValue: sql<number>`MAX(${sensorDataTable.value})`.as("max_value"),
-    minValue: sql<number>`MIN(${sensorDataTable.value})`.as("min_value"),
-    maxValueOut: sql<number>`MAX(${sensorDataTable.valueOut})`.as("max_value_out"),
-    minValueOut: sql<number>`MIN(${sensorDataTable.valueOut})`.as("min_value_out"),
-    avgValueCurrent: sql<number>`AVG(${sensorDataTable.valueCurrent})`.as("avg_value_current"),
-    maxValueCurrent: sql<number>`MAX(${sensorDataTable.valueCurrent})`.as("max_value_current"),
-    minValueCurrent: sql<number>`MIN(${sensorDataTable.valueCurrent})`.as("min_value_current"),
-    avgConsumption: sql<number>`AVG(${sensorDataTable.consumption})`.as("avg_consumption"),
-    sumConsumption: sql<number>`SUM(${sensorDataTable.consumption})`.as("sum_consumption"),
-    avgInserted: sql<number>`AVG(${sensorDataTable.inserted})`.as("avg_inserted"),
-    sumInserted: sql<number>`SUM(${sensorDataTable.inserted})`.as("sum_inserted"),
-    minTimestamp: sql<Date>`MIN(${sensorDataTable.timestamp})`.as("min_timestamp"),
-    maxTimestamp: sql<Date>`MAX(${sensorDataTable.timestamp})`.as("max_timestamp"),
+    bucket: timestamp("bucket", { mode: "date", withTimezone: true }),
+    sensorId: text("sensor_id").notNull(),
+    maxValue: numericType("max_value"),
+    minValue: numericType("min_value"),
+    maxValueOut: numericType("max_value_out"),
+    minValueOut: numericType("min_value_out"),
+    avgValueCurrent: numericType("avg_value_current"),
+    maxValueCurrent: numericType("max_value_current"),
+    minValueCurrent: numericType("min_value_current"),
+    avgConsumption: numericType("avg_consumption"),
+    sumConsumption: numericType("sum_consumption"),
+    avgInserted: numericType("avg_inserted"),
+    sumInserted: numericType("sum_inserted"),
+    minTimestamp: timestamp("min_timestamp", { mode: "date", withTimezone: true }),
+    maxTimestamp: timestamp("max_timestamp", { mode: "date", withTimezone: true }),
 };
 
-export const sensorDataHourTable = pgMaterializedView("sensor_data_hour")
-    .with({
-        "timescaledb.continuous": true,
-    })
-    .withNoData()
-    .as((qb) => {
-        return qb
-            .select({
-                bucket: sql`time_bucket('1 hour', ${sensorDataTable.timestamp}, 'Europe/Berlin')`
-                    .mapWith((value) => new Date(`${value}+0000`))
-                    .as("bucket"),
-                ...sensorDataAggFields,
-            })
-            .from(sensorDataTable)
-            .groupBy(sensorDataTable.sensorId, sql`bucket`);
-    });
+export const sensorDataHourTable = pgMaterializedView("sensor_data_hour", {
+    ...sensorDataAggFields,
+}).existing();
 
-export const sensorDataDayTable = pgMaterializedView("sensor_data_day")
-    .with({
-        "timescaledb.continuous": true,
-    })
-    .withNoData()
-    .as((qb) => {
-        return qb
-            .select({
-                bucket: sql`time_bucket('1 day', ${sensorDataTable.timestamp}, 'Europe/Berlin')`
-                    .mapWith((value) => new Date(`${value}+0000`))
-                    .as("bucket"),
-                ...sensorDataAggFields,
-            })
-            .from(sensorDataTable)
-            .groupBy(sensorDataTable.sensorId, sql`bucket`);
-    });
+export const sensorDataDayTable = pgMaterializedView("sensor_data_day", {
+    ...sensorDataAggFields,
+}).existing();
 
-export const sensorDataWeekTable = pgMaterializedView("sensor_data_week")
-    .with({
-        "timescaledb.continuous": true,
-    })
-    .withNoData()
-    .as((qb) => {
-        return qb
-            .select({
-                bucket: sql`time_bucket('1 week', ${sensorDataTable.timestamp}, 'Europe/Berlin')`
-                    .mapWith((value) => new Date(`${value}+0000`))
-                    .as("bucket"),
-                ...sensorDataAggFields,
-            })
-            .from(sensorDataTable)
-            .groupBy(sensorDataTable.sensorId, sql`bucket`);
-    });
+export const sensorDataWeekTable = pgMaterializedView("sensor_data_week", {
+    ...sensorDataAggFields,
+}).existing();
 
-export const sensorDataMonthTable = pgMaterializedView("sensor_data_month")
-    .with({
-        "timescaledb.continuous": true,
-    })
-    .withNoData()
-    .as((qb) => {
-        return qb
-            .select({
-                bucket: sql`time_bucket('1 month', ${sensorDataTable.timestamp}, 'Europe/Berlin')`
-                    .mapWith((value) => new Date(`${value}+0000`))
-                    .as("bucket"),
-                ...sensorDataAggFields,
-            })
-            .from(sensorDataTable)
-            .groupBy(sensorDataTable.sensorId, sql`bucket`);
-    });
+export const sensorDataMonthTable = pgMaterializedView("sensor_data_month", {
+    ...sensorDataAggFields,
+}).existing();
 
 const sequenceTypes = ["peak", "anomaly"] as const;
 

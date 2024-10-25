@@ -1,9 +1,6 @@
-import { classifyAndSaveDevicesForPeaks } from "@/actions/ml";
 import { env } from "@/env.mjs";
-import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { log, logError } from "@energyleaf/postgres/query/logs";
-import { findAndMark, getSequencesBySensor } from "@energyleaf/postgres/query/peaks";
-import { getUserBySensorId } from "@energyleaf/postgres/query/user";
+import { findAndMark } from "@energyleaf/postgres/query/peaks";
 import { waitUntil } from "@vercel/functions";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -38,24 +35,6 @@ const fn = async (sensorId: string) => {
         );
         startDate = result.start;
         endDate = result.end;
-
-        const user = await getUserBySensorId(sensorId);
-
-        if (user && fulfills(user.appVersion, Versions.support)) {
-            const peaks = await getSequencesBySensor(sensorId, { start: startDate, end: endDate });
-
-            const peaksToClassify = peaks.map((peak) => {
-                return {
-                    id: peak.id,
-                    electricity: peak.sensorData.map((data) => ({
-                        timestamp: data.timestamp.toISOString(),
-                        power: data.consumption / 1000,
-                    })),
-                };
-            });
-
-            await classifyAndSaveDevicesForPeaks(peaksToClassify, user.userId);
-        }
     } catch (err) {
         logError(
             "mark-peaks/user-error",

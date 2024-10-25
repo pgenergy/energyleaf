@@ -22,9 +22,6 @@ export const env = createEnv({
         AWS_REGION: z.string().optional(),
         BUCKET_NAME: z.string().optional(),
         FILE_URL: z.string().optional(),
-
-        ML_API_URL: z.string().optional(),
-        ML_API_KEY: z.string().optional(),
     },
     client: {
         NEXT_PUBLIC_APP_URL: z.string(),

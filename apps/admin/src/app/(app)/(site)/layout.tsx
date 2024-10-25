@@ -1,9 +1,10 @@
-import NavbarAvatar from "@/components/nav/navbar-avatar";
-import ThemeSwitcher from "@/components/nav/theme-switcher";
+import MobileSidebarButton from "@/components/nav/mobile-nav-button";
+import AppSidebar from "@/components/nav/sidebar";
 import { getSession } from "@/lib/auth/auth.server";
-import { Navbar } from "@energyleaf/ui/nav/navbar";
-import { Sidebar } from "@energyleaf/ui/nav/sidebar";
+import { SidebarInset, SidebarProvider } from "@energyleaf/ui/sidebar";
 import { CpuIcon, HomeIcon, Users2Icon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 interface Props {
@@ -39,19 +40,18 @@ export default async function SiteLayout({ children }: Props) {
     }
 
     return (
-        <>
-            <Navbar
-                actions={
-                    <>
-                        <ThemeSwitcher />
-                        <NavbarAvatar user={user} />
-                    </>
-                }
-                links={navLinks}
-                title="Energyleaf Admin"
-            />
-            <Sidebar links={navLinks} />
-            <main className="mt-14 ml-0 px-8 py-8 md:ml-[13%]">{children}</main>
-        </>
+        <SidebarProvider>
+            <AppSidebar links={navLinks} user={user} />
+            <SidebarInset>
+                <nav className="flex w-full flex-row items-center gap-4 border-border border-b px-2 py-2">
+                    <MobileSidebarButton />
+                    <Link className="flex flex-row items-center gap-2" href="/dashboard">
+                        <Image alt="logo" className="h-10 w-10" height={499} src="/image/logo/logo.png" width={499} />
+                        <h1 className="font-bold text-2xl">Energyleaf Admin</h1>
+                    </Link>
+                </nav>
+                <main className="px-8 py-8">{children}</main>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }

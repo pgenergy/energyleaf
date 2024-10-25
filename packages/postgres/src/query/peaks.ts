@@ -1,6 +1,6 @@
 import { type SQLWrapper, and, asc, between, desc, eq, lte, or } from "drizzle-orm";
 import { type DB, db, genId } from "..";
-import { deviceSuggestionsPeakTable, deviceTable, deviceToPeakTable } from "../schema/device";
+import { deviceTable, deviceToPeakTable } from "../schema/device";
 import { sensorDataSequenceTable, sensorDataTable } from "../schema/sensor";
 import type {
     SensorDataSelectType,
@@ -428,13 +428,6 @@ export async function getDevicesByPeak(sensorDataSequenceId: string) {
         .from(deviceToPeakTable)
         .innerJoin(deviceTable, eq(deviceTable.id, deviceToPeakTable.deviceId))
         .where(eq(deviceToPeakTable.sensorDataSequenceId, sensorDataSequenceId));
-}
-
-export async function getDeviceSuggestionsByPeak(sensorDataSequenceId: string) {
-    return db
-        .select()
-        .from(deviceSuggestionsPeakTable)
-        .where(eq(deviceSuggestionsPeakTable.sensorDataSequenceId, sensorDataSequenceId));
 }
 
 export async function getPeaksByDevice(deviceId: number) {

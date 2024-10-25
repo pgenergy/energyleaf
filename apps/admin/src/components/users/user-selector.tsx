@@ -31,6 +31,7 @@ export default function UserSelector({ selectedUserId, onUserSelected, selectedU
     return (
         <Popover onOpenChange={setIsOpen} open={isOpen}>
             <PopoverTrigger asChild>
+                {/* biome-ignore lint/a11y/useSemanticElements: <explanation> */}
                 <Button aria-expanded={isOpen} role="combobox" size="sm" variant="ghost">
                     {selectedUserName || "Nicht zugeordnet"}
                 </Button>

@@ -1,7 +1,7 @@
 import { estimateDevicePowers } from "@energyleaf/lib/math/device-power-estimation";
 import { type SQLWrapper, and, eq, inArray, sql } from "drizzle-orm";
 import { type DB, db } from "../";
-import { deviceHistoryTable, deviceSuggestionsPeakTable, deviceTable, deviceToPeakTable } from "../schema/device";
+import { deviceHistoryTable, deviceTable, deviceToPeakTable } from "../schema/device";
 import { sensorDataSequenceTable } from "../schema/sensor";
 import { userDataTable } from "../schema/user";
 import type { DeviceCategory, DeviceSelectType } from "../types/types";
@@ -163,12 +163,6 @@ async function copyToHistoryTable(
         power: device.power,
         isPowerEstimated: device.isPowerEstimated,
     });
-}
-
-export async function saveDeviceSuggestionsToPeakDb(sensorDataSequenceId: string, suggestions: DeviceCategory[]) {
-    await db
-        .insert(deviceSuggestionsPeakTable)
-        .values(suggestions.map((category) => ({ sensorDataSequenceId, deviceCategory: category })));
 }
 
 export async function getPeaksWithoutDevices(peaks: { id: string }[]) {

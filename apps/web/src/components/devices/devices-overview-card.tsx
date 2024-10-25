@@ -4,7 +4,6 @@ import { evaluatePowerEstimation } from "@/lib/devices/power-estimation";
 import { getUserData } from "@/query/user";
 import {} from "@energyleaf/lib/versioning";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
-import { ErrorBoundary } from "@energyleaf/ui/error";
 import { Skeleton } from "@energyleaf/ui/skeleton";
 import { Suspense } from "react";
 import DeviceAddButton from "./device-add-button";
@@ -12,7 +11,6 @@ import { DeviceDeleteDialog } from "./device-delete-dialog";
 import DeviceEditDialog from "./device-edit-dialog";
 import DevicesBadPowerEstimationAlert from "./devices-bad-power-estimation-alert";
 import DevicesTable from "./devices-table";
-import DevicesTableError from "./table/devices-table-error";
 
 export default async function DevicesOverviewCard() {
     const { user } = await getSession();
@@ -37,12 +35,10 @@ export default async function DevicesOverviewCard() {
                     <DeviceAddButton />
                 </CardHeader>
                 <CardContent>
-                    <ErrorBoundary fallback={DevicesTableError}>
-                        <Suspense fallback={<Skeleton className="h-96" />}>
-                            {showEstimationBadge && <DevicesBadPowerEstimationAlert className="mb-2" />}
-                            <DevicesTable />
-                        </Suspense>
-                    </ErrorBoundary>
+                    <Suspense fallback={<Skeleton className="h-96" />}>
+                        {showEstimationBadge && <DevicesBadPowerEstimationAlert className="mb-2" />}
+                        <DevicesTable />
+                    </Suspense>
                 </CardContent>
             </Card>
         </DeviceContextProvider>

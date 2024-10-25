@@ -292,7 +292,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                             control={form.control}
                             name="installationDate"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="flex flex-row items-center justify-between">
                                     <FormLabel>Installationsdatum</FormLabel>
                                     <Popover>
                                         <PopoverTrigger asChild>
@@ -321,7 +321,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                                 selected={field.value}
                                                 onSelect={field.onChange}
                                                 disabled={(date) => date < new Date("1900-01-01")}
-                                                initialFocus
+                                                autoFocus
                                             />
                                         </PopoverContent>
                                     </Popover>
@@ -332,7 +332,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                             control={form.control}
                             name="installationDate"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="flex flex-row items-center justify-between">
                                     <FormLabel>Deinstallationsdatum</FormLabel>
                                     <Popover>
                                         <PopoverTrigger asChild>
@@ -361,7 +361,7 @@ export default function UserStateForm({ initialValues, id }: Props) {
                                                 selected={field.value}
                                                 onSelect={field.onChange}
                                                 disabled={(date) => date < new Date("1900-01-01")}
-                                                initialFocus
+                                                autoFocus
                                             />
                                         </PopoverContent>
                                     </Popover>

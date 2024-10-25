@@ -169,7 +169,7 @@ export function DateRangePicker({ startDate: initStartDate, endDate: initEndDate
                 </div>
                 <Calendar
                     locale={de}
-                    initialFocus
+                    autoFocus
                     mode="range"
                     disabled={(d) => {
                         const currentDate = new Date();

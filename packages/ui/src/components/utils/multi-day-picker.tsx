@@ -40,7 +40,7 @@ export default function MultiDatePicker(props: Props) {
                     max={props.max}
                     selected={range}
                     onSelect={setRange}
-                    initialFocus
+                    autoFocus
                     locale={de}
                     disabled={(d) => {
                         const currentDate = new Date();

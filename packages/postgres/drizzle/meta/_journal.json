@@ -64,6 +64,13 @@
       "when": 1726398894416,
       "tag": "0008_drop_sequence_marking_table",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1729688946831,
+      "tag": "0009_drop_ml_tables",
+      "breakpoints": true
     }
   ]
 }

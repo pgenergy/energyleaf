@@ -4,10 +4,8 @@ import { getActionSession } from "@/lib/auth/auth.action";
 import type { peakSchema } from "@/lib/schema/peak";
 import { UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
 import { updatePowerOfDevices } from "@energyleaf/postgres/query/device";
-import { createDevices } from "@energyleaf/postgres/query/device";
 import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
 import {
-    getDeviceSuggestionsByPeak,
     getDevicesByPeak as getDevicesByPeakDb,
     updateDevicesForPeak as updateDevicesForPeakDb,
 } from "@energyleaf/postgres/query/peaks";
@@ -21,9 +19,8 @@ import {
 } from "@/lib/demo/demo";
 import type { DeviceOption, DeviceSelection } from "@/lib/devices/types";
 import type { DefaultActionReturnPayload } from "@energyleaf/lib";
-import { Versions, fulfills } from "@energyleaf/lib/versioning";
 import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/postgres/query/device";
-import { type DeviceCategory, DeviceCategoryTitles } from "@energyleaf/postgres/types";
+import type { DeviceCategory } from "@energyleaf/postgres/types";
 import { waitUntil } from "@vercel/functions";
 import type { Session } from "lucia";
 import { cookies } from "next/headers";
@@ -54,14 +51,6 @@ export async function updateDevicesForPeak(data: z.infer<typeof peakSchema>, sen
         }
 
         try {
-            const draftDevices = data.device.filter((device) => device.isDraft);
-            if (draftDevices.length > 0) {
-                const newDeviceIds = await createDevices(
-                    draftDevices.map((device) => ({ name: device.name, userId: user.id, category: device.category })),
-                );
-                devices.push(...newDeviceIds);
-            }
-
             await updateDevicesForPeakDb(sensorDataId, devices);
             await updatePowerOfDevices(session.userId);
             waitUntil(trackAction("peak/update-devices", "update-devices-for-peak", "web", { data, session }));
@@ -138,49 +127,14 @@ export async function getDeviceOptionsByPeak(
             id: device.id.toString(),
             category: device.category as DeviceCategory,
             name: device.name,
-            isSuggested: false,
-            isDraft: false,
             deviceId: device.id,
             isSelected: selectedDevices.some((selectedDevice) => selectedDevice.id === device.id),
         };
     });
 
-    let hasSuggestions = false;
-    if (fulfills(user.appVersion, Versions.support) && user?.id !== "demo" && selectedDevices.length === 0) {
-        const suggestions = await getDeviceSuggestionsByPeak(sensorDataSequenceId);
-        const suggestedCategories = new Set(suggestions.map((suggestion) => suggestion.deviceCategory));
-
-        for (const device of allDevices.filter((device) => suggestedCategories.has(device.category))) {
-            device.isSuggested = true;
-            device.isSelected = true;
-        }
-
-        const existingCategories = new Set(allDevices.map((device) => device.category));
-        const newCategories = new Set(
-            [...Array.from(suggestedCategories)].filter(
-                (category) => !existingCategories.has(category as DeviceCategory),
-            ),
-        );
-        const maxDeviceId = Math.max(...allDevices.map((device) => device.deviceId ?? 0));
-        const draftDevices: DeviceOption[] = Array.from(newCategories).map((category) => {
-            return {
-                id: maxDeviceId + category,
-                category: category as DeviceCategory,
-                name: DeviceCategoryTitles[category],
-                isSuggested: true,
-                isDraft: true,
-                isSelected: true,
-            };
-        });
-        allDevices.push(...draftDevices);
-
-        hasSuggestions = suggestions.length > 0;
-    }
-
     return {
         success: true,
         payload: {
-            hasSuggestions: hasSuggestions,
             options: allDevices,
         },
         message: "Geräteoptionen erfolgreich geladen.",

@@ -25,7 +25,7 @@ export default function DatePicker(props: Props) {
                     mode="single"
                     selected={props.date}
                     onSelect={handleClick}
-                    initialFocus
+                    autoFocus
                     locale={de}
                     disabled={(d) => {
                         const currentDate = new Date();
