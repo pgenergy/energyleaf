@@ -24,6 +24,22 @@ export const getGoalStatus = cache(async (userId: string, sensorId: string) => {
     ]);
 });
 
+export const getDailyGoalStatus = cache(async (userId: string, sensorId: string) => {
+    const dateNow = new Date();
+    const userData = await getUserData(userId);
+    if (!userData) {
+        throw new Error("User data not found");
+    }
+
+    const userDailyLimit = userData.consumptionGoal;
+    if (!userDailyLimit) {
+        return null;
+    }
+
+    const dailyGoal = await dailyGoalStatus(sensorId, userDailyLimit, dateNow);
+    return dailyGoal;
+});
+
 async function dailyGoalStatus(sensorId: string, dailyLimit: number, dateNow: Date): Promise<GoalStatus> {
     const serverStart = startOfDay(dateNow);
     const serverEnd = endOfDay(dateNow);

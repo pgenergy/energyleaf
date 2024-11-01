@@ -21,8 +21,8 @@ import type { DeviceOption, DeviceSelection } from "@/lib/devices/types";
 import type { DefaultActionReturnPayload } from "@energyleaf/lib";
 import { getDevicesByUser as getDbDevicesByUser } from "@energyleaf/postgres/query/device";
 import type { DeviceCategory } from "@energyleaf/postgres/types";
+import type { SessionSelectType as Session } from "@energyleaf/postgres/types";
 import { waitUntil } from "@vercel/functions";
-import type { Session } from "lucia";
 import { cookies } from "next/headers";
 import type { z } from "zod";
 

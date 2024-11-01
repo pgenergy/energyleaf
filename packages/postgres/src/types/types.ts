@@ -1,13 +1,15 @@
 import type { deviceTable, deviceToPeakTable } from "../schema/device";
 import type { reportConfigTable } from "../schema/reports";
 import type { sensorDataSequenceTable, sensorDataTable, sensorTable } from "../schema/sensor";
-import type { userDataTable, userExperimentDataTable, userTable } from "../schema/user";
+import type { sessionTable, userDataTable, userExperimentDataTable, userTable } from "../schema/user";
 
 export type UserDataSelectType = typeof userDataTable.$inferSelect;
 
 export type UserExperimentDataSelectType = typeof userExperimentDataTable.$inferSelect;
 
 export type UserSelectType = typeof userTable.$inferSelect;
+
+export type SessionSelectType = typeof sessionTable.$inferSelect;
 
 export type SensorSelectType = typeof sensorTable.$inferSelect;
 

@@ -1,10 +1,10 @@
+import { validateSessionToken } from "@energyleaf/postgres/query/auth";
 import { cookies } from "next/headers";
 import "server-only";
-import { lucia } from "./auth.config";
 
 export const getMiddlewareSession = async () => {
-    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
-    if (!sessionId) {
+    const token = cookies().get("auth_session")?.value ?? null;
+    if (!token) {
         return {
             user: null,
             session: null,
@@ -12,7 +12,7 @@ export const getMiddlewareSession = async () => {
     }
 
     try {
-        const result = await lucia.validateSession(sessionId);
+        const result = await validateSessionToken(token);
         return result;
     } catch {
         // ignore

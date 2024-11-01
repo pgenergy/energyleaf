@@ -1,7 +1,6 @@
 "use server";
 
 import { getActionSession } from "@/lib/auth/auth.action";
-import { lucia } from "@/lib/auth/auth.config";
 import { isDemoUser, updateUserDataCookieStore } from "@/lib/demo/demo";
 import type {
     deleteAccountSchema,
@@ -12,10 +11,9 @@ import type {
 } from "@/lib/schema/profile";
 import type { baseInformationSchema } from "@energyleaf/lib";
 import { PasswordsDoNotMatchError, UserNotFoundError, UserNotLoggedInError } from "@energyleaf/lib/errors/auth";
-import type { UserWithDataSelectType } from "@energyleaf/postgres/types";
+import type { SessionSelectType, UserWithDataSelectType } from "@energyleaf/postgres/types";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
 import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
 import { updateMailSettings } from "@energyleaf/postgres/query/mail";
@@ -27,13 +25,13 @@ import {
     updateUser,
     updateUserData,
 } from "@energyleaf/postgres/query/user";
+import { hash as argonHash, verify as argonVerify } from "@node-rs/argon2";
 import { waitUntil } from "@vercel/functions";
-import type { Session } from "lucia";
 import { redirect } from "next/navigation";
 import type { z } from "zod";
 
 export async function updateBaseInformationUsername(data: z.infer<typeof baseInformationSchema>) {
-    let session: Session | null = null;
+    let session: SessionSelectType | null = null;
     const userDataToLog = "private";
     try {
         session = (await getActionSession())?.session;
@@ -94,7 +92,7 @@ export async function updateBaseInformationUsername(data: z.infer<typeof baseInf
 }
 
 export async function updateBaseInformationPassword(data: z.infer<typeof passwordSchema>) {
-    let session: Session | null = null;
+    let session: SessionSelectType | null = null;
     try {
         session = (await getActionSession())?.session;
 
@@ -108,13 +106,13 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
             waitUntil(log("user/not-found", "error", "update-password", "web", { data, session }));
             throw new UserNotFoundError();
         }
-        const match = await new Argon2id().verify(dbuser.password, data.oldPassword);
+        const match = await argonVerify(dbuser.password, data.oldPassword);
         if (!match) {
             waitUntil(log("user/password-not-match", "error", "update-password", "web", { data, session }));
             throw new PasswordsDoNotMatchError();
         }
 
-        const hash = await new Argon2id().hash(data.newPassword);
+        const hash = await argonHash(data.newPassword);
         try {
             await updatePassword(
                 {
@@ -149,7 +147,7 @@ export async function updateBaseInformationPassword(data: z.infer<typeof passwor
 }
 
 export async function updateMailInformation(data: z.infer<typeof mailSettingsSchema>) {
-    let session: Session | null = null;
+    let session: SessionSelectType | null = null;
     try {
         session = (await getActionSession())?.session;
 
@@ -215,7 +213,7 @@ export async function updateMailInformation(data: z.infer<typeof mailSettingsSch
 }
 
 export async function updateUserDataInformation(data: z.infer<typeof userDataSchema>) {
-    let session: Session | null = null;
+    let session: SessionSelectType | null = null;
     try {
         session = (await getActionSession())?.session;
 
@@ -288,7 +286,7 @@ export async function updateUserDataInformation(data: z.infer<typeof userDataSch
 }
 
 export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
-    let session: Session | null = null;
+    let session: SessionSelectType | null = null;
     try {
         session = (await getActionSession())?.session;
 
@@ -349,7 +347,7 @@ export async function updateUserGoals(data: z.infer<typeof userGoalSchema>) {
 }
 
 export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
-    let session: Session | null = null;
+    let session: SessionSelectType | null = null;
     try {
         session = (await getActionSession())?.session;
         if (!session) {
@@ -366,13 +364,9 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
 
         let match = false;
         try {
-            match = await new Argon2id().verify(dbuser.password, data.password);
+            match = await argonVerify(dbuser.password, data.password);
         } catch (err) {
-            try {
-                match = await new Bcrypt().verify(dbuser.password, data.password);
-            } catch (err) {
-                waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, err }));
-            }
+            waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, err }));
         }
         if (!match) {
             waitUntil(log("user/password-not-match", "error", "delete-account", "web", { session, userId }));
@@ -382,7 +376,7 @@ export async function deleteAccount(data: z.infer<typeof deleteAccountSchema>) {
         try {
             await deleteUser(session.userId);
             await deleteSessionsOfUser(userId);
-            cookies().delete(lucia.sessionCookieName);
+            cookies().delete("auth_session");
             waitUntil(trackAction("user/deleted-account", "delete-account", "web", { session, userId: userId }));
         } catch (e) {
             waitUntil(logError("user/error-deleting", "delete-account", "web", { session }, e));

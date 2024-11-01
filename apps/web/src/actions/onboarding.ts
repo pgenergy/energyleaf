@@ -6,8 +6,8 @@ import { log, logError, trackAction } from "@energyleaf/postgres/query/logs";
 import { updateUser } from "@energyleaf/postgres/query/user";
 import { redirect } from "next/navigation";
 import "server-only";
+import type { SessionSelectType as Session } from "@energyleaf/postgres/types";
 import { waitUntil } from "@vercel/functions";
-import type { Session } from "lucia";
 
 export async function completeOnboarding() {
     let session: Session | null = null;

@@ -2,17 +2,17 @@
 
 import { env } from "@/env.mjs";
 import { checkIfAdmin, getActionSession } from "@/lib/auth/auth.action";
-import { lucia } from "@/lib/auth/auth.config";
+import { setSessionTokenCookie } from "@/lib/auth/session";
 import type { signInSchema } from "@/lib/schema/auth";
 import { UserNotActiveError, buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
 import { sendPasswordResetMailForUser } from "@energyleaf/mail";
 import { logError, trackAction } from "@energyleaf/postgres/query/logs";
-import { getUserById, getUserByMail, updatePassword } from "@energyleaf/postgres/query/user";
+import { getUserById, getUserByMail } from "@energyleaf/postgres/query/user";
 import { waitUntil } from "@vercel/functions";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
+import { createSession, generateSessionToken, invalidateSession } from "@energyleaf/postgres/query/auth";
+import { verify as argonVerify } from "@node-rs/argon2";
 import type { z } from "zod";
 
 export async function signInAction(data: z.infer<typeof signInSchema>) {
@@ -37,15 +37,9 @@ export async function signInAction(data: z.infer<typeof signInSchema>) {
         let match = false;
 
         try {
-            match = await new Argon2id().verify(user.password, data.password);
+            match = await argonVerify(user.password, data.password);
         } catch (err) {
-            match = await new Bcrypt().verify(user.password, data.password);
-            if (!match) {
-                throw new Error("E-Mail oder Passwort falsch.");
-            }
-
-            const hash = await new Argon2id().hash(data.password);
-            await updatePassword({ password: hash }, user.id);
+            match = false;
         }
 
         if (!match) {
@@ -53,9 +47,9 @@ export async function signInAction(data: z.infer<typeof signInSchema>) {
         }
 
         try {
-            const newSession = await lucia.createSession(user.id, {});
-            const cookie = lucia.createSessionCookie(newSession.id);
-            cookies().set(cookie.name, cookie.value, cookie.attributes);
+            const token = generateSessionToken();
+            const newSession = await createSession(token, user.id);
+            setSessionTokenCookie(token, newSession.expiresAt);
         } catch (err) {
             throw new Error("Fehler beim Erstellen der Sitzung.");
         }
@@ -75,7 +69,7 @@ export async function signOutAction() {
     }
 
     try {
-        await lucia.invalidateSession(session.id);
+        await invalidateSession(session.id);
     } catch (err) {
         return {
             success: false,

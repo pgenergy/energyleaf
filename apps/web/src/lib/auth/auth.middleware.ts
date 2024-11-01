@@ -1,12 +1,12 @@
 import { Versions } from "@energyleaf/lib/versioning";
+import { type SessionValidationResult, validateSessionToken } from "@energyleaf/postgres/query/auth";
 import { cookies } from "next/headers";
 import "server-only";
-import { lucia } from "./auth.config";
 
 /**
  * In middleware we cant set or delete cookies so we ignore it here
  */
-export const getMiddlewareSession = async () => {
+export const getMiddlewareSession = async (): Promise<SessionValidationResult> => {
     const demoMode = cookies().get("demo_mode")?.value === "true";
     if (demoMode) {
         return {
@@ -15,10 +15,14 @@ export const getMiddlewareSession = async () => {
                 username: "Demo Nutzer",
                 firstname: "Demo",
                 lastname: "Nutzer",
+                password: "",
+                isParticipant: true,
+                receiveAnomalyMails: true,
+                activationDate: new Date(),
                 email: "demo@energyleaf.de",
                 phone: null,
                 address: "Ammerländer Heerstraße 114, Oldenburg",
-                created: new Date().toISOString(),
+                created: new Date(),
                 isAdmin: false,
                 isActive: true,
                 appVersion: Versions.support as number,
@@ -27,13 +31,12 @@ export const getMiddlewareSession = async () => {
             session: {
                 id: "demo",
                 userId: "demo",
-                fresh: false,
                 expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
             },
         };
     }
-    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
-    if (!sessionId) {
+    const token = cookies().get("auth_session")?.value ?? null;
+    if (!token) {
         return {
             user: null,
             session: null,
@@ -41,7 +44,7 @@ export const getMiddlewareSession = async () => {
     }
 
     try {
-        const result = await lucia.validateSession(sessionId);
+        const result = await validateSessionToken(token);
         return result;
     } catch {
         // ignore

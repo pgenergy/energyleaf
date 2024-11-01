@@ -60,8 +60,8 @@ export default async function EnergyConsumptionCard({
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-col justify-start">
-                <CardTitle>Verbrauch, Leistung, Einspeisung und Kosten</CardTitle>
-                <CardDescription>Im ausgewählten Zeitraum</CardDescription>
+                <CardTitle>Tagesverbauch</CardTitle>
+                <CardDescription>Zeigt Verbauch, Leistung und Kosten des heutigen Tages an.</CardDescription>
                 {userId !== "demo" ? (
                     <div className="flex flex-row gap-4">
                         <DashboardEnergyAggregation selected={aggregation} startDate={startDate} endDate={endDate} />

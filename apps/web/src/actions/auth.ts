@@ -2,7 +2,6 @@
 
 import { env, getUrl } from "@/env.mjs";
 import { getActionSession } from "@/lib/auth/auth.action";
-import { lucia } from "@/lib/auth/auth.config";
 import { getUserDataCookieStoreDefaults, isDemoUser } from "@/lib/demo/demo";
 import type { forgotSchema, resetSchema } from "@/lib/schema/auth";
 import { buildResetPasswordUrl, getResetPasswordToken } from "@energyleaf/lib";
@@ -21,16 +20,21 @@ import {
     getUserByMail,
     updatePassword,
 } from "@energyleaf/postgres/query/user";
-import { type UserSelectType, userDataElectricityMeterTypeEnums } from "@energyleaf/postgres/types";
+import {
+    type SessionSelectType,
+    type UserSelectType,
+    userDataElectricityMeterTypeEnums,
+} from "@energyleaf/postgres/types";
 import { put } from "@energyleaf/storage";
 import * as jose from "jose";
-import type { Session } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Argon2id, Bcrypt } from "oslo/password";
 import "server-only";
+import { setSessionTokenCookie } from "@/lib/auth/session";
 import type { mailSettingsSchema } from "@/lib/schema/profile";
+import { createSession, generateSessionToken, invalidateSession } from "@energyleaf/postgres/query/auth";
 import type { userDataTable } from "@energyleaf/postgres/schema/user";
+import { hash as argonHash, verify as argonVerify } from "@node-rs/argon2";
 import { waitUntil } from "@vercel/functions";
 import type { z } from "zod";
 
@@ -129,7 +133,7 @@ export async function createAccount(data: FormData) {
         };
     }
 
-    const hash = await new Argon2id().hash(password);
+    const hash = await argonHash(password);
 
     let url: string | undefined = undefined;
     if (
@@ -309,7 +313,7 @@ export async function resetPassword(data: z.infer<typeof resetSchema>, resetToke
     }
 
     try {
-        const hash = await new Argon2id().hash(newPassword);
+        const hash = await argonHash(newPassword);
         await updatePassword({ password: hash }, user.id);
         waitUntil(trackAction("password-changed", "reset-password", "web", { resetToken, userId: sub }));
     } catch (err) {
@@ -367,28 +371,13 @@ export async function signInAction(email: string, password: string, next?: strin
     let match: boolean;
 
     try {
-        match = await new Argon2id().verify(user.password, password);
+        match = await argonVerify(user.password, password);
     } catch (err) {
-        waitUntil(logError("verifying-password", "sign-in", "web", { email, userId: user.id }, err));
-        match = await new Bcrypt().verify(user.password, password);
-        if (!match) {
-            waitUntil(trackAction("password-verification-error", "sign-in", "web", { email, userId: user.id }));
-            return {
-                success: false,
-                message: "E-Mail oder Passwort falsch.",
-            };
-        }
-
-        try {
-            const hash = await new Argon2id().hash(password);
-            await updatePassword({ password: hash }, user.id);
-        } catch (err) {
-            waitUntil(logError("updating-password", "sign-in", "web", { email, userId: user.id }, err));
-            return {
-                success: false,
-                message: "Ein Fehler ist aufgetreten.",
-            };
-        }
+        waitUntil(logError("updating-password", "sign-in", "web", { email, userId: user.id }, err));
+        return {
+            success: false,
+            message: "Ein Fehler ist aufgetreten.",
+        };
     }
 
     if (!match) {
@@ -399,14 +388,14 @@ export async function signInAction(email: string, password: string, next?: strin
         };
     }
 
-    const newSession = await lucia.createSession(user.id, {});
-    const cookie = lucia.createSessionCookie(newSession.id);
-    cookies().set(cookie.name, cookie.value, cookie.attributes);
+    const token = generateSessionToken();
+    const newSession = await createSession(token, user.id);
+    setSessionTokenCookie(token, newSession.expiresAt);
     await handleSignIn(newSession, user, next);
     waitUntil(trackAction("user-signed-in", "sign-in", "web", { email, userId: user.id }));
 }
 
-async function handleSignIn(session: Session, user: UserSelectType | null, next?: string) {
+async function handleSignIn(session: SessionSelectType, user: UserSelectType | null, next?: string) {
     let userData = user;
     if (!userData) {
         userData = await getUserById(session.userId);
@@ -450,7 +439,7 @@ export async function signOutAction() {
         return;
     }
 
-    await lucia.invalidateSession(session.id);
+    await invalidateSession(session.id);
     cookies().delete("auth_session");
     await trackAction("user-signed-out", "sign-out", "web", { userId: session.userId });
     redirect("/");

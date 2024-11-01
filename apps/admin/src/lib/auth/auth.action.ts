@@ -1,11 +1,11 @@
 import { cookies } from "next/headers";
 import "server-only";
+import { validateSessionToken } from "@energyleaf/postgres/query/auth";
 import { redirect } from "next/navigation";
-import { lucia } from "./auth.config";
 
 export const getActionSession = async () => {
-    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
-    if (!sessionId) {
+    const token = cookies().get("auth_session")?.value ?? null;
+    if (!token) {
         return {
             user: null,
             session: null,
@@ -13,24 +13,14 @@ export const getActionSession = async () => {
     }
 
     try {
-        const result = await lucia.validateSession(sessionId);
-        try {
-            if (result.session?.fresh) {
-                const sessionCookie = lucia.createSessionCookie(result.session.id);
-                cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-            }
-            if (!result.session) {
-                const sessionCookie = lucia.createBlankSessionCookie();
-                cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-            }
-        } catch {
-            // ignore
+        const result = await validateSessionToken(token);
+        if (result.user && result.session) {
+            return result;
         }
-        return result;
     } catch {
         // ignore
     }
-    cookies().delete(lucia.sessionCookieName);
+    cookies().delete("auth_session");
     redirect("/");
 };
 

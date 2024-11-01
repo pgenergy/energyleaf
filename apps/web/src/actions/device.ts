@@ -17,8 +17,8 @@ import {
     deleteDemoDeviceFromCookieStore,
     getDemoDevicesCookieStore,
 } from "@/lib/demo/demo";
+import type { SessionSelectType as Session } from "@energyleaf/postgres/types";
 import { waitUntil } from "@vercel/functions";
-import type { Session } from "lucia";
 import { cookies } from "next/headers";
 import type { z } from "zod";
 

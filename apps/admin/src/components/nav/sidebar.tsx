@@ -1,6 +1,7 @@
 "use client";
 
 import { signOutAction } from "@/actions/auth";
+import type { UserSelectType as User } from "@energyleaf/postgres/types";
 import {
     Sidebar,
     SidebarContent,
@@ -12,7 +13,6 @@ import {
     SidebarSeparator,
     useSidebar,
 } from "@energyleaf/ui/sidebar";
-import type { User } from "lucia";
 import { ChevronsLeftIcon, ChevronsRightIcon, LogOutIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";

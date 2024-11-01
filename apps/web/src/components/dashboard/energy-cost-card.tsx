@@ -3,9 +3,10 @@ import { calculateCosts } from "@/lib/costs/energy-cost";
 import { getElectricitySensorIdForUser, getEnergyDataForSensor } from "@/query/energy";
 import { getUserData } from "@/query/user";
 import { formatNumber } from "@energyleaf/lib";
+import { Button, buttonVariants } from "@energyleaf/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@energyleaf/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@energyleaf/ui/popover";
-import { ArrowRightIcon, Info } from "lucide-react";
+import { ArrowRightIcon, Info, SettingsIcon } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -67,32 +68,32 @@ export default async function EnergyCostCard({ startDate, endDate }: Props) {
     return (
         <Card className="w-full">
             <CardHeader>
-                <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-row items-center justify-between gap-2">
                     <CardTitle>Energiekosten</CardTitle>
-                    <Popover>
-                        <PopoverTrigger>
-                            <Info className="h-5 w-5" />
-                        </PopoverTrigger>
-                        <PopoverContent className="text-s">
-                            Der Preis setzt sich aus den in diesen Zeitraum fälligen Grundkosten (
-                            {formatNumber(parsedTotalBaseCost)} €) und den eigentlichen Kosten für den Verbrauch (
-                            {formatNumber(parsedTotalWorkingCost)} €) zusammen.
-                        </PopoverContent>
-                    </Popover>
+                    <div className="flex flex-row items-center gap-2">
+                        <Link className={buttonVariants({ variant: "ghost", size: "icon" })} href="/settings">
+                            <SettingsIcon className="h-5 w-5" />
+                        </Link>
+                        {parsedTotalCost > 0 ? (
+                            <Popover>
+                                <PopoverTrigger>
+                                    <Button variant="ghost" size="icon">
+                                        <Info className="h-5 w-5" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="text-s">
+                                    Der Preis setzt sich aus den in diesen Zeitraum fälligen Grundkosten (
+                                    {formatNumber(parsedTotalBaseCost)} €) und den eigentlichen Kosten für den Verbrauch
+                                    ({formatNumber(parsedTotalWorkingCost)} €) zusammen.
+                                </PopoverContent>
+                            </Popover>
+                        ) : null}
+                    </div>
                 </div>
                 <CardDescription>Im ausgewählten Zeitraum</CardDescription>
             </CardHeader>
             <CardContent>
-                {parsedTotalCost > 0 ? (
-                    <h1 className="text-center font-bold font-mono">{formatNumber(parsedTotalCost)} €</h1>
-                ) : (
-                    <Link
-                        href="/settings"
-                        className="flex flex-row items-center justify-center gap-2 text-muted-foreground text-sm"
-                    >
-                        Preis in den Einstellungen festlegen <ArrowRightIcon className="h-4 w-4" />
-                    </Link>
-                )}
+                <h1 className="text-center font-bold font-mono">{formatNumber(parsedTotalCost)} €</h1>
             </CardContent>
         </Card>
     );
