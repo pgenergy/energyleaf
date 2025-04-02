@@ -69,14 +69,15 @@ const fn = async (userWithDueReport: User) => {
 };
 
 export const POST = async (req: NextRequest) => {
-    const cronSecret = env.CRON_SECRET;
-    const body = (await req.json()) as ReqBody;
-
-    if (body.secret !== cronSecret) {
-        waitUntil(log("request-unauthorized/missing-key", "error", "reports-creation", "api", req));
-        return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
-    }
-
-    waitUntil(fn(body.user));
     return NextResponse.json({ statusMessage: "Report creation sucessful" });
+    // const cronSecret = env.CRON_SECRET;
+    // const body = (await req.json()) as ReqBody;
+    //
+    // if (body.secret !== cronSecret) {
+    //     waitUntil(log("request-unauthorized/missing-key", "error", "reports-creation", "api", req));
+    //     return NextResponse.json({ status: 401, statusMessage: "Unauthorized" });
+    // }
+    //
+    // waitUntil(fn(body.user));
+    // return NextResponse.json({ statusMessage: "Report creation sucessful" });
 };

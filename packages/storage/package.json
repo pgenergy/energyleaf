@@ -7,14 +7,14 @@
         ".": "./src/index.ts"
     },
     "dependencies": {
-        "@aws-sdk/client-s3": "^3.654.0",
+        "@aws-sdk/client-s3": "^3.779.0",
         "mime-types": "^2.1.35",
-        "nanoid": "^5.0.7"
+        "nanoid": "^5.1.5"
     },
     "devDependencies": {
         "@energyleaf/tsconfig": "workspace:^",
         "@types/mime-types": "^2.1.4",
-        "@types/node": "^22.5.5",
-        "typescript": "^5.6.2"
+        "@types/node": "^22.13.17",
+        "typescript": "^5.8.2"
     }
 }
