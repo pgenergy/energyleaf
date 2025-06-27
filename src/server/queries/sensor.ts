@@ -62,7 +62,10 @@ export async function createSensorToken(clientId: string) {
 
 export async function getSensorIdFromSensorToken(code: string) {
 	const dbReturn = await db.transaction(async (trx) => {
-		const tokenData = await trx.select().from(sensorTokenTable).where(eq(sensorTokenTable.code, code));
+		const tokenData = await trx
+			.select()
+			.from(sensorTokenTable)
+			.where(eq(lower(sensorTokenTable.code), code.toLowerCase()));
 
 		if (tokenData.length === 0) {
 			return {
@@ -75,7 +78,9 @@ export async function getSensorIdFromSensorToken(code: string) {
 		const tokenDate = token.timestamp;
 
 		if (!tokenDate) {
-			await trx.delete(sensorTokenTable).where(eq(sensorTokenTable.sensorId, token.sensorId));
+			await trx
+				.delete(sensorTokenTable)
+				.where(eq(sensorTokenTable.sensorId, token.sensorId));
 			return {
 				error: "token/invalid",
 				sensorId: null,
