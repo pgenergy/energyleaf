@@ -1,0 +1,2 @@
+-- Custom SQL migration file, put you code below! --
+-- Empty migration file, because we no longer use timescale --
