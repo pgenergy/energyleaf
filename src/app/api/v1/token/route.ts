@@ -1,6 +1,7 @@
 import { ErrorTypes, LogSystemTypes } from "@/lib/log-types";
 import { db } from "@/server/db";
 import { sensorTable } from "@/server/db/tables/sensor";
+import { lower } from "@/server/db/types";
 import { logError } from "@/server/queries/logs";
 import { createSensorToken } from "@/server/queries/sensor";
 import { energyleaf, parseReadableStream } from "@energyleaf/proto";
@@ -30,7 +31,10 @@ export async function POST(req: NextRequest) {
 
 		try {
 			const token = await createSensorToken(reqData.clientId);
-			const sensors = await db.select().from(sensorTable).where(eq(sensorTable.clientId, reqData.clientId));
+			const sensors = await db
+				.select()
+				.from(sensorTable)
+				.where(eq(lower(sensorTable.clientId), reqData.clientId.toLowerCase()));
 
 			if (sensors.length === 0) {
 				throw new Error("sensor/not-found");
@@ -95,17 +99,17 @@ export async function POST(req: NextRequest) {
 				});
 			}
 
-            waitUntil(
-                logError({
-                    fn: LogSystemTypes.TOKEN_V1,
-                    error: err as unknown as Error,
-                    details: {
-                        session: null,
-                        user: null,
-                        reason: ErrorTypes.UNKNOWN,
-                    },
-                })
-            );
+			waitUntil(
+				logError({
+					fn: LogSystemTypes.TOKEN_V1,
+					error: err as unknown as Error,
+					details: {
+						session: null,
+						user: null,
+						reason: ErrorTypes.UNKNOWN,
+					},
+				})
+			);
 			return new NextResponse(TokenResponse.toBinary({ statusMessage: "Database error", status: 500 }), {
 				status: 500,
 				headers: {
