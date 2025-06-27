@@ -14,7 +14,7 @@ export default async function DeviceEditCard(props: Props) {
 		return null;
 	}
 
-	const device = await getDeviceById(props.id);
+	const device = await getDeviceById(user.id, props.id);
 	if (!device || device.userId !== user.id) {
 		redirect("/devices");
 	}
