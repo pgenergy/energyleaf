@@ -16,7 +16,7 @@ async function insert() {
 		}[]
 	).map((d) => ({
 		...d,
-		sensor_id: "fioahwifhanwofha",
+		sensor_id: "demo_sensor",
 	}));
 
 	const chunkSize = 1000;
@@ -34,7 +34,12 @@ async function insert() {
 			for (const item of chunk) {
 				const ts = new Date(item.timestamp);
 				ts.setMonth(new Date().getMonth());
+                const currMonth = ts.getMonth();
 				ts.setFullYear(new Date().getFullYear());
+                ts.setDate(ts.getDate() + 14);
+                if (currMonth !== ts.getMonth() || ts.getDate() > 30) {
+                    continue;
+                }
 				const promises = [];
 				promises.push(
 					tx.insert(energyDataTable).values({
