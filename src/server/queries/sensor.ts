@@ -198,10 +198,10 @@ export async function insertEnergyData(data: EnergyDataInput) {
 		// in an hour this would be 36 kwh
 		// this is a very high value and should never be reached
 		// but is hopefully a good protection against faulty sensors
-		// if we didnt recieve a value for more than one day increase value drastically
+		// if we didnt recieve a value for more than one day we ignore the threshold and accept the next value
 		const timeDiff = (new Date().getTime() - lastEntry.timestamp.getTime()) / 1000 / 60;
-		const timeThreshold = timeDiff > 24 * 60 ? 2 : 0.6;
-		if (newValue - lastEntry.value > timeDiff * timeThreshold) {
+		const timeThreshold = 0.6;
+		if (newValue - lastEntry.value > timeDiff * timeThreshold && timeDiff < 24 * 60) {
 			throw new Error("value/too-high");
 		}
 
