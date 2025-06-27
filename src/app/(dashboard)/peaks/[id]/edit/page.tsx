@@ -16,6 +16,10 @@ interface Props {
 	params: Params;
 }
 
+export const metadata = {
+    title: "Ausschläge - Energyleaf",
+};
+
 export default async function PeakEditPage(props: Props) {
 	const params = await props.params;
 

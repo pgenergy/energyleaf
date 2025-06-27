@@ -3,7 +3,7 @@ import { getCurrentSession } from "@/server/lib/auth";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-	title: "Einstellungen | Energyleaf",
+	title: "Einstellungen - Energyleaf",
 };
 
 interface Props {

@@ -5,6 +5,10 @@ import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumpt
 import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 
+export const metadata = {
+    title: "Übersicht - Energyleaf",
+};
+
 export default function DashboardPage() {
 	return (
 		<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
