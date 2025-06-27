@@ -1,6 +1,7 @@
+import { ErrorTypes, LogSystemTypes } from "@/lib/log-types";
 import { db } from "@/server/db";
-import { errorLogsTable, systemLogsTable } from "@/server/db/tables/logs";
 import { sensorTable } from "@/server/db/tables/sensor";
+import { logError } from "@/server/queries/logs";
 import { createSensorToken } from "@/server/queries/sensor";
 import { energyleaf, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
@@ -51,17 +52,6 @@ export async function POST(req: NextRequest) {
 						script: sensorData.script,
 					};
 				}
-				waitUntil(
-					db.insert(systemLogsTable).values({
-						title: "script_sent",
-						details: {
-							endpoint: "token",
-							sensorId: sensorData.id,
-							token,
-							...additionalData,
-						},
-					})
-				);
 				return new NextResponse(
 					TokenResponse.toBinary({
 						status: 200,
@@ -77,16 +67,6 @@ export async function POST(req: NextRequest) {
 					}
 				);
 			}
-			waitUntil(
-				db.insert(systemLogsTable).values({
-					title: "sensor_token_sent",
-					details: {
-						endpoint: "token",
-						sensorId: sensorData.id,
-						token,
-					},
-				})
-			);
 			return new NextResponse(
 				TokenResponse.toBinary({
 					accessToken: token,
@@ -107,17 +87,6 @@ export async function POST(req: NextRequest) {
 				(err as unknown as Error).message === "sensor/not-found" ||
 				(err as unknown as Error).message === "sensor/no-user"
 			) {
-				waitUntil(
-					db.insert(errorLogsTable).values({
-						function: "token_endpoint",
-						details: {
-							endpoint: "token",
-							reason: (err as unknown as Error).message,
-							body: reqData,
-							error: err,
-						},
-					})
-				);
 				return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
 					status: 404,
 					headers: {
@@ -126,16 +95,17 @@ export async function POST(req: NextRequest) {
 				});
 			}
 
-			waitUntil(
-				db.insert(errorLogsTable).values({
-					function: "token_endpoint",
-					details: {
-						endpoint: "token",
-						body: reqData,
-						error: err,
-					},
-				})
-			);
+            waitUntil(
+                logError({
+                    fn: LogSystemTypes.TOKEN_V1,
+                    error: err as unknown as Error,
+                    details: {
+                        session: null,
+                        user: null,
+                        reason: ErrorTypes.UNKNOWN,
+                    },
+                })
+            );
 			return new NextResponse(TokenResponse.toBinary({ statusMessage: "Database error", status: 500 }), {
 				status: 500,
 				headers: {
@@ -146,11 +116,12 @@ export async function POST(req: NextRequest) {
 	} catch (err) {
 		console.error(err);
 		waitUntil(
-			db.insert(errorLogsTable).values({
-				function: "token_endpoint",
+			logError({
+				fn: LogSystemTypes.TOKEN_V1,
+				error: err as unknown as Error,
 				details: {
-					endpoint: "token",
-					error: err,
+					session: null,
+					user: null,
 				},
 			})
 		);

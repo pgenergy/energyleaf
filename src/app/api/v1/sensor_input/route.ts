@@ -1,8 +1,8 @@
 import { TimezoneTypeToTimeZone } from "@/lib/enums";
-import { ErrorTypes, LogSystemTypes } from "@/lib/log-types";
+import { LogSystemTypes } from "@/lib/log-types";
 import { db } from "@/server/db";
 import { userTable } from "@/server/db/tables/user";
-import { logError, logSystem } from "@/server/queries/logs";
+import { logError } from "@/server/queries/logs";
 import { getSensorIdFromSensorToken, insertEnergyData } from "@/server/queries/sensor";
 import { energyleaf, parseReadableStream } from "@energyleaf/proto";
 import { waitUntil } from "@vercel/functions";
@@ -15,16 +15,6 @@ const { SensorDataRequestV2, SensorDataRequest, SensorDataResponse } = energylea
 export const POST = async (req: NextRequest) => {
 	const body = req.body;
 	if (!body) {
-		waitUntil(
-			logSystem({
-				fn: LogSystemTypes.ENERGY_INPUT_V1,
-				details: {
-					sensor: null,
-					user: null,
-					reason: ErrorTypes.INVALID_INPUT,
-				},
-			})
-		);
 		return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "No body" }), {
 			status: 400,
 			headers: {
@@ -39,29 +29,21 @@ export const POST = async (req: NextRequest) => {
 			value: number;
 			valueOut?: number;
 			valueCurrent?: number;
-			timestamp?: string;
+			timestamp?: bigint;
 		};
 		try {
-			data = SensorDataRequest.fromBinary(binaryData);
+			data = SensorDataRequestV2.fromBinary(binaryData);
 		} catch {
 			try {
-				const parsedData = SensorDataRequestV2.fromBinary(binaryData);
+				const parsedData = SensorDataRequest.fromBinary(binaryData);
 				data = {
 					...parsedData,
-					timestamp: parsedData.timestamp ? new Date(Number(parsedData.timestamp)).toISOString() : undefined,
+                    valueOut: undefined,
+                    valueCurrent: undefined,
+                    timestamp: undefined,
 				};
 			} catch (err) {
 				console.error(err);
-				waitUntil(
-					logSystem({
-						fn: LogSystemTypes.ENERGY_INPUT_V1,
-						details: {
-							sensor: null,
-							user: null,
-							reason: ErrorTypes.INVALID_INPUT,
-						},
-					})
-				);
 				return new NextResponse(SensorDataResponse.toBinary({ status: 400, statusMessage: "Invalid data" }), {
 					status: 400,
 					headers: {
@@ -74,16 +56,6 @@ export const POST = async (req: NextRequest) => {
 		console.info(data);
 
 		if (data.value <= 0) {
-			waitUntil(
-				logSystem({
-					fn: LogSystemTypes.ENERGY_INPUT_V1,
-					details: {
-						sensor: null,
-						user: null,
-						reason: ErrorTypes.INPUT_IS_ZERO,
-					},
-				})
-			);
 			return new NextResponse(
 				SensorDataResponse.toBinary({ status: 400, statusMessage: "Value is equal to or less than zero" }),
 				{
@@ -102,16 +74,6 @@ export const POST = async (req: NextRequest) => {
 				needsSum = true;
 			}
 			if (!sensor.userId) {
-				waitUntil(
-					logSystem({
-						fn: LogSystemTypes.ENERGY_INPUT_V1,
-						details: {
-							sensor: sensor.id,
-							user: null,
-							reason: ErrorTypes.USER_NOT_FOUND,
-						},
-					})
-				);
 				throw new Error("sensor/no-user");
 			}
 			const users = await db
@@ -121,16 +83,6 @@ export const POST = async (req: NextRequest) => {
 				.from(userTable)
 				.where(eq(userTable.id, sensor.userId));
 			if (users.length === 0) {
-				waitUntil(
-					logSystem({
-						fn: LogSystemTypes.ENERGY_INPUT_V1,
-						details: {
-							sensor: sensor.id,
-							user: null,
-							reason: ErrorTypes.USER_NOT_FOUND,
-						},
-					})
-				);
 				throw new Error("sensor/no-user");
 			}
 			let tz = "Europe/Berlin";
@@ -139,7 +91,7 @@ export const POST = async (req: NextRequest) => {
 			}
 
 			// we set the time to always be in the users timezone
-			const date = data.timestamp ? new Date(data.timestamp) : new Date();
+			const date = data.timestamp ? new Date(Number(data.timestamp)) : new Date();
 			const tzDate = toZonedTime(date, tz);
 
 			const inputData = {
@@ -156,17 +108,6 @@ export const POST = async (req: NextRequest) => {
 			} catch (e) {
 				console.error(e);
 				if ((e as unknown as Error).message === "value/too-high") {
-					waitUntil(
-						logSystem({
-							fn: LogSystemTypes.ENERGY_INPUT_V1,
-							details: {
-								sensor: sensor.id,
-								user: sensor.userId,
-								reason: ErrorTypes.INPUT_TOO_HIGH,
-								data,
-							},
-						})
-					);
 					return new NextResponse(
 						SensorDataResponse.toBinary({ statusMessage: "Value too high", status: 400 }),
 						{
