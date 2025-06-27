@@ -7,6 +7,11 @@ import { eq } from "drizzle-orm";
 
 type SearchParams = Promise<{ token?: string }>;
 
+export const metadata = {
+	title: "Passwort vergessen - Energyleaf",
+	robots: "noindex, nofollow",
+};
+
 export default async function PasswordForgotPage({ searchParams }: { searchParams: SearchParams }) {
 	const { token } = await searchParams;
 	if (token) {

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-	title: "Konto erstellen | Energyleaf",
+	title: "Konto erstellen - Energyleaf",
 	robots: "noindex, nofollow",
 };
 

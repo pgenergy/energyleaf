@@ -20,6 +20,10 @@ interface Props {
 	searchParams: SearchParams;
 }
 
+export const metadata = {
+    title: "Strom - Energyleaf",
+};
+
 export default async function EnergyPage(props: Props) {
 	const { user } = await getCurrentSession();
 	if (!user) {

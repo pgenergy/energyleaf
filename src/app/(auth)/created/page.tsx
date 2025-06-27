@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 
 export const metadata = {
-	title: "Konto erstellt | Energyleaf",
+	title: "Konto erstellt - Energyleaf",
 	robots: "noindex, nofollow",
 };
 

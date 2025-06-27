@@ -16,6 +16,10 @@ interface Props {
 	params: Params;
 }
 
+export const metadata = {
+    title: "Geräte - Energyleaf",
+};
+
 export default async function DeviceEditPage(props: Props) {
 	const params = await props.params;
 

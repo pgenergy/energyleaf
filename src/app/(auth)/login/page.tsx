@@ -4,7 +4,8 @@ import Link from "next/link";
 
 export const metadata = {
 	title: "Energyleaf",
-	robots: "index, follow",
+    description: "Willkommen bei Energyleaf!",
+	robots: "index",
 };
 
 export default function LoginPage() {

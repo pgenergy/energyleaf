@@ -20,6 +20,10 @@ interface Props {
 	searchParams: SearchParams;
 }
 
+export const metadata = {
+    title: "Kosten - Energyleaf",
+};
+
 export default async function CostPage(props: Props) {
 	const { user } = await getCurrentSession();
 	if (!user) {

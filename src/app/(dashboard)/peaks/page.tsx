@@ -14,6 +14,10 @@ interface Props {
 	searchParams: SearchParams;
 }
 
+export const metadata = {
+    title: "Ausschläge - Energyleaf",
+};
+
 export default async function DevicesPage(props: Props) {
 	const { user } = await getCurrentSession();
 	if (!user) {
