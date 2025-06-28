@@ -88,7 +88,7 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 		);
 	}
 
-	const value = data[0].consumption;
+	const value = data.reduce((acc, curr) => curr.consumption + acc, 0);
 	let compareValue: number | null = null;
 	let diff: number | null = null;
 	if (compareData) {
