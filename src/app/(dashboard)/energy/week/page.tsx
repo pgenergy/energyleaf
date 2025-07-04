@@ -60,6 +60,11 @@ export default async function EnergyPage(props: Props) {
 		compareEnd = undefined;
 	}
 
+    if (compareStart && compareEnd && compareStart.getTime() > start.getTime()) {
+        [start, compareStart] = [compareStart, start];
+        [end, compareEnd] = [compareEnd, end];
+    }
+
 	return (
 		<EnergyPageLayout
 			selector={

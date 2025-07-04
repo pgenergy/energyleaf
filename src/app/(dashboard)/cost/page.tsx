@@ -49,6 +49,10 @@ export default async function CostPage(props: Props) {
 		compare = undefined;
 	}
 
+    if (compare && compare.getTime() > date.getTime()) {
+        [date, compare] = [compare, date];
+    }
+
 	return (
 		<CostPageLayout
 			selector={

@@ -49,6 +49,10 @@ export default async function EnergyPage(props: Props) {
 		compare = undefined;
 	}
 
+    if (compare && compare?.getTime() > date.getTime()) {
+        [date, compare] = [compare, date];
+    }
+
 	return (
 		<EnergyPageLayout
 			selector={
