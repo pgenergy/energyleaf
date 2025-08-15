@@ -2,8 +2,11 @@
 FROM postgres:17
 
 #–– Build arguments (can be overridden at build-time) ––
-ARG PG_NET_VERSION=0.14.0
-ARG PG_CRON_VERSION=1.6.4
+ARG PG_NET_VERSION=0.19.5
+ARG PG_CRON_VERSION=1.6.5
+ARG TIMESCALEDB_VERSION=2.21.3
+ARG PGMQ_VERSION=0.1.0
+ARG PGMQ_VERSION=1.6.1
 
 #–– 1) Install system dependencies ––
 # combining update/install/cleanup in one layer
@@ -16,29 +19,30 @@ RUN apt-get update && \
       postgresql-server-dev-17 \
       ca-certificates \
       libcurl4-openssl-dev \
-      build-essential && \
+      build-essential \
+      libicu-dev && \
     rm -rf /var/lib/apt/lists/*
 
 #–– 2) Fetch, build & install pg_net ––
-RUN git clone --branch v${PG_NET_VERSION} \
-      https://github.com/supabase/pg_net.git /tmp/pg_net && \
+RUN git clone https://github.com/supabase/pg_net.git /tmp/pg_net && \
     cd /tmp/pg_net && \
+    git checkout v${PG_NET_VERSION} && \
     make && \
     make install && \
     rm -rf /tmp/pg_net
 
 #–– 3) Fetch, build & install pgmq ––
-RUN git clone \
-      https://github.com/tembo-io/pgmq.git /tmp/pgmq && \
+RUN git clone https://github.com/tembo-io/pgmq.git /tmp/pgmq && \
     cd /tmp/pgmq/pgmq-extension && \
+    git checkout v${PGMQ_VERSION} && \
     make && \
     make install && \
     rm -rf /tmp/pgmq
 
 #–– 4) Fetch, build & install pg_cron ––
-RUN git clone --branch v${PG_CRON_VERSION} \
-      https://github.com/citusdata/pg_cron.git /tmp/pg_cron && \
+RUN git clone https://github.com/citusdata/pg_cron.git /tmp/pg_cron && \
     cd /tmp/pg_cron && \
+    git checkout v${PG_CRON_VERSION} && \
     make && \
     make install && \
     export PATH=/usr/pgsql-17/bin:$PATH && \
@@ -48,7 +52,7 @@ RUN git clone --branch v${PG_CRON_VERSION} \
 #-- 5) Fetch, build & install timescaledb --
 RUN git clone https://github.com/timescale/timescaledb && \
     cd timescaledb && \
-    git checkout 2.17.2 && \
+    git checkout ${TIMESCALEDB_VERSION} && \
     ./bootstrap && \
     cd build && make && \
     make install
