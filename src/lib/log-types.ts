@@ -18,7 +18,7 @@ export enum ErrorTypes {
 	INPUT_IS_ZERO = "input_is_zero",
 	INPUT_TOO_HIGH = "input_too_high",
 	NOT_FOUND = "not_found",
-    UNKNOWN = "unknown",
+	UNKNOWN = "unknown",
 }
 
 export enum LogActionTypes {
@@ -62,9 +62,12 @@ export enum LogSystemTypes {
 	ENERGY_INPUT_V1 = "energy_input_v1",
 	ENERGY_INPUT_V2 = "energy_input_v2",
 
-    // Token
-    TOKEN_V1 = "token_v1",
+	// Token
+	TOKEN_V1 = "token_v1",
 
 	// GAS
 	GAS_INPUT_V2 = "gas_input_v2",
+
+	// Data
+	DATA_GET_V2 = "data_get_v2",
 }

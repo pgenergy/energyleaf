@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const metadata = {
 	title: "Energyleaf",
-    description: "Willkommen bei Energyleaf!",
+	description: "Willkommen bei Energyleaf!",
 	robots: "index",
 };
 

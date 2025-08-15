@@ -17,7 +17,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: "Geräte - Energyleaf",
+	title: "Geräte - Energyleaf",
 };
 
 export default async function DeviceEditPage(props: Props) {

@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 
 export const metadata = {
-    title: "Übersicht - Energyleaf",
+	title: "Übersicht - Energyleaf",
 };
 
 export default function DashboardPage() {

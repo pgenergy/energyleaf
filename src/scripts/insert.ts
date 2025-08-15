@@ -34,12 +34,12 @@ async function insert() {
 			for (const item of chunk) {
 				const ts = new Date(item.timestamp);
 				ts.setMonth(new Date().getMonth());
-                const currMonth = ts.getMonth();
+				const currMonth = ts.getMonth();
 				ts.setFullYear(new Date().getFullYear());
-                ts.setDate(ts.getDate() + 14);
-                if (currMonth !== ts.getMonth() || ts.getDate() > 30) {
-                    continue;
-                }
+				ts.setDate(ts.getDate() + 14);
+				if (currMonth !== ts.getMonth() || ts.getDate() > 30) {
+					continue;
+				}
 				const promises = [];
 				promises.push(
 					tx.insert(energyDataTable).values({

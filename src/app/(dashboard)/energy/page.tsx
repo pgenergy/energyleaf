@@ -21,7 +21,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: "Strom - Energyleaf",
+	title: "Strom - Energyleaf",
 };
 
 export default async function EnergyPage(props: Props) {
@@ -49,9 +49,9 @@ export default async function EnergyPage(props: Props) {
 		compare = undefined;
 	}
 
-    if (compare && compare?.getTime() > date.getTime()) {
-        [date, compare] = [compare, date];
-    }
+	if (compare && compare?.getTime() > date.getTime()) {
+		[date, compare] = [compare, date];
+	}
 
 	return (
 		<EnergyPageLayout
