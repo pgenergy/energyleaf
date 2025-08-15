@@ -2,6 +2,7 @@ import { ErrorTypes, LogSystemTypes } from "@/lib/log-types";
 import { db } from "@/server/db";
 import { sensorTable } from "@/server/db/tables/sensor";
 import { lower } from "@/server/db/types";
+import { uint8ArrayToBuffer } from "@/server/lib/util";
 import { logError } from "@/server/queries/logs";
 import { createSensorToken } from "@/server/queries/sensor";
 import { energyleaf, parseReadableStream } from "@energyleaf/proto";
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
 	const body = req.body;
 
 	if (!body) {
-		return new NextResponse(TokenResponse.toBinary({ status: 400, statusMessage: "No body" }), {
+		return new NextResponse(uint8ArrayToBuffer(TokenResponse.toBinary({ status: 400, statusMessage: "No body" })), {
 			status: 400,
 			headers: {
 				"Content-Type": "application/x-protobuf",
@@ -57,12 +58,14 @@ export async function POST(req: NextRequest) {
 					};
 				}
 				return new NextResponse(
-					TokenResponse.toBinary({
-						status: 200,
-						accessToken: token,
-						expiresIn: 3600,
-						...additionalData,
-					}),
+					uint8ArrayToBuffer(
+						TokenResponse.toBinary({
+							status: 200,
+							accessToken: token,
+							expiresIn: 3600,
+							...additionalData,
+						})
+					),
 					{
 						status: 200,
 						headers: {
@@ -72,11 +75,13 @@ export async function POST(req: NextRequest) {
 				);
 			}
 			return new NextResponse(
-				TokenResponse.toBinary({
-					accessToken: token,
-					expiresIn: 3600,
-					status: 200,
-				}),
+				uint8ArrayToBuffer(
+					TokenResponse.toBinary({
+						accessToken: token,
+						expiresIn: 3600,
+						status: 200,
+					})
+				),
 				{
 					status: 200,
 					headers: {
@@ -91,12 +96,15 @@ export async function POST(req: NextRequest) {
 				(err as unknown as Error).message === "sensor/not-found" ||
 				(err as unknown as Error).message === "sensor/no-user"
 			) {
-				return new NextResponse(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 }), {
-					status: 404,
-					headers: {
-						"Content-Type": "application/x-protobuf",
-					},
-				});
+				return new NextResponse(
+					uint8ArrayToBuffer(TokenResponse.toBinary({ statusMessage: "Sensor not found", status: 404 })),
+					{
+						status: 404,
+						headers: {
+							"Content-Type": "application/x-protobuf",
+						},
+					}
+				);
 			}
 
 			waitUntil(
@@ -110,12 +118,15 @@ export async function POST(req: NextRequest) {
 					},
 				})
 			);
-			return new NextResponse(TokenResponse.toBinary({ statusMessage: "Database error", status: 500 }), {
-				status: 500,
-				headers: {
-					"Content-Type": "application/x-protobuf",
-				},
-			});
+			return new NextResponse(
+				uint8ArrayToBuffer(TokenResponse.toBinary({ statusMessage: "Database error", status: 500 })),
+				{
+					status: 500,
+					headers: {
+						"Content-Type": "application/x-protobuf",
+					},
+				}
+			);
 		}
 	} catch (err) {
 		console.error(err);
@@ -129,11 +140,14 @@ export async function POST(req: NextRequest) {
 				},
 			})
 		);
-		return new NextResponse(TokenResponse.toBinary({ statusMessage: "Invalid data", status: 400 }), {
-			status: 400,
-			headers: {
-				"Content-Type": "application/x-protobuf",
-			},
-		});
+		return new NextResponse(
+			uint8ArrayToBuffer(TokenResponse.toBinary({ statusMessage: "Invalid data", status: 400 })),
+			{
+				status: 400,
+				headers: {
+					"Content-Type": "application/x-protobuf",
+				},
+			}
+		);
 	}
 }
