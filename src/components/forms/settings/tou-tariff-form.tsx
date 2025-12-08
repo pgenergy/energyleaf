@@ -147,6 +147,7 @@ export default function TouTariffForm(props: Props) {
 					children={(field) => (
 						<div className="flex flex-col gap-3">
 							{(field.state.value ?? []).map((_, index) => (
+								// biome-ignore lint/suspicious/noArrayIndexKey: fine here
 								<div key={index} className="flex items-center gap-2 flex-wrap">
 									<form.Field
 										name={`zones[${index}].start`}
@@ -321,6 +322,7 @@ function WeekdayZonesField({ weekday, form }: WeekdayZonesFieldProps) {
 								{hasCustomZones && (
 									<div className="flex flex-col gap-3 pl-4">
 										{zones.map((zone, index) => (
+											// biome-ignore lint/suspicious/noArrayIndexKey: fine here
 											<div key={index} className="flex items-center gap-2 flex-wrap">
 												<Input
 													type="time"

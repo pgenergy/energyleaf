@@ -179,6 +179,7 @@ export default function HeatPumpForm(props: Props) {
 					children={(field) => (
 						<div className="flex flex-col gap-3">
 							{(field.state.value ?? []).map((_, index) => (
+								// biome-ignore lint/suspicious/noArrayIndexKey: fine here
 								<div key={index} className="flex items-center gap-2 flex-wrap">
 									<form.Field
 										name={`defaultSchedule[${index}].start`}
@@ -353,6 +354,7 @@ function WeekdayScheduleField({ weekday, form }: WeekdayScheduleFieldProps) {
 								{hasCustomSchedule && (
 									<div className="flex flex-col gap-3 pl-4">
 										{slots.map((slot, index) => (
+											// biome-ignore lint/suspicious/noArrayIndexKey: fine here
 											<div key={index} className="flex items-center gap-2 flex-wrap">
 												<Input
 													type="time"

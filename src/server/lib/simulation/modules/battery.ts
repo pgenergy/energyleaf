@@ -69,11 +69,7 @@ function applyBattery(
 	let newValueOut = valueOut;
 
 	if (valueOut > 0 && charge < capacity) {
-		const availableToStore = Math.min(
-			valueOut,
-			maxChargeThisInterval,
-			capacity - charge,
-		);
+		const availableToStore = Math.min(valueOut, maxChargeThisInterval, capacity - charge);
 
 		charge += availableToStore;
 		valueOutReduction += availableToStore;
@@ -81,11 +77,7 @@ function applyBattery(
 	}
 
 	if (newConsumption > 0 && charge > 0) {
-		const availableToDischarge = Math.min(
-			newConsumption,
-			maxChargeThisInterval,
-			charge,
-		);
+		const availableToDischarge = Math.min(newConsumption, maxChargeThisInterval, charge);
 
 		charge -= availableToDischarge;
 		valueReduction += availableToDischarge;

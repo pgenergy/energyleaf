@@ -1,6 +1,5 @@
 "use client";
 
-import { demoLogoutAction, logoutAction } from "@/server/actions/auth";
 import { CollapsibleContent } from "@radix-ui/react-collapsible";
 import { ArrowLeftIcon, ArrowRightIcon, ChevronDownIcon, LogOutIcon } from "lucide-react";
 import Image from "next/image";
@@ -8,6 +7,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMemo, useTransition } from "react";
 import { toast } from "sonner";
+import { demoLogoutAction, logoutAction } from "@/server/actions/auth";
 import { Collapsible, CollapsibleTrigger } from "../ui/collapsible";
 import {
 	Sidebar,
@@ -159,6 +159,7 @@ export default function AppSidebar(props: Props) {
 							className="hidden md:flex"
 						>
 							<button
+								type="button"
 								className="cursor-pointer"
 								onClick={() => {
 									setOpen(!open);
@@ -178,7 +179,11 @@ export default function AppSidebar(props: Props) {
 							</button>
 						</SidebarMenuButton>
 						<SidebarMenuButton asChild tooltip="Abmelden">
-							<button className="cursor-pointer" onClick={() => (!pending ? handleLogout() : null)}>
+							<button
+								type="button"
+								className="cursor-pointer"
+								onClick={() => (!pending ? handleLogout() : null)}
+							>
 								<LogOutIcon />
 								<span>Abmelden</span>
 							</button>
