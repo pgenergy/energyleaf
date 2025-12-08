@@ -1,15 +1,12 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "@tanstack/react-form";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { z } from "zod";
 import { DeviceCategoryToIcon } from "@/components/icons/device-icon";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { MultiSelect } from "@/components/ui/multi-select";
 import type { DeviceCategory } from "@/lib/enums";
 import { addDeviceToPeakSchema } from "@/lib/schemas/peak-schema";
@@ -27,24 +24,23 @@ interface Props {
 }
 
 export default function AddDeviceToPeakForm(props: Props) {
-	const [pending, startTransition] = useTransition();
 	const router = useRouter();
-	const form = useForm<z.infer<typeof addDeviceToPeakSchema>>({
-		resolver: zodResolver(addDeviceToPeakSchema),
+
+	const form = useForm({
 		defaultValues: {
 			devices: props.initalDevices ?? [],
 		},
-	});
-
-	function handleSubmit(data: z.infer<typeof addDeviceToPeakSchema>) {
-		startTransition(async () => {
+		validators: {
+			onSubmit: addDeviceToPeakSchema,
+		},
+		onSubmit: async ({ value }) => {
 			const toastId = toast.loading("Weise Geräte zu...", {
 				duration: Infinity,
 			});
-			const res = await updateDevicesToPeakAction(data, props.peakId);
+			const res = await updateDevicesToPeakAction(value, props.peakId);
 
 			if (!res) {
-				toast.success("Ein unerwarteter Fehler ist aufgetreten.", {
+				toast.error("Ein unerwarteter Fehler ist aufgetreten.", {
 					id: toastId,
 					duration: 4000,
 				});
@@ -63,57 +59,61 @@ export default function AddDeviceToPeakForm(props: Props) {
 				});
 				router.push("/peaks");
 			}
-		});
-	}
+		},
+	});
+
+	const pending = form.state.isSubmitting;
 
 	return (
-		<Form {...form}>
-			<form className="flex flex-col gap-4" onSubmit={form.handleSubmit(handleSubmit)}>
-				<FormField
-					control={form.control}
-					name="devices"
-					render={({ field }) => {
-						return (
-							<FormItem>
-								<FormLabel>Geräte</FormLabel>
-								<FormControl>
-									<MultiSelect
-										options={props.devices?.map((device) => ({
-											id: device.id,
-											name: device.name,
-											label: device.name,
-											value: device.id,
-											icon: DeviceCategoryToIcon(device.category),
-										}))}
-										initialSelected={props.initalDevices?.map((device) => ({
-											...device,
-											label: device.name,
-											value: device.id,
-											icon: DeviceCategoryToIcon(device.category),
-										}))}
-										onSelectedChange={(e) => {
-											const selectedDevices = e
-												.map((x) => props.devices.find((d) => d.id === x.value))
-												.filter((x) => x !== undefined);
-											field.onChange(selectedDevices);
-										}}
-										placeholder="Geräte auswählen..."
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						);
-					}}
-				/>
-				<div className="flex flex-row items-center justify-end">
-					<div>
-						<Button type="submit" className="w-full cursor-pointer" disabled={pending}>
-							{pending ? <Loader2Icon className="size-4" /> : null}
-							Speichern
-						</Button>
-					</div>
+		<form
+			className="flex flex-col gap-4"
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+		>
+			<form.Field
+				name="devices"
+				children={(field) => {
+					const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+					return (
+						<Field data-invalid={isInvalid}>
+							<FieldLabel>Geräte</FieldLabel>
+							<MultiSelect
+								options={props.devices?.map((device) => ({
+									id: device.id,
+									name: device.name,
+									label: device.name,
+									value: device.id,
+									icon: DeviceCategoryToIcon(device.category),
+								}))}
+								initialSelected={props.initalDevices?.map((device) => ({
+									...device,
+									label: device.name,
+									value: device.id,
+									icon: DeviceCategoryToIcon(device.category),
+								}))}
+								onSelectedChange={(e) => {
+									const selectedDevices = e
+										.map((x) => props.devices.find((d) => d.id === x.value))
+										.filter((x) => x !== undefined);
+									field.handleChange(selectedDevices);
+								}}
+								placeholder="Geräte auswählen..."
+							/>
+							{isInvalid && <FieldError errors={field.state.meta.errors} />}
+						</Field>
+					);
+				}}
+			/>
+			<div className="flex flex-row items-center justify-end">
+				<div>
+					<Button type="submit" className="w-full cursor-pointer" disabled={pending}>
+						{pending ? <Loader2Icon className="size-4" /> : null}
+						Speichern
+					</Button>
 				</div>
-			</form>
-		</Form>
+			</div>
+		</form>
 	);
 }
