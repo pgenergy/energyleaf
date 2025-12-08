@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { db } from "../db";
-import { Device, deviceTable } from "../db/tables/device";
+import { type Device, deviceTable } from "../db/tables/device";
 
 export const getDevicesByUser = cache(async (userId: string) => {
 	if (userId === "demo") {

@@ -1,5 +1,3 @@
-import { SensorType, SensorTypeValue } from "@/lib/enums";
-import { genID } from "@/lib/utils";
 import { sql } from "drizzle-orm";
 import {
 	boolean,
@@ -12,6 +10,8 @@ import {
 	unique,
 	uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { SensorType, type SensorTypeValue } from "@/lib/enums";
+import { genID } from "@/lib/utils";
 import { numericType } from "../types";
 import { userTable } from "./user";
 
@@ -32,7 +32,7 @@ export const sensorTable = pgTable(
 				unq: unique().on(table.sensorType, table.userId),
 			},
 		];
-	}
+	},
 );
 
 export type Sensor = typeof sensorTable.$inferSelect;
@@ -51,7 +51,7 @@ export const sensorHistoryTable = pgTable(
 				pk: primaryKey({ columns: [table.clientId, table.userId] }),
 			},
 		];
-	}
+	},
 );
 
 export const sensorTokenTable = pgTable(
@@ -72,7 +72,7 @@ export const sensorTokenTable = pgTable(
 				sensorIdIdx: index("sensor_id_idx_sensor_token").on(table.sensorId),
 			},
 		];
-	}
+	},
 );
 
 export type SensorToken = typeof sensorTokenTable.$inferSelect;
@@ -89,9 +89,7 @@ export const energyDataTable = pgTable(
 		valueOut: numericType("value_out"),
 		inserted: numericType("inserted"),
 		valueCurrent: numericType("value_current"),
-		timestamp: timestamp("timestamp", { mode: "date", withTimezone: true })
-			.notNull()
-			.default(sql`now()`),
+		timestamp: timestamp("timestamp", { mode: "date", withTimezone: true }).notNull().default(sql`now()`),
 	},
 	(table) => {
 		return [
@@ -99,7 +97,7 @@ export const energyDataTable = pgTable(
 				pk: primaryKey({ columns: [table.sensorId, table.timestamp] }),
 			},
 		];
-	}
+	},
 );
 
 export type EnergyData = typeof energyDataTable.$inferSelect;
@@ -127,7 +125,7 @@ export const energyDataSequenceTable = pgTable(
 				index: index("senor_data_sequence_sensor_id").on(table.sensorId, table.start, table.end),
 			},
 		];
-	}
+	},
 );
 
 export type EnergyDataSequence = typeof energyDataSequenceTable.$inferSelect;

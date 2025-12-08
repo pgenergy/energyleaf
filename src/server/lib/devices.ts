@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { all, create, type MathJsInstance, type Matrix } from "mathjs";
 import { db } from "../db";
-import { Device, deviceTable, deviceToPeakTable } from "../db/tables/device";
+import { type Device, deviceTable, deviceToPeakTable } from "../db/tables/device";
 import { energyDataSequenceTable } from "../db/tables/sensor";
 import { userDataTable } from "../db/tables/user";
 
@@ -109,8 +109,8 @@ export async function updatePowerOfDevices(userId: string) {
 					acc[obj.sequenceId].devices.push(obj.device);
 					return acc;
 				},
-				{} as { [key: string]: { sequence: string; devices: string[]; power: number } }
-			)
+				{} as { [key: string]: { sequence: string; devices: string[]; power: number } },
+			),
 		);
 
 		const removeDuplicatesById = (devices: Device[]) => {

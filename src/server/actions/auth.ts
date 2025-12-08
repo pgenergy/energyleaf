@@ -1,10 +1,17 @@
 "use server";
 
+import { hash, verify } from "@node-rs/argon2";
+import { waitUntil } from "@vercel/functions";
+import { differenceInMinutes } from "date-fns";
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import type { z } from "zod";
 import { env } from "@/env";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
-import { ElectricityMeterValue } from "@/lib/enums";
+import type { ElectricityMeterValue } from "@/lib/enums";
 import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
-import { passwordChangeSchema, signupSchema } from "@/lib/schemas/auth-schema";
+import { passwordChangeSchema, type signupSchema } from "@/lib/schemas/auth-schema";
 import { genID } from "@/lib/utils";
 import { db } from "@/server/db";
 import { reportConfigTable } from "@/server/db/tables/reports";
@@ -18,13 +25,6 @@ import {
 	setSessionTokenCookie,
 } from "@/server/lib/auth";
 import { putS3 } from "@/server/lib/storage";
-import { hash, verify } from "@node-rs/argon2";
-import { waitUntil } from "@vercel/functions";
-import { differenceInMinutes } from "date-fns";
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-import { z } from "zod";
 import { EMailEnabled } from "../lib/check";
 import { getDemoUserData } from "../lib/demo";
 import { logAction, logError } from "../queries/logs";
@@ -74,7 +74,7 @@ export async function loginAction(email: string, password: string) {
 						session: null,
 						reason: ErrorTypes.USER_NOT_FOUND,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -110,7 +110,7 @@ export async function loginAction(email: string, password: string) {
 						reason: ErrorTypes.WRONG_PASSWORD,
 						email,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -132,7 +132,7 @@ export async function loginAction(email: string, password: string) {
 					email,
 					path: "/dashboard",
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -150,7 +150,7 @@ export async function loginAction(email: string, password: string) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -210,7 +210,7 @@ export async function logoutAction() {
 						session: null,
 						reason: ErrorTypes.NOT_LOGGED_IN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -231,7 +231,7 @@ export async function logoutAction() {
 						reason: null,
 						path: "/login",
 					},
-				})
+				}),
 			);
 			return {
 				success: true,
@@ -248,7 +248,7 @@ export async function logoutAction() {
 						user: user.id,
 						session: null,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -265,7 +265,7 @@ export async function logoutAction() {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -302,7 +302,7 @@ export async function signupExperimentAction(data: FormData) {
 					session: null,
 					reason: ErrorTypes.TOS_MISSING,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -320,7 +320,7 @@ export async function signupExperimentAction(data: FormData) {
 					session: null,
 					reason: ErrorTypes.WRONG_FILE_TYPE,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -338,7 +338,7 @@ export async function signupExperimentAction(data: FormData) {
 					session: null,
 					reason: ErrorTypes.PIN_MISSING,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -356,7 +356,7 @@ export async function signupExperimentAction(data: FormData) {
 					session: null,
 					reason: ErrorTypes.PASSWORD_MISSMATCH,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -374,7 +374,7 @@ export async function signupExperimentAction(data: FormData) {
 					session: null,
 					reason: ErrorTypes.STRING_TOO_LONG,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -391,7 +391,7 @@ export async function signupExperimentAction(data: FormData) {
 					session: null,
 					reason: ErrorTypes.STRING_TOO_LONG,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -411,7 +411,7 @@ export async function signupExperimentAction(data: FormData) {
 						session: null,
 						reason: ErrorTypes.EMAIL_USED,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -447,7 +447,7 @@ export async function signupExperimentAction(data: FormData) {
 							},
 							bucket: "energyleaf",
 						},
-					})
+					}),
 				);
 			}
 		}
@@ -494,7 +494,7 @@ export async function signupExperimentAction(data: FormData) {
 					reason: null,
 					path: "/created",
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -513,7 +513,7 @@ export async function signupExperimentAction(data: FormData) {
 					...data,
 					password: "",
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -533,7 +533,7 @@ export async function signupAction(data: z.infer<typeof signupSchema>) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -551,7 +551,7 @@ export async function signupAction(data: z.infer<typeof signupSchema>) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -569,7 +569,7 @@ export async function signupAction(data: z.infer<typeof signupSchema>) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -587,7 +587,7 @@ export async function signupAction(data: z.infer<typeof signupSchema>) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -611,7 +611,7 @@ export async function signupAction(data: z.infer<typeof signupSchema>) {
 						user: null,
 						session: null,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -654,7 +654,7 @@ export async function signupAction(data: z.infer<typeof signupSchema>) {
 					session: null,
 					reason: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -675,7 +675,7 @@ export async function signupAction(data: z.infer<typeof signupSchema>) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -697,7 +697,7 @@ export async function forgotPasswordAction(mail: string) {
 						reason: ErrorTypes.MISSING_API_KEYS,
 						mail,
 					},
-				})
+				}),
 			);
 			return;
 		}
@@ -714,7 +714,7 @@ export async function forgotPasswordAction(mail: string) {
 						reason: ErrorTypes.USER_NOT_FOUND,
 						mail,
 					},
-				})
+				}),
 			);
 			return;
 		}
@@ -738,7 +738,7 @@ export async function forgotPasswordAction(mail: string) {
 					reason: null,
 					path: "/login",
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -754,7 +754,7 @@ export async function forgotPasswordAction(mail: string) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -776,7 +776,7 @@ export async function resetPasswordAction(newPassword: string, token: string) {
 						session: null,
 						reason: ErrorTypes.INVALID_TOKEN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -795,7 +795,7 @@ export async function resetPasswordAction(newPassword: string, token: string) {
 						session: null,
 						reason: ErrorTypes.TOKEN_EXPIRED,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -814,7 +814,7 @@ export async function resetPasswordAction(newPassword: string, token: string) {
 						session: null,
 						reason: ErrorTypes.INVALID_TOKEN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -845,7 +845,7 @@ export async function resetPasswordAction(newPassword: string, token: string) {
 					reason: null,
 					token,
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -863,7 +863,7 @@ export async function resetPasswordAction(newPassword: string, token: string) {
 					session: null,
 					token,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -888,7 +888,7 @@ export async function changePasswordAction(data: z.infer<typeof passwordChangeSc
 						user: null,
 						session: null,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -907,7 +907,7 @@ export async function changePasswordAction(data: z.infer<typeof passwordChangeSc
 						session: sid,
 						reason: ErrorTypes.INVALID_INPUT,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -925,7 +925,7 @@ export async function changePasswordAction(data: z.infer<typeof passwordChangeSc
 						session: sid,
 						reason: ErrorTypes.PASSWORD_MISSMATCH,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -944,7 +944,7 @@ export async function changePasswordAction(data: z.infer<typeof passwordChangeSc
 						user: user.id,
 						session: sid,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -963,7 +963,7 @@ export async function changePasswordAction(data: z.infer<typeof passwordChangeSc
 						session: sid,
 						reason: ErrorTypes.WRONG_PASSWORD,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -989,7 +989,7 @@ export async function changePasswordAction(data: z.infer<typeof passwordChangeSc
 					session: sid,
 					reason: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -1005,7 +1005,7 @@ export async function changePasswordAction(data: z.infer<typeof passwordChangeSc
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,

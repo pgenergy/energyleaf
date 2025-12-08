@@ -1,112 +1,131 @@
 "use client";
 
+import { useForm } from "@tanstack/react-form";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
+import type { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TimeZoneType, TimeZoneTypeDisplay, TimezoneTypeValue } from "@/lib/enums";
+import { TimeZoneType, TimeZoneTypeDisplay, type TimezoneTypeValue } from "@/lib/enums";
 import { accountInfoSchema } from "@/lib/schemas/profile-schema";
 import { updateAccountInfoAction } from "@/server/actions/account";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
-import { useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 
 interface Props {
 	initialValues: z.infer<typeof accountInfoSchema>;
 }
 
 export default function AccountInfoForm(props: Props) {
-	const [pending, startTransition] = useTransition();
-	const form = useForm<z.infer<typeof accountInfoSchema>>({
-		resolver: zodResolver(accountInfoSchema),
-		defaultValues: {
-			...props.initialValues,
+	const defaultValues: z.input<typeof accountInfoSchema> = {
+		phone: props.initialValues.phone ?? "",
+		address: props.initialValues.address ?? "",
+		timezone: props.initialValues.timezone,
+	};
+
+	const form = useForm({
+		defaultValues,
+		validators: {
+			onSubmit: accountInfoSchema,
+		},
+		onSubmit: async ({ value }) => {
+			const toastId = toast.loading("Speichern...", { duration: Infinity });
+			const res = await updateAccountInfoAction(value as z.infer<typeof accountInfoSchema>);
+			if (!res.success) {
+				toast.error(res.message, { id: toastId, duration: 4000 });
+			} else {
+				toast.success(res.message, { id: toastId, duration: 4000 });
+			}
 		},
 	});
 
-	function onSubmit(data: z.infer<typeof accountInfoSchema>) {
-		startTransition(async () => {
-			const toastId = toast.loading("Speichern...", {
-				duration: Infinity,
-			});
-			const res = await updateAccountInfoAction(data);
-			if (!res.success) {
-				toast.error(res.message, {
-					id: toastId,
-					duration: 4000,
-				});
-			} else {
-				toast.success(res.message, {
-					id: toastId,
-					duration: 4000,
-				});
-			}
-		});
-	}
+	const pending = form.state.isSubmitting;
 
 	return (
-		<Form {...form}>
-			<form className="grid grid-cols-1 gap-4 md:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
-				<FormField
-					control={form.control}
+		<form
+			className="grid grid-cols-1 gap-4 md:grid-cols-2"
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+		>
+			<FieldGroup>
+				<form.Field
 					name="address"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Adresse</FormLabel>
-							<FormControl>
-								<Input autoComplete="address-line1" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel htmlFor={field.name}>Adresse</FieldLabel>
+								<Input
+									id={field.name}
+									name={field.name}
+									value={field.state.value ?? ""}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									autoComplete="address-line1"
+									aria-invalid={isInvalid}
+								/>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
-				<FormField
-					control={form.control}
+				<form.Field
 					name="phone"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Telefonnummer (optional)</FormLabel>
-							<FormControl>
-								<Input autoComplete="tel" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel htmlFor={field.name}>Telefonnummer (optional)</FieldLabel>
+								<Input
+									id={field.name}
+									name={field.name}
+									value={field.state.value ?? ""}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									autoComplete="tel"
+									aria-invalid={isInvalid}
+								/>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
-				<FormField
-					control={form.control}
+				<form.Field
 					name="timezone"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Zeitzone</FormLabel>
-							<Select onValueChange={field.onChange} value={field.value}>
-								<FormControl>
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel htmlFor={field.name}>Zeitzone</FieldLabel>
+								<Select
+									onValueChange={(v) => field.handleChange(v as TimeZoneType)}
+									value={field.state.value}
+								>
 									<SelectTrigger>
 										<SelectValue placeholder="Wählen Sie Ihre Zeitzone" />
 									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									{(Object.values(TimeZoneType) as [TimezoneTypeValue]).map((value) => (
-										<SelectItem value={value} key={value}>
-											{TimeZoneTypeDisplay[value]}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							<FormMessage />
-						</FormItem>
-					)}
+									<SelectContent>
+										{(Object.values(TimeZoneType) as [TimezoneTypeValue]).map((value) => (
+											<SelectItem value={value} key={value}>
+												{TimeZoneTypeDisplay[value]}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
-				<div className="col-span-1 flex flex-row items-center justify-end md:col-span-2">
-					<Button type="submit" disabled={pending} className="cursor-pointer">
-						{pending ? <Loader2Icon className="size-4" /> : null}
-						Speichern
-					</Button>
-				</div>
-			</form>
-		</Form>
+			</FieldGroup>
+			<div className="col-span-1 flex flex-row items-center justify-end md:col-span-2">
+				<Button type="submit" disabled={pending} className="cursor-pointer">
+					{pending ? <Loader2Icon className="size-4" /> : null}
+					Speichern
+				</Button>
+			</div>
+		</form>
 	);
 }

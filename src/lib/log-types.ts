@@ -1,6 +1,7 @@
 export enum ErrorTypes {
 	WRONG_PASSWORD = "wrong_password",
 	NOT_LOGGED_IN = "not_logged_in",
+	NOT_ADMIN = "not_admin",
 	TOS_MISSING = "missing_tos",
 	WRONG_FILE_TYPE = "wrong_file_type",
 	PIN_MISSING = "missing_pin",
@@ -18,7 +19,9 @@ export enum ErrorTypes {
 	INPUT_IS_ZERO = "input_is_zero",
 	INPUT_TOO_HIGH = "input_too_high",
 	NOT_FOUND = "not_found",
-    UNKNOWN = "unknown",
+	SENSOR_ALREADY_ASSIGNED = "sensor_already_assigned",
+	USER_ALREADY_HAS_SENSOR_TYPE = "user_already_has_sensor_type",
+	UNKNOWN = "unknown",
 }
 
 export enum LogActionTypes {
@@ -46,6 +49,12 @@ export enum LogActionTypes {
 	// PROFILE
 	UPDATE_HOUSEHOLD_ACTION = "update_household_action",
 	UPDATE_ENERGY_TARIFF_ACTION = "update_energy_tariff_action",
+	UPDATE_SIMULATION_EV_SETTINGS_ACTION = "update_simulation_ev_settings_action",
+	UPDATE_SIMULATION_SOLAR_SETTINGS_ACTION = "update_simulation_solar_settings_action",
+	UPDATE_SIMULATION_HEAT_PUMP_SETTINGS_ACTION = "update_simulation_heat_pump_settings_action",
+	UPDATE_SIMULATION_TOU_SETTINGS_ACTION = "update_simulation_tou_settings_action",
+	UPDATE_SIMULATION_BATTERY_SETTINGS_ACTION = "update_simulation_battery_settings_action",
+	TOGGLE_SIMULATION_ENABLED_ACTION = "toggle_simulation_enabled_action",
 
 	// DEVICE
 	CREATE_DEVICE_ACTION = "create_device_action",
@@ -55,6 +64,12 @@ export enum LogActionTypes {
 	// PEAK
 	ADD_DEVICE_TO_PEAK_ACTION = "add_device_to_peak_action",
 	DELETE_PEAK_ACTION = "delete_peak_action",
+
+	// SENSOR (Admin)
+	CREATE_SENSOR_ACTION = "create_sensor_action",
+	UPDATE_SENSOR_ACTION = "update_sensor_action",
+	ASSIGN_SENSOR_ACTION = "assign_sensor_action",
+	REGENERATE_SENSOR_TOKEN_ACTION = "regenerate_sensor_token_action",
 }
 
 export enum LogSystemTypes {
@@ -62,9 +77,12 @@ export enum LogSystemTypes {
 	ENERGY_INPUT_V1 = "energy_input_v1",
 	ENERGY_INPUT_V2 = "energy_input_v2",
 
-    // Token
-    TOKEN_V1 = "token_v1",
+	// Token
+	TOKEN_V1 = "token_v1",
 
 	// GAS
 	GAS_INPUT_V2 = "gas_input_v2",
+
+	// Data
+	DATA_GET_V2 = "data_get_v2",
 }

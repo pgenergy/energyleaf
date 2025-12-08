@@ -3,7 +3,7 @@ import { db } from "@/server/db";
 import { reportConfigTable } from "@/server/db/tables/reports";
 import { sensorTable } from "@/server/db/tables/sensor";
 import { eq, sql } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 export async function GET(req: NextRequest) {
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 			sensor: user.sensor.id,
 		};
 		promises.push(
-			db.execute(sql`SELECT * FROM pgmq.send(queue_name => 'anomalies_queue', msg => '${JSON.stringify(data)}')`)
+			db.execute(sql`SELECT * FROM pgmq.send(queue_name => 'anomalies_queue', msg => '${JSON.stringify(data)}')`),
 		);
 	}
 
@@ -47,19 +47,19 @@ const anomaliesMessageSchema = z.object({
 export async function POST(req: NextRequest) {
 	const secret = env.CRON_SECRET;
 	if (!req.headers.has("authorization") || req.headers.get("authorization") !== `Bearer ${secret}`) {
-		return NextResponse.json({ statusMessage: "Unauthorized" }, { status: 401 });
+		return NextResponse.json({ status: 401, statusMessage: "Unauthorized" }, { status: 401 });
 	}
 
 	const rawData = await req.json();
 
 	const { success: dataSuccess, data } = anomaliesSchema.safeParse(rawData);
 	if (!dataSuccess || !data) {
-		return NextResponse.json({ statusMessage: "Invalid request body" }, { status: 400 });
+		return NextResponse.json({ status: 400, statusMessage: "Invalid request body" }, { status: 400 });
 	}
 
 	const { success: msgSuccess, data: message } = anomaliesMessageSchema.safeParse(data.message);
 	if (!msgSuccess || !message) {
-		return NextResponse.json({ statusMessage: "Invalid message" }, { status: 400 });
+		return NextResponse.json({ status: 400, statusMessage: "Invalid message" }, { status: 400 });
 	}
 
 	// process message
@@ -69,4 +69,6 @@ export async function POST(req: NextRequest) {
 	} catch (err) {
 		console.error(err);
 	}
+
+	return NextResponse.json({ statusMessage: "OK", status: 200 }, { status: 200 });
 }

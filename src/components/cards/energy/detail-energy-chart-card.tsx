@@ -1,12 +1,12 @@
+import { endOfDay, startOfDay } from "date-fns";
+import { fromZonedTime } from "date-fns-tz";
 import DetailEnergyChart from "@/components/charts/energy/detail-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartConfig } from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
-import { endOfDay, startOfDay } from "date-fns";
-import { fromZonedTime } from "date-fns-tz";
 
 interface Props {
 	title: string;

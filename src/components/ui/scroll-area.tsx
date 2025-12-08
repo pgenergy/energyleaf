@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
-import * as React from "react";
+import type * as React from "react";
 
 function ScrollArea({ className, children, ...props }: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
 	return (
@@ -32,7 +32,7 @@ function ScrollBar({
 				"flex touch-none p-px transition-colors select-none",
 				orientation === "vertical" && "h-full w-2.5 border-l border-l-transparent",
 				orientation === "horizontal" && "h-2.5 flex-col border-t border-t-transparent",
-				className
+				className,
 			)}
 			{...props}
 		>

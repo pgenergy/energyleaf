@@ -14,7 +14,7 @@ import { getReferencePowerDataForDeviceCategory } from "@/lib/device/power";
 import { DeviceCategoryDisplay } from "@/lib/enums";
 import { cn } from "@/lib/utils";
 import { deleteDeviceAction } from "@/server/actions/device";
-import { Device } from "@/server/db/tables/device";
+import type { Device } from "@/server/db/tables/device";
 import { EditIcon, MoreVerticalIcon, Trash2Icon, ZapIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useTransition } from "react";
@@ -29,7 +29,7 @@ export default function DeviceCard(props: Props) {
 
 	const referenceData = useMemo(
 		() => getReferencePowerDataForDeviceCategory(props.device.category),
-		[props.device.category]
+		[props.device.category],
 	);
 
 	function deleteDevice() {
@@ -112,7 +112,7 @@ export default function DeviceCard(props: Props) {
 											"text-warning": props.device.power > referenceData.averagePower,
 											"text-primary": props.device.power <= referenceData.averagePower,
 										},
-										"font-mono font-semibold"
+										"font-mono font-semibold",
 									)}
 								>
 									{props.device.power.toFixed(2)} Watt

@@ -2,7 +2,12 @@ import { and, asc, between, eq, or, type SQLWrapper } from "drizzle-orm";
 import { cache } from "react";
 import { db } from "../db";
 import { deviceTable, deviceToPeakTable } from "../db/tables/device";
-import { EnergyData, EnergyDataSequence, energyDataSequenceTable, energyDataTable } from "../db/tables/sensor";
+import {
+	type EnergyData,
+	type EnergyDataSequence,
+	energyDataSequenceTable,
+	energyDataTable,
+} from "../db/tables/sensor";
 
 interface Peak {
 	id: string;
@@ -62,7 +67,7 @@ export const getPeaksBySensor = cache(async (sensorId: string, extra?: ExtraQuer
 		const start = new Date(extra.start);
 		const end = new Date(extra.end);
 		wheres.push(
-			or(between(energyDataSequenceTable.start, start, end), between(energyDataSequenceTable.end, start, end))
+			or(between(energyDataSequenceTable.start, start, end), between(energyDataSequenceTable.end, start, end)),
 		);
 	}
 
@@ -71,7 +76,7 @@ export const getPeaksBySensor = cache(async (sensorId: string, extra?: ExtraQuer
 		.from(energyDataSequenceTable)
 		.innerJoin(
 			energyDataTable,
-			between(energyDataTable.timestamp, energyDataSequenceTable.start, energyDataSequenceTable.end)
+			between(energyDataTable.timestamp, energyDataSequenceTable.start, energyDataSequenceTable.end),
 		)
 		.where(and(...wheres))
 		.orderBy(asc(energyDataSequenceTable.start), asc(energyDataTable.timestamp));

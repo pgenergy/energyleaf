@@ -10,7 +10,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata = {
-    title: "Geräte - Energyleaf",
+	title: "Geräte - Energyleaf",
 };
 
 export default function DeviceCreationPage() {

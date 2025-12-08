@@ -1,16 +1,18 @@
 import "server-only";
-import { env } from "@/env";
-import { genID } from "@/lib/utils";
 import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import mime from "mime-types";
+import { env } from "@/env";
+import { genID } from "@/lib/utils";
 import { S3Enabled } from "./check";
 
 export const getS3Client = () => {
 	if (S3Enabled()) {
 		const client = new S3Client({
 			credentials: {
+				// biome-ignore lint/style/noNonNullAssertion: Check is in S3Enabled
 				accessKeyId: env.S3_ACCESS_KEY!,
+				// biome-ignore lint/style/noNonNullAssertion: Check is in S3Enabled
 				secretAccessKey: env.S3_SECRET_KEY!,
 			},
 			region: env.S3_REGION,
@@ -103,7 +105,7 @@ export async function getS3(props: GetProps) {
 export async function streamToFile(
 	stream: ReadableStream<Uint8Array>,
 	filename: string,
-	mimeType: string = "application/octet-stream"
+	mimeType: string = "application/octet-stream",
 ): Promise<File> {
 	const response = new Response(stream, { headers: { "Content-Type": mimeType } });
 	const blob = await response.blob();

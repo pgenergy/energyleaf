@@ -1,8 +1,9 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import SettingsNav from "@/components/nav/settings-nav";
 import { getCurrentSession } from "@/server/lib/auth";
-import { redirect } from "next/navigation";
 
-export const metadata = {
+export const metadata: Metadata = {
 	title: "Einstellungen - Energyleaf",
 };
 
@@ -18,7 +19,7 @@ export default async function SettingsPage({ children }: Props) {
 
 	return (
 		<div className="flex flex-col gap-4 md:gap-8">
-			<SettingsNav />
+			<SettingsNav showSimulation={user.isSimulationFree} />
 			<div className="flex flex-col gap-4">{children}</div>
 		</div>
 	);

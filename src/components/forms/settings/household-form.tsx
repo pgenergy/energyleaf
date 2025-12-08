@@ -1,112 +1,143 @@
 "use client";
 
+import { useForm } from "@tanstack/react-form";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
+import type { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { HouseType, HouseTypeDisplay, HouseTypeValue } from "@/lib/enums";
+import { HouseType, HouseTypeDisplay, type HouseTypeValue } from "@/lib/enums";
 import { householdSchema } from "@/lib/schemas/profile-schema";
 import { updateHouseholdAction } from "@/server/actions/settings";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2Icon } from "lucide-react";
-import { useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 
 interface Props {
 	initialValues: z.infer<typeof householdSchema>;
 }
 
+type HouseholdValues = z.input<typeof householdSchema>;
+
 export default function HouseHoldForm(props: Props) {
-	const [pending, startTransition] = useTransition();
-	const form = useForm<z.infer<typeof householdSchema>>({
-		resolver: zodResolver(householdSchema),
-		defaultValues: {
-			...props.initialValues,
+	const defaultValues: HouseholdValues = {
+		houseType: props.initialValues.houseType,
+		livingSpace: props.initialValues.livingSpace,
+		people: props.initialValues.people,
+	};
+
+	const form = useForm({
+		defaultValues,
+		validators: { onSubmit: householdSchema },
+		onSubmit: async ({ value }) => {
+			const toastId = toast.loading("Speichern...", { duration: Infinity });
+			const res = await updateHouseholdAction(value as z.infer<typeof householdSchema>);
+			if (!res.success) {
+				toast.error(res.message, { id: toastId, duration: 4000 });
+			} else {
+				toast.success(res.message, { id: toastId, duration: 4000 });
+			}
 		},
 	});
 
-	function onSubmit(data: z.infer<typeof householdSchema>) {
-		startTransition(async () => {
-			const toastId = toast.loading("Speichern...", {
-				duration: Infinity,
-			});
-			const res = await updateHouseholdAction(data);
-			if (!res.success) {
-				toast.error(res.message, {
-					id: toastId,
-					duration: 4000,
-				});
-			} else {
-				toast.success(res.message, {
-					id: toastId,
-					duration: 4000,
-				});
-			}
-		});
-	}
+	const pending = form.state.isSubmitting;
 
 	return (
-		<Form {...form}>
-			<form className="grid grid-cols-1 gap-4 md:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
-				<FormField
-					control={form.control}
+		<form
+			className="grid grid-cols-1 gap-4 md:grid-cols-2"
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+		>
+			<FieldGroup>
+				<form.Field
 					name="houseType"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Gebäudetyp</FormLabel>
-							<Select onValueChange={field.onChange} value={field.value}>
-								<FormControl>
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel>Gebäudetyp</FieldLabel>
+								<Select
+									onValueChange={(v) => field.handleChange(v as HouseTypeValue)}
+									value={field.state.value}
+								>
 									<SelectTrigger>
 										<SelectValue placeholder="Wählen Sie den Geäudetyp" />
 									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									{(Object.values(HouseType) as [HouseTypeValue]).map((value) => (
-										<SelectItem value={value} key={value}>
-											{HouseTypeDisplay[value]}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							<FormMessage />
-						</FormItem>
-					)}
+									<SelectContent>
+										{(Object.values(HouseType) as [HouseTypeValue]).map((value) => (
+											<SelectItem value={value} key={value}>
+												{HouseTypeDisplay[value]}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
-				<FormField
-					control={form.control}
+				<form.Field
 					name="livingSpace"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Gebäudegröße in qm</FormLabel>
-							<FormControl>
-								<Input type="number" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel>Gebäudegröße in qm</FieldLabel>
+								<Input
+									type="number"
+									inputMode="decimal"
+									value={
+										Number.isFinite(field.state.value as number)
+											? (field.state.value as number)
+											: ""
+									}
+									onBlur={field.handleBlur}
+									onChange={(e) => {
+										const next = e.target.value === "" ? Number.NaN : parseFloat(e.target.value);
+										field.handleChange(next);
+									}}
+									aria-invalid={isInvalid}
+								/>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
-				<FormField
-					control={form.control}
+				<form.Field
 					name="people"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Personen im Haushalt</FormLabel>
-							<FormControl>
-								<Input type="number" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel>Personen im Haushalt</FieldLabel>
+								<Input
+									type="number"
+									inputMode="decimal"
+									value={
+										Number.isFinite(field.state.value as number)
+											? (field.state.value as number)
+											: ""
+									}
+									onBlur={field.handleBlur}
+									onChange={(e) => {
+										const next = e.target.value === "" ? Number.NaN : parseFloat(e.target.value);
+										field.handleChange(next);
+									}}
+									aria-invalid={isInvalid}
+								/>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
-				<div className="col-span-1 flex flex-row items-center justify-end md:col-span-2">
-					<Button type="submit" disabled={pending} className="cursor-pointer">
-						{pending ? <Loader2Icon className="size-4" /> : null}
-						Speichern
-					</Button>
-				</div>
-			</form>
-		</Form>
+			</FieldGroup>
+			<div className="col-span-1 flex flex-row items-center justify-end md:col-span-2">
+				<Button type="submit" disabled={pending} className="cursor-pointer">
+					{pending ? <Loader2Icon className="size-4" /> : null}
+					Speichern
+				</Button>
+			</div>
+		</form>
 	);
 }

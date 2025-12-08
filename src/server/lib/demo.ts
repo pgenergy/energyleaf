@@ -1,8 +1,8 @@
+import { cookies } from "next/headers";
 import { env } from "@/env";
 import { ElectricityMeter, HouseType, TariffType, TimeZoneType, WaterType } from "@/lib/enums";
-import { cookies } from "next/headers";
-import { Device } from "../db/tables/device";
-import { User, UserData } from "../db/tables/user";
+import type { Device } from "../db/tables/device";
+import type { User, UserData } from "../db/tables/user";
 
 export function getDemoUser(): User {
 	return {
@@ -11,6 +11,7 @@ export function getDemoUser(): User {
 		isActive: true,
 		isAdmin: false,
 		isParticipant: true,
+		isSimulationFree: false,
 		onboardingCompleted: true,
 		firstname: "Demo",
 		lastname: "User",

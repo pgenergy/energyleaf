@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 export const metadata = {
-    title: "Geräte - Energyleaf",
+	title: "Geräte - Energyleaf",
 };
 
 export default function DevicesPage() {

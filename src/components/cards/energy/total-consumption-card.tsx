@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { EnergyData } from "@/server/db/tables/sensor";
+import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
@@ -74,7 +74,7 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 			compareEnd.toISOString(),
 			energySensorId,
 			"day",
-			"sum"
+			"sum",
 		);
 	}
 	if (!data || data.length === 0) {
@@ -108,7 +108,7 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 								"text-destructive": diff > 1,
 								"text-foreground": diff === 1,
 							},
-							"mt-4 flex flex-row items-center text-xs"
+							"mt-4 flex flex-row items-center text-xs",
 						)}
 					>
 						{diff === 1 ? (

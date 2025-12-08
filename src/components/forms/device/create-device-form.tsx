@@ -1,19 +1,17 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DeviceCategory, DeviceCategoryDisplay, DeviceCategoryValue } from "@/lib/enums";
-import { deviceSchema } from "@/lib/schemas/device-schema";
-import { createDeviceAction, updateDeviceAction } from "@/server/actions/device";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "@tanstack/react-form";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import type { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DeviceCategory, DeviceCategoryDisplay, type DeviceCategoryValue } from "@/lib/enums";
+import { deviceSchema } from "@/lib/schemas/device-schema";
+import { createDeviceAction, updateDeviceAction } from "@/server/actions/device";
 
 interface Props {
 	initialValues?: z.infer<typeof deviceSchema>;
@@ -21,31 +19,35 @@ interface Props {
 }
 
 export default function DeviceCreationForm(props: Props) {
-	const [pending, startTransition] = useTransition();
 	const router = useRouter();
-	const form = useForm<z.infer<typeof deviceSchema>>({
-		resolver: zodResolver(deviceSchema),
-		defaultValues: {
-			name: props.initialValues?.name,
-			category: props.initialValues?.category,
-			power: props.initialValues?.power,
-		},
-	});
 
-	function handleSubmit(data: z.infer<typeof deviceSchema>) {
-		startTransition(async () => {
+	const defaultValues: z.input<typeof deviceSchema> = {
+		name: props.initialValues?.name ?? "",
+		category: props.initialValues?.category ?? DeviceCategory.Others,
+		power: props.initialValues?.power,
+	};
+
+	const form = useForm({
+		defaultValues,
+		validators: {
+			onSubmit: deviceSchema,
+		},
+		onSubmit: async ({ value }) => {
 			const toastId = toast.loading("Gerät wird gespeichert...", {
 				duration: Infinity,
 			});
-			let res;
+			let res: {
+				success: boolean;
+				message: string;
+			};
 			if (props.initialValues && props.deviceId) {
-				res = await updateDeviceAction(props.deviceId, data);
+				res = await updateDeviceAction(props.deviceId, value as z.infer<typeof deviceSchema>);
 			} else {
-				res = await createDeviceAction(data);
+				res = await createDeviceAction(value as z.infer<typeof deviceSchema>);
 			}
 
 			if (!res) {
-				toast.success("Ein unerwarteter Fehler ist aufgetreten.", {
+				toast.error("Ein unerwarteter Fehler ist aufgetreten.", {
 					id: toastId,
 					duration: 4000,
 				});
@@ -64,37 +66,53 @@ export default function DeviceCreationForm(props: Props) {
 				});
 				router.push("/devices");
 			}
-		});
-	}
+		},
+	});
+
+	const pending = form.state.isSubmitting;
 
 	return (
-		<Form {...form}>
-			<form className="flex flex-col gap-4" onSubmit={form.handleSubmit(handleSubmit)}>
-				<FormField
-					control={form.control}
-					name="name"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Gerätename</FormLabel>
-							<FormControl>
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<FormField
-					control={form.control}
-					name="category"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Tariftyp</FormLabel>
-							<Select onValueChange={field.onChange} value={field.value}>
-								<FormControl>
-									<SelectTrigger>
-										<SelectValue placeholder="Wählen Sie eine Kategorie aus." />
-									</SelectTrigger>
-								</FormControl>
+		<form
+			className="flex flex-col gap-4"
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+		>
+			<form.Field
+				name="name"
+				children={(field) => {
+					const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+					return (
+						<Field data-invalid={isInvalid}>
+							<FieldLabel htmlFor={field.name}>Gerätename</FieldLabel>
+							<Input
+								id={field.name}
+								name={field.name}
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								aria-invalid={isInvalid}
+							/>
+							{isInvalid && <FieldError errors={field.state.meta.errors} />}
+						</Field>
+					);
+				}}
+			/>
+			<form.Field
+				name="category"
+				children={(field) => {
+					const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+					return (
+						<Field data-invalid={isInvalid}>
+							<FieldLabel>Tariftyp</FieldLabel>
+							<Select
+								onValueChange={(v) => field.handleChange(v as DeviceCategory)}
+								value={field.state.value}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="Wählen Sie eine Kategorie aus." />
+								</SelectTrigger>
 								<SelectContent>
 									{(Object.values(DeviceCategory) as [DeviceCategoryValue]).map((value) => (
 										<SelectItem value={value} key={value}>
@@ -103,36 +121,50 @@ export default function DeviceCreationForm(props: Props) {
 									))}
 								</SelectContent>
 							</Select>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<FormField
-					control={form.control}
-					name="power"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Geschätze Leistung</FormLabel>
-							<FormDescription>
+							{isInvalid && <FieldError errors={field.state.meta.errors} />}
+						</Field>
+					);
+				}}
+			/>
+			<form.Field
+				name="power"
+				children={(field) => {
+					const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+					return (
+						<Field data-invalid={isInvalid}>
+							<FieldLabel htmlFor={field.name}>Geschätze Leistung</FieldLabel>
+							<FieldDescription>
 								Geben Sie hier die geschätzte Leistung Ihres Gerätes an. Wenn Sie diese nicht kennen,
 								lassen Sie das Feld leer.
-							</FormDescription>
-							<FormControl>
-								<Input type="number" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<div className="flex flex-row items-center justify-end">
-					<div>
-						<Button type="submit" className="w-full cursor-pointer" disabled={pending}>
-							{pending ? <Loader2Icon className="size-4" /> : null}
-							{props.initialValues && props.deviceId ? "Speichern" : "Gerät erstellen"}
-						</Button>
-					</div>
+							</FieldDescription>
+							<Input
+								id={field.name}
+								name={field.name}
+								type="number"
+								value={
+									field.state.value !== undefined && field.state.value !== null
+										? String(field.state.value)
+										: ""
+								}
+								onBlur={field.handleBlur}
+								onChange={(e) =>
+									field.handleChange(e.target.value === "" ? undefined : Number(e.target.value))
+								}
+								aria-invalid={isInvalid}
+							/>
+							{isInvalid && <FieldError errors={field.state.meta.errors} />}
+						</Field>
+					);
+				}}
+			/>
+			<div className="flex flex-row items-center justify-end">
+				<div>
+					<Button type="submit" className="w-full cursor-pointer" disabled={pending}>
+						{pending ? <Loader2Icon className="size-4" /> : null}
+						{props.initialValues && props.deviceId ? "Speichern" : "Gerät erstellen"}
+					</Button>
 				</div>
-			</form>
-		</Form>
+			</div>
+		</form>
 	);
 }

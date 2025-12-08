@@ -21,7 +21,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: "Strom - Energyleaf",
+	title: "Strom - Energyleaf",
 };
 
 export default async function EnergyPage(props: Props) {
@@ -35,23 +35,23 @@ export default async function EnergyPage(props: Props) {
 	if (searchParams.date) {
 		date = toZonedTime(
 			new Date(searchParams.date),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 	}
-	let compare: Date | undefined = undefined;
+	let compare: Date | undefined;
 	if (searchParams.compare) {
 		compare = toZonedTime(
 			new Date(searchParams.compare),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 	}
 	if (compare && isSameDay(date, compare)) {
 		compare = undefined;
 	}
 
-    if (compare && compare?.getTime() > date.getTime()) {
-        [date, compare] = [compare, date];
-    }
+	if (compare && compare?.getTime() > date.getTime()) {
+		[date, compare] = [compare, date];
+	}
 
 	return (
 		<EnergyPageLayout

@@ -21,7 +21,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: "Strom - Energyleaf",
+	title: "Strom - Energyleaf",
 };
 
 export default async function EnergyPage(props: Props) {
@@ -36,23 +36,23 @@ export default async function EnergyPage(props: Props) {
 	if (searchParams.start && searchParams.end) {
 		start = toZonedTime(
 			new Date(searchParams.start),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 		end = toZonedTime(
 			new Date(searchParams.end),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 	}
-	let compareStart: Date | undefined = undefined;
-	let compareEnd: Date | undefined = undefined;
+	let compareStart: Date | undefined;
+	let compareEnd: Date | undefined;
 	if (searchParams.compareStart && searchParams.compareEnd) {
 		compareStart = toZonedTime(
 			new Date(searchParams.compareStart),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 		compareEnd = toZonedTime(
 			new Date(searchParams.compareEnd),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 	}
 	if (compareStart && isSameWeek(start, compareStart, { weekStartsOn: 1 })) {
@@ -60,10 +60,10 @@ export default async function EnergyPage(props: Props) {
 		compareEnd = undefined;
 	}
 
-    if (compareStart && compareEnd && compareStart.getTime() > start.getTime()) {
-        [start, compareStart] = [compareStart, start];
-        [end, compareEnd] = [compareEnd, end];
-    }
+	if (compareStart && compareEnd && compareStart.getTime() > start.getTime()) {
+		[start, compareStart] = [compareStart, start];
+		[end, compareEnd] = [compareEnd, end];
+	}
 
 	return (
 		<EnergyPageLayout

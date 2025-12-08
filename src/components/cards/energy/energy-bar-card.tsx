@@ -1,8 +1,8 @@
 import EnergyBarChart from "@/components/charts/energy/bar-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartConfig } from "@/components/ui/chart";
+import type { ChartConfig } from "@/components/ui/chart";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
-import { EnergyData } from "@/server/db/tables/sensor";
+import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
@@ -68,7 +68,7 @@ export default async function EnergyBarCard(props: Props) {
 		agg = "week";
 	}
 	const data = await getEnergyForSensorInRange(start.toISOString(), end.toISOString(), energySensorId, agg, "sum");
-	let compareData: EnergyData[] | undefined = undefined;
+	let compareData: EnergyData[] | undefined;
 	if (props.compareStart) {
 		const compareStart = props.compareStart;
 		const compareEnd = endOfDay(props.compareEnd || compareStart);
@@ -77,7 +77,7 @@ export default async function EnergyBarCard(props: Props) {
 			compareEnd.toISOString(),
 			energySensorId,
 			agg,
-			"sum"
+			"sum",
 		);
 	}
 

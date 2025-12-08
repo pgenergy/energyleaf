@@ -1,12 +1,12 @@
 "use server";
 
 import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
-import { accountInfoSchema, anomalySchema, reportConfigSchema } from "@/lib/schemas/profile-schema";
+import { accountInfoSchema, anomalySchema, type reportConfigSchema } from "@/lib/schemas/profile-schema";
 import { waitUntil } from "@vercel/functions";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { z } from "zod";
+import type { z } from "zod";
 import { db } from "../db";
 import { reportConfigTable } from "../db/tables/reports";
 import { getCurrentSession } from "../lib/auth";
@@ -29,7 +29,7 @@ export async function updateAnomalyAction(data: z.infer<typeof anomalySchema>) {
 						user: null,
 						session: sid,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -50,7 +50,7 @@ export async function updateAnomalyAction(data: z.infer<typeof anomalySchema>) {
 						session: sid,
 						data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -94,7 +94,7 @@ export async function updateAnomalyAction(data: z.infer<typeof anomalySchema>) {
 						},
 					},
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -110,7 +110,7 @@ export async function updateAnomalyAction(data: z.infer<typeof anomalySchema>) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -136,7 +136,7 @@ export async function updateReportConfigAction(data: z.infer<typeof reportConfig
 						user: null,
 						session: sid,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -157,7 +157,7 @@ export async function updateReportConfigAction(data: z.infer<typeof reportConfig
 						session: sid,
 						data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -204,7 +204,7 @@ export async function updateReportConfigAction(data: z.infer<typeof reportConfig
 						},
 					},
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -220,7 +220,7 @@ export async function updateReportConfigAction(data: z.infer<typeof reportConfig
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,

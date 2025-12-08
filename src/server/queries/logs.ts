@@ -1,6 +1,6 @@
 import "server-only";
 import { env } from "@/env";
-import { ErrorTypes } from "@/lib/log-types";
+import type { ErrorTypes } from "@/lib/log-types";
 import { db } from "../db";
 import { actionLogsTable, errorLogsTable, systemLogsTable } from "../db/tables/logs";
 

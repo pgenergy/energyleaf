@@ -1,14 +1,14 @@
+import { waitUntil } from "@vercel/functions";
+import { toZonedTime } from "date-fns-tz";
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { TimezoneTypeToTimeZone } from "@/lib/enums";
 import { ErrorTypes, LogSystemTypes } from "@/lib/log-types";
 import { db } from "@/server/db";
 import { userTable } from "@/server/db/tables/user";
 import { logError, logSystem } from "@/server/queries/logs";
 import { getSensorIdFromSensorToken, insertEnergyData } from "@/server/queries/sensor";
-import { waitUntil } from "@vercel/functions";
-import { toZonedTime } from "date-fns-tz";
-import { eq } from "drizzle-orm";
-import { NextResponse, type NextRequest } from "next/server";
-import { z } from "zod";
 
 enum EnergyDataSensorType {
 	DIGITAL = 0,
@@ -20,7 +20,7 @@ const energyRequestDataSchema = z.object({
 	value_out: z.number().optional(),
 	value_current: z.number().optional(),
 	date: z.coerce.date().optional(),
-	sensor_type: z.nativeEnum(EnergyDataSensorType),
+	sensor_type: z.enum(EnergyDataSensorType),
 });
 
 export const POST = async (req: NextRequest) => {
@@ -34,11 +34,11 @@ export const POST = async (req: NextRequest) => {
 					user: null,
 					reason: ErrorTypes.INVALID_TOKEN,
 				},
-			})
+			}),
 		);
-		return NextResponse.json({ statusMessage: "Unauthorized" }, { status: 401 });
+		return NextResponse.json({ success: false, statusMessage: "Unauthorized" }, { status: 401 });
 	}
-	const accessToken = req.headers.get("authorization")!.split(" ")[1];
+	const accessToken = req.headers.get("authorization")?.split(" ")[1] || "";
 	if (!body) {
 		waitUntil(
 			logSystem({
@@ -48,13 +48,13 @@ export const POST = async (req: NextRequest) => {
 					user: null,
 					reason: ErrorTypes.INVALID_INPUT,
 				},
-			})
+			}),
 		);
 		return NextResponse.json(
-			{ status: 400, statusMessage: "No body" },
+			{ status: 400, statusMessage: "No body", success: false },
 			{
 				status: 400,
-			}
+			},
 		);
 	}
 	const rawData = await req.json();
@@ -69,9 +69,9 @@ export const POST = async (req: NextRequest) => {
 					reason: ErrorTypes.INVALID_INPUT,
 					rawData,
 				},
-			})
+			}),
 		);
-		return NextResponse.json({ status: 400, statusMessage: "Invalid data" }, { status: 400 });
+		return NextResponse.json({ status: 400, statusMessage: "Invalid data", success: false }, { status: 400 });
 	}
 	const data = check.data;
 	console.info(data);
@@ -85,16 +85,16 @@ export const POST = async (req: NextRequest) => {
 					user: null,
 					reason: ErrorTypes.INPUT_IS_ZERO,
 				},
-			})
+			}),
 		);
 		return NextResponse.json(
-			{ status: 400, statusMessage: "Value is equal to or less than zero" },
-			{ status: 400 }
+			{ status: 400, statusMessage: "Value is equal to or less than zero", success: false },
+			{ status: 400 },
 		);
 	}
 
 	try {
-		const sensor = await getSensorIdFromSensorToken(accessToken);
+		const sensor = await getSensorIdFromSensorToken(accessToken, true);
 		const needsSum = data.sensor_type === EnergyDataSensorType.ANALOG;
 		if (!sensor.userId) {
 			waitUntil(
@@ -105,9 +105,12 @@ export const POST = async (req: NextRequest) => {
 						user: null,
 						reason: ErrorTypes.USER_NOT_FOUND,
 					},
-				})
+				}),
 			);
-			return NextResponse.json({ statusMessage: "No user assigned", status: 404 }, { status: 404 });
+			return NextResponse.json(
+				{ statusMessage: "No user assigned", status: 404, success: false },
+				{ status: 404 },
+			);
 		}
 		const users = await db
 			.select({
@@ -124,9 +127,9 @@ export const POST = async (req: NextRequest) => {
 						user: null,
 						reason: ErrorTypes.USER_NOT_FOUND,
 					},
-				})
+				}),
 			);
-			return NextResponse.json({ statusMessage: "No user", status: 404 }, { status: 404 });
+			return NextResponse.json({ statusMessage: "No user", status: 404, success: false }, { status: 404 });
 		}
 		let tz = "Europe/Berlin";
 		if (users[0].tz) {
@@ -139,7 +142,7 @@ export const POST = async (req: NextRequest) => {
 
 		const inputData = {
 			sensorId: sensor.id,
-			value: data.value,
+			value: needsSum && data.value_current ? data.value_current : data.value,
 			valueOut: data.value_out,
 			valueCurrent: data.value_current,
 			sum: needsSum,
@@ -160,32 +163,41 @@ export const POST = async (req: NextRequest) => {
 							reason: ErrorTypes.INPUT_TOO_HIGH,
 							data,
 						},
-					})
+					}),
 				);
-				return NextResponse.json({ statusMessage: "Value too high", status: 400 }, { status: 400 });
+				return NextResponse.json(
+					{ statusMessage: "Value too high", status: 400, success: false },
+					{ status: 400 },
+				);
 			}
 		}
 
-		return NextResponse.json({ status: 200 }, { status: 200 });
+		return NextResponse.json({ status: 200, success: true }, { status: 200 });
 	} catch (err) {
 		console.error(err);
 		if ((err as unknown as Error).message === "token/expired") {
-			return NextResponse.json({ statusMessage: "Token expired", status: 401 }, { status: 401 });
+			return NextResponse.json({ statusMessage: "Token expired", status: 401, success: false }, { status: 401 });
 		}
 
 		if ((err as unknown as Error).message === "token/invalid") {
-			return NextResponse.json({ statusMessage: "Token invalid", status: 401 }, { status: 401 });
+			return NextResponse.json({ statusMessage: "Token invalid", status: 401, success: false }, { status: 401 });
 		}
 
 		if ((err as unknown as Error).message === "token/not-found") {
-			return NextResponse.json({ statusMessage: "Token not found", status: 401 }, { status: 401 });
+			return NextResponse.json(
+				{ statusMessage: "Token not found", status: 401, success: false },
+				{ status: 401 },
+			);
 		}
 
 		if (
 			(err as unknown as Error).message === "sensor/not-found" ||
 			(err as unknown as Error).message === "sensor/no-user"
 		) {
-			return NextResponse.json({ statusMessage: "Sensor not found", status: 404 }, { status: 404 });
+			return NextResponse.json(
+				{ statusMessage: "Sensor not found", status: 404, success: false },
+				{ status: 404 },
+			);
 		}
 
 		waitUntil(
@@ -196,8 +208,8 @@ export const POST = async (req: NextRequest) => {
 					session: null,
 					user: null,
 				},
-			})
+			}),
 		);
-		return NextResponse.json({ statusMessage: "Database error", status: 500 }, { status: 500 });
+		return NextResponse.json({ statusMessage: "Database error", status: 500, success: false }, { status: 500 });
 	}
 };

@@ -1,176 +1,239 @@
 "use client";
 
-import { signupSchema } from "@/lib/schemas/auth-schema";
-import { signupAction } from "@/server/actions/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "@tanstack/react-form";
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
-import { Button, buttonVariants } from "../../ui/button";
-import { Checkbox } from "../../ui/checkbox";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
-import { Input } from "../../ui/input";
-import { Separator } from "../../ui/separator";
+import type z from "zod";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { signupSchema } from "@/lib/schemas/auth-schema";
+import { signupAction } from "@/server/actions/auth";
 
 export default function SignUpForm() {
 	const router = useRouter();
-	const [pending, startTransition] = useTransition();
-	const form = useForm<z.infer<typeof signupSchema>>({
-		resolver: zodResolver(signupSchema),
-		defaultValues: {
-			tos: false,
+	const defaultValues: z.input<typeof signupSchema> = {
+		firstname: "",
+		lastname: "",
+		mail: "",
+		address: "",
+		password: "",
+		passwordRepeat: "",
+		tos: false,
+	};
+	const form = useForm({
+		defaultValues,
+		validators: {
+			onSubmit: signupSchema,
+		},
+		onSubmit: async ({ value }) => {
+			const toastId = toast.loading("Anmelden...", { duration: Infinity });
+			const res = await signupAction(value);
+			if (!res.success) {
+				toast.error(res.message, { id: toastId, duration: 4000 });
+			} else if (res.path) {
+				toast.success(res.message, { id: toastId, duration: 4000 });
+				router.push(res.path);
+			}
 		},
 	});
 
-	function onSubmit(data: z.infer<typeof signupSchema>) {
-		startTransition(async () => {
-			const toastId = toast.loading("Anmelden...", {
-				duration: Infinity,
-			});
-			const res = await signupAction(data);
-			if (!res.success) {
-				toast.error(res.message, {
-					id: toastId,
-					duration: 4000,
-				});
-			} else if (res.path) {
-				toast.success(res.message, {
-					id: toastId,
-					duration: 4000,
-				});
-				router.push(res.path);
-			}
-		});
-	}
+	const pending = form.state.isSubmitting;
 
 	return (
-		<Form {...form}>
-			<form method="POST" className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-				{/* Personal Info */}
-				<p className="text-lg font-medium">Persönliche Informationen</p>
-				<Separator />
-				<div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-					<FormField
-						control={form.control}
+		<form
+			method="POST"
+			className="flex flex-col gap-4"
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+		>
+			{/* Personal Info */}
+			<p className="text-lg font-medium">Persönliche Informationen</p>
+			<Separator />
+			<div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+				<FieldGroup>
+					<form.Field
 						name="firstname"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Vorname</FormLabel>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
+						children={(field) => {
+							const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor={field.name}>Vorname</FieldLabel>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										aria-invalid={isInvalid}
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
 					/>
-					<FormField
-						control={form.control}
+					<form.Field
 						name="lastname"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Nachname</FormLabel>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
+						children={(field) => {
+							const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor={field.name}>Nachname</FieldLabel>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										aria-invalid={isInvalid}
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
 					/>
-					<FormField
-						control={form.control}
+					<form.Field
 						name="mail"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>E-Mail</FormLabel>
-								<FormDescription>Ihre E-Mail ist notwendig, um sich anzumelden.</FormDescription>
-								<FormControl>
-									<Input type="email" {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
+						children={(field) => {
+							const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor={field.name}>E-Mail</FieldLabel>
+									<Input
+										id={field.name}
+										name={field.name}
+										type="email"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										aria-invalid={isInvalid}
+										autoComplete="email"
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
 					/>
-					<FormField
-						control={form.control}
+					<form.Field
 						name="address"
-						render={({ field }) => (
-							<FormItem className="col-span-1 md:col-span-2">
-								<FormLabel>Adresse</FormLabel>
-								<FormDescription>
-									Wir benötigen Ihre Adresse, um den Sensor am Stromzähler zu installieren.
-								</FormDescription>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
+						children={(field) => {
+							const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field className="col-span-1 md:col-span-2" data-invalid={isInvalid}>
+									<FieldLabel htmlFor={field.name}>Adresse</FieldLabel>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value ?? ""}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										aria-invalid={isInvalid}
+										autoComplete="street-address"
+									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
 					/>
-				</div>
-				{/* Password */}
-				<div className="pb-4" />
-				<p className="text-lg font-medium">Sicherheit</p>
-				<Separator />
-				<FormField
-					control={form.control}
+				</FieldGroup>
+			</div>
+			{/* Password */}
+			<div className="pb-4" />
+			<p className="text-lg font-medium">Sicherheit</p>
+			<Separator />
+			<FieldGroup>
+				<form.Field
 					name="password"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Passwort</FormLabel>
-							<FormControl>
-								<Input type="password" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel htmlFor={field.name}>Passwort</FieldLabel>
+								<Input
+									id={field.name}
+									name={field.name}
+									type="password"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									aria-invalid={isInvalid}
+									autoComplete="new-password"
+								/>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
-				<FormField
-					control={form.control}
+				<form.Field
 					name="passwordRepeat"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Password wiederholen</FormLabel>
-							<FormControl>
-								<Input type="password" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel htmlFor={field.name}>Password wiederholen</FieldLabel>
+								<Input
+									id={field.name}
+									name={field.name}
+									type="password"
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+									aria-invalid={isInvalid}
+									autoComplete="new-password"
+								/>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
-				{/* Legal */}
-				<div className="pb-4" />
-				<p className="text-lg font-medium">Rechtliches</p>
-				<Separator />
-				<FormField
-					control={form.control}
+			</FieldGroup>
+			{/* Legal */}
+			<div className="pb-4" />
+			<p className="text-lg font-medium">Rechtliches</p>
+			<Separator />
+			<FieldGroup>
+				<form.Field
 					name="tos"
-					render={({ field }) => (
-						<FormItem className="flex flex-row items-center gap-2 space-y-0">
-							<FormControl>
-								<Checkbox checked={field.value} onCheckedChange={field.onChange} />
-							</FormControl>
-							<FormLabel className="text-sm">
-								Ich habe die{" "}
-								<Link className={buttonVariants({ variant: "link" })} href="/privacy" target="_blank">
-									Datenschutzrichtlinien
-								</Link>{" "}
-								gelesen und akzeptiere diese.
-							</FormLabel>
-						</FormItem>
-					)}
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field className="space-y-0" data-invalid={isInvalid}>
+								<div className="flex flex-row items-center gap-2 ">
+									<Checkbox
+										checked={Boolean(field.state.value)}
+										onCheckedChange={(c) => field.handleChange(c === true)}
+									/>
+									<FieldLabel className="text-sm" htmlFor={field.name}>
+										Ich habe die{" "}
+										<Link
+											className={buttonVariants({ variant: "link" })}
+											href="/privacy"
+											target="_blank"
+										>
+											Datenschutzrichtlinien
+										</Link>{" "}
+										gelesen und akzeptiere diese.
+									</FieldLabel>
+								</div>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				/>
-				<div className="pb-4" />
-				<div className="flex flex-col items-center gap-4">
-					<Button type="submit" className="w-full cursor-pointer" disabled={pending}>
-						{pending ? <Loader2Icon className="size-4" /> : null}
-						Konto erstellen
-					</Button>
-				</div>
-			</form>
-		</Form>
+			</FieldGroup>
+			<div className="pb-4" />
+			<div className="flex flex-col items-center gap-4">
+				<Button type="submit" className="w-full cursor-pointer" disabled={pending}>
+					{pending ? <Loader2Icon className="size-4" /> : null}
+					Konto erstellen
+				</Button>
+			</div>
+		</form>
 	);
 }

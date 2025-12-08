@@ -1,11 +1,11 @@
+import { toZonedTime } from "date-fns-tz";
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { TimezoneTypeToTimeZone } from "@/lib/enums";
 import { db } from "@/server/db";
 import { userTable } from "@/server/db/tables/user";
 import { getSensorIdFromSensorToken } from "@/server/queries/sensor";
-import { toZonedTime } from "date-fns-tz";
-import { eq } from "drizzle-orm";
-import { NextResponse, type NextRequest } from "next/server";
-import { z } from "zod";
 
 const gasRequestDataSchema = z.object({
 	value: z.number(),
@@ -17,13 +17,13 @@ export const POST = async (req: NextRequest) => {
 	if (!req.headers.has("authorization") || req.headers.get("authorization")?.startsWith("Bearer ")) {
 		return NextResponse.json({ statusMessage: "Unauthorized" }, { status: 401 });
 	}
-	const accessToken = req.headers.get("authorization")!.split(" ")[1];
+	const accessToken = req.headers.get("authorization")?.split(" ")[1] || "";
 	if (!body) {
 		return NextResponse.json(
 			{ status: 400, statusMessage: "No body" },
 			{
 				status: 400,
-			}
+			},
 		);
 	}
 	const rawData = await req.json();
@@ -37,7 +37,7 @@ export const POST = async (req: NextRequest) => {
 	if (data.value <= 0) {
 		return NextResponse.json(
 			{ status: 400, statusMessage: "Value is equal to or less than zero" },
-			{ status: 400 }
+			{ status: 400 },
 		);
 	}
 

@@ -1,14 +1,14 @@
 "use server";
 
-import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
-import { deviceSchema } from "@/lib/schemas/device-schema";
 import { waitUntil } from "@vercel/functions";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { z } from "zod";
+import type { z } from "zod";
+import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
+import { deviceSchema } from "@/lib/schemas/device-schema";
 import { db } from "../db";
-import { Device, deviceTable } from "../db/tables/device";
+import { type Device, deviceTable } from "../db/tables/device";
 import { getCurrentSession } from "../lib/auth";
 import { addDemoDevice, deleteDemoDevice, updateDemoDevice } from "../lib/demo";
 import { logAction, logError } from "../queries/logs";
@@ -30,7 +30,7 @@ export async function createDeviceAction(data: z.infer<typeof deviceSchema>) {
 						session: sid,
 						reason: ErrorTypes.NOT_LOGGED_IN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -51,7 +51,7 @@ export async function createDeviceAction(data: z.infer<typeof deviceSchema>) {
 						reason: ErrorTypes.INVALID_INPUT,
 						data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -66,7 +66,7 @@ export async function createDeviceAction(data: z.infer<typeof deviceSchema>) {
 				created: new Date(),
 				category: data.category,
 				power: data.power ? data.power : null,
-				isPowerEstimated: data.power ? false : true,
+				isPowerEstimated: !data.power,
 				userId: user.id,
 				timestamp: new Date(),
 				weeklyUsageEstimation: null,
@@ -84,7 +84,7 @@ export async function createDeviceAction(data: z.infer<typeof deviceSchema>) {
 			name: data.name,
 			category: data.category,
 			power: data.power ? data.power : null,
-			isPowerEstimated: data.power ? false : true,
+			isPowerEstimated: !data.power,
 			userId: user.id,
 		});
 		revalidatePath("/devices");
@@ -100,7 +100,7 @@ export async function createDeviceAction(data: z.infer<typeof deviceSchema>) {
 					reason: null,
 					data,
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -116,7 +116,7 @@ export async function createDeviceAction(data: z.infer<typeof deviceSchema>) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -142,7 +142,7 @@ export async function updateDeviceAction(id: string, data: z.infer<typeof device
 						session: sid,
 						reason: ErrorTypes.NOT_LOGGED_IN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -163,7 +163,7 @@ export async function updateDeviceAction(id: string, data: z.infer<typeof device
 						reason: ErrorTypes.INVALID_INPUT,
 						data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -177,7 +177,7 @@ export async function updateDeviceAction(id: string, data: z.infer<typeof device
 				name: data.name,
 				category: data.category,
 				power: data.power ? data.power : null,
-				isPowerEstimated: data.power ? false : true,
+				isPowerEstimated: !data.power,
 				userId: user.id,
 				timestamp: new Date(),
 				weeklyUsageEstimation: null,
@@ -198,7 +198,7 @@ export async function updateDeviceAction(id: string, data: z.infer<typeof device
 				name: data.name,
 				category: data.category,
 				power: data.power ? data.power : null,
-				isPowerEstimated: data.power ? false : true,
+				isPowerEstimated: !data.power,
 			})
 			.where(eq(deviceTable.id, id));
 		revalidatePath("/devices");
@@ -227,7 +227,7 @@ export async function updateDeviceAction(id: string, data: z.infer<typeof device
 						},
 					},
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -243,7 +243,7 @@ export async function updateDeviceAction(id: string, data: z.infer<typeof device
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -268,7 +268,7 @@ export async function deleteDeviceAction(id: string) {
 						session: sid,
 						reason: ErrorTypes.NOT_LOGGED_IN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -299,7 +299,7 @@ export async function deleteDeviceAction(id: string) {
 						reason: ErrorTypes.NOT_FOUND,
 						data: { id },
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -323,7 +323,7 @@ export async function deleteDeviceAction(id: string) {
 						...deviceToDelete[0],
 					},
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -339,7 +339,7 @@ export async function deleteDeviceAction(id: string) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,

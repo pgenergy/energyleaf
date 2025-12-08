@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const metadata = {
-    title: "Ausschläge - Energyleaf",
+	title: "Ausschläge - Energyleaf",
 };
 
 export default async function DevicesPage(props: Props) {
@@ -30,11 +30,11 @@ export default async function DevicesPage(props: Props) {
 	if (searchParams.start && searchParams.end) {
 		start = toZonedTime(
 			new Date(searchParams.start),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 		end = toZonedTime(
 			new Date(searchParams.end),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 	}
 
