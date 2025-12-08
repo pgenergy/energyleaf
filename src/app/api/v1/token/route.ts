@@ -1,3 +1,7 @@
+import { energyleaf, parseReadableStream } from "@energyleaf/proto";
+import { waitUntil } from "@vercel/functions";
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { ErrorTypes, LogSystemTypes } from "@/lib/log-types";
 import { db } from "@/server/db";
 import { sensorTable } from "@/server/db/tables/sensor";
@@ -5,10 +9,6 @@ import { lower } from "@/server/db/types";
 import { uint8ArrayToBuffer } from "@/server/lib/util";
 import { logError } from "@/server/queries/logs";
 import { createSensorToken } from "@/server/queries/sensor";
-import { energyleaf, parseReadableStream } from "@energyleaf/proto";
-import { waitUntil } from "@vercel/functions";
-import { eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
 
 const { TokenResponse, TokenRequest } = energyleaf;
 
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 					analogRotationPerKwh?: number;
 				};
 				if (sensorData.script.split("\n").length === 1 && sensorData.script.match(/^\d+$/)) {
-					const perRotation = Number.parseInt(sensorData.script);
+					const perRotation = Number.parseInt(sensorData.script, 10);
 					additionalData = {
 						analogRotationPerKwh: perRotation,
 					};
@@ -64,14 +64,14 @@ export async function POST(req: NextRequest) {
 							accessToken: token,
 							expiresIn: 3600,
 							...additionalData,
-						})
+						}),
 					),
 					{
 						status: 200,
 						headers: {
 							"Content-Type": "application/x-protobuf",
 						},
-					}
+					},
 				);
 			}
 			return new NextResponse(
@@ -80,14 +80,14 @@ export async function POST(req: NextRequest) {
 						accessToken: token,
 						expiresIn: 3600,
 						status: 200,
-					})
+					}),
 				),
 				{
 					status: 200,
 					headers: {
 						"Content-Type": "application/x-protobuf",
 					},
-				}
+				},
 			);
 		} catch (err) {
 			console.error(err);
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
 						headers: {
 							"Content-Type": "application/x-protobuf",
 						},
-					}
+					},
 				);
 			}
 
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
 						user: null,
 						reason: ErrorTypes.UNKNOWN,
 					},
-				})
+				}),
 			);
 			return new NextResponse(
 				uint8ArrayToBuffer(TokenResponse.toBinary({ statusMessage: "Database error", status: 500 })),
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
 					headers: {
 						"Content-Type": "application/x-protobuf",
 					},
-				}
+				},
 			);
 		}
 	} catch (err) {
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
 					session: null,
 					user: null,
 				},
-			})
+			}),
 		);
 		return new NextResponse(
 			uint8ArrayToBuffer(TokenResponse.toBinary({ statusMessage: "Invalid data", status: 400 })),
@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
 				headers: {
 					"Content-Type": "application/x-protobuf",
 				},
-			}
+			},
 		);
 	}
 }

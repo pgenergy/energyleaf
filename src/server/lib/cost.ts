@@ -1,5 +1,5 @@
 import { addDays, getDaysInMonth, getWeeksInMonth } from "date-fns";
-import { EnergyData } from "../db/tables/sensor";
+import type { EnergyData } from "../db/tables/sensor";
 
 type TAggregation = "hour" | "day" | "week" | "month";
 
@@ -9,7 +9,7 @@ export function addCostToEnergy(
 	data: EnergyData[],
 	workingPrice: number,
 	basePrice: number,
-	agg: TAggregation = "month"
+	agg: TAggregation = "month",
 ): EnergyDataWithCost[] {
 	let baseCost = basePrice;
 	if (agg === "hour") {

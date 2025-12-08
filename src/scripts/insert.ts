@@ -50,7 +50,7 @@ async function insert() {
 						inserted: item.inserted,
 						valueCurrent: item.value_current,
 						timestamp: ts,
-					})
+					}),
 				);
 				await Promise.all(promises);
 			}

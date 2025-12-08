@@ -86,6 +86,11 @@ export enum SensorType {
 }
 export type SensorTypeKey = keyof typeof SensorType;
 export type SensorTypeValue = (typeof SensorType)[keyof typeof SensorType];
+export const SensorTypeDisplay: Record<SensorTypeValue, string> = {
+	water: "Wasser",
+	electricity: "Strom",
+	gas: "Gas",
+};
 
 export enum ElectricityMeter {
 	Digital = "digital",
@@ -114,6 +119,7 @@ export const HouseTypeDisplay: Record<HouseTypeValue, string> = {
 export enum TariffType {
 	Basic = "basic",
 	Eco = "eco",
+	TimeOfUse = "time_of_use",
 }
 
 export type TariffTypeKey = keyof typeof TariffType;
@@ -121,6 +127,7 @@ export type TariffTypeValue = (typeof TariffType)[keyof typeof TariffType];
 export const TariffTypeDisplay: Record<TariffTypeValue, string> = {
 	basic: "Kein Ökostrom",
 	eco: "Ökostrom",
+	time_of_use: "Zeitvariabel (TOU)",
 };
 
 export enum WaterType {
@@ -146,4 +153,66 @@ export const TimeZoneTypeDisplay: Record<TimezoneTypeValue, string> = {
 
 export const TimezoneTypeToTimeZone: Record<TimezoneTypeValue, string> = {
 	europe_berlin: "Europe/Berlin",
+};
+
+export enum ChargingSpeed {
+	Seven = "7kwh",
+	Eleven = "11kwh",
+}
+
+export type ChargingSpeedKey = keyof typeof ChargingSpeed;
+export type ChargingSpeedValue = (typeof ChargingSpeed)[keyof typeof ChargingSpeed];
+
+export const ChargingSpeedDisplay: Record<ChargingSpeedValue, string> = {
+	"7kwh": "7 kW",
+	"11kwh": "11 kW",
+};
+
+export enum SolarOrientation {
+	South = "south",
+	East = "east",
+	West = "west",
+	EastWest = "east_west",
+}
+
+export type SolarOrientationKey = keyof typeof SolarOrientation;
+export type SolarOrientationValue = (typeof SolarOrientation)[keyof typeof SolarOrientation];
+
+export const SolarOrientationDisplay: Record<SolarOrientationValue, string> = {
+	south: "Süd",
+	east: "Ost",
+	west: "West",
+	east_west: "Ost-West",
+};
+
+export enum HeatPumpSource {
+	Probe = "probe",
+	Collector = "collector",
+}
+
+export type HeatPumpSourceKey = keyof typeof HeatPumpSource;
+export type HeatPumpSourceValue = (typeof HeatPumpSource)[keyof typeof HeatPumpSource];
+
+export const HeatPumpSourceDisplay: Record<HeatPumpSourceValue, string> = {
+	probe: "Erdsonde (Bohrung)",
+	collector: "Erdkollektor (Fläche)",
+};
+
+export enum SimulationType {
+	EV = "ev",
+	Solar = "solar",
+	HeatPump = "heatpump",
+	Battery = "battery",
+	TOU = "tou",
+}
+
+export type SimulationTypeKey = keyof typeof SimulationType;
+export type SimulationTypeValue = (typeof SimulationType)[keyof typeof SimulationType];
+
+export const SimulationTypeDisplay: Record<SimulationTypeValue, string> = {
+	ev: "E-Auto",
+	solar: "Photovoltaik",
+	heatpump: "Wärmepumpe",
+	battery: "Batteriespeicher",
+	tou: "Zeitvariable Tarife",
 };

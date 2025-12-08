@@ -1,22 +1,23 @@
 "use client";
 
+import { format, getWeekOfMonth } from "date-fns";
+import { de } from "date-fns/locale";
+import { useMemo } from "react";
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import {
-	ChartConfig,
+	type ChartConfig,
 	ChartContainer,
 	ChartLegend,
 	ChartLegendContent,
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-import { EnergyData } from "@/server/db/tables/sensor";
-import { format, getWeekOfMonth } from "date-fns";
-import { de } from "date-fns/locale";
-import { useMemo } from "react";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import type { EnergyData } from "@/server/db/tables/sensor";
 
 interface Props<T extends ChartConfig> {
 	data: (EnergyData & { cost?: number })[];
 	compareData?: (EnergyData & { cost?: number })[];
+	simData?: (EnergyData & { cost?: number })[];
 	config: T;
 	dateFormat: "hour" | "day" | "weekday" | "calender-week" | "week";
 	display: Extract<keyof T, string>[];
@@ -24,6 +25,8 @@ interface Props<T extends ChartConfig> {
 }
 
 export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
+	const shouldShowSimData = !props.compareData && props.simData && props.simData.length > 0;
+
 	const preparedData = useMemo(() => {
 		function formatTimestamp(d: Date) {
 			let timestamp = d.toISOString();
@@ -59,11 +62,28 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 			return timestamp;
 		}
 
-		const data = props.data.map((d) => ({
-			...d,
-			total: d.valueCurrent ? d.valueCurrent / 1000 : d.value,
-			timestamp: formatTimestamp(d.timestamp),
-		}));
+		const simDataMap = new Map<string, EnergyData & { cost?: number }>();
+		if (shouldShowSimData && props.simData) {
+			for (const d of props.simData) {
+				simDataMap.set(d.timestamp.toISOString(), d);
+			}
+		}
+
+		const data = props.data.map((d) => {
+			const simPoint = simDataMap.get(d.timestamp.toISOString());
+			return {
+				...d,
+				total: d.valueCurrent ? d.valueCurrent / 1000 : d.value,
+				simTotal: simPoint
+					? simPoint.valueCurrent
+						? simPoint.valueCurrent / 1000
+						: simPoint.value
+					: undefined,
+				simConsumption: simPoint?.consumption,
+				simCost: simPoint?.cost,
+				timestamp: formatTimestamp(d.timestamp),
+			};
+		});
 
 		if (!props.compareData) {
 			return data;
@@ -94,10 +114,23 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 				cost: data.find((c) => c.timestamp === d.timestamp)?.cost || null,
 			}));
 		}
-	}, [props.data, props.dateFormat, props.compareData]);
+	}, [props.data, props.dateFormat, props.compareData, props.simData, shouldShowSimData]);
+
+	const effectiveConfig = useMemo(() => {
+		if (!shouldShowSimData) {
+			return props.config;
+		}
+		return {
+			...props.config,
+			simTotal: {
+				label: "Mit Simulation (kWh)",
+				color: "var(--chart-2)",
+			},
+		} as T;
+	}, [props.config, shouldShowSimData]);
 
 	return (
-		<ChartContainer className="max-h-96 w-full" config={props.config}>
+		<ChartContainer className="max-h-96 w-full" config={effectiveConfig}>
 			<BarChart
 				accessibilityLayer
 				data={preparedData}
@@ -119,6 +152,7 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 				{props.compareData ? (
 					<Bar dataKey={`${props.display}Compare`} fill={`var(--color-${props.display}Compare`} radius={8} />
 				) : null}
+				{shouldShowSimData && <Bar dataKey="simTotal" fill="var(--color-simTotal)" radius={8} />}
 			</BarChart>
 		</ChartContainer>
 	);

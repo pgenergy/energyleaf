@@ -23,9 +23,7 @@ export const reportsTable = pgTable("reports", {
 		.primaryKey()
 		.notNull()
 		.$defaultFn(() => genID(30)),
-	timestamp: timestamp("timestamp", { mode: "date", withTimezone: true })
-		.default(sql`now()`)
-		.notNull(),
+	timestamp: timestamp("timestamp", { mode: "date", withTimezone: true }).default(sql`now()`).notNull(),
 	userId: text("user_id")
 		.notNull()
 		.references(() => userTable.id, { onDelete: "cascade" }),

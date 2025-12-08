@@ -1,10 +1,12 @@
 // import "server-only";
+
+import { and, desc, eq, lt } from "drizzle-orm";
+import { cache } from "react";
 import { SensorType } from "@/lib/enums";
 import { genID } from "@/lib/utils";
 import { db } from "@/server/db";
-import { and, desc, eq, lt } from "drizzle-orm";
-import { cache } from "react";
 import { energyDataTable, sensorTable, sensorTokenTable } from "../db/tables/sensor";
+import { userTable } from "../db/tables/user";
 import { lower } from "../db/types";
 
 export async function createSensorToken(clientId: string) {
@@ -242,4 +244,67 @@ export async function insertEnergyData(data: EnergyDataInput) {
 			timestamp: data.timestamp,
 		});
 	});
+}
+
+export async function getAllSensors() {
+	const sensors = await db
+		.select({
+			id: sensorTable.id,
+			clientId: sensorTable.clientId,
+			version: sensorTable.version,
+			sensorType: sensorTable.sensorType,
+			userId: sensorTable.userId,
+			needsScript: sensorTable.needsScript,
+			script: sensorTable.script,
+			user: {
+				id: userTable.id,
+				username: userTable.username,
+				email: userTable.email,
+			},
+		})
+		.from(sensorTable)
+		.leftJoin(userTable, eq(sensorTable.userId, userTable.id));
+
+	return sensors;
+}
+
+export type SensorWithUser = Awaited<ReturnType<typeof getAllSensors>>[number];
+
+export async function getSensorByClientId(clientId: string) {
+	const sensors = await db
+		.select({
+			id: sensorTable.id,
+			clientId: sensorTable.clientId,
+			version: sensorTable.version,
+			sensorType: sensorTable.sensorType,
+			userId: sensorTable.userId,
+			needsScript: sensorTable.needsScript,
+			script: sensorTable.script,
+		})
+		.from(sensorTable)
+		.where(eq(sensorTable.clientId, clientId))
+		.limit(1);
+
+	if (sensors.length === 0) {
+		return null;
+	}
+
+	return sensors[0];
+}
+
+export async function getSensorToken(sensorId: string) {
+	const tokens = await db
+		.select({
+			code: sensorTokenTable.code,
+			timestamp: sensorTokenTable.timestamp,
+		})
+		.from(sensorTokenTable)
+		.where(eq(sensorTokenTable.sensorId, sensorId))
+		.limit(1);
+
+	if (tokens.length === 0) {
+		return null;
+	}
+
+	return tokens[0];
 }

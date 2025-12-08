@@ -1,4 +1,5 @@
 import { Container, Hr, Img, Link } from "@react-email/components";
+// biome-ignore lint/correctness/noUnusedImports: React need to be imported for react mail to work
 import React from "react";
 
 interface Props {

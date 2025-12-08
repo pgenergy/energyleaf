@@ -103,7 +103,7 @@ export default async function LeastCostCard(props: Props) {
 		end.toISOString(),
 		energySensorId,
 		props.agg,
-		"sum"
+		"sum",
 	);
 	if (!data || data.length === 0) {
 		return (

@@ -6,7 +6,7 @@ import { waitUntil } from "@vercel/functions";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { z } from "zod";
+import type { z } from "zod";
 import { db } from "../db";
 import { userDataTable } from "../db/tables/user";
 import { getCurrentSession } from "../lib/auth";
@@ -30,7 +30,7 @@ export async function updateEnergyGoalAction(data: z.infer<typeof energyGoalSche
 						session: sid,
 						reason: ErrorTypes.NOT_LOGGED_IN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -51,7 +51,7 @@ export async function updateEnergyGoalAction(data: z.infer<typeof energyGoalSche
 						reason: ErrorTypes.INVALID_INPUT,
 						data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -105,7 +105,7 @@ export async function updateEnergyGoalAction(data: z.infer<typeof energyGoalSche
 						session: sid,
 						reason: ErrorTypes.USER_NOT_FOUND,
 					},
-				})
+				}),
 			);
 
 			return {
@@ -125,7 +125,7 @@ export async function updateEnergyGoalAction(data: z.infer<typeof energyGoalSche
 						session: sid,
 						reason: ErrorTypes.NO_TARRIF_DATA,
 					},
-				})
+				}),
 			);
 
 			return {
@@ -149,7 +149,7 @@ export async function updateEnergyGoalAction(data: z.infer<typeof energyGoalSche
 						reason: ErrorTypes.INVALID_INPUT,
 						data,
 					},
-				})
+				}),
 			);
 
 			return {
@@ -183,7 +183,7 @@ export async function updateEnergyGoalAction(data: z.infer<typeof energyGoalSche
 						},
 					},
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -200,7 +200,7 @@ export async function updateEnergyGoalAction(data: z.infer<typeof energyGoalSche
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,

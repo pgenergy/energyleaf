@@ -1,20 +1,20 @@
-import {
-	ElectricityMeter,
-	ElectricityMeterValue,
-	ExperimentPhase,
-	ExperimentPhaseValue,
-	HouseType,
-	HouseTypeValue,
-	TariffType,
-	TariffTypeValue,
-	TimeZoneType,
-	TimezoneTypeValue,
-	WaterType,
-	WaterTypeValue,
-} from "@/lib/enums";
-import { genID } from "@/lib/utils";
 import { sql } from "drizzle-orm";
 import { boolean, doublePrecision, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+	ElectricityMeter,
+	type ElectricityMeterValue,
+	ExperimentPhase,
+	type ExperimentPhaseValue,
+	HouseType,
+	type HouseTypeValue,
+	TariffType,
+	type TariffTypeValue,
+	TimeZoneType,
+	type TimezoneTypeValue,
+	WaterType,
+	type WaterTypeValue,
+} from "@/lib/enums";
+import { genID } from "@/lib/utils";
 import { numericType } from "../types";
 
 export const userTable = pgTable("user", {
@@ -33,11 +33,12 @@ export const userTable = pgTable("user", {
 	isAdmin: boolean("is_admin").default(false).notNull(),
 	isActive: boolean("is_active").default(false).notNull(),
 	isParticipant: boolean("is_participant").default(false).notNull(),
+	isSimulationFree: boolean("is_simulation_free").default(false).notNull(),
 	onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
 	activationDate: timestamp("activation_date", { mode: "date", withTimezone: true }),
 	deleted: boolean("deleted").default(false).notNull(),
 	timezone: text("user_timezone", { enum: Object.values(TimeZoneType) as [TimezoneTypeValue] }).default(
-		TimeZoneType.Europe_Berlin
+		TimeZoneType.Europe_Berlin,
 	),
 });
 
@@ -63,9 +64,7 @@ export const userDataTable = pgTable("user_data", {
 	userId: text("user_id")
 		.notNull()
 		.references(() => userTable.id, { onDelete: "cascade" }),
-	timestamp: timestamp("timestamp", { mode: "date", withTimezone: true })
-		.default(sql`now()`)
-		.notNull(),
+	timestamp: timestamp("timestamp", { mode: "date", withTimezone: true }).default(sql`now()`).notNull(),
 	basePrice: doublePrecision("base_price"),
 	workingPrice: doublePrecision("working_price"),
 	tariff: text("tariff", { enum: Object.values(TariffType) as [TariffTypeValue] }).default(TariffType.Basic),

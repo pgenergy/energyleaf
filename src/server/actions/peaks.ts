@@ -6,7 +6,7 @@ import { waitUntil } from "@vercel/functions";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { z } from "zod";
+import type { z } from "zod";
 import { db } from "../db";
 import { deviceTable, deviceToPeakTable } from "../db/tables/device";
 import { energyDataSequenceTable } from "../db/tables/sensor";
@@ -32,7 +32,7 @@ export async function updateDevicesToPeakAction(data: z.infer<typeof addDeviceTo
 						session: sid,
 						reason: ErrorTypes.NOT_LOGGED_IN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -53,7 +53,7 @@ export async function updateDevicesToPeakAction(data: z.infer<typeof addDeviceTo
 						reason: ErrorTypes.INVALID_INPUT,
 						data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -94,7 +94,7 @@ export async function updateDevicesToPeakAction(data: z.infer<typeof addDeviceTo
 						peakId,
 					},
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -110,7 +110,7 @@ export async function updateDevicesToPeakAction(data: z.infer<typeof addDeviceTo
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -136,7 +136,7 @@ export async function deletePeakAction(peakId: string) {
 						session: sid,
 						reason: ErrorTypes.NOT_LOGGED_IN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -184,7 +184,7 @@ export async function deletePeakAction(peakId: string) {
 						affectedDevices: devicesToRemove.map((d) => d.deviceId),
 					},
 				},
-			})
+			}),
 		);
 
 		return {
@@ -201,7 +201,7 @@ export async function deletePeakAction(peakId: string) {
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,

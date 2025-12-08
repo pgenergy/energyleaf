@@ -1,7 +1,7 @@
 import { genID } from "@/lib/utils";
 import { and, between, desc, eq, lte } from "drizzle-orm";
-import { DB, db } from "../db";
-import { EnergyData, EnergyDataSequence, energyDataSequenceTable } from "../db/tables/sensor";
+import { type DB, db } from "../db";
+import { type EnergyData, type EnergyDataSequence, energyDataSequenceTable } from "../db/tables/sensor";
 import { getEnergyForSensorInRange } from "../queries/energy";
 import { getWeeklyGroupedPeaks } from "../queries/peaks";
 
@@ -135,7 +135,7 @@ export function findPeaks(
 	thresholdValues: EnergyData[],
 	consideredValues: EnergyData[],
 	threshold = 5,
-	medianValue?: number
+	medianValue?: number,
 ) {
 	let median: number | undefined = medianValue;
 	if (!median) {
@@ -187,7 +187,7 @@ async function findAndMarkInPeriod(
 	end: Date,
 	type: "peak" | "anomaly",
 	threshold: number,
-	trx: DB
+	trx: DB,
 ) {
 	// we shift the start 24 hours back, so we have a bigger sample for the threshold
 	const sequenceStart = new Date(start);
@@ -217,15 +217,15 @@ async function findAndMarkInPeriod(
 		.where(
 			and(
 				eq(energyDataSequenceTable.sensorId, sensorId),
-				between(energyDataSequenceTable.start, sequenceStart, end)
-			)
+				between(energyDataSequenceTable.start, sequenceStart, end),
+			),
 		);
 
 	const peaksInDay = sequencesInConsideredPeriod
 		.map((d) => ({ start: d.start, end: d.end }))
 		.concat(sequencesBeforeConsideredPeriod);
 	const calcDataWithoutPeaks = calcData.filter(
-		(d) => !peaksInDay.some((peak) => d.timestamp >= peak.start && d.timestamp <= peak.end)
+		(d) => !peaksInDay.some((peak) => d.timestamp >= peak.start && d.timestamp <= peak.end),
 	);
 
 	const baseLoad = calculateAveragePower(calcDataWithoutPeaks);
@@ -267,7 +267,7 @@ async function saveSequences(
 	sensorId: string,
 	type: "peak" | "anomaly",
 	start: Date,
-	trx: DB
+	trx: DB,
 ) {
 	const firstSequenceMergeable = peaks[0].isAtStart;
 	if (firstSequenceMergeable) {
@@ -278,8 +278,8 @@ async function saveSequences(
 				and(
 					eq(energyDataSequenceTable.sensorId, sensorId),
 					lte(energyDataSequenceTable.end, start),
-					eq(energyDataSequenceTable.type, type)
-				)
+					eq(energyDataSequenceTable.type, type),
+				),
 			)
 			.orderBy(desc(energyDataSequenceTable.end))
 			.limit(1);

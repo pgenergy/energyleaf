@@ -35,14 +35,14 @@ export default async function EnergyPage(props: Props) {
 	if (searchParams.date) {
 		date = toZonedTime(
 			new Date(searchParams.date),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 	}
-	let compare: Date | undefined = undefined;
+	let compare: Date | undefined;
 	if (searchParams.compare) {
 		compare = toZonedTime(
 			new Date(searchParams.compare),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 	}
 	if (compare && isSameDay(date, compare)) {

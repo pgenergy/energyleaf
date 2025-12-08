@@ -8,7 +8,7 @@ import { waitUntil } from "@vercel/functions";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { z } from "zod";
+import type { z } from "zod";
 import { db } from "../db";
 import { sensorHistoryTable, sensorTable } from "../db/tables/sensor";
 import { userTable } from "../db/tables/user";
@@ -32,7 +32,7 @@ export async function deleteAccountAction(data: z.infer<typeof deleteAccountSche
 						user: null,
 						session: null,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -53,7 +53,7 @@ export async function deleteAccountAction(data: z.infer<typeof deleteAccountSche
 						session: sid,
 						data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -80,7 +80,7 @@ export async function deleteAccountAction(data: z.infer<typeof deleteAccountSche
 						user: user.id,
 						session: sid,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -100,7 +100,7 @@ export async function deleteAccountAction(data: z.infer<typeof deleteAccountSche
 						user: user.id,
 						session: sid,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -133,7 +133,7 @@ export async function deleteAccountAction(data: z.infer<typeof deleteAccountSche
 						clientId: sensor.clientId,
 						userId: user.id,
 						sensorType: sensor.sensorType,
-					}))
+					})),
 				);
 			}
 
@@ -157,7 +157,7 @@ export async function deleteAccountAction(data: z.infer<typeof deleteAccountSche
 					user: user.id,
 					session: sid,
 				},
-			})
+			}),
 		);
 		await invalidateSession(session.id);
 		await deleteSessionTokenCookie();
@@ -176,7 +176,7 @@ export async function deleteAccountAction(data: z.infer<typeof deleteAccountSche
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -201,7 +201,7 @@ export async function updateAccountNameAction(data: z.infer<typeof accountNameSc
 						session: sid,
 						reason: ErrorTypes.NOT_LOGGED_IN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -221,7 +221,7 @@ export async function updateAccountNameAction(data: z.infer<typeof accountNameSc
 						reason: ErrorTypes.INVALID_INPUT,
 						data: data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -272,7 +272,7 @@ export async function updateAccountNameAction(data: z.infer<typeof accountNameSc
 						},
 					},
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -288,7 +288,7 @@ export async function updateAccountNameAction(data: z.infer<typeof accountNameSc
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -314,7 +314,7 @@ export async function updateAccountInfoAction(data: z.infer<typeof accountInfoSc
 						user: null,
 						session: sid,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -334,7 +334,7 @@ export async function updateAccountInfoAction(data: z.infer<typeof accountInfoSc
 						reason: ErrorTypes.INVALID_INPUT,
 						data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -388,7 +388,7 @@ export async function updateAccountInfoAction(data: z.infer<typeof accountInfoSc
 						},
 					},
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -404,7 +404,7 @@ export async function updateAccountInfoAction(data: z.infer<typeof accountInfoSc
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,

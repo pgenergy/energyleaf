@@ -1,17 +1,17 @@
-import EnergyBarChart from "@/components/charts/energy/bar-chart";
-import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartConfig } from "@/components/ui/chart";
-import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
-import { EnergyData } from "@/server/db/tables/sensor";
-import { getCurrentSession } from "@/server/lib/auth";
-import { getEnergyForSensorInRange } from "@/server/queries/energy";
-import { getEnergySensorIdForUser } from "@/server/queries/sensor";
-import { getUserData } from "@/server/queries/user";
 import { endOfDay, getDaysInMonth, getWeeksInMonth } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 import { Settings2Icon } from "lucide-react";
 import Link from "next/link";
+import EnergyBarChart from "@/components/charts/energy/bar-chart";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ChartConfig } from "@/components/ui/chart";
+import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
+import type { EnergyData } from "@/server/db/tables/sensor";
+import { getCurrentSession } from "@/server/lib/auth";
+import { getEnergyForSensorInRange } from "@/server/queries/energy";
+import { getEnergySensorIdForUser } from "@/server/queries/sensor";
+import { getUserData } from "@/server/queries/user";
 
 interface Props {
 	start: Date;
@@ -101,7 +101,7 @@ export default async function CostBarCard(props: Props) {
 		agg = "week";
 	}
 	const data = await getEnergyForSensorInRange(start.toISOString(), end.toISOString(), energySensorId, agg, "sum");
-	let compareData: EnergyData[] | undefined = undefined;
+	let compareData: EnergyData[] | undefined;
 	if (props.compareStart) {
 		const compareStart = props.compareStart;
 		const compareEnd = endOfDay(props.compareEnd || compareStart);
@@ -110,7 +110,7 @@ export default async function CostBarCard(props: Props) {
 			compareEnd.toISOString(),
 			energySensorId,
 			agg,
-			"sum"
+			"sum",
 		);
 	}
 
@@ -145,7 +145,7 @@ export default async function CostBarCard(props: Props) {
 			cost: Number((workingCost + baseCost).toFixed(2)),
 		};
 	});
-	let preparedCompareData: (EnergyData & { cost: number })[] | undefined = undefined;
+	let preparedCompareData: (EnergyData & { cost: number })[] | undefined;
 	if (compareData) {
 		preparedCompareData = compareData.map((d) => {
 			const workingCost = d.consumption * workingPrice;

@@ -6,7 +6,7 @@ import { waitUntil } from "@vercel/functions";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { z } from "zod";
+import type { z } from "zod";
 import { db } from "../db";
 import { userDataTable } from "../db/tables/user";
 import { getCurrentSession } from "../lib/auth";
@@ -30,7 +30,7 @@ export async function updateHouseholdAction(data: z.infer<typeof householdSchema
 						user: null,
 						session: sid,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -51,7 +51,7 @@ export async function updateHouseholdAction(data: z.infer<typeof householdSchema
 						session: sid,
 						data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -112,7 +112,7 @@ export async function updateHouseholdAction(data: z.infer<typeof householdSchema
 						},
 					},
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -128,7 +128,7 @@ export async function updateHouseholdAction(data: z.infer<typeof householdSchema
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,
@@ -154,7 +154,7 @@ export async function updateEnergyTariffAction(data: z.infer<typeof energyTarfif
 						session: sid,
 						reason: ErrorTypes.NOT_LOGGED_IN,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -175,7 +175,7 @@ export async function updateEnergyTariffAction(data: z.infer<typeof energyTarfif
 						reason: ErrorTypes.INVALID_INPUT,
 						data,
 					},
-				})
+				}),
 			);
 			return {
 				success: false,
@@ -235,7 +235,7 @@ export async function updateEnergyTariffAction(data: z.infer<typeof energyTarfif
 						},
 					},
 				},
-			})
+			}),
 		);
 		return {
 			success: true,
@@ -251,7 +251,7 @@ export async function updateEnergyTariffAction(data: z.infer<typeof energyTarfif
 					user: null,
 					session: null,
 				},
-			})
+			}),
 		);
 		return {
 			success: false,

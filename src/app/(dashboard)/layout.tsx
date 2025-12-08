@@ -1,14 +1,7 @@
-import AppSidebar from "@/components/nav/app-sidebar";
-import NavButton from "@/components/nav/nav-button";
-import PageViewTracker from "@/components/tracking/page-view-tracker";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { env } from "@/env";
-import { genID } from "@/lib/utils";
-import { getCurrentSession } from "@/server/lib/auth";
 import {
 	BarChartIcon,
 	// ChartLineIcon,
-	// CpuIcon,
+	CpuIcon,
 	DollarSignIcon,
 	HomeIcon,
 	LampIcon,
@@ -19,6 +12,13 @@ import {
 } from "lucide-react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import AppSidebar from "@/components/nav/app-sidebar";
+import NavButton from "@/components/nav/nav-button";
+import PageViewTracker from "@/components/tracking/page-view-tracker";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { env } from "@/env";
+import { genID } from "@/lib/utils";
+import { getCurrentSession } from "@/server/lib/auth";
 
 interface Props {
 	children: React.ReactNode;
@@ -101,31 +101,15 @@ export default async function DashboardLayout(props: Props) {
 		},
 	];
 
-	// if (user.isAdmin) {
-	// 	navLinks.push(
-	// 		{
-	// 			slug: "users",
-	// 			title: "Nutzer",
-	// 			path: "/admin/users",
-	// 			icon: <Users2Icon />,
-	// 			admin: true,
-	// 		},
-	// 		{
-	// 			slug: "sensors",
-	// 			title: "Sensoren",
-	// 			path: "/admin/sensors",
-	// 			icon: <CpuIcon />,
-	// 			admin: true,
-	// 		},
-	// 		{
-	// 			slug: "analytics",
-	// 			title: "Analytics",
-	// 			path: "/admin/analytics",
-	// 			icon: <ChartLineIcon />,
-	// 			admin: true,
-	// 		}
-	// 	);
-	// }
+	if (user.isAdmin) {
+		navLinks.push({
+			slug: "sensors",
+			title: "Sensoren",
+			path: "/admin/sensors",
+			icon: <CpuIcon />,
+			admin: true,
+		});
+	}
 
 	return (
 		<SidebarProvider>

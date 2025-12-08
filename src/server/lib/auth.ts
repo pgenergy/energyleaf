@@ -1,12 +1,12 @@
-import { env } from "@/env";
-import { SESSION_COOKIE_NAME } from "@/lib/constants";
-import { db } from "@/server/db";
-import { Session, sessionTable, User, userTable } from "@/server/db/tables/user";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { cache } from "react";
+import { env } from "@/env";
+import { SESSION_COOKIE_NAME } from "@/lib/constants";
+import { db } from "@/server/db";
+import { type Session, sessionTable, type User, userTable } from "@/server/db/tables/user";
 import "server-only";
 import { getDemoUser } from "./demo";
 

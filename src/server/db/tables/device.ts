@@ -1,4 +1,4 @@
-import { DeviceCategory, DeviceCategoryValue } from "@/lib/enums";
+import { DeviceCategory, type DeviceCategoryValue } from "@/lib/enums";
 import { genID } from "@/lib/utils";
 import { sql } from "drizzle-orm";
 import { boolean, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
@@ -42,7 +42,7 @@ export const deviceToPeakTable = pgTable(
 				pk: primaryKey({ columns: [table.deviceId, table.energyDataSequenceId] }),
 			},
 		];
-	}
+	},
 );
 
 export type DeviceToPeak = typeof deviceToPeakTable.$inferSelect;

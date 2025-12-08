@@ -36,24 +36,24 @@ export default async function CostPage(props: Props) {
 	if (searchParams.start && searchParams.end) {
 		start = toZonedTime(
 			new Date(searchParams.start),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 		end = toZonedTime(
 			new Date(searchParams.end),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 	}
 
-	let compareStart: Date | undefined = undefined;
-	let compareEnd: Date | undefined = undefined;
+	let compareStart: Date | undefined;
+	let compareEnd: Date | undefined;
 	if (searchParams.compareStart && searchParams.compareEnd) {
 		compareStart = toZonedTime(
 			new Date(searchParams.compareStart),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 		compareEnd = toZonedTime(
 			new Date(searchParams.compareEnd),
-			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin]
+			TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin],
 		);
 	}
 	if (compareStart && isSameMonth(start, compareStart)) {

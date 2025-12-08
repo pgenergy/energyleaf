@@ -23,7 +23,7 @@ export const POST = async (req: NextRequest) => {
 				headers: {
 					"Content-Type": "application/x-protobuf",
 				},
-			}
+			},
 		);
 	}
 	try {
@@ -55,7 +55,7 @@ export const POST = async (req: NextRequest) => {
 						headers: {
 							"Content-Type": "application/x-protobuf",
 						},
-					}
+					},
 				);
 			}
 		}
@@ -65,14 +65,14 @@ export const POST = async (req: NextRequest) => {
 		if (data.value <= 0) {
 			return new NextResponse(
 				uint8ArrayToBuffer(
-					SensorDataResponse.toBinary({ status: 400, statusMessage: "Value is equal to or less than zero" })
+					SensorDataResponse.toBinary({ status: 400, statusMessage: "Value is equal to or less than zero" }),
 				),
 				{
 					status: 400,
 					headers: {
 						"Content-Type": "application/x-protobuf",
 					},
-				}
+				},
 			);
 		}
 
@@ -119,14 +119,14 @@ export const POST = async (req: NextRequest) => {
 				if ((e as unknown as Error).message === "value/too-high") {
 					return new NextResponse(
 						uint8ArrayToBuffer(
-							SensorDataResponse.toBinary({ statusMessage: "Value too high", status: 400 })
+							SensorDataResponse.toBinary({ statusMessage: "Value too high", status: 400 }),
 						),
 						{
 							status: 400,
 							headers: {
 								"Content-Type": "application/x-protobuf",
 							},
-						}
+						},
 					);
 				}
 			}
@@ -147,7 +147,7 @@ export const POST = async (req: NextRequest) => {
 						headers: {
 							"Content-Type": "application/x-protobuf",
 						},
-					}
+					},
 				);
 			}
 
@@ -159,7 +159,7 @@ export const POST = async (req: NextRequest) => {
 						headers: {
 							"Content-Type": "application/x-protobuf",
 						},
-					}
+					},
 				);
 			}
 
@@ -171,7 +171,7 @@ export const POST = async (req: NextRequest) => {
 						headers: {
 							"Content-Type": "application/x-protobuf",
 						},
-					}
+					},
 				);
 			}
 
@@ -186,7 +186,7 @@ export const POST = async (req: NextRequest) => {
 						headers: {
 							"Content-Type": "application/x-protobuf",
 						},
-					}
+					},
 				);
 			}
 
@@ -198,7 +198,7 @@ export const POST = async (req: NextRequest) => {
 						session: null,
 						user: null,
 					},
-				})
+				}),
 			);
 			return new NextResponse(
 				uint8ArrayToBuffer(SensorDataResponse.toBinary({ statusMessage: "Database error", status: 500 })),
@@ -207,7 +207,7 @@ export const POST = async (req: NextRequest) => {
 					headers: {
 						"Content-Type": "application/x-protobuf",
 					},
-				}
+				},
 			);
 		}
 	} catch (err) {
@@ -220,7 +220,7 @@ export const POST = async (req: NextRequest) => {
 					session: null,
 					user: null,
 				},
-			})
+			}),
 		);
 		return new NextResponse(
 			uint8ArrayToBuffer(SensorDataResponse.toBinary({ status: 400, statusMessage: "Invalid data" })),
@@ -229,7 +229,7 @@ export const POST = async (req: NextRequest) => {
 				headers: {
 					"Content-Type": "application/x-protobuf",
 				},
-			}
+			},
 		);
 	}
 };

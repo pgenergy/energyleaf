@@ -1,18 +1,18 @@
 "use client";
 
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
+import { useMemo } from "react";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import {
-	ChartConfig,
+	type ChartConfig,
 	ChartContainer,
 	ChartLegend,
 	ChartLegendContent,
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-import { EnergyDataWithCost } from "@/server/lib/cost";
-import { format } from "date-fns";
-import { de } from "date-fns/locale";
-import { useMemo } from "react";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import type { EnergyDataWithCost } from "@/server/lib/cost";
 
 interface Props {
 	data: EnergyDataWithCost[];

@@ -34,7 +34,7 @@ export function MultiSelect<T extends Option>({
 			setSelected((prev) => prev.filter((s) => s.value !== option.value));
 			onSelectedChange(newSelected);
 		},
-		[selected, onSelectedChange]
+		[selected, onSelectedChange],
 	);
 
 	const handleSelect = React.useCallback(
@@ -44,7 +44,7 @@ export function MultiSelect<T extends Option>({
 			setSelected((prev) => [...prev, option]);
 			onSelectedChange(newSelected);
 		},
-		[selected, onSelectedChange]
+		[selected, onSelectedChange],
 	);
 
 	const handleKeyDown = React.useCallback(
@@ -69,7 +69,7 @@ export function MultiSelect<T extends Option>({
 				}
 			}
 		},
-		[onSelectedChange, selected]
+		[onSelectedChange, selected],
 	);
 
 	const selectables = options?.filter((option) => !selected.some((d) => d.value === option.value));

@@ -66,7 +66,7 @@ export default async function LeastEnergyConsumptionCard(props: Props) {
 		end.toISOString(),
 		energySensorId,
 		props.agg,
-		"sum"
+		"sum",
 	);
 	if (!data || data.length === 0) {
 		return (

@@ -1,7 +1,11 @@
 import { GoalIcon, LockKeyholeIcon, MailboxIcon, User2Icon, WrenchIcon } from "lucide-react";
 import SettingsLink from "../links/settings-link";
 
-export default function SettingsNav() {
+interface Props {
+	showSimulation: boolean;
+}
+
+export default function SettingsNav(props: Props) {
 	return (
 		<div className="flex flex-row flex-wrap items-center justify-center gap-4 md:justify-start">
 			<SettingsLink href="/settings">
@@ -16,6 +20,12 @@ export default function SettingsNav() {
 				<MailboxIcon className="size-4" />
 				Berichte
 			</SettingsLink>
+			{props.showSimulation ? (
+				<SettingsLink href="/settings/simulation">
+					<WrenchIcon className="size-4" />
+					Simulation
+				</SettingsLink>
+			) : null}
 			<SettingsLink href="/settings/security">
 				<LockKeyholeIcon className="size-4" />
 				Passwort

@@ -14,9 +14,9 @@ async function getRawEnergyForSensorInRange(start: Date, end: Date, sensorId: st
 				or(
 					between(energyDataTable.timestamp, start, end),
 					eq(energyDataTable.timestamp, start),
-					eq(energyDataTable.timestamp, end)
-				)
-			)
+					eq(energyDataTable.timestamp, end),
+				),
+			),
 		)
 		.orderBy(energyDataTable.timestamp);
 }
@@ -37,7 +37,7 @@ async function getHourEnergyForSensorInRange(start: Date, end: Date, sensorId: s
 					? sql`AVG(${energyDataTable.inserted})`.mapWith((value) => Number(value))
 					: sql`SUM(${energyDataTable.inserted})`.mapWith((value) => Number(value)),
 			timestamp: sql`MIN(date_trunc('hour', ${energyDataTable.timestamp}))`.mapWith(
-				(value) => new Date(`${value}+0000`)
+				(value) => new Date(`${value}+0000`),
 			),
 			grouper: sql`EXTRACT(HOUR FROM date_trunc('hour', ${energyDataTable.timestamp}))`.as("grouper"),
 		})
@@ -68,7 +68,7 @@ async function getWeekdayEnergyForSensorInRange(start: Date, end: Date, sensorId
 					? sql`AVG(${energyDataTable.inserted})`.mapWith((value) => Number(value))
 					: sql`SUM(${energyDataTable.inserted})`.mapWith((value) => Number(value)),
 			timestamp: sql`MIN(date_trunc('day', ${energyDataTable.timestamp}))`.mapWith(
-				(value) => new Date(`${value}+0000`)
+				(value) => new Date(`${value}+0000`),
 			),
 			grouper: sql`EXTRACT(ISODOW FROM date_trunc('day', ${energyDataTable.timestamp}))`.as("grouper"),
 		})
@@ -99,7 +99,7 @@ async function getDayEnergyForSensorInRange(start: Date, end: Date, sensorId: st
 					? sql`AVG(${energyDataTable.inserted})`.mapWith((value) => Number(value))
 					: sql`SUM(${energyDataTable.inserted})`.mapWith((value) => Number(value)),
 			timestamp: sql`MIN(date_trunc('day', ${energyDataTable.timestamp}))`.mapWith(
-				(value) => new Date(`${value}+0000`)
+				(value) => new Date(`${value}+0000`),
 			),
 			grouper: sql`EXTRACT(DAY FROM date_trunc('day', ${energyDataTable.timestamp}))`.as("grouper"),
 		})
@@ -130,7 +130,7 @@ async function getWeekEnergyForSensorInRange(start: Date, end: Date, sensorId: s
 					? sql`AVG(${energyDataTable.inserted})`.mapWith((value) => Number(value))
 					: sql`SUM(${energyDataTable.inserted})`.mapWith((value) => Number(value)),
 			timestamp: sql`MIN(date_trunc('week', ${energyDataTable.timestamp}))`.mapWith(
-				(value) => new Date(`${value}+0000`)
+				(value) => new Date(`${value}+0000`),
 			),
 			grouper: sql`EXTRACT(WEEK FROM date_trunc('week', ${energyDataTable.timestamp}))`.as("grouper"),
 		})
@@ -161,7 +161,7 @@ async function getWeekOfMonthEnergyForSensorInRange(start: Date, end: Date, sens
 					? sql`AVG(${energyDataTable.inserted})`.mapWith((value) => Number(value))
 					: sql`SUM(${energyDataTable.inserted})`.mapWith((value) => Number(value)),
 			timestamp: sql`MIN(date_trunc('week', ${energyDataTable.timestamp}))`.mapWith(
-				(value) => new Date(`${value}+0000`)
+				(value) => new Date(`${value}+0000`),
 			),
 			grouper: sql`
                     CEILING((
@@ -196,7 +196,7 @@ async function getMonthEnergyForSensorInRange(start: Date, end: Date, sensorId: 
 					? sql`AVG(${energyDataTable.inserted})`.mapWith((value) => Number(value))
 					: sql`SUM(${energyDataTable.inserted})`.mapWith((value) => Number(value)),
 			timestamp: sql`MIN(date_trunc('month', ${energyDataTable.timestamp}))`.mapWith(
-				(value) => new Date(`${value}+0000`)
+				(value) => new Date(`${value}+0000`),
 			),
 			grouper: sql`EXTRACT(MONTH FROM date_trunc('month', ${energyDataTable.timestamp}))`.as("grouper"),
 		})
@@ -227,7 +227,7 @@ async function getYearEnergyForSensorInRange(start: Date, end: Date, sensorId: s
 					? sql`AVG(${energyDataTable.inserted})`.mapWith((value) => Number(value))
 					: sql`SUM(${energyDataTable.inserted})`.mapWith((value) => Number(value)),
 			timestamp: sql`MIN(date_trunc('month', ${energyDataTable.timestamp}))`.mapWith(
-				(value) => new Date(`${value}+0000`)
+				(value) => new Date(`${value}+0000`),
 			),
 			grouper: sql`EXTRACT(YEAR FROM date_trunc('month', ${energyDataTable.timestamp}))`.as("grouper"),
 		})
@@ -248,7 +248,7 @@ export const getEnergyForSensorInRange = cache(
 		endDate: string,
 		sensorId: string,
 		aggregation: "raw" | "hour" | "weekday" | "day" | "week" | "calendar-week" | "month" | "year" = "raw",
-		type: "sum" | "average" = "average"
+		type: "sum" | "average" = "average",
 	) => {
 		const start = new Date(startDate);
 		const end = new Date(endDate);
@@ -273,7 +273,7 @@ export const getEnergyForSensorInRange = cache(
 			default:
 				throw new Error(`Unsupported aggregation type: ${aggregation}`);
 		}
-	}
+	},
 );
 
 export const getEnergySumForSensorInRange = cache(async (start: Date, end: Date, sensorId: string) => {

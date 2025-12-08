@@ -1,8 +1,8 @@
 "use client";
 
-import { ChartConfig, ChartContainer } from "@/components/ui/chart";
-import { EnergyData } from "@/server/db/tables/sensor";
 import { Area, AreaChart, XAxis, YAxis } from "recharts";
+import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
+import type { EnergyData } from "@/server/db/tables/sensor";
 
 interface Props {
 	data: EnergyData[];

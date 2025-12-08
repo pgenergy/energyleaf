@@ -11,9 +11,9 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DeviceCategory } from "@/lib/enums";
+import type { DeviceCategory } from "@/lib/enums";
 import { deletePeakAction } from "@/server/actions/peaks";
-import { EnergyData, EnergyDataSequence } from "@/server/db/tables/sensor";
+import type { EnergyData, EnergyDataSequence } from "@/server/db/tables/sensor";
 import { format, isSameDay } from "date-fns";
 import { de } from "date-fns/locale";
 import { MoreVerticalIcon, PlusIcon, Trash2Icon, ZapIcon } from "lucide-react";

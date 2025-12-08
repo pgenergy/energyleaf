@@ -1,21 +1,22 @@
 "use client";
 
+import { format, getWeekOfMonth } from "date-fns";
+import { de } from "date-fns/locale";
+import { useMemo } from "react";
+import { Area, AreaChart, XAxis, YAxis } from "recharts";
 import {
-	ChartConfig,
+	type ChartConfig,
 	ChartContainer,
 	ChartLegend,
 	ChartLegendContent,
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-import { EnergyData } from "@/server/db/tables/sensor";
-import { format, getWeekOfMonth } from "date-fns";
-import { de } from "date-fns/locale";
-import { useMemo } from "react";
-import { Area, AreaChart, XAxis, YAxis } from "recharts";
+import type { EnergyData } from "@/server/db/tables/sensor";
 
 interface Props<T extends ChartConfig> {
 	data: EnergyData[];
+	simData?: EnergyData[];
 	dateFormat: "hour" | "day" | "weekday" | "calender-week" | "week";
 	config: T;
 	display: Extract<keyof T, string>[];
@@ -58,15 +59,45 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 			return timestamp;
 		}
 
-		return props.data.map((d) => ({
-			...d,
-			total: d.valueCurrent ? d.valueCurrent / 1000 : d.value,
-			timestamp: formatTimestamp(d.timestamp),
-		}));
-	}, [props.data, props.dateFormat]);
+		const simDataMap = new Map<string, EnergyData>();
+		if (props.simData) {
+			for (const d of props.simData) {
+				simDataMap.set(d.timestamp.toISOString(), d);
+			}
+		}
+
+		return props.data.map((d) => {
+			const simPoint = simDataMap.get(d.timestamp.toISOString());
+			return {
+				...d,
+				total: d.valueCurrent ? d.valueCurrent / 1000 : d.value,
+				simTotal: simPoint
+					? simPoint.valueCurrent
+						? simPoint.valueCurrent / 1000
+						: simPoint.value
+					: undefined,
+				timestamp: formatTimestamp(d.timestamp),
+			};
+		});
+	}, [props.data, props.simData, props.dateFormat]);
+
+	const effectiveConfig = useMemo(() => {
+		if (!props.simData || props.simData.length === 0) {
+			return props.config;
+		}
+		return {
+			...props.config,
+			simTotal: {
+				label: "Mit Simulation (kWh)",
+				color: "var(--chart-2)",
+			},
+		} as T;
+	}, [props.config, props.simData]);
+
+	const hasSimData = props.simData && props.simData.length > 0;
 
 	return (
-		<ChartContainer className="min-h-56 w-full" config={props.config}>
+		<ChartContainer className="min-h-56 w-full" config={effectiveConfig}>
 			<AreaChart
 				accessibilityLayer
 				className="select-none"
@@ -98,6 +129,17 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 						stroke={`var(--color-${d})`}
 					/>
 				))}
+				{hasSimData && (
+					<Area
+						key="simTotal"
+						dataKey="simTotal"
+						type="step"
+						fill="var(--color-simTotal)"
+						fillOpacity={0.3}
+						stroke="var(--color-simTotal)"
+						strokeDasharray="4 4"
+					/>
+				)}
 			</AreaChart>
 		</ChartContainer>
 	);

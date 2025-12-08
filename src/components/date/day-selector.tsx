@@ -1,6 +1,6 @@
 "use client";
 
-import { TimeZoneType } from "@/lib/enums";
+import type { TimeZoneType } from "@/lib/enums";
 import { endOfMonth, endOfWeek, isSameDay, startOfDay, startOfMonth, startOfWeek } from "date-fns";
 import { de } from "date-fns/locale";
 import { XIcon } from "lucide-react";

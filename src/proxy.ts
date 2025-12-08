@@ -1,10 +1,10 @@
-import { genID } from "@/lib/utils";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { genID } from "@/lib/utils";
 import { env } from "./env";
 import { SESSION_COOKIE_NAME } from "./lib/constants";
 
-export async function middleware(req: NextRequest): Promise<NextResponse> {
+export async function proxy(req: NextRequest): Promise<NextResponse> {
 	if (req.method === "GET") {
 		const response = NextResponse.next();
 

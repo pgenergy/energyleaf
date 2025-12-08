@@ -1,20 +1,20 @@
 "use client";
 
-import { DeviceCategoryToIcon } from "@/components/icons/device-icon";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { MultiSelect } from "@/components/ui/multi-select";
-import { DeviceCategory } from "@/lib/enums";
-import { addDeviceToPeakSchema } from "@/lib/schemas/peak-schema";
-import { updateDevicesToPeakAction } from "@/server/actions/peaks";
-import { Device } from "@/server/db/tables/device";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import type { z } from "zod";
+import { DeviceCategoryToIcon } from "@/components/icons/device-icon";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { MultiSelect } from "@/components/ui/multi-select";
+import type { DeviceCategory } from "@/lib/enums";
+import { addDeviceToPeakSchema } from "@/lib/schemas/peak-schema";
+import { updateDevicesToPeakAction } from "@/server/actions/peaks";
+import type { Device } from "@/server/db/tables/device";
 
 interface Props {
 	devices: Device[];

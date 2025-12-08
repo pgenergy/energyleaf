@@ -1,11 +1,12 @@
+import type { Metadata } from "next";
+import { Suspense } from "react";
 import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
 import DetailEnergyChartCard from "@/components/cards/energy/detail-energy-chart-card";
 import EnergyGoalsCard from "@/components/cards/energy/energy-goals-card";
 import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumption-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Suspense } from "react";
 
-export const metadata = {
+export const metadata: Metadata = {
 	title: "Übersicht - Energyleaf",
 };
 

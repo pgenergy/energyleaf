@@ -1,12 +1,12 @@
+import { waitUntil } from "@vercel/functions";
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
 import { ErrorTypes, LogSystemTypes } from "@/lib/log-types";
 import { db } from "@/server/db";
 import { userTable } from "@/server/db/tables/user";
 import { getEnergyLastEntry } from "@/server/queries/energy";
 import { logError, logSystem } from "@/server/queries/logs";
 import { getSensorIdFromSensorToken } from "@/server/queries/sensor";
-import { waitUntil } from "@vercel/functions";
-import { eq } from "drizzle-orm";
-import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
 	if (!req.headers.has("authorization") || req.headers.get("authorization")?.startsWith("Bearer ")) {
@@ -18,11 +18,11 @@ export async function GET(req: NextRequest) {
 					user: null,
 					reason: ErrorTypes.INVALID_TOKEN,
 				},
-			})
+			}),
 		);
 		return NextResponse.json({ success: false, statusMessage: "Unauthorized" }, { status: 401 });
 	}
-	const accessToken = req.headers.get("authorization")!.split(" ")[1];
+	const accessToken = req.headers.get("authorization")?.split(" ")[1] || "";
 	try {
 		const sensor = await getSensorIdFromSensorToken(accessToken, true);
 		if (!sensor.userId) {
@@ -34,11 +34,11 @@ export async function GET(req: NextRequest) {
 						user: null,
 						reason: ErrorTypes.USER_NOT_FOUND,
 					},
-				})
+				}),
 			);
 			return NextResponse.json(
 				{ statusMessage: "No user assigned", status: 404, success: false },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 		const users = await db
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 						user: null,
 						reason: ErrorTypes.USER_NOT_FOUND,
 					},
-				})
+				}),
 			);
 			return NextResponse.json({ statusMessage: "No user", status: 404, success: false }, { status: 404 });
 		}
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
 			return NextResponse.json({ statusMessage: "No data found", status: 404, success: false }, { status: 404 });
 		}
 
-		if (sensor.script && sensor.script != "" && !Number.isNaN(sensor.script)) {
+		if (sensor.script && sensor.script !== "" && !Number.isNaN(sensor.script)) {
 			return NextResponse.json({ value: lastEntry.value, rotation: Number(sensor.script) }, { status: 200 });
 		} else {
 			return NextResponse.json({ value: lastEntry.value }, { status: 200 });
@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
 		if ((err as unknown as Error).message === "token/not-found") {
 			return NextResponse.json(
 				{ statusMessage: "Token not found", status: 401, success: false },
-				{ status: 401 }
+				{ status: 401 },
 			);
 		}
 
@@ -94,7 +94,7 @@ export async function GET(req: NextRequest) {
 		) {
 			return NextResponse.json(
 				{ statusMessage: "Sensor not found", status: 404, success: false },
-				{ status: 404 }
+				{ status: 404 },
 			);
 		}
 
@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
 					session: null,
 					user: null,
 				},
-			})
+			}),
 		);
 		return NextResponse.json({ statusMessage: "Database error", status: 500, success: false }, { status: 500 });
 	}
