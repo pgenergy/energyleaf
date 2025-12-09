@@ -9,7 +9,7 @@ import { logError, logSystem } from "@/server/queries/logs";
 import { getSensorIdFromSensorToken } from "@/server/queries/sensor";
 
 export async function GET(req: NextRequest) {
-	if (!req.headers.has("authorization") || req.headers.get("authorization")?.startsWith("Bearer ")) {
+	if (!req.headers.has("Authorization") || req.headers.get("Authorization")?.startsWith("Bearer ")) {
 		waitUntil(
 			logSystem({
 				fn: LogSystemTypes.DATA_GET_V2,
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 		);
 		return NextResponse.json({ success: false, statusMessage: "Unauthorized" }, { status: 401 });
 	}
-	const accessToken = req.headers.get("authorization")?.split(" ")[1] || "";
+	const accessToken = req.headers.get("Authorization")?.split(" ")[1] || "";
 	try {
 		const sensor = await getSensorIdFromSensorToken(accessToken, true);
 		if (!sensor.userId) {
