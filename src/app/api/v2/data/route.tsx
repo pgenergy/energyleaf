@@ -1,9 +1,6 @@
 import { waitUntil } from "@vercel/functions";
-import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { ErrorTypes, LogSystemTypes } from "@/lib/log-types";
-import { db } from "@/server/db";
-import { userTable } from "@/server/db/tables/user";
 import { getEnergyLastEntry } from "@/server/queries/energy";
 import { logError, logSystem } from "@/server/queries/logs";
 import { getSensorIdFromSensorToken } from "@/server/queries/sensor";
@@ -22,48 +19,22 @@ export async function GET(req: NextRequest) {
 		);
 		return NextResponse.json({ success: false, statusMessage: "Unauthorized" }, { status: 401 });
 	}
-	const accessToken = req.headers.get("Authorization")?.split(" ")[1] || "";
+	const accessToken = req.headers.get("authorization")?.split(" ")[1] || "";
 	try {
 		const sensor = await getSensorIdFromSensorToken(accessToken, true);
-		if (!sensor.userId) {
-			waitUntil(
-				logSystem({
-					fn: LogSystemTypes.DATA_GET_V2,
-					details: {
-						sensor: sensor.id,
-						user: null,
-						reason: ErrorTypes.USER_NOT_FOUND,
-					},
-				}),
-			);
-			return NextResponse.json(
-				{ statusMessage: "No user assigned", status: 404, success: false },
-				{ status: 404 },
-			);
-		}
-		const users = await db
-			.select({
-				tz: userTable.timezone,
-			})
-			.from(userTable)
-			.where(eq(userTable.id, sensor.userId));
-		if (users.length === 0) {
-			waitUntil(
-				logSystem({
-					fn: LogSystemTypes.DATA_GET_V2,
-					details: {
-						sensor: sensor.id,
-						user: null,
-						reason: ErrorTypes.USER_NOT_FOUND,
-					},
-				}),
-			);
-			return NextResponse.json({ statusMessage: "No user", status: 404, success: false }, { status: 404 });
-		}
 
-		const lastEntry = await getEnergyLastEntry(sensor.id);
+		let lastEntry = await getEnergyLastEntry(sensor.id);
 		if (!lastEntry) {
-			return NextResponse.json({ statusMessage: "No data found", status: 404, success: false }, { status: 404 });
+            lastEntry = {
+                id: "",
+                sensorId: sensor.id,
+                value: 0,
+                consumption: 0,
+                inserted: 0,
+                valueCurrent: 0,
+                valueOut: 0,
+                timestamp: new Date(),
+            };
 		}
 
 		if (sensor.script && sensor.script !== "" && !Number.isNaN(sensor.script)) {
