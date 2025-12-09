@@ -9,7 +9,7 @@ import { logError, logSystem } from "@/server/queries/logs";
 import { getSensorIdFromSensorToken } from "@/server/queries/sensor";
 
 export async function GET(req: NextRequest) {
-	if (!req.headers.has("Authorization") || req.headers.get("Authorization")?.startsWith("Bearer ")) {
+	if (!req.headers.has("authorization") || !req.headers.get("authorization")?.startsWith("Bearer ")) {
 		waitUntil(
 			logSystem({
 				fn: LogSystemTypes.DATA_GET_V2,
