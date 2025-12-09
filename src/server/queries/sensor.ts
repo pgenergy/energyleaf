@@ -104,13 +104,11 @@ export async function getSensorIdFromSensorToken(code: string, isApiKey: boolean
 			};
 		}
 
-        if (!isApiKey) {
-            if (!sensorData[0].userId) {
-                return {
-                    error: "sensor/no-user",
-                    sensorId: null,
-                };
-            }
+        if (!sensorData[0].userId) {
+            return {
+                error: "sensor/no-user",
+                sensorId: null,
+            };
         }
 
 		return {
