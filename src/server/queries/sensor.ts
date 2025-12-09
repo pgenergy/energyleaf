@@ -1,6 +1,6 @@
 // import "server-only";
 
-import { and, desc, eq, lt } from "drizzle-orm";
+import { and, count, desc, eq, like, lt, or } from "drizzle-orm";
 import { cache } from "react";
 import { SensorType } from "@/lib/enums";
 import { genID } from "@/lib/utils";
@@ -271,6 +271,66 @@ export async function getAllSensors() {
 }
 
 export type SensorWithUser = Awaited<ReturnType<typeof getAllSensors>>[number];
+
+interface GetSensorsPageParams {
+	page?: number;
+	pageSize?: number;
+	query?: string;
+}
+
+export async function getSensorsPage({ page = 1, pageSize = 20, query }: GetSensorsPageParams = {}) {
+	const safePage = page > 0 ? page : 1;
+	const limit = pageSize > 0 ? pageSize : 20;
+	const offset = (safePage - 1) * limit;
+
+	const q = query?.trim().toLowerCase();
+	const pattern = q ? `%${q}%` : null;
+
+	const whereClause = pattern
+		? or(
+				like(lower(sensorTable.clientId), pattern),
+				like(lower(userTable.username), pattern),
+				like(lower(userTable.email), pattern),
+			)
+		: undefined;
+
+	const sensors = await db
+		.select({
+			id: sensorTable.id,
+			clientId: sensorTable.clientId,
+			version: sensorTable.version,
+			sensorType: sensorTable.sensorType,
+			userId: sensorTable.userId,
+			needsScript: sensorTable.needsScript,
+			script: sensorTable.script,
+			user: {
+				id: userTable.id,
+				username: userTable.username,
+				email: userTable.email,
+			},
+		})
+		.from(sensorTable)
+		.leftJoin(userTable, eq(sensorTable.userId, userTable.id))
+		.where(whereClause)
+		.orderBy(sensorTable.clientId)
+		.limit(limit)
+		.offset(offset);
+
+	const [{ total }] = await db
+		.select({ total: count() })
+		.from(sensorTable)
+		.leftJoin(userTable, eq(sensorTable.userId, userTable.id))
+		.where(whereClause);
+
+	return {
+		sensors,
+		total,
+		page: safePage,
+		pageSize: limit,
+	};
+}
+
+export type SensorsPageResult = Awaited<ReturnType<typeof getSensorsPage>>;
 
 export async function getSensorByClientId(clientId: string) {
 	const sensors = await db
