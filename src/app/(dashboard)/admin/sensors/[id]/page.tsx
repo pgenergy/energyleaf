@@ -1,7 +1,13 @@
+import { PencilIcon } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import SensorOverviewCard from "@/components/cards/sensor/sensor-overview-card";
+import SensorAdditionalUsersCard from "@/components/cards/sensor/sensor-additional-users-card";
+import SensorInfoCard from "@/components/cards/sensor/sensor-info-card";
+import SensorPrimaryUserCard from "@/components/cards/sensor/sensor-primary-user-card";
+import SensorScriptCard from "@/components/cards/sensor/sensor-script-card";
+import SensorTokenCard from "@/components/cards/sensor/sensor-token-card";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -10,10 +16,11 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentSession } from "@/server/lib/auth";
-import { getSensorByClientId, getSensorToken } from "@/server/queries/sensor";
-import { getUserById } from "@/server/queries/user";
+import { getAdditionalUsersForSensor, getSensorByClientId, getSensorToken } from "@/server/queries/sensor";
+import { getAllUsers, getUserById } from "@/server/queries/user";
 
 type Params = Promise<{ id: string }>;
 
@@ -31,12 +38,37 @@ async function SensorOverviewContent({ clientId }: { clientId: string }) {
 		redirect("/admin/sensors");
 	}
 
-	const [user, token] = await Promise.all([
+	const [user, token, additionalUsers, allUsers] = await Promise.all([
 		sensor.userId ? getUserById(sensor.userId) : null,
 		sensor.version === 2 ? getSensorToken(sensor.id) : null,
+		getAdditionalUsersForSensor(sensor.id),
+		getAllUsers(),
 	]);
 
-	return <SensorOverviewCard sensor={sensor} user={user} token={token} />;
+	return (
+		<div className="flex flex-col gap-6">
+			{/* Header with Edit Button */}
+			<div className="flex flex-row items-center justify-between">
+				<h1 className="truncate font-mono text-xl font-semibold">{sensor.clientId}</h1>
+				<Button asChild variant="outline" size="icon" className="cursor-pointer">
+					<Link href={`/admin/sensors/${encodeURIComponent(sensor.clientId)}/edit`}>
+						<PencilIcon className="size-4" />
+					</Link>
+				</Button>
+			</div>
+
+			{/* Grid Layout */}
+			<div className="grid gap-4 md:grid-cols-2">
+				<SensorInfoCard sensor={sensor} />
+				<SensorTokenCard sensor={sensor} token={token} />
+				<SensorPrimaryUserCard sensor={sensor} user={user} />
+				<SensorAdditionalUsersCard sensor={sensor} additionalUsers={additionalUsers} allUsers={allUsers} />
+			</div>
+
+			{/* Script Card (full width) */}
+			<SensorScriptCard sensor={sensor} />
+		</div>
+	);
 }
 
 export default async function SensorOverviewPage(props: Props) {

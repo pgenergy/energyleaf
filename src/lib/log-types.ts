@@ -21,6 +21,8 @@ export enum ErrorTypes {
 	NOT_FOUND = "not_found",
 	SENSOR_ALREADY_ASSIGNED = "sensor_already_assigned",
 	USER_ALREADY_HAS_SENSOR_TYPE = "user_already_has_sensor_type",
+	USER_ALREADY_ADDITIONAL = "user_already_additional",
+	USER_NOT_ADDITIONAL = "user_not_additional",
 	UNKNOWN = "unknown",
 }
 
@@ -70,6 +72,8 @@ export enum LogActionTypes {
 	UPDATE_SENSOR_ACTION = "update_sensor_action",
 	ASSIGN_SENSOR_ACTION = "assign_sensor_action",
 	REGENERATE_SENSOR_TOKEN_ACTION = "regenerate_sensor_token_action",
+	ADD_ADDITIONAL_SENSOR_USER_ACTION = "add_additional_sensor_user_action",
+	REMOVE_ADDITIONAL_SENSOR_USER_ACTION = "remove_additional_sensor_user_action",
 }
 
 export enum LogSystemTypes {

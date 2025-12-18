@@ -127,6 +127,13 @@
       "when": 1764850947952,
       "tag": "0017_add-simulation-enabled",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1766055648220,
+      "tag": "0018_additional_users_for_sensor",
+      "breakpoints": true
     }
   ]
 }

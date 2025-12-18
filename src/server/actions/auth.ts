@@ -27,6 +27,7 @@ import {
 import { putS3 } from "@/server/lib/storage";
 import { EMailEnabled } from "../lib/check";
 import { getDemoUserData } from "../lib/demo";
+import { sendPasswordChangedMail, sendPasswordResetMail } from "../lib/mail";
 import { logAction, logError } from "../queries/logs";
 
 export async function demoLoginAction() {
@@ -702,7 +703,11 @@ export async function forgotPasswordAction(mail: string) {
 			return;
 		}
 
-		const users = await db.select({ id: userTable.id }).from(userTable).where(eq(userTable.email, mail)).limit(1);
+		const users = await db
+			.select({ id: userTable.id, username: userTable.username, email: userTable.email })
+			.from(userTable)
+			.where(eq(userTable.email, mail))
+			.limit(1);
 		if (users.length !== 1) {
 			waitUntil(
 				logAction({
@@ -727,7 +732,13 @@ export async function forgotPasswordAction(mail: string) {
 			type: "password_reset",
 		});
 
-		// SEND RESET MAIL
+		waitUntil(
+			sendPasswordResetMail({
+				email: user.email,
+				name: user.username,
+				resetToken: token,
+			}),
+		);
 		waitUntil(
 			logAction({
 				fn: LogActionTypes.FORGOT_PASSWORD_ACTION,
@@ -835,6 +846,12 @@ export async function resetPasswordAction(newPassword: string, token: string) {
 
 			await trx.delete(tokenTable).where(eq(tokenTable.token, token));
 		});
+		waitUntil(
+			sendPasswordChangedMail({
+				email: user.email,
+				name: user.username,
+			}),
+		);
 		waitUntil(
 			logAction({
 				fn: LogActionTypes.RESET_PASSWORD_ACTION,
@@ -980,6 +997,12 @@ export async function changePasswordAction(data: z.infer<typeof passwordChangeSc
 			.where(eq(userTable.id, user.id));
 
 		revalidatePath("/settings/security");
+		waitUntil(
+			sendPasswordChangedMail({
+				email: userData[0].email,
+				name: userData[0].username,
+			}),
+		);
 		waitUntil(
 			logAction({
 				fn: LogActionTypes.CHANGE_PASSWORD_ACTION,

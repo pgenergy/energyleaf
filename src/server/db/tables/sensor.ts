@@ -129,3 +129,24 @@ export const energyDataSequenceTable = pgTable(
 );
 
 export type EnergyDataSequence = typeof energyDataSequenceTable.$inferSelect;
+
+export const sensorAdditionalUserTable = pgTable(
+	"sensor_additional_user",
+	{
+		sensorId: text("sensor_id")
+			.notNull()
+			.references(() => sensorTable.id, { onDelete: "cascade" }),
+		userId: text("user_id")
+			.notNull()
+			.references(() => userTable.id, { onDelete: "cascade" }),
+	},
+	(table) => {
+		return [
+			{
+				pk: primaryKey({ columns: [table.sensorId, table.userId] }),
+			},
+		];
+	},
+);
+
+export type SensorAdditionalUser = typeof sensorAdditionalUserTable.$inferSelect;
