@@ -5,7 +5,7 @@ import { cache } from "react";
 import { SensorType } from "@/lib/enums";
 import { genID } from "@/lib/utils";
 import { db } from "@/server/db";
-import { energyDataTable, sensorTable, sensorTokenTable } from "../db/tables/sensor";
+import { energyDataTable, sensorAdditionalUserTable, sensorTable, sensorTokenTable } from "../db/tables/sensor";
 import { userTable } from "../db/tables/user";
 import { lower } from "../db/types";
 
@@ -145,7 +145,9 @@ export const getEnergySensorIdForUser = cache(async (userId: string) => {
 	if (userId === "demo") {
 		return "demo_sensor";
 	}
-	const sensors = await db
+
+	// Check primary ownership first
+	const primarySensor = await db
 		.select({
 			id: sensorTable.id,
 		})
@@ -153,11 +155,25 @@ export const getEnergySensorIdForUser = cache(async (userId: string) => {
 		.where(and(eq(sensorTable.userId, userId), eq(sensorTable.sensorType, SensorType.Electricity)))
 		.limit(1);
 
-	if (sensors.length === 0) {
-		return null;
+	if (primarySensor.length > 0) {
+		return primarySensor[0].id;
 	}
 
-	return sensors[0].id;
+	// Check additional user access
+	const additionalAccess = await db
+		.select({
+			id: sensorTable.id,
+		})
+		.from(sensorAdditionalUserTable)
+		.innerJoin(sensorTable, eq(sensorAdditionalUserTable.sensorId, sensorTable.id))
+		.where(and(eq(sensorAdditionalUserTable.userId, userId), eq(sensorTable.sensorType, SensorType.Electricity)))
+		.limit(1);
+
+	if (additionalAccess.length > 0) {
+		return additionalAccess[0].id;
+	}
+
+	return null;
 });
 
 export async function insertEnergyData(data: EnergyDataInput) {
@@ -370,3 +386,19 @@ export async function getSensorToken(sensorId: string) {
 
 	return tokens[0];
 }
+
+export async function getAdditionalUsersForSensor(sensorId: string) {
+	const additionalUsers = await db
+		.select({
+			id: userTable.id,
+			username: userTable.username,
+			email: userTable.email,
+		})
+		.from(sensorAdditionalUserTable)
+		.innerJoin(userTable, eq(sensorAdditionalUserTable.userId, userTable.id))
+		.where(eq(sensorAdditionalUserTable.sensorId, sensorId));
+
+	return additionalUsers;
+}
+
+export type AdditionalUserForSensor = Awaited<ReturnType<typeof getAdditionalUsersForSensor>>[number];

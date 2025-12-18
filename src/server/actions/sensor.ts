@@ -9,7 +9,7 @@ import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
 import { sensorAssignSchema, sensorSchema, sensorUpdateSchema } from "@/lib/schemas/sensor-schema";
 import { genID } from "@/lib/utils";
 import { db } from "../db";
-import { energyDataTable, sensorTable, sensorTokenTable } from "../db/tables/sensor";
+import { energyDataTable, sensorAdditionalUserTable, sensorTable, sensorTokenTable } from "../db/tables/sensor";
 import { getCurrentSession } from "../lib/auth";
 import { logAction, logError } from "../queries/logs";
 
@@ -646,6 +646,285 @@ export async function regenerateSensorTokenAction(clientId: string) {
 		waitUntil(
 			logError({
 				fn: LogActionTypes.REGENERATE_SENSOR_TOKEN_ACTION,
+				error: err as unknown as Error,
+				details: {
+					user: null,
+					session: null,
+				},
+			}),
+		);
+		return {
+			success: false,
+			message: "Es ist ein unerwarteter Fehler aufgetreten.",
+		};
+	}
+}
+
+export async function addAdditionalSensorUserAction(sensorId: string, userId: string) {
+	try {
+		const { user } = await getCurrentSession();
+		const cookieStore = await cookies();
+		const sid = cookieStore.get("sid")?.value;
+
+		if (!user) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADD_ADDITIONAL_SENSOR_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: null,
+						session: sid,
+						reason: ErrorTypes.NOT_LOGGED_IN,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Bitte melden Sie sich an.",
+			};
+		}
+
+		if (!user.isAdmin) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADD_ADDITIONAL_SENSOR_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: user.id,
+						session: sid,
+						reason: ErrorTypes.NOT_ADMIN,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sie haben keine Berechtigung für diese Aktion.",
+			};
+		}
+
+		// Check if sensor exists
+		const sensor = await db.select().from(sensorTable).where(eq(sensorTable.id, sensorId)).limit(1);
+		if (!sensor || sensor.length === 0) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADD_ADDITIONAL_SENSOR_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: user.id,
+						session: sid,
+						reason: ErrorTypes.NOT_FOUND,
+						data: { sensorId },
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sensor wurde nicht gefunden.",
+			};
+		}
+
+		// Check if user is already the primary user
+		if (sensor[0].userId === userId) {
+			return {
+				success: false,
+				message: "Dieser Nutzer ist bereits der primäre Nutzer des Sensors.",
+			};
+		}
+
+		// Check if user is already an additional user
+		const existingAdditional = await db
+			.select()
+			.from(sensorAdditionalUserTable)
+			.where(and(eq(sensorAdditionalUserTable.sensorId, sensorId), eq(sensorAdditionalUserTable.userId, userId)))
+			.limit(1);
+
+		if (existingAdditional.length > 0) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADD_ADDITIONAL_SENSOR_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: user.id,
+						session: sid,
+						reason: ErrorTypes.USER_ALREADY_ADDITIONAL,
+						data: { sensorId, userId },
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Dieser Nutzer ist bereits als zusätzlicher Nutzer zugewiesen.",
+			};
+		}
+
+		// Add the additional user
+		await db.insert(sensorAdditionalUserTable).values({
+			sensorId,
+			userId,
+		});
+
+		revalidatePath("/admin/sensors");
+		waitUntil(
+			logAction({
+				fn: LogActionTypes.ADD_ADDITIONAL_SENSOR_USER_ACTION,
+				result: "success",
+				details: {
+					user: user.id,
+					session: sid,
+					success: true,
+					reason: null,
+					data: { sensorId, userId },
+				},
+			}),
+		);
+		return {
+			success: true,
+			message: "Zusätzlicher Nutzer erfolgreich hinzugefügt.",
+		};
+	} catch (err) {
+		console.error(err);
+		waitUntil(
+			logError({
+				fn: LogActionTypes.ADD_ADDITIONAL_SENSOR_USER_ACTION,
+				error: err as unknown as Error,
+				details: {
+					user: null,
+					session: null,
+				},
+			}),
+		);
+		return {
+			success: false,
+			message: "Es ist ein unerwarteter Fehler aufgetreten.",
+		};
+	}
+}
+
+export async function removeAdditionalSensorUserAction(sensorId: string, userId: string) {
+	try {
+		const { user } = await getCurrentSession();
+		const cookieStore = await cookies();
+		const sid = cookieStore.get("sid")?.value;
+
+		if (!user) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.REMOVE_ADDITIONAL_SENSOR_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: null,
+						session: sid,
+						reason: ErrorTypes.NOT_LOGGED_IN,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Bitte melden Sie sich an.",
+			};
+		}
+
+		if (!user.isAdmin) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.REMOVE_ADDITIONAL_SENSOR_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: user.id,
+						session: sid,
+						reason: ErrorTypes.NOT_ADMIN,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sie haben keine Berechtigung für diese Aktion.",
+			};
+		}
+
+		// Check if sensor exists
+		const sensor = await db.select().from(sensorTable).where(eq(sensorTable.id, sensorId)).limit(1);
+		if (!sensor || sensor.length === 0) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.REMOVE_ADDITIONAL_SENSOR_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: user.id,
+						session: sid,
+						reason: ErrorTypes.NOT_FOUND,
+						data: { sensorId },
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sensor wurde nicht gefunden.",
+			};
+		}
+
+		// Check if user is an additional user
+		const existingAdditional = await db
+			.select()
+			.from(sensorAdditionalUserTable)
+			.where(and(eq(sensorAdditionalUserTable.sensorId, sensorId), eq(sensorAdditionalUserTable.userId, userId)))
+			.limit(1);
+
+		if (existingAdditional.length === 0) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.REMOVE_ADDITIONAL_SENSOR_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: user.id,
+						session: sid,
+						reason: ErrorTypes.USER_NOT_ADDITIONAL,
+						data: { sensorId, userId },
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Dieser Nutzer ist kein zusätzlicher Nutzer des Sensors.",
+			};
+		}
+
+		// Remove the additional user
+		await db
+			.delete(sensorAdditionalUserTable)
+			.where(and(eq(sensorAdditionalUserTable.sensorId, sensorId), eq(sensorAdditionalUserTable.userId, userId)));
+
+		revalidatePath("/admin/sensors");
+		waitUntil(
+			logAction({
+				fn: LogActionTypes.REMOVE_ADDITIONAL_SENSOR_USER_ACTION,
+				result: "success",
+				details: {
+					user: user.id,
+					session: sid,
+					success: true,
+					reason: null,
+					data: { sensorId, userId },
+				},
+			}),
+		);
+		return {
+			success: true,
+			message: "Zusätzlicher Nutzer erfolgreich entfernt.",
+		};
+	} catch (err) {
+		console.error(err);
+		waitUntil(
+			logError({
+				fn: LogActionTypes.REMOVE_ADDITIONAL_SENSOR_USER_ACTION,
 				error: err as unknown as Error,
 				details: {
 					user: null,

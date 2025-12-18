@@ -140,9 +140,11 @@ export const POST = async (req: NextRequest) => {
 		const date = data.date ? new Date(data.date) : new Date();
 		const tzDate = toZonedTime(date, tz);
 
+		const num = needsSum && !Number.isNaN(sensor.script) ? Number(sensor.script) / 1000 : 1;
+
 		const inputData = {
 			sensorId: sensor.id,
-			value: needsSum && data.value_current ? data.value_current : data.value,
+			value: data.value * num,
 			valueOut: data.value_out,
 			valueCurrent: data.value_current,
 			sum: needsSum,
