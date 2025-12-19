@@ -209,8 +209,31 @@ export async function insertEnergyData(data: EnergyDataInput) {
 			return;
 		}
 		const lastEntry = lastEntries[0];
+		let rotValue = 0;
+		let intervalsBetween = 0;
+		let averageConsumption = 0;
 
-		const newValue = data.sum ? data.value + lastEntry.value : data.value;
+		if (data.sum) {
+			const [scriptData] = await trx
+				.select({ script: sensorTable.script })
+				.from(sensorTable)
+				.where(eq(sensorTable.id, data.sensorId));
+			if (!scriptData || !scriptData.script || Number.isNaN(scriptData.script)) {
+				return;
+			}
+
+			rotValue = Number.parseInt(scriptData.script, 10);
+			const timeDiff = (data.timestamp.getTime() - lastEntry.timestamp.getTime()) / 1000;
+
+			if (timeDiff > 25) {
+				intervalsBetween = Math.floor(timeDiff / 15) - 1;
+			}
+
+			const consumption = rotValue * data.value;
+			averageConsumption = consumption / (intervalsBetween + 1);
+		}
+
+		const newValue = data.sum ? data.value * rotValue + lastEntry.value : data.value;
 		if (newValue <= 0 || newValue < lastEntry.value) {
 			return;
 		}
@@ -252,10 +275,25 @@ export async function insertEnergyData(data: EnergyDataInput) {
 		const consumption = newValue - lastEntry.value;
 		const inserted = valueOut && lastEntry.valueOut ? valueOut - lastEntry.valueOut : null;
 
+		for (let i = 0; i < intervalsBetween; i++) {
+			const intervalTimestamp = new Date(lastEntry.timestamp.getTime() + (i + 1) * 15 * 1000);
+			const intervalValue = lastEntry.value + averageConsumption * (i + 1);
+
+			await trx.insert(energyDataTable).values({
+				sensorId: dbSensor.id,
+				value: intervalValue,
+				consumption: averageConsumption,
+				valueOut: lastEntry.valueOut,
+				inserted: null,
+				valueCurrent: null,
+				timestamp: intervalTimestamp,
+			});
+		}
+
 		await trx.insert(energyDataTable).values({
 			sensorId: dbSensor.id,
 			value: newValue,
-			consumption,
+			consumption: intervalsBetween > 0 ? averageConsumption : consumption,
 			valueOut,
 			inserted,
 			valueCurrent,

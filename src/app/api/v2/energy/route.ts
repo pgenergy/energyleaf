@@ -76,7 +76,10 @@ export const POST = async (req: NextRequest) => {
 	const data = check.data;
 	console.info(data);
 
-	if (data.value <= 0 && data.sensor_type !== EnergyDataSensorType.ANALOG) {
+	if (data.value <= 0) {
+        if (data.sensor_type === EnergyDataSensorType.ANALOG) {
+            return NextResponse.json({ status: 200, success: true }, { status: 200 });
+        }
 		waitUntil(
 			logSystem({
 				fn: LogSystemTypes.ENERGY_INPUT_V2,
@@ -140,11 +143,9 @@ export const POST = async (req: NextRequest) => {
 		const date = data.date ? new Date(data.date) : new Date();
 		const tzDate = toZonedTime(date, tz);
 
-		const num = needsSum && !Number.isNaN(sensor.script) ? Number(sensor.script) / 1000 : 1;
-
 		const inputData = {
 			sensorId: sensor.id,
-			value: data.value * num,
+			value: data.value,
 			valueOut: data.value_out,
 			valueCurrent: data.value_current,
 			sum: needsSum,
