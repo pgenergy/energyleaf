@@ -77,9 +77,9 @@ export const POST = async (req: NextRequest) => {
 	console.info(data);
 
 	if (data.value <= 0) {
-        if (data.sensor_type === EnergyDataSensorType.ANALOG) {
-            return NextResponse.json({ status: 200, success: true }, { status: 200 });
-        }
+		if (data.sensor_type === EnergyDataSensorType.ANALOG) {
+			return NextResponse.json({ status: 200, success: true }, { status: 200 });
+		}
 		waitUntil(
 			logSystem({
 				fn: LogSystemTypes.ENERGY_INPUT_V2,

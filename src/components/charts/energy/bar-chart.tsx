@@ -73,12 +73,8 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 			const simPoint = simDataMap.get(d.timestamp.toISOString());
 			return {
 				...d,
-				total: d.valueCurrent ? d.valueCurrent / 1000 : d.value,
-				simTotal: simPoint
-					? simPoint.valueCurrent
-						? simPoint.valueCurrent / 1000
-						: simPoint.value
-					: undefined,
+				total: d.consumption,
+				simTotal: simPoint ? simPoint.consumption : undefined,
 				simConsumption: simPoint?.consumption,
 				simCost: simPoint?.cost,
 				timestamp: formatTimestamp(d.timestamp),
@@ -90,7 +86,7 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 		}
 
 		const compareData = props.compareData.map((d) => ({
-			totalCompare: d.valueCurrent ? d.valueCurrent / 1000 : d.value,
+			totalCompare: d.consumption,
 			consumptionCompare: d.consumption,
 			insertedCompare: d.inserted,
 			costCompare: d.cost,
@@ -124,7 +120,7 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 			...props.config,
 			simTotal: {
 				label: "Mit Simulation (kWh)",
-				color: "var(--chart-2)",
+				color: "var(--chart-5)",
 			},
 		} as T;
 	}, [props.config, shouldShowSimData]);

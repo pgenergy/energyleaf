@@ -1,4 +1,4 @@
-import type { EnergyPoint, EnergySeries, Simulation } from "../types";
+import type { EnergySeries, Simulation } from "../types";
 
 export type EnergyAggregation = "raw" | "hour" | "weekday" | "day" | "week" | "calendar-week" | "month" | "year";
 
@@ -11,6 +11,8 @@ export interface BatterySimulationConfig {
 
 const MS_PER_HOUR = 3600000;
 const DEFAULT_RAW_INTERVAL_MS = 15000;
+
+const TYPICAL_DAILY_CYCLES = 1.0;
 
 export function createBatterySimulation(config: BatterySimulationConfig): Simulation {
 	return async (input: EnergySeries): Promise<EnergySeries> => {
@@ -45,89 +47,89 @@ export function createBatterySimulation(config: BatterySimulationConfig): Simula
 	};
 }
 
-function applyBattery(
-	point: EnergyPoint,
+function applyBatteryInterval(
+	consumption: number,
+	inserted: number,
 	currentCharge: number,
-	maxChargeThisInterval: number,
+	maxEnergyThisInterval: number,
 	capacity: number,
-	cumulativeValueReduction: number,
-	cumulativeValueOutReduction: number,
 ): {
-	point: EnergyPoint;
+	consumption: number;
+	inserted: number;
 	newCharge: number;
-	valueReduction: number;
-	valueOutReduction: number;
 } {
 	let charge = currentCharge;
-	let valueReduction = cumulativeValueReduction;
-	let valueOutReduction = cumulativeValueOutReduction;
+	let remainingPower = maxEnergyThisInterval;
 
-	const consumption = point.consumption;
-	const valueOut = point.valueOut ?? 0;
+	let gridImport = consumption;
+	let gridExport = inserted;
 
-	let newConsumption = consumption;
-	let newValueOut = valueOut;
+	if (remainingPower > 0 && gridExport > 0 && charge < capacity) {
+		const chargeAmount = Math.min(gridExport, remainingPower, capacity - charge);
 
-	if (valueOut > 0 && charge < capacity) {
-		const availableToStore = Math.min(valueOut, maxChargeThisInterval, capacity - charge);
-
-		charge += availableToStore;
-		valueOutReduction += availableToStore;
-		newValueOut = valueOut - availableToStore;
+		if (chargeAmount > 0) {
+			charge += chargeAmount;
+			gridExport -= chargeAmount;
+			remainingPower -= chargeAmount;
+		}
 	}
 
-	if (newConsumption > 0 && charge > 0) {
-		const availableToDischarge = Math.min(newConsumption, maxChargeThisInterval, charge);
+	if (remainingPower > 0 && gridImport > 0 && charge > 0) {
+		const dischargeAmount = Math.min(gridImport, remainingPower, charge);
 
-		charge -= availableToDischarge;
-		valueReduction += availableToDischarge;
-		newConsumption = newConsumption - availableToDischarge;
+		if (dischargeAmount > 0) {
+			charge -= dischargeAmount;
+			gridImport -= dischargeAmount;
+			remainingPower -= dischargeAmount;
+		}
 	}
 
 	return {
-		point: {
-			...point,
-			consumption: newConsumption,
-			value: point.value - valueReduction,
-			valueOut: newValueOut - cumulativeValueOutReduction,
-		},
+		consumption: gridImport,
+		inserted: gridExport,
 		newCharge: charge,
-		valueReduction,
-		valueOutReduction,
 	};
 }
 
 function simulateRawData(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
 	let charge = config.initialStateOfCharge ?? 0;
-	let valueReduction = 0;
-	let valueOutReduction = 0;
+
+	let cumulativeImportReduction = 0;
+	let cumulativeExportReduction = 0;
 
 	for (let i = 0; i < input.length; i++) {
 		const point = input[i];
 
-		let intervalHours: number;
-		if (i > 0) {
-			intervalHours = (point.timestamp.getTime() - input[i - 1].timestamp.getTime()) / MS_PER_HOUR;
-		} else {
-			intervalHours = DEFAULT_RAW_INTERVAL_MS / MS_PER_HOUR;
-		}
+		const intervalMs =
+			i > 0 ? point.timestamp.getTime() - input[i - 1].timestamp.getTime() : DEFAULT_RAW_INTERVAL_MS;
 
-		const maxChargeThisInterval = config.maxPowerKw * intervalHours;
+		const intervalHours = intervalMs / MS_PER_HOUR;
+		const maxEnergyThisInterval = config.maxPowerKw * intervalHours;
 
-		const applied = applyBattery(
-			point,
+		const applied = applyBatteryInterval(
+			point.consumption ?? 0,
+			point.inserted ?? 0,
 			charge,
-			maxChargeThisInterval,
+			maxEnergyThisInterval,
 			config.capacityKwh,
-			valueReduction,
-			valueOutReduction,
 		);
 
-		result.push(applied.point);
 		charge = applied.newCharge;
-		valueReduction = applied.valueReduction;
-		valueOutReduction = applied.valueOutReduction;
+
+		const importReduction = (point.consumption ?? 0) - applied.consumption;
+		const exportReduction = (point.inserted ?? 0) - applied.inserted;
+
+		cumulativeImportReduction += importReduction;
+		cumulativeExportReduction += exportReduction;
+
+		result.push({
+			...point,
+			consumption: applied.consumption,
+			inserted: applied.inserted,
+			value: point.value - cumulativeImportReduction,
+			valueOut: (point.valueOut ?? 0) - cumulativeExportReduction,
+		});
 	}
 
 	return result;
@@ -136,52 +138,86 @@ function simulateRawData(input: EnergySeries, config: BatterySimulationConfig): 
 function simulateHourlyAggregated(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
 	let charge = config.initialStateOfCharge ?? 0;
-	let valueReduction = 0;
-	let valueOutReduction = 0;
 
-	const maxChargePerHour = config.maxPowerKw;
+	let cumulativeImportReduction = 0;
+	let cumulativeExportReduction = 0;
+
+	const maxEnergyPerHour = config.maxPowerKw;
 
 	for (const point of input) {
-		const applied = applyBattery(
-			point,
+		const applied = applyBatteryInterval(
+			point.consumption ?? 0,
+			point.inserted ?? 0,
 			charge,
-			maxChargePerHour,
+			maxEnergyPerHour,
 			config.capacityKwh,
-			valueReduction,
-			valueOutReduction,
 		);
 
-		result.push(applied.point);
 		charge = applied.newCharge;
-		valueReduction = applied.valueReduction;
-		valueOutReduction = applied.valueOutReduction;
+
+		const importReduction = (point.consumption ?? 0) - applied.consumption;
+		const exportReduction = (point.inserted ?? 0) - applied.inserted;
+
+		cumulativeImportReduction += importReduction;
+		cumulativeExportReduction += exportReduction;
+
+		result.push({
+			...point,
+			consumption: applied.consumption,
+			inserted: applied.inserted,
+			value: point.value - cumulativeImportReduction,
+			valueOut: (point.valueOut ?? 0) - cumulativeExportReduction,
+		});
 	}
 
 	return result;
 }
 
+function estimateAggregatedBatteryImpact(
+	consumption: number,
+	inserted: number,
+	days: number,
+	config: BatterySimulationConfig,
+): { consumption: number; inserted: number } {
+	const maxCycleEnergy = config.capacityKwh * TYPICAL_DAILY_CYCLES * days;
+
+	const potentialCharge = Math.min(inserted, maxCycleEnergy);
+
+	const potentialDischarge = Math.min(potentialCharge, consumption);
+
+	return {
+		consumption: consumption - potentialDischarge,
+		inserted: inserted - potentialCharge,
+	};
+}
+
 function simulateDailyAggregated(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
-	let charge = config.initialStateOfCharge ?? 0;
-	let valueReduction = 0;
-	let valueOutReduction = 0;
 
-	const maxChargePerDay = Math.min(config.maxPowerKw * 24, config.capacityKwh);
+	let cumulativeImportReduction = 0;
+	let cumulativeExportReduction = 0;
 
 	for (const point of input) {
-		const applied = applyBattery(
-			point,
-			charge,
-			maxChargePerDay,
-			config.capacityKwh,
-			valueReduction,
-			valueOutReduction,
-		);
+		const original = {
+			consumption: point.consumption ?? 0,
+			inserted: point.inserted ?? 0,
+		};
 
-		result.push(applied.point);
-		charge = applied.newCharge;
-		valueReduction = applied.valueReduction;
-		valueOutReduction = applied.valueOutReduction;
+		const applied = estimateAggregatedBatteryImpact(original.consumption, original.inserted, 1, config);
+
+		const importReduction = original.consumption - applied.consumption;
+		const exportReduction = original.inserted - applied.inserted;
+
+		cumulativeImportReduction += importReduction;
+		cumulativeExportReduction += exportReduction;
+
+		result.push({
+			...point,
+			consumption: applied.consumption,
+			inserted: applied.inserted,
+			value: point.value - cumulativeImportReduction,
+			valueOut: (point.valueOut ?? 0) - cumulativeExportReduction,
+		});
 	}
 
 	return result;
@@ -189,26 +225,31 @@ function simulateDailyAggregated(input: EnergySeries, config: BatterySimulationC
 
 function simulateWeeklyAggregated(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
-	let charge = config.initialStateOfCharge ?? 0;
-	let valueReduction = 0;
-	let valueOutReduction = 0;
 
-	const maxChargePerWeek = Math.min(config.maxPowerKw * 24 * 7, config.capacityKwh * 7);
+	let cumulativeImportReduction = 0;
+	let cumulativeExportReduction = 0;
 
 	for (const point of input) {
-		const applied = applyBattery(
-			point,
-			charge,
-			maxChargePerWeek,
-			config.capacityKwh,
-			valueReduction,
-			valueOutReduction,
-		);
+		const original = {
+			consumption: point.consumption ?? 0,
+			inserted: point.inserted ?? 0,
+		};
 
-		result.push(applied.point);
-		charge = applied.newCharge;
-		valueReduction = applied.valueReduction;
-		valueOutReduction = applied.valueOutReduction;
+		const applied = estimateAggregatedBatteryImpact(original.consumption, original.inserted, 7, config);
+
+		const importReduction = original.consumption - applied.consumption;
+		const exportReduction = original.inserted - applied.inserted;
+
+		cumulativeImportReduction += importReduction;
+		cumulativeExportReduction += exportReduction;
+
+		result.push({
+			...point,
+			consumption: applied.consumption,
+			inserted: applied.inserted,
+			value: point.value - cumulativeImportReduction,
+			valueOut: (point.valueOut ?? 0) - cumulativeExportReduction,
+		});
 	}
 
 	return result;
@@ -216,26 +257,34 @@ function simulateWeeklyAggregated(input: EnergySeries, config: BatterySimulation
 
 function simulateMonthlyAggregated(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
-	let charge = config.initialStateOfCharge ?? 0;
-	let valueReduction = 0;
-	let valueOutReduction = 0;
 
-	const maxChargePerMonth = Math.min(config.maxPowerKw * 24 * 30, config.capacityKwh * 30);
+	let cumulativeImportReduction = 0;
+	let cumulativeExportReduction = 0;
 
 	for (const point of input) {
-		const applied = applyBattery(
-			point,
-			charge,
-			maxChargePerMonth,
-			config.capacityKwh,
-			valueReduction,
-			valueOutReduction,
-		);
+		const original = {
+			consumption: point.consumption ?? 0,
+			inserted: point.inserted ?? 0,
+		};
 
-		result.push(applied.point);
-		charge = applied.newCharge;
-		valueReduction = applied.valueReduction;
-		valueOutReduction = applied.valueOutReduction;
+		const date = point.timestamp;
+		const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+
+		const applied = estimateAggregatedBatteryImpact(original.consumption, original.inserted, daysInMonth, config);
+
+		const importReduction = original.consumption - applied.consumption;
+		const exportReduction = original.inserted - applied.inserted;
+
+		cumulativeImportReduction += importReduction;
+		cumulativeExportReduction += exportReduction;
+
+		result.push({
+			...point,
+			consumption: applied.consumption,
+			inserted: applied.inserted,
+			value: point.value - cumulativeImportReduction,
+			valueOut: (point.valueOut ?? 0) - cumulativeExportReduction,
+		});
 	}
 
 	return result;
@@ -243,26 +292,35 @@ function simulateMonthlyAggregated(input: EnergySeries, config: BatterySimulatio
 
 function simulateYearlyAggregated(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
-	let charge = config.initialStateOfCharge ?? 0;
-	let valueReduction = 0;
-	let valueOutReduction = 0;
 
-	const maxChargePerYear = Math.min(config.maxPowerKw * 24 * 365, config.capacityKwh * 365);
+	let cumulativeImportReduction = 0;
+	let cumulativeExportReduction = 0;
 
 	for (const point of input) {
-		const applied = applyBattery(
-			point,
-			charge,
-			maxChargePerYear,
-			config.capacityKwh,
-			valueReduction,
-			valueOutReduction,
-		);
+		const original = {
+			consumption: point.consumption ?? 0,
+			inserted: point.inserted ?? 0,
+		};
 
-		result.push(applied.point);
-		charge = applied.newCharge;
-		valueReduction = applied.valueReduction;
-		valueOutReduction = applied.valueOutReduction;
+		const year = point.timestamp.getFullYear();
+		const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+		const daysInYear = isLeapYear ? 366 : 365;
+
+		const applied = estimateAggregatedBatteryImpact(original.consumption, original.inserted, daysInYear, config);
+
+		const importReduction = original.consumption - applied.consumption;
+		const exportReduction = original.inserted - applied.inserted;
+
+		cumulativeImportReduction += importReduction;
+		cumulativeExportReduction += exportReduction;
+
+		result.push({
+			...point,
+			consumption: applied.consumption,
+			inserted: applied.inserted,
+			value: point.value - cumulativeImportReduction,
+			valueOut: (point.valueOut ?? 0) - cumulativeExportReduction,
+		});
 	}
 
 	return result;

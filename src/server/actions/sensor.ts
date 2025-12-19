@@ -9,7 +9,13 @@ import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
 import { sensorAssignSchema, sensorSchema, sensorUpdateSchema } from "@/lib/schemas/sensor-schema";
 import { genID } from "@/lib/utils";
 import { db } from "../db";
-import { energyDataTable, sensorAdditionalUserTable, sensorTable, sensorTokenTable } from "../db/tables/sensor";
+import {
+	energyDataTable,
+	sensorAdditionalUserTable,
+	sensorHistoryTable,
+	sensorTable,
+	sensorTokenTable,
+} from "../db/tables/sensor";
 import { getCurrentSession } from "../lib/auth";
 import { logAction, logError } from "../queries/logs";
 
@@ -925,6 +931,205 @@ export async function removeAdditionalSensorUserAction(sensorId: string, userId:
 		waitUntil(
 			logError({
 				fn: LogActionTypes.REMOVE_ADDITIONAL_SENSOR_USER_ACTION,
+				error: err as unknown as Error,
+				details: {
+					user: null,
+					session: null,
+				},
+			}),
+		);
+		return {
+			success: false,
+			message: "Es ist ein unerwarteter Fehler aufgetreten.",
+		};
+	}
+}
+
+export async function unassignSensorAction(clientId: string) {
+	try {
+		const { user } = await getCurrentSession();
+		const cookieStore = await cookies();
+		const sid = cookieStore.get("sid")?.value;
+
+		if (!user) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.UNASSIGN_SENSOR_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: null,
+						session: sid,
+						reason: ErrorTypes.NOT_LOGGED_IN,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Bitte melden Sie sich an.",
+			};
+		}
+
+		if (!user.isAdmin) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.UNASSIGN_SENSOR_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: user.id,
+						session: sid,
+						reason: ErrorTypes.NOT_ADMIN,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sie haben keine Berechtigung für diese Aktion.",
+			};
+		}
+
+		const sensor = await db.select().from(sensorTable).where(eq(sensorTable.clientId, clientId)).limit(1);
+		if (!sensor || sensor.length === 0) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.UNASSIGN_SENSOR_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: user.id,
+						session: sid,
+						reason: ErrorTypes.NOT_FOUND,
+						data: { clientId },
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sensor wurde nicht gefunden.",
+			};
+		}
+
+		const sensorData = sensor[0];
+
+		// Check if sensor has a primary user
+		if (!sensorData.userId) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.UNASSIGN_SENSOR_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						user: user.id,
+						session: sid,
+						reason: ErrorTypes.SENSOR_NOT_ASSIGNED,
+						data: { clientId },
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Diesem Sensor ist kein Nutzer zugewiesen.",
+			};
+		}
+
+		const removedUserId = sensorData.userId;
+
+		// Get additional users for this sensor (ordered by insertion)
+		const additionalUsers = await db
+			.select()
+			.from(sensorAdditionalUserTable)
+			.where(eq(sensorAdditionalUserTable.sensorId, sensorData.id));
+
+		let newSensorId = sensorData.id;
+		let promotedUserId: string | null = null;
+
+		await db.transaction(async (trx) => {
+			// Record history: track that the old sensorId belonged to the removed user
+			await trx.insert(sensorHistoryTable).values({
+				sensorId: sensorData.id,
+				clientId: sensorData.clientId,
+				userId: removedUserId,
+				sensorType: sensorData.sensorType,
+			});
+
+			if (additionalUsers.length > 0) {
+				// CASE: Has additional users - promote first one to primary
+				const newPrimaryUser = additionalUsers[0];
+				promotedUserId = newPrimaryUser.userId;
+
+				// Update sensor's userId to the new primary user
+				await trx
+					.update(sensorTable)
+					.set({ userId: newPrimaryUser.userId })
+					.where(eq(sensorTable.clientId, clientId));
+
+				// Remove the promoted user from additional users table
+				await trx
+					.delete(sensorAdditionalUserTable)
+					.where(
+						and(
+							eq(sensorAdditionalUserTable.sensorId, sensorData.id),
+							eq(sensorAdditionalUserTable.userId, newPrimaryUser.userId),
+						),
+					);
+			} else {
+				// CASE: No additional users - generate new sensorId and set userId to null
+				newSensorId = genID(30);
+
+				// For v2 sensors: delete old token first (FK constraint)
+				if (sensorData.version === 2) {
+					await trx.delete(sensorTokenTable).where(eq(sensorTokenTable.sensorId, sensorData.id));
+				}
+
+				// Update sensor with new ID and null userId
+				await trx
+					.update(sensorTable)
+					.set({ id: newSensorId, userId: null })
+					.where(eq(sensorTable.clientId, clientId));
+
+				// For v2 sensors: create new token with new sensorId
+				if (sensorData.version === 2) {
+					await trx.insert(sensorTokenTable).values({
+						code: genID(30),
+						sensorId: newSensorId,
+					});
+				}
+			}
+		});
+
+		revalidatePath("/admin/sensors");
+		revalidatePath(`/admin/sensors/${encodeURIComponent(clientId)}`);
+		waitUntil(
+			logAction({
+				fn: LogActionTypes.UNASSIGN_SENSOR_ACTION,
+				result: "success",
+				details: {
+					user: user.id,
+					session: sid,
+					success: true,
+					reason: null,
+					data: {
+						clientId,
+						oldSensorId: sensorData.id,
+						newSensorId,
+						removedUserId,
+						promotedUserId,
+					},
+				},
+			}),
+		);
+		return {
+			success: true,
+			message: promotedUserId
+				? "Nutzer erfolgreich entfernt. Ein zusätzlicher Nutzer wurde zum primären Nutzer."
+				: "Nutzer erfolgreich entfernt.",
+		};
+	} catch (err) {
+		console.error(err);
+		waitUntil(
+			logError({
+				fn: LogActionTypes.UNASSIGN_SENSOR_ACTION,
 				error: err as unknown as Error,
 				details: {
 					user: null,

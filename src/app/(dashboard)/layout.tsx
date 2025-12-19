@@ -7,7 +7,7 @@ import {
 	LampIcon,
 	// MailsIcon,
 	SettingsIcon,
-	// Users2Icon,
+	Users2Icon,
 	ZapIcon,
 } from "lucide-react";
 import { cookies } from "next/headers";
@@ -107,6 +107,13 @@ export default async function DashboardLayout(props: Props) {
 			title: "Sensoren",
 			path: "/admin/sensors",
 			icon: <CpuIcon />,
+			admin: true,
+		});
+		navLinks.push({
+			slug: "users",
+			title: "Nutzer",
+			path: "/admin/users",
+			icon: <Users2Icon />,
 			admin: true,
 		});
 	}

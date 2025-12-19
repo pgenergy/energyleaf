@@ -204,3 +204,11 @@ export const batterySettingsSchema = z.object({
 		.min(0.1, "Die Leistung muss mindestens 0.1 kW betragen.")
 		.max(100, "Die Leistung darf maximal 100 kW betragen."),
 });
+
+// Admin schemas
+export const adminAccountStatusSchema = z.object({
+	isActive: z.boolean(),
+	isAdmin: z.boolean(),
+	isParticipant: z.boolean(),
+	isSimulationFree: z.boolean(),
+});

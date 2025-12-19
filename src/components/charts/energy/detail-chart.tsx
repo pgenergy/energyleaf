@@ -66,16 +66,20 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 			}
 		}
 
-		return props.data.map((d) => {
+		const hasDifference = props.data.map((d) => {
 			const simPoint = simDataMap.get(d.timestamp.toISOString());
+			return simPoint !== undefined && simPoint.consumption !== d.consumption;
+		});
+
+		return props.data.map((d, i) => {
+			const simPoint = simDataMap.get(d.timestamp.toISOString());
+			const showSimValue =
+				simPoint !== undefined && (hasDifference[i] || hasDifference[i - 1] || hasDifference[i + 1]);
+
 			return {
 				...d,
-				total: d.valueCurrent ? d.valueCurrent / 1000 : d.value,
-				simTotal: simPoint
-					? simPoint.valueCurrent
-						? simPoint.valueCurrent / 1000
-						: simPoint.value
-					: undefined,
+				total: d.consumption,
+				simTotal: showSimValue ? simPoint.consumption : undefined,
 				timestamp: formatTimestamp(d.timestamp),
 			};
 		});
@@ -89,7 +93,7 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 			...props.config,
 			simTotal: {
 				label: "Mit Simulation (kWh)",
-				color: "var(--chart-2)",
+				color: "var(--chart-5)",
 			},
 		} as T;
 	}, [props.config, props.simData]);

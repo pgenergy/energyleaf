@@ -14,6 +14,21 @@ export interface SolarSimulationConfig {
 
 const DEFAULT_SUN_HOURS_PER_DAY = 4.5;
 
+const MONTHLY_SUN_HOURS: Record<number, number> = {
+	0: 1.5,
+	1: 2.5,
+	2: 4.0,
+	3: 5.5,
+	4: 7.0,
+	5: 8.0,
+	6: 8.0,
+	7: 7.0,
+	8: 5.5,
+	9: 3.5,
+	10: 2.0,
+	11: 1.5,
+};
+
 const ORIENTATION_EFFICIENCY: Record<SolarOrientationValue, number> = {
 	[SolarOrientation.South]: 1.0,
 	[SolarOrientation.East]: 0.8,
@@ -21,7 +36,8 @@ const ORIENTATION_EFFICIENCY: Record<SolarOrientationValue, number> = {
 	[SolarOrientation.EastWest]: 0.85,
 };
 
-const HOURLY_PRODUCTION_CURVE: Record<number, number> = {
+// Summer curve (May-Aug): ~5am-8pm
+const SUMMER_PRODUCTION_CURVE: Record<number, number> = {
 	0: 0,
 	1: 0,
 	2: 0,
@@ -48,8 +64,98 @@ const HOURLY_PRODUCTION_CURVE: Record<number, number> = {
 	23: 0,
 };
 
-function calculateDailyProduction(config: SolarSimulationConfig): number {
-	const sunHours = config.sunHoursPerDay ?? DEFAULT_SUN_HOURS_PER_DAY;
+// Winter curve (Nov-Feb): ~8am-4pm
+const WINTER_PRODUCTION_CURVE: Record<number, number> = {
+	0: 0,
+	1: 0,
+	2: 0,
+	3: 0,
+	4: 0,
+	5: 0,
+	6: 0,
+	7: 0,
+	8: 0.08,
+	9: 0.14,
+	10: 0.18,
+	11: 0.2,
+	12: 0.2,
+	13: 0.18,
+	14: 0.14,
+	15: 0.08,
+	16: 0,
+	17: 0,
+	18: 0,
+	19: 0,
+	20: 0,
+	21: 0,
+	22: 0,
+	23: 0,
+};
+
+// Transition curve (Mar-Apr, Sep-Oct): ~6am-6pm
+const TRANSITION_PRODUCTION_CURVE: Record<number, number> = {
+	0: 0,
+	1: 0,
+	2: 0,
+	3: 0,
+	4: 0,
+	5: 0,
+	6: 0.03,
+	7: 0.06,
+	8: 0.1,
+	9: 0.13,
+	10: 0.15,
+	11: 0.16,
+	12: 0.16,
+	13: 0.15,
+	14: 0.13,
+	15: 0.1,
+	16: 0.06,
+	17: 0.03,
+	18: 0,
+	19: 0,
+	20: 0,
+	21: 0,
+	22: 0,
+	23: 0,
+};
+
+type SeasonType = "summer" | "winter" | "transition";
+
+function getSeason(month: number): SeasonType {
+	if (month >= 4 && month <= 7) return "summer";
+	if (month === 10 || month === 11 || month === 0 || month === 1) return "winter";
+	return "transition";
+}
+
+function getHourlyProductionCurve(month: number): Record<number, number> {
+	const season = getSeason(month);
+	switch (season) {
+		case "summer":
+			return SUMMER_PRODUCTION_CURVE;
+		case "winter":
+			return WINTER_PRODUCTION_CURVE;
+		default:
+			return TRANSITION_PRODUCTION_CURVE;
+	}
+}
+
+function getSeasonalSunHours(timestamp: Date, config: SolarSimulationConfig): number {
+	const userAverage = config.sunHoursPerDay ?? DEFAULT_SUN_HOURS_PER_DAY;
+	const month = timestamp.getMonth();
+	const baseSunHours = MONTHLY_SUN_HOURS[month] ?? DEFAULT_SUN_HOURS_PER_DAY;
+	const scaleFactor = userAverage / DEFAULT_SUN_HOURS_PER_DAY;
+	return baseSunHours * scaleFactor;
+}
+
+function getMonthSunHours(month: number, config: SolarSimulationConfig): number {
+	const userAverage = config.sunHoursPerDay ?? DEFAULT_SUN_HOURS_PER_DAY;
+	const baseSunHours = MONTHLY_SUN_HOURS[month] ?? DEFAULT_SUN_HOURS_PER_DAY;
+	const scaleFactor = userAverage / DEFAULT_SUN_HOURS_PER_DAY;
+	return baseSunHours * scaleFactor;
+}
+
+function calculateDailyProduction(config: SolarSimulationConfig, sunHours: number): number {
 	const orientationEfficiency = ORIENTATION_EFFICIENCY[config.orientation];
 	const inverterLimit = config.inverterPower ?? config.peakPower;
 
@@ -59,8 +165,9 @@ function calculateDailyProduction(config: SolarSimulationConfig): number {
 	return Math.min(theoreticalProduction, maxInverterProduction);
 }
 
-function getHourlyProductionFraction(hour: number): number {
-	return HOURLY_PRODUCTION_CURVE[hour] ?? 0;
+function getHourlyProductionFraction(hour: number, month: number): number {
+	const curve = getHourlyProductionCurve(month);
+	return curve[hour] ?? 0;
 }
 
 function applySolarProduction(
@@ -82,6 +189,7 @@ function applySolarProduction(
 		point: {
 			...point,
 			consumption: consumption - selfConsumption,
+			inserted: (point.inserted ?? 0) + excess,
 			value: point.value - newValueReduction,
 			valueOut: (point.valueOut ?? 0) + newValueOutIncrease,
 		},
@@ -96,39 +204,38 @@ export function createSolarSimulation(config: SolarSimulationConfig): Simulation
 			return input;
 		}
 
-		const dailyProduction = calculateDailyProduction(config);
-
 		switch (config.aggregation) {
 			case "raw":
-				return simulateRawData(input, dailyProduction);
+				return simulateRawData(input, config);
 
 			case "hour":
-				return simulateHourlyAggregated(input, dailyProduction);
+				return simulateHourlyAggregated(input, config);
 
 			case "day":
 			case "weekday":
-				return simulateDailyAggregated(input, dailyProduction);
+				return simulateDailyAggregated(input, config);
 
 			case "week":
 			case "calendar-week":
-				return simulateWeeklyAggregated(input, dailyProduction);
+				return simulateWeeklyAggregated(input, config);
 
 			case "month":
-				return simulateMonthlyAggregated(input, dailyProduction);
+				return simulateMonthlyAggregated(input, config);
 
 			case "year":
-				return simulateYearlyAggregated(input, dailyProduction);
+				return simulateYearlyAggregated(input, config);
 
 			default:
-				return simulateRawData(input, dailyProduction);
+				return simulateRawData(input, config);
 		}
 	};
 }
 
-function simulateRawData(input: EnergySeries, dailyProduction: number): EnergySeries {
+function simulateRawData(input: EnergySeries, config: SolarSimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
 
 	let currentDay: string | null = null;
+	let currentDayTimestamp: Date | null = null;
 	let dayPoints: { index: number; hour: number; fraction: number }[] = [];
 	let cumulativeValueReduction = 0;
 	let cumulativeValueOutIncrease = 0;
@@ -139,7 +246,9 @@ function simulateRawData(input: EnergySeries, dailyProduction: number): EnergySe
 		const hour = point.timestamp.getHours();
 
 		if (currentDay !== day) {
-			if (dayPoints.length > 0) {
+			if (dayPoints.length > 0 && currentDayTimestamp) {
+				const sunHours = getSeasonalSunHours(currentDayTimestamp, config);
+				const dailyProduction = calculateDailyProduction(config, sunHours);
 				const cumulative = distributeDailyProduction(
 					result,
 					input,
@@ -152,14 +261,18 @@ function simulateRawData(input: EnergySeries, dailyProduction: number): EnergySe
 				cumulativeValueOutIncrease = cumulative.valueOutIncrease;
 			}
 			currentDay = day;
+			currentDayTimestamp = point.timestamp;
 			dayPoints = [];
 		}
 
-		const fraction = getHourlyProductionFraction(hour);
+		const month = point.timestamp.getMonth();
+		const fraction = getHourlyProductionFraction(hour, month);
 		dayPoints.push({ index: i, hour, fraction });
 	}
 
-	if (dayPoints.length > 0) {
+	if (dayPoints.length > 0 && currentDayTimestamp) {
+		const sunHours = getSeasonalSunHours(currentDayTimestamp, config);
+		const dailyProduction = calculateDailyProduction(config, sunHours);
 		distributeDailyProduction(
 			result,
 			input,
@@ -199,14 +312,17 @@ function distributeDailyProduction(
 	return { valueReduction, valueOutIncrease };
 }
 
-function simulateHourlyAggregated(input: EnergySeries, dailyProduction: number): EnergySeries {
+function simulateHourlyAggregated(input: EnergySeries, config: SolarSimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
 	let valueReduction = 0;
 	let valueOutIncrease = 0;
 
 	for (const point of input) {
+		const sunHours = getSeasonalSunHours(point.timestamp, config);
+		const dailyProduction = calculateDailyProduction(config, sunHours);
 		const hour = point.timestamp.getHours();
-		const fraction = getHourlyProductionFraction(hour);
+		const month = point.timestamp.getMonth();
+		const fraction = getHourlyProductionFraction(hour, month);
 		const production = dailyProduction * fraction;
 
 		const applied = applySolarProduction(point, production, valueReduction, valueOutIncrease);
@@ -218,12 +334,15 @@ function simulateHourlyAggregated(input: EnergySeries, dailyProduction: number):
 	return result;
 }
 
-function simulateDailyAggregated(input: EnergySeries, dailyProduction: number): EnergySeries {
+function simulateDailyAggregated(input: EnergySeries, config: SolarSimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
 	let valueReduction = 0;
 	let valueOutIncrease = 0;
 
 	for (const point of input) {
+		const sunHours = getSeasonalSunHours(point.timestamp, config);
+		const dailyProduction = calculateDailyProduction(config, sunHours);
+
 		const applied = applySolarProduction(point, dailyProduction, valueReduction, valueOutIncrease);
 		result.push(applied.point);
 		valueReduction = applied.valueReduction;
@@ -233,13 +352,16 @@ function simulateDailyAggregated(input: EnergySeries, dailyProduction: number): 
 	return result;
 }
 
-function simulateWeeklyAggregated(input: EnergySeries, dailyProduction: number): EnergySeries {
-	const weeklyProduction = dailyProduction * 7;
+function simulateWeeklyAggregated(input: EnergySeries, config: SolarSimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
 	let valueReduction = 0;
 	let valueOutIncrease = 0;
 
 	for (const point of input) {
+		const sunHours = getSeasonalSunHours(point.timestamp, config);
+		const dailyProduction = calculateDailyProduction(config, sunHours);
+		const weeklyProduction = dailyProduction * 7;
+
 		const applied = applySolarProduction(point, weeklyProduction, valueReduction, valueOutIncrease);
 		result.push(applied.point);
 		valueReduction = applied.valueReduction;
@@ -249,13 +371,16 @@ function simulateWeeklyAggregated(input: EnergySeries, dailyProduction: number):
 	return result;
 }
 
-function simulateMonthlyAggregated(input: EnergySeries, dailyProduction: number): EnergySeries {
-	const monthlyProduction = dailyProduction * 30;
+function simulateMonthlyAggregated(input: EnergySeries, config: SolarSimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
 	let valueReduction = 0;
 	let valueOutIncrease = 0;
 
 	for (const point of input) {
+		const sunHours = getSeasonalSunHours(point.timestamp, config);
+		const dailyProduction = calculateDailyProduction(config, sunHours);
+		const monthlyProduction = dailyProduction * 30;
+
 		const applied = applySolarProduction(point, monthlyProduction, valueReduction, valueOutIncrease);
 		result.push(applied.point);
 		valueReduction = applied.valueReduction;
@@ -265,8 +390,16 @@ function simulateMonthlyAggregated(input: EnergySeries, dailyProduction: number)
 	return result;
 }
 
-function simulateYearlyAggregated(input: EnergySeries, dailyProduction: number): EnergySeries {
-	const yearlyProduction = dailyProduction * 365;
+function simulateYearlyAggregated(input: EnergySeries, config: SolarSimulationConfig): EnergySeries {
+	const daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+	let yearlyProduction = 0;
+	for (let month = 0; month < 12; month++) {
+		const sunHours = getMonthSunHours(month, config);
+		const dailyProduction = calculateDailyProduction(config, sunHours);
+		yearlyProduction += dailyProduction * daysPerMonth[month];
+	}
+
 	const result: EnergySeries = [];
 	let valueReduction = 0;
 	let valueOutIncrease = 0;

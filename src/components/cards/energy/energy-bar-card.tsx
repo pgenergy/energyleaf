@@ -1,13 +1,15 @@
+import { endOfDay } from "date-fns";
+import { fromZonedTime } from "date-fns-tz";
 import EnergyBarChart from "@/components/charts/energy/bar-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ChartConfig } from "@/components/ui/chart";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
+import { runSimulations, setupSimulationsFromSettings } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
-import { endOfDay } from "date-fns";
-import { fromZonedTime } from "date-fns-tz";
+import { getEnabledSimulations } from "@/server/queries/simulations";
 
 interface Props {
 	start: Date;
@@ -81,6 +83,18 @@ export default async function EnergyBarCard(props: Props) {
 		);
 	}
 
+	const enabledSimulations = await getEnabledSimulations(user.id);
+	const hasActiveSimulations =
+		enabledSimulations.ev || enabledSimulations.solar || enabledSimulations.heatpump || enabledSimulations.battery;
+
+	let simData: typeof data | undefined;
+	if (hasActiveSimulations) {
+		const simulations = setupSimulationsFromSettings(enabledSimulations, {
+			aggregation: agg,
+		});
+		simData = await runSimulations(data, simulations);
+	}
+
 	const chartConfig = {
 		consumption: {
 			label: "Energieverbrauch (kWh)",
@@ -113,6 +127,10 @@ export default async function EnergyBarCard(props: Props) {
 						timestamp: fromZonedTime(d.timestamp, tz),
 					}))}
 					compareData={compareData?.map((d) => ({
+						...d,
+						timestamp: fromZonedTime(d.timestamp, tz),
+					}))}
+					simData={simData?.map((d) => ({
 						...d,
 						timestamp: fromZonedTime(d.timestamp, tz),
 					}))}

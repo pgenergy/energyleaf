@@ -1,12 +1,14 @@
+import { endOfDay, format, isSameDay, startOfDay } from "date-fns";
+import { de } from "date-fns/locale";
+import { ArrowDownIcon, ArrowUpIcon, ZapIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
+import { runSimulations, setupSimulationsFromSettings } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
-import { endOfDay, format, isSameDay, startOfDay } from "date-fns";
-import { de } from "date-fns/locale";
-import { ArrowDownIcon, ArrowUpIcon, ZapIcon } from "lucide-react";
+import { getEnabledSimulations } from "@/server/queries/simulations";
 
 interface Props {
 	start?: Date;
@@ -88,6 +90,19 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 		);
 	}
 
+	const enabledSimulations = await getEnabledSimulations(user.id);
+	const hasActiveSimulations =
+		enabledSimulations.ev || enabledSimulations.solar || enabledSimulations.heatpump || enabledSimulations.battery;
+
+	let simValue: number | null = null;
+	if (hasActiveSimulations) {
+		const simulations = setupSimulationsFromSettings(enabledSimulations, {
+			aggregation: "day",
+		});
+		const simData = await runSimulations(data, simulations);
+		simValue = simData.reduce((acc, curr) => curr.consumption + acc, 0);
+	}
+
 	const value = data.reduce((acc, curr) => curr.consumption + acc, 0);
 	let compareValue: number | null = null;
 	let diff: number | null = null;
@@ -100,6 +115,11 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 			<CardHead start={start} end={end} />
 			<CardContent>
 				<p className="font-mono font-semibold">{value.toFixed(2)} kWh</p>
+				{simValue !== null ? (
+					<p className="mt-2 font-mono text-sm text-muted-foreground">
+						Mit Simulation: {simValue.toFixed(2)} kWh
+					</p>
+				) : null}
 				{compareValue && diff ? (
 					<p
 						className={cn(

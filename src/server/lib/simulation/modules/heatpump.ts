@@ -22,7 +22,28 @@ const COP_BY_SOURCE: Record<HeatPumpSourceValue, number> = {
 	[HeatPumpSource.Collector]: 4.0,
 };
 
-const BASE_HEATING_DEMAND_FACTOR = 0.05;
+const MONTHLY_OUTDOOR_TEMPS: Record<number, number> = {
+	0: 1, // January
+	1: 2, // February
+	2: 5, // March
+	3: 9, // April
+	4: 14, // May
+	5: 17, // June
+	6: 19, // July
+	7: 19, // August
+	8: 15, // September
+	9: 10, // October
+	10: 5, // November
+	11: 2, // December
+};
+
+const DESIGN_TEMPERATURE_DELTA = 21;
+const DESIGN_LOAD_FACTOR = 0.8;
+
+function getOutdoorTemperature(timestamp: Date): number {
+	const month = timestamp.getMonth();
+	return MONTHLY_OUTDOOR_TEMPS[month] ?? 10;
+}
 
 type Weekday = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 
@@ -84,13 +105,20 @@ function calculateScheduledHeatingHoursPerDay(config: HeatPumpSimulationConfig):
 function calculateElectricalConsumption(
 	heatingHours: number,
 	targetTemperature: number,
+	outdoorTemperature: number,
 	config: HeatPumpSimulationConfig,
 ): number {
 	const cop = COP_BY_SOURCE[config.source];
 
-	const temperatureDelta = Math.max(0, targetTemperature - 15);
+	const temperatureDelta = Math.max(0, targetTemperature - outdoorTemperature);
 
-	const heatDemand = temperatureDelta * BASE_HEATING_DEMAND_FACTOR * heatingHours;
+	if (temperatureDelta <= 0) {
+		return 0;
+	}
+
+	const heatLossCoefficient = (config.powerKw * DESIGN_LOAD_FACTOR) / DESIGN_TEMPERATURE_DELTA;
+
+	const heatDemand = temperatureDelta * heatLossCoefficient * heatingHours;
 
 	const maxHeatOutput = config.powerKw * heatingHours;
 	const actualHeatOutput = Math.min(heatDemand, maxHeatOutput);
@@ -148,12 +176,20 @@ function simulateRawData(input: EnergySeries, config: HeatPumpSimulationConfig):
 		let heatPumpConsumption = 0;
 
 		if (activeSlot) {
-			heatPumpConsumption = calculateElectricalConsumption(intervalHours, activeSlot.targetTemperature, config);
+			const outdoorTemp = getOutdoorTemperature(point.timestamp);
+			heatPumpConsumption = calculateElectricalConsumption(
+				intervalHours,
+				activeSlot.targetTemperature,
+				outdoorTemp,
+				config,
+			);
 		}
 
 		result.push({
 			...point,
 			consumption: point.consumption + heatPumpConsumption,
+			value: point.value + heatPumpConsumption,
+			valueCurrent: point.valueCurrent ? point.valueCurrent + heatPumpConsumption : null,
 		});
 	}
 
@@ -169,7 +205,8 @@ function simulateHourlyAggregated(input: EnergySeries, config: HeatPumpSimulatio
 		let heatPumpConsumption = 0;
 
 		if (activeSlot) {
-			heatPumpConsumption = calculateElectricalConsumption(1, activeSlot.targetTemperature, config);
+			const outdoorTemp = getOutdoorTemperature(point.timestamp);
+			heatPumpConsumption = calculateElectricalConsumption(1, activeSlot.targetTemperature, outdoorTemp, config);
 		}
 
 		result.push({
@@ -208,12 +245,19 @@ function getAverageTargetTemperature(config: HeatPumpSimulationConfig): number {
 
 function simulateDailyAggregated(input: EnergySeries, config: HeatPumpSimulationConfig): EnergySeries {
 	const heatingHoursPerDay = calculateScheduledHeatingHoursPerDay(config);
-	const avgTemperature = getAverageTargetTemperature(config);
-	const dailyConsumption = calculateElectricalConsumption(heatingHoursPerDay, avgTemperature, config);
+	const avgTargetTemperature = getAverageTargetTemperature(config);
 
 	const result: EnergySeries = [];
 
 	for (const point of input) {
+		const outdoorTemp = getOutdoorTemperature(point.timestamp);
+		const dailyConsumption = calculateElectricalConsumption(
+			heatingHoursPerDay,
+			avgTargetTemperature,
+			outdoorTemp,
+			config,
+		);
+
 		result.push({
 			...point,
 			consumption: point.consumption + dailyConsumption,
@@ -225,13 +269,20 @@ function simulateDailyAggregated(input: EnergySeries, config: HeatPumpSimulation
 
 function simulateWeeklyAggregated(input: EnergySeries, config: HeatPumpSimulationConfig): EnergySeries {
 	const heatingHoursPerDay = calculateScheduledHeatingHoursPerDay(config);
-	const avgTemperature = getAverageTargetTemperature(config);
-	const dailyConsumption = calculateElectricalConsumption(heatingHoursPerDay, avgTemperature, config);
-	const weeklyConsumption = dailyConsumption * 7;
+	const avgTargetTemperature = getAverageTargetTemperature(config);
 
 	const result: EnergySeries = [];
 
 	for (const point of input) {
+		const outdoorTemp = getOutdoorTemperature(point.timestamp);
+		const dailyConsumption = calculateElectricalConsumption(
+			heatingHoursPerDay,
+			avgTargetTemperature,
+			outdoorTemp,
+			config,
+		);
+		const weeklyConsumption = dailyConsumption * 7;
+
 		result.push({
 			...point,
 			consumption: point.consumption + weeklyConsumption,
@@ -243,13 +294,20 @@ function simulateWeeklyAggregated(input: EnergySeries, config: HeatPumpSimulatio
 
 function simulateMonthlyAggregated(input: EnergySeries, config: HeatPumpSimulationConfig): EnergySeries {
 	const heatingHoursPerDay = calculateScheduledHeatingHoursPerDay(config);
-	const avgTemperature = getAverageTargetTemperature(config);
-	const dailyConsumption = calculateElectricalConsumption(heatingHoursPerDay, avgTemperature, config);
-	const monthlyConsumption = dailyConsumption * 30;
+	const avgTargetTemperature = getAverageTargetTemperature(config);
 
 	const result: EnergySeries = [];
 
 	for (const point of input) {
+		const outdoorTemp = getOutdoorTemperature(point.timestamp);
+		const dailyConsumption = calculateElectricalConsumption(
+			heatingHoursPerDay,
+			avgTargetTemperature,
+			outdoorTemp,
+			config,
+		);
+		const monthlyConsumption = dailyConsumption * 30;
+
 		result.push({
 			...point,
 			consumption: point.consumption + monthlyConsumption,
@@ -261,9 +319,21 @@ function simulateMonthlyAggregated(input: EnergySeries, config: HeatPumpSimulati
 
 function simulateYearlyAggregated(input: EnergySeries, config: HeatPumpSimulationConfig): EnergySeries {
 	const heatingHoursPerDay = calculateScheduledHeatingHoursPerDay(config);
-	const avgTemperature = getAverageTargetTemperature(config);
-	const dailyConsumption = calculateElectricalConsumption(heatingHoursPerDay, avgTemperature, config);
-	const yearlyConsumption = dailyConsumption * 180;
+	const avgTargetTemperature = getAverageTargetTemperature(config);
+
+	const daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+	let yearlyConsumption = 0;
+	for (let month = 0; month < 12; month++) {
+		const outdoorTemp = MONTHLY_OUTDOOR_TEMPS[month] ?? 10;
+		const dailyConsumption = calculateElectricalConsumption(
+			heatingHoursPerDay,
+			avgTargetTemperature,
+			outdoorTemp,
+			config,
+		);
+		yearlyConsumption += dailyConsumption * daysPerMonth[month];
+	}
 
 	const result: EnergySeries = [];
 

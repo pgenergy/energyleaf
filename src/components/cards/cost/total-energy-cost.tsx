@@ -1,15 +1,18 @@
+import { differenceInDays, endOfDay, format, getDaysInMonth, isSameDay, startOfDay } from "date-fns";
+import { de } from "date-fns/locale";
+import { ArrowDownIcon, ArrowUpIcon, DollarSignIcon, Settings2Icon } from "lucide-react";
+import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
+import { calculateTouTariffCost, type TouTariffConfig } from "@/server/lib/simulation/cost";
+import { runSimulations, setupSimulationsFromSettings } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
+import { getEnabledSimulations } from "@/server/queries/simulations";
 import { getUserData } from "@/server/queries/user";
-import { differenceInDays, endOfDay, format, getDaysInMonth, isSameDay, startOfDay } from "date-fns";
-import { de } from "date-fns/locale";
-import { ArrowDownIcon, ArrowUpIcon, DollarSignIcon, Settings2Icon } from "lucide-react";
-import Link from "next/link";
 
 interface Props {
 	start?: Date;
@@ -126,6 +129,65 @@ export default async function TotalEnergyCostCard(props: Props) {
 	const baseCost = (userData.basePrice / daysInMonth) * dayDiff;
 	const cost = workingCost + baseCost;
 
+	// Fetch enabled simulations
+	const enabledSimulations = await getEnabledSimulations(user.id);
+	const hasActiveSimulations =
+		enabledSimulations.ev || enabledSimulations.solar || enabledSimulations.heatpump || enabledSimulations.battery;
+	const hasTouTariff = enabledSimulations.tou !== null;
+
+	// For TOU and simulation calculations, we need hourly data
+	let originalTouCost: number | null = null;
+	let simCostOriginalTariff: number | null = null;
+	let simCostTouTariff: number | null = null;
+
+	if (hasTouTariff || hasActiveSimulations) {
+		// Fetch hourly data for time-based calculations
+		const hourlyData = await getEnergyForSensorInRange(
+			start.toISOString(),
+			end.toISOString(),
+			energySensorId,
+			"hour",
+			"sum",
+		);
+
+		if (hourlyData && hourlyData.length > 0) {
+			// Build TOU config if available
+			const touConfig: TouTariffConfig | null = enabledSimulations.tou
+				? {
+						basePrice: enabledSimulations.tou.basePrice,
+						standardPrice: enabledSimulations.tou.standardPrice,
+						zones: enabledSimulations.tou.zones,
+						weekdayZones: enabledSimulations.tou.weekdayZones,
+					}
+				: null;
+
+			// 1. Original data with TOU tariff
+			if (touConfig) {
+				const touResult = calculateTouTariffCost(hourlyData, touConfig, dayDiff, daysInMonth);
+				originalTouCost = touResult.totalCost;
+			}
+
+			// Run simulations if active
+			if (hasActiveSimulations) {
+				const simulations = setupSimulationsFromSettings(enabledSimulations, {
+					aggregation: "hour",
+				});
+				const simData = await runSimulations(hourlyData, simulations);
+				const simConsumption = simData.reduce((acc, curr) => curr.consumption + acc, 0);
+
+				// 2. Simulated data with original tariff
+				const simWorkingCost = simConsumption * userData.workingPrice;
+				simCostOriginalTariff = simWorkingCost + baseCost;
+
+				// 3. Simulated data with TOU tariff
+				if (touConfig) {
+					const simTouResult = calculateTouTariffCost(simData, touConfig, dayDiff, daysInMonth);
+					simCostTouTariff = simTouResult.totalCost;
+				}
+			}
+		}
+	}
+
 	let compareCost: number | null = null;
 	let diff: number | null = null;
 	if (compareData) {
@@ -139,6 +201,21 @@ export default async function TotalEnergyCostCard(props: Props) {
 			<CardHead start={start} end={end} />
 			<CardContent>
 				<p className="font-mono font-semibold">{cost.toFixed(2)} €</p>
+				{originalTouCost !== null ? (
+					<p className="mt-2 font-mono text-sm text-muted-foreground">
+						Mit Zeittarif: {originalTouCost.toFixed(2)} €
+					</p>
+				) : null}
+				{simCostOriginalTariff !== null ? (
+					<p className="mt-2 font-mono text-sm text-muted-foreground">
+						Mit Simulation: {simCostOriginalTariff.toFixed(2)} €
+					</p>
+				) : null}
+				{simCostTouTariff !== null ? (
+					<p className="mt-2 font-mono text-sm text-muted-foreground">
+						Simulation + Zeittarif: {simCostTouTariff.toFixed(2)} €
+					</p>
+				) : null}
 				{compareCost && diff ? (
 					<p
 						className={cn(

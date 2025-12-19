@@ -23,6 +23,7 @@ export enum ErrorTypes {
 	USER_ALREADY_HAS_SENSOR_TYPE = "user_already_has_sensor_type",
 	USER_ALREADY_ADDITIONAL = "user_already_additional",
 	USER_NOT_ADDITIONAL = "user_not_additional",
+	SENSOR_NOT_ASSIGNED = "sensor_not_assigned",
 	UNKNOWN = "unknown",
 }
 
@@ -67,6 +68,21 @@ export enum LogActionTypes {
 	ADD_DEVICE_TO_PEAK_ACTION = "add_device_to_peak_action",
 	DELETE_PEAK_ACTION = "delete_peak_action",
 
+	// ADMIN USER MANAGEMENT
+	ADMIN_UPDATE_USER_NAME_ACTION = "admin_update_user_name_action",
+	ADMIN_UPDATE_USER_INFO_ACTION = "admin_update_user_info_action",
+	ADMIN_UPDATE_HOUSEHOLD_ACTION = "admin_update_household_action",
+	ADMIN_UPDATE_ENERGY_TARIFF_ACTION = "admin_update_energy_tariff_action",
+	ADMIN_UPDATE_ACCOUNT_STATUS_ACTION = "admin_update_account_status_action",
+
+	// ADMIN SIMULATION MANAGEMENT
+	ADMIN_UPDATE_SIMULATION_EV_SETTINGS_ACTION = "admin_update_simulation_ev_settings_action",
+	ADMIN_UPDATE_SIMULATION_SOLAR_SETTINGS_ACTION = "admin_update_simulation_solar_settings_action",
+	ADMIN_UPDATE_SIMULATION_HEAT_PUMP_SETTINGS_ACTION = "admin_update_simulation_heat_pump_settings_action",
+	ADMIN_UPDATE_SIMULATION_TOU_SETTINGS_ACTION = "admin_update_simulation_tou_settings_action",
+	ADMIN_UPDATE_SIMULATION_BATTERY_SETTINGS_ACTION = "admin_update_simulation_battery_settings_action",
+	ADMIN_TOGGLE_SIMULATION_ENABLED_ACTION = "admin_toggle_simulation_enabled_action",
+
 	// SENSOR (Admin)
 	CREATE_SENSOR_ACTION = "create_sensor_action",
 	UPDATE_SENSOR_ACTION = "update_sensor_action",
@@ -74,6 +90,7 @@ export enum LogActionTypes {
 	REGENERATE_SENSOR_TOKEN_ACTION = "regenerate_sensor_token_action",
 	ADD_ADDITIONAL_SENSOR_USER_ACTION = "add_additional_sensor_user_action",
 	REMOVE_ADDITIONAL_SENSOR_USER_ACTION = "remove_additional_sensor_user_action",
+	UNASSIGN_SENSOR_ACTION = "unassign_sensor_action",
 }
 
 export enum LogSystemTypes {

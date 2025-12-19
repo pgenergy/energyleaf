@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { ChartConfig } from "@/components/ui/chart";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import { getCurrentSession } from "@/server/lib/auth";
+import { runSimulations, setupSimulationsFromSettings } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
+import { getEnabledSimulations } from "@/server/queries/simulations";
 
 interface Props {
 	title: string;
@@ -55,6 +57,18 @@ export default async function DetailEnergyChartCard(props: Props) {
 		);
 	}
 
+	const enabledSimulations = await getEnabledSimulations(user.id);
+	const hasActiveSimulations =
+		enabledSimulations.ev || enabledSimulations.solar || enabledSimulations.heatpump || enabledSimulations.battery;
+
+	let simData: typeof data | undefined;
+	if (hasActiveSimulations) {
+		const simulations = setupSimulationsFromSettings(enabledSimulations, {
+			aggregation: "raw",
+		});
+		simData = await runSimulations(data, simulations);
+	}
+
 	const chartConfig = {
 		total: {
 			label: "Energieübersicht (kWh)",
@@ -71,6 +85,10 @@ export default async function DetailEnergyChartCard(props: Props) {
 			<CardContent>
 				<DetailEnergyChart
 					data={data.map((d) => ({
+						...d,
+						timestamp: fromZonedTime(d.timestamp, tz),
+					}))}
+					simData={simData?.map((d) => ({
 						...d,
 						timestamp: fromZonedTime(d.timestamp, tz),
 					}))}
