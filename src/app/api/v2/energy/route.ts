@@ -25,7 +25,7 @@ const energyRequestDataSchema = z.object({
 
 export const POST = async (req: NextRequest) => {
 	const body = req.body;
-	if (!req.headers.has("authorization") || req.headers.get("authorization")?.startsWith("Bearer ")) {
+	if (!req.headers.has("authorization") || !req.headers.get("authorization")?.startsWith("Bearer ")) {
 		waitUntil(
 			logSystem({
 				fn: LogSystemTypes.ENERGY_INPUT_V2,
