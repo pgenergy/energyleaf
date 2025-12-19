@@ -76,7 +76,7 @@ export const POST = async (req: NextRequest) => {
 	const data = check.data;
 	console.info(data);
 
-	if (data.value <= 0) {
+	if (data.value <= 0 && data.sensor_type !== EnergyDataSensorType.ANALOG) {
 		waitUntil(
 			logSystem({
 				fn: LogSystemTypes.ENERGY_INPUT_V2,
