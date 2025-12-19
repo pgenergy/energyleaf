@@ -222,7 +222,7 @@ export async function insertEnergyData(data: EnergyDataInput) {
 				return;
 			}
 
-			rotValue = Number.parseInt(scriptData.script, 10);
+			rotValue = Number.parseInt(scriptData.script, 10) / 1000;
 			const timeDiff = (data.timestamp.getTime() - lastEntry.timestamp.getTime()) / 1000;
 
 			if (timeDiff > 25) {
