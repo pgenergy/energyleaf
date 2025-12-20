@@ -293,6 +293,36 @@ export const getEnergySumForSensorInRange = cache(async (start: Date, end: Date,
 	return data[0].sum;
 });
 
+async function getHourlyEnergyByTimestamp(start: Date, end: Date, sensorId: string) {
+	const data = await db
+		.select({
+			sensorId: energyDataTable.sensorId,
+			value: sql`MAX(${energyDataTable.value})`.mapWith((value) => Number(value)),
+			valueOut: sql`MAX(${energyDataTable.valueOut})`.mapWith((value) => Number(value)),
+			valueCurrent: sql`AVG(${energyDataTable.valueCurrent})`.mapWith((value) => Number(value)),
+			consumption: sql`SUM(${energyDataTable.consumption})`.mapWith((value) => Number(value)),
+			inserted: sql`SUM(${energyDataTable.inserted})`.mapWith((value) => Number(value)),
+			timestamp: sql`date_trunc('hour', ${energyDataTable.timestamp})`.mapWith(
+				(value) => new Date(`${value}+0000`),
+			),
+		})
+		.from(energyDataTable)
+		.where(and(eq(energyDataTable.sensorId, sensorId), between(energyDataTable.timestamp, start, end)))
+		.groupBy(energyDataTable.sensorId, sql`date_trunc('hour', ${energyDataTable.timestamp})`)
+		.orderBy(sql`date_trunc('hour', ${energyDataTable.timestamp})`);
+
+	return data.map((row, index) => ({
+		...row,
+		id: index.toString(),
+	}));
+}
+
+export const getWarmupEnergyForSensor = cache(async (endDate: Date, sensorId: string, days = 5) => {
+	const startDate = new Date(endDate);
+	startDate.setDate(startDate.getDate() - days);
+	return getHourlyEnergyByTimestamp(startDate, endDate, sensorId);
+});
+
 export const getEnergyLastEntry = cache(async (sensorId: string) => {
 	const query = await db
 		.select({

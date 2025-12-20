@@ -134,6 +134,20 @@
       "when": 1766055648220,
       "tag": "0018_additional_users_for_sensor",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1766233376147,
+      "tag": "0019_ev-initial-state-of-charge",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1766233993492,
+      "tag": "0020_drop-initial-state-of-charge",
+      "breakpoints": true
     }
   ]
 }

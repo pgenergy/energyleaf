@@ -12,7 +12,11 @@ export interface BatterySimulationConfig {
 const MS_PER_HOUR = 3600000;
 const DEFAULT_RAW_INTERVAL_MS = 15000;
 
-const TYPICAL_DAILY_CYCLES = 1.0;
+const DEFAULT_INITIAL_CHARGE_PERCENT = 0.5;
+
+function getDefaultInitialCharge(config: BatterySimulationConfig): number {
+	return config.capacityKwh * DEFAULT_INITIAL_CHARGE_PERCENT;
+}
 
 export function createBatterySimulation(config: BatterySimulationConfig): Simulation {
 	return async (input: EnergySeries): Promise<EnergySeries> => {
@@ -93,7 +97,7 @@ function applyBatteryInterval(
 
 function simulateRawData(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
-	let charge = config.initialStateOfCharge ?? 0;
+	let charge = config.initialStateOfCharge ?? getDefaultInitialCharge(config);
 
 	let cumulativeImportReduction = 0;
 	let cumulativeExportReduction = 0;
@@ -137,7 +141,7 @@ function simulateRawData(input: EnergySeries, config: BatterySimulationConfig): 
 
 function simulateHourlyAggregated(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
-	let charge = config.initialStateOfCharge ?? 0;
+	let charge = config.initialStateOfCharge ?? getDefaultInitialCharge(config);
 
 	let cumulativeImportReduction = 0;
 	let cumulativeExportReduction = 0;
@@ -173,40 +177,30 @@ function simulateHourlyAggregated(input: EnergySeries, config: BatterySimulation
 	return result;
 }
 
-function estimateAggregatedBatteryImpact(
-	consumption: number,
-	inserted: number,
-	days: number,
-	config: BatterySimulationConfig,
-): { consumption: number; inserted: number } {
-	const maxCycleEnergy = config.capacityKwh * TYPICAL_DAILY_CYCLES * days;
-
-	const potentialCharge = Math.min(inserted, maxCycleEnergy);
-
-	const potentialDischarge = Math.min(potentialCharge, consumption);
-
-	return {
-		consumption: consumption - potentialDischarge,
-		inserted: inserted - potentialCharge,
-	};
-}
+const HOURS_PER_DAY = 24;
 
 function simulateDailyAggregated(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
+	let charge = config.initialStateOfCharge ?? getDefaultInitialCharge(config);
 
 	let cumulativeImportReduction = 0;
 	let cumulativeExportReduction = 0;
 
+	const maxEnergyPerDay = config.maxPowerKw * HOURS_PER_DAY;
+
 	for (const point of input) {
-		const original = {
-			consumption: point.consumption ?? 0,
-			inserted: point.inserted ?? 0,
-		};
+		const applied = applyBatteryInterval(
+			point.consumption ?? 0,
+			point.inserted ?? 0,
+			charge,
+			maxEnergyPerDay,
+			config.capacityKwh,
+		);
 
-		const applied = estimateAggregatedBatteryImpact(original.consumption, original.inserted, 1, config);
+		charge = applied.newCharge;
 
-		const importReduction = original.consumption - applied.consumption;
-		const exportReduction = original.inserted - applied.inserted;
+		const importReduction = (point.consumption ?? 0) - applied.consumption;
+		const exportReduction = (point.inserted ?? 0) - applied.inserted;
 
 		cumulativeImportReduction += importReduction;
 		cumulativeExportReduction += exportReduction;
@@ -225,20 +219,26 @@ function simulateDailyAggregated(input: EnergySeries, config: BatterySimulationC
 
 function simulateWeeklyAggregated(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
+	let charge = config.initialStateOfCharge ?? getDefaultInitialCharge(config);
 
 	let cumulativeImportReduction = 0;
 	let cumulativeExportReduction = 0;
 
+	const maxEnergyPerWeek = config.maxPowerKw * HOURS_PER_DAY * 7;
+
 	for (const point of input) {
-		const original = {
-			consumption: point.consumption ?? 0,
-			inserted: point.inserted ?? 0,
-		};
+		const applied = applyBatteryInterval(
+			point.consumption ?? 0,
+			point.inserted ?? 0,
+			charge,
+			maxEnergyPerWeek,
+			config.capacityKwh,
+		);
 
-		const applied = estimateAggregatedBatteryImpact(original.consumption, original.inserted, 7, config);
+		charge = applied.newCharge;
 
-		const importReduction = original.consumption - applied.consumption;
-		const exportReduction = original.inserted - applied.inserted;
+		const importReduction = (point.consumption ?? 0) - applied.consumption;
+		const exportReduction = (point.inserted ?? 0) - applied.inserted;
 
 		cumulativeImportReduction += importReduction;
 		cumulativeExportReduction += exportReduction;
@@ -257,23 +257,28 @@ function simulateWeeklyAggregated(input: EnergySeries, config: BatterySimulation
 
 function simulateMonthlyAggregated(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
+	let charge = config.initialStateOfCharge ?? getDefaultInitialCharge(config);
 
 	let cumulativeImportReduction = 0;
 	let cumulativeExportReduction = 0;
 
 	for (const point of input) {
-		const original = {
-			consumption: point.consumption ?? 0,
-			inserted: point.inserted ?? 0,
-		};
-
 		const date = point.timestamp;
 		const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+		const maxEnergyPerMonth = config.maxPowerKw * HOURS_PER_DAY * daysInMonth;
 
-		const applied = estimateAggregatedBatteryImpact(original.consumption, original.inserted, daysInMonth, config);
+		const applied = applyBatteryInterval(
+			point.consumption ?? 0,
+			point.inserted ?? 0,
+			charge,
+			maxEnergyPerMonth,
+			config.capacityKwh,
+		);
 
-		const importReduction = original.consumption - applied.consumption;
-		const exportReduction = original.inserted - applied.inserted;
+		charge = applied.newCharge;
+
+		const importReduction = (point.consumption ?? 0) - applied.consumption;
+		const exportReduction = (point.inserted ?? 0) - applied.inserted;
 
 		cumulativeImportReduction += importReduction;
 		cumulativeExportReduction += exportReduction;
@@ -292,24 +297,29 @@ function simulateMonthlyAggregated(input: EnergySeries, config: BatterySimulatio
 
 function simulateYearlyAggregated(input: EnergySeries, config: BatterySimulationConfig): EnergySeries {
 	const result: EnergySeries = [];
+	let charge = config.initialStateOfCharge ?? getDefaultInitialCharge(config);
 
 	let cumulativeImportReduction = 0;
 	let cumulativeExportReduction = 0;
 
 	for (const point of input) {
-		const original = {
-			consumption: point.consumption ?? 0,
-			inserted: point.inserted ?? 0,
-		};
-
 		const year = point.timestamp.getFullYear();
 		const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 		const daysInYear = isLeapYear ? 366 : 365;
+		const maxEnergyPerYear = config.maxPowerKw * HOURS_PER_DAY * daysInYear;
 
-		const applied = estimateAggregatedBatteryImpact(original.consumption, original.inserted, daysInYear, config);
+		const applied = applyBatteryInterval(
+			point.consumption ?? 0,
+			point.inserted ?? 0,
+			charge,
+			maxEnergyPerYear,
+			config.capacityKwh,
+		);
 
-		const importReduction = original.consumption - applied.consumption;
-		const exportReduction = original.inserted - applied.inserted;
+		charge = applied.newCharge;
+
+		const importReduction = (point.consumption ?? 0) - applied.consumption;
+		const exportReduction = (point.inserted ?? 0) - applied.inserted;
 
 		cumulativeImportReduction += importReduction;
 		cumulativeExportReduction += exportReduction;
@@ -324,4 +334,26 @@ function simulateYearlyAggregated(input: EnergySeries, config: BatterySimulation
 	}
 
 	return result;
+}
+
+export function extractBatteryFinalState(input: EnergySeries, config: BatterySimulationConfig): number {
+	if (input.length === 0) {
+		return config.initialStateOfCharge ?? getDefaultInitialCharge(config);
+	}
+
+	let charge = config.initialStateOfCharge ?? getDefaultInitialCharge(config);
+	const maxEnergyPerHour = config.maxPowerKw;
+
+	for (const point of input) {
+		const applied = applyBatteryInterval(
+			point.consumption ?? 0,
+			point.inserted ?? 0,
+			charge,
+			maxEnergyPerHour,
+			config.capacityKwh,
+		);
+		charge = applied.newCharge;
+	}
+
+	return charge;
 }

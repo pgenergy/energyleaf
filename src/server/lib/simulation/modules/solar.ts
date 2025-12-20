@@ -377,9 +377,11 @@ function simulateMonthlyAggregated(input: EnergySeries, config: SolarSimulationC
 	let valueOutIncrease = 0;
 
 	for (const point of input) {
+		const date = point.timestamp;
+		const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 		const sunHours = getSeasonalSunHours(point.timestamp, config);
 		const dailyProduction = calculateDailyProduction(config, sunHours);
-		const monthlyProduction = dailyProduction * 30;
+		const monthlyProduction = dailyProduction * daysInMonth;
 
 		const applied = applySolarProduction(point, monthlyProduction, valueReduction, valueOutIncrease);
 		result.push(applied.point);
@@ -391,20 +393,22 @@ function simulateMonthlyAggregated(input: EnergySeries, config: SolarSimulationC
 }
 
 function simulateYearlyAggregated(input: EnergySeries, config: SolarSimulationConfig): EnergySeries {
-	const daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-	let yearlyProduction = 0;
-	for (let month = 0; month < 12; month++) {
-		const sunHours = getMonthSunHours(month, config);
-		const dailyProduction = calculateDailyProduction(config, sunHours);
-		yearlyProduction += dailyProduction * daysPerMonth[month];
-	}
-
 	const result: EnergySeries = [];
 	let valueReduction = 0;
 	let valueOutIncrease = 0;
 
 	for (const point of input) {
+		const year = point.timestamp.getFullYear();
+		const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+		const daysPerMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+		let yearlyProduction = 0;
+		for (let month = 0; month < 12; month++) {
+			const sunHours = getMonthSunHours(month, config);
+			const dailyProduction = calculateDailyProduction(config, sunHours);
+			yearlyProduction += dailyProduction * daysPerMonth[month];
+		}
+
 		const applied = applySolarProduction(point, yearlyProduction, valueReduction, valueOutIncrease);
 		result.push(applied.point);
 		valueReduction = applied.valueReduction;

@@ -1,11 +1,26 @@
+import { getWarmupEnergyForSensor } from "@/server/queries/energy";
 import { type EnabledSimulations, getEnabledSimulations } from "@/server/queries/simulations";
-import { createBatterySimulation, type EnergyAggregation as BatteryAggregation } from "./modules/battery";
-import { createEvSimulation, type EnergyAggregation as EvAggregation } from "./modules/ev";
+import {
+	type EnergyAggregation as BatteryAggregation,
+	createBatterySimulation,
+	extractBatteryFinalState,
+} from "./modules/battery";
+import { createEvSimulation, type EnergyAggregation as EvAggregation, extractEvFinalState } from "./modules/ev";
 import { createHeatPumpSimulation, type EnergyAggregation as HeatPumpAggregation } from "./modules/heatpump";
 import { createSolarSimulation, type EnergyAggregation as SolarAggregation } from "./modules/solar";
 import type { EnergySeries, Simulation } from "./types";
 
 export type EnergyAggregation = SolarAggregation | EvAggregation | HeatPumpAggregation | BatteryAggregation;
+
+const WARMUP_WORTHY_AGGREGATIONS: EnergyAggregation[] = ["raw", "hour", "day", "weekday"];
+
+function isWarmupWorthyAggregation(agg: EnergyAggregation): boolean {
+	return WARMUP_WORTHY_AGGREGATIONS.includes(agg);
+}
+
+function hasActiveSimulations(settings: EnabledSimulations): boolean {
+	return !!(settings.ev || settings.solar || settings.heatpump || settings.battery);
+}
 
 export const runSimulations = async (input: EnergySeries, sims: Simulation[]): Promise<EnergySeries> => {
 	let currentSeries = input;
@@ -17,22 +32,16 @@ export const runSimulations = async (input: EnergySeries, sims: Simulation[]): P
 
 export interface SetupSimulationsOptions {
 	aggregation: EnergyAggregation;
+	initialBatteryCharge?: number;
+	initialEvCharge?: number;
 }
 
-/**
- * Creates simulation functions from enabled user settings.
- * Order: EV -> HeatPump -> Solar -> Battery
- * - EV and HeatPump add consumption first
- * - Solar generates energy (second last)
- * - Battery stores excess and discharges (must be last)
- */
 export function setupSimulationsFromSettings(
 	settings: EnabledSimulations,
 	options: SetupSimulationsOptions,
 ): Simulation[] {
 	const simulations: Simulation[] = [];
 
-	// 1. EV - adds consumption
 	if (settings.ev) {
 		simulations.push(
 			createEvSimulation({
@@ -43,11 +52,11 @@ export function setupSimulationsFromSettings(
 				defaultSchedule: settings.ev.defaultSchedule,
 				weekdaySchedules: settings.ev.weekdaySchedules,
 				aggregation: options.aggregation,
+				initialStateOfCharge: options.initialEvCharge,
 			}),
 		);
 	}
 
-	// 2. HeatPump - adds consumption
 	if (settings.heatpump) {
 		simulations.push(
 			createHeatPumpSimulation({
@@ -61,7 +70,6 @@ export function setupSimulationsFromSettings(
 		);
 	}
 
-	// 3. Solar (second last) - generates energy, reduces consumption, increases valueOut
 	if (settings.solar) {
 		simulations.push(
 			createSolarSimulation({
@@ -74,13 +82,12 @@ export function setupSimulationsFromSettings(
 		);
 	}
 
-	// 4. Battery MUST be last - stores excess solar and discharges for consumption
 	if (settings.battery) {
 		simulations.push(
 			createBatterySimulation({
 				capacityKwh: settings.battery.capacityKwh,
 				maxPowerKw: settings.battery.maxPowerKw,
-				initialStateOfCharge: settings.battery.initialStateOfCharge,
+				initialStateOfCharge: options.initialBatteryCharge,
 				aggregation: options.aggregation,
 			}),
 		);
@@ -89,24 +96,69 @@ export function setupSimulationsFromSettings(
 	return simulations;
 }
 
-/**
- * Fetches enabled simulations for a user and creates simulation functions.
- * Order: EV -> HeatPump -> Solar -> Battery
- */
 export async function setupEnabledSimulations(userId: string, options: SetupSimulationsOptions): Promise<Simulation[]> {
 	const settings = await getEnabledSimulations(userId);
 	return setupSimulationsFromSettings(settings, options);
 }
 
-/**
- * Fetches enabled simulations for a user and runs them on the input energy series.
- * Order: EV -> HeatPump -> Solar -> Battery
- */
-export async function runEnabledSimulations(
+export interface WarmupOptions {
+	sensorId: string;
+	startDate: Date;
+	warmupDays?: number;
+}
+
+export async function runSimulationsWithWarmup(
 	input: EnergySeries,
 	userId: string,
-	options: SetupSimulationsOptions,
+	options: SetupSimulationsOptions & WarmupOptions,
 ): Promise<EnergySeries> {
-	const simulations = await setupEnabledSimulations(userId, options);
-	return runSimulations(input, simulations);
+	const settings = await getEnabledSimulations(userId);
+
+	if (!hasActiveSimulations(settings)) {
+		return input;
+	}
+
+	const needsWarmup = (settings.battery || settings.ev) && isWarmupWorthyAggregation(options.aggregation);
+
+	if (!needsWarmup) {
+		const sims = setupSimulationsFromSettings(settings, options);
+		return runSimulations(input, sims);
+	}
+
+	const warmupData = await getWarmupEnergyForSensor(options.startDate, options.sensorId, options.warmupDays ?? 5);
+
+	if (warmupData.length === 0) {
+		const sims = setupSimulationsFromSettings(settings, options);
+		return runSimulations(input, sims);
+	}
+
+	const warmupSims = setupSimulationsFromSettings(settings, { aggregation: "hour" });
+	const warmupResult = await runSimulations(warmupData, warmupSims);
+
+	const finalBatteryCharge = settings.battery
+		? extractBatteryFinalState(warmupResult, {
+				capacityKwh: settings.battery.capacityKwh,
+				maxPowerKw: settings.battery.maxPowerKw,
+				aggregation: "hour",
+			})
+		: undefined;
+
+	const finalEvCharge = settings.ev
+		? extractEvFinalState(warmupResult, {
+				chargingSpeed: settings.ev.chargingSpeed,
+				evCapacityKwh: settings.ev.evCapacityKwh,
+				dailyDrivingDistanceKm: settings.ev.dailyDrivingDistanceKm,
+				avgConsumptionPer100Km: settings.ev.avgConsumptionPer100Km,
+				defaultSchedule: settings.ev.defaultSchedule,
+				weekdaySchedules: settings.ev.weekdaySchedules,
+				aggregation: "hour",
+			})
+		: undefined;
+
+	const actualSims = setupSimulationsFromSettings(settings, {
+		...options,
+		initialBatteryCharge: finalBatteryCharge,
+		initialEvCharge: finalEvCharge,
+	});
+	return runSimulations(input, actualSims);
 }

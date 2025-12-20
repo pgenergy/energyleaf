@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { cn } from "@/lib/utils";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
-import { runSimulations, setupSimulationsFromSettings } from "@/server/lib/simulation/run";
+import { runSimulationsWithWarmup } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getEnabledSimulations } from "@/server/queries/simulations";
@@ -96,10 +96,11 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 
 	let simValue: number | null = null;
 	if (hasActiveSimulations) {
-		const simulations = setupSimulationsFromSettings(enabledSimulations, {
+		const simData = await runSimulationsWithWarmup(data, user.id, {
 			aggregation: "day",
+			sensorId: energySensorId,
+			startDate: start,
 		});
-		const simData = await runSimulations(data, simulations);
 		simValue = simData.reduce((acc, curr) => curr.consumption + acc, 0);
 	}
 

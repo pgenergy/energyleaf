@@ -13,9 +13,9 @@ import { numericType } from "../types";
 import { userTable } from "./user";
 
 export type TouTariffZone = {
-	start: string; // HH:MM format
-	end: string; // HH:MM format, can be earlier than start for overnight zones
-	price: number; // Price in ct/kWh
+	start: string;
+	end: string;
+	price: number;
 };
 
 export type TouWeekdayZones = {
@@ -29,8 +29,8 @@ export type TouWeekdayZones = {
 };
 
 export type EvChargingTimeSlot = {
-	start: string; // HH:MM format
-	end: string; // HH:MM format, can be earlier than start for overnight charging
+	start: string;
+	end: string;
 };
 
 export type EvWeekdaySchedules = {
@@ -44,9 +44,9 @@ export type EvWeekdaySchedules = {
 };
 
 export type HeatingTimeSlot = {
-	start: string; // HH:MM format
-	end: string; // HH:MM format, can be earlier than start for overnight heating
-	targetTemperature: number; // Target temperature in Celsius
+	start: string;
+	end: string;
+	targetTemperature: number;
 };
 
 export type HeatingWeekdaySchedules = {
@@ -167,7 +167,6 @@ export const simulationBatterySettingsTable = pgTable("simulation_battery_settin
 	enabled: boolean("enabled").notNull().default(true),
 	capacityKwh: numericType("capacity_kwh").notNull(),
 	maxPowerKw: numericType("max_power_kw").notNull(),
-	initialStateOfCharge: numericType("initial_state_of_charge").default(0).notNull(),
 	createdAt: timestamp("created_at", { mode: "date", withTimezone: true }).default(sql`now()`).notNull(),
 	updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
 		.default(sql`now()`)

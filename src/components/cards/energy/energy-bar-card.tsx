@@ -6,7 +6,7 @@ import type { ChartConfig } from "@/components/ui/chart";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
-import { runSimulations, setupSimulationsFromSettings } from "@/server/lib/simulation/run";
+import { runSimulationsWithWarmup } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getEnabledSimulations } from "@/server/queries/simulations";
@@ -89,10 +89,11 @@ export default async function EnergyBarCard(props: Props) {
 
 	let simData: typeof data | undefined;
 	if (hasActiveSimulations) {
-		const simulations = setupSimulationsFromSettings(enabledSimulations, {
+		simData = await runSimulationsWithWarmup(data, user.id, {
 			aggregation: agg,
+			sensorId: energySensorId,
+			startDate: start,
 		});
-		simData = await runSimulations(data, simulations);
 	}
 
 	const chartConfig = {

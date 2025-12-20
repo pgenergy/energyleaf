@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
 import { calculateTouTariffCost, type TouTariffConfig } from "@/server/lib/simulation/cost";
-import { runSimulations, setupSimulationsFromSettings } from "@/server/lib/simulation/run";
+import { runSimulationsWithWarmup } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getEnabledSimulations } from "@/server/queries/simulations";
@@ -129,19 +129,16 @@ export default async function TotalEnergyCostCard(props: Props) {
 	const baseCost = (userData.basePrice / daysInMonth) * dayDiff;
 	const cost = workingCost + baseCost;
 
-	// Fetch enabled simulations
 	const enabledSimulations = await getEnabledSimulations(user.id);
 	const hasActiveSimulations =
 		enabledSimulations.ev || enabledSimulations.solar || enabledSimulations.heatpump || enabledSimulations.battery;
 	const hasTouTariff = enabledSimulations.tou !== null;
 
-	// For TOU and simulation calculations, we need hourly data
 	let originalTouCost: number | null = null;
 	let simCostOriginalTariff: number | null = null;
 	let simCostTouTariff: number | null = null;
 
 	if (hasTouTariff || hasActiveSimulations) {
-		// Fetch hourly data for time-based calculations
 		const hourlyData = await getEnergyForSensorInRange(
 			start.toISOString(),
 			end.toISOString(),
@@ -151,7 +148,6 @@ export default async function TotalEnergyCostCard(props: Props) {
 		);
 
 		if (hourlyData && hourlyData.length > 0) {
-			// Build TOU config if available
 			const touConfig: TouTariffConfig | null = enabledSimulations.tou
 				? {
 						basePrice: enabledSimulations.tou.basePrice,
@@ -161,25 +157,22 @@ export default async function TotalEnergyCostCard(props: Props) {
 					}
 				: null;
 
-			// 1. Original data with TOU tariff
 			if (touConfig) {
 				const touResult = calculateTouTariffCost(hourlyData, touConfig, dayDiff, daysInMonth);
 				originalTouCost = touResult.totalCost;
 			}
 
-			// Run simulations if active
 			if (hasActiveSimulations) {
-				const simulations = setupSimulationsFromSettings(enabledSimulations, {
+				const simData = await runSimulationsWithWarmup(hourlyData, user.id, {
 					aggregation: "hour",
+					sensorId: energySensorId,
+					startDate: start,
 				});
-				const simData = await runSimulations(hourlyData, simulations);
 				const simConsumption = simData.reduce((acc, curr) => curr.consumption + acc, 0);
 
-				// 2. Simulated data with original tariff
 				const simWorkingCost = simConsumption * userData.workingPrice;
 				simCostOriginalTariff = simWorkingCost + baseCost;
 
-				// 3. Simulated data with TOU tariff
 				if (touConfig) {
 					const simTouResult = calculateTouTariffCost(simData, touConfig, dayDiff, daysInMonth);
 					simCostTouTariff = simTouResult.totalCost;

@@ -13,6 +13,7 @@ export interface EvSimulationConfig {
 	defaultSchedule: EvChargingTimeSlot[];
 	weekdaySchedules: EvWeekdaySchedules;
 	aggregation: EnergyAggregation;
+	initialStateOfCharge?: number | null;
 }
 
 const DEFAULT_CONSUMPTION_PER_100KM = 18;
@@ -343,6 +344,7 @@ function simulateHourlyAggregated(
 		result.push({
 			...point,
 			consumption: point.consumption + chargingConsumption,
+			value: point.value + chargingConsumption,
 		});
 	}
 
@@ -391,16 +393,25 @@ function simulateDailyAggregated(
 	dailyDrivingConsumption: number,
 ): EnergySeries {
 	const scheduledHoursPerDay = calculateScheduledChargingHoursPerDay(config);
+	let currentChargeKwh = config.initialStateOfCharge ?? targetChargeKwh;
 	const result: EnergySeries = [];
 
 	for (const point of input) {
+		// 1. Deduct daily driving consumption at start of day
+		currentChargeKwh = Math.max(0, currentChargeKwh - dailyDrivingConsumption);
+
+		// 2. Calculate charging during scheduled hours
 		const maxDailyCharge = chargingPowerKw * scheduledHoursPerDay;
-		const chargeNeeded = Math.min(dailyDrivingConsumption, targetChargeKwh);
-		const chargingConsumption = Math.min(chargeNeeded, maxDailyCharge);
+		const chargeNeeded = Math.max(0, targetChargeKwh - currentChargeKwh);
+		const actualCharge = Math.min(chargeNeeded, maxDailyCharge);
+
+		// 3. Update charge state
+		currentChargeKwh += actualCharge;
 
 		result.push({
 			...point,
-			consumption: point.consumption + chargingConsumption,
+			consumption: point.consumption + actualCharge,
+			value: point.value + actualCharge,
 		});
 	}
 
@@ -415,17 +426,26 @@ function simulateWeeklyAggregated(
 	dailyDrivingConsumption: number,
 ): EnergySeries {
 	const scheduledHoursPerDay = calculateScheduledChargingHoursPerDay(config);
+	let currentChargeKwh = config.initialStateOfCharge ?? targetChargeKwh;
 	const result: EnergySeries = [];
 
 	for (const point of input) {
+		// 1. Deduct weekly driving consumption
 		const weeklyDrivingConsumption = dailyDrivingConsumption * 7;
+		currentChargeKwh = Math.max(0, currentChargeKwh - weeklyDrivingConsumption);
+
+		// 2. Calculate charging during scheduled hours
 		const maxWeeklyCharge = chargingPowerKw * scheduledHoursPerDay * 7;
-		const chargeNeeded = Math.min(weeklyDrivingConsumption, targetChargeKwh * 7);
-		const chargingConsumption = Math.min(chargeNeeded, maxWeeklyCharge);
+		const chargeNeeded = Math.max(0, targetChargeKwh - currentChargeKwh);
+		const actualCharge = Math.min(chargeNeeded, maxWeeklyCharge);
+
+		// 3. Update charge state
+		currentChargeKwh += actualCharge;
 
 		result.push({
 			...point,
-			consumption: point.consumption + chargingConsumption,
+			consumption: point.consumption + actualCharge,
+			value: point.value + actualCharge,
 		});
 	}
 
@@ -440,18 +460,29 @@ function simulateMonthlyAggregated(
 	dailyDrivingConsumption: number,
 ): EnergySeries {
 	const scheduledHoursPerDay = calculateScheduledChargingHoursPerDay(config);
-	const daysPerMonth = 30;
+	let currentChargeKwh = config.initialStateOfCharge ?? targetChargeKwh;
 	const result: EnergySeries = [];
 
 	for (const point of input) {
-		const monthlyDrivingConsumption = dailyDrivingConsumption * daysPerMonth;
-		const maxMonthlyCharge = chargingPowerKw * scheduledHoursPerDay * daysPerMonth;
-		const chargeNeeded = Math.min(monthlyDrivingConsumption, targetChargeKwh * daysPerMonth);
-		const chargingConsumption = Math.min(chargeNeeded, maxMonthlyCharge);
+		const date = point.timestamp;
+		const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+
+		// 1. Deduct monthly driving consumption
+		const monthlyDrivingConsumption = dailyDrivingConsumption * daysInMonth;
+		currentChargeKwh = Math.max(0, currentChargeKwh - monthlyDrivingConsumption);
+
+		// 2. Calculate charging during scheduled hours
+		const maxMonthlyCharge = chargingPowerKw * scheduledHoursPerDay * daysInMonth;
+		const chargeNeeded = Math.max(0, targetChargeKwh - currentChargeKwh);
+		const actualCharge = Math.min(chargeNeeded, maxMonthlyCharge);
+
+		// 3. Update charge state
+		currentChargeKwh += actualCharge;
 
 		result.push({
 			...point,
-			consumption: point.consumption + chargingConsumption,
+			consumption: point.consumption + actualCharge,
+			value: point.value + actualCharge,
 		});
 	}
 
@@ -466,20 +497,76 @@ function simulateYearlyAggregated(
 	dailyDrivingConsumption: number,
 ): EnergySeries {
 	const scheduledHoursPerDay = calculateScheduledChargingHoursPerDay(config);
-	const daysPerYear = 365;
+	let currentChargeKwh = config.initialStateOfCharge ?? targetChargeKwh;
 	const result: EnergySeries = [];
 
 	for (const point of input) {
-		const yearlyDrivingConsumption = dailyDrivingConsumption * daysPerYear;
-		const maxYearlyCharge = chargingPowerKw * scheduledHoursPerDay * daysPerYear;
-		const chargeNeeded = Math.min(yearlyDrivingConsumption, targetChargeKwh * daysPerYear);
-		const chargingConsumption = Math.min(chargeNeeded, maxYearlyCharge);
+		const year = point.timestamp.getFullYear();
+		const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+		const daysInYear = isLeapYear ? 366 : 365;
+
+		// 1. Deduct yearly driving consumption
+		const yearlyDrivingConsumption = dailyDrivingConsumption * daysInYear;
+		currentChargeKwh = Math.max(0, currentChargeKwh - yearlyDrivingConsumption);
+
+		// 2. Calculate charging during scheduled hours
+		const maxYearlyCharge = chargingPowerKw * scheduledHoursPerDay * daysInYear;
+		const chargeNeeded = Math.max(0, targetChargeKwh - currentChargeKwh);
+		const actualCharge = Math.min(chargeNeeded, maxYearlyCharge);
+
+		// 3. Update charge state
+		currentChargeKwh += actualCharge;
 
 		result.push({
 			...point,
-			consumption: point.consumption + chargingConsumption,
+			consumption: point.consumption + actualCharge,
+			value: point.value + actualCharge,
 		});
 	}
 
 	return result;
+}
+
+/**
+ * Runs an hourly EV simulation on input data and returns the final charge state.
+ * Used for warmup simulations to determine initial charge for the actual simulation.
+ */
+export function extractEvFinalState(input: EnergySeries, config: EvSimulationConfig): number {
+	const chargingPowerKw = getChargingPowerKw(config.chargingSpeed);
+	const targetChargeKwh = config.evCapacityKwh * TARGET_CHARGE_PERCENT;
+	const dailyDrivingConsumption = calculateDailyDrivingConsumption(config);
+
+	if (input.length === 0) {
+		return config.initialStateOfCharge ?? targetChargeKwh;
+	}
+
+	let currentChargeKwh = config.initialStateOfCharge ?? targetChargeKwh;
+	let lastDate: string | null = null;
+	let hasChargedToday = false;
+
+	for (const point of input) {
+		const currentDate = point.timestamp.toISOString().split("T")[0];
+
+		// Deduct driving consumption when day changes (after charging)
+		if (lastDate !== null && lastDate !== currentDate && hasChargedToday) {
+			currentChargeKwh = Math.max(0, currentChargeKwh - dailyDrivingConsumption);
+			hasChargedToday = false;
+		}
+		lastDate = currentDate;
+
+		// Calculate charging overlap for this hour
+		const hourStart = point.timestamp.getHours() * 60;
+		const hourEnd = hourStart + 60;
+		const overlapFraction = calculateScheduleOverlap(hourStart, hourEnd, config);
+
+		if (overlapFraction > 0 && currentChargeKwh < targetChargeKwh) {
+			const maxChargeThisHour = chargingPowerKw * overlapFraction;
+			const chargeNeeded = targetChargeKwh - currentChargeKwh;
+			const actualCharge = Math.min(maxChargeThisHour, chargeNeeded);
+			currentChargeKwh += actualCharge;
+			hasChargedToday = true;
+		}
+	}
+
+	return currentChargeKwh;
 }

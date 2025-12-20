@@ -212,6 +212,7 @@ function simulateHourlyAggregated(input: EnergySeries, config: HeatPumpSimulatio
 		result.push({
 			...point,
 			consumption: point.consumption + heatPumpConsumption,
+			value: point.value + heatPumpConsumption,
 		});
 	}
 
@@ -261,6 +262,7 @@ function simulateDailyAggregated(input: EnergySeries, config: HeatPumpSimulation
 		result.push({
 			...point,
 			consumption: point.consumption + dailyConsumption,
+			value: point.value + dailyConsumption,
 		});
 	}
 
@@ -286,6 +288,7 @@ function simulateWeeklyAggregated(input: EnergySeries, config: HeatPumpSimulatio
 		result.push({
 			...point,
 			consumption: point.consumption + weeklyConsumption,
+			value: point.value + weeklyConsumption,
 		});
 	}
 
@@ -299,6 +302,8 @@ function simulateMonthlyAggregated(input: EnergySeries, config: HeatPumpSimulati
 	const result: EnergySeries = [];
 
 	for (const point of input) {
+		const date = point.timestamp;
+		const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 		const outdoorTemp = getOutdoorTemperature(point.timestamp);
 		const dailyConsumption = calculateElectricalConsumption(
 			heatingHoursPerDay,
@@ -306,11 +311,12 @@ function simulateMonthlyAggregated(input: EnergySeries, config: HeatPumpSimulati
 			outdoorTemp,
 			config,
 		);
-		const monthlyConsumption = dailyConsumption * 30;
+		const monthlyConsumption = dailyConsumption * daysInMonth;
 
 		result.push({
 			...point,
 			consumption: point.consumption + monthlyConsumption,
+			value: point.value + monthlyConsumption,
 		});
 	}
 
@@ -321,26 +327,29 @@ function simulateYearlyAggregated(input: EnergySeries, config: HeatPumpSimulatio
 	const heatingHoursPerDay = calculateScheduledHeatingHoursPerDay(config);
 	const avgTargetTemperature = getAverageTargetTemperature(config);
 
-	const daysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-	let yearlyConsumption = 0;
-	for (let month = 0; month < 12; month++) {
-		const outdoorTemp = MONTHLY_OUTDOOR_TEMPS[month] ?? 10;
-		const dailyConsumption = calculateElectricalConsumption(
-			heatingHoursPerDay,
-			avgTargetTemperature,
-			outdoorTemp,
-			config,
-		);
-		yearlyConsumption += dailyConsumption * daysPerMonth[month];
-	}
-
 	const result: EnergySeries = [];
 
 	for (const point of input) {
+		const year = point.timestamp.getFullYear();
+		const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+		const daysPerMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+		let yearlyConsumption = 0;
+		for (let month = 0; month < 12; month++) {
+			const outdoorTemp = MONTHLY_OUTDOOR_TEMPS[month] ?? 10;
+			const dailyConsumption = calculateElectricalConsumption(
+				heatingHoursPerDay,
+				avgTargetTemperature,
+				outdoorTemp,
+				config,
+			);
+			yearlyConsumption += dailyConsumption * daysPerMonth[month];
+		}
+
 		result.push({
 			...point,
 			consumption: point.consumption + yearlyConsumption,
+			value: point.value + yearlyConsumption,
 		});
 	}
 

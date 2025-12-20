@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { ChartConfig } from "@/components/ui/chart";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import { getCurrentSession } from "@/server/lib/auth";
-import { runSimulations, setupSimulationsFromSettings } from "@/server/lib/simulation/run";
+import { runSimulationsWithWarmup } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getEnabledSimulations } from "@/server/queries/simulations";
@@ -63,10 +63,11 @@ export default async function DetailEnergyChartCard(props: Props) {
 
 	let simData: typeof data | undefined;
 	if (hasActiveSimulations) {
-		const simulations = setupSimulationsFromSettings(enabledSimulations, {
+		simData = await runSimulationsWithWarmup(data, user.id, {
 			aggregation: "raw",
+			sensorId: energySensorId,
+			startDate: start,
 		});
-		simData = await runSimulations(data, simulations);
 	}
 
 	const chartConfig = {

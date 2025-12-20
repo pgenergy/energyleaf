@@ -1,0 +1,1 @@
+ALTER TABLE "simulation_ev_settings" ADD COLUMN "initial_state_of_charge" numeric(30, 6);
