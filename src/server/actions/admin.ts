@@ -1,5 +1,6 @@
 "use server";
 
+import { hash } from "@node-rs/argon2";
 import { waitUntil } from "@vercel/functions";
 import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -7,6 +8,7 @@ import { cookies } from "next/headers";
 import type { z } from "zod";
 import { SimulationType, type SimulationTypeValue } from "@/lib/enums";
 import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
+import { adminCreateUserSchema } from "@/lib/schemas/admin-schema";
 import {
 	accountInfoSchema,
 	accountNameSchema,
@@ -19,7 +21,9 @@ import {
 	solarSettingsSchema,
 	touTariffSchema,
 } from "@/lib/schemas/profile-schema";
+import { genID } from "@/lib/utils";
 import { db } from "../db";
+import { reportConfigTable } from "../db/tables/reports";
 import {
 	simulationBatterySettingsTable,
 	simulationEvSettingsTable,
@@ -1369,6 +1373,193 @@ export async function adminToggleSimulationEnabledAction(
 					user: null,
 					session: null,
 					targetUser: userId,
+				},
+			}),
+		);
+		return {
+			success: false,
+			message: "Es ist ein unerwarteter Fehler aufgetreten.",
+		};
+	}
+}
+
+export async function adminCreateUserAction(data: z.infer<typeof adminCreateUserSchema>) {
+	try {
+		const { user } = await getCurrentSession();
+		const cookieStore = await cookies();
+		const sid = cookieStore.get("sid")?.value;
+
+		if (!user || !user.isAdmin) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_CREATE_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: user ? ErrorTypes.NOT_ADMIN : ErrorTypes.NOT_LOGGED_IN,
+						user: user?.id ?? null,
+						session: sid,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sie sind nicht berechtigt, diese Aktion durchzuführen.",
+			};
+		}
+
+		const valid = adminCreateUserSchema.safeParse(data);
+		if (!valid.success) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_CREATE_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: ErrorTypes.INVALID_INPUT,
+						user: user.id,
+						session: sid,
+						data: { ...data, password: "[REDACTED]", passwordRepeat: "[REDACTED]" },
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Bitte überprüfen Sie Ihre Eingaben.",
+			};
+		}
+
+		if (data.mail.length >= 256) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_CREATE_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: ErrorTypes.STRING_TOO_LONG,
+						user: user.id,
+						session: sid,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "E-Mail muss unter dem Zeichenlimit von 256 Zeichen liegen.",
+			};
+		}
+
+		if (data.password.length >= 256) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_CREATE_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: ErrorTypes.STRING_TOO_LONG,
+						user: user.id,
+						session: sid,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Passwort muss unter dem Zeichenlimit von 256 Zeichen liegen.",
+			};
+		}
+
+		// Check if email is already in use
+		const existingUsers = await db
+			.select({ id: userTable.id })
+			.from(userTable)
+			.where(eq(userTable.email, data.mail))
+			.limit(1);
+
+		if (existingUsers.length > 0) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_CREATE_USER_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: ErrorTypes.EMAIL_USED,
+						user: user.id,
+						session: sid,
+						email: data.mail,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "E-Mail wird bereits verwendet.",
+			};
+		}
+
+		const userId = genID(30);
+		const passwordHash = await hash(data.password);
+
+		await db.transaction(async (trx) => {
+			await trx.insert(userTable).values({
+				id: userId,
+				firstname: data.firstname,
+				lastname: data.lastname,
+				username: `${data.firstname} ${data.lastname}`,
+				email: data.mail,
+				password: passwordHash,
+				address: data.address,
+				phone: null,
+				isAdmin: data.isAdmin,
+				isParticipant: data.isParticipant,
+				isActive: false,
+			});
+			await trx.insert(userDataTable).values({
+				userId,
+				electricityMeterNumber: null,
+				electricityMeterType: null,
+				electricityMeterImgUrl: null,
+				installationComment: null,
+			});
+			await trx.insert(reportConfigTable).values({
+				userId,
+			});
+		});
+
+		revalidatePath("/admin/users");
+
+		waitUntil(
+			logAction({
+				fn: LogActionTypes.ADMIN_CREATE_USER_ACTION,
+				result: "success",
+				details: {
+					success: true,
+					reason: null,
+					user: user.id,
+					session: sid,
+					createdUser: userId,
+					data: {
+						email: data.mail,
+						firstname: data.firstname,
+						lastname: data.lastname,
+						isAdmin: data.isAdmin,
+						isParticipant: data.isParticipant,
+					},
+				},
+			}),
+		);
+
+		return {
+			success: true,
+			message: "Nutzer erfolgreich erstellt.",
+			path: "/admin/users",
+		};
+	} catch (err) {
+		console.error(err);
+		waitUntil(
+			logError({
+				fn: LogActionTypes.ADMIN_CREATE_USER_ACTION,
+				error: err as Error,
+				details: {
+					user: null,
+					session: null,
 				},
 			}),
 		);

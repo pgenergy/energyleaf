@@ -37,6 +37,9 @@ export enum LogActionTypes {
 	RESET_PASSWORD_ACTION = "reset_password_action",
 	CHANGE_PASSWORD_ACTION = "change_password_action",
 
+	// ONBOARDING
+	COMPLETE_ONBOARDING_ACTION = "complete_onboarding_action",
+
 	// ACCOUNT
 	DELETE_ACCOUNT_ACTION = "delete_account_action",
 	UPDATE_ACCOUNT_NAME_ACTION = "update_account_name_action",
@@ -69,6 +72,7 @@ export enum LogActionTypes {
 	DELETE_PEAK_ACTION = "delete_peak_action",
 
 	// ADMIN USER MANAGEMENT
+	ADMIN_CREATE_USER_ACTION = "admin_create_user_action",
 	ADMIN_UPDATE_USER_NAME_ACTION = "admin_update_user_name_action",
 	ADMIN_UPDATE_USER_INFO_ACTION = "admin_update_user_info_action",
 	ADMIN_UPDATE_HOUSEHOLD_ACTION = "admin_update_household_action",

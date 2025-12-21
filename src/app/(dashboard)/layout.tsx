@@ -1,11 +1,9 @@
 import {
 	BarChartIcon,
-	// ChartLineIcon,
 	CpuIcon,
 	DollarSignIcon,
 	HomeIcon,
 	LampIcon,
-	// MailsIcon,
 	SettingsIcon,
 	Users2Icon,
 	ZapIcon,
@@ -29,6 +27,10 @@ export default async function DashboardLayout(props: Props) {
 
 	if (!user) {
 		redirect("/login");
+	}
+
+	if (!user.onboardingCompleted) {
+		redirect("/onboarding");
 	}
 
 	if (!env.DISABLE_TRACKING) {

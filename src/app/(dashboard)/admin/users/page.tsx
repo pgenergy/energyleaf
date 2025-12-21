@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { UsersOverview } from "@/components/cards/user/users-overview";
 import { UserSearch } from "@/components/forms/user/user-search";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { env } from "@/env";
 import { getCurrentSession } from "@/server/lib/auth";
@@ -41,6 +43,9 @@ export default async function AdminUsersPage(props: Props) {
 				<h1 className="text-xl font-bold">Nutzer</h1>
 				<div className="flex flex-col items-center gap-2 sm:flex-row">
 					<UserSearch />
+					<Link href="/admin/users/new" className={buttonVariants({ variant: "default" })}>
+						Neuer Nutzer
+					</Link>
 				</div>
 			</div>
 			<Suspense fallback={<Skeleton className="col-span-1 h-56 md:col-span-2" />}>
