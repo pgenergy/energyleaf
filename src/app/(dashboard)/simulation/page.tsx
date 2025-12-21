@@ -15,6 +15,7 @@ import { SimulationPageLayout } from "@/components/layouts/simulation-page-layou
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AutoRefresh } from "@/components/utils/auto-refresh";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getEnabledSimulations } from "@/server/queries/simulations";
@@ -121,38 +122,46 @@ export default async function SimulationPage(props: Props) {
 	}
 
 	return (
-		<SimulationPageLayout
-			selector={
-				<DaySelector
-					disallowFuture
-					timezone={user.timezone || TimeZoneType.Europe_Berlin}
-					range="day"
-					href="/simulation"
-					paramName="date"
-				>
-					<CalendarIcon className="size-4 opacity-50" />
-					{date ? format(date, "PPPP", { locale: de }) : "Datum auswählen"}
-				</DaySelector>
-			}
-			filter={<SimulationFilter enabledSimulations={enabledSimulationsFlags} />}
-			settingsLink={settingsLink}
-			cards={
-				<>
-					<Suspense fallback={<Skeleton className="h-56" />}>
-						<TotalEnergyConsumptionCard start={date} filters={filters} showSimulation />
-					</Suspense>
-					<Suspense fallback={<Skeleton className="h-56" />}>
-						<TotalEnergyCostCard start={date} filters={filters} showSimulation />
-					</Suspense>
-				</>
-			}
-		>
-			<Suspense fallback={<Skeleton className="h-96" />}>
-				<SimulationDetailChartCard userId={user.id} timezone={user.timezone} start={date} filters={filters} />
-			</Suspense>
-			<Suspense fallback={<Skeleton className="h-96" />}>
-				<SimulationBarChartCard userId={user.id} timezone={user.timezone} start={date} filters={filters} />
-			</Suspense>
-		</SimulationPageLayout>
+		<>
+			<AutoRefresh intervalMs={120000} />
+			<SimulationPageLayout
+				selector={
+					<DaySelector
+						disallowFuture
+						timezone={user.timezone || TimeZoneType.Europe_Berlin}
+						range="day"
+						href="/simulation"
+						paramName="date"
+					>
+						<CalendarIcon className="size-4 opacity-50" />
+						{date ? format(date, "PPPP", { locale: de }) : "Datum auswählen"}
+					</DaySelector>
+				}
+				filter={<SimulationFilter enabledSimulations={enabledSimulationsFlags} />}
+				settingsLink={settingsLink}
+				cards={
+					<>
+						<Suspense fallback={<Skeleton className="h-56" />}>
+							<TotalEnergyConsumptionCard start={date} filters={filters} showSimulation />
+						</Suspense>
+						<Suspense fallback={<Skeleton className="h-56" />}>
+							<TotalEnergyCostCard start={date} filters={filters} showSimulation />
+						</Suspense>
+					</>
+				}
+			>
+				<Suspense fallback={<Skeleton className="h-96" />}>
+					<SimulationDetailChartCard
+						userId={user.id}
+						timezone={user.timezone}
+						start={date}
+						filters={filters}
+					/>
+				</Suspense>
+				<Suspense fallback={<Skeleton className="h-96" />}>
+					<SimulationBarChartCard userId={user.id} timezone={user.timezone} start={date} filters={filters} />
+				</Suspense>
+			</SimulationPageLayout>
+		</>
 	);
 }
