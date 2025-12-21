@@ -4,6 +4,7 @@ import { toZonedTime } from "date-fns-tz";
 import { CalendarIcon, SettingsIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
 import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumption-card";
@@ -83,42 +84,29 @@ export default async function SimulationPage(props: Props) {
 		tou: searchParams.tou !== "false",
 	};
 
-	if (!hasAnyEnabled && !user.isSimulationFree) {
+	if (!hasAnyEnabled) {
+		if (!user.isSimulationFree) {
+			redirect("/dashboard");
+		}
+
 		return (
-			<SimulationPageLayout
-				selector={
-					<DaySelector
-						disallowFuture
-						timezone={user.timezone || TimeZoneType.Europe_Berlin}
-						range="day"
-						href="/simulation"
-						paramName="date"
-					>
-						<CalendarIcon className="size-4 opacity-50" />
-						{date ? format(date, "PPPP", { locale: de }) : "Datum auswählen"}
-					</DaySelector>
-				}
-				filter={<SimulationFilter enabledSimulations={enabledSimulationsFlags} />}
-				settingsLink={settingsLink}
-			>
-				<Card>
-					<CardHeader>
-						<CardTitle>Keine Simulationen konfiguriert</CardTitle>
-						<CardDescription>
-							Sie haben noch keine Simulationen konfiguriert. Richten Sie Ihre Simulationen in den
-							Einstellungen ein, um zu sehen, wie sich Ihr Energieverbrauch verändern könnte.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<Button asChild>
-							<Link href="/settings">
-								<SettingsIcon className="mr-2 size-4" />
-								Zu den Einstellungen
-							</Link>
-						</Button>
-					</CardContent>
-				</Card>
-			</SimulationPageLayout>
+			<Card>
+				<CardHeader>
+					<CardTitle>Keine Simulationen konfiguriert</CardTitle>
+					<CardDescription>
+						Sie haben noch keine Simulationen konfiguriert. Richten Sie Ihre Simulationen in den
+						Einstellungen ein, um zu sehen, wie sich Ihr Energieverbrauch verändern könnte.
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<Button asChild>
+						<Link href="/settings/simulation">
+							<SettingsIcon className="mr-2 size-4" />
+							Zu den Simulationseinstellungen
+						</Link>
+					</Button>
+				</CardContent>
+			</Card>
 		);
 	}
 
