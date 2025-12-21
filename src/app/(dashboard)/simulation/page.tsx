@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
 import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumption-card";
 import SimulationBarChartCard from "@/components/cards/simulation/simulation-bar-chart-card";
+import SimulationCostBarChartCard from "@/components/cards/simulation/simulation-cost-bar-chart-card";
 import SimulationDetailChartCard from "@/components/cards/simulation/simulation-detail-chart-card";
 import DaySelector from "@/components/date/day-selector";
 import SimulationFilter from "@/components/forms/simulation/simulation-filter";
@@ -160,6 +161,14 @@ export default async function SimulationPage(props: Props) {
 				</Suspense>
 				<Suspense fallback={<Skeleton className="h-96" />}>
 					<SimulationBarChartCard userId={user.id} timezone={user.timezone} start={date} filters={filters} />
+				</Suspense>
+				<Suspense fallback={<Skeleton className="h-96" />}>
+					<SimulationCostBarChartCard
+						userId={user.id}
+						timezone={user.timezone}
+						start={date}
+						filters={filters}
+					/>
 				</Suspense>
 			</SimulationPageLayout>
 		</>
