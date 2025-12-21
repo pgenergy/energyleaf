@@ -4,37 +4,33 @@ import DetailEnergyChart from "@/components/charts/energy/detail-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ChartConfig } from "@/components/ui/chart";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
-import { getCurrentSession } from "@/server/lib/auth";
+import type { SimulationFilters } from "@/server/lib/simulation/run";
 import { runSimulationsWithWarmup } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getEnabledSimulations } from "@/server/queries/simulations";
 
 interface Props {
-	title: string;
-	description: string;
-	className?: string;
-	showSimulation?: boolean;
+	userId: string;
+	timezone: TimeZoneType | null;
+	start: Date;
+	filters: SimulationFilters;
 }
 
-export default async function DetailEnergyChartCard(props: Props) {
-	const { user } = await getCurrentSession();
-	if (!user) {
-		return null;
-	}
+export default async function SimulationDetailChartCard(props: Props) {
+	const tz = TimezoneTypeToTimeZone[props.timezone || TimeZoneType.Europe_Berlin];
+	const start = startOfDay(props.start);
+	const end = endOfDay(props.start);
 
-	const tz = TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin];
-
-	const start = startOfDay(new Date());
-	const end = endOfDay(new Date());
-
-	const energySensorId = await getEnergySensorIdForUser(user.id);
+	const energySensorId = await getEnergySensorIdForUser(props.userId);
 	if (!energySensorId) {
 		return (
-			<Card className={props.className}>
+			<Card>
 				<CardHeader>
-					<CardTitle>{props.title}</CardTitle>
-					<CardDescription>{props.description}</CardDescription>
+					<CardTitle>Energieverbrauch mit Simulation</CardTitle>
+					<CardDescription>
+						Vergleichen Sie Ihren tatsächlichen Energieverbrauch mit simulierten Szenarien.
+					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<p className="text-center font-mono font-semibold">Derzeit ist kein Sensor bei Ihnen aktiviert.</p>
@@ -46,34 +42,42 @@ export default async function DetailEnergyChartCard(props: Props) {
 	const data = await getEnergyForSensorInRange(start.toISOString(), end.toISOString(), energySensorId);
 	if (data.length === 0) {
 		return (
-			<Card className={props.className}>
+			<Card>
 				<CardHeader>
-					<CardTitle>{props.title}</CardTitle>
-					<CardDescription>{props.description}</CardDescription>
+					<CardTitle>Energieverbrauch mit Simulation</CardTitle>
+					<CardDescription>
+						Vergleichen Sie Ihren tatsächlichen Energieverbrauch mit simulierten Szenarien.
+					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<p className="text-center font-mono font-semibold">Derzeit stehen keine Daten zur Verfügung.</p>
+					<p className="text-center font-mono font-semibold">
+						Für diesen Tag stehen keine Daten zur Verfügung.
+					</p>
 				</CardContent>
 			</Card>
 		);
 	}
 
-	let simData: typeof data | undefined;
-	if (props.showSimulation) {
-		const enabledSimulations = await getEnabledSimulations(user.id);
-		const hasActiveSimulations =
-			enabledSimulations.ev ||
-			enabledSimulations.solar ||
-			enabledSimulations.heatpump ||
-			enabledSimulations.battery;
+	const enabledSimulations = await getEnabledSimulations(props.userId);
+	const hasActiveFilters = !!(
+		(enabledSimulations.ev && props.filters.ev) ||
+		(enabledSimulations.solar && props.filters.solar) ||
+		(enabledSimulations.heatpump && props.filters.heatpump) ||
+		(enabledSimulations.battery && props.filters.battery)
+	);
 
-		if (hasActiveSimulations) {
-			simData = await runSimulationsWithWarmup(data, user.id, {
+	let simData: typeof data | undefined;
+	if (hasActiveFilters) {
+		simData = await runSimulationsWithWarmup(
+			data,
+			props.userId,
+			{
 				aggregation: "raw",
 				sensorId: energySensorId,
 				startDate: start,
-			});
-		}
+			},
+			props.filters,
+		);
 	}
 
 	const chartConfig = {
@@ -84,10 +88,12 @@ export default async function DetailEnergyChartCard(props: Props) {
 	} satisfies ChartConfig;
 
 	return (
-		<Card className={props.className}>
+		<Card>
 			<CardHeader>
-				<CardTitle>{props.title}</CardTitle>
-				<CardDescription>{props.description}</CardDescription>
+				<CardTitle>Energieverbrauch mit Simulation</CardTitle>
+				<CardDescription>
+					Vergleichen Sie Ihren tatsächlichen Energieverbrauch mit simulierten Szenarien.
+				</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<DetailEnergyChart

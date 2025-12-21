@@ -100,6 +100,12 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 
 	const hasSimData = props.simData && props.simData.length > 0;
 
+	const yAxisDomain = useMemo(() => {
+		const dataMax = Math.max(...props.data.map((d) => d.consumption));
+		const simMax = props.simData ? Math.max(...props.simData.map((d) => d.consumption)) : 0;
+		return [0, Math.max(dataMax, simMax)];
+	}, [props.data, props.simData]);
+
 	return (
 		<ChartContainer className="min-h-56 w-full" config={effectiveConfig}>
 			<AreaChart
@@ -122,7 +128,13 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 					axisLine={false}
 					interval="equidistantPreserveStart"
 				/>
-				<YAxis dataKey={props.dataKey} tickLine={false} interval="preserveStartEnd" type="number" />
+				<YAxis
+					dataKey={props.dataKey}
+					tickLine={false}
+					interval="preserveStartEnd"
+					type="number"
+					domain={yAxisDomain}
+				/>
 				{props.display.map((d) => (
 					<Area
 						key={d}

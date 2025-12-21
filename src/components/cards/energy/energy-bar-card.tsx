@@ -18,6 +18,7 @@ interface Props {
 	compareEnd?: Date;
 	type: "day" | "week" | "month";
 	className?: string;
+	showSimulation?: boolean;
 }
 
 interface HeadProps {
@@ -83,17 +84,22 @@ export default async function EnergyBarCard(props: Props) {
 		);
 	}
 
-	const enabledSimulations = await getEnabledSimulations(user.id);
-	const hasActiveSimulations =
-		enabledSimulations.ev || enabledSimulations.solar || enabledSimulations.heatpump || enabledSimulations.battery;
-
 	let simData: typeof data | undefined;
-	if (hasActiveSimulations) {
-		simData = await runSimulationsWithWarmup(data, user.id, {
-			aggregation: agg,
-			sensorId: energySensorId,
-			startDate: start,
-		});
+	if (props.showSimulation) {
+		const enabledSimulations = await getEnabledSimulations(user.id);
+		const hasActiveSimulations =
+			enabledSimulations.ev ||
+			enabledSimulations.solar ||
+			enabledSimulations.heatpump ||
+			enabledSimulations.battery;
+
+		if (hasActiveSimulations) {
+			simData = await runSimulationsWithWarmup(data, user.id, {
+				aggregation: agg,
+				sensorId: energySensorId,
+				startDate: start,
+			});
+		}
 	}
 
 	const chartConfig = {

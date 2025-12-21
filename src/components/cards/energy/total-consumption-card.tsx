@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { cn } from "@/lib/utils";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
-import { runSimulationsWithWarmup } from "@/server/lib/simulation/run";
+import { type SimulationFilters, runSimulationsWithWarmup } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getEnabledSimulations } from "@/server/queries/simulations";
@@ -16,6 +16,8 @@ interface Props {
 	compareStart?: Date;
 	compareEnd?: Date;
 	className?: string;
+	filters?: SimulationFilters;
+	showSimulation?: boolean;
 }
 
 interface HeadProps {
@@ -90,18 +92,28 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 		);
 	}
 
-	const enabledSimulations = await getEnabledSimulations(user.id);
-	const hasActiveSimulations =
-		enabledSimulations.ev || enabledSimulations.solar || enabledSimulations.heatpump || enabledSimulations.battery;
-
 	let simValue: number | null = null;
-	if (hasActiveSimulations) {
-		const simData = await runSimulationsWithWarmup(data, user.id, {
-			aggregation: "day",
-			sensorId: energySensorId,
-			startDate: start,
-		});
-		simValue = simData.reduce((acc, curr) => curr.consumption + acc, 0);
+	if (props.showSimulation) {
+		const enabledSimulations = await getEnabledSimulations(user.id);
+		const hasActiveSimulations =
+			enabledSimulations.ev ||
+			enabledSimulations.solar ||
+			enabledSimulations.heatpump ||
+			enabledSimulations.battery;
+
+		if (hasActiveSimulations) {
+			const simData = await runSimulationsWithWarmup(
+				data,
+				user.id,
+				{
+					aggregation: "day",
+					sensorId: energySensorId,
+					startDate: start,
+				},
+				props.filters,
+			);
+			simValue = simData.reduce((acc, curr) => curr.consumption + acc, 0);
+		}
 	}
 
 	const value = data.reduce((acc, curr) => curr.consumption + acc, 0);

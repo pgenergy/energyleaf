@@ -4,6 +4,7 @@ import {
 	DollarSignIcon,
 	HomeIcon,
 	LampIcon,
+	PlayCircleIcon,
 	SettingsIcon,
 	Users2Icon,
 	ZapIcon,
@@ -17,6 +18,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { env } from "@/env";
 import { genID } from "@/lib/utils";
 import { getCurrentSession } from "@/server/lib/auth";
+import { getEnabledSimulations } from "@/server/queries/simulations";
 
 interface Props {
 	children: React.ReactNode;
@@ -94,14 +96,34 @@ export default async function DashboardLayout(props: Props) {
 		// 	icon: <MailsIcon />,
 		// 	admin: false,
 		// },
-		{
-			slug: "settings",
-			title: "Einstellungen",
-			path: "/settings",
-			icon: <SettingsIcon />,
-			admin: false,
-		},
 	];
+
+	// Check if user should see simulation page
+	const enabledSimulations = await getEnabledSimulations(user.id);
+	const hasAnyEnabledSimulation = !!(
+		enabledSimulations.ev ||
+		enabledSimulations.solar ||
+		enabledSimulations.heatpump ||
+		enabledSimulations.battery
+	);
+
+	if (user.isSimulationFree || hasAnyEnabledSimulation) {
+		navLinks.push({
+			slug: "simulation",
+			title: "Simulation",
+			path: "/simulation",
+			icon: <PlayCircleIcon />,
+			admin: false,
+		});
+	}
+
+	navLinks.push({
+		slug: "settings",
+		title: "Einstellungen",
+		path: "/settings",
+		icon: <SettingsIcon />,
+		admin: false,
+	});
 
 	if (user.isAdmin) {
 		navLinks.push({

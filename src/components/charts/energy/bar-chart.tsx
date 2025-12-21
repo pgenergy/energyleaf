@@ -125,6 +125,13 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 		} as T;
 	}, [props.config, shouldShowSimData]);
 
+	const yAxisDomain = useMemo(() => {
+		const dataMax = Math.max(...props.data.map((d) => d.consumption));
+		const compareMax = props.compareData ? Math.max(...props.compareData.map((d) => d.consumption)) : 0;
+		const simMax = props.simData ? Math.max(...props.simData.map((d) => d.consumption)) : 0;
+		return [0, Math.max(dataMax, compareMax, simMax)];
+	}, [props.data, props.compareData, props.simData]);
+
 	return (
 		<ChartContainer className="max-h-96 w-full" config={effectiveConfig}>
 			<BarChart
@@ -140,7 +147,7 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 			>
 				<ChartLegend content={<ChartLegendContent />} />
 				<ChartTooltip content={<ChartTooltipContent />} />
-				<YAxis dataKey={props.dataKey} type="number" interval="preserveStartEnd" />
+				<YAxis dataKey={props.dataKey} type="number" interval="preserveStartEnd" domain={yAxisDomain} />
 				<XAxis dataKey="timestamp" type="category" interval="equidistantPreserveStart" />
 				{props.display.map((d) => (
 					<Bar key={d} dataKey={d} fill={`var(--color-${d})`} radius={8} />

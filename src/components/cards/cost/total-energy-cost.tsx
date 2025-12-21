@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
 import { calculateTouTariffCost, type TouTariffConfig } from "@/server/lib/simulation/cost";
-import { runSimulationsWithWarmup } from "@/server/lib/simulation/run";
+import { type SimulationFilters, runSimulationsWithWarmup } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getEnabledSimulations } from "@/server/queries/simulations";
@@ -20,6 +20,8 @@ interface Props {
 	compareStart?: Date;
 	compareEnd?: Date;
 	className?: string;
+	filters?: SimulationFilters;
+	showSimulation?: boolean;
 }
 
 interface HeadProps {
@@ -129,53 +131,67 @@ export default async function TotalEnergyCostCard(props: Props) {
 	const baseCost = (userData.basePrice / daysInMonth) * dayDiff;
 	const cost = workingCost + baseCost;
 
-	const enabledSimulations = await getEnabledSimulations(user.id);
-	const hasActiveSimulations =
-		enabledSimulations.ev || enabledSimulations.solar || enabledSimulations.heatpump || enabledSimulations.battery;
-	const hasTouTariff = enabledSimulations.tou !== null;
-
 	let originalTouCost: number | null = null;
 	let simCostOriginalTariff: number | null = null;
 	let simCostTouTariff: number | null = null;
 
-	if (hasTouTariff || hasActiveSimulations) {
-		const hourlyData = await getEnergyForSensorInRange(
-			start.toISOString(),
-			end.toISOString(),
-			energySensorId,
-			"hour",
-			"sum",
-		);
+	if (props.showSimulation) {
+		const enabledSimulations = await getEnabledSimulations(user.id);
+		const hasActiveSimulations =
+			enabledSimulations.ev ||
+			enabledSimulations.solar ||
+			enabledSimulations.heatpump ||
+			enabledSimulations.battery;
+		// When filters are provided, only show TOU if filter is not explicitly false
+		const showTou = props.filters
+			? props.filters.tou !== false && enabledSimulations.tou !== null
+			: enabledSimulations.tou !== null;
 
-		if (hourlyData && hourlyData.length > 0) {
-			const touConfig: TouTariffConfig | null = enabledSimulations.tou
-				? {
-						basePrice: enabledSimulations.tou.basePrice,
-						standardPrice: enabledSimulations.tou.standardPrice,
-						zones: enabledSimulations.tou.zones,
-						weekdayZones: enabledSimulations.tou.weekdayZones,
-					}
-				: null;
+		if (showTou || hasActiveSimulations) {
+			const hourlyData = await getEnergyForSensorInRange(
+				start.toISOString(),
+				end.toISOString(),
+				energySensorId,
+				"hour",
+				"sum",
+			);
 
-			if (touConfig) {
-				const touResult = calculateTouTariffCost(hourlyData, touConfig, dayDiff, daysInMonth);
-				originalTouCost = touResult.totalCost;
-			}
-
-			if (hasActiveSimulations) {
-				const simData = await runSimulationsWithWarmup(hourlyData, user.id, {
-					aggregation: "hour",
-					sensorId: energySensorId,
-					startDate: start,
-				});
-				const simConsumption = simData.reduce((acc, curr) => curr.consumption + acc, 0);
-
-				const simWorkingCost = simConsumption * userData.workingPrice;
-				simCostOriginalTariff = simWorkingCost + baseCost;
+			if (hourlyData && hourlyData.length > 0) {
+				const touConfig: TouTariffConfig | null =
+					showTou && enabledSimulations.tou
+						? {
+								basePrice: enabledSimulations.tou.basePrice,
+								standardPrice: enabledSimulations.tou.standardPrice,
+								zones: enabledSimulations.tou.zones,
+								weekdayZones: enabledSimulations.tou.weekdayZones,
+							}
+						: null;
 
 				if (touConfig) {
-					const simTouResult = calculateTouTariffCost(simData, touConfig, dayDiff, daysInMonth);
-					simCostTouTariff = simTouResult.totalCost;
+					const touResult = calculateTouTariffCost(hourlyData, touConfig, dayDiff, daysInMonth);
+					originalTouCost = touResult.totalCost;
+				}
+
+				if (hasActiveSimulations) {
+					const simData = await runSimulationsWithWarmup(
+						hourlyData,
+						user.id,
+						{
+							aggregation: "hour",
+							sensorId: energySensorId,
+							startDate: start,
+						},
+						props.filters,
+					);
+					const simConsumption = simData.reduce((acc, curr) => curr.consumption + acc, 0);
+
+					const simWorkingCost = simConsumption * userData.workingPrice;
+					simCostOriginalTariff = simWorkingCost + baseCost;
+
+					if (touConfig) {
+						const simTouResult = calculateTouTariffCost(simData, touConfig, dayDiff, daysInMonth);
+						simCostTouTariff = simTouResult.totalCost;
+					}
 				}
 			}
 		}

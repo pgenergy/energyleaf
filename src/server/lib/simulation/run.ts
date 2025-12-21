@@ -107,12 +107,35 @@ export interface WarmupOptions {
 	warmupDays?: number;
 }
 
+export interface SimulationFilters {
+	ev?: boolean;
+	solar?: boolean;
+	heatpump?: boolean;
+	battery?: boolean;
+	tou?: boolean;
+}
+
+function applySimulationFilters(settings: EnabledSimulations, filters?: SimulationFilters): EnabledSimulations {
+	if (!filters) {
+		return settings;
+	}
+	return {
+		ev: filters.ev !== false ? settings.ev : null,
+		solar: filters.solar !== false ? settings.solar : null,
+		heatpump: filters.heatpump !== false ? settings.heatpump : null,
+		battery: filters.battery !== false ? settings.battery : null,
+		tou: filters.tou !== false ? settings.tou : null,
+	};
+}
+
 export async function runSimulationsWithWarmup(
 	input: EnergySeries,
 	userId: string,
 	options: SetupSimulationsOptions & WarmupOptions,
+	filters?: SimulationFilters,
 ): Promise<EnergySeries> {
-	const settings = await getEnabledSimulations(userId);
+	const allSettings = await getEnabledSimulations(userId);
+	const settings = applySimulationFilters(allSettings, filters);
 
 	if (!hasActiveSimulations(settings)) {
 		return input;
