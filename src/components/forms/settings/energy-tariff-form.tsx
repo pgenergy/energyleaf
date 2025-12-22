@@ -69,11 +69,13 @@ export default function EnergyTariffForm(props: Props) {
 										<SelectValue placeholder="Wählen Sie Ihren Tarif" />
 									</SelectTrigger>
 									<SelectContent>
-										{(Object.values(TariffType) as [TariffTypeValue]).map((value) => (
-											<SelectItem value={value} key={value}>
-												{TariffTypeDisplay[value]}
-											</SelectItem>
-										))}
+										{(Object.values(TariffType) as [TariffTypeValue])
+											.filter((d) => d !== TariffType.TimeOfUse)
+											.map((value) => (
+												<SelectItem value={value} key={value}>
+													{TariffTypeDisplay[value]}
+												</SelectItem>
+											))}
 									</SelectContent>
 								</Select>
 								{isInvalid && <FieldError errors={field.state.meta.errors} />}

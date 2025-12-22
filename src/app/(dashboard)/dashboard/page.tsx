@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function DashboardPage() {
 	return (
 		<>
-			<AutoRefresh intervalMs={120000} />
+			<AutoRefresh intervalMs={60000} />
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 				<h1 className="col-span-1 text-xl font-bold md:col-span-3">Strom</h1>
 				<Suspense fallback={<Skeleton className="h-56" />}>

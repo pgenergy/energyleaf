@@ -1,9 +1,9 @@
+import Link from "next/link";
 import EnergyGoalForm from "@/components/forms/settings/energy-goals-form";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getUserData } from "@/server/queries/user";
-import Link from "next/link";
 
 export default async function EnergyGoalCard() {
 	const { user } = await getCurrentSession();
@@ -27,9 +27,11 @@ export default async function EnergyGoalCard() {
 				<CardContent>
 					<div className="flex flex-col items-center justify-center">
 						<p>Bitte füllen Sie die fehlenden Daten zu Arbeitspreis und Grundpreis in Ihrem Profil aus</p>
-						<Link className={buttonVariants({ variant: "default" })} href="/settings">
-							Zu den Einstellungen
-						</Link>
+						{user.onboardingCompleted ? (
+							<Link className={buttonVariants({ variant: "default" })} href="/settings">
+								Zu den Einstellungen
+							</Link>
+						) : null}
 					</div>
 				</CardContent>
 			</Card>

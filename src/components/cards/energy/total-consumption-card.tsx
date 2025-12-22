@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { cn } from "@/lib/utils";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
-import { type SimulationFilters, runSimulationsWithWarmup } from "@/server/lib/simulation/run";
+import { runSimulationsWithWarmup, type SimulationFilters } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getEnabledSimulations } from "@/server/queries/simulations";
