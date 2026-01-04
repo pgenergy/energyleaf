@@ -1,5 +1,5 @@
-import { genID } from "@/lib/utils";
 import { and, between, desc, eq, lte } from "drizzle-orm";
+import { genID } from "@/lib/utils";
 import { type DB, db } from "../db";
 import { type EnergyData, type EnergyDataSequence, energyDataSequenceTable } from "../db/tables/sensor";
 import { getEnergyForSensorInRange } from "../queries/energy";

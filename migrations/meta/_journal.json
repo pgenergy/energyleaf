@@ -148,6 +148,20 @@
       "when": 1766233993492,
       "tag": "0020_drop-initial-state-of-charge",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1767554851739,
+      "tag": "0021_admin_templates",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1767557849834,
+      "tag": "0022_fix-pg-net-http-get",
+      "breakpoints": true
     }
   ]
 }

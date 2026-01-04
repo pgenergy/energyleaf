@@ -127,6 +127,13 @@ export default async function DashboardLayout(props: Props) {
 
 	if (user.isAdmin) {
 		navLinks.push({
+			slug: "admin-settings",
+			title: "Einstellungen",
+			path: "/admin/settings",
+			icon: <SettingsIcon />,
+			admin: true,
+		});
+		navLinks.push({
 			slug: "sensors",
 			title: "Sensoren",
 			path: "/admin/sensors",

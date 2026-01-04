@@ -25,6 +25,7 @@ export enum ErrorTypes {
 	USER_NOT_ADDITIONAL = "user_not_additional",
 	SENSOR_NOT_ASSIGNED = "sensor_not_assigned",
 	UNKNOWN = "unknown",
+	NAME_EXISTS = "name_exists",
 }
 
 export enum LogActionTypes {
@@ -95,6 +96,14 @@ export enum LogActionTypes {
 	ADD_ADDITIONAL_SENSOR_USER_ACTION = "add_additional_sensor_user_action",
 	REMOVE_ADDITIONAL_SENSOR_USER_ACTION = "remove_additional_sensor_user_action",
 	UNASSIGN_SENSOR_ACTION = "unassign_sensor_action",
+
+	// ADMIN TEMPLATE MANAGEMENT
+	ADMIN_CREATE_TOU_TEMPLATE_ACTION = "admin_create_tou_template_action",
+	ADMIN_UPDATE_TOU_TEMPLATE_ACTION = "admin_update_tou_template_action",
+	ADMIN_DELETE_TOU_TEMPLATE_ACTION = "admin_delete_tou_template_action",
+
+	// ADMIN CONFIG MANAGEMENT
+	ADMIN_UPDATE_APP_CONFIG_ACTION = "admin_update_app_config_action",
 }
 
 export enum LogSystemTypes {

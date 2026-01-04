@@ -4,7 +4,6 @@ FROM postgres:17
 #–– Build arguments (can be overridden at build-time) ––
 ARG PG_NET_VERSION=0.19.5
 ARG PG_CRON_VERSION=1.6.5
-ARG TIMESCALEDB_VERSION=2.21.3
 ARG PGMQ_VERSION=0.1.0
 ARG PGMQ_VERSION=1.6.1
 
@@ -49,17 +48,9 @@ RUN git clone https://github.com/citusdata/pg_cron.git /tmp/pg_cron && \
     export PATH=/usr/pgsql-16/bin:$PATH && \
     rm -rf /tmp/pg_cron
 
-#-- 5) Fetch, build & install timescaledb --
-RUN git clone https://github.com/timescale/timescaledb && \
-    cd timescaledb && \
-    git checkout ${TIMESCALEDB_VERSION} && \
-    ./bootstrap && \
-    cd build && make && \
-    make install
-
 #–– 5) Enable extensions by default ––
 RUN { \
-      echo "shared_preload_libraries = 'pg_cron, pg_net, timescaledb'"; \
+      echo "shared_preload_libraries = 'pg_cron, pg_net'"; \
       echo "cron.database_name = 'energyleaf'"; \
       echo "pg_net.database_name = 'energyleaf'"; \
     } >> /usr/share/postgresql/postgresql.conf.sample

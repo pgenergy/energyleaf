@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { touTariffSchema } from "@/lib/schemas/profile-schema";
 import { updateSimulationTouTariffSettingsAction } from "@/server/actions/simulations";
+import type { TouTariffTemplate } from "@/server/db/tables/templates";
 
 type TouTariffSettingsInput = z.input<typeof touTariffSchema>;
 type TariffZone = { start: string; end: string; price: number };
@@ -31,9 +33,11 @@ const WeekdayDisplay: Record<Weekday, string> = {
 
 interface Props {
 	initialValues: z.infer<typeof touTariffSchema>;
+	templates?: TouTariffTemplate[];
 }
 
 export default function TouTariffForm(props: Props) {
+	const { templates = [] } = props;
 	const defaultValues: TouTariffSettingsInput = {
 		basePrice: props.initialValues.basePrice,
 		standardPrice: props.initialValues.standardPrice,
@@ -59,6 +63,16 @@ export default function TouTariffForm(props: Props) {
 
 	const pending = form.state.isSubmitting;
 
+	const handleTemplateSelect = (templateId: string) => {
+		const template = templates.find((t) => t.id === templateId);
+		if (!template) return;
+
+		form.setFieldValue("basePrice", template.basePrice);
+		form.setFieldValue("standardPrice", template.standardPrice);
+		form.setFieldValue("zones", template.zones ?? []);
+		form.setFieldValue("weekdayZones", template.weekdayZones ?? {});
+	};
+
 	return (
 		<form
 			className="flex flex-col gap-6"
@@ -67,6 +81,32 @@ export default function TouTariffForm(props: Props) {
 				form.handleSubmit();
 			}}
 		>
+			{/* Template Selector */}
+			{templates.length > 0 && (
+				<FieldGroup>
+					<h3 className="font-medium text-lg">Vorlage</h3>
+					<Field>
+						<FieldLabel>Tarifvorlage auswählen</FieldLabel>
+						<FieldDescription>
+							Wählen Sie eine Vorlage aus, um die Werte zu übernehmen. Sie können die Werte danach
+							anpassen.
+						</FieldDescription>
+						<Select onValueChange={handleTemplateSelect}>
+							<SelectTrigger className="w-full md:w-[300px]">
+								<SelectValue placeholder="Vorlage auswählen..." />
+							</SelectTrigger>
+							<SelectContent>
+								{templates.map((template) => (
+									<SelectItem key={template.id} value={template.id}>
+										{template.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</Field>
+				</FieldGroup>
+			)}
+
 			{/* Basic Pricing */}
 			<FieldGroup>
 				<h3 className="font-medium text-lg">Grundpreise</h3>

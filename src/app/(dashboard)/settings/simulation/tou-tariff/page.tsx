@@ -5,12 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SimulationType } from "@/lib/enums";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getSimulationTouTariffSettings } from "@/server/queries/simulations";
+import { getTouTariffTemplates } from "@/server/queries/templates";
 
 export default async function TouTariffSimulationPage() {
 	const { user } = await getCurrentSession();
 	if (!user) redirect("/");
 
-	const data = await getSimulationTouTariffSettings(user.id);
+	const [data, templates] = await Promise.all([getSimulationTouTariffSettings(user.id), getTouTariffTemplates()]);
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -34,6 +35,7 @@ export default async function TouTariffSimulationPage() {
 							zones: data?.zones ?? [],
 							weekdayZones: data?.weekdayZones ?? {},
 						}}
+						templates={templates}
 					/>
 				</CardContent>
 			</Card>
