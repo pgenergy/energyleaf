@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
 	});
 
 	try {
-		await db.execute(sql`SELECT pgmq.delete('peaks_queue', ${data.msg_id})`);
+		await db.execute(sql`SELECT pgmq.delete('peaks_queue'::text, ${data.msg_id}::bigint)`);
 	} catch (err) {
 		console.error(err);
 	}
