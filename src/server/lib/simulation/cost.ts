@@ -157,7 +157,7 @@ export function compareCosts(
 }
 
 export function calculateFeedInRevenue(data: EnergySeries, feedInTariff: number): number {
-	const totalFeedIn = data.reduce((sum, point) => sum + (point.valueOut ?? 0), 0);
+	const totalFeedIn = data.reduce((sum, point) => sum + (point.inserted ?? 0), 0);
 	return (totalFeedIn * feedInTariff) / 100;
 }
 

@@ -155,11 +155,8 @@ export async function runSimulationsWithWarmup(
 		return runSimulations(input, sims);
 	}
 
-	const warmupSims = setupSimulationsFromSettings(settings, { aggregation: "hour" });
-	const warmupResult = await runSimulations(warmupData, warmupSims);
-
 	const finalBatteryCharge = settings.battery
-		? extractBatteryFinalState(warmupResult, {
+		? extractBatteryFinalState(warmupData, {
 				capacityKwh: settings.battery.capacityKwh,
 				maxPowerKw: settings.battery.maxPowerKw,
 				aggregation: "hour",
@@ -167,7 +164,7 @@ export async function runSimulationsWithWarmup(
 		: undefined;
 
 	const finalEvCharge = settings.ev
-		? extractEvFinalState(warmupResult, {
+		? extractEvFinalState(warmupData, {
 				chargingSpeed: settings.ev.chargingSpeed,
 				evCapacityKwh: settings.ev.evCapacityKwh,
 				dailyDrivingDistanceKm: settings.ev.dailyDrivingDistanceKm,
