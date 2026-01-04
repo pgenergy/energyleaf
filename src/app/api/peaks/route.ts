@@ -55,13 +55,11 @@ export async function GET(req: NextRequest) {
 const peaksSchema = z.object({
 	msg_id: z.coerce.number(),
 	read_ct: z.coerce.number(),
-	message: z.string(),
-});
-
-const peaksMessageSchema = z.object({
-	sensor: z.string(),
-	start: z.coerce.date(),
-	end: z.coerce.date(),
+	message: z.object({
+		sensor: z.string(),
+		start: z.coerce.date(),
+		end: z.coerce.date(),
+	}),
 });
 
 export async function POST(req: NextRequest) {
@@ -77,17 +75,11 @@ export async function POST(req: NextRequest) {
 		return NextResponse.json({ status: 400, statusMessage: "Invalid request body" }, { status: 400 });
 	}
 
-	const parsedMessage = typeof data.message === "string" ? JSON.parse(data.message) : data.message;
-	const { success: msgSuccess, data: message } = peaksMessageSchema.safeParse(parsedMessage);
-	if (!msgSuccess || !message) {
-		return NextResponse.json({ status: 400, statusMessage: "Invalid message" }, { status: 400 });
-	}
-
 	// process message
 	await findAndMark({
-		sensorId: message.sensor,
-		start: message.start,
-		end: message.end,
+		sensorId: data.message.sensor,
+		start: data.message.start,
+		end: data.message.end,
 		type: "peak",
 	});
 
