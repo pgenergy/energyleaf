@@ -132,6 +132,8 @@ export const simulationHeatPumpSettingsTable = pgTable("simulation_heat_pump_set
 
 export type SimulationHeatPumpSettings = typeof simulationHeatPumpSettingsTable.$inferSelect;
 
+export type PricingMode = "tou" | "spot";
+
 export const simulationTouTariffSettingsTable = pgTable("simulation_tou_tariff_settings", {
 	id: text("id")
 		.primaryKey()
@@ -142,10 +144,17 @@ export const simulationTouTariffSettingsTable = pgTable("simulation_tou_tariff_s
 		.references(() => userTable.id, { onDelete: "cascade" })
 		.unique(),
 	enabled: boolean("enabled").notNull().default(true),
+	// Pricing mode: "tou" for time-of-use zones, "spot" for SMARD exchange prices
+	pricingMode: text("pricing_mode", { enum: ["tou", "spot"] })
+		.$type<PricingMode>()
+		.notNull()
+		.default("tou"),
 	basePrice: numericType("base_price").notNull(),
 	standardPrice: numericType("standard_price").notNull(),
 	zones: json("zones").$type<TouTariffZone[]>().notNull().default([]),
 	weekdayZones: json("weekday_zones").$type<TouWeekdayZones>().notNull().default({}),
+	// Spot pricing: provider markup in ct/kWh added to exchange price
+	spotMarkup: numericType("spot_markup").default(3),
 	createdAt: timestamp("created_at", { mode: "date", withTimezone: true }).default(sql`now()`).notNull(),
 	updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
 		.default(sql`now()`)

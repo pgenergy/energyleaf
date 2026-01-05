@@ -124,10 +124,17 @@ export function isBatterySimulationValid(settings: SimulationBatterySettings | n
 
 /**
  * Check if TOU tariff settings have all required values for valid cost calculation.
- * Required: basePrice >= 0, standardPrice > 0
+ * For TOU mode: requires basePrice >= 0, standardPrice > 0
+ * For Spot mode: requires basePrice >= 0, spotMarkup >= 0
  */
 export function isTouTariffValid(settings: SimulationTouTariffSettings | null): boolean {
 	if (!settings) return false;
+
+	if (settings.pricingMode === "spot") {
+		return settings.basePrice >= 0 && (settings.spotMarkup ?? 0) >= 0;
+	}
+
+	// TOU mode
 	return settings.basePrice >= 0 && settings.standardPrice > 0;
 }
 

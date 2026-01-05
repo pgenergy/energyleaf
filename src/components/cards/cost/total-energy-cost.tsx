@@ -7,11 +7,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { cn } from "@/lib/utils";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
-import { calculateTouTariffCost, type TouTariffConfig } from "@/server/lib/simulation/cost";
+import {
+	calculateSpotPriceCost,
+	calculateTouTariffCost,
+	type SpotPriceConfig,
+	type TouTariffConfig,
+} from "@/server/lib/simulation/cost";
 import { type SimulationFilters, runSimulationsWithWarmup } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getEnabledSimulations } from "@/server/queries/simulations";
+import { buildSpotPriceMap, getSpotPricesForRange } from "@/server/queries/spot-prices";
 import { getUserData } from "@/server/queries/user";
 
 interface Props {
@@ -132,8 +138,10 @@ export default async function TotalEnergyCostCard(props: Props) {
 	const cost = workingCost + baseCost;
 
 	let originalTouCost: number | null = null;
+	let originalSpotCost: number | null = null;
 	let simCostOriginalTariff: number | null = null;
 	let simCostTouTariff: number | null = null;
+	let simCostSpotTariff: number | null = null;
 
 	if (props.showSimulation) {
 		const enabledSimulations = await getEnabledSimulations(user.id);
@@ -142,12 +150,17 @@ export default async function TotalEnergyCostCard(props: Props) {
 			enabledSimulations.solar ||
 			enabledSimulations.heatpump ||
 			enabledSimulations.battery;
-		// When filters are provided, only show TOU if filter is not explicitly false
-		const showTou = props.filters
+
+		// Check pricing mode
+		const pricingMode = enabledSimulations.tou?.pricingMode ?? "tou";
+		const isSpotMode = pricingMode === "spot";
+
+		// When filters are provided, only show TOU/Spot if filter is not explicitly false
+		const showTariff = props.filters
 			? props.filters.tou !== false && enabledSimulations.tou !== null
 			: enabledSimulations.tou !== null;
 
-		if (showTou || hasActiveSimulations) {
+		if (showTariff || hasActiveSimulations) {
 			const hourlyData = await getEnergyForSensorInRange(
 				start.toISOString(),
 				end.toISOString(),
@@ -158,7 +171,7 @@ export default async function TotalEnergyCostCard(props: Props) {
 
 			if (hourlyData && hourlyData.length > 0) {
 				const touConfig: TouTariffConfig | null =
-					showTou && enabledSimulations.tou
+					showTariff && enabledSimulations.tou && !isSpotMode
 						? {
 								basePrice: enabledSimulations.tou.basePrice,
 								standardPrice: enabledSimulations.tou.standardPrice,
@@ -167,9 +180,35 @@ export default async function TotalEnergyCostCard(props: Props) {
 							}
 						: null;
 
+				const spotConfig: SpotPriceConfig | null =
+					showTariff && enabledSimulations.tou && isSpotMode
+						? {
+								basePrice: enabledSimulations.tou.basePrice,
+								markup: enabledSimulations.tou.spotMarkup ?? 3,
+							}
+						: null;
+
+				// Fetch spot prices if using spot mode
+				let spotPriceMap: Map<number, number> | null = null;
+				if (spotConfig) {
+					const spotPrices = await getSpotPricesForRange(start, end);
+					spotPriceMap = buildSpotPriceMap(spotPrices);
+				}
+
 				if (touConfig) {
 					const touResult = calculateTouTariffCost(hourlyData, touConfig, dayDiff, daysInMonth);
 					originalTouCost = touResult.totalCost;
+				}
+
+				if (spotConfig && spotPriceMap) {
+					const spotResult = calculateSpotPriceCost(
+						hourlyData,
+						spotPriceMap,
+						spotConfig,
+						dayDiff,
+						daysInMonth,
+					);
+					originalSpotCost = spotResult.totalCost;
 				}
 
 				if (hasActiveSimulations) {
@@ -191,6 +230,17 @@ export default async function TotalEnergyCostCard(props: Props) {
 					if (touConfig) {
 						const simTouResult = calculateTouTariffCost(simData, touConfig, dayDiff, daysInMonth);
 						simCostTouTariff = simTouResult.totalCost;
+					}
+
+					if (spotConfig && spotPriceMap) {
+						const simSpotResult = calculateSpotPriceCost(
+							simData,
+							spotPriceMap,
+							spotConfig,
+							dayDiff,
+							daysInMonth,
+						);
+						simCostSpotTariff = simSpotResult.totalCost;
 					}
 				}
 			}
@@ -215,6 +265,11 @@ export default async function TotalEnergyCostCard(props: Props) {
 						Mit Zeittarif: {originalTouCost.toFixed(2)} €
 					</p>
 				) : null}
+				{originalSpotCost !== null ? (
+					<p className="mt-2 font-mono text-sm text-muted-foreground">
+						Mit Börsenpreis: {originalSpotCost.toFixed(2)} €
+					</p>
+				) : null}
 				{simCostOriginalTariff !== null ? (
 					<p className="mt-2 font-mono text-sm text-muted-foreground">
 						Mit Simulation: {simCostOriginalTariff.toFixed(2)} €
@@ -223,6 +278,11 @@ export default async function TotalEnergyCostCard(props: Props) {
 				{simCostTouTariff !== null ? (
 					<p className="mt-2 font-mono text-sm text-muted-foreground">
 						Simulation + Zeittarif: {simCostTouTariff.toFixed(2)} €
+					</p>
+				) : null}
+				{simCostSpotTariff !== null ? (
+					<p className="mt-2 font-mono text-sm text-muted-foreground">
+						Simulation + Börsenpreis: {simCostSpotTariff.toFixed(2)} €
 					</p>
 				) : null}
 				{compareCost && diff ? (

@@ -183,6 +183,13 @@
       "when": 1767620122390,
       "tag": "0025_add-hints-tables",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1767625001742,
+      "tag": "0026_add-spot-prices",
+      "breakpoints": true
     }
   ]
 }

@@ -30,10 +30,12 @@ export default async function TouTariffSimulationPage() {
 				<CardContent>
 					<TouTariffForm
 						initialValues={{
+							pricingMode: data?.pricingMode ?? "tou",
 							basePrice: data?.basePrice ?? 10,
 							standardPrice: data?.standardPrice ?? 30,
 							zones: data?.zones ?? [],
 							weekdayZones: data?.weekdayZones ?? {},
+							spotMarkup: data?.spotMarkup ?? 3,
 						}}
 						templates={templates}
 					/>

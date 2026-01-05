@@ -474,18 +474,22 @@ export async function updateSimulationTouTariffSettingsAction(
 			.insert(simulationTouTariffSettingsTable)
 			.values({
 				userId: user.id,
+				pricingMode: payload.pricingMode,
 				basePrice: payload.basePrice,
 				standardPrice: payload.standardPrice,
 				zones: payload.zones ?? [],
 				weekdayZones: payload.weekdayZones,
+				spotMarkup: payload.spotMarkup ?? 3,
 			})
 			.onConflictDoUpdate({
 				target: simulationTouTariffSettingsTable.userId,
 				set: {
+					pricingMode: payload.pricingMode,
 					basePrice: payload.basePrice,
 					standardPrice: payload.standardPrice,
 					zones: payload.zones ?? [],
 					weekdayZones: payload.weekdayZones,
+					spotMarkup: payload.spotMarkup ?? 3,
 					updatedAt: sql`now()`,
 				},
 			});

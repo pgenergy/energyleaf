@@ -164,3 +164,134 @@ export function calculateFeedInRevenue(data: EnergySeries, feedInTariff: number)
 export function calculateNetCost(consumptionCost: CostResult, feedInRevenue: number): number {
 	return consumptionCost.totalCost - feedInRevenue;
 }
+
+// ============================================================================
+// Spot Price Cost Calculation
+// ============================================================================
+
+export interface SpotPriceConfig {
+	basePrice: number; // Monthly base price in €
+	markup: number; // Provider markup in ct/kWh
+}
+
+/**
+ * Get the spot price for a given timestamp from the price map.
+ * Rounds down to the nearest 15-minute interval.
+ *
+ * @param timestamp The timestamp to look up
+ * @param priceMap Map of timestamp (ms) to price (€/MWh)
+ * @param fallbackPriceEurMwh Optional fallback if no match found
+ * @returns Price in ct/kWh (converted from €/MWh), or null if not found
+ */
+function getSpotPriceCtKwh(
+	timestamp: Date,
+	priceMap: Map<number, number>,
+	fallbackPriceEurMwh?: number,
+): number | null {
+	// Round down to nearest 15-minute interval
+	const ms = timestamp.getTime();
+	const fifteenMinMs = 15 * 60 * 1000;
+	const slotMs = Math.floor(ms / fifteenMinMs) * fifteenMinMs;
+
+	const priceEurMwh = priceMap.get(slotMs);
+	if (priceEurMwh !== undefined) {
+		// Convert €/MWh to ct/kWh: €/MWh ÷ 10 = ct/kWh
+		return priceEurMwh / 10;
+	}
+
+	if (fallbackPriceEurMwh !== undefined) {
+		return fallbackPriceEurMwh / 10;
+	}
+
+	return null;
+}
+
+/**
+ * Calculate energy costs using spot prices from SMARD.de.
+ *
+ * @param data Energy consumption data points
+ * @param spotPrices Map of timestamp (ms) to price (€/MWh)
+ * @param config Spot price configuration (base price, markup)
+ * @param days Number of days in the period
+ * @param daysInMonth Days in the current month (for base cost proration)
+ * @param fallbackPriceEurMwh Optional fallback price when no spot price found
+ * @returns Cost calculation result
+ */
+export function calculateSpotPriceCost(
+	data: EnergySeries,
+	spotPrices: Map<number, number>,
+	config: SpotPriceConfig,
+	days: number,
+	daysInMonth: number = 30,
+	fallbackPriceEurMwh?: number,
+): CostResult {
+	if (data.length === 0) {
+		return {
+			totalCost: 0,
+			workingCost: 0,
+			baseCost: 0,
+			totalConsumption: 0,
+			averagePrice: fallbackPriceEurMwh ? fallbackPriceEurMwh / 10 + config.markup : config.markup,
+			zoneBreakdown: [],
+		};
+	}
+
+	let totalConsumption = 0;
+	let workingCostCents = 0;
+	let pricesUsed = 0;
+	let priceSum = 0;
+
+	for (const point of data) {
+		const spotPriceCtKwh = getSpotPriceCtKwh(point.timestamp, spotPrices, fallbackPriceEurMwh);
+		const consumption = point.consumption;
+
+		if (spotPriceCtKwh !== null) {
+			// Total price = spot price + provider markup
+			const totalPriceCtKwh = spotPriceCtKwh + config.markup;
+			const costCents = consumption * totalPriceCtKwh;
+
+			totalConsumption += consumption;
+			workingCostCents += costCents;
+			pricesUsed++;
+			priceSum += totalPriceCtKwh;
+		} else {
+			// No price available and no fallback - still count consumption
+			// Use only markup as minimum price
+			totalConsumption += consumption;
+			workingCostCents += consumption * config.markup;
+		}
+	}
+
+	const workingCostEuro = workingCostCents / 100;
+	const baseCost = (config.basePrice / daysInMonth) * days;
+	const totalCost = workingCostEuro + baseCost;
+	const averagePrice = pricesUsed > 0 ? priceSum / pricesUsed : config.markup;
+
+	return {
+		totalCost,
+		workingCost: workingCostEuro,
+		baseCost,
+		totalConsumption,
+		averagePrice,
+	};
+}
+
+/**
+ * Calculate cost for a single energy point using spot prices.
+ *
+ * @param point Energy data point
+ * @param spotPrices Map of timestamp (ms) to price (€/MWh)
+ * @param markup Provider markup in ct/kWh
+ * @param fallbackPriceEurMwh Optional fallback if no spot price found
+ * @returns Cost in € for this point
+ */
+export function calculatePointCostSpot(
+	point: EnergyPoint,
+	spotPrices: Map<number, number>,
+	markup: number,
+	fallbackPriceEurMwh?: number,
+): number {
+	const spotPriceCtKwh = getSpotPriceCtKwh(point.timestamp, spotPrices, fallbackPriceEurMwh);
+	const priceCtKwh = spotPriceCtKwh !== null ? spotPriceCtKwh + markup : markup;
+	return (point.consumption * priceCtKwh) / 100;
+}

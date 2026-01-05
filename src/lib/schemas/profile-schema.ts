@@ -173,10 +173,14 @@ export const tariffZoneSchema = z.object({
 
 const weekdayZonesSchema = z.array(tariffZoneSchema).nullable().optional();
 
+export const pricingModeSchema = z.enum(["tou", "spot"]);
+
 export const touTariffSchema = z.object({
+	pricingMode: pricingModeSchema.default("tou"),
 	basePrice: z.coerce
 		.number({ error: "Bitte geben Sie den Grundpreis an." })
 		.min(0, "Der Grundpreis darf nicht negativ sein."),
+	// TOU-specific fields
 	standardPrice: z.coerce
 		.number({ error: "Bitte geben Sie den Standardpreis an." })
 		.min(0, "Der Preis darf nicht negativ sein."),
@@ -192,6 +196,13 @@ export const touTariffSchema = z.object({
 			sunday: weekdayZonesSchema,
 		})
 		.default({}),
+	// Spot pricing fields
+	spotMarkup: z.coerce
+		.number()
+		.min(0, "Der Aufschlag darf nicht negativ sein.")
+		.max(50, "Der Aufschlag darf maximal 50 ct/kWh betragen.")
+		.default(3)
+		.optional(),
 });
 
 export const batterySettingsSchema = z.object({

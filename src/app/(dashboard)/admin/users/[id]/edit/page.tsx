@@ -376,10 +376,12 @@ async function UserTouTariffSimulationCard({ userId }: { userId: string }) {
 					<AdminTouTariffForm
 						userId={userId}
 						initialValues={{
+							pricingMode: data?.pricingMode ?? "tou",
 							basePrice: data?.basePrice ?? 10,
 							standardPrice: data?.standardPrice ?? 30,
 							zones: data?.zones ?? [],
 							weekdayZones: data?.weekdayZones ?? {},
+							spotMarkup: data?.spotMarkup ?? 3,
 						}}
 					/>
 				</CardContent>
