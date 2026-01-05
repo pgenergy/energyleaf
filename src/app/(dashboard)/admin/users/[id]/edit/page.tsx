@@ -8,6 +8,7 @@ import AdminBatteryForm from "@/components/forms/admin/admin-battery-form";
 import AdminEnergyTariffForm from "@/components/forms/admin/admin-energy-tariff-form";
 import AdminEvForm from "@/components/forms/admin/admin-ev-form";
 import AdminHeatPumpForm from "@/components/forms/admin/admin-heat-pump-form";
+import AdminHintConfigForm from "@/components/forms/admin/admin-hint-config-form";
 import AdminHouseholdForm from "@/components/forms/admin/admin-household-form";
 import AdminSolarForm from "@/components/forms/admin/admin-solar-form";
 import AdminTouTariffForm from "@/components/forms/admin/admin-tou-tariff-form";
@@ -25,9 +26,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { env } from "@/env";
 import {
 	ChargingSpeed,
 	HeatPumpSource,
+	HintStageType,
 	HouseType,
 	SimulationType,
 	SolarOrientation,
@@ -35,6 +38,7 @@ import {
 	TimeZoneType,
 } from "@/lib/enums";
 import { getCurrentSession } from "@/server/lib/auth";
+import { getHintConfig } from "@/server/queries/hints";
 import {
 	getSimulationBatterySettings,
 	getSimulationEvSettings,
@@ -192,6 +196,28 @@ async function UserStatusCard({ userId }: { userId: string }) {
 						isAdmin: user.isAdmin,
 						isParticipant: user.isParticipant,
 						isSimulationFree: user.isSimulationFree,
+					}}
+				/>
+			</CardContent>
+		</Card>
+	);
+}
+
+async function UserHintConfigCard({ userId }: { userId: string }) {
+	const config = await getHintConfig(userId);
+
+	return (
+		<Card id="hints">
+			<CardHeader>
+				<CardTitle>Hinweise</CardTitle>
+				<CardDescription>Hinweis-Stufe und Einstellungen</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<AdminHintConfigForm
+					userId={userId}
+					initialValues={{
+						stage: (config?.stage as HintStageType) ?? HintStageType.Simple,
+						hintsEnabled: config?.hintsEnabled ?? true,
 					}}
 				/>
 			</CardContent>
@@ -374,6 +400,7 @@ export default async function UserEditPage(props: Props) {
 
 	const params = await props.params;
 	const userId = params.id;
+	const experimentMode = !env.DISABLE_EXPERIMENT;
 
 	// Check if user exists
 	const targetUser = await getUserFullById(userId);
@@ -436,6 +463,12 @@ export default async function UserEditPage(props: Props) {
 					<Suspense fallback={<Skeleton className="h-48" />}>
 						<UserStatusCard userId={userId} />
 					</Suspense>
+
+					{experimentMode && (
+						<Suspense fallback={<Skeleton className="h-48" />}>
+							<UserHintConfigCard userId={userId} />
+						</Suspense>
+					)}
 
 					<Suspense fallback={<Skeleton className="h-48" />}>
 						<UserEvSimulationCard userId={userId} />

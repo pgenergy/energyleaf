@@ -11,8 +11,10 @@ import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumpt
 import SimulationCostBarChartCard from "@/components/cards/simulation/simulation-cost-bar-chart-card";
 import SimulationDetailChartCard from "@/components/cards/simulation/simulation-detail-chart-card";
 import DashboardConfigDialog from "@/components/dashboard/dashboard-config-dialog";
+import { HintAlertWrapper } from "@/components/dashboard/hint-alert-wrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AutoRefresh } from "@/components/utils/auto-refresh";
+import { env } from "@/env";
 import {
 	type DashboardComponentId,
 	DEFAULT_DASHBOARD_COMPONENTS,
@@ -31,6 +33,8 @@ export default async function DashboardPage() {
 	if (!user) {
 		return null;
 	}
+
+	const experimentMode = !env.DISABLE_EXPERIMENT;
 
 	const [dashboardConfig, enabledSimulations] = await Promise.all([
 		getDashboardConfig(user.id),
@@ -65,6 +69,11 @@ export default async function DashboardPage() {
 	return (
 		<>
 			<AutoRefresh intervalMs={60000} />
+			{experimentMode && (
+				<Suspense fallback={null}>
+					<HintAlertWrapper />
+				</Suspense>
+			)}
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 				<div className="col-span-1 flex items-center justify-between md:col-span-3">
 					<h1 className="text-xl font-bold">Dashboard</h1>

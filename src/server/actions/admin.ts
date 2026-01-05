@@ -8,7 +8,7 @@ import { cookies } from "next/headers";
 import type { z } from "zod";
 import { SimulationType, type SimulationTypeValue } from "@/lib/enums";
 import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
-import { adminCreateUserSchema } from "@/lib/schemas/admin-schema";
+import { adminCreateUserSchema, adminHintConfigSchema } from "@/lib/schemas/admin-schema";
 import {
 	accountInfoSchema,
 	accountNameSchema,
@@ -34,6 +34,7 @@ import {
 import { userDataTable, userTable } from "../db/tables/user";
 import { getCurrentSession } from "../lib/auth";
 import { logAction, logError } from "../queries/logs";
+import { getOrCreateHintConfig, updateHintConfig } from "../queries/hints";
 
 export async function adminUpdateUserNameAction(userId: string, data: z.infer<typeof accountNameSchema>) {
 	try {
@@ -1560,6 +1561,123 @@ export async function adminCreateUserAction(data: z.infer<typeof adminCreateUser
 				details: {
 					user: null,
 					session: null,
+				},
+			}),
+		);
+		return {
+			success: false,
+			message: "Es ist ein unerwarteter Fehler aufgetreten.",
+		};
+	}
+}
+
+export async function adminUpdateHintConfigAction(userId: string, data: z.infer<typeof adminHintConfigSchema>) {
+	try {
+		const { user } = await getCurrentSession();
+		const cookieStore = await cookies();
+		const sid = cookieStore.get("sid")?.value;
+
+		if (!user || !user.isAdmin) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_UPDATE_HINT_CONFIG_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: user ? ErrorTypes.NOT_ADMIN : ErrorTypes.NOT_LOGGED_IN,
+						user: user?.id ?? null,
+						session: sid,
+						targetUser: userId,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sie sind nicht berechtigt, diese Aktion durchzuführen.",
+			};
+		}
+
+		const valid = adminHintConfigSchema.safeParse(data);
+		if (!valid.success) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_UPDATE_HINT_CONFIG_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: ErrorTypes.INVALID_INPUT,
+						user: user.id,
+						session: sid,
+						targetUser: userId,
+						data,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Bitte überprüfen Sie Ihre Eingaben.",
+			};
+		}
+
+		// Get or create hint config
+		const existingConfig = await getOrCreateHintConfig(userId);
+		const stageChanged = existingConfig.stage !== data.stage;
+
+		// Prepare update data
+		const updateData: Parameters<typeof updateHintConfig>[1] = {
+			stage: data.stage as "simple" | "intermediate" | "expert",
+			hintsEnabled: data.hintsEnabled,
+		};
+
+		// If stage changed, reset progress
+		if (stageChanged) {
+			updateData.hintsDaysSeenInStage = 0;
+			updateData.stageStartedAt = new Date();
+		}
+
+		await updateHintConfig(userId, updateData);
+
+		revalidatePath(`/admin/users/${userId}`);
+		revalidatePath(`/admin/users/${userId}/edit`);
+
+		waitUntil(
+			logAction({
+				fn: LogActionTypes.ADMIN_UPDATE_HINT_CONFIG_ACTION,
+				result: "success",
+				details: {
+					success: true,
+					reason: null,
+					user: user.id,
+					session: sid,
+					targetUser: userId,
+					data: {
+						old: {
+							stage: existingConfig.stage,
+							hintsEnabled: existingConfig.hintsEnabled,
+						},
+						new: data,
+						stageChanged,
+					},
+				},
+			}),
+		);
+
+		return {
+			success: true,
+			message: stageChanged
+				? "Hinweis-Konfiguration aktualisiert. Fortschritt wurde zurückgesetzt."
+				: "Hinweis-Konfiguration erfolgreich aktualisiert.",
+		};
+	} catch (err) {
+		console.error(err);
+		waitUntil(
+			logError({
+				fn: LogActionTypes.ADMIN_UPDATE_HINT_CONFIG_ACTION,
+				error: err as Error,
+				details: {
+					user: null,
+					session: null,
+					targetUser: userId,
 				},
 			}),
 		);

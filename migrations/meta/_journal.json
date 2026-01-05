@@ -176,6 +176,13 @@
       "when": 1767614255883,
       "tag": "0024_add-dashboard-config",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1767620122390,
+      "tag": "0025_add-hints-tables",
+      "breakpoints": true
     }
   ]
 }

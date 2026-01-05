@@ -7,6 +7,7 @@ import UserAccountCard from "@/components/cards/user/user-account-card";
 import UserDevicesCard from "@/components/cards/user/user-devices-card";
 import UserEnergyCard from "@/components/cards/user/user-energy-card";
 import UserExperimentCard from "@/components/cards/user/user-experiment-card";
+import UserHintConfigCard from "@/components/cards/user/user-hint-config-card";
 import UserHouseholdCard from "@/components/cards/user/user-household-card";
 import UserInfoCard from "@/components/cards/user/user-info-card";
 import UserSensorCard from "@/components/cards/user/user-sensor-card";
@@ -102,6 +103,12 @@ export default async function UserDetailPage(props: Props) {
 				<Suspense fallback={<Skeleton className="h-48" />}>
 					<UserAccountCard userId={userId} experimentMode={experimentMode} />
 				</Suspense>
+
+				{experimentMode && (
+					<Suspense fallback={<Skeleton className="h-48" />}>
+						<UserHintConfigCard userId={userId} />
+					</Suspense>
+				)}
 
 				<Suspense fallback={<Skeleton className="h-48" />}>
 					<UserHouseholdCard userId={userId} />

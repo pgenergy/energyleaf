@@ -28,3 +28,8 @@ export const adminCreateUserSchema = z
 			});
 		}
 	});
+
+export const adminHintConfigSchema = z.object({
+	stage: z.enum(["simple", "intermediate", "expert"]),
+	hintsEnabled: z.boolean(),
+});

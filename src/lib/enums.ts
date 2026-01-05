@@ -216,3 +216,18 @@ export const SimulationTypeDisplay: Record<SimulationTypeValue, string> = {
 	battery: "Batteriespeicher",
 	tou: "Zeitvariable Tarife",
 };
+
+export enum HintStageType {
+	Simple = "simple",
+	Intermediate = "intermediate",
+	Expert = "expert",
+}
+
+export type HintStageTypeKey = keyof typeof HintStageType;
+export type HintStageTypeValue = (typeof HintStageType)[keyof typeof HintStageType];
+
+export const HintStageTypeDisplay: Record<HintStageTypeValue, string> = {
+	simple: "Einfach",
+	intermediate: "Mittel",
+	expert: "Experte",
+};
