@@ -205,6 +205,10 @@ export const batterySettingsSchema = z.object({
 		.max(100, "Die Leistung darf maximal 100 kW betragen."),
 });
 
+export const dashboardConfigSchema = z.object({
+	activeComponents: z.array(z.string()).default([]),
+});
+
 // Admin schemas
 export const adminAccountStatusSchema = z.object({
 	isActive: z.boolean(),

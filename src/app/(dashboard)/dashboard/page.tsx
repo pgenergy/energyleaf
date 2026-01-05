@@ -1,38 +1,177 @@
+import { startOfDay, startOfMonth, startOfWeek } from "date-fns";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import CostBarCard from "@/components/cards/cost/cost-bar-card";
+import CostPredictionCard from "@/components/cards/cost/cost-prediction-card";
 import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
 import DetailEnergyChartCard from "@/components/cards/energy/detail-energy-chart-card";
+import EnergyBarCard from "@/components/cards/energy/energy-bar-card";
 import EnergyGoalsCard from "@/components/cards/energy/energy-goals-card";
 import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumption-card";
+import SimulationCostBarChartCard from "@/components/cards/simulation/simulation-cost-bar-chart-card";
+import SimulationDetailChartCard from "@/components/cards/simulation/simulation-detail-chart-card";
+import DashboardConfigDialog from "@/components/dashboard/dashboard-config-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AutoRefresh } from "@/components/utils/auto-refresh";
+import {
+	DEFAULT_DASHBOARD_COMPONENTS,
+	type DashboardComponentId,
+	sortComponentsByOrder,
+} from "@/lib/dashboard-components";
+import { getCurrentSession } from "@/server/lib/auth";
+import { getDashboardConfig } from "@/server/queries/dashboard";
+import { getEnabledSimulations } from "@/server/queries/simulations";
 
 export const metadata: Metadata = {
-	title: "Übersicht - Energyleaf",
+	title: "Dashboard - Energyleaf",
 };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+	const { user } = await getCurrentSession();
+	if (!user) {
+		return null;
+	}
+
+	// Fetch dashboard config and simulation status in parallel
+	const [dashboardConfig, enabledSimulations] = await Promise.all([
+		getDashboardConfig(user.id),
+		getEnabledSimulations(user.id),
+	]);
+
+	// Determine if user has any simulations enabled
+	const hasSimulations = !!(
+		enabledSimulations.ev ||
+		enabledSimulations.solar ||
+		enabledSimulations.heatpump ||
+		enabledSimulations.battery
+	);
+
+	// Get active components - use defaults if no config exists (backwards compatibility)
+	const activeComponentIds = dashboardConfig?.activeComponents ?? DEFAULT_DASHBOARD_COMPONENTS;
+	const activeComponents = sortComponentsByOrder(activeComponentIds);
+
+	// Calculate dates for components
+	const today = new Date();
+	const startOfToday = startOfDay(today);
+	const startOfThisWeek = startOfWeek(today, { weekStartsOn: 1 });
+	const startOfThisMonth = startOfMonth(today);
+
+	// Helper to check if a component is active
+	const isActive = (id: DashboardComponentId) => activeComponents.includes(id);
+
+	// Default simulation filters (all enabled)
+	const defaultFilters = {
+		ev: true,
+		solar: true,
+		heatpump: true,
+		battery: true,
+		tou: true,
+	};
+
 	return (
 		<>
 			<AutoRefresh intervalMs={60000} />
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-				<h1 className="col-span-1 text-xl font-bold md:col-span-3">Strom</h1>
-				<Suspense fallback={<Skeleton className="h-56" />}>
-					<TotalEnergyConsumptionCard />
-				</Suspense>
-				<Suspense fallback={<Skeleton className="h-56" />}>
-					<TotalEnergyCostCard />
-				</Suspense>
-				<Suspense fallback={<Skeleton className="h-56" />}>
-					<EnergyGoalsCard />
-				</Suspense>
-				<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
-					<DetailEnergyChartCard
-						title="Übersicht des Verbrauchs"
-						description="Detailierte Ansicht Ihres Verbrauchs."
-						className="col-span-1 md:col-span-3"
-					/>
-				</Suspense>
+				{/* Header with title and settings button */}
+				<div className="col-span-1 flex items-center justify-between md:col-span-3">
+					<h1 className="text-xl font-bold">Dashboard</h1>
+					<DashboardConfigDialog activeComponents={activeComponents} hasSimulations={hasSimulations} />
+				</div>
+
+				{/* Default Overview Components */}
+				{isActive("total-consumption") && (
+					<Suspense fallback={<Skeleton className="h-56" />}>
+						<TotalEnergyConsumptionCard />
+					</Suspense>
+				)}
+				{isActive("total-cost") && (
+					<Suspense fallback={<Skeleton className="h-56" />}>
+						<TotalEnergyCostCard />
+					</Suspense>
+				)}
+				{isActive("energy-goals") && (
+					<Suspense fallback={<Skeleton className="h-56" />}>
+						<EnergyGoalsCard />
+					</Suspense>
+				)}
+
+				{/* Detail Energy Chart */}
+				{isActive("detail-energy") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<DetailEnergyChartCard
+							title="Übersicht des Verbrauchs"
+							description="Detaillierte Ansicht Ihres Verbrauchs."
+							className="col-span-1 md:col-span-3"
+						/>
+					</Suspense>
+				)}
+
+				{/* Aggregated Energy Charts */}
+				{isActive("energy-bar-day") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<EnergyBarCard start={startOfToday} type="day" className="col-span-1 md:col-span-3" />
+					</Suspense>
+				)}
+				{isActive("energy-bar-week") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<EnergyBarCard start={startOfThisWeek} type="week" className="col-span-1 md:col-span-3" />
+					</Suspense>
+				)}
+				{isActive("energy-bar-month") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<EnergyBarCard start={startOfThisMonth} type="month" className="col-span-1 md:col-span-3" />
+					</Suspense>
+				)}
+
+				{/* Aggregated Cost Charts */}
+				{isActive("cost-bar-day") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<CostBarCard start={startOfToday} type="day" className="col-span-1 md:col-span-3" />
+					</Suspense>
+				)}
+				{isActive("cost-bar-week") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<CostBarCard start={startOfThisWeek} type="week" className="col-span-1 md:col-span-3" />
+					</Suspense>
+				)}
+				{isActive("cost-bar-month") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<CostBarCard start={startOfThisMonth} type="month" className="col-span-1 md:col-span-3" />
+					</Suspense>
+				)}
+
+				{/* Cost Prediction */}
+				{isActive("cost-prediction") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<CostPredictionCard />
+					</Suspense>
+				)}
+
+				{/* Simulation Components - only render if user has simulations */}
+				{hasSimulations && isActive("simulation-detail") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<div className="col-span-1 md:col-span-3">
+							<SimulationDetailChartCard
+								userId={user.id}
+								timezone={user.timezone}
+								start={startOfToday}
+								filters={defaultFilters}
+							/>
+						</div>
+					</Suspense>
+				)}
+				{hasSimulations && isActive("simulation-cost") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<div className="col-span-1 md:col-span-3">
+							<SimulationCostBarChartCard
+								userId={user.id}
+								timezone={user.timezone}
+								start={startOfToday}
+								filters={defaultFilters}
+							/>
+						</div>
+					</Suspense>
+				)}
 			</div>
 		</>
 	);

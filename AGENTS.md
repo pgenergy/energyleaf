@@ -3,10 +3,10 @@
 ## Build & Lint Commands
 - **Install:** `bun install`
 - **Dev:** `bun dev` (Next.js with Turbopack)
-- **Build:** `bun build`
+- **Build:** `bun run build`
 - **Lint:** `bun lint` / `bun lint:fix`
 - **Format:** `bun format`
-- **DB:** `bun db:migrate`, `bun db:generate`, `bun db:studio`
+- **DB:** `bun db:generate`, `bun db:studio`
 - **DB schema changes:** Use `bun db:generate --name <name>`, never run migrations directly
 - **No test suite configured**
 

@@ -53,6 +53,9 @@ export enum LogActionTypes {
 	UPDATE_ANOMALY_ACTION = "update_anomaly_action",
 	UPDATE_REPORT_CONFIG_ACTION = "update_report_config_action",
 
+	// DASHBOARD
+	UPDATE_DASHBOARD_CONFIG_ACTION = "update_dashboard_config_action",
+
 	// PROFILE
 	UPDATE_HOUSEHOLD_ACTION = "update_household_action",
 	UPDATE_ENERGY_TARIFF_ACTION = "update_energy_tariff_action",

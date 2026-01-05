@@ -169,6 +169,13 @@
       "when": 1767561319665,
       "tag": "0023_fix-pg-net-http-post",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1767614255883,
+      "tag": "0024_add-dashboard-config",
+      "breakpoints": true
     }
   ]
 }
