@@ -14,8 +14,8 @@ import DashboardConfigDialog from "@/components/dashboard/dashboard-config-dialo
 import { Skeleton } from "@/components/ui/skeleton";
 import { AutoRefresh } from "@/components/utils/auto-refresh";
 import {
-	DEFAULT_DASHBOARD_COMPONENTS,
 	type DashboardComponentId,
+	DEFAULT_DASHBOARD_COMPONENTS,
 	sortComponentsByOrder,
 } from "@/lib/dashboard-components";
 import { getCurrentSession } from "@/server/lib/auth";
@@ -32,13 +32,11 @@ export default async function DashboardPage() {
 		return null;
 	}
 
-	// Fetch dashboard config and simulation status in parallel
 	const [dashboardConfig, enabledSimulations] = await Promise.all([
 		getDashboardConfig(user.id),
 		getEnabledSimulations(user.id),
 	]);
 
-	// Determine if user has any simulations enabled
 	const hasSimulations = !!(
 		enabledSimulations.ev ||
 		enabledSimulations.solar ||
@@ -46,20 +44,16 @@ export default async function DashboardPage() {
 		enabledSimulations.battery
 	);
 
-	// Get active components - use defaults if no config exists (backwards compatibility)
 	const activeComponentIds = dashboardConfig?.activeComponents ?? DEFAULT_DASHBOARD_COMPONENTS;
 	const activeComponents = sortComponentsByOrder(activeComponentIds);
 
-	// Calculate dates for components
 	const today = new Date();
 	const startOfToday = startOfDay(today);
 	const startOfThisWeek = startOfWeek(today, { weekStartsOn: 1 });
 	const startOfThisMonth = startOfMonth(today);
 
-	// Helper to check if a component is active
 	const isActive = (id: DashboardComponentId) => activeComponents.includes(id);
 
-	// Default simulation filters (all enabled)
 	const defaultFilters = {
 		ev: true,
 		solar: true,
@@ -72,13 +66,11 @@ export default async function DashboardPage() {
 		<>
 			<AutoRefresh intervalMs={60000} />
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-				{/* Header with title and settings button */}
 				<div className="col-span-1 flex items-center justify-between md:col-span-3">
 					<h1 className="text-xl font-bold">Dashboard</h1>
 					<DashboardConfigDialog activeComponents={activeComponents} hasSimulations={hasSimulations} />
 				</div>
 
-				{/* Default Overview Components */}
 				{isActive("total-consumption") && (
 					<Suspense fallback={<Skeleton className="h-56" />}>
 						<TotalEnergyConsumptionCard />
@@ -95,9 +87,8 @@ export default async function DashboardPage() {
 					</Suspense>
 				)}
 
-				{/* Detail Energy Chart */}
 				{isActive("detail-energy") && (
-					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+					<Suspense fallback={<Skeleton className="col-span-1 max-h-96 h-96 md:col-span-3" />}>
 						<DetailEnergyChartCard
 							title="Übersicht des Verbrauchs"
 							description="Detaillierte Ansicht Ihres Verbrauchs."
@@ -106,7 +97,6 @@ export default async function DashboardPage() {
 					</Suspense>
 				)}
 
-				{/* Aggregated Energy Charts */}
 				{isActive("energy-bar-day") && (
 					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
 						<EnergyBarCard start={startOfToday} type="day" className="col-span-1 md:col-span-3" />
@@ -123,7 +113,6 @@ export default async function DashboardPage() {
 					</Suspense>
 				)}
 
-				{/* Aggregated Cost Charts */}
 				{isActive("cost-bar-day") && (
 					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
 						<CostBarCard start={startOfToday} type="day" className="col-span-1 md:col-span-3" />
@@ -140,16 +129,14 @@ export default async function DashboardPage() {
 					</Suspense>
 				)}
 
-				{/* Cost Prediction */}
 				{isActive("cost-prediction") && (
 					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
 						<CostPredictionCard />
 					</Suspense>
 				)}
 
-				{/* Simulation Components - only render if user has simulations */}
 				{hasSimulations && isActive("simulation-detail") && (
-					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+					<Suspense fallback={<Skeleton className="col-span-1 max-h-96 h-96 md:col-span-3" />}>
 						<div className="col-span-1 md:col-span-3">
 							<SimulationDetailChartCard
 								userId={user.id}

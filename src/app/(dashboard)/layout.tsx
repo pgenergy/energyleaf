@@ -2,6 +2,7 @@ import {
 	BarChartIcon,
 	CpuIcon,
 	DollarSignIcon,
+	FileTextIcon,
 	HomeIcon,
 	LampIcon,
 	PlayCircleIcon,
@@ -89,13 +90,13 @@ export default async function DashboardLayout(props: Props) {
 			icon: <LampIcon />,
 			admin: false,
 		},
-		// {
-		// 	slug: "reports",
-		// 	title: "Berichte",
-		// 	path: "/reports",
-		// 	icon: <MailsIcon />,
-		// 	admin: false,
-		// },
+		{
+			slug: "reports",
+			title: "Berichte",
+			path: "/reports",
+			icon: <FileTextIcon />,
+			admin: false,
+		},
 	];
 
 	// Check if user should see simulation page
