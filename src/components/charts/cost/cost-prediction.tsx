@@ -3,7 +3,7 @@
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { Area, CartesianGrid, ComposedChart, Line, ReferenceLine, XAxis, YAxis } from "recharts";
 import {
 	type ChartConfig,
 	ChartContainer,
@@ -12,11 +12,13 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-import type { EnergyDataWithCost } from "@/server/lib/cost";
+import type { EnergyDataWithCost, PredictionResult } from "@/server/lib/cost";
 
 interface Props {
 	data: EnergyDataWithCost[];
-	predictionData: { cost: number; timestamp: Date }[];
+	predictionData: PredictionResult[];
+	budgetPerDay?: number | null;
+	monthlyBudget?: number | null;
 }
 
 const config = {
@@ -25,48 +27,92 @@ const config = {
 	},
 	cost: {
 		label: "Kosten (€)",
-		color: "var(--primary)",
+		color: "var(--chart-2)",
 	},
 	predictionCost: {
 		label: "Kostenvorhersage (€)",
 		color: "var(--chart-1)",
 	},
+	budgetCost: {
+		label: "Budget (€)",
+		color: "var(--chart-5)",
+	},
 } satisfies ChartConfig;
 
-export default function CostPredictionChart(props: Props) {
+export default function CostPredictionChart({ data, predictionData, budgetPerDay, monthlyBudget }: Props) {
 	const preparedData = useMemo(() => {
-		const data: { cost: number | null; predictionCost: number | null; timestamp: string }[] = [];
+		const chartData: {
+			cost: number | null;
+			predictionCost: number | null;
+			predictionRange: [number, number] | null;
+			budgetCost: number | null;
+			timestamp: string;
+		}[] = [];
 		let cost = 0;
-		for (let i = 0; i < props.data.length; i++) {
-			const d = props.data[i];
-			const isLast = i === props.data.length - 1;
-			data.push({
-				cost: cost + d.cost,
-				predictionCost: isLast ? cost + d.cost : null,
+		let budgetCumulative = 0;
+
+		// Process actual data
+		for (let i = 0; i < data.length; i++) {
+			const d = data[i];
+			const isLast = i === data.length - 1;
+			cost += d.cost;
+			budgetCumulative += budgetPerDay ?? 0;
+
+			chartData.push({
+				cost: cost,
+				predictionCost: isLast ? cost : null,
+				predictionRange: null,
+				budgetCost: budgetPerDay ? budgetCumulative : null,
 				timestamp: format(d.timestamp, "dd", {
 					locale: de,
 				}),
 			});
-			cost += d.cost;
 		}
 
-		for (let i = 0; i < props.predictionData.length; i++) {
-			const d = props.predictionData[i];
-			data.push({
+		// Track cumulative prediction costs for min/max bands
+		let predictionCostCumulative = cost;
+		let predictionCostMinCumulative = cost;
+		let predictionCostMaxCumulative = cost;
+
+		// Process prediction data
+		for (let i = 0; i < predictionData.length; i++) {
+			const d = predictionData[i];
+			predictionCostCumulative += d.cost;
+			predictionCostMinCumulative += d.costMin;
+			predictionCostMaxCumulative += d.costMax;
+			budgetCumulative += budgetPerDay ?? 0;
+
+			chartData.push({
 				cost: null,
-				predictionCost: cost + d.cost,
+				predictionCost: predictionCostCumulative,
+				predictionRange: [predictionCostMinCumulative, predictionCostMaxCumulative],
+				budgetCost: budgetPerDay ? budgetCumulative : null,
 				timestamp: format(d.timestamp, "dd", {
 					locale: de,
 				}),
 			});
-			cost += d.cost;
 		}
 
-		return data;
-	}, [props.data, props.predictionData]);
+		return chartData;
+	}, [data, predictionData, budgetPerDay]);
+
+	// Calculate Y-axis domain to include budget line if present
+	const yAxisDomain = useMemo(() => {
+		const allValues = preparedData.flatMap((d) => {
+			const values: number[] = [];
+			if (d.cost !== null) values.push(d.cost);
+			if (d.predictionCost !== null) values.push(d.predictionCost);
+			if (d.predictionRange !== null) values.push(d.predictionRange[1]);
+			if (d.budgetCost !== null) values.push(d.budgetCost);
+			return values;
+		});
+		const maxValue = Math.max(...allValues, monthlyBudget ?? 0);
+		return [0, Math.ceil(maxValue * 1.1)];
+	}, [preparedData, monthlyBudget]);
+
 	return (
-		<ChartContainer className="min-h-56 w-full" config={config}>
-			<LineChart
+		<ChartContainer className="min-h-64 w-full" config={config}>
+			<ComposedChart
 				accessibilityLayer
 				data={preparedData}
 				margin={{
@@ -76,7 +122,7 @@ export default function CostPredictionChart(props: Props) {
 					bottom: 16,
 				}}
 			>
-				<CartesianGrid vertical={false} />
+				<CartesianGrid vertical={false} strokeOpacity={0.3} />
 				<ChartLegend content={<ChartLegendContent />} />
 				<XAxis
 					dataKey="timestamp"
@@ -86,14 +132,85 @@ export default function CostPredictionChart(props: Props) {
 					interval="equidistantPreserveStart"
 				/>
 				<YAxis
-					dataKey="predictionCost"
+					domain={yAxisDomain}
 					tickLine={true}
 					axisLine={true}
 					tickMargin={8}
 					interval="equidistantPreserveStart"
+					tickFormatter={(value: number) => `${value.toFixed(0)} €`}
 				/>
-				<ChartTooltip cursor={false} content={<ChartTooltipContent labelKey="name" />} />
-				<Line dataKey="cost" type="stepAfter" stroke="var(--color-cost)" strokeWidth={2} dot={false} />
+				<ChartTooltip
+					cursor={false}
+					content={
+						<ChartTooltipContent
+							labelKey="name"
+							formatter={(value, name) => {
+								if (name === "predictionRange") {
+									const range = value as [number, number];
+									return (
+										<span>
+											Bereich: {range[0].toFixed(2)} - {range[1].toFixed(2)} €
+										</span>
+									);
+								}
+								const label =
+									name === "cost"
+										? "Kosten"
+										: name === "predictionCost"
+											? "Vorhersage"
+											: name === "budgetCost"
+												? "Budget"
+												: String(name);
+								return (
+									<span>
+										{label}: {Number(value).toFixed(2)} €
+									</span>
+								);
+							}}
+						/>
+					}
+				/>
+
+				<Area
+					dataKey="predictionRange"
+					type="stepAfter"
+					fill="var(--color-predictionCost)"
+					fillOpacity={0.2}
+					stroke="var(--color-predictionCost)"
+					strokeOpacity={0.3}
+					strokeWidth={1}
+					connectNulls={false}
+					legendType="none"
+				/>
+
+				{budgetPerDay && (
+					<Line
+						dataKey="budgetCost"
+						type="stepAfter"
+						stroke="var(--color-budgetCost)"
+						strokeWidth={2}
+						dot={false}
+						strokeDasharray="8 4"
+					/>
+				)}
+
+				{monthlyBudget && (
+					<ReferenceLine
+						y={monthlyBudget}
+						stroke="var(--color-budgetCost)"
+						strokeDasharray="4 4"
+						strokeWidth={1}
+						label={{
+							value: `Budget: ${monthlyBudget.toFixed(0)} €`,
+							position: "insideTopLeft",
+							fill: "var(--color-budgetCost)",
+							fontSize: 11,
+						}}
+					/>
+				)}
+
+				<Line dataKey="cost" type="stepAfter" stroke="var(--color-cost)" strokeWidth={2.5} dot={false} />
+
 				<Line
 					dataKey="predictionCost"
 					type="stepAfter"
@@ -102,7 +219,7 @@ export default function CostPredictionChart(props: Props) {
 					dot={false}
 					strokeDasharray="4 4"
 				/>
-			</LineChart>
+			</ComposedChart>
 		</ChartContainer>
 	);
 }

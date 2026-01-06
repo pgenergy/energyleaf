@@ -346,3 +346,35 @@ export const getEnergyLastEntry = cache(async (sensorId: string) => {
 
 	return query[0];
 });
+
+export const getHistoricalDailyEnergy = cache(async (beforeDate: Date, sensorId: string, days = 14) => {
+	const endDate = new Date(beforeDate);
+	endDate.setDate(endDate.getDate() - 1);
+	endDate.setHours(23, 59, 59, 999);
+
+	const startDate = new Date(beforeDate);
+	startDate.setDate(startDate.getDate() - days);
+	startDate.setHours(0, 0, 0, 0);
+
+	const data = await db
+		.select({
+			sensorId: energyDataTable.sensorId,
+			value: sql`MAX(${energyDataTable.value})`.mapWith((value) => Number(value)),
+			valueOut: sql`MAX(${energyDataTable.valueOut})`.mapWith((value) => Number(value)),
+			valueCurrent: sql`AVG(${energyDataTable.valueCurrent})`.mapWith((value) => Number(value)),
+			consumption: sql`SUM(${energyDataTable.consumption})`.mapWith((value) => Number(value)),
+			inserted: sql`SUM(${energyDataTable.inserted})`.mapWith((value) => Number(value)),
+			timestamp: sql`date_trunc('day', ${energyDataTable.timestamp})`.mapWith(
+				(value) => new Date(`${value}+0000`),
+			),
+		})
+		.from(energyDataTable)
+		.where(and(eq(energyDataTable.sensorId, sensorId), between(energyDataTable.timestamp, startDate, endDate)))
+		.groupBy(energyDataTable.sensorId, sql`date_trunc('day', ${energyDataTable.timestamp})`)
+		.orderBy(sql`date_trunc('day', ${energyDataTable.timestamp})`);
+
+	return data.map((row, index) => ({
+		...row,
+		id: index.toString(),
+	}));
+});
