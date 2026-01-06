@@ -1,11 +1,12 @@
+import { subDays } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import { db } from "@/server/db";
 import { reportConfigTable, reportsTable } from "@/server/db/tables/reports";
-import { sensorTable } from "@/server/db/tables/sensor";
+import { energyDataTable, sensorTable } from "@/server/db/tables/sensor";
 import { userDataTable, userTable } from "@/server/db/tables/user";
 import { generateReport, getDaysBetween, getPreviousReportDay } from "@/server/lib/reports";
 import { getSecretKeyUncached } from "@/server/queries/config";
@@ -28,7 +29,23 @@ export async function GET(req: NextRequest) {
 		.innerJoin(sensorTable, eq(sensorTable.userId, reportConfigTable.userId))
 		.innerJoin(userTable, eq(userTable.id, reportConfigTable.userId))
 		.innerJoin(userDataTable, eq(userDataTable.userId, reportConfigTable.userId))
-		.where(eq(reportConfigTable.reports, true));
+		.where(and(eq(reportConfigTable.reports, true), eq(userTable.isActive, true), eq(userTable.deleted, false)));
+
+	// Filter to users with sensor data in the last 2 days
+	const twoDaysAgo = subDays(new Date(), 2);
+	const sensorIds = usersWithConfig.map((u) => u.sensorId);
+
+	const sensorsWithRecentData =
+		sensorIds.length > 0
+			? await db
+					.selectDistinct({ sensorId: energyDataTable.sensorId })
+					.from(energyDataTable)
+					.where(
+						and(inArray(energyDataTable.sensorId, sensorIds), gte(energyDataTable.timestamp, twoDaysAgo)),
+					)
+			: [];
+
+	const sensorsWithDataSet = new Set(sensorsWithRecentData.map((s) => s.sensorId));
 
 	const promises = [];
 
@@ -39,6 +56,10 @@ export async function GET(req: NextRequest) {
 
 		const configuredDays = (user.days || []) as number[];
 		if (configuredDays.length === 0 || !configuredDays.includes(currentDayOfWeek)) {
+			continue;
+		}
+
+		if (!sensorsWithDataSet.has(user.sensorId)) {
 			continue;
 		}
 

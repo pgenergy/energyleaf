@@ -1,9 +1,11 @@
 import "server-only";
 
+import { toZonedTime } from "date-fns-tz";
 import { and, desc, gte, lt, lte, sql } from "drizzle-orm";
 import { cache } from "react";
+import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import { db } from "../db";
-import { spotPriceTable, type SpotPrice } from "../db/tables/spot-price";
+import { type SpotPrice, spotPriceTable } from "../db/tables/spot-price";
 
 /**
  * Get spot prices for a date range.
@@ -57,12 +59,17 @@ export async function getLastKnownSpotPrice(before: Date): Promise<number | null
 
 /**
  * Build a Map of timestamp (ms) to price (€/MWh) for efficient lookups.
- * Spot prices are stored in 15-minute intervals.
+ * Spot prices are stored in 15-minute intervals in UTC.
+ * The timestamps are shifted to the user's timezone to match energy data timestamps.
  */
-export function buildSpotPriceMap(spotPrices: SpotPrice[]): Map<number, number> {
+export function buildSpotPriceMap(spotPrices: SpotPrice[], timezone?: string): Map<number, number> {
 	const map = new Map<number, number>();
+	const tz = timezone ?? TimezoneTypeToTimeZone[TimeZoneType.Europe_Berlin];
+
 	for (const sp of spotPrices) {
-		map.set(sp.timestamp.getTime(), sp.priceEurMwh);
+		// Shift spot price timestamp to user timezone to match energy data
+		const zonedTime = toZonedTime(sp.timestamp, tz);
+		map.set(zonedTime.getTime(), sp.priceEurMwh);
 	}
 	return map;
 }
@@ -71,9 +78,6 @@ export function buildSpotPriceMap(spotPrices: SpotPrice[]): Map<number, number> 
  * Find the spot price for a given timestamp.
  * Rounds down to the nearest 15-minute interval.
  *
- * @param timestamp The timestamp to look up
- * @param priceMap Map of spot prices (from buildSpotPriceMap)
- * @param fallbackPriceEurMwh Optional fallback price if no match found
  * @returns Price in €/MWh, or null if not found and no fallback
  */
 export function getSpotPriceForTimestamp(

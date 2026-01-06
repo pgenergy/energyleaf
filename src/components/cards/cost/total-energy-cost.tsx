@@ -4,6 +4,7 @@ import { ArrowDownIcon, ArrowUpIcon, DollarSignIcon, Settings2Icon } from "lucid
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import { cn } from "@/lib/utils";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
@@ -13,7 +14,7 @@ import {
 	type SpotPriceConfig,
 	type TouTariffConfig,
 } from "@/server/lib/simulation/cost";
-import { type SimulationFilters, runSimulationsWithWarmup } from "@/server/lib/simulation/run";
+import { runSimulationsWithWarmup, type SimulationFilters } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getEnabledSimulations } from "@/server/queries/simulations";
@@ -151,11 +152,9 @@ export default async function TotalEnergyCostCard(props: Props) {
 			enabledSimulations.heatpump ||
 			enabledSimulations.battery;
 
-		// Check pricing mode
 		const pricingMode = enabledSimulations.tou?.pricingMode ?? "tou";
 		const isSpotMode = pricingMode === "spot";
 
-		// When filters are provided, only show TOU/Spot if filter is not explicitly false
 		const showTariff = props.filters
 			? props.filters.tou !== false && enabledSimulations.tou !== null
 			: enabledSimulations.tou !== null;
@@ -188,11 +187,11 @@ export default async function TotalEnergyCostCard(props: Props) {
 							}
 						: null;
 
-				// Fetch spot prices if using spot mode
 				let spotPriceMap: Map<number, number> | null = null;
 				if (spotConfig) {
 					const spotPrices = await getSpotPricesForRange(start, end);
-					spotPriceMap = buildSpotPriceMap(spotPrices);
+					const tz = TimezoneTypeToTimeZone[user.timezone ?? TimeZoneType.Europe_Berlin];
+					spotPriceMap = buildSpotPriceMap(spotPrices, tz);
 				}
 
 				if (touConfig) {
