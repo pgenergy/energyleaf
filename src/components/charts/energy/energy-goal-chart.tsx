@@ -1,15 +1,20 @@
 "use client";
 
-import { Progress } from "@/components/ui/progress";
 import { useMemo } from "react";
+import { Progress } from "@/components/ui/progress";
 
 interface Props {
 	total: number;
 	goal: number;
 	progress: number;
+	remaining: number;
 }
 
 export default function EnergyGoalChart(props: Props) {
+	const isOverLimit = props.progress > 100;
+	const displayProgress = Math.min(props.progress, 100);
+	const overLimitPercentage = Math.round(props.progress - 100);
+
 	const color = useMemo(() => {
 		if (props.progress < 70) {
 			return "bg-[var(--primary)]";
@@ -32,10 +37,17 @@ export default function EnergyGoalChart(props: Props) {
 
 	return (
 		<div className="flex w-full flex-col gap-2">
-			<Progress value={props.progress} className={bgColor} barClassName={color} />
+			<Progress value={displayProgress} className={bgColor} barClassName={color} />
 			<p className="text-center font-mono font-semibold">
 				{props.total.toFixed(2)} kWh / {props.goal.toFixed(2)} kWh
 			</p>
+			{isOverLimit ? (
+				<p className="text-center font-mono text-destructive text-sm">{overLimitPercentage}% über Limit</p>
+			) : (
+				<p className="text-center font-mono text-muted-foreground text-sm">
+					Noch {props.remaining.toFixed(2)} kWh verfügbar
+				</p>
+			)}
 		</div>
 	);
 }

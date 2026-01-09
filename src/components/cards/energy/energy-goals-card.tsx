@@ -27,7 +27,7 @@ function CardHead(props: HeadProps) {
 
 	let text = `${format(props.start, "PPP", { locale: de })} - ${format(props.end, "PPP", { locale: de })}`;
 	if (today) {
-		text = "Ihr Fortschritt zum Tagesziel.";
+		text = "Ihr aktueller Verbrauch im Vergleich zum Limit.";
 	} else if (sameDay) {
 		text = format(props.start, "PPP", { locale: de });
 	}
@@ -38,7 +38,7 @@ function CardHead(props: HeadProps) {
 				<div className="flex flex-col gap-1">
 					<CardTitle className="flex items-center gap-1">
 						<BarChartIcon className="size-4" />
-						Zielverbrauch
+						Verbrauchslimit
 					</CardTitle>
 					<CardDescription>{text}</CardDescription>
 				</div>
@@ -109,13 +109,14 @@ export default async function EnergyGoalsCard(props: Props) {
 	const dayDiff = differenceInDays(end, start) + 1;
 	const goal = (userData.consumptionGoal / daysInMonth) * dayDiff;
 	const total = data.reduce((acc, curr) => curr.consumption + acc, 0);
-	const progress = Math.min((total / goal) * 100, 100);
+	const progress = (total / goal) * 100;
+	const remaining = goal - total;
 
 	return (
 		<Card className={props.className}>
 			<CardHead start={start} end={end} />
 			<CardContent>
-				<EnergyGoalChart goal={goal} total={total} progress={progress} />
+				<EnergyGoalChart goal={goal} total={total} progress={progress} remaining={remaining} />
 			</CardContent>
 		</Card>
 	);

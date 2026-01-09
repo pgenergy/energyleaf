@@ -97,7 +97,7 @@ export default async function DashboardPage() {
 				)}
 
 				{isActive("detail-energy") && (
-					<Suspense fallback={<Skeleton className="col-span-1 max-h-96 h-96 md:col-span-3" />}>
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
 						<DetailEnergyChartCard
 							title="Übersicht des Verbrauchs"
 							description="Detaillierte Ansicht Ihres Verbrauchs."

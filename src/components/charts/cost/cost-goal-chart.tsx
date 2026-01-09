@@ -1,7 +1,7 @@
 "use client";
 
-import { Progress } from "@/components/ui/progress";
 import { useMemo } from "react";
+import { Progress } from "@/components/ui/progress";
 
 interface Props {
 	total: number;

@@ -107,7 +107,7 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 	}, [props.data, props.simData]);
 
 	return (
-		<ChartContainer className="min-h-56 w-full" config={effectiveConfig}>
+		<ChartContainer className="min-h-56 max-h-96 w-full" config={effectiveConfig}>
 			<AreaChart
 				accessibilityLayer
 				className="select-none"

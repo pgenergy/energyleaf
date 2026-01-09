@@ -133,7 +133,7 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 	}, [props.data, props.compareData, props.simData]);
 
 	return (
-		<ChartContainer className="max-h-96 w-full" config={effectiveConfig}>
+		<ChartContainer className="min-h-56 max-h-96 w-full" config={effectiveConfig}>
 			<BarChart
 				accessibilityLayer
 				data={preparedData}
