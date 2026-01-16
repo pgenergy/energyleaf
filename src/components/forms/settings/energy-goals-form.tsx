@@ -54,7 +54,7 @@ export default function EnergyGoalForm(props: Props) {
 						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
-								<FieldLabel>Zielkosten</FieldLabel>
+								<FieldLabel>Kostenlimit</FieldLabel>
 								<FieldDescription>
 									Betrag in Euro, den Sie maximal pro Monat für die Energie-Kosten ausgeben möchten.
 								</FieldDescription>
@@ -84,9 +84,9 @@ export default function EnergyGoalForm(props: Props) {
 						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
-								<FieldLabel>Zielverbrauch</FieldLabel>
+								<FieldLabel>Verbrauchslimit</FieldLabel>
 								<FieldDescription>
-									Dieser Wert errechnet sich nach dem Sie ihre gewünschte Energie-Kosten-Zielwert
+									Dieser Wert errechnet sich nach dem Sie Ihr gewünschtes Energie-Kosten-Limit
 									eingegeben haben.
 								</FieldDescription>
 								<Input

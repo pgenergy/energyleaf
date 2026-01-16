@@ -24,7 +24,7 @@ export default async function UserEnergyCard({ userId }: Props) {
 						<ZapIcon className="size-5" />
 						<div className="flex min-w-0 flex-col">
 							<CardTitle>Energieeinstellungen</CardTitle>
-							<CardDescription>Tarif und Verbrauchsziele</CardDescription>
+							<CardDescription>Tarif und Verbrauchslimits</CardDescription>
 						</div>
 					</div>
 				</CardHeader>
@@ -42,7 +42,7 @@ export default async function UserEnergyCard({ userId }: Props) {
 					<ZapIcon className="size-5" />
 					<div className="flex min-w-0 flex-col">
 						<CardTitle>Energieeinstellungen</CardTitle>
-						<CardDescription>Tarif und Verbrauchsziele</CardDescription>
+						<CardDescription>Tarif und Verbrauchslimits</CardDescription>
 					</div>
 				</div>
 			</CardHeader>
@@ -69,7 +69,7 @@ export default async function UserEnergyCard({ userId }: Props) {
 						<p>{userData.monthlyPayment != null ? `${userData.monthlyPayment.toFixed(2)} €` : "-"}</p>
 					</div>
 					<div>
-						<span className="text-muted-foreground">Verbrauchsziel:</span>
+						<span className="text-muted-foreground">Verbrauchslimit:</span>
 						<p>
 							{userData.consumptionGoal != null ? `${userData.consumptionGoal.toFixed(2)} kWh/Tag` : "-"}
 						</p>

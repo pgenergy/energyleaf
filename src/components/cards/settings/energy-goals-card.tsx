@@ -22,7 +22,7 @@ export default async function EnergyGoalCard() {
 			<Card>
 				<CardHeader>
 					<CardTitle>Energiekosten</CardTitle>
-					<CardDescription>Passen sie Ihre Ziele zu Ihren Energiekosten an.</CardDescription>
+					<CardDescription>Passen Sie Ihre Limits zu Ihren Energiekosten an.</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="flex flex-col items-center justify-center">
@@ -46,7 +46,7 @@ export default async function EnergyGoalCard() {
 		<Card>
 			<CardHeader>
 				<CardTitle>Energiekosten</CardTitle>
-				<CardDescription>Passen sie Ihre Ziele zu Ihren Energiekosten an.</CardDescription>
+				<CardDescription>Passen Sie Ihre Limits zu Ihren Energiekosten an.</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<EnergyGoalForm

@@ -29,7 +29,7 @@ export function DailyOverviewCard({ days }: Props) {
 							<TableHead>Tag</TableHead>
 							<TableHead className="text-right">Verbrauch</TableHead>
 							<TableHead className="text-right">Kosten</TableHead>
-							<TableHead>Fortschritt zum Ziel</TableHead>
+							<TableHead>Fortschritt zum Limit</TableHead>
 							<TableHead className="text-center">Status</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -58,7 +58,7 @@ export function DailyOverviewCard({ days }: Props) {
 										{day.exceeded ? (
 											<Badge variant="destructive">Überschritten</Badge>
 										) : (
-											<Badge variant="secondary">Im Ziel</Badge>
+											<Badge variant="secondary">Im Limit</Badge>
 										)}
 									</TableCell>
 								</TableRow>

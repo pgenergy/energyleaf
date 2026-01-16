@@ -42,10 +42,10 @@ export const accountInfoSchema = z.object({
 });
 
 export const energyGoalSchema = z.object({
-	energy: z.coerce.number({ error: "Bitte geben Sie Ihren Energie-Zielwert an." }).optional(),
+	energy: z.coerce.number({ error: "Bitte geben Sie Ihr Energie-Limit an." }).optional(),
 	cost: z.coerce
-		.number({ error: "Bitte geben Sie Ihren Energie-Kosten-Zielwert an." })
-		.min(0.01, "Der Energie-Kosten-Zielwert muss mindestens 0.01 Euro betragen."),
+		.number({ error: "Bitte geben Sie Ihr Energie-Kosten-Limit an." })
+		.min(0.01, "Das Energie-Kosten-Limit muss mindestens 0.01 Euro betragen."),
 });
 
 export const anomalySchema = z.object({

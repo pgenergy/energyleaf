@@ -134,12 +134,12 @@ function MetricsDisplay({
 				</div>
 			) : consumptionGoal ? (
 				<div className="flex flex-col">
-					<span className="text-muted-foreground text-xs">Verbrauchsziel</span>
+					<span className="text-muted-foreground text-xs">Verbrauchslimit</span>
 					<span className="font-mono font-semibold text-lg">{consumptionGoal.toFixed(0)} kWh</span>
 				</div>
 			) : (
 				<div className="flex flex-col">
-					<span className="text-muted-foreground text-xs">Budget/Ziel</span>
+					<span className="text-muted-foreground text-xs">Budget/Limit</span>
 					<Link href="/settings/goals" className="text-primary text-sm underline hover:no-underline">
 						Jetzt festlegen
 					</Link>

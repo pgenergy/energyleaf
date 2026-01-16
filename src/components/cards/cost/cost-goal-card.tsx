@@ -1,3 +1,7 @@
+import { differenceInDays, endOfDay, format, getDaysInMonth, isSameDay, startOfDay } from "date-fns";
+import { de } from "date-fns/locale";
+import { BarChartIcon, Settings2Icon } from "lucide-react";
+import Link from "next/link";
 import CostGoalChart from "@/components/charts/cost/cost-goal-chart";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,10 +9,6 @@ import { getCurrentSession } from "@/server/lib/auth";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getUserData } from "@/server/queries/user";
-import { differenceInDays, endOfDay, format, getDaysInMonth, isSameDay, startOfDay } from "date-fns";
-import { de } from "date-fns/locale";
-import { BarChartIcon, Settings2Icon } from "lucide-react";
-import Link from "next/link";
 
 interface Props {
 	start?: Date;
@@ -27,7 +27,7 @@ function CardHead(props: HeadProps) {
 
 	let text = `${format(props.start, "PPP", { locale: de })} - ${format(props.end, "PPP", { locale: de })}`;
 	if (today) {
-		text = "Ihr Fortschritt zum Tagesziel.";
+		text = "Ihr Fortschritt zum Tageslimit.";
 	} else if (sameDay) {
 		text = format(props.start, "PPP", { locale: de });
 	}
@@ -38,7 +38,7 @@ function CardHead(props: HeadProps) {
 				<div className="flex flex-col gap-1">
 					<CardTitle className="flex items-center gap-1">
 						<BarChartIcon className="size-4" />
-						Zielkosten
+						Kostenlimit
 					</CardTitle>
 					<CardDescription>{text}</CardDescription>
 				</div>
@@ -70,7 +70,7 @@ export default async function CostGoalsCard(props: Props) {
 				<CardHead start={start} end={end} />
 				<CardContent>
 					<p className="text-center font-mono font-semibold">
-						Hinterlegen Sie ihre Ziele in den{" "}
+						Hinterlegen Sie Ihre Limits in den{" "}
 						<Link href="/settings/goals" className="underline hover:no-underline">
 							Einstellungen
 						</Link>{" "}

@@ -51,8 +51,8 @@ export const DASHBOARD_COMPONENTS: Record<DashboardComponentId, DashboardCompone
 		order: 20,
 	},
 	"energy-goals": {
-		label: "Energieziele",
-		description: "Zeigt den Fortschritt Ihrer Energieziele an.",
+		label: "Energielimits",
+		description: "Zeigt den Fortschritt Ihrer Energielimits an.",
 		group: "default",
 		order: 30,
 	},

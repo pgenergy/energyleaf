@@ -1,12 +1,12 @@
 "use server";
 
-import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
-import { energyGoalSchema } from "@/lib/schemas/profile-schema";
 import { waitUntil } from "@vercel/functions";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import type { z } from "zod";
+import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
+import { energyGoalSchema } from "@/lib/schemas/profile-schema";
 import { db } from "../db";
 import { userDataTable } from "../db/tables/user";
 import { getCurrentSession } from "../lib/auth";
@@ -79,7 +79,7 @@ export async function updateEnergyGoalAction(data: z.infer<typeof energyGoalSche
 			revalidatePath("/settings/goals");
 			return {
 				success: true,
-				message: "Ziele erfolgreich gespeichert.",
+				message: "Limits erfolgreich gespeichert.",
 				payload: roundedConsumption,
 			};
 		}
@@ -187,7 +187,7 @@ export async function updateEnergyGoalAction(data: z.infer<typeof energyGoalSche
 		);
 		return {
 			success: true,
-			message: "Ziele erfolgreich gespeichert.",
+			message: "Limits erfolgreich gespeichert.",
 			payload: roundedConsumption,
 		};
 	} catch (err) {

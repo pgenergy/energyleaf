@@ -1,3 +1,7 @@
+import { differenceInDays, endOfDay, format, getDaysInMonth, isSameDay, startOfDay } from "date-fns";
+import { de } from "date-fns/locale";
+import { BarChartIcon, Settings2Icon } from "lucide-react";
+import Link from "next/link";
 import EnergyGoalChart from "@/components/charts/energy/energy-goal-chart";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,10 +9,6 @@ import { getCurrentSession } from "@/server/lib/auth";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { getUserData } from "@/server/queries/user";
-import { differenceInDays, endOfDay, format, getDaysInMonth, isSameDay, startOfDay } from "date-fns";
-import { de } from "date-fns/locale";
-import { BarChartIcon, Settings2Icon } from "lucide-react";
-import Link from "next/link";
 
 interface Props {
 	start?: Date;
@@ -70,7 +70,7 @@ export default async function EnergyGoalsCard(props: Props) {
 				<CardHead start={start} end={end} />
 				<CardContent>
 					<p className="text-center font-mono font-semibold">
-						Hinterlegen Sie ihre Ziele in den{" "}
+						Hinterlegen Sie Ihre Limits in den{" "}
 						<Link href="/settings/goals" className="underline hover:no-underline">
 							Einstellungen
 						</Link>{" "}

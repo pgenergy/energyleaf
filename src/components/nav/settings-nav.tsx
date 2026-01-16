@@ -14,7 +14,7 @@ export default function SettingsNav(props: Props) {
 			</SettingsLink>
 			<SettingsLink href="/settings/goals">
 				<GoalIcon className="size-4" />
-				Ziele
+				Limits
 			</SettingsLink>
 			<SettingsLink href="/settings/reports">
 				<MailboxIcon className="size-4" />
