@@ -16,7 +16,7 @@ export function DailyOverviewCard({ days }: Props) {
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center gap-2">
-				<CalendarDaysIcon className="h-5 w-5 text-blue-500" />
+				<CalendarDaysIcon className="h-5 w-5" />
 				<div>
 					<CardTitle>Tagesübersicht</CardTitle>
 					<CardDescription>Verbrauch und Kosten pro Tag</CardDescription>
@@ -49,7 +49,9 @@ export function DailyOverviewCard({ days }: Props) {
 												value={Math.min(day.progress, 100)}
 												className={cn("h-2 w-24", day.exceeded && "[&>div]:bg-red-500")}
 											/>
-											<span className="text-muted-foreground text-xs">{day.progress}%</span>
+											<span className="text-muted-foreground text-xs">
+												{day.progress.toFixed(2)}%
+											</span>
 										</div>
 									</TableCell>
 									<TableCell className="text-center">

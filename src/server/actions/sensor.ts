@@ -460,27 +460,41 @@ export async function assignSensorAction(clientId: string, data: z.infer<typeof 
 
 		// Perform the assignment in a transaction
 		await db.transaction(async (trx) => {
-			// For Version 2 sensors, delete the existing token first (FK constraint)
+			// For Version 2 sensors, preserve the existing token code and update with new sensorId
 			if (oldSensor.version === 2) {
+				// Get existing token code to preserve it
+				const existingToken = await trx
+					.select({ code: sensorTokenTable.code })
+					.from(sensorTokenTable)
+					.where(eq(sensorTokenTable.sensorId, oldSensor.id))
+					.limit(1);
+
+				// Delete the existing token (required due to FK constraint on sensorId)
 				await trx.delete(sensorTokenTable).where(eq(sensorTokenTable.sensorId, oldSensor.id));
-			}
 
-			// Update sensor with new userId and new sensor ID
-			await trx
-				.update(sensorTable)
-				.set({
-					id: newSensorId,
-					userId: data.userId,
-				})
-				.where(eq(sensorTable.clientId, clientId));
+				// Update sensor with new userId and new sensor ID
+				await trx
+					.update(sensorTable)
+					.set({
+						id: newSensorId,
+						userId: data.userId,
+					})
+					.where(eq(sensorTable.clientId, clientId));
 
-			// For Version 2 sensors, create a new token with the new sensorId
-			if (oldSensor.version === 2) {
-				const tokenCode = genID(30);
+				// Re-insert token with preserved code (or generate new if none existed)
 				await trx.insert(sensorTokenTable).values({
-					code: tokenCode,
+					code: existingToken[0]?.code ?? genID(30),
 					sensorId: newSensorId,
 				});
+			} else {
+				// For non-v2 sensors, just update the sensor
+				await trx
+					.update(sensorTable)
+					.set({
+						id: newSensorId,
+						userId: data.userId,
+					})
+					.where(eq(sensorTable.clientId, clientId));
 			}
 
 			// Insert initial energy data entry
@@ -1077,23 +1091,35 @@ export async function unassignSensorAction(clientId: string) {
 				// CASE: No additional users - generate new sensorId and set userId to null
 				newSensorId = genID(30);
 
-				// For v2 sensors: delete old token first (FK constraint)
+				// For v2 sensors: preserve the existing token code and update with new sensorId
 				if (sensorData.version === 2) {
+					// Get existing token code to preserve it
+					const existingToken = await trx
+						.select({ code: sensorTokenTable.code })
+						.from(sensorTokenTable)
+						.where(eq(sensorTokenTable.sensorId, sensorData.id))
+						.limit(1);
+
+					// Delete old token (required due to FK constraint on sensorId)
 					await trx.delete(sensorTokenTable).where(eq(sensorTokenTable.sensorId, sensorData.id));
-				}
 
-				// Update sensor with new ID and null userId
-				await trx
-					.update(sensorTable)
-					.set({ id: newSensorId, userId: null })
-					.where(eq(sensorTable.clientId, clientId));
+					// Update sensor with new ID and null userId
+					await trx
+						.update(sensorTable)
+						.set({ id: newSensorId, userId: null })
+						.where(eq(sensorTable.clientId, clientId));
 
-				// For v2 sensors: create new token with new sensorId
-				if (sensorData.version === 2) {
+					// Re-insert token with preserved code (or generate new if none existed)
 					await trx.insert(sensorTokenTable).values({
-						code: genID(30),
+						code: existingToken[0]?.code ?? genID(30),
 						sensorId: newSensorId,
 					});
+				} else {
+					// For non-v2 sensors, just update the sensor
+					await trx
+						.update(sensorTable)
+						.set({ id: newSensorId, userId: null })
+						.where(eq(sensorTable.clientId, clientId));
 				}
 			}
 		});

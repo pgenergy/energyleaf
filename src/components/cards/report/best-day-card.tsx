@@ -14,7 +14,7 @@ export function BestDayCard({ timestamp, consumption }: Props) {
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center gap-2">
-				<TrophyIcon className="h-5 w-5 text-amber-500" />
+				<TrophyIcon className="h-5 w-5" />
 				<CardTitle>Bester Tag</CardTitle>
 			</CardHeader>
 			<CardContent className="flex flex-col gap-2">

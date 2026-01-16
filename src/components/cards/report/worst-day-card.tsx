@@ -14,7 +14,7 @@ export function WorstDayCard({ timestamp, consumption }: Props) {
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center gap-2">
-				<AlertTriangleIcon className="h-5 w-5 text-red-500" />
+				<AlertTriangleIcon className="h-5 w-5" />
 				<CardTitle>Schlechtester Tag</CardTitle>
 			</CardHeader>
 			<CardContent className="flex flex-col gap-2">

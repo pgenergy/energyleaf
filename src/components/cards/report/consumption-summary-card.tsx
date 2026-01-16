@@ -10,7 +10,7 @@ export function ConsumptionSummaryCard({ totalConsumption, avgConsumption }: Pro
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center gap-2">
-				<ZapIcon className="h-5 w-5 text-yellow-500" />
+				<ZapIcon className="h-5 w-5" />
 				<CardTitle>Verbrauch</CardTitle>
 			</CardHeader>
 			<CardContent className="flex flex-col gap-4">

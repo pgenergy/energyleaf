@@ -10,7 +10,7 @@ export function CostSummaryCard({ totalCost, avgCost }: Props) {
 	return (
 		<Card>
 			<CardHeader className="flex flex-row items-center gap-2">
-				<EuroIcon className="h-5 w-5 text-green-500" />
+				<EuroIcon className="h-5 w-5" />
 				<CardTitle>Kosten</CardTitle>
 			</CardHeader>
 			<CardContent className="flex flex-col gap-4">
