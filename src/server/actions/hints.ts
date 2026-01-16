@@ -34,17 +34,19 @@ export async function trackHintSeen(hintId: string): Promise<ActionResponse> {
 			await markHintSeen(hintId);
 			await incrementHintsDaysSeen(user.id);
 
-			await db.insert(actionLogsTable).values({
-				function: "hints",
-				action: "hint_seen",
-				details: {
-					userId: user.id,
-					hintId: hint.id,
-					hintType: hint.hintType,
-					hintStage: hint.hintStage,
-					forDate: hint.forDate.toISOString(),
-				},
-			});
+			if (user.isParticipant) {
+				await db.insert(actionLogsTable).values({
+					function: "hints",
+					action: "hint_seen",
+					details: {
+						userId: user.id,
+						hintId: hint.id,
+						hintType: hint.hintType,
+						hintStage: hint.hintStage,
+						forDate: hint.forDate.toISOString(),
+					},
+				});
+			}
 		}
 
 		return { success: true, message: "Hinweis als gesehen markiert" };
@@ -76,18 +78,20 @@ export async function trackHintClick(hintId: string): Promise<ActionResponse> {
 		if (!hint.clicked) {
 			await markHintClicked(hintId);
 
-			await db.insert(actionLogsTable).values({
-				function: "hints",
-				action: "hint_clicked",
-				details: {
-					userId: user.id,
-					hintId: hint.id,
-					hintType: hint.hintType,
-					hintStage: hint.hintStage,
-					linkTarget: hint.linkTarget,
-					forDate: hint.forDate.toISOString(),
-				},
-			});
+			if (user.isParticipant) {
+				await db.insert(actionLogsTable).values({
+					function: "hints",
+					action: "hint_clicked",
+					details: {
+						userId: user.id,
+						hintId: hint.id,
+						hintType: hint.hintType,
+						hintStage: hint.hintStage,
+						linkTarget: hint.linkTarget,
+						forDate: hint.forDate.toISOString(),
+					},
+				});
+			}
 		}
 
 		return { success: true, message: "Klick erfasst" };

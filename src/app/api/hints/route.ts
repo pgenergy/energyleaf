@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 		.from(userTable)
 		.innerJoin(sensorTable, eq(sensorTable.userId, userTable.id))
 		.leftJoin(hintConfigTable, eq(hintConfigTable.userId, userTable.id))
-		.where(and(eq(userTable.isActive, true), eq(userTable.deleted, false), eq(userTable.isParticipant, true)));
+		.where(and(eq(userTable.isActive, true), eq(userTable.deleted, false)));
 
 	const promises = [];
 	let queued = 0;
