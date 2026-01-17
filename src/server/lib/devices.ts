@@ -5,12 +5,16 @@ import { type Device, deviceTable, deviceToPeakTable } from "../db/tables/device
 import { energyDataSequenceTable } from "../db/tables/sensor";
 import { userDataTable } from "../db/tables/user";
 
-function linearRegression(A: (1 | 0)[][], b: number[][]) {
+const DEFAULT_RIDGE_LAMBDA = 1;
+
+function linearRegression(A: (1 | 0)[][], b: number[][], prior?: number[], lambda = DEFAULT_RIDGE_LAMBDA) {
 	const math = create(all, {});
 	const AMatrix = math.matrix(A);
 	const bMatrix = math.matrix(b);
 
-	const solution = solveLeastSquaresProblem(math, AMatrix, bMatrix);
+	const solution = prior
+		? solveRidgeRegressionProblem(math, AMatrix, bMatrix, prior, lambda)
+		: solveLeastSquaresProblem(math, AMatrix, bMatrix);
 	const rSquared = calculateRSquared(math, AMatrix, bMatrix, solution);
 
 	return {
@@ -26,6 +30,24 @@ function solveLeastSquaresProblem(math: MathJsInstance, AMatrix: Matrix, bMatrix
 	return math.lusolve(AtA, Atb);
 }
 
+function solveRidgeRegressionProblem(
+	math: MathJsInstance,
+	AMatrix: Matrix,
+	bMatrix: Matrix,
+	prior: number[],
+	lambda: number,
+) {
+	const At = math.transpose(AMatrix);
+	const AtA = math.multiply(At, AMatrix);
+	const rows = (AtA.size() as number[])[0];
+	const identity = math.identity(rows);
+	const ridgeMatrix = math.add(AtA, math.multiply(lambda, identity)) as Matrix;
+	const Atb = math.multiply(At, bMatrix);
+	const priorMatrix = math.matrix(prior.map((value) => [value]));
+	const rightHandSide = math.add(Atb, math.multiply(lambda, priorMatrix)) as Matrix;
+	return math.lusolve(ridgeMatrix, rightHandSide);
+}
+
 function calculateRSquared(math: MathJsInstance, AMatrix: Matrix, bMatrix: Matrix, solution: Matrix) {
 	const residuals = math.subtract(bMatrix, math.multiply(AMatrix, solution));
 	const subtraction = math.subtract(bMatrix, math.mean(bMatrix)) as Matrix;
@@ -37,53 +59,69 @@ function calculateRSquared(math: MathJsInstance, AMatrix: Matrix, bMatrix: Matri
 	return math.subtract(1, math.divide(SSR, SST)) as number;
 }
 
+function calculateConfidenceScore(rSquared: number, peakCount: number) {
+	const normalizedRSquared = Math.max(0, Math.min(1, rSquared));
+	const peakFactor = Math.min(1, peakCount / 5);
+	return Math.round(normalizedRSquared * peakFactor * 100);
+}
+
 interface Peak {
 	sequence: string;
 	devices: string[];
 	power: number;
 }
 
+export interface DevicePowerConfidence {
+	deviceId: string;
+	confidence: number;
+	peaks: number;
+}
+
 function estimateDevicePowers(devices: Device[], peaks: Peak[]) {
-	const devicesWithFixedPower = devices.filter((device) => !device.isPowerEstimated);
-	const deviceIdsWithFixedPower = devicesWithFixedPower.map((device) => device.id);
+	const deviceIdsWithInitialPower = new Map(
+		devices
+			.filter((device) => device.power !== null && device.power !== undefined)
+			.map((device) => [device.id, Number(device.power)]),
+	);
 
-	const devicesWhosePowerNeedsToBeEstimated = devices.filter((device) => device.isPowerEstimated);
-	const deviceIdsWhosePowerNeedsToBeEstimated = devicesWhosePowerNeedsToBeEstimated.map((device) => device.id);
-
-	const peaksWithoutFixedPower = peaks
-		.filter((peak) => !peak.devices.every((device) => deviceIdsWithFixedPower.includes(device)))
-		.map((peak) => {
-			let powerAdjustment = 0;
-			for (const fixedDevice of devicesWithFixedPower) {
-				if (peak.devices.includes(fixedDevice.id)) {
-					powerAdjustment += fixedDevice.power ?? 0;
-				}
-			}
-			return { ...peak, power: peak.power - powerAdjustment }; // Remove power of fixed devices from the peak power.
-		});
+	const deviceIdsToEstimate = Array.from(new Set(peaks.flatMap((peak) => peak.devices)));
+	const peaksWithoutFixedPower = peaks.filter((peak) => peak.power > 0);
 
 	if (peaksWithoutFixedPower.length === 0) {
 		return null;
 	}
 
 	const A = peaksWithoutFixedPower.map((dp) => {
-		return deviceIdsWhosePowerNeedsToBeEstimated.map((device) => (dp.devices.includes(device) ? 1 : 0));
+		return deviceIdsToEstimate.map((deviceId) => (dp.devices.includes(deviceId) ? 1 : 0));
 	});
 	const b = peaksWithoutFixedPower.map((dp) => [dp.power]);
-	const { solution, rSquared } = linearRegression(A, b);
+	const prior = deviceIdsToEstimate.map((deviceId) => deviceIdsWithInitialPower.get(deviceId) ?? 0);
+	const { solution, rSquared } = linearRegression(A, b, prior);
 
-	// Extract the solution values
 	const result = solution.map((value, index) => ({
-		[deviceIdsWhosePowerNeedsToBeEstimated[index]]: (value as number[])[0],
+		[deviceIdsToEstimate[index]]: (value as number[])[0],
 	}));
+
+	const devicePeakCounts = deviceIdsToEstimate.map((deviceId) => ({
+		deviceId,
+		count: peaksWithoutFixedPower.filter((peak) => peak.devices.includes(deviceId)).length,
+	}));
+
+	const confidence = devicePeakCounts.map((devicePeak) => ({
+		deviceId: devicePeak.deviceId,
+		peaks: devicePeak.count,
+		confidence: calculateConfidenceScore(rSquared, devicePeak.count),
+	}));
+
 	return {
 		result,
 		rSquared,
-		estimatedDeviceIds: deviceIdsWhosePowerNeedsToBeEstimated,
+		estimatedDeviceIds: deviceIdsToEstimate,
+		confidence,
 	};
 }
 
-export async function updatePowerOfDevices(userId: string) {
+export async function updatePowerOfDevices(userId: string): Promise<Map<string, DevicePowerConfidence> | null> {
 	return db.transaction(async (trx) => {
 		const devicesWithPeaks = await trx
 			.select()
@@ -125,21 +163,28 @@ export async function updatePowerOfDevices(userId: string) {
 		const devices = removeDuplicatesById(devicesWithPeaks.map((device) => device.device));
 		const powerEstimationResult = estimateDevicePowers(devices, peaks);
 		if (!powerEstimationResult) {
-			return;
+			return null;
 		}
 
-		const { result, rSquared, estimatedDeviceIds } = powerEstimationResult;
+		const { result, rSquared, estimatedDeviceIds, confidence } = powerEstimationResult;
+
+		const confidenceMap = new Map(confidence.map((entry) => [entry.deviceId, entry]));
 
 		for (const deviceId of estimatedDeviceIds) {
 			const powerEstimationRaw = result.find((r) => r[deviceId])?.[deviceId];
 			const powerEstimation = powerEstimationRaw ? Number(powerEstimationRaw) : null;
 			const correctedPowerEstimation = powerEstimation && powerEstimation >= 0 ? powerEstimation : null; // power needs to be greater than 0.
-			await trx.update(deviceTable).set({ power: correctedPowerEstimation }).where(eq(deviceTable.id, deviceId));
+			await trx
+				.update(deviceTable)
+				.set({ power: correctedPowerEstimation, isPowerEstimated: true })
+				.where(eq(deviceTable.id, deviceId));
 		}
 
 		await trx
 			.update(userDataTable)
 			.set({ devicePowerEstimationRSquared: rSquared })
 			.where(eq(userDataTable.userId, userId));
+
+		return confidenceMap;
 	});
 }

@@ -1,5 +1,9 @@
 "use client";
 
+import { EditIcon, MoreVerticalIcon, Trash2Icon, ZapIcon } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useTransition } from "react";
+import { toast } from "sonner";
 import { DeviceCategoryToIcon } from "@/components/icons/device-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,18 +14,19 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getReferencePowerDataForDeviceCategory } from "@/lib/device/power";
 import { DeviceCategoryDisplay } from "@/lib/enums";
 import { cn } from "@/lib/utils";
 import { deleteDeviceAction } from "@/server/actions/device";
 import type { Device } from "@/server/db/tables/device";
-import { EditIcon, MoreVerticalIcon, Trash2Icon, ZapIcon } from "lucide-react";
-import Link from "next/link";
-import { useMemo, useTransition } from "react";
-import { toast } from "sonner";
+
+interface DeviceWithConfidence extends Device {
+	powerEstimationConfidence?: number | null;
+}
 
 interface Props {
-	device: Device;
+	device: DeviceWithConfidence;
 }
 
 export default function DeviceCard(props: Props) {
@@ -103,7 +108,7 @@ export default function DeviceCard(props: Props) {
 				{props.device.power ? (
 					<div className="flex flex-col gap-1">
 						<div className="flex flex-row items-center justify-between">
-							<div className="flex flex-row items-center gap-1">
+							<div className="flex flex-row items-center gap-2">
 								<ZapIcon className="size-4" />
 								<p
 									className={cn(
@@ -112,7 +117,7 @@ export default function DeviceCard(props: Props) {
 											"text-warning": props.device.power > referenceData.averagePower,
 											"text-primary": props.device.power <= referenceData.averagePower,
 										},
-										"font-mono font-semibold",
+										"font-mono text-lg font-semibold",
 									)}
 								>
 									{props.device.power.toFixed(2)} Watt
@@ -122,9 +127,34 @@ export default function DeviceCard(props: Props) {
 								{props.device.isPowerEstimated ? "Geschätzt" : "Manuell vergeben"}
 							</Badge>
 						</div>
-						<p className="text-muted-foreground text-xs">
-							Durchschnittliche Leistung für Geräte in dieser Kategorie: {referenceData.averagePower} Watt
-						</p>
+						<div className="flex flex-wrap gap-2">
+							{props.device.powerEstimationConfidence !== null &&
+								props.device.powerEstimationConfidence !== undefined && (
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<Badge variant="outline" className="text-muted-foreground">
+												Vertrauen {props.device.powerEstimationConfidence} %
+											</Badge>
+										</TooltipTrigger>
+										<TooltipContent>
+											<p>
+												Die Schätzung basiert auf der Modellgüte (R²) und der Anzahl der
+												zugeordneten Ausschläge für dieses Gerät.
+											</p>
+										</TooltipContent>
+									</Tooltip>
+								)}
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Badge variant="outline" className="text-muted-foreground">
+										Ø {referenceData.averagePower} Watt
+									</Badge>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Durchschnittliche Leistung für Geräte in dieser Kategorie.</p>
+								</TooltipContent>
+							</Tooltip>
+						</div>
 					</div>
 				) : (
 					<p className="text-muted-foreground text-sm">
