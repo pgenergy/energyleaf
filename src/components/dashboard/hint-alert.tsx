@@ -1,10 +1,9 @@
 "use client";
 
-import { LightbulbIcon } from "lucide-react";
+import { ArrowRightIcon, LightbulbIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { trackHintClick, trackHintSeen } from "@/server/actions/hints";
 
 interface HintAlertProps {
@@ -31,21 +30,15 @@ export function HintAlert({ hint }: HintAlertProps) {
 	};
 
 	return (
-		<Alert className="mb-4 border-primary/15 bg-primary/5 text-primary">
-			<LightbulbIcon className="h-5 w-5 text-primary/70" />
-			<AlertTitle className="text-primary">Hinweis</AlertTitle>
-			<AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-				<span className="text-sm text-primary/80">{hint.hintText}</span>
-				<Button
-					variant="outline"
-					size="sm"
-					asChild
-					className="shrink-0 border-primary/30 text-primary hover:border-primary/50 hover:bg-primary/10"
-					onClick={handleClick}
-				>
-					<Link href={hint.linkTarget}>Details ansehen</Link>
-				</Button>
-			</AlertDescription>
-		</Alert>
+		<Link href={hint.linkTarget} onClick={handleClick} className="group block">
+			<Alert className="mb-4 border-primary/90 bg-primary/50 text-primary-foreground transition hover:bg-primary/30">
+				<LightbulbIcon className="h-5 w-5 text-primary-foreground" />
+				<AlertTitle className="text-primary-foreground">Hinweis</AlertTitle>
+				<AlertDescription className="flex items-center justify-between gap-3">
+					<span className="text-sm text-primary-foreground/90">{hint.hintText}</span>
+					<ArrowRightIcon className="h-4 w-4 shrink-0 text-primary-foreground transition group-hover:translate-x-0.5" />
+				</AlertDescription>
+			</Alert>
+		</Link>
 	);
 }
