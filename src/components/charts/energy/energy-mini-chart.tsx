@@ -4,8 +4,10 @@ import { Area, AreaChart, XAxis, YAxis } from "recharts";
 import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 import type { EnergyData } from "@/server/db/tables/sensor";
 
+type MiniChartData = Pick<EnergyData, "timestamp" | "consumption">;
+
 interface Props {
-	data: EnergyData[];
+	data: MiniChartData[];
 }
 
 const chartConfig = {

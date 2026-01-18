@@ -1,4 +1,4 @@
-import { and, asc, between, eq, or, type SQLWrapper } from "drizzle-orm";
+import { and, asc, between, eq, inArray, or, type SQLWrapper } from "drizzle-orm";
 import { cache } from "react";
 import { db } from "../db";
 import { deviceTable, deviceToPeakTable } from "../db/tables/device";
@@ -61,6 +61,14 @@ interface ExtraQuerySequencesBySensorProps {
 	end: string;
 }
 
+type PeakEnergyData = Pick<EnergyData, "timestamp" | "consumption">;
+
+type PeakEnergyDataSequence = Pick<EnergyDataSequence, "id" | "start" | "end" | "averagePeakPower">;
+
+type PeakSequenceWithData = PeakEnergyDataSequence & {
+	energyData: PeakEnergyData[];
+};
+
 export const getPeaksBySensor = cache(async (sensorId: string, extra?: ExtraQuerySequencesBySensorProps) => {
 	const wheres: (SQLWrapper | undefined)[] = [eq(energyDataSequenceTable.sensorId, sensorId)];
 	if (extra) {
@@ -72,7 +80,18 @@ export const getPeaksBySensor = cache(async (sensorId: string, extra?: ExtraQuer
 	}
 
 	const rawData = await db
-		.select()
+		.select({
+			energy_data_sequence: {
+				id: energyDataSequenceTable.id,
+				start: energyDataSequenceTable.start,
+				end: energyDataSequenceTable.end,
+				averagePeakPower: energyDataSequenceTable.averagePeakPower,
+			},
+			energy_data: {
+				consumption: energyDataTable.consumption,
+				timestamp: energyDataTable.timestamp,
+			},
+		})
 		.from(energyDataSequenceTable)
 		.innerJoin(
 			energyDataTable,
@@ -81,7 +100,7 @@ export const getPeaksBySensor = cache(async (sensorId: string, extra?: ExtraQuer
 		.where(and(...wheres))
 		.orderBy(asc(energyDataSequenceTable.start), asc(energyDataTable.timestamp));
 
-	const groupedDataMap: Map<string, EnergyDataSequence & { energyData: EnergyData[] }> = new Map();
+	const groupedDataMap: Map<string, PeakSequenceWithData> = new Map();
 
 	for (const item of rawData) {
 		const { energy_data_sequence, energy_data } = item;
@@ -96,6 +115,23 @@ export const getPeaksBySensor = cache(async (sensorId: string, extra?: ExtraQuer
 	}
 
 	return Array.from(groupedDataMap.values());
+});
+
+export const getDevicesByPeaks = cache(async (energyDataSequenceIds: string[]) => {
+	if (energyDataSequenceIds.length === 0) {
+		return [];
+	}
+
+	return db
+		.select({
+			peakId: deviceToPeakTable.energyDataSequenceId,
+			id: deviceToPeakTable.deviceId,
+			name: deviceTable.name,
+			category: deviceTable.category,
+		})
+		.from(deviceToPeakTable)
+		.innerJoin(deviceTable, eq(deviceTable.id, deviceToPeakTable.deviceId))
+		.where(inArray(deviceToPeakTable.energyDataSequenceId, energyDataSequenceIds));
 });
 
 export const getDevicesByPeak = cache(async (energyDataSequenceId: string) => {

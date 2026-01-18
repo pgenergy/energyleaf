@@ -1,8 +1,8 @@
-import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
-import { getCurrentSession } from "@/server/lib/auth";
-import { getDevicesByPeak, getPeaksBySensor } from "@/server/queries/peaks";
-import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import { fromZonedTime } from "date-fns-tz";
+import { type DeviceCategory, TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
+import { getCurrentSession } from "@/server/lib/auth";
+import { getDevicesByPeaks, getPeaksBySensor } from "@/server/queries/peaks";
+import { getEnergySensorIdForUser } from "@/server/queries/sensor";
 import PeakCard from "./peaks-card";
 
 interface Props {
@@ -39,21 +39,30 @@ export async function PeaksOverview(props: Props) {
 		);
 	}
 
-	const preparedPeaks = [];
-	for (let i = 0; i < peaks.length; i++) {
-		const peak = peaks[i];
-		const devices = await getDevicesByPeak(peak.id);
-		preparedPeaks.push({
-			...peak,
-			start: fromZonedTime(peak.start, tz),
-			end: fromZonedTime(peak.end, tz),
-			eneryData: peak.energyData.map((d) => ({
-				...d,
-				timestamp: fromZonedTime(d.timestamp, tz),
-			})),
-			devices: devices,
+	const peakIds = peaks.map((peak) => peak.id);
+	const devicesByPeak = await getDevicesByPeaks(peakIds);
+	const devicesByPeakId = new Map<string, { id: string; name: string; category: DeviceCategory }[]>();
+
+	for (const device of devicesByPeak) {
+		const existing = devicesByPeakId.get(device.peakId) ?? [];
+		existing.push({
+			id: device.id,
+			name: device.name,
+			category: device.category,
 		});
+		devicesByPeakId.set(device.peakId, existing);
 	}
+
+	const preparedPeaks = peaks.map((peak) => ({
+		...peak,
+		start: fromZonedTime(peak.start, tz),
+		end: fromZonedTime(peak.end, tz),
+		energyData: peak.energyData.map((d) => ({
+			...d,
+			timestamp: fromZonedTime(d.timestamp, tz),
+		})),
+		devices: devicesByPeakId.get(peak.id) ?? [],
+	}));
 
 	return (
 		<>

@@ -1,5 +1,11 @@
 "use client";
 
+import { format, isSameDay } from "date-fns";
+import { de } from "date-fns/locale";
+import { MoreVerticalIcon, PlusIcon, Trash2Icon, ZapIcon } from "lucide-react";
+import Link from "next/link";
+import { useTransition } from "react";
+import { toast } from "sonner";
 import EnergyMiniChart from "@/components/charts/energy/energy-mini-chart";
 import { DeviceCategoryToIcon } from "@/components/icons/device-icon";
 import { Badge } from "@/components/ui/badge";
@@ -14,15 +20,13 @@ import {
 import type { DeviceCategory } from "@/lib/enums";
 import { deletePeakAction } from "@/server/actions/peaks";
 import type { EnergyData, EnergyDataSequence } from "@/server/db/tables/sensor";
-import { format, isSameDay } from "date-fns";
-import { de } from "date-fns/locale";
-import { MoreVerticalIcon, PlusIcon, Trash2Icon, ZapIcon } from "lucide-react";
-import Link from "next/link";
-import { useTransition } from "react";
-import { toast } from "sonner";
+
+type PeakEnergyData = Pick<EnergyData, "timestamp" | "consumption">;
+
+type PeakEnergyDataSequence = Pick<EnergyDataSequence, "id" | "start" | "end" | "averagePeakPower">;
 
 interface Props {
-	peak: EnergyDataSequence & { energyData: EnergyData[] };
+	peak: PeakEnergyDataSequence & { energyData: PeakEnergyData[] };
 	devices: {
 		name: string;
 		id: string;
