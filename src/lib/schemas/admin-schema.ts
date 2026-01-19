@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ExperimentPhase } from "@/lib/enums";
 
 export const adminCreateUserSchema = z
 	.object({
@@ -32,4 +33,13 @@ export const adminCreateUserSchema = z
 export const adminHintConfigSchema = z.object({
 	stage: z.enum(["simple", "intermediate", "expert"]),
 	hintsEnabled: z.boolean(),
+});
+
+export const adminExperimentSchema = z.object({
+	experimentStatus: z.nativeEnum(ExperimentPhase).nullable(),
+	experimentNumber: z.union([z.number().int().min(1, "Bitte geben Sie eine gültige Nummer an."), z.nan()]).nullable(),
+	installationDate: z.string().nullable(),
+	deinstallationDate: z.string().nullable(),
+	getsPaid: z.boolean(),
+	usesProlific: z.boolean(),
 });

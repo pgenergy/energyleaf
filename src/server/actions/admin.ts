@@ -6,9 +6,9 @@ import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import type { z } from "zod";
-import { SimulationType, type SimulationTypeValue } from "@/lib/enums";
+import { type ExperimentPhaseValue, SimulationType, type SimulationTypeValue } from "@/lib/enums";
 import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
-import { adminCreateUserSchema, adminHintConfigSchema } from "@/lib/schemas/admin-schema";
+import { adminCreateUserSchema, adminExperimentSchema, adminHintConfigSchema } from "@/lib/schemas/admin-schema";
 import {
 	accountInfoSchema,
 	accountNameSchema,
@@ -31,10 +31,10 @@ import {
 	simulationSolarSettingsTable,
 	simulationTouTariffSettingsTable,
 } from "../db/tables/simulation";
-import { userDataTable, userTable } from "../db/tables/user";
+import { userDataTable, userExperimentDataTable, userTable } from "../db/tables/user";
 import { getCurrentSession } from "../lib/auth";
-import { logAction, logError } from "../queries/logs";
 import { getOrCreateHintConfig, updateHintConfig } from "../queries/hints";
+import { logAction, logError } from "../queries/logs";
 
 export async function adminUpdateUserNameAction(userId: string, data: z.infer<typeof accountNameSchema>) {
 	try {
@@ -1677,6 +1677,144 @@ export async function adminUpdateHintConfigAction(userId: string, data: z.infer<
 		waitUntil(
 			logError({
 				fn: LogActionTypes.ADMIN_UPDATE_HINT_CONFIG_ACTION,
+				error: err as Error,
+				details: {
+					user: null,
+					session: null,
+					targetUser: userId,
+				},
+			}),
+		);
+		return {
+			success: false,
+			message: "Es ist ein unerwarteter Fehler aufgetreten.",
+		};
+	}
+}
+
+export async function adminUpdateExperimentAction(userId: string, data: z.infer<typeof adminExperimentSchema>) {
+	try {
+		const { user } = await getCurrentSession();
+		const cookieStore = await cookies();
+		const sid = cookieStore.get("sid")?.value;
+
+		if (!user || !user.isAdmin) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_UPDATE_EXPERIMENT_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: user ? ErrorTypes.NOT_ADMIN : ErrorTypes.NOT_LOGGED_IN,
+						user: user?.id ?? null,
+						session: sid,
+						targetUser: userId,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sie sind nicht berechtigt, diese Aktion durchzuführen.",
+			};
+		}
+
+		const valid = adminExperimentSchema.safeParse(data);
+		if (!valid.success) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_UPDATE_EXPERIMENT_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: ErrorTypes.INVALID_INPUT,
+						user: user.id,
+						session: sid,
+						targetUser: userId,
+						data,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Bitte überprüfen Sie Ihre Eingaben.",
+			};
+		}
+
+		const payload = valid.data;
+		const existing = await db
+			.select()
+			.from(userExperimentDataTable)
+			.where(eq(userExperimentDataTable.userId, userId))
+			.limit(1);
+
+		const installationDate = payload.installationDate ? new Date(payload.installationDate) : null;
+		const deinstallationDate = payload.deinstallationDate ? new Date(payload.deinstallationDate) : null;
+
+		await db
+			.insert(userExperimentDataTable)
+			.values({
+				userId,
+				experimentStatus: payload.experimentStatus as ExperimentPhaseValue | null,
+				experimentNumber: Number.isNaN(payload.experimentNumber ?? Number.NaN)
+					? null
+					: payload.experimentNumber,
+				installationDate,
+				deinstallationDate,
+				getsPaid: payload.getsPaid,
+				usesProlific: payload.usesProlific,
+			})
+			.onConflictDoUpdate({
+				target: userExperimentDataTable.userId,
+				set: {
+					experimentStatus: payload.experimentStatus as ExperimentPhaseValue | null,
+					experimentNumber: Number.isNaN(payload.experimentNumber ?? Number.NaN)
+						? null
+						: payload.experimentNumber,
+					installationDate,
+					deinstallationDate,
+					getsPaid: payload.getsPaid,
+					usesProlific: payload.usesProlific,
+				},
+			});
+
+		revalidatePath(`/admin/users/${userId}`);
+		revalidatePath(`/admin/users/${userId}/edit`);
+		revalidatePath(`/admin/users/${userId}/edit/experiment`);
+
+		waitUntil(
+			logAction({
+				fn: LogActionTypes.ADMIN_UPDATE_EXPERIMENT_ACTION,
+				result: "success",
+				details: {
+					success: true,
+					reason: null,
+					user: user.id,
+					session: sid,
+					targetUser: userId,
+					data: {
+						old: existing[0] ?? null,
+						new: {
+							experimentStatus: payload.experimentStatus,
+							experimentNumber: payload.experimentNumber,
+							installationDate,
+							deinstallationDate,
+							getsPaid: payload.getsPaid,
+							usesProlific: payload.usesProlific,
+						},
+					},
+				},
+			}),
+		);
+
+		return {
+			success: true,
+			message: "Experimentdaten erfolgreich aktualisiert.",
+		};
+	} catch (err) {
+		console.error(err);
+		waitUntil(
+			logError({
+				fn: LogActionTypes.ADMIN_UPDATE_EXPERIMENT_ACTION,
 				error: err as Error,
 				details: {
 					user: null,

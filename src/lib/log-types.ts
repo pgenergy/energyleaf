@@ -83,6 +83,7 @@ export enum LogActionTypes {
 	ADMIN_UPDATE_ENERGY_TARIFF_ACTION = "admin_update_energy_tariff_action",
 	ADMIN_UPDATE_ACCOUNT_STATUS_ACTION = "admin_update_account_status_action",
 	ADMIN_UPDATE_HINT_CONFIG_ACTION = "admin_update_hint_config_action",
+	ADMIN_UPDATE_EXPERIMENT_ACTION = "admin_update_experiment_action",
 
 	// ADMIN SIMULATION MANAGEMENT
 	ADMIN_UPDATE_SIMULATION_EV_SETTINGS_ACTION = "admin_update_simulation_ev_settings_action",
