@@ -4,7 +4,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import SensorAdditionalUsersCard from "@/components/cards/sensor/sensor-additional-users-card";
+import SensorEnergyChartCard from "@/components/cards/sensor/sensor-energy-chart-card";
 import SensorInfoCard from "@/components/cards/sensor/sensor-info-card";
+import SensorLastValueCard from "@/components/cards/sensor/sensor-last-value-card";
 import SensorPrimaryUserCard from "@/components/cards/sensor/sensor-primary-user-card";
 import SensorScriptCard from "@/components/cards/sensor/sensor-script-card";
 import SensorTokenCard from "@/components/cards/sensor/sensor-token-card";
@@ -18,9 +20,11 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TimeZoneType } from "@/lib/enums";
 import { getCurrentSession } from "@/server/lib/auth";
+import { getEnergyLastEntry } from "@/server/queries/energy";
 import { getAdditionalUsersForSensor, getSensorByClientId, getSensorToken } from "@/server/queries/sensor";
-import { getAllUsers, getUserById } from "@/server/queries/user";
+import { getAllUsers, getUserFullById } from "@/server/queries/user";
 
 type Params = Promise<{ id: string }>;
 
@@ -32,22 +36,34 @@ export const metadata: Metadata = {
 	title: "Sensordetails - Admin - Energyleaf",
 };
 
+function SectionHeader({ title, description }: { title: string; description?: string }) {
+	return (
+		<div className="flex flex-col gap-1">
+			<h2 className="text-lg font-semibold">{title}</h2>
+			{description ? <p className="text-muted-foreground text-sm">{description}</p> : null}
+		</div>
+	);
+}
+
 async function SensorOverviewContent({ clientId }: { clientId: string }) {
 	const sensor = await getSensorByClientId(clientId);
 	if (!sensor) {
 		redirect("/admin/sensors");
 	}
 
-	const [user, token, additionalUsers, allUsers] = await Promise.all([
-		sensor.userId ? getUserById(sensor.userId) : null,
+	const [user, token, additionalUsers, allUsers, lastEntry] = await Promise.all([
+		sensor.userId ? getUserFullById(sensor.userId) : null,
 		sensor.version === 2 ? getSensorToken(sensor.id) : null,
 		getAdditionalUsersForSensor(sensor.id),
 		getAllUsers(),
+		getEnergyLastEntry(sensor.id),
 	]);
 
+	const timezone = (user?.timezone as TimeZoneType | null) ?? TimeZoneType.Europe_Berlin;
+	const hasScript = sensor.needsScript && sensor.script;
+
 	return (
-		<div className="flex flex-col gap-6">
-			{/* Header with Edit Button */}
+		<div className="flex flex-col gap-8">
 			<div className="flex flex-row items-center justify-between">
 				<h1 className="truncate font-mono text-xl font-semibold">{sensor.clientId}</h1>
 				<Button asChild variant="outline" size="icon" className="cursor-pointer">
@@ -57,16 +73,41 @@ async function SensorOverviewContent({ clientId }: { clientId: string }) {
 				</Button>
 			</div>
 
-			{/* Grid Layout */}
-			<div className="grid gap-4 md:grid-cols-2">
-				<SensorInfoCard sensor={sensor} />
-				<SensorTokenCard sensor={sensor} token={token} />
-				<SensorPrimaryUserCard sensor={sensor} user={user} />
-				<SensorAdditionalUsersCard sensor={sensor} additionalUsers={additionalUsers} allUsers={allUsers} />
-			</div>
+			<section className="flex flex-col gap-4">
+				<SectionHeader title="Übersicht" description="Sensor-Metadaten und Token." />
+				<div className="grid gap-4 md:grid-cols-2">
+					<SensorInfoCard sensor={sensor} />
+					<SensorTokenCard sensor={sensor} token={token} />
+				</div>
+			</section>
 
-			{/* Script Card (full width) */}
-			<SensorScriptCard sensor={sensor} />
+			<section className="flex flex-col gap-4">
+				<SectionHeader title="Nutzer" description="Zugewiesene Nutzer und Berechtigungen." />
+				<div className="grid gap-4 md:grid-cols-2">
+					<SensorPrimaryUserCard sensor={sensor} user={user} />
+					<SensorAdditionalUsersCard sensor={sensor} additionalUsers={additionalUsers} allUsers={allUsers} />
+				</div>
+			</section>
+
+			<section className="flex flex-col gap-4">
+				<SectionHeader title="Aktivität" description="Letzter Messwert und Tagesverlauf." />
+				<div className="grid gap-4 md:grid-cols-2">
+					<SensorLastValueCard lastEntry={lastEntry} />
+					<SensorEnergyChartCard
+						className="col-span-1 md:col-span-2"
+						sensorId={sensor.id}
+						sensorType={sensor.sensorType}
+						timezone={timezone}
+					/>
+				</div>
+			</section>
+
+			{hasScript && (
+				<section className="flex flex-col gap-4">
+					<SectionHeader title="Script" description="Sensor-Verarbeitungsscript." />
+					<SensorScriptCard sensor={sensor} />
+				</section>
+			)}
 		</div>
 	);
 }

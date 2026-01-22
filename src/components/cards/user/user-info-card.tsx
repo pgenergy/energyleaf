@@ -1,14 +1,15 @@
 import { UserIcon } from "lucide-react";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TimeZoneTypeDisplay, type TimezoneTypeValue } from "@/lib/enums";
-import { getUserFullById } from "@/server/queries/user";
+import { getSensorForUser, getUserFullById } from "@/server/queries/user";
 
 interface Props {
 	userId: string;
 }
 
 export default async function UserInfoCard({ userId }: Props) {
-	const user = await getUserFullById(userId);
+	const [user, sensors] = await Promise.all([getUserFullById(userId), getSensorForUser(userId)]);
 
 	if (!user) {
 		return (
@@ -30,6 +31,7 @@ export default async function UserInfoCard({ userId }: Props) {
 	}
 
 	const displayName = user.firstname || user.lastname ? `${user.firstname} ${user.lastname}`.trim() : null;
+	const primarySensor = sensors[0];
 
 	return (
 		<Card>
@@ -76,6 +78,24 @@ export default async function UserInfoCard({ userId }: Props) {
 							<p>{TimeZoneTypeDisplay[user.timezone as TimezoneTypeValue] ?? user.timezone}</p>
 						</div>
 					)}
+					<div>
+						<span className="text-muted-foreground">Sensor:</span>
+						{primarySensor ? (
+							<div className="flex flex-col gap-1">
+								<Link
+									href={`/admin/sensors/${encodeURIComponent(primarySensor.clientId)}`}
+									className="truncate font-mono text-sm hover:underline"
+								>
+									{primarySensor.clientId}
+								</Link>
+								{sensors.length > 1 && (
+									<p className="text-muted-foreground text-xs">+{sensors.length - 1} weitere</p>
+								)}
+							</div>
+						) : (
+							<p className="text-muted-foreground">Kein Sensor zugewiesen</p>
+						)}
+					</div>
 				</div>
 			</CardContent>
 		</Card>

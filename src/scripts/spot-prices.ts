@@ -116,7 +116,7 @@ async function testSmardFetch() {
 		console.log(`   - ${entry.timestamp.toISOString()} => ${entry.priceEurMwh.toFixed(2)} €/MWh`);
 	}
 
-	console.log("\n" + "=".repeat(60));
+	console.log(`\n${"=".repeat(60)}`);
 	console.log("Test completed successfully!");
 	console.log("=".repeat(60));
 }

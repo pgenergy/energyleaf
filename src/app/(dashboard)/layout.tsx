@@ -5,6 +5,7 @@ import {
 	FileTextIcon,
 	HomeIcon,
 	LampIcon,
+	LineChartIcon,
 	PlayCircleIcon,
 	SettingsIcon,
 	Users2Icon,
@@ -128,10 +129,10 @@ export default async function DashboardLayout(props: Props) {
 
 	if (user.isAdmin) {
 		navLinks.push({
-			slug: "admin-settings",
-			title: "Einstellungen",
-			path: "/admin/settings",
-			icon: <SettingsIcon />,
+			slug: "users",
+			title: "Nutzer",
+			path: "/admin/users",
+			icon: <Users2Icon />,
 			admin: true,
 		});
 		navLinks.push({
@@ -141,11 +142,20 @@ export default async function DashboardLayout(props: Props) {
 			icon: <CpuIcon />,
 			admin: true,
 		});
+		if (!env.DISABLE_TRACKING) {
+			navLinks.push({
+				slug: "admin-analytics",
+				title: "Analytics",
+				path: "/admin/analytics",
+				icon: <LineChartIcon />,
+				admin: true,
+			});
+		}
 		navLinks.push({
-			slug: "users",
-			title: "Nutzer",
-			path: "/admin/users",
-			icon: <Users2Icon />,
+			slug: "admin-settings",
+			title: "Einstellungen",
+			path: "/admin/settings",
+			icon: <SettingsIcon />,
 			admin: true,
 		});
 	}
