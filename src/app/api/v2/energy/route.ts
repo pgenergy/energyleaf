@@ -74,7 +74,7 @@ export const POST = async (req: NextRequest) => {
 		return NextResponse.json({ status: 400, statusMessage: "Invalid data", success: false }, { status: 400 });
 	}
 	const data = check.data;
-	console.info(data);
+	//console.info(data);
 
 	if (data.value <= 0) {
 		if (data.sensor_type === EnergyDataSensorType.ANALOG) {

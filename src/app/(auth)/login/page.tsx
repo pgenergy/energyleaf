@@ -9,7 +9,8 @@ export const metadata = {
 };
 
 export default function LoginPage() {
-	const hideForgot = !env.RESEND_API_MAIL || !env.RESEND_API_KEY;
+	//const hideForgot = !env.RESEND_API_MAIL || !env.RESEND_API_KEY;
+	const hideForgot = !env.NODEMAILER_ENDPOINT || !env.NODEMAILER_MAIL || !env.NODEMAILER_PORT;
 
 	return (
 		<div className="flex flex-col gap-2">

@@ -45,7 +45,8 @@ export default async function DashboardPage() {
 		enabledSimulations.ev ||
 		enabledSimulations.solar ||
 		enabledSimulations.heatpump ||
-		enabledSimulations.battery
+		enabledSimulations.battery ||
+		enabledSimulations.tou
 	);
 
 	const activeComponentIds = dashboardConfig?.activeComponents ?? DEFAULT_DASHBOARD_COMPONENTS;

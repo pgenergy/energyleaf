@@ -106,7 +106,8 @@ export default async function DashboardLayout(props: Props) {
 		enabledSimulations.ev ||
 		enabledSimulations.solar ||
 		enabledSimulations.heatpump ||
-		enabledSimulations.battery
+		enabledSimulations.battery ||
+		enabledSimulations.tou
 	);
 
 	if (user.isSimulationFree || hasAnyEnabledSimulation) {

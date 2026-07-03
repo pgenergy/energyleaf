@@ -3,6 +3,7 @@ import { vercel } from "@t3-oss/env-nextjs/presets-zod";
 import { z } from "zod";
 
 export const env = createEnv({
+	skipValidation: !!process.env.SKIP_ENV_VALIDATION, //for container builds
 	server: {
 		DATABASE_URL: z.string().url(),
 
@@ -16,8 +17,12 @@ export const env = createEnv({
 		CRON_SECRET: z.string(),
 
 		// Resend
-		RESEND_API_MAIL: z.string().email().optional(),
-		RESEND_API_KEY: z.string().optional(),
+		//RESEND_API_MAIL: z.string().email().optional(),
+		//RESEND_API_KEY: z.string().optional(),
+
+		NODEMAILER_MAIL: z.string().email().optional(),
+		NODEMAILER_ENDPOINT: z.string().optional(),
+		NODEMAILER_PORT: z.string().transform(val => Number(val)).refine(val => val > 0).optional(),
 
 		// Settings
 		DISABLE_SIGNUP: z

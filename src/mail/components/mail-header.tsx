@@ -19,7 +19,8 @@ export function MailHeader({ children, baseUrl }: Props) {
 			>
 				<Link href={baseUrl}>
 					<Img
-						src={`${baseUrl}/_next/image?url=%2Fimage%2Flogo%2Flogo_text.png&w=1080&q=75`}
+						//src={`${baseUrl}/_next/image?url=%2Fimage%2Flogo%2Flogo_text.png&w=1080&q=75`}
+						src={`${baseUrl}/logo.png`}
 						height="72"
 						alt="Energyleaf Logo"
 					/>

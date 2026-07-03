@@ -32,7 +32,7 @@ export const POST = async (req: NextRequest) => {
 		return NextResponse.json({ status: 400, statusMessage: "Invalid data" }, { status: 400 });
 	}
 	const data = check.data;
-	console.info(data);
+	//console.info(data);
 
 	if (data.value <= 0) {
 		return NextResponse.json(
@@ -70,7 +70,7 @@ export const POST = async (req: NextRequest) => {
 			timestamp: tzDate,
 		};
 
-		console.log(inputData);
+		//console.log(inputData);
 
 		return NextResponse.json({ status: 200 }, { status: 200 });
 	} catch (e) {

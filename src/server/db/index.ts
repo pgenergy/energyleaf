@@ -6,7 +6,9 @@ const globalPgClient = globalThis as unknown as { pgClient: ReturnType<typeof po
 const client = globalPgClient.pgClient || postgres(env.DATABASE_URL, { prepare: false });
 export const db = drizzle({ client });
 
-if (!env.VERCEL_ENV) {
+const isProduction = process.env.NODE_ENV === "production" || env.VERCEL_ENV === "production";
+
+if (!isProduction) {
 	globalPgClient.pgClient = client;
 }
 

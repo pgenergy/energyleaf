@@ -7,216 +7,145 @@ export const metadata = {
 export default function PrivacyPage() {
 	return (
 		<>
-			<h2 className="text-xl">Datenschutzerklärung</h2>
+			<h2 className="text-xl font-bold">Datenschutzerklärung</h2>
 			<p>
-				<span className="font-bold">1. Beauftragter im datenschutzrechtlichen Sinne</span>
+				<span className="font-bold">1. Verantwortlicher für die Datenverarbeitung im Sinne der DS-GVO (Art. 4 Nr. 7) sowie anderer datenschutzrechtlicher Bestimmungen</span>
 				<br />
-				Carl von Ossietzky Universität Oldenburg
+				Karlsruher Institut für Technologie (KIT) 
 				<br />
-				Ammerländer Heerstraße 114-118
+				Kaiserstraße 12
 				<br />
-				26129 Oldenburg
+				76131 Karlsruhe 
 				<br />
-				Telefon: 0441/7980
+				Telefon: +49 721 608-0
 				<br />
-				E-Mail: infopoint@uol.de
+				E-Mail: info@kit.edu
 				<br />
-				Vertreten durch Ihren Präsidenten: Prof. Dr. Ralph Bruder
+				Das Karlsruher Institut für Technologie ist eine Körperschaft des öffentlichen Rechts. Es wird vertreten durch die/den jeweilige/n Präsident/in. 
 			</p>
 			<p>
-				<span className="font-bold">2. Datenschutzbeauftragter</span>
+				<span className="font-bold">2. Datenschutzbeauftragte/r</span>
 				<br />
-				Carl von Ossietzky Universität Oldenburg
-				<br />- Der Datenschutzbeauftragte -
+				Die Datenschutzbeauftragte des KIT ist:
 				<br />
-				Ammerländer Heerstraße 114-118
+				Ass. jur. Marina Bitmann
 				<br />
-				26129 Oldenburg
+				Kaiserstraße 12
 				<br />
-				Telefon: 0441/ 7984196
+				76131 Karlsruhe
 				<br />
-				E-Mail: dsuni@uol.de
+				Telefon: +49 721 608-41057
 				<br />
-				Internetauftritt:{" "}
-				<Link href="https://uol.de/datenschutz" target="_blank">
-					https://uol.de/datenschutz
-				</Link>
+				E-Mail: dsb@kit.edu
 			</p>
 			<p>
 				<span className="font-bold">3. Verantwortlicher des Forschungsprojektes Energyleaf</span>
 				<br />
 				Prof. Dr. Philipp Staudt
 				<br />
-				Lehrstuhl für Wirtschaftsinformatik – Umwelt & Nachhaltigkeit
+				Karlsruher Institut für Technologie (KIT) 
 				<br />
-				Carl von Ossietzky Universität Oldenburg
+				Institut für Wirtschaftsinformatik
 				<br />
-				Ammerländer Heerstraße 114-118
+				Kaiserstraße 89-93
 				<br />
-				26129 Oldenburg
+				76133 Karlsruhe
 				<br />
-				Mail: philipp.staudt@uni-oldenburg.de
+				Telefon: +49 721 608-48370
+				<br />
+				E-Mail: office@win.kit.edu
 			</p>
 			<p>
-				<span className="font-bold">4. Verarbeitung von personenbezogenen Daten</span>
+				<span className="font-semibold">4. Zweck der Datenverarbeitung</span>
 				<br />
-				Soweit nicht gesondert aufgeführt, werden die personenbezogenen Daten im Rahmen des Projektes
+				Teilnehmende einer Studie, in der das Software-Artefakt genutzt wird, beachten bitte seperate Datenschutz- sowie Teilnehmendeninformationen, die Sie bei der Studienregistrierung erhalten haben. Diese enthalten zusätzliche Informationen zur Datenverarbeitung im Rahmen der Studie.
+				<br/>
+				Soweit nicht gesondert aufgeführt, werden die personenbezogenen Daten im Rahmen der Nutzung des Software-Artefakts
 				&quot;Energyleaf&quot; wie folgt verarbeitet:
+				<br />
+				Die Web-Anwendung &quot;Energyleaf&quot; dient der Erfassung, Speicherung und Visualisierung von Stromverbrauchsdaten im Rahmen eines Forschungsprojekts. 
+				Zudem sollen die erhobenen Verbrauchsdaten nach einer Pseudonymisierung für weiterführende Datenanalysen genutzt werden, beispielsweise zur Verbesserung von Verbrauchsprognosen und Gerätedisaggregation.
 			</p>
 			<p>
-				<span className="font-semibold">4.1 Erhebung und Auswertung des Stromverbrauchs</span>
+				<span className="font-semibold">5. Erfasste personenbezogene Daten</span>
 				<br />
-				Im Rahmen des Forschungsprojektes soll ein Einblick in den Stromverbrauch der Teilnehmer gewährt werden.
-				Dies erfordert die Erhebung des Stromverbrauchs.
+				Folgende personenbezogene Daten werden verarbeitet:
 				<br />
-				<br />
-				<span className="font-medium">4.1.1 Zweck</span>
-				<br />
-				Ziel der Erhebung des Stromverbrauchs ist es, den Teilnehmern eine Übersicht über diesen eigenen
-				Stromverbrauch in einer internetbasierten Anwendung bereitzustellen. Ziel der Auswertung des
-				Stromverbrauchs ist es, Untersuchungen der Daten hinsichtlich der Forschungsfrage &quot;Wirkt sich die
-				Kenntnis des eigenen Stromverbrauchs auf das Verbrauchsverhalten aus?&quot; durchzuführen. Weiterhin
-				sollen diese nach einer Anonymisierung (s. Abschnitt 4.1.4) auch als Grundlage für weiterführende
-				Data-Analytics oder die Entwicklung von KI-Modellen genutzt werden.
-				<br />
-				<br />
-				<span className="font-medium">4.1.2 Rechtsgrundlage</span>
-				<br />
-				Für die vorliegende Verarbeitung dient eine Einwilligung gemäß Art. 6 Absatz 1 Buchst. a DSGVO als
-				Rechtsgrundlage.
-				<br />
-				<br />
-				<span className="font-medium">4.1.3 Empfänger</span>
-				<br />
-				Das Projektteam pseudonymisiert und wertet den Stromverbrauch der Teilnehmer aus. Anschließend werden
-				die Datenzugänge intern innerhalb des Lehrstuhls von Prof. Staudt verwaltet. Die Daten werden beim
-				externen Cloud-Datenbank-Dienstleister Planetscale gespeichert. Sollte es zu Folgeprojekten kommen,
-				werden die Daten in der abschließenden pseudonymisierten Form an folgende Projektteams innerhalb des
-				Lehrstuhls weitergegeben.
-				<br />
-				<br />
-				<span className="font-medium">4.1.4 Dauer der Speicherung</span>
-				<br />
-				Die Teilnehmer haben die Möglichkeit, ihre Daten eigenständig zu löschen. Nach Abschluss der Studie
-				werden die Daten von uns anonymisiert, um sicherzustellen, dass keine Rückschlüsse auf die Person mehr
-				möglich sind. Die personenbezogenen Daten werden unverzüglich nach Durchführung des Projektes gelöscht.
-				Die Sensordaten bleiben nach Abschluss der Studie erhalten, jedoch werden sie von jeglicher Verbindung
-				zur spezifischen Person entkoppelt. Diese anonymisierten Daten dienen als Grundlage für weiterführende
-				Data-Analytics oder die Entwicklung von KI-Modellen. Durch diese Verwendung ermöglichen sie zukünftige
-				Forschung und Innovation, während gleichzeitig die Anonymität und der Schutz der individuellen
-				Privatsphäre gewahrt bleiben. Diese Daten sollen im Rahmen von Folgeprojekten in den nächsten Jahren
-				weiter genutzt werden können und deshalb zu diesem Zweck noch mehrere Jahre intern innerhalb des
-				Lehrstuhls von Prof. Staudt gespeichert werden.
+				<ul className="flex list-disc flex-col gap-1 pl-5 pt-2">
+					<li>Anmeldeinformationen (Name, Benutzername, E-Mail-Adresse)</li>
+					<li>Nutzungsdaten der Web-Anwendung (IP-Adresse, besuchte Seiten, Zugriffszeitpunkt, Systeminformationen)</li>
+					<li>Stromverbrauchsdaten (Zeitstempel und Verbrauchswerte)</li>
+				</ul>
 			</p>
 			<p>
-				<span className="font-semibold">4.2 Erhebung und Auswertung des Verhaltens in der Anwendung</span>
+				<span className="font-semibold">6. Rechtsgrundlage</span>
 				<br />
-				Während des Projektzeitraums soll das Verhalten der Teilnehmer in der Anwendung erhoben und nachträglich
-				ausgewertet werden.
-				<br />
-				<br />
-				<span className="font-medium">4.2.1 Zweck</span>
-				<br />
-				Ziel der Erhebung und Auswertung des Verhaltens in der Anwendung ist es, das Verhalten der Teilnehmer
-				innerhalb der Anwendung während des Projektzeitraums nachträglich nachvollziehen zu können. Dadurch soll
-				die Relevanz einzelner Aspekte der Anwendung für die Teilnehmer ermittelt werden. Weiterhin soll auch
-				die zur Verfügung gestellte Anwendung auf Basis dieser Daten evaluiert werden, um Probleme und
-				Verbesserungspotenziale zu ermitteln.
-				<br />
-				<br />
-				<span className="font-medium">4.2.2 Rechtsgrundlage</span>
-				<br />
-				Für die vorliegende Verarbeitung dient eine Einwilligung gemäß Art. 6 Absatz 1 Buchst. a DSGVO als
-				Rechtsgrundlage.
-				<br />
-				<br />
-				<span className="font-medium">4.2.3 Empfänger</span>
-				<br />
-				Das Projektteam pseudonymisiert und wertet die Ergebnisse der Fragebögen aus. Anschließend werden die
-				Datenzugänge intern innerhalb des Lehrstuhls von Prof. Staudt verwaltet. Die Daten werden beim externen
-				Cloud-Datenbank-Dienstleister Planetscale gespeichert. Sollte es zu Folgeprojekten kommen, werden die
-				Daten in der abschließenden pseudonymisierten Form an folgende Projektteams innerhalb des Lehrstuhls
-				weitergegeben.
-				<br />
-				<br />
-				<span className="font-medium">4.2.4 Dauer der Speicherung</span>
-				<br />
-				Die personenbezogenen Daten der Teilnehmer werden unverzüglich nach Durchführung des Projektes gelöscht.
-				Die Daten des Klick-Verhaltens bleiben nach Abschluss der Studie erhalten und werden ebenfalls wieder
-				pseudonymisiert, also von jeglicher Verbindung zur spezifischen Person entkoppelt. Diese Daten sollen im
-				Rahmen von Folgeprojekten in den nächsten Jahren weiter genutzt werden können und deshalb zu diesem
-				Zweck noch mehrere Jahre intern innerhalb des Lehrstuhls von Prof. Staudt gespeichert werden.
+				Die Rechtsgrundlage für die Verarbeitung Ihrer personenbezogenen Daten ist:
+				<ul className="flex list-disc flex-col gap-1 pl-5 pt-2">
+					<li>Ihre Einwilligung nach Art. 6 Abs. 1 UAbs. 1 lit. a DS-GVO</li>
+					<li>Art. 6 Abs. 1 lit. e in Verbindung mit Art. 6 Abs. 3 Datenschutz-Grundverordnung (DS-GVO) in Verbindung mit § 13 Abs.1 Landesdatenschutzgesetz Baden-Württemberg, für die wissenschaftliche Auswertung der erhobenen Forschungsdaten.</li>
+				</ul>
+				<br/>
+				Die Erteilung der Einwilligung erfolgt freiwillig. Die Einwilligung kann jederzeit mit der Wirkung für die Zukunft widerrufen werden. Wirkung für die Zukunft bedeutet, dass durch einen Widerruf der Einwilligung die Rechtmäßigkeit, der aufgrund der Einwilligung bis zum Widerruf erfolgten Verarbeitung nicht berührt wird.
+				<br/>
+				Wird die Einwilligung verweigert oder widerrufen, entstehen keine Nachteile. 
 			</p>
 			<p>
-				<span className="font-semibold">4.3 Fragebogen</span>
-				<br />
-				Anschließend an den Projektzeitraum soll eine abschließende Teilnehmerbefragung durchgeführt werden, in
-				der diese über die Verwendung und die Auswirkungen der internetbasierten Anwendung hinsichtlich der
-				Forschungsfrage &quot;Wirkt sich die Kenntnis des eigenen Stromverbrauchs auf das Verbrauchsverhalten
-				aus?&quot; befragt werden.
-				<br />
-				<br />
-				<span className="font-medium">4.3.1 Zweck</span>
-				<br />
-				Ziel abschließenden Teilnehmerbefragung ist es, direktes Feedback der Teilnehmer hinsichtlich der
-				Forschungsfrage zu erhalten, in dem diese ihre subjektiven Eindrücke durch das Verwenden der Anwendung
-				darstellen.
-				<br />
-				Weiterhin soll auch die zur Verfügung gestellte Anwendung in diesen Fragebögen evaluiert werden, um
-				Probleme und Verbesserungspotenziale zu ermitteln.
-				<br />
-				<br />
-				<span className="font-medium">4.3.2 Rechtsgrundlage</span>
-				<br />
-				Für die vorliegende Verarbeitung dient eine Einwilligung gemäß Art. 6 Absatz 1 Buchst. a DSGVO als
-				Rechtsgrundlage.
-				<br />
-				<br />
-				<span className="font-medium">4.3.3 Empfänger</span>
-				<br />
-				Das Projektteam pseudonymisiert und wertet die Ergebnisse der Fragebögen aus. Anschließend werden die
-				Datenzugänge intern innerhalb des Lehrstuhls von Prof. Staudt verwaltet. Sollte es zu Folgeprojekten
-				kommen, werden die Daten in der abschließenden pseudonymisierten Form an folgende Projektteams innerhalb
-				des Lehrstuhls weitergegeben.
-				<br />
-				<br />
-				<span className="font-medium">4.3.4 Dauer der Speicherung</span>
-				<br />
-				Die personenbezogenen Daten der Teilnehmer werden unverzüglich nach Durchführung des Projektes gelöscht.
-				Die Ergebnisse der Fragebögen bleiben nach Abschluss der Studie erhalten, jedoch werden sie wie die
-				Stromverbrauchs- und Klickdaten von jeglicher Verbindung zur spezifischen Person entkoppelt. Diese Daten
-				sollen im Rahmen von Folgeprojekten in den nächsten Jahren weiter genutzt werden können und deshalb zu
-				diesem Zweck noch mehrere Jahre intern innerhalb des Lehrstuhls von Prof. Staudt gespeichert werden.
-				Ausgenommen hiervon sind die Daten, zu deren Weiterleitung und/oder Aufbewahrung wir gesetzlich
-				verpflichtet sind.
+				<span className="font-semibold">7. Empfänger</span>
+				<br/>
+				Intern Zugriffsberechtigt sind die Forschenden aus dem Forschungsprojekt „Energyleaf – Erforschung von Energie Applikationen“. 
+				<br/>
+				Weitere interne Empfänger sind interne IT-Dienststellen zur Bereitstellung und zum Betrieb der für das Feldexperiment genutzten IT-Infrastruktur, einschließlich Hosting, Datenbanken und E-Mail-Diensten.
+				Die Verarbeitung findet ausschließlich auf Servern der Hochschule statt. 
+				<br/>
+				Eine Übermittlung personenbezogener Daten an externe Dienstleister oder in Drittländer findet nicht statt.
+				<br/>
+				Eine automatisierte Entscheidungsfindung einschließlich Profiling erfolgt nicht. 
+				<br/>
+				Darüber hinaus müssen entsprechend den archivrechtlichen Vorschriften Unterlagen vor ihrer Löschung dem KIT-Archiv angeboten werden. Dieses entscheidet über die Übernahme von Unterlagen. Das KIT-Archiv wahrt dabei die berechtigten Interessen der Betroffenen nach Maßgabe des Landesarchivgesetz BW (LArchG) und der übrigen einschlägigen Rechtsvorschriften.
 			</p>
 			<p>
-				<span className="font-bold">5. Ihre Rechte</span>
+				<span className="font-semibold">8. Dauer der Speicherung</span>
+				<br/>
+				Die Kontaktdaten sowie die Einwilligungserklärung werden spätestens nach Abschluss des Projekts vernichtet.
 				<br />
-				<ul className="flex list-disc flex-col gap-1">
+				Nach Abschluss der Studie werden die Daten von uns pseudonymisiert, um sicherzustellen, dass keine Rückschlüsse auf die Person mehr möglich sind. 
+				<br/>
+				Sämtliche Forschungsdaten werden gemäß der Satzung zur Sicherung guter wissenschaftlicher Praxis am Karlsruher Institut für Technologie (KIT) für 10 Jahre nach Abschluss des Projekts aufbewahrt. 
+				<br/>
+				Ggf. werden die Unterlagen vom KIT-Archiv übernommen und dort gem. Art. 5 Abs. 1 lit. e DS-GVO in Verbindung mit § 8 Abs. 2 i.V.m. den §§ 3 und 2 Landesarchivgesetz BW (LArchG) in der Regel unbegrenzt aufbewahrt.
+			</p>
+			<p>
+				<span className="font-semibold">9. Ihre Rechte</span>
+				<br />
+				Bitte wenden Sie sich in dem Fall jeweils an folgende Person: Prof. Dr. Philipp Staudt
+				<br />
+				<ul className="flex list-disc flex-col gap-1 pl-5 pt-2">
 					<li>
-						Sie haben jederzeit die Möglichkeit, Auskunft über die von uns gespeicherten personenbezogenen
-						Daten zu erhalten. Sie können jederzeit eine Berichtigung dieser Daten sowie deren Löschung
-						verlangen.
+						Recht auf Widerruf Ihrer Einwilligung mit Wirkung für die Zukunft, sofern die Verarbeitung auf einer Einwilligung gemäß Artikel 6 Absatz 1 Unterabsatz 1 Buchstabe a DS-GVO beruht (Artikel 7 Absatz 3 DS-GVO)
 					</li>
 					<li>
-						Ihre Teilnahme an den Erhebungen und Ihre Zustimmung zur Verwendung der Daten wie oben
-						beschrieben sind freiwillig. Sie haben jederzeit die Möglichkeit zu widerrufen. Durch
-						Verweigerung oder Widerruf entstehen Ihnen keine Nachteile.
+						Recht auf Bestätigung, ob Sie betreffende Daten verarbeitet werden, und auf Auskunft über die verarbeiteten Daten, auf weitere Informationen über die Datenverarbeitung sowie auf Kopien der Daten (Artikel 15 DS-GVO)
 					</li>
 					<li>
-						Außerdem haben Sie in dem Fall, in dem als Rechtsgrundlage für die Verarbeitung Sie die
-						Einwilligung gegeben haben, das Recht, die Einwilligung jederzeit zu widerrufen, wobei die
-						Rechtmäßigkeit, der aufgrund der Einwilligung bis zum Widerruf erfolgten Verarbeitung nicht
-						berührt wird.
+						Recht auf Berichtigung oder Vervollständigung unrichtiger bzw. unvollständiger Daten (Artikel 16 DS-GVO)
 					</li>
-					<li>Bitte wenden Sie sich in dem Fall jeweils an folgende Person: Prof. Dr. Philipp Staudt</li>
 					<li>
-						Sie haben das Recht auf Beschwerde bei einer Aufsichtsbehörde, wenn Sie der Ansicht sind, dass
-						die Verarbeitung der Sie betreffenden personenbezogenen Daten gegen die Rechtsvorschriften
-						verstößt.
+						Recht auf unverzügliche Löschung der Sie betreffenden Daten (Artikel 17 DS-GVO)
+					</li>
+					<li>
+						Recht auf Einschränkung der Verarbeitung (Artikel 18 DS-GVO)
+					</li>
+					<li>
+						Recht auf Erhalt der Daten in einem strukturierten, gängigen und maschinenlesbaren Format, sofern die Verarbeitung auf einer Einwilligung gemäß Artikel 6 Absatz 1 Unterabsatz 1 Buchstabe a oder Artikel 9 Absatz 2 Buchstabe a DS-GVO beruht (Artikel 20 DS-GVO)
+					</li>
+					<li>
+						Recht auf Widerspruch gegen die künftige Verarbeitung der Sie betreffenden Daten, sofern die Daten nach Maßgabe von Artikel 6 Absatz 1 Buchstabe e DS-GVO verarbeitet werden (Artikel 21 DS-GVO)
 					</li>
 				</ul>
+				<br />
+				Sie haben zudem das Recht, sich bei der Aufsichtsbehörde über die Verarbeitung der Sie betreffenden personenbezogenen Daten durch das KIT zu beschweren (Artikel 77 DS-GVO). 
+				Aufsichtsbehörde im Sinne des Artikels 51 Absatz 1 DS-GVO über das KIT ist gemäß § 25 Absatz 1 LDSG: Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit Baden-Württemberg: (<Link href="https://www.baden-wuerttemberg.datenschutz.de/" target="_blank">https://www.baden-wuerttemberg.datenschutz.de/</Link>).
 			</p>
 		</>
 	);

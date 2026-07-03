@@ -58,7 +58,8 @@ export default async function SimulationPage(props: Props) {
 		enabledSimulations.ev ||
 		enabledSimulations.solar ||
 		enabledSimulations.heatpump ||
-		enabledSimulations.battery
+		enabledSimulations.battery ||
+		enabledSimulations.tou
 	);
 
 	const enabledSimulationsFlags = {

@@ -60,7 +60,7 @@ export const POST = async (req: NextRequest) => {
 			}
 		}
 
-		console.info(data);
+		//console.info(data);
 
 		if (data.value <= 0) {
 			return new NextResponse(

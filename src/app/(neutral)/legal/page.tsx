@@ -9,53 +9,51 @@ export default function LegalPage() {
 		<>
 			<h2 className="text-xl font-bold">Impressum</h2>
 			<p>
-				<span className="font-bold">Beauftragter im datenschutzrechtlichen Sinne</span>
+				<span className="font-bold">1. Verantwortlicher für die Datenverarbeitung im Sinne der DS-GVO (Art. 4 Nr. 7) sowie anderer datenschutzrechtlicher Bestimmungen</span>
 				<br />
-				Carl von Ossietzky Universität Oldenburg
+				Karlsruher Institut für Technologie (KIT) 
 				<br />
-				Ammerländer Heerstraße 114-118
+				Kaiserstraße 12
 				<br />
-				26129 Oldenburg
+				76131 Karlsruhe 
 				<br />
-				Telefon: 0441/7980
+				Telefon: +49 721 608-0
 				<br />
-				E-Mail: infopoint@uol.de
+				E-Mail: info@kit.edu
 				<br />
-				Vertreten durch Ihren Präsidenten: Prof. Dr. Ralph Bruder
+				Das Karlsruher Institut für Technologie ist eine Körperschaft des öffentlichen Rechts. Es wird vertreten durch die/den jeweilige/n Präsident/in. 
 			</p>
 			<p>
-				<span className="font-bold">Datenschutzbeauftragter</span>
+				<span className="font-bold">2. Datenschutzbeauftragte/r</span>
 				<br />
-				Carl von Ossietzky Universität Oldenburg
-				<br />- Der Datenschutzbeauftragte -
+				Die Datenschutzbeauftragte des KIT ist:
 				<br />
-				Ammerländer Heerstraße 114-118
+				Ass. jur. Marina Bitmann
 				<br />
-				26129 Oldenburg
+				Kaiserstraße 12
 				<br />
-				Telefon: 0441/ 7984196
+				76131 Karlsruhe
 				<br />
-				E-Mail: dsuni@uol.de
+				Telefon: +49 721 608-41057
 				<br />
-				Internetauftritt:{" "}
-				<Link href="https://uol.de/datenschutz" target="_blank">
-					https://uol.de/datenschutz
-				</Link>
+				E-Mail: dsb@kit.edu
 			</p>
 			<p>
-				<span className="font-bold">Verantwortlicher des Forschungsprojektes Energyleaf</span>
+				<span className="font-bold">3. Verantwortlicher des Forschungsprojektes Energyleaf</span>
 				<br />
 				Prof. Dr. Philipp Staudt
 				<br />
-				Lehrstuhl für Wirtschaftsinformatik – Umwelt & Nachhaltigkeit
+				Karlsruher Institut für Technologie (KIT) 
 				<br />
-				Carl von Ossietzky Universität Oldenburg
+				Institut für Wirtschaftsinformatik
 				<br />
-				Ammerländer Heerstraße 114-118
+				Kaiserstraße 89-93
 				<br />
-				26129 Oldenburg
+				76133 Karlsruhe
 				<br />
-				Mail: philipp.staudt@uni-oldenburg.de
+				Telefon: +49 721 608-48370
+				<br />
+				E-Mail: office@win.kit.edu
 			</p>
 		</>
 	);
