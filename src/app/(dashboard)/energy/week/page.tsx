@@ -2,6 +2,7 @@ import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
 import EnergyBarCard from "@/components/cards/energy/energy-bar-card";
 import EnergyGoalsCard from "@/components/cards/energy/energy-goals-card";
 import LeastEnergyConsumptionCard from "@/components/cards/energy/least-energy-consumption-card";
+import SolarProductionCard, { SolarProductionCardSkeleton } from "@/components/cards/energy/solar-production-card";
 import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumption-card";
 import DaySelector from "@/components/date/day-selector";
 import { EnergyPageLayout } from "@/components/layouts/energy-page-layout";
@@ -116,6 +117,16 @@ export default async function EnergyPage(props: Props) {
 			</Suspense>
 			<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
 				<EnergyBarCard
+					start={start}
+					end={end}
+					compareStart={compareStart}
+					compareEnd={compareEnd}
+					type="week"
+					className="col-span-1 md:col-span-3"
+				/>
+			</Suspense>
+			<Suspense fallback={<SolarProductionCardSkeleton className="col-span-1 md:col-span-3" />}>
+				<SolarProductionCard
 					start={start}
 					end={end}
 					compareStart={compareStart}

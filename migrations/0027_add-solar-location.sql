@@ -1,0 +1,1 @@
+ALTER TABLE "simulation_solar_settings" ADD COLUMN "location" text;

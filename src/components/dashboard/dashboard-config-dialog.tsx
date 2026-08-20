@@ -17,6 +17,7 @@ import DashboardConfigForm from "./dashboard-config-form";
 interface Props {
 	activeComponents: DashboardComponentId[];
 	hasSimulations: boolean;
+	hasSolar: boolean;
 }
 
 export default function DashboardConfigDialog(props: Props) {
@@ -40,6 +41,7 @@ export default function DashboardConfigDialog(props: Props) {
 				<DashboardConfigForm
 					activeComponents={props.activeComponents}
 					hasSimulations={props.hasSimulations}
+					hasSolar={props.hasSolar}
 					onSuccess={() => setOpen(false)}
 				/>
 			</DialogContent>

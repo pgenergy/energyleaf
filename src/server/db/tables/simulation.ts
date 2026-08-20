@@ -99,6 +99,7 @@ export const simulationSolarSettingsTable = pgTable("simulation_solar_settings",
 	orientation: text("orientation", { enum: Object.values(SolarOrientation) as [SolarOrientationValue] }).notNull(),
 	inverterPower: numericType("inverter_power"),
 	sunHoursPerDay: numericType("sun_hours_per_day"),
+	location: text("location"),
 	createdAt: timestamp("created_at", { mode: "date", withTimezone: true }).default(sql`now()`).notNull(),
 	updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
 		.default(sql`now()`)

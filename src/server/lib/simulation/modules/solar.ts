@@ -12,6 +12,12 @@ export interface SolarSimulationConfig {
 	aggregation: EnergyAggregation;
 }
 
+export interface SolarWeatherInput {
+	cloudCover: number;
+	isDay: boolean;
+	shortwaveRadiation?: number;
+}
+
 const DEFAULT_SUN_HOURS_PER_DAY = 4.5;
 
 const MONTHLY_SUN_HOURS: Record<number, number> = {
@@ -168,6 +174,36 @@ function calculateDailyProduction(config: SolarSimulationConfig, sunHours: numbe
 function getHourlyProductionFraction(hour: number, month: number): number {
 	const curve = getHourlyProductionCurve(month);
 	return curve[hour] ?? 0;
+}
+
+/**
+ * Estimate one hour of PV production from the configured system and weather.
+ * Paid WeatherAPI plans provide shortwave radiation; the free plan falls back
+ * to a conservative cloud-cover adjustment of the seasonal production curve.
+ */
+export function estimateHourlySolarProduction(
+	timestamp: Date,
+	config: SolarSimulationConfig,
+	weather: SolarWeatherInput,
+): number {
+	if (!weather.isDay) {
+		return 0;
+	}
+
+	const orientationEfficiency = ORIENTATION_EFFICIENCY[config.orientation];
+	const inverterLimit = config.inverterPower ?? config.peakPower;
+	if (weather.shortwaveRadiation !== undefined) {
+		const irradianceFactor = Math.max(0, weather.shortwaveRadiation) / 1000;
+		return Math.max(0, Math.min(config.peakPower * irradianceFactor * orientationEfficiency, inverterLimit));
+	}
+
+	const dailyProduction = calculateDailyProduction(config, getSeasonalSunHours(timestamp, config));
+	const clearSkyProduction =
+		dailyProduction * getHourlyProductionFraction(timestamp.getHours(), timestamp.getMonth());
+	const normalizedCloudCover = Math.min(100, Math.max(0, weather.cloudCover)) / 100;
+	const cloudFactor = 1 - 0.75 * normalizedCloudCover ** 3;
+
+	return Math.max(0, Math.min(clearSkyProduction * cloudFactor, inverterLimit));
 }
 
 function applySolarProduction(

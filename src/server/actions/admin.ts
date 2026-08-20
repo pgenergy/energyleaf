@@ -844,6 +844,7 @@ export async function adminUpdateSimulationSolarSettingsAction(
 		const payload = validate.data;
 		const inverterPower = payload.inverterPower === "" ? null : payload.inverterPower;
 		const sunHoursPerDay = payload.sunHoursPerDay ?? null;
+		const location = payload.location ?? null;
 		const existing = await db
 			.select()
 			.from(simulationSolarSettingsTable)
@@ -858,6 +859,7 @@ export async function adminUpdateSimulationSolarSettingsAction(
 				orientation: payload.orientation,
 				inverterPower,
 				sunHoursPerDay,
+				location,
 			})
 			.onConflictDoUpdate({
 				target: simulationSolarSettingsTable.userId,
@@ -866,6 +868,7 @@ export async function adminUpdateSimulationSolarSettingsAction(
 					orientation: payload.orientation,
 					inverterPower,
 					sunHoursPerDay,
+					location,
 					updatedAt: sql`now()`,
 				},
 			});

@@ -31,6 +31,7 @@ export default async function SolarSimulationPage() {
 							orientation: data?.orientation ?? SolarOrientation.South,
 							inverterPower: data?.inverterPower ?? 10,
 							sunHoursPerDay: data?.sunHoursPerDay ?? undefined,
+							location: data?.location ?? undefined,
 						}}
 					/>
 				</CardContent>

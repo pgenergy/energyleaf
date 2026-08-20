@@ -265,15 +265,15 @@ export async function insertEnergyData(data: EnergyDataInput) {
 		// to filter false readings but also let values pass from high power solar panels
 		let valueOut = data.valueOut;
 		if (
-			valueOut &&
-			lastEntry.valueOut &&
+			valueOut !== undefined &&
+			lastEntry.valueOut !== null &&
 			(valueOut < lastEntry.valueOut || valueOut - lastEntry.valueOut > timeDiff * 2)
 		) {
 			valueOut = lastEntry.valueOut;
 		}
 
 		const consumption = newValue - lastEntry.value;
-		const inserted = valueOut && lastEntry.valueOut ? valueOut - lastEntry.valueOut : null;
+		const inserted = valueOut !== undefined && lastEntry.valueOut !== null ? valueOut - lastEntry.valueOut : null;
 
 		for (let i = 0; i < intervalsBetween; i++) {
 			const intervalTimestamp = new Date(lastEntry.timestamp.getTime() + (i + 1) * 15 * 1000);

@@ -7,6 +7,7 @@ import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
 import DetailEnergyChartCard from "@/components/cards/energy/detail-energy-chart-card";
 import EnergyBarCard from "@/components/cards/energy/energy-bar-card";
 import EnergyGoalsCard from "@/components/cards/energy/energy-goals-card";
+import SolarProductionCard, { SolarProductionCardSkeleton } from "@/components/cards/energy/solar-production-card";
 import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumption-card";
 import SimulationCostBarChartCard from "@/components/cards/simulation/simulation-cost-bar-chart-card";
 import SimulationDetailChartCard from "@/components/cards/simulation/simulation-detail-chart-card";
@@ -22,7 +23,11 @@ import {
 } from "@/lib/dashboard-components";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getDashboardConfig } from "@/server/queries/dashboard";
-import { getEnabledSimulations } from "@/server/queries/simulations";
+import {
+	getEnabledSimulations,
+	getSimulationSolarSettings,
+	isSolarSimulationValid,
+} from "@/server/queries/simulations";
 
 export const metadata: Metadata = {
 	title: "Dashboard - Energyleaf",
@@ -36,10 +41,12 @@ export default async function DashboardPage() {
 
 	const experimentMode = !env.DISABLE_EXPERIMENT;
 
-	const [dashboardConfig, enabledSimulations] = await Promise.all([
+	const [dashboardConfig, enabledSimulations, solarSettings] = await Promise.all([
 		getDashboardConfig(user.id),
 		getEnabledSimulations(user.id),
+		getSimulationSolarSettings(user.id),
 	]);
+	const hasSolar = isSolarSimulationValid(solarSettings);
 
 	const hasSimulations = !!(
 		enabledSimulations.ev ||
@@ -78,7 +85,11 @@ export default async function DashboardPage() {
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 				<div className="col-span-1 flex items-center justify-between md:col-span-3">
 					<h1 className="text-xl font-bold">Dashboard</h1>
-					<DashboardConfigDialog activeComponents={activeComponents} hasSimulations={hasSimulations} />
+					<DashboardConfigDialog
+						activeComponents={activeComponents}
+						hasSimulations={hasSimulations}
+						hasSolar={hasSolar}
+					/>
 				</div>
 
 				{isActive("total-consumption") && (
@@ -104,6 +115,12 @@ export default async function DashboardPage() {
 							description="Detaillierte Ansicht Ihres Verbrauchs."
 							className="col-span-1 md:col-span-3"
 						/>
+					</Suspense>
+				)}
+
+				{hasSolar && isActive("solar-production") && (
+					<Suspense fallback={<SolarProductionCardSkeleton className="col-span-1 md:col-span-3" />}>
+						<SolarProductionCard start={startOfToday} type="day" className="col-span-1 md:col-span-3" />
 					</Suspense>
 				)}
 

@@ -1,4 +1,4 @@
-import { GoalIcon, LockKeyholeIcon, MailboxIcon, User2Icon, WrenchIcon } from "lucide-react";
+import { GoalIcon, LockKeyholeIcon, MailboxIcon, SunIcon, User2Icon, WrenchIcon } from "lucide-react";
 import SettingsLink from "../links/settings-link";
 
 interface Props {
@@ -19,6 +19,10 @@ export default function SettingsNav(props: Props) {
 			<SettingsLink href="/settings/reports">
 				<MailboxIcon className="size-4" />
 				Berichte
+			</SettingsLink>
+			<SettingsLink href="/settings/solar">
+				<SunIcon className="size-4" />
+				Photovoltaik
 			</SettingsLink>
 			{props.showSimulation ? (
 				<SettingsLink href="/settings/simulation">

@@ -2,12 +2,17 @@ import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
 import EnergyBarCard from "@/components/cards/energy/energy-bar-card";
 import EnergyGoalsCard from "@/components/cards/energy/energy-goals-card";
 import LeastEnergyConsumptionCard from "@/components/cards/energy/least-energy-consumption-card";
+import SolarForecastCard, { SolarForecastCardSkeleton } from "@/components/cards/energy/solar-forecast-card";
+import SolarHistoryCard, { SolarHistoryCardSkeleton } from "@/components/cards/energy/solar-history-card";
+import SolarProductionCard, { SolarProductionCardSkeleton } from "@/components/cards/energy/solar-production-card";
 import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumption-card";
 import DaySelector from "@/components/date/day-selector";
 import { EnergyPageLayout } from "@/components/layouts/energy-page-layout";
 import { Skeleton } from "@/components/ui/skeleton";
+import { env } from "@/env";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import { getCurrentSession } from "@/server/lib/auth";
+import { getSimulationSolarSettings, isSolarSimulationValid } from "@/server/queries/simulations";
 import { format, isSameDay, startOfDay } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { de } from "date-fns/locale";
@@ -29,6 +34,9 @@ export default async function EnergyPage(props: Props) {
 	if (!user) {
 		return null;
 	}
+	const solarSettings = await getSimulationSolarSettings(user.id);
+	const hasSolar = isSolarSimulationValid(solarSettings);
+	const canShowForecast = hasSolar && Boolean(solarSettings?.location && env.WEATHERAPI_KEY);
 
 	const searchParams = await props.searchParams;
 	let date = startOfDay(new Date());
@@ -98,6 +106,24 @@ export default async function EnergyPage(props: Props) {
 			<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
 				<EnergyBarCard start={date} compareStart={compare} type="day" className="col-span-1 md:col-span-3" />
 			</Suspense>
+			<Suspense fallback={<SolarProductionCardSkeleton className="col-span-1 md:col-span-3" />}>
+				<SolarProductionCard
+					start={date}
+					compareStart={compare}
+					type="day"
+					className="col-span-1 md:col-span-3"
+				/>
+			</Suspense>
+			{hasSolar ? (
+				<Suspense fallback={<SolarHistoryCardSkeleton className="col-span-1 md:col-span-3" />}>
+					<SolarHistoryCard end={date} className="col-span-1 md:col-span-3" />
+				</Suspense>
+			) : null}
+			{canShowForecast ? (
+				<Suspense fallback={<SolarForecastCardSkeleton className="col-span-1 md:col-span-3" />}>
+					<SolarForecastCard className="col-span-1 md:col-span-3" />
+				</Suspense>
+			) : null}
 		</EnergyPageLayout>
 	);
 }

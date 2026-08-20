@@ -125,6 +125,13 @@ export const solarSettingsSchema = z.object({
 		.optional()
 		.or(z.literal(""))
 		.transform((val) => (val === "" ? undefined : val)),
+	location: z
+		.string()
+		.trim()
+		.max(120, "Der Standort darf maximal 120 Zeichen lang sein.")
+		.optional()
+		.or(z.literal(""))
+		.transform((val) => (val === "" ? undefined : val)),
 });
 
 export const heatingTimeSlotSchema = z.object({

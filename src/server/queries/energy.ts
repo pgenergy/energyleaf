@@ -1,8 +1,23 @@
 // import "server-only";
-import { and, between, desc, eq, or, sql } from "drizzle-orm";
+import { and, between, desc, eq, isNotNull, or, sql } from "drizzle-orm";
 import { cache } from "react";
 import { db } from "../db";
 import { energyDataTable } from "../db/tables/sensor";
+
+/**
+ * A non-null export meter reading means that the sensor sends solar/feed-in data.
+ * Zero is intentionally included so a newly connected installation is detected
+ * before it has exported its first kWh.
+ */
+export const hasSolarInputForSensor = cache(async (sensorId: string) => {
+	const data = await db
+		.select({ id: energyDataTable.id })
+		.from(energyDataTable)
+		.where(and(eq(energyDataTable.sensorId, sensorId), isNotNull(energyDataTable.valueOut)))
+		.limit(1);
+
+	return data.length > 0;
+});
 
 async function getRawEnergyForSensorInRange(start: Date, end: Date, sensorId: string) {
 	return db
