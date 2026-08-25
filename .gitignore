@@ -43,3 +43,6 @@ next-env.d.ts
 
 # data
 /data/
+
+#builds
+*.tar
