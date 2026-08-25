@@ -225,8 +225,8 @@ export async function insertEnergyData(data: EnergyDataInput) {
 			rotValue = Number.parseInt(scriptData.script, 10) / 1000;
 			const timeDiff = (data.timestamp.getTime() - lastEntry.timestamp.getTime()) / 1000;
 
-			if (timeDiff > 25) {
-				intervalsBetween = Math.floor(timeDiff / 15) - 1;
+			if (timeDiff > 45) {
+				intervalsBetween = Math.floor(timeDiff / 30) - 1;
 			}
 
 			const consumption = rotValue * data.value;
@@ -239,7 +239,6 @@ export async function insertEnergyData(data: EnergyDataInput) {
 		}
 
 		// in this check we allow 0.6 kwh per minute
-		// so for 15 seconds which is currently the sensor rate we allow 0.15 kwh
 		// in an hour this would be 36 kwh
 		// this is a very high value and should never be reached
 		// but is hopefully a good protection against faulty sensors
@@ -276,7 +275,7 @@ export async function insertEnergyData(data: EnergyDataInput) {
 		const inserted = valueOut && lastEntry.valueOut ? valueOut - lastEntry.valueOut : null;
 
 		for (let i = 0; i < intervalsBetween; i++) {
-			const intervalTimestamp = new Date(lastEntry.timestamp.getTime() + (i + 1) * 15 * 1000);
+			const intervalTimestamp = new Date(lastEntry.timestamp.getTime() + (i + 1) * 30 * 1000);
 			const intervalValue = lastEntry.value + averageConsumption * (i + 1);
 
 			await trx.insert(energyDataTable).values({

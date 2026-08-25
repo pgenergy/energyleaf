@@ -98,7 +98,7 @@ function findSequences(values: EnergyData[], threshold: number) {
 			const sequenceLength = sequenceEnd - i;
 
 			// only mark as peak if longer then 2min and not marked as anomaly yet
-			if (sequenceLength > 8) {
+			if (sequenceLength > 4) {
 				const avgPeakPower = calculateAveragePower(values.slice(i, sequenceEnd));
 
 				// if sequences are only 2min apart, mark as one sequence, because could be of device variance
@@ -196,7 +196,7 @@ async function findAndMarkInPeriod(
 	const calcData = await getEnergyForSensorInRange(sequenceStart.toISOString(), end.toISOString(), sensorId, "raw");
 
 	// make sure we have at least 12 hours of reference data
-	if (calcData.length < 2880) {
+	if (calcData.length < 1440) {
 		return 0;
 	}
 
