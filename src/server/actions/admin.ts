@@ -1499,7 +1499,36 @@ export async function adminCreateUserAction(data: z.infer<typeof adminCreateUser
 			};
 		}
 
-		const userId = genID(30);
+		let userId: string;
+		if (data.userID && data.userID.trim() !== "") {
+			const existingId = await db
+				.select({ id: userTable.id })
+				.from(userTable)
+				.where(eq(userTable.id, data.userID))
+				.limit(1);
+
+			if (existingId.length > 0) {
+				waitUntil(
+					logAction({
+						fn: LogActionTypes.ADMIN_CREATE_USER_ACTION,
+						result: "failed",
+						details: {
+							success: false,
+							reason: ErrorTypes.ID_USED,
+							user: user.id,
+							session: sid,
+						},
+					}),
+				);
+				return {
+					success: false,
+					message: "Pseudonym wird bereits als ID verwendet.",
+				};
+			}
+			userId = data.userID;
+		} else {
+			userId = genID(30);
+		}
 		const passwordHash = await hash(data.password);
 
 		await db.transaction(async (trx) => {
@@ -1514,7 +1543,8 @@ export async function adminCreateUserAction(data: z.infer<typeof adminCreateUser
 				phone: null,
 				isAdmin: data.isAdmin,
 				isParticipant: data.isParticipant,
-				isActive: false,
+				isActive: data.activeImmediately,
+				activationDate: data.activeImmediately ? new Date() : null,
 			});
 			await trx.insert(userDataTable).values({
 				userId,

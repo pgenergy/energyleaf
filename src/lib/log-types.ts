@@ -8,6 +8,7 @@ export enum ErrorTypes {
 	PASSWORD_MISSMATCH = "password_mismatch",
 	STRING_TOO_LONG = "string_too_long",
 	EMAIL_USED = "email_used",
+	ID_USED = "id_used",
 	MISSING_API_KEYS = "missing_api_keys",
 	USER_NOT_FOUND = "user_not_found",
 	INVALID_TOKEN = "invalid_token",
