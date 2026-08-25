@@ -54,7 +54,7 @@ export const anomalySchema = z.object({
 
 export const reportConfigSchema = z.object({
 	active: z.boolean().default(true).optional(),
-	days: z.array(z.number()).default([]),
+	days: z.array(z.number().int().min(0).max(6)).default([]),
 });
 
 export const deleteAccountSchema = z.object({
