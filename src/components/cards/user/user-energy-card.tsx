@@ -57,19 +57,19 @@ export default async function UserEnergyCard({ userId }: Props) {
 						</p>
 					</div>
 					<div>
-						<span className="text-muted-foreground">Grundpreis:</span>
+						<span className="text-muted-foreground">Grundpreis (€):</span>
 						<p>{userData.basePrice != null ? `${userData.basePrice.toFixed(2)} €/Monat` : "-"}</p>
 					</div>
 					<div>
-						<span className="text-muted-foreground">Arbeitspreis:</span>
-						<p>{userData.workingPrice != null ? `${userData.workingPrice.toFixed(2)} ct/kWh` : "-"}</p>
+						<span className="text-muted-foreground">Arbeitspreis (€/kWh):</span>
+						<p>{userData.workingPrice != null ? `${userData.workingPrice.toFixed(2)} €/kWh` : "-"}</p>
 					</div>
 					<div>
-						<span className="text-muted-foreground">Abschlagszahlung:</span>
+						<span className="text-muted-foreground">Abschlagszahlung (€):</span>
 						<p>{userData.monthlyPayment != null ? `${userData.monthlyPayment.toFixed(2)} €` : "-"}</p>
 					</div>
 					<div>
-						<span className="text-muted-foreground">Verbrauchslimit:</span>
+						<span className="text-muted-foreground">Verbrauchslimit (kWh):</span>
 						<p>
 							{userData.consumptionGoal != null ? `${userData.consumptionGoal.toFixed(2)} kWh/Tag` : "-"}
 						</p>

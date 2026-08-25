@@ -9,16 +9,16 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TariffType, TariffTypeDisplay, type TariffTypeValue } from "@/lib/enums";
-import { energyTarfiffSchema } from "@/lib/schemas/profile-schema";
+import { energyTariffSchema } from "@/lib/schemas/profile-schema";
 import { adminUpdateEnergyTariffAction } from "@/server/actions/admin";
 
 interface Props {
 	userId: string;
-	initialValues: z.infer<typeof energyTarfiffSchema>;
+	initialValues: z.infer<typeof energyTariffSchema>;
 }
 
-type TariffFormValues = z.input<typeof energyTarfiffSchema>;
-type TariffOutputValues = z.infer<typeof energyTarfiffSchema>;
+type TariffFormValues = z.input<typeof energyTariffSchema>;
+type TariffOutputValues = z.infer<typeof energyTariffSchema>;
 
 export default function AdminEnergyTariffForm({ userId, initialValues }: Props) {
 	const defaultValues: TariffFormValues = {
@@ -30,7 +30,7 @@ export default function AdminEnergyTariffForm({ userId, initialValues }: Props) 
 
 	const form = useForm({
 		defaultValues,
-		validators: { onSubmit: energyTarfiffSchema },
+		validators: { onSubmit: energyTariffSchema },
 		onSubmit: async ({ value }) => {
 			const toastId = toast.loading("Speichern...", { duration: Infinity });
 			const res = await adminUpdateEnergyTariffAction(userId, value as TariffOutputValues);
@@ -113,7 +113,7 @@ export default function AdminEnergyTariffForm({ userId, initialValues }: Props) 
 						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
-								<FieldLabel>Arbeitspreis (ct/kWh)</FieldLabel>
+								<FieldLabel>Arbeitspreis (€/kWh)</FieldLabel>
 								<Input
 									type="number"
 									inputMode="decimal"

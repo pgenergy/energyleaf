@@ -11,17 +11,17 @@ export const householdSchema = z.object({
 		.min(1, "Es muss mindestens eine Person in Ihrem Haushalt leben."),
 });
 
-export const energyTarfiffSchema = z.object({
+export const energyTariffSchema = z.object({
 	tariffType: z.enum(TariffType).default(TariffType.Basic).optional(),
 	basePrice: z.coerce
 		.number({ error: "Bitte geben Sie den Basispreis an." })
-		.min(0.01, "Der Basispreis muss mindestens 0,01 Euro betragen."),
+		.min(0.01, "Der Basispreis muss mindestens 0,01 € betragen."),
 	workingPrice: z.coerce
 		.number({ error: "Bitte geben Sie den Arbeitspreis an." })
-		.min(0.01, "Der Arbeitspreis muss mindestens 0,01 Euro betragen."),
+		.min(0.01, "Der Arbeitspreis muss mindestens 0,01 € betragen."),
 	monthlyPayment: z.coerce
 		.number({ error: "Bitte geben Sie die monatliche Zahlung an." })
-		.min(1, "Die monatliche Zahlung muss mindestens 0,01 Euro betragen."),
+		.min(1, "Die monatliche Zahlung muss mindestens 0,01 € betragen."),
 });
 
 export const accountNameSchema = z.object({
@@ -45,7 +45,7 @@ export const energyGoalSchema = z.object({
 	energy: z.coerce.number({ error: "Bitte geben Sie Ihr Energie-Limit an." }).optional(),
 	cost: z.coerce
 		.number({ error: "Bitte geben Sie Ihr Energie-Kosten-Limit an." })
-		.min(0.01, "Das Energie-Kosten-Limit muss mindestens 0.01 Euro betragen."),
+		.min(0.01, "Das Energie-Kosten-Limit muss mindestens 0.01 € betragen."),
 });
 
 export const anomalySchema = z.object({

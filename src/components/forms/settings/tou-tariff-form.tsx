@@ -158,7 +158,7 @@ export default function TouTariffForm(props: Props) {
 						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
-								<FieldLabel>Grundpreis (Euro/Monat)</FieldLabel>
+								<FieldLabel>Grundpreis (€/Monat)</FieldLabel>
 								<FieldDescription>Fester monatlicher Grundpreis Ihres Stromanbieters</FieldDescription>
 								<Input
 									type="number"

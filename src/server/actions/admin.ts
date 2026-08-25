@@ -14,7 +14,7 @@ import {
 	accountNameSchema,
 	adminAccountStatusSchema,
 	batterySettingsSchema,
-	energyTarfiffSchema,
+	energyTariffSchema,
 	evSettingsSchema,
 	heatPumpSettingsSchema,
 	householdSchema,
@@ -405,7 +405,7 @@ export async function adminUpdateHouseholdAction(userId: string, data: z.infer<t
 	}
 }
 
-export async function adminUpdateEnergyTariffAction(userId: string, data: z.infer<typeof energyTarfiffSchema>) {
+export async function adminUpdateEnergyTariffAction(userId: string, data: z.infer<typeof energyTariffSchema>) {
 	try {
 		const { user } = await getCurrentSession();
 		const cookieStore = await cookies();
@@ -431,7 +431,7 @@ export async function adminUpdateEnergyTariffAction(userId: string, data: z.infe
 			};
 		}
 
-		const valid = energyTarfiffSchema.safeParse(data);
+		const valid = energyTariffSchema.safeParse(data);
 		if (!valid.success) {
 			waitUntil(
 				logAction({
