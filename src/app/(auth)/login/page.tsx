@@ -11,12 +11,13 @@ export const metadata = {
 export default function LoginPage() {
 	//const hideForgot = !env.RESEND_API_MAIL || !env.RESEND_API_KEY;
 	const hideForgot = !env.NODEMAILER_ENDPOINT || !env.NODEMAILER_MAIL || !env.NODEMAILER_PORT;
+	const hideDemo = env.DISABLE_DEMO;
 
 	return (
 		<div className="flex flex-col gap-2">
 			<p className="text-xl font-bold">Willkommen bei Energyleaf!</p>
 			<p className="text-muted-foreground mb-2">Bitte loggen Sie sich ein, um fortzufahren.</p>
-			<LoginForm />
+			<LoginForm hideDemoLogin={hideDemo}/>
 			<div className="flex flex-col items-center">
 				{env.DISABLE_SIGNUP ? null : (
 					<p className="text-muted-foreground pb-6 text-sm">
