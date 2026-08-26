@@ -10,7 +10,11 @@ import { Input } from "@/components/ui/input";
 import { loginSchema } from "@/lib/schemas/auth-schema";
 import { demoLoginAction, loginAction } from "@/server/actions/auth";
 
-export default function LoginForm() {
+type LoginFormProps = {
+	hideDemoLogin: boolean;
+};
+
+export default function LoginForm({hideDemoLogin} : LoginFormProps) {
 	const router = useRouter();
 
 	const form = useForm({
@@ -108,7 +112,7 @@ export default function LoginForm() {
 					Anmelden
 				</Button>
 			</div>
-			<Button
+			{!hideDemoLogin && (<Button
 				type="button"
 				variant="secondary"
 				className="w-full cursor-pointer"
@@ -118,6 +122,7 @@ export default function LoginForm() {
 				{pending ? <Loader2Icon className="size-4" /> : null}
 				Demo Starten
 			</Button>
+			)}
 		</form>
 	);
 }

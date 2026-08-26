@@ -3,7 +3,7 @@
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, XAxis, YAxis, Label } from "recharts";
 import {
 	type ChartConfig,
 	ChartContainer,
@@ -191,7 +191,15 @@ export default function SimulationCostBarChart(props: Props) {
 				>
 					<ChartLegend content={<ChartLegendContent />} />
 					<ChartTooltip content={<ChartTooltipContent />} />
-					<YAxis type="number" interval="preserveStartEnd" domain={yAxisDomain} />
+					<YAxis>
+						type="number" 
+						interval="preserveStartEnd" 
+						domain={yAxisDomain}
+						<Label 
+							textAnchor="end"
+							value="€"
+						/>
+					</YAxis>
 					<XAxis dataKey="timestamp" type="category" interval="equidistantPreserveStart" />
 					{dataKeys.map((key) => (
 						<Bar key={key} dataKey={key} fill={`var(--color-${key})`} radius={8} />

@@ -3,7 +3,7 @@
 import { format, getWeekOfMonth } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, Label, XAxis, YAxis } from "recharts";
 import {
 	type ChartConfig,
 	ChartContainer,
@@ -22,6 +22,7 @@ interface Props<T extends ChartConfig> {
 	dateFormat: "hour" | "day" | "weekday" | "calender-week" | "week";
 	display: Extract<keyof T, string>[];
 	dataKey: Extract<keyof T, string>;
+	unit: "kWh" | "€";
 }
 
 type DataPoint = EnergyData & { cost?: number };
@@ -141,7 +142,17 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 			>
 				<ChartLegend content={<ChartLegendContent />} />
 				<ChartTooltip content={<ChartTooltipContent />} />
-				<YAxis dataKey={props.dataKey} type="number" interval="preserveStartEnd" domain={yAxisDomain} />
+				<YAxis>
+					dataKey={props.dataKey}
+					tickLine={false}
+					interval="preserveStartEnd"
+					type="number"
+					domain={yAxisDomain}
+					<Label
+						textAnchor="end"
+						value={props.unit}
+					/>
+				</YAxis>
 				<XAxis dataKey="timestamp" type="category" interval="equidistantPreserveStart" />
 				{props.display.map((d) => (
 					<Bar key={d} dataKey={d} fill={`var(--color-${d})`} radius={8} />

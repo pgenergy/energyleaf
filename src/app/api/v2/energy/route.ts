@@ -24,6 +24,7 @@ const energyRequestDataSchema = z.object({
 });
 
 export const POST = async (req: NextRequest) => {
+	// check request syntax
 	const body = req.body;
 	if (!req.headers.has("authorization") || !req.headers.get("authorization")?.startsWith("Bearer ")) {
 		waitUntil(
@@ -74,30 +75,31 @@ export const POST = async (req: NextRequest) => {
 		return NextResponse.json({ status: 400, statusMessage: "Invalid data", success: false }, { status: 400 });
 	}
 	const data = check.data;
-	//console.info(data);
 
-	if (data.value <= 0) {
-		if (data.sensor_type === EnergyDataSensorType.ANALOG) {
-			return NextResponse.json({ status: 200, success: true }, { status: 200 });
-		}
-		waitUntil(
-			logSystem({
-				fn: LogSystemTypes.ENERGY_INPUT_V2,
-				details: {
-					sensor: null,
-					user: null,
-					reason: ErrorTypes.INPUT_IS_ZERO,
-				},
-			}),
-		);
-		return NextResponse.json(
-			{ status: 400, statusMessage: "Value is equal to or less than zero", success: false },
-			{ status: 400 },
-		);
-	}
-
+	// validate data correctness
 	try {
 		const sensor = await getSensorIdFromSensorToken(accessToken, true);
+
+		if (data.value <= 0) {
+			if (data.sensor_type === EnergyDataSensorType.ANALOG) {
+				return NextResponse.json({ status: 200, success: true }, { status: 200 });
+			}
+			waitUntil(
+				logSystem({
+					fn: LogSystemTypes.ENERGY_INPUT_V2,
+					details: {
+						sensor: sensor.id,
+						user: null,
+						reason: ErrorTypes.INPUT_IS_ZERO,
+					},
+				}),
+			);
+			return NextResponse.json(
+				{ status: 400, statusMessage: "Value is equal to or less than zero", success: false },
+				{ status: 400 },
+			);
+		}
+
 		const needsSum = data.sensor_type === EnergyDataSensorType.ANALOG;
 		if (!sensor.userId) {
 			waitUntil(

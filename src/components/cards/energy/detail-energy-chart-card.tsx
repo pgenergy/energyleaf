@@ -78,7 +78,7 @@ export default async function DetailEnergyChartCard(props: Props) {
 
 	const chartConfig = {
 		total: {
-			label: "Energieübersicht (kWh)",
+			label: "Netzbezug (kWh)",
 			color: "var(--primary)",
 		},
 	} satisfies ChartConfig;
@@ -103,6 +103,7 @@ export default async function DetailEnergyChartCard(props: Props) {
 					display={["total"]}
 					dataKey="total"
 					dateFormat="hour"
+					unit="kWh"
 				/>
 			</CardContent>
 		</Card>

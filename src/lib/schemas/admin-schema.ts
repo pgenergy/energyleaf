@@ -10,7 +10,7 @@ export const adminCreateUserSchema = z
 			.string({ error: "Bitte geben Sie einen Nachnamen an." })
 			.min(1, { message: "Bitte geben Sie einen Nachnamen an." }),
 		mail: z.email({ message: "Bitte geben Sie eine gültige E-Mail an." }),
-		address: z.string().min(1, { message: "Bitte geben Sie eine Adresse an." }),
+		address: z.string(),
 		password: z
 			.string({ error: "Bitte geben Sie ein Passwort an." })
 			.min(8, { message: "Passwort muss mindestens 8 Zeichen haben." }),
@@ -19,6 +19,13 @@ export const adminCreateUserSchema = z
 			.min(8, { message: "Passwort muss mindestens 8 Zeichen haben." }),
 		isAdmin: z.boolean(),
 		isParticipant: z.boolean(),
+		userID: z
+            .string()
+            .trim()
+            .max(30, { message: "Pseudonym darf maximal 30 Zeichen haben." })
+            .regex(/^[a-zA-Z0-9_-]*$/)
+            .optional(),
+		activeImmediately: z.boolean(),
 	})
 	.superRefine((data, ctx) => {
 		if (data.password !== data.passwordRepeat) {

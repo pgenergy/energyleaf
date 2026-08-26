@@ -85,7 +85,7 @@ export default async function SimulationBarChartCard(props: Props) {
 
 	const barChartConfig = {
 		consumption: {
-			label: "Energieverbrauch (kWh)",
+			label: "Netzbezug (kWh)",
 			color: "var(--primary)",
 		},
 	} satisfies ChartConfig;
@@ -110,6 +110,7 @@ export default async function SimulationBarChartCard(props: Props) {
 					display={["consumption"]}
 					dataKey="consumption"
 					dateFormat="hour"
+					unit="kWh"
 				/>
 			</CardContent>
 		</Card>

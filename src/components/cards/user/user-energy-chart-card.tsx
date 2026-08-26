@@ -62,6 +62,7 @@ export default async function UserEnergyChartCard(props: Props) {
 					display={["total"]}
 					dataKey="total"
 					dateFormat="hour"
+					unit="kWh"
 				/>
 			</CardContent>
 		</Card>

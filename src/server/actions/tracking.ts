@@ -26,7 +26,7 @@ export async function trackPageViewAction(pathname: string, searchParams: string
 				path: "/",
 				sameSite: "lax",
 				httpOnly: true,
-				secure: env.VERCEL === "production",
+				secure: env.VERCEL_ENV === "production",
 			});
 		}
 

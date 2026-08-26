@@ -3,7 +3,7 @@
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
-import { Area, CartesianGrid, ComposedChart, Line, ReferenceLine, XAxis, YAxis } from "recharts";
+import { Area, CartesianGrid, ComposedChart, Line, ReferenceLine, XAxis, YAxis, Label } from "recharts";
 import {
 	type ChartConfig,
 	ChartContainer,

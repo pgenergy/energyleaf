@@ -3,7 +3,7 @@
 import { format, getWeekOfMonth } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
-import { Area, AreaChart, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, Label, XAxis, YAxis } from "recharts";
 import {
 	type ChartConfig,
 	ChartContainer,
@@ -21,8 +21,8 @@ interface Props<T extends ChartConfig> {
 	config: T;
 	display: Extract<keyof T, string>[];
 	dataKey: Extract<keyof T, string>;
-	/** Field of the sensor data to plot as the primary value (defaults to consumption). */
 	valueKey?: "consumption" | "inserted";
+	unit: "kWh";
 }
 
 export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>) {
@@ -131,13 +131,17 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 					axisLine={false}
 					interval="equidistantPreserveStart"
 				/>
-				<YAxis
+				<YAxis>
 					dataKey={props.dataKey}
 					tickLine={false}
 					interval="preserveStartEnd"
 					type="number"
 					domain={yAxisDomain}
-				/>
+					<Label
+						textAnchor="end"
+						value={props.unit}
+					/>
+				</YAxis>
 				{props.display.map((d) => (
 					<Area
 						key={d}
