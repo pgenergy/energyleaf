@@ -25,7 +25,7 @@ export default async function HouseholdSettingsCard() {
 				<HouseholdForm
 					initialValues={{
 						livingSpace: data.livingSpace || 1,
-						houseType: data.property || HouseType.Apartement,
+						houseType: data.property || HouseType.Apartment,
 						people: data.household || 1,
 					}}
 				/>

@@ -700,7 +700,10 @@ export async function forgotPasswordAction(mail: string) {
 					},
 				}),
 			);
-			return;
+			return {
+				success: false,
+				message: "Es ist ein unerwarteter Fehler aufgetreten.",
+			};
 		}
 
 		const users = await db
@@ -721,7 +724,10 @@ export async function forgotPasswordAction(mail: string) {
 					},
 				}),
 			);
-			return;
+			return {
+				success: false,
+				message: "Es ist ein unerwarteter Fehler aufgetreten.",
+			};
 		}
 		const user = users[0];
 

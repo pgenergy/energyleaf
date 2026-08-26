@@ -46,3 +46,6 @@ next-env.d.ts
 
 #builds
 *.tar
+
+#temp files
+.*_REVIEW.md

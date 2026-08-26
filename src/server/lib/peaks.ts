@@ -43,7 +43,7 @@ function calculateAveragePower(sensorData: EnergyData[]) {
 		return acc + (curr.consumption / timeDiffInHours) * 1000; // Add power in Watt
 	}, 0);
 
-	return powerSum / sensorData.length;
+	return powerSum / (sensorData.length - 1);
 }
 
 export async function calculateAverageWeeklyUsageTimeInHours(deviceId: string) {

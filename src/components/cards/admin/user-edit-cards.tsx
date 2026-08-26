@@ -103,7 +103,7 @@ export async function UserHouseholdCard({ userId }: Props) {
 				<AdminHouseholdForm
 					userId={userId}
 					initialValues={{
-						houseType: (userData?.property as HouseType) ?? HouseType.Apartement,
+						houseType: (userData?.property as HouseType) ?? HouseType.Apartment,
 						livingSpace: userData?.livingSpace ?? 1,
 						people: userData?.household ?? 1,
 					}}

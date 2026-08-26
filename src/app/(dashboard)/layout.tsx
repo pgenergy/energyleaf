@@ -48,7 +48,7 @@ export default async function DashboardLayout(props: Props) {
 				path: "/",
 				sameSite: "lax",
 				httpOnly: true,
-				secure: env.VERCEL === "production",
+				secure: env.VERCEL_ENV === "production",
 			});
 		} else {
 			sessionValue = session.value;

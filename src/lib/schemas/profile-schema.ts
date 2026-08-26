@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ChargingSpeed, HeatPumpSource, HouseType, SolarOrientation, TariffType, TimeZoneType } from "../enums";
 
 export const householdSchema = z.object({
-	houseType: z.enum(HouseType).default(HouseType.Apartement),
+	houseType: z.enum(HouseType).default(HouseType.Apartment),
 	livingSpace: z.coerce
 		.number({ error: "Bitte geben Sie ihre Gebäude Größe an." })
 		.min(1, "Ihr Gebäude muss mindestens 1qm groß sein."),

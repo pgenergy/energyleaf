@@ -14,7 +14,7 @@ export async function proxy(req: NextRequest): Promise<NextResponse> {
 				path: "/",
 				sameSite: "lax",
 				httpOnly: true,
-				secure: env.VERCEL === "production",
+				secure: env.VERCEL_ENV === "production",
 			});
 		}
 
