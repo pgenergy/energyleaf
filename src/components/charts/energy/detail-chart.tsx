@@ -21,7 +21,6 @@ interface Props<T extends ChartConfig> {
 	config: T;
 	display: Extract<keyof T, string>[];
 	dataKey: Extract<keyof T, string>;
-	/** Field of the sensor data to plot as the primary value (defaults to consumption). */
 	valueKey?: "consumption" | "inserted";
 }
 
@@ -85,7 +84,7 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 				timestamp: formatTimestamp(d.timestamp),
 			};
 		});
-	}, [props.data, props.simData, props.dateFormat]);
+	}, [props.data, props.simData, props.dateFormat, props.valueKey]);
 
 	const effectiveConfig = useMemo(() => {
 		if (!props.simData || props.simData.length === 0) {
