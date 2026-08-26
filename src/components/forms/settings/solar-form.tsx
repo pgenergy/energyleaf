@@ -22,6 +22,7 @@ export default function SolarForm(props: Props) {
 		orientation: props.initialValues.orientation,
 		inverterPower: props.initialValues.inverterPower,
 		sunHoursPerDay: props.initialValues.sunHoursPerDay,
+		location: props.initialValues.location,
 	};
 
 	const form = useForm({
@@ -129,6 +130,30 @@ export default function SolarForm(props: Props) {
 										const next = e.target.value === "" ? Number.NaN : parseFloat(e.target.value);
 										field.handleChange(next);
 									}}
+									aria-invalid={isInvalid}
+								/>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
+				/>
+				<form.Field
+					name="location"
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel>Standort für Wetterprognosen</FieldLabel>
+								<FieldDescription>
+									Optional: Ort oder Postleitzahl. Wird nur für Prognosen an WeatherAPI.com
+									übertragen.
+								</FieldDescription>
+								<Input
+									type="text"
+									placeholder="Ort oder Postleitzahl"
+									value={field.state.value ?? ""}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
 									aria-invalid={isInvalid}
 								/>
 								{isInvalid && <FieldError errors={field.state.meta.errors} />}

@@ -67,6 +67,9 @@ export enum LogActionTypes {
 	UPDATE_SIMULATION_BATTERY_SETTINGS_ACTION = "update_simulation_battery_settings_action",
 	TOGGLE_SIMULATION_ENABLED_ACTION = "toggle_simulation_enabled_action",
 
+	// VISUALIZATION
+	TOGGLE_SOLAR_FEED_IN_VISUALIZATION_ACTION = "toggle_solar_feed_in_visualization_action",
+
 	// DEVICE
 	CREATE_DEVICE_ACTION = "create_device_action",
 	UPDATE_DEVICE_ACTION = "update_device_action",

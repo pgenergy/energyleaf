@@ -1,11 +1,11 @@
-import { toZonedTime } from "date-fns-tz";
-import { eq } from "drizzle-orm";
+//import { toZonedTime } from "date-fns-tz";
+//import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { TimezoneTypeToTimeZone } from "@/lib/enums";
-import { db } from "@/server/db";
-import { userTable } from "@/server/db/tables/user";
-import { getSensorIdFromSensorToken } from "@/server/queries/sensor";
+//import { TimezoneTypeToTimeZone } from "@/lib/enums";
+//import { db } from "@/server/db";
+//import { userTable } from "@/server/db/tables/user";
+//import { getSensorIdFromSensorToken } from "@/server/queries/sensor";
 
 const gasRequestDataSchema = z.object({
 	value: z.number(),
@@ -17,7 +17,7 @@ export const POST = async (req: NextRequest) => {
 	if (!req.headers.has("authorization") || req.headers.get("authorization")?.startsWith("Bearer ")) {
 		return NextResponse.json({ statusMessage: "Unauthorized" }, { status: 401 });
 	}
-	const accessToken = req.headers.get("authorization")?.split(" ")[1] || "";
+	//const accessToken = req.headers.get("authorization")?.split(" ")[1] || "";
 	if (!body) {
 		return NextResponse.json(
 			{ status: 400, statusMessage: "No body" },
@@ -32,8 +32,11 @@ export const POST = async (req: NextRequest) => {
 		return NextResponse.json({ status: 400, statusMessage: "Invalid data" }, { status: 400 });
 	}
 	const data = check.data;
-	//console.info(data);
+	console.info(data);
 
+	// gas is unused currently
+	return NextResponse.json({ status: 501}, { status: 501});
+/*
 	if (data.value <= 0) {
 		return NextResponse.json(
 			{ status: 400, statusMessage: "Value is equal to or less than zero" },
@@ -70,9 +73,10 @@ export const POST = async (req: NextRequest) => {
 			timestamp: tzDate,
 		};
 
-		//console.log(inputData);
+		console.log(inputData);
 
 		return NextResponse.json({ status: 200 }, { status: 200 });
+		
 	} catch (e) {
 		console.error(e);
 		if ((e as unknown as Error).message === "token/expired") {
@@ -96,4 +100,5 @@ export const POST = async (req: NextRequest) => {
 
 		return NextResponse.json({ statusMessage: "Database error", status: 500 }, { status: 500 });
 	}
+*/
 };

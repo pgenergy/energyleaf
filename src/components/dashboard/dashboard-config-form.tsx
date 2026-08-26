@@ -19,6 +19,7 @@ import { updateDashboardConfigAction } from "@/server/actions/dashboard";
 interface Props {
 	activeComponents: DashboardComponentId[];
 	hasSimulations: boolean;
+	hasSolar: boolean;
 	onSuccess?: () => void;
 }
 
@@ -57,12 +58,15 @@ export default function DashboardConfigForm(props: Props) {
 		return currentValue.filter((id) => id !== componentId);
 	};
 
-	// Filter out simulation components if user has no simulations
+	// Filter out components for data sources the user does not have.
 	const filterComponents = (componentIds: DashboardComponentId[]) => {
-		if (props.hasSimulations) {
-			return componentIds;
-		}
-		return componentIds.filter((id) => !DASHBOARD_COMPONENTS[id].requiresSimulation);
+		return componentIds.filter((id) => {
+			const component = DASHBOARD_COMPONENTS[id];
+			return !(
+				(component.requiresSimulation && !props.hasSimulations) ||
+				(component.requiresSolar && !props.hasSolar)
+			);
+		});
 	};
 
 	const groupOrder: (keyof typeof componentsByGroup)[] = ["default", "energy", "cost", "simulation"];

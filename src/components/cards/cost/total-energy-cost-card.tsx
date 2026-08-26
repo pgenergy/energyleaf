@@ -1,6 +1,6 @@
 import { differenceInDays, endOfDay, format, getDaysInMonth, isSameDay, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
-import { ArrowDownIcon, ArrowUpIcon, DollarSignIcon, Settings2Icon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, EuroIcon, Settings2Icon } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,7 +51,7 @@ function CardHead(props: HeadProps) {
 			<div className="flex flex-row justify-between">
 				<div className="flex flex-col gap-1">
 					<CardTitle className="flex items-center gap-1">
-						<DollarSignIcon className="size-4" />
+						<EuroIcon className="size-4" />
 						Kosten
 					</CardTitle>
 					<CardDescription>{text}</CardDescription>

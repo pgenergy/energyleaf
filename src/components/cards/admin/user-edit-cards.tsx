@@ -260,6 +260,7 @@ export async function UserSolarSimulationCard({ userId }: Props) {
 						orientation: data?.orientation ?? SolarOrientation.South,
 						inverterPower: data?.inverterPower ?? 10,
 						sunHoursPerDay: data?.sunHoursPerDay ?? undefined,
+						location: data?.location ?? undefined,
 					}}
 				/>
 			</CardContent>

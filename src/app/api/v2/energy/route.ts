@@ -17,7 +17,7 @@ enum EnergyDataSensorType {
 
 const energyRequestDataSchema = z.object({
 	value: z.number(),
-	value_out: z.number().optional(),
+	value_out: z.number().nonnegative().optional(),
 	value_current: z.number().optional(),
 	date: z.coerce.date().optional(),
 	sensor_type: z.enum(EnergyDataSensorType),

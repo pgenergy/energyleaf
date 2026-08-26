@@ -51,6 +51,7 @@ export async function getDemoUserData(): Promise<UserData> {
 			installationComment: null,
 			devicePowerEstimationRSquared: null,
 			currentEnergyThreshold: null,
+			showSolarFeedIn: false,
 		};
 	}
 	const userDataJson = JSON.parse(userData.value) as UserData;

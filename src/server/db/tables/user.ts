@@ -84,6 +84,7 @@ export const userDataTable = pgTable("user_data", {
 	installationComment: text("installation_comment"),
 	devicePowerEstimationRSquared: doublePrecision("device_power_estimation_r_squared"),
 	currentEnergyThreshold: numericType("current_energy_threshold"),
+	showSolarFeedIn: boolean("show_solar_feedin").notNull().default(false),
 });
 
 export type UserData = typeof userDataTable.$inferSelect;

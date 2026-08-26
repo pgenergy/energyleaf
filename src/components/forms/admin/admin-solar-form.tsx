@@ -23,6 +23,7 @@ export default function AdminSolarForm({ userId, initialValues }: Props) {
 		orientation: initialValues.orientation,
 		inverterPower: initialValues.inverterPower,
 		sunHoursPerDay: initialValues.sunHoursPerDay,
+		location: initialValues.location,
 	};
 
 	const form = useForm({
@@ -133,6 +134,28 @@ export default function AdminSolarForm({ userId, initialValues }: Props) {
 										const next = e.target.value === "" ? Number.NaN : parseFloat(e.target.value);
 										field.handleChange(next);
 									}}
+									aria-invalid={isInvalid}
+								/>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
+				/>
+				<form.Field
+					name="location"
+					children={(field) => {
+						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel>Standort für Wetterprognosen</FieldLabel>
+								<FieldDescription>
+									Optional: Ort oder Postleitzahl für die Wetterprognose
+								</FieldDescription>
+								<Input
+									type="text"
+									value={field.state.value ?? ""}
+									onBlur={field.handleBlur}
+									onChange={(event) => field.handleChange(event.target.value)}
 									aria-invalid={isInvalid}
 								/>
 								{isInvalid && <FieldError errors={field.state.meta.errors} />}

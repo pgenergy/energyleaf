@@ -9,10 +9,12 @@ export type DashboardComponentId =
 	| "total-cost"
 	| "energy-goals"
 	| "detail-energy"
+	| "detail-solar-production"
 	// Optional energy components
 	| "energy-bar-day"
 	| "energy-bar-week"
 	| "energy-bar-month"
+	| "solar-production"
 	// Optional cost components
 	| "cost-bar-day"
 	| "cost-bar-week"
@@ -30,6 +32,8 @@ export interface DashboardComponentConfig {
 	order: number;
 	/** Whether this component requires simulations to be enabled */
 	requiresSimulation?: boolean;
+	/** Whether this component requires a configured photovoltaic system */
+	requiresSolar?: boolean;
 }
 
 /**
@@ -63,6 +67,12 @@ export const DASHBOARD_COMPONENTS: Record<DashboardComponentId, DashboardCompone
 		group: "default",
 		order: 40,
 	},
+	"detail-solar-production": {
+		label: "Detailansicht Solareinspeisung",
+		description: "Detallierte Ansicht Ihrer Einspeisung ins Stromnetz.",
+		group: "default",
+		order: 41,
+	},
 	// Aggregated Energy Charts
 	"energy-bar-day": {
 		label: "Verbrauch (Tag)",
@@ -81,6 +91,13 @@ export const DASHBOARD_COMPONENTS: Record<DashboardComponentId, DashboardCompone
 		description: "Verbrauch aggregiert in Wochen.",
 		group: "energy",
 		order: 70,
+	},
+	"solar-production": {
+		label: "Solareinspeisung",
+		description: "Ihre Einspeisung aggregiert in Stunden.",
+		group: "energy",
+		order: 75,
+		requiresSolar: true,
 	},
 	// Aggregated Cost Charts
 	"cost-bar-day": {
@@ -133,6 +150,7 @@ export const DEFAULT_DASHBOARD_COMPONENTS: DashboardComponentId[] = [
 	"total-cost",
 	"energy-goals",
 	"detail-energy",
+	"solar-production",
 ];
 
 /**
