@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
+import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost-card";
 import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumption-card";
 import SimulationBarChartCard from "@/components/cards/simulation/simulation-bar-chart-card";
 import SimulationCostBarChartCard from "@/components/cards/simulation/simulation-cost-bar-chart-card";

@@ -1,9 +1,9 @@
-import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
+import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost-card";
 import EnergyBarCard from "@/components/cards/energy/energy-bar-card";
 import EnergyGoalsCard from "@/components/cards/energy/energy-goals-card";
 import LeastEnergyConsumptionCard from "@/components/cards/energy/least-energy-consumption-card";
+import HighestFeedInCard from "@/components/cards/energy/highest-feed-in-card";
 import SolarForecastCard, { SolarForecastCardSkeleton } from "@/components/cards/energy/solar-forecast-card";
-import SolarHistoryCard, { SolarHistoryCardSkeleton } from "@/components/cards/energy/solar-history-card";
 import SolarProductionCard, { SolarProductionCardSkeleton } from "@/components/cards/energy/solar-production-card";
 import TotalEnergyConsumptionCard from "@/components/cards/energy/total-consumption-card";
 import DaySelector from "@/components/date/day-selector";
@@ -13,6 +13,7 @@ import { env } from "@/env";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getSimulationSolarSettings, isSolarSimulationValid } from "@/server/queries/simulations";
+import { getUserData } from "@/server/queries/user";
 import { format, isSameDay, startOfDay } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { de } from "date-fns/locale";
@@ -35,7 +36,9 @@ export default async function EnergyPage(props: Props) {
 		return null;
 	}
 	const solarSettings = await getSimulationSolarSettings(user.id);
+	const userData = await getUserData(user.id);
 	const hasSolar = isSolarSimulationValid(solarSettings);
+	const showSolarFeedIn = userData?.showSolarFeedIn ?? false;
 	const canShowForecast = hasSolar && Boolean(solarSettings?.location && env.WEATHERAPI_KEY);
 
 	const searchParams = await props.searchParams;
@@ -103,23 +106,23 @@ export default async function EnergyPage(props: Props) {
 			<Suspense fallback={<Skeleton className="h-56" />}>
 				<LeastEnergyConsumptionCard start={date} agg="hour" />
 			</Suspense>
+			<Suspense fallback={<Skeleton className="h-56" />}>
+				{showSolarFeedIn ? <HighestFeedInCard start={date} agg="hour" /> : null}
+			</Suspense>
 			<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
 				<EnergyBarCard start={date} compareStart={compare} type="day" className="col-span-1 md:col-span-3" />
 			</Suspense>
 			<Suspense fallback={<SolarProductionCardSkeleton className="col-span-1 md:col-span-3" />}>
-				<SolarProductionCard
-					start={date}
-					compareStart={compare}
-					type="day"
-					className="col-span-1 md:col-span-3"
-				/>
+				{showSolarFeedIn ? (
+					<SolarProductionCard
+						start={date}
+						compareStart={compare}
+						type="day"
+						className="col-span-1 md:col-span-3"
+					/>
+				) : null}
 			</Suspense>
-			{hasSolar ? (
-				<Suspense fallback={<SolarHistoryCardSkeleton className="col-span-1 md:col-span-3" />}>
-					<SolarHistoryCard end={date} className="col-span-1 md:col-span-3" />
-				</Suspense>
-			) : null}
-			{canShowForecast ? (
+			{canShowForecast && showSolarFeedIn ? (
 				<Suspense fallback={<SolarForecastCardSkeleton className="col-span-1 md:col-span-3" />}>
 					<SolarForecastCard className="col-span-1 md:col-span-3" />
 				</Suspense>

@@ -2,7 +2,7 @@ import CostBarCard from "@/components/cards/cost/cost-bar-card";
 import CostGoalsCard from "@/components/cards/cost/cost-goal-card";
 import CostPredictionCard from "@/components/cards/cost/cost-prediction-card";
 import LeastCostCard from "@/components/cards/cost/least-cost-card";
-import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
+import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost-card";
 import DaySelector from "@/components/date/day-selector";
 import { CostPageLayout } from "@/components/layouts/cost-page.layout";
 import { Skeleton } from "@/components/ui/skeleton";

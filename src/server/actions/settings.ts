@@ -259,3 +259,91 @@ export async function updateEnergyTariffAction(data: z.infer<typeof energyTarfif
 		};
 	}
 }
+
+export async function toggleSolarFeedInVisualizationAction(enabled: boolean) {
+	try {
+		const { user } = await getCurrentSession();
+		const cookieStore = await cookies();
+		const sid = cookieStore.get("sid")?.value;
+
+		if (!user) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.TOGGLE_SOLAR_FEED_IN_VISUALIZATION_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: ErrorTypes.NOT_LOGGED_IN,
+						user: null,
+						session: sid,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sie mssen angemeldet sein.",
+			};
+		}
+
+		if (user.id === "demo") {
+			await updateDemoUserData({
+				showSolarFeedIn: enabled,
+			});
+			revalidatePath("/settings");
+			revalidatePath("/energy");
+			revalidatePath("/dashboard");
+			return {
+				success: true,
+				message: "Darstellung erfolgreich aktualisiert.",
+			};
+		}
+
+		const oldData = await db
+			.select({
+				showSolarFeedIn: userDataTable.showSolarFeedIn,
+			})
+			.from(userDataTable)
+			.where(eq(userDataTable.userId, user.id))
+			.limit(1);
+		await db.update(userDataTable).set({ showSolarFeedIn: enabled }).where(eq(userDataTable.userId, user.id));
+		revalidatePath("/settings");
+		revalidatePath("/energy");
+		revalidatePath("/dashboard");
+		waitUntil(
+			logAction({
+				fn: LogActionTypes.TOGGLE_SOLAR_FEED_IN_VISUALIZATION_ACTION,
+				result: "success",
+				details: {
+					user: user.id,
+					session: sid,
+					success: true,
+					reason: null,
+					data: {
+						old: oldData[0]?.showSolarFeedIn ?? false,
+						new: enabled,
+					},
+				},
+			}),
+		);
+		return {
+			success: true,
+			message: "Darstellung erfolgreich aktualisiert.",
+		};
+	} catch (err) {
+		console.error(err);
+		waitUntil(
+			logError({
+				fn: LogActionTypes.TOGGLE_SOLAR_FEED_IN_VISUALIZATION_ACTION,
+				error: err as unknown as Error,
+				details: {
+					user: null,
+					session: null,
+				},
+			}),
+		);
+		return {
+			success: false,
+			message: "Es ist ein unerwarteter Fehler aufgetreten.",
+		};
+	}
+}

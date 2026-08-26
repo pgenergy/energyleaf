@@ -1,12 +1,13 @@
 import { endOfDay } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
-import { SunIcon } from "lucide-react";
 import Link from "next/link";
-import SolarProductionChart, { type SolarProductionPoint } from "@/components/charts/energy/solar-production-chart";
+import EnergyBarChart from "@/components/charts/energy/bar-chart";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ChartConfig } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TimeZoneType, TimezoneTypeToTimeZone } from "@/lib/enums";
+import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getEnergyForSensorInRange, hasSolarInputForSensor } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
@@ -23,23 +24,20 @@ interface Props {
 
 function getDescription(type: Props["type"]) {
 	if (type === "week") {
-		return "Ihre gemessene Solareinspeisung nach Wochentagen.";
+		return "Detailansicht nach Wochentagen.";
 	}
 
 	if (type === "month") {
-		return "Ihre gemessene Solareinspeisung nach Wochen.";
+		return "Detailansicht nach Wochen.";
 	}
 
-	return "Ihre gemessene Solareinspeisung im Tagesverlauf.";
+	return "Ihre Einspeisung aggregiert in Stunden.";
 }
 
 function SolarProductionCardHeader({ type }: Pick<Props, "type">) {
 	return (
 		<CardHeader>
-			<CardTitle className="flex items-center gap-2">
-				<SunIcon className="size-4 text-chart-4" />
-				Solareinspeisung
-			</CardTitle>
+			<CardTitle>Solareinspeisung</CardTitle>
 			<CardDescription>{getDescription(type)}</CardDescription>
 		</CardHeader>
 	);
@@ -53,10 +51,6 @@ export function SolarProductionCardSkeleton({ className }: Pick<Props, "classNam
 				<Skeleton className="h-4 w-72 max-w-full" />
 			</CardHeader>
 			<CardContent className="space-y-6">
-				<div className="space-y-2">
-					<Skeleton className="h-8 w-32" />
-					<Skeleton className="h-4 w-44" />
-				</div>
 				<Skeleton className="h-56 w-full" />
 			</CardContent>
 		</Card>
@@ -74,10 +68,7 @@ export default async function SolarProductionCard(props: Props) {
 		return (
 			<Card className={props.className}>
 				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
-						<SunIcon className="size-4 text-chart-4" />
-						Photovoltaik einrichten
-					</CardTitle>
+					<CardTitle>Photovoltaik einrichten</CardTitle>
 					<CardDescription>
 						Hinterlegen Sie zuerst die Daten Ihrer Solaranlage, um die Einspeisung auszuwerten.
 					</CardDescription>
@@ -108,9 +99,8 @@ export default async function SolarProductionCard(props: Props) {
 			<Card className={props.className}>
 				<SolarProductionCardHeader type={props.type} />
 				<CardContent>
-					<p className="text-center text-muted-foreground">
-						Ihre Solaranlage ist eingerichtet, aber der Stromzähler hat noch keine Einspeisedaten
-						übermittelt.
+					<p className="text-center font-mono font-semibold">
+						Ihr Stromzähler hat bisher keine Einspeisedaten übermittelt.
 					</p>
 				</CardContent>
 			</Card>
@@ -135,35 +125,42 @@ export default async function SolarProductionCard(props: Props) {
 	}
 
 	const timezone = TimezoneTypeToTimeZone[user.timezone || TimeZoneType.Europe_Berlin];
-	const toChartData = (rows: typeof data): SolarProductionPoint[] =>
+	const toChartData = (rows: typeof data): EnergyData[] =>
 		rows.map((row) => ({
-			production: Number((row.inserted ?? 0).toFixed(3)),
+			...row,
 			timestamp: fromZonedTime(row.timestamp, timezone),
 		}));
+
 	const chartData = toChartData(data);
 	const chartCompareData = compareData ? toChartData(compareData) : undefined;
-	const total = chartData.reduce((sum, point) => sum + point.production, 0);
-	const compareTotal = chartCompareData?.reduce((sum, point) => sum + point.production, 0);
+
+	const chartConfig = {
+		inserted: {
+			label: "Einspeisung (kWh)",
+			color: "var(--chart-4)",
+		},
+		insertedCompare: {
+			label: "Vorperiode: Einspeisung (kWh)",
+			color: "var(--chart-1)",
+		},
+	} satisfies ChartConfig;
 
 	return (
 		<Card className={props.className}>
 			<SolarProductionCardHeader type={props.type} />
-			<CardContent className="space-y-6">
-				<div>
-					<p className="font-mono font-semibold text-2xl tabular-nums">{total.toFixed(2)} kWh</p>
-					<p className="text-muted-foreground text-sm">im ausgewählten Zeitraum ins Netz eingespeist</p>
-					{compareTotal !== undefined ? (
-						<p className="mt-1 text-muted-foreground text-sm">
-							Vergleich: <span className="font-mono tabular-nums">{compareTotal.toFixed(2)} kWh</span>
-						</p>
-					) : null}
-				</div>
-
+			<CardContent>
 				{chartData.length > 0 ? (
-					<SolarProductionChart data={chartData} compareData={chartCompareData} dateFormat={aggregation} />
+					<EnergyBarChart
+						data={chartData}
+						compareData={chartCompareData}
+						dateFormat={aggregation}
+						display={["inserted"]}
+						dataKey="inserted"
+						config={chartConfig}
+					/>
 				) : (
-					<p className="py-16 text-center font-mono font-semibold text-muted-foreground">
-						Für diesen Zeitraum stehen keine Messwerte zur Verfügung.
+					<p className="text-center font-mono font-semibold">
+						Derzeit stehen keine Daten zur Verfügung.
 					</p>
 				)}
 			</CardContent>

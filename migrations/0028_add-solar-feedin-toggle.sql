@@ -1,0 +1,1 @@
+ALTER TABLE "user_data" ADD COLUMN "show_solar_feedin" boolean NOT NULL DEFAULT false;

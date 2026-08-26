@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { cn } from "@/lib/utils";
 import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
+import { getUserData } from "@/server/queries/user";
 import { runSimulationsWithWarmup, type SimulationFilters } from "@/server/lib/simulation/run";
 import { getEnergyForSensorInRange } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
@@ -31,7 +32,7 @@ function CardHead(props: HeadProps) {
 
 	let text = `${format(props.start, "PPP", { locale: de })} - ${format(props.end, "PPP", { locale: de })}`;
 	if (today) {
-		text = "Ihr Verbrauch heute";
+		text = "Ihr Netzbezug heute";
 	} else if (sameDay) {
 		text = format(props.start, "PPP", { locale: de });
 	}
@@ -40,7 +41,7 @@ function CardHead(props: HeadProps) {
 		<CardHeader>
 			<CardTitle className="flex items-center gap-1">
 				<ZapIcon className="size-4" />
-				Verbrauch
+				Energieübersicht
 			</CardTitle>
 			<CardDescription>{text}</CardDescription>
 		</CardHeader>
@@ -53,10 +54,14 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 		return null;
 	}
 
+	const [userData, energySensorId] = await Promise.all([
+		getUserData(user.id),
+		getEnergySensorIdForUser(user.id),
+	]);
+
 	const start = startOfDay(props.start || new Date());
 	const end = endOfDay(props.end || start);
 
-	const energySensorId = await getEnergySensorIdForUser(user.id);
 	if (!energySensorId) {
 		return (
 			<Card className={props.className}>
@@ -117,6 +122,11 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 	}
 
 	const value = data.reduce((acc, curr) => curr.consumption + acc, 0);
+	const showSolarFeedIn = userData?.showSolarFeedIn ?? false;
+	const feedInValue = showSolarFeedIn
+		? data.reduce((acc, curr) => acc + (curr.inserted ?? 0), 0)
+		: null;
+
 	let compareValue: number | null = null;
 	let diff: number | null = null;
 	if (compareData) {
@@ -128,6 +138,11 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 			<CardHead start={start} end={end} />
 			<CardContent>
 				<p className="font-mono font-semibold">{value.toFixed(2)} kWh</p>
+				{feedInValue !== null ? (
+					<p className="mt-1 font-mono text-sm text-muted-foreground">
+						Einspeisung: {feedInValue.toFixed(2)} kWh
+					</p>
+				) : null}
 				{simValue !== null ? (
 					<p className="mt-2 font-mono text-sm text-muted-foreground">
 						Mit Simulation: {simValue.toFixed(2)} kWh
@@ -145,7 +160,7 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 						)}
 					>
 						{diff === 1 ? (
-							<>ca. gleicher Verbrauch: {compareValue.toFixed(2)} kWh</>
+							<>ca. gleicher Bezug: {compareValue.toFixed(2)} kWh</>
 						) : (
 							<>
 								{diff < 1 ? (
@@ -154,7 +169,7 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 									<ArrowUpIcon className="mr-1 size-3" />
 								)}
 								{(diff < 1 ? 100 - diff * 100 : diff * 100 - 100).toFixed(0)} %{" "}
-								{diff > 1 ? "mehr Verbrauch" : diff < 1 ? "weniger Verbrauch" : "gleicher Verbrauch"}:{" "}
+								{diff > 1 ? "mehr Bezug" : diff < 1 ? "weniger Bezug" : "gleicher Bezug"}:{" "}
 								{compareValue.toFixed(2)} kWh
 							</>
 						)}

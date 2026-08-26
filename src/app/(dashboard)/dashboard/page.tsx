@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import CostBarCard from "@/components/cards/cost/cost-bar-card";
 import CostPredictionCard from "@/components/cards/cost/cost-prediction-card";
-import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost";
+import TotalEnergyCostCard from "@/components/cards/cost/total-energy-cost-card";
 import DetailEnergyChartCard from "@/components/cards/energy/detail-energy-chart-card";
+import DetailSolarProductionCard from "@/components/cards/energy/detail-solar-production-card";
 import EnergyBarCard from "@/components/cards/energy/energy-bar-card";
 import EnergyGoalsCard from "@/components/cards/energy/energy-goals-card";
 import SolarProductionCard, { SolarProductionCardSkeleton } from "@/components/cards/energy/solar-production-card";
@@ -23,6 +24,7 @@ import {
 } from "@/lib/dashboard-components";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getDashboardConfig } from "@/server/queries/dashboard";
+import { getUserData } from "@/server/queries/user";
 import {
 	getEnabledSimulations,
 	getSimulationSolarSettings,
@@ -47,6 +49,8 @@ export default async function DashboardPage() {
 		getSimulationSolarSettings(user.id),
 	]);
 	const hasSolar = isSolarSimulationValid(solarSettings);
+	const userData = await getUserData(user.id);
+	const showSolarFeedIn = userData?.showSolarFeedIn ?? false;
 
 	const hasSimulations = !!(
 		enabledSimulations.ev ||
@@ -118,7 +122,17 @@ export default async function DashboardPage() {
 					</Suspense>
 				)}
 
-				{hasSolar && isActive("solar-production") && (
+				{showSolarFeedIn && isActive("detail-solar-production") && (
+					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
+						<DetailSolarProductionCard
+							title="Übersicht der Solareinspeisung"
+							description="Detallierte Ansicht Ihrer Einspeisung ins Stromnetz"
+							className="col-span-1 md:col-span-3"
+						/>
+					</Suspense>
+				)}
+
+				{hasSolar && showSolarFeedIn && isActive("solar-production") && (
 					<Suspense fallback={<SolarProductionCardSkeleton className="col-span-1 md:col-span-3" />}>
 						<SolarProductionCard start={startOfToday} type="day" className="col-span-1 md:col-span-3" />
 					</Suspense>

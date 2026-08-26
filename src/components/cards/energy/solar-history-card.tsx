@@ -1,6 +1,5 @@
 import { endOfDay, format, startOfDay, subDays } from "date-fns";
 import { de } from "date-fns/locale";
-import { HistoryIcon } from "lucide-react";
 import SolarHistoryChart, { type SolarHistoryPoint } from "@/components/charts/energy/solar-history-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -67,10 +66,7 @@ export default async function SolarHistoryCard({ end, className }: Props) {
 	return (
 		<Card className={className}>
 			<CardHeader>
-				<CardTitle className="flex items-center gap-2">
-					<HistoryIcon className="size-4 text-chart-4" />
-					Solarhistorie
-				</CardTitle>
+				<CardTitle>Solarhistorie</CardTitle>
 				<CardDescription>Gemessene Einspeisung der letzten 14 Tage bis zum ausgewählten Datum.</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-5">

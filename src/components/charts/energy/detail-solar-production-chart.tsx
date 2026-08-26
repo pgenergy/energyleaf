@@ -16,16 +16,13 @@ import type { EnergyData } from "@/server/db/tables/sensor";
 
 interface Props<T extends ChartConfig> {
 	data: EnergyData[];
-	simData?: EnergyData[];
 	dateFormat: "hour" | "day" | "weekday" | "calender-week" | "week";
 	config: T;
 	display: Extract<keyof T, string>[];
 	dataKey: Extract<keyof T, string>;
-	/** Field of the sensor data to plot as the primary value (defaults to consumption). */
-	valueKey?: "consumption" | "inserted";
 }
 
-export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>) {
+export default function DetailSolarProductionChart<T extends ChartConfig>(props: Props<T>) {
 	const preparedData = useMemo(() => {
 		function formatTimestamp(d: Date) {
 			let timestamp = d.toISOString();
@@ -61,56 +58,20 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 			return timestamp;
 		}
 
-		const simDataMap = new Map<string, EnergyData>();
-		if (props.simData) {
-			for (const d of props.simData) {
-				simDataMap.set(d.timestamp.toISOString(), d);
-			}
-		}
-
-		const hasDifference = props.data.map((d) => {
-			const simPoint = simDataMap.get(d.timestamp.toISOString());
-			return simPoint !== undefined && simPoint.consumption !== d.consumption;
-		});
-
-		return props.data.map((d, i) => {
-			const simPoint = simDataMap.get(d.timestamp.toISOString());
-			const showSimValue =
-				simPoint !== undefined && (hasDifference[i] || hasDifference[i - 1] || hasDifference[i + 1]);
-
-			return {
-				...d,
-				total: d[props.valueKey ?? "consumption"] ?? 0,
-				simTotal: showSimValue ? simPoint.consumption : undefined,
-				timestamp: formatTimestamp(d.timestamp),
-			};
-		});
-	}, [props.data, props.simData, props.dateFormat]);
-
-	const effectiveConfig = useMemo(() => {
-		if (!props.simData || props.simData.length === 0) {
-			return props.config;
-		}
-		return {
-			...props.config,
-			simTotal: {
-				label: "Mit Simulation (kWh)",
-				color: "var(--chart-5)",
-			},
-		} as T;
-	}, [props.config, props.simData]);
-
-	const hasSimData = props.simData && props.simData.length > 0;
+		return props.data.map((d) => ({
+			...d,
+			total: d.inserted ?? 0,
+			timestamp: formatTimestamp(d.timestamp),
+		}));
+	}, [props.data, props.dateFormat]);
 
 	const yAxisDomain = useMemo(() => {
-		const valueKey = props.valueKey ?? "consumption";
-		const dataMax = Math.max(...props.data.map((d) => d[valueKey] ?? 0));
-		const simMax = props.simData ? Math.max(...props.simData.map((d) => d[valueKey] ?? 0)) : 0;
-		return [0, Math.max(dataMax, simMax)];
-	}, [props.data, props.simData, props.valueKey]);
+		const dataMax = Math.max(0, ...props.data.map((d) => d.inserted ?? 0));
+		return [0, dataMax];
+	}, [props.data]);
 
 	return (
-		<ChartContainer className="min-h-56 max-h-96 w-full" config={effectiveConfig}>
+		<ChartContainer className="min-h-56 max-h-96 w-full" config={props.config}>
 			<AreaChart
 				accessibilityLayer
 				className="select-none"
@@ -148,17 +109,6 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 						stroke={`var(--color-${d})`}
 					/>
 				))}
-				{hasSimData && (
-					<Area
-						key="simTotal"
-						dataKey="simTotal"
-						type="step"
-						fill="var(--color-simTotal)"
-						fillOpacity={0.3}
-						stroke="var(--color-simTotal)"
-						strokeDasharray="4 4"
-					/>
-				)}
 			</AreaChart>
 		</ChartContainer>
 	);

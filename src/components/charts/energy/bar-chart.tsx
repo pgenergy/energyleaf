@@ -24,92 +24,76 @@ interface Props<T extends ChartConfig> {
 	dataKey: Extract<keyof T, string>;
 }
 
+type DataPoint = EnergyData & { cost?: number };
+
 export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 	const shouldShowSimData = !props.compareData && props.simData && props.simData.length > 0;
 
 	const preparedData = useMemo(() => {
 		function formatTimestamp(d: Date) {
-			let timestamp = d.toISOString();
-
 			if (props.dateFormat === "hour") {
-				timestamp = `${format(d, "HH", {
-					locale: de,
-				})} Uhr`;
+				return `${format(d, "HH", { locale: de })} Uhr`;
 			}
-
 			if (props.dateFormat === "day") {
-				timestamp = format(d, "dd", {
-					locale: de,
-				});
+				return format(d, "dd", { locale: de });
 			}
-
 			if (props.dateFormat === "weekday") {
-				timestamp = format(d, "EEEEEE", {
-					locale: de,
-				});
+				return format(d, "EEEEEE", { locale: de });
 			}
-
 			if (props.dateFormat === "calender-week") {
-				timestamp = format(d, "ww", {
-					locale: de,
-				});
+				return format(d, "ww", { locale: de });
 			}
-
 			if (props.dateFormat === "week") {
-				timestamp = `Woche ${getWeekOfMonth(d, { weekStartsOn: 1 })}`;
+				return `Woche ${getWeekOfMonth(d, { weekStartsOn: 1 })}`;
 			}
-
-			return timestamp;
+			return d.toISOString();
 		}
 
-		const simDataMap = new Map<string, EnergyData & { cost?: number }>();
+		const simDataMap = new Map<string, DataPoint>();
 		if (shouldShowSimData && props.simData) {
 			for (const d of props.simData) {
 				simDataMap.set(d.timestamp.toISOString(), d);
 			}
 		}
 
-		const data = props.data.map((d) => {
+		const current = props.data.map((d) => {
 			const simPoint = simDataMap.get(d.timestamp.toISOString());
 			return {
 				...d,
-				total: d.consumption,
-				simTotal: simPoint ? simPoint.consumption : undefined,
-				simConsumption: simPoint?.consumption,
-				simCost: simPoint?.cost,
 				timestamp: formatTimestamp(d.timestamp),
+				simTotal: simPoint ? simPoint.consumption : undefined,
 			};
 		});
 
 		if (!props.compareData) {
-			return data;
+			return current;
 		}
 
-		const compareData = props.compareData.map((d) => ({
-			totalCompare: d.consumption,
+		const compare = props.compareData.map((d) => ({
 			consumptionCompare: d.consumption,
 			insertedCompare: d.inserted,
 			costCompare: d.cost,
 			timestamp: formatTimestamp(d.timestamp),
 		}));
 
-		if (data.length >= compareData.length) {
-			return data.map((d) => ({
+		if (current.length >= compare.length) {
+			return current.map((d) => ({
 				...d,
-				totalCompare: compareData.find((c) => c.timestamp === d.timestamp)?.totalCompare || null,
-				consumptionCompare: compareData.find((c) => c.timestamp === d.timestamp)?.consumptionCompare || null,
-				insertedCompare: compareData.find((c) => c.timestamp === d.timestamp)?.insertedCompare || null,
-				costCompare: compareData.find((c) => c.timestamp === d.timestamp)?.costCompare || null,
-			}));
-		} else {
-			return compareData.map((d) => ({
-				...d,
-				total: data.find((c) => c.timestamp === d.timestamp)?.total || null,
-				consumption: data.find((c) => c.timestamp === d.timestamp)?.consumption || null,
-				inserted: data.find((c) => c.timestamp === d.timestamp)?.inserted || null,
-				cost: data.find((c) => c.timestamp === d.timestamp)?.cost || null,
+				consumptionCompare: compare.find((c) => c.timestamp === d.timestamp)?.consumptionCompare ?? null,
+				insertedCompare: compare.find((c) => c.timestamp === d.timestamp)?.insertedCompare ?? null,
+				costCompare: compare.find((c) => c.timestamp === d.timestamp)?.costCompare ?? null,
 			}));
 		}
+
+		return compare.map((d) => {
+			const match = current.find((c) => c.timestamp === d.timestamp);
+			return {
+				...d,
+				consumption: match?.consumption ?? null,
+				inserted: match?.inserted ?? null,
+				cost: match?.cost ?? null,
+			};
+		});
 	}, [props.data, props.dateFormat, props.compareData, props.simData, shouldShowSimData]);
 
 	const effectiveConfig = useMemo(() => {
@@ -126,11 +110,21 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 	}, [props.config, shouldShowSimData]);
 
 	const yAxisDomain = useMemo(() => {
-		const dataMax = Math.max(...props.data.map((d) => d.consumption));
-		const compareMax = props.compareData ? Math.max(...props.compareData.map((d) => d.consumption)) : 0;
-		const simMax = props.simData ? Math.max(...props.simData.map((d) => d.consumption)) : 0;
-		return [0, Math.max(dataMax, compareMax, simMax)];
-	}, [props.data, props.compareData, props.simData]);
+		const keys = props.display as string[];
+		const allData = [
+			...props.data,
+			...(props.compareData ?? []),
+			...(props.simData ?? []),
+		];
+		const values = allData.flatMap((d) => keys.map((key) => Number(d[key as keyof typeof d] ?? 0)));
+		const max = values.length > 0 ? Math.max(...values) : 0;
+		return [0, max];
+	}, [props.data, props.compareData, props.simData, props.display]);
+
+	const compareDisplayKeys = useMemo(
+		() => props.display.map((d) => `${d}Compare`),
+		[props.display],
+	);
 
 	return (
 		<ChartContainer className="min-h-56 max-h-96 w-full" config={effectiveConfig}>
@@ -153,7 +147,9 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 					<Bar key={d} dataKey={d} fill={`var(--color-${d})`} radius={8} />
 				))}
 				{props.compareData ? (
-					<Bar dataKey={`${props.display}Compare`} fill={`var(--color-${props.display}Compare`} radius={8} />
+					compareDisplayKeys.map((key) => (
+						<Bar key={key} dataKey={key} fill={`var(--color-${key})`} radius={8} />
+					))
 				) : null}
 				{shouldShowSimData && <Bar dataKey="simTotal" fill="var(--color-simTotal)" radius={8} />}
 			</BarChart>
