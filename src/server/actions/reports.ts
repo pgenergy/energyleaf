@@ -1,7 +1,7 @@
 "use server";
 
 import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
-import { accountInfoSchema, anomalySchema, type reportConfigSchema } from "@/lib/schemas/profile-schema";
+import { anomalySchema, reportConfigSchema } from "@/lib/schemas/profile-schema";
 import { waitUntil } from "@vercel/functions";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -87,7 +87,7 @@ export async function updateAnomalyAction(data: z.infer<typeof anomalySchema>) {
 					success: true,
 					data: {
 						old: {
-							anomaly: reportConfig[0].anomaly,
+							anomaly: reportConfig[0]?.anomaly ?? null,
 						},
 						new: {
 							anomaly: data.active,
@@ -144,7 +144,7 @@ export async function updateReportConfigAction(data: z.infer<typeof reportConfig
 			};
 		}
 
-		const valid = accountInfoSchema.safeParse(data);
+		const valid = reportConfigSchema.safeParse(data);
 		if (!valid.success) {
 			waitUntil(
 				logAction({
@@ -195,8 +195,8 @@ export async function updateReportConfigAction(data: z.infer<typeof reportConfig
 					reason: null,
 					data: {
 						old: {
-							active: reportConfig[0].reports,
-							days: reportConfig[0].days,
+							active: reportConfig[0]?.reports ?? null,
+							days: reportConfig[0]?.days ?? null,
 						},
 						new: {
 							active: data.active,

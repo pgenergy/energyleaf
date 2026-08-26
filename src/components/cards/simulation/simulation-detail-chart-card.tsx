@@ -109,6 +109,7 @@ export default async function SimulationDetailChartCard(props: Props) {
 					display={["total"]}
 					dataKey="total"
 					dateFormat="hour"
+					unit="kWh"
 				/>
 			</CardContent>
 		</Card>

@@ -145,6 +145,7 @@ export default async function EnergyBarCard(props: Props) {
 					display={["consumption"]}
 					dataKey="consumption"
 					config={chartConfig}
+					unit="kWh"
 				/>
 			</CardContent>
 		</Card>

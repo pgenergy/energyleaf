@@ -24,6 +24,8 @@ export default function AdminCreateUserForm() {
 		passwordRepeat: "",
 		isAdmin: false,
 		isParticipant: false,
+		userID: "",
+		activeImmediately: false,
 	};
 
 	const form = useForm({
@@ -93,6 +95,28 @@ export default function AdminCreateUserForm() {
 										autoComplete="family-name"
 										aria-invalid={isInvalid}
 									/>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					/>
+					<form.Field
+						name="userID"
+						children={(field) => {
+							const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field className="col-span-1 md:col-span-2" data-invalid={isInvalid}>
+									<FieldLabel htmlFor={field.name}>Pseudonym (optional)</FieldLabel>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="z.B. P001 — leer lassen für zufällige ID"
+										aria-invalid={isInvalid}
+									/>
+									<FieldDescription>Falls leer, wird eine zufällige ID generiert.</FieldDescription>
 									{isInvalid && <FieldError errors={field.state.meta.errors} />}
 								</Field>
 							);
@@ -229,6 +253,26 @@ export default function AdminCreateUserForm() {
 									<FieldLabel htmlFor={field.name}>Teilnehmer</FieldLabel>
 									<FieldDescription>
 										Markiert den Benutzer als Teilnehmer einer Studie.
+									</FieldDescription>
+								</div>
+								<Switch
+									id={field.name}
+									checked={field.state.value}
+									onCheckedChange={(checked) => field.handleChange(checked)}
+								/>
+							</div>
+						</Field>
+					)}
+				/>
+				<form.Field
+					name="activeImmediately"
+					children={(field) => (
+						<Field>
+							<div className="flex items-center justify-between">
+								<div className="flex flex-col gap-1">
+									<FieldLabel htmlFor={field.name}>Sofort aktivieren</FieldLabel>
+									<FieldDescription>
+										Der Nutzer kann sich sofort anmelden, ohne manuelle Aktivierung.
 									</FieldDescription>
 								</div>
 								<Switch

@@ -105,14 +105,14 @@ export const ElectricityMeterDisplay: Record<ElectricityMeterValue, string> = {
 };
 
 export enum HouseType {
-	Apartement = "apartement",
+	Apartment = "apartment",
 	House = "house",
 }
 
 export type HouseTypeKey = keyof typeof HouseType;
 export type HouseTypeValue = (typeof HouseType)[keyof typeof HouseType];
 export const HouseTypeDisplay: Record<HouseTypeValue, string> = {
-	apartement: "Apartement",
+	apartment: "Wohnung",
 	house: "Haus",
 };
 
@@ -156,16 +156,16 @@ export const TimezoneTypeToTimeZone: Record<TimezoneTypeValue, string> = {
 };
 
 export enum ChargingSpeed {
-	Seven = "7kwh",
-	Eleven = "11kwh",
+	Seven = "7kW",
+	Eleven = "11kW",
 }
 
 export type ChargingSpeedKey = keyof typeof ChargingSpeed;
 export type ChargingSpeedValue = (typeof ChargingSpeed)[keyof typeof ChargingSpeed];
 
 export const ChargingSpeedDisplay: Record<ChargingSpeedValue, string> = {
-	"7kwh": "7 kW",
-	"11kwh": "11 kW",
+	"7kW": "7 kW",
+	"11kW": "11 kW",
 };
 
 export enum SolarOrientation {

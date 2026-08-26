@@ -193,6 +193,7 @@ export default async function CostBarCard(props: Props) {
 					display={["cost"]}
 					dataKey="cost"
 					config={chartConfig}
+					unit="€"
 				/>
 			</CardContent>
 		</Card>

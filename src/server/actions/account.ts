@@ -252,7 +252,7 @@ export async function updateAccountNameAction(data: z.infer<typeof accountNameSc
 				username: `${data.firstname} ${data.lastname}`,
 			})
 			.where(eq(userTable.id, user.id));
-		revalidatePath("/settings/acccount");
+		revalidatePath("/settings/account");
 		waitUntil(
 			logAction({
 				fn: LogActionTypes.UPDATE_ACCOUNT_NAME_ACTION,
@@ -366,7 +366,7 @@ export async function updateAccountInfoAction(data: z.infer<typeof accountInfoSc
 				timezone: data.timezone,
 			})
 			.where(eq(userTable.id, user.id));
-		revalidatePath("/settings/acccount");
+		revalidatePath("/settings/account");
 		waitUntil(
 			logAction({
 				fn: LogActionTypes.UPDATE_ACCOUNT_INFO_ACTION,

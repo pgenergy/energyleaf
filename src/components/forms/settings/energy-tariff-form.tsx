@@ -9,15 +9,15 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TariffType, TariffTypeDisplay, type TariffTypeValue } from "@/lib/enums";
-import { energyTarfiffSchema } from "@/lib/schemas/profile-schema";
+import { energyTariffSchema } from "@/lib/schemas/profile-schema";
 import { updateEnergyTariffAction } from "@/server/actions/settings";
 
 interface Props {
-	initialValues: z.infer<typeof energyTarfiffSchema>;
+	initialValues: z.infer<typeof energyTariffSchema>;
 }
 
-type TariffFormValues = z.input<typeof energyTarfiffSchema>;
-type TariffOutputValues = z.infer<typeof energyTarfiffSchema>;
+type TariffFormValues = z.input<typeof energyTariffSchema>;
+type TariffOutputValues = z.infer<typeof energyTariffSchema>;
 
 export default function EnergyTariffForm(props: Props) {
 	const defaultValues: TariffFormValues = {
@@ -30,7 +30,7 @@ export default function EnergyTariffForm(props: Props) {
 	const form = useForm({
 		defaultValues,
 		validators: {
-			onSubmit: energyTarfiffSchema,
+			onSubmit: energyTariffSchema,
 		},
 		onSubmit: async ({ value }) => {
 			const toastId = toast.loading("Speichern...", { duration: Infinity });
@@ -89,7 +89,7 @@ export default function EnergyTariffForm(props: Props) {
 						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
-								<FieldLabel>Monatlicher Basispreis</FieldLabel>
+								<FieldLabel>Monatlicher Basispreis (€)</FieldLabel>
 								<Input
 									type="number"
 									inputMode="decimal"
@@ -116,7 +116,7 @@ export default function EnergyTariffForm(props: Props) {
 						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
-								<FieldLabel>Arbeitspreis</FieldLabel>
+								<FieldLabel>Arbeitspreis (€/kWh)</FieldLabel>
 								<Input
 									type="number"
 									inputMode="decimal"
@@ -143,7 +143,7 @@ export default function EnergyTariffForm(props: Props) {
 						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
-								<FieldLabel>Monatlicher Abschlag</FieldLabel>
+								<FieldLabel>Monatlicher Abschlag (€)</FieldLabel>
 								<Input
 									type="number"
 									inputMode="decimal"

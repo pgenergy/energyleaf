@@ -1,7 +1,7 @@
 "use server";
 
 import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
-import { energyTarfiffSchema, householdSchema } from "@/lib/schemas/profile-schema";
+import { energyTariffSchema, householdSchema } from "@/lib/schemas/profile-schema";
 import { waitUntil } from "@vercel/functions";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -137,7 +137,7 @@ export async function updateHouseholdAction(data: z.infer<typeof householdSchema
 	}
 }
 
-export async function updateEnergyTariffAction(data: z.infer<typeof energyTarfiffSchema>) {
+export async function updateEnergyTariffAction(data: z.infer<typeof energyTariffSchema>) {
 	try {
 		const { user } = await getCurrentSession();
 		const cookieStore = await cookies();
@@ -162,7 +162,7 @@ export async function updateEnergyTariffAction(data: z.infer<typeof energyTarfif
 			};
 		}
 
-		const validate = energyTarfiffSchema.safeParse(data);
+		const validate = energyTariffSchema.safeParse(data);
 		if (!validate.success) {
 			waitUntil(
 				logAction({

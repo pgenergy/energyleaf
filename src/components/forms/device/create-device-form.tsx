@@ -134,7 +134,7 @@ export default function DeviceCreationForm(props: Props) {
 						<Field data-invalid={isInvalid}>
 							<FieldLabel htmlFor={field.name}>Geschätze Leistung</FieldLabel>
 							<FieldDescription>
-								Geben Sie hier die geschätzte Leistung Ihres Gerätes an. Wenn Sie diese nicht kennen,
+								Geben Sie hier die geschätzte Leistung Ihres Gerätes in Watt an. Wenn Sie diese nicht kennen,
 								lassen Sie das Feld leer.
 							</FieldDescription>
 							<Input
