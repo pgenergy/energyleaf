@@ -268,7 +268,7 @@ export async function updateSimulationSolarSettingsAction(
 
 		return {
 			success: true,
-			message: "Solaranlage gespeichert.",
+			message: "Solar-Simulation gespeichert.",
 		};
 	} catch (err) {
 		console.error(err);

@@ -22,13 +22,9 @@ export const env = createEnv({
 
 		NODEMAILER_MAIL: z.string().email().optional(),
 		NODEMAILER_ENDPOINT: z.string().optional(),
-		NODEMAILER_PORT: z
-			.string()
-			.transform((val) => Number(val))
-			.refine((val) => val > 0)
-			.optional(),
+		NODEMAILER_PORT: z.string().transform((val) => Number(val)).refine((val) => val > 0).optional(),
 
-		// WeatherAPI.com (optional solar forecast)
+		// Weather Forecast
 		WEATHERAPI_KEY: z.string().min(1).optional(),
 
 		// Settings
