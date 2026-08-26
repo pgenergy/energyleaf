@@ -156,6 +156,7 @@ export default async function SolarProductionCard(props: Props) {
 						dateFormat={aggregation}
 						display={["inserted"]}
 						dataKey="inserted"
+						unit="kWh"
 						config={chartConfig}
 					/>
 				) : (

@@ -1,7 +1,7 @@
 import { endOfDay, startOfDay } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 import Link from "next/link";
-import DetailSolarProductionChart from "@/components/charts/energy/detail-solar-production-chart";
+import DetailEnergyChart from "@/components/charts/energy/detail-chart";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ChartConfig } from "@/components/ui/chart";
@@ -108,7 +108,7 @@ export default async function DetailSolarProductionCard(props: Props) {
 				<CardDescription>{props.description}</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<DetailSolarProductionChart
+				<DetailEnergyChart
 					data={data.map((d) => ({
 						...d,
 						timestamp: fromZonedTime(d.timestamp, tz),
@@ -117,6 +117,8 @@ export default async function DetailSolarProductionCard(props: Props) {
 					display={["total"]}
 					dataKey="total"
 					dateFormat="hour"
+					valueKey="inserted"
+					unit="kWh"
 				/>
 			</CardContent>
 		</Card>
