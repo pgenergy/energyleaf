@@ -3,7 +3,7 @@
 import { format, getWeekOfMonth } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
-import { Area, AreaChart, Label, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, XAxis, YAxis } from "recharts";
 import {
 	type ChartConfig,
 	ChartContainer,
@@ -13,6 +13,7 @@ import {
 	ChartTooltipContent,
 } from "@/components/ui/chart";
 import type { EnergyData } from "@/server/db/tables/sensor";
+import { niceCeiling } from "@/lib/utils";
 
 interface Props<T extends ChartConfig> {
 	data: EnergyData[];
@@ -106,7 +107,7 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 		const valueKey = props.valueKey ?? "consumption";
 		const dataMax = Math.max(...props.data.map((d) => d[valueKey] ?? 0));
 		const simMax = props.simData ? Math.max(...props.simData.map((d) => d[valueKey] ?? 0)) : 0;
-		return [0, Math.max(dataMax, simMax)];
+		return [0, niceCeiling(Math.max(dataMax, simMax))];
 	}, [props.data, props.simData, props.valueKey]);
 
 	return (
@@ -131,17 +132,15 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 					axisLine={false}
 					interval="equidistantPreserveStart"
 				/>
-				<YAxis>
+				<YAxis
 					dataKey={props.dataKey}
 					tickLine={false}
 					interval="preserveStartEnd"
 					type="number"
 					domain={yAxisDomain}
-					<Label
-						textAnchor="end"
-						value={props.unit}
-					/>
-				</YAxis>
+					width={80}
+					tickFormatter={(value: number) => `${value} kWh`}
+				/>
 				{props.display.map((d) => (
 					<Area
 						key={d}

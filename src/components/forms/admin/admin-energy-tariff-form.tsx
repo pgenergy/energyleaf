@@ -68,10 +68,12 @@ export default function AdminEnergyTariffForm({ userId, initialValues }: Props) 
 										<SelectValue placeholder="Wählen Sie den Tarif" />
 									</SelectTrigger>
 									<SelectContent>
-										{(Object.values(TariffType) as [TariffTypeValue]).map((value) => (
-											<SelectItem value={value} key={value}>
-												{TariffTypeDisplay[value]}
-											</SelectItem>
+										{(Object.values(TariffType) as [TariffTypeValue])
+											.filter((d) => d !== TariffType.TimeOfUse)
+											.map((value) => (
+												<SelectItem value={value} key={value}>
+													{TariffTypeDisplay[value]}
+												</SelectItem>
 										))}
 									</SelectContent>
 								</Select>

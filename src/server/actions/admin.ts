@@ -6,7 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import type { z } from "zod";
-import { type ExperimentPhaseValue, SimulationType, type SimulationTypeValue } from "@/lib/enums";
+import { type ExperimentPhaseValue, type TariffTypeValue, SimulationType, type SimulationTypeValue } from "@/lib/enums";
 import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
 import { adminCreateUserSchema, adminExperimentSchema, adminHintConfigSchema } from "@/lib/schemas/admin-schema";
 import {
@@ -248,7 +248,6 @@ export async function adminUpdateUserInfoAction(userId: string, data: z.infer<ty
 					data: {
 						old: oldData[0],
 						new: data,
-						consumptionGoal: consumptionGoalUpdate ?? null,
 					},
 				},
 			}),
@@ -480,7 +479,7 @@ export async function adminUpdateEnergyTariffAction(userId: string, data: z.infe
 			}
 		}
 
-		const updateFields: Record<string, number | TariffTypeValue> = {
+		const updateFields: Record<string, number | TariffTypeValue | undefined> = {
 			tariff: data.tariffType,
 			basePrice: data.basePrice,
 			workingPrice: data.workingPrice,
@@ -771,7 +770,6 @@ export async function adminUpdateAccountStatusAction(userId: string, data: z.inf
 					data: {
 						old: oldData[0],
 						new: data,
-						consumptionGoal: consumptionGoalUpdate ?? null,
 					},
 				},
 			}),
@@ -1840,7 +1838,6 @@ export async function adminUpdateHintConfigAction(userId: string, data: z.infer<
 							hintsEnabled: existingConfig.hintsEnabled,
 						},
 						new: data,
-						consumptionGoal: consumptionGoalUpdate ?? null,
 						stageChanged,
 					},
 				},

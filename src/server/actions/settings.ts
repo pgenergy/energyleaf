@@ -221,7 +221,7 @@ export async function updateEnergyTariffAction(data: z.infer<typeof energyTariff
 			}
 		}
 
-		const updateFields: Record<string, number | TariffTypeValue> = {
+		const updateFields: Record<string, number | TariffTypeValue | undefined> = {
 			tariff: data.tariffType,
 			basePrice: data.basePrice,
 			workingPrice: data.workingPrice,

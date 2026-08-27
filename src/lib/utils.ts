@@ -6,6 +6,15 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
+
+export function niceCeiling(value: number): number {
+	if (value <= 0) return value;
+	const scale = 10 ** (Math.floor(Math.log10(value * 1.1)) - 1);
+	const ceiling = Math.ceil((value * 1.1) / scale) * scale;
+	return Math.round(ceiling * 1000) / 1000;
+}
+
+
 export const genID = customAlphabet("123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", 25);
 
 type Success<T> = {

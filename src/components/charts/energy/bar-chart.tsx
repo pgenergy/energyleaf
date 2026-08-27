@@ -3,7 +3,7 @@
 import { format, getWeekOfMonth } from "date-fns";
 import { de } from "date-fns/locale";
 import { useMemo } from "react";
-import { Bar, BarChart, Label, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import {
 	type ChartConfig,
 	ChartContainer,
@@ -13,6 +13,7 @@ import {
 	ChartTooltipContent,
 } from "@/components/ui/chart";
 import type { EnergyData } from "@/server/db/tables/sensor";
+import { niceCeiling } from "@/lib/utils";
 
 interface Props<T extends ChartConfig> {
 	data: (EnergyData & { cost?: number })[];
@@ -119,7 +120,7 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 		];
 		const values = allData.flatMap((d) => keys.map((key) => Number(d[key as keyof typeof d] ?? 0)));
 		const max = values.length > 0 ? Math.max(...values) : 0;
-		return [0, max];
+		return [0, niceCeiling(max)];
 	}, [props.data, props.compareData, props.simData, props.display]);
 
 	const compareDisplayKeys = useMemo(
@@ -142,17 +143,17 @@ export default function EnergyBarChart<T extends ChartConfig>(props: Props<T>) {
 			>
 				<ChartLegend content={<ChartLegendContent />} />
 				<ChartTooltip content={<ChartTooltipContent />} />
-				<YAxis>
+				<YAxis
 					dataKey={props.dataKey}
 					tickLine={false}
 					interval="preserveStartEnd"
 					type="number"
 					domain={yAxisDomain}
-					<Label
-						textAnchor="end"
-						value={props.unit}
-					/>
-				</YAxis>
+					width={80}
+					tickFormatter={(value: number) =>
+						props.unit === "€" ? `${value.toFixed(2)} €` : `${value} kWh`
+					}
+				/>
 				<XAxis dataKey="timestamp" type="category" interval="equidistantPreserveStart" />
 				{props.display.map((d) => (
 					<Bar key={d} dataKey={d} fill={`var(--color-${d})`} radius={8} />
