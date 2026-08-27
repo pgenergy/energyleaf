@@ -491,7 +491,7 @@ async function fetchHintData(
 				const existing = deviceConsumption.get(dp.deviceId);
 				const durationMs = dp.peakEnd.getTime() - dp.peakStart.getTime();
 				const durationHours = Math.max(durationMs / (1000 * 60 * 60), 0.01);
-				const estimatedKwh = dp.peakPower * durationHours;
+				const estimatedKwh = (dp.peakPower * durationHours) / 1000;
 				if (existing) {
 					existing.consumption += estimatedKwh;
 				} else {

@@ -1,4 +1,4 @@
-import { startOfDay, startOfMonth, startOfWeek } from "date-fns";
+import { endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek } from "date-fns";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import CostBarCard from "@/components/cards/cost/cost-bar-card";
@@ -66,7 +66,9 @@ export default async function DashboardPage() {
 	const today = new Date();
 	const startOfToday = startOfDay(today);
 	const startOfThisWeek = startOfWeek(today, { weekStartsOn: 1 });
+	const endOfThisWeek = endOfWeek(today, { weekStartsOn: 1 });
 	const startOfThisMonth = startOfMonth(today);
+	const endOfThisMonth = endOfMonth(today);
 
 	const isActive = (id: DashboardComponentId) => activeComponents.includes(id);
 
@@ -145,12 +147,12 @@ export default async function DashboardPage() {
 				)}
 				{isActive("energy-bar-week") && (
 					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
-						<EnergyBarCard start={startOfThisWeek} type="week" className="col-span-1 md:col-span-3" />
+						<EnergyBarCard start={startOfThisWeek} end={endOfThisWeek} type="week" className="col-span-1 md:col-span-3" />
 					</Suspense>
 				)}
 				{isActive("energy-bar-month") && (
 					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
-						<EnergyBarCard start={startOfThisMonth} type="month" className="col-span-1 md:col-span-3" />
+						<EnergyBarCard start={startOfThisMonth} end={endOfThisMonth} type="month" className="col-span-1 md:col-span-3" />
 					</Suspense>
 				)}
 
@@ -161,12 +163,12 @@ export default async function DashboardPage() {
 				)}
 				{isActive("cost-bar-week") && (
 					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
-						<CostBarCard start={startOfThisWeek} type="week" className="col-span-1 md:col-span-3" />
+						<CostBarCard start={startOfThisWeek} end={endOfThisWeek} type="week" className="col-span-1 md:col-span-3" />
 					</Suspense>
 				)}
 				{isActive("cost-bar-month") && (
 					<Suspense fallback={<Skeleton className="col-span-1 h-96 md:col-span-3" />}>
-						<CostBarCard start={startOfThisMonth} type="month" className="col-span-1 md:col-span-3" />
+						<CostBarCard start={startOfThisMonth} end={endOfThisMonth} type="month" className="col-span-1 md:col-span-3" />
 					</Suspense>
 				)}
 
