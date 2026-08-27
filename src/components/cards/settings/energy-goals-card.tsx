@@ -22,7 +22,7 @@ export default async function EnergyGoalCard() {
 			<Card>
 				<CardHeader>
 					<CardTitle>Energiekosten</CardTitle>
-					<CardDescription>Passen Sie Ihre Limits zu Ihren Energiekosten an.</CardDescription>
+					<CardDescription>Passen Sie Ihr monatliches Energiekosten-Limit an. Ihr bisheriger Verbrauch wird mit dem Limit verglichen.</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="flex flex-col items-center justify-center">
@@ -38,7 +38,7 @@ export default async function EnergyGoalCard() {
 		);
 	}
 
-	const cost = data.consumptionGoal
+	const cost = data.consumptionGoal != null
 		? Math.round((data.consumptionGoal * data.workingPrice + data.basePrice) * 100) / 100
 		: 0;
 
@@ -46,7 +46,7 @@ export default async function EnergyGoalCard() {
 		<Card>
 			<CardHeader>
 				<CardTitle>Energiekosten</CardTitle>
-				<CardDescription>Passen Sie Ihre Limits zu Ihren Energiekosten an.</CardDescription>
+				<CardDescription>Passen Sie Ihr monatliches Energiekosten-Limit an. Ihr bisheriger Verbrauch wird mit dem Limit verglichen.</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<EnergyGoalForm

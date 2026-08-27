@@ -14,6 +14,7 @@ import {
 	accountNameSchema,
 	adminAccountStatusSchema,
 	batterySettingsSchema,
+	energyGoalSchema,
 	energyTariffSchema,
 	evSettingsSchema,
 	heatPumpSettingsSchema,
@@ -247,6 +248,7 @@ export async function adminUpdateUserInfoAction(userId: string, data: z.infer<ty
 					data: {
 						old: oldData[0],
 						new: data,
+						consumptionGoal: consumptionGoalUpdate ?? null,
 					},
 				},
 			}),
@@ -461,10 +463,33 @@ export async function adminUpdateEnergyTariffAction(userId: string, data: z.infe
 				basePrice: userDataTable.basePrice,
 				workingPrice: userDataTable.workingPrice,
 				monthlyPayment: userDataTable.monthlyPayment,
+				consumptionGoal: userDataTable.consumptionGoal,
 			})
 			.from(userDataTable)
 			.where(eq(userDataTable.userId, userId))
 			.limit(1);
+
+		// Recalculate consumptionGoal to keep the cost goal stable
+		let consumptionGoalUpdate: number | null = null;
+		if (existingData[0]?.consumptionGoal != null && existingData[0].workingPrice && existingData[0].basePrice) {
+			const oldCost = existingData[0].consumptionGoal * existingData[0].workingPrice + existingData[0].basePrice;
+			const newBasePrice = data.basePrice;
+			const newWorkingPrice = data.workingPrice;
+			if (newWorkingPrice > 0 && oldCost > 0) {
+				consumptionGoalUpdate = Math.round(((oldCost - newBasePrice) / newWorkingPrice) * 100) / 100;
+			}
+		}
+
+		const updateFields: Record<string, number | TariffTypeValue> = {
+			tariff: data.tariffType,
+			basePrice: data.basePrice,
+			workingPrice: data.workingPrice,
+			monthlyPayment: data.monthlyPayment,
+		};
+
+		if (consumptionGoalUpdate !== null) {
+			updateFields.consumptionGoal = consumptionGoalUpdate;
+		}
 
 		if (existingData.length === 0) {
 			// Create new user data entry
@@ -477,15 +502,7 @@ export async function adminUpdateEnergyTariffAction(userId: string, data: z.infe
 			});
 		} else {
 			// Update existing entry
-			await db
-				.update(userDataTable)
-				.set({
-					tariff: data.tariffType,
-					basePrice: data.basePrice,
-					workingPrice: data.workingPrice,
-					monthlyPayment: data.monthlyPayment,
-				})
-				.where(eq(userDataTable.userId, userId));
+			await db.update(userDataTable).set(updateFields).where(eq(userDataTable.userId, userId));
 		}
 
 		revalidatePath(`/admin/users/${userId}`);
@@ -504,6 +521,7 @@ export async function adminUpdateEnergyTariffAction(userId: string, data: z.infe
 					data: {
 						old: existingData[0] ?? null,
 						new: data,
+						consumptionGoal: consumptionGoalUpdate ?? null,
 					},
 				},
 			}),
@@ -524,6 +542,134 @@ export async function adminUpdateEnergyTariffAction(userId: string, data: z.infe
 					session: null,
 					targetUser: userId,
 				},
+			}),
+		);
+		return {
+			success: false,
+			message: "Es ist ein unerwarteter Fehler aufgetreten.",
+		};
+	}
+}
+
+export async function adminUpdateEnergyGoalAction(userId: string, data: z.infer<typeof energyGoalSchema>) {
+	try {
+		const { user } = await getCurrentSession();
+		const cookieStore = await cookies();
+		const sid = cookieStore.get("sid")?.value;
+
+		if (!user || !user.isAdmin) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_UPDATE_ENERGY_GOAL_ACTION,
+					result: "failed",
+					details: {
+						success: false,
+						reason: user ? ErrorTypes.NOT_ADMIN : ErrorTypes.NOT_LOGGED_IN,
+						user: user?.id ?? null,
+						session: sid,
+						targetUser: userId,
+					},
+				}),
+			);
+			return {
+				success: false,
+				message: "Sie sind nicht berechtigt, diese Aktion durchzuführen.",
+			};
+		}
+
+		const valid = energyGoalSchema.safeParse(data);
+		if (!valid.success) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_UPDATE_ENERGY_GOAL_ACTION,
+					result: "failed",
+					details: { success: false, reason: ErrorTypes.INVALID_INPUT, user: user.id, session: sid, targetUser: userId, data },
+				}),
+			);
+			return {
+				success: false,
+				message: "Bitte überprüfen Sie Ihre Eingaben.",
+			};
+		}
+
+		const existingData = await db
+			.select({
+				basePrice: userDataTable.basePrice,
+				workingPrice: userDataTable.workingPrice,
+				goal: userDataTable.consumptionGoal,
+			})
+			.from(userDataTable)
+			.where(eq(userDataTable.userId, userId))
+			.limit(1);
+
+		if (existingData.length === 0 || !existingData[0].workingPrice || !existingData[0].basePrice) {
+			const reason = existingData.length === 0 ? ErrorTypes.USER_NOT_FOUND : ErrorTypes.NO_TARRIF_DATA;
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_UPDATE_ENERGY_GOAL_ACTION,
+					result: "failed",
+					details: { success: false, reason, user: user.id, session: sid, targetUser: userId },
+				}),
+			);
+			return {
+				success: false,
+				message: "Für diesen Benutzer sind keine vollständigen Tarifdaten hinterlegt.",
+			};
+		}
+
+		if (existingData[0].basePrice > data.cost) {
+			waitUntil(
+				logAction({
+					fn: LogActionTypes.ADMIN_UPDATE_ENERGY_GOAL_ACTION,
+					result: "failed",
+					details: { success: false, reason: ErrorTypes.INVALID_INPUT, user: user.id, session: sid, targetUser: userId, data },
+				}),
+			);
+			return {
+				success: false,
+				message: "Der Basispreis ist höher als Ihr angegebener Preis.",
+			};
+		}
+
+		const consumption = (data.cost - existingData[0].basePrice) / existingData[0].workingPrice;
+		const roundedConsumption = Math.round(consumption * 100) / 100;
+
+		await db
+			.update(userDataTable)
+			.set({ consumptionGoal: roundedConsumption })
+			.where(eq(userDataTable.userId, userId));
+
+		revalidatePath(`/admin/users/${userId}`);
+		revalidatePath(`/admin/users/${userId}/edit`);
+		revalidatePath(`/admin/users/${userId}/edit/tariff`);
+
+		waitUntil(
+			logAction({
+				fn: LogActionTypes.ADMIN_UPDATE_ENERGY_GOAL_ACTION,
+				result: "success",
+				details: {
+					success: true,
+					reason: null,
+					user: user.id,
+					session: sid,
+					targetUser: userId,
+					data: { old: { consumptionGoal: existingData[0].goal }, new: { consumptionGoal: roundedConsumption } },
+				},
+			}),
+		);
+
+		return {
+			success: true,
+			message: "Energiekosten-Limit erfolgreich gespeichert.",
+			payload: roundedConsumption,
+		};
+	} catch (err) {
+		console.error(err);
+		waitUntil(
+			logError({
+				fn: LogActionTypes.ADMIN_UPDATE_ENERGY_GOAL_ACTION,
+				error: err as unknown as Error,
+				details: { user: null, session: null, targetUser: userId },
 			}),
 		);
 		return {
@@ -625,6 +771,7 @@ export async function adminUpdateAccountStatusAction(userId: string, data: z.inf
 					data: {
 						old: oldData[0],
 						new: data,
+						consumptionGoal: consumptionGoalUpdate ?? null,
 					},
 				},
 			}),
@@ -1693,6 +1840,7 @@ export async function adminUpdateHintConfigAction(userId: string, data: z.infer<
 							hintsEnabled: existingConfig.hintsEnabled,
 						},
 						new: data,
+						consumptionGoal: consumptionGoalUpdate ?? null,
 						stageChanged,
 					},
 				},

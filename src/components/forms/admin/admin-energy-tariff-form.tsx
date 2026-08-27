@@ -86,7 +86,7 @@ export default function AdminEnergyTariffForm({ userId, initialValues }: Props) 
 						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
-								<FieldLabel>Monatlicher Basispreis (€)</FieldLabel>
+								<FieldLabel>Monatlicher Grundpreis (€)</FieldLabel>
 								<Input
 									type="number"
 									inputMode="decimal"

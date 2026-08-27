@@ -64,7 +64,7 @@ export default async function EnergyGoalsCard(props: Props) {
 		return null;
 	}
 
-	if (!userData.consumptionGoal) {
+	if (userData.consumptionGoal == null) {
 		return (
 			<Card className={props.className}>
 				<CardHead start={start} end={end} />

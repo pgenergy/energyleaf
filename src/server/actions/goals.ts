@@ -137,7 +137,7 @@ export async function updateEnergyGoalAction(data: z.infer<typeof energyGoalSche
 		const basePrice = userData[0].basePrice;
 		const workingPrice = userData[0].workingPrice;
 
-		if (basePrice >= data.cost) {
+		if (basePrice > data.cost) {
 			waitUntil(
 				logAction({
 					fn: LogActionTypes.UPDATE_ENERGY_GOAL_ACTION,

@@ -6,6 +6,7 @@ import AdminEvForm from "@/components/forms/admin/admin-ev-form";
 import AdminExperimentForm from "@/components/forms/admin/admin-experiment-form";
 import AdminHeatPumpForm from "@/components/forms/admin/admin-heat-pump-form";
 import AdminHintConfigForm from "@/components/forms/admin/admin-hint-config-form";
+import AdminEnergyGoalForm from "@/components/forms/admin/admin-energy-goal-form";
 import AdminHouseholdForm from "@/components/forms/admin/admin-household-form";
 import AdminSolarForm from "@/components/forms/admin/admin-solar-form";
 import AdminTouTariffForm from "@/components/forms/admin/admin-tou-tariff-form";
@@ -132,6 +133,43 @@ export async function UserEnergyCard({ userId }: Props) {
 						monthlyPayment: userData?.monthlyPayment ?? 1,
 					}}
 				/>
+			</CardContent>
+		</Card>
+	);
+}
+
+export async function UserEnergyGoalCard({ userId }: Props) {
+	const userData = await getUserDataByUserId(userId);
+
+	const basePrice = userData?.basePrice;
+	const workingPrice = userData?.workingPrice;
+	const hasTariff = !!basePrice && !!workingPrice && basePrice > 0 && workingPrice > 0;
+	const cost =
+		hasTariff && userData?.consumptionGoal != null
+			? Math.round((userData.consumptionGoal * workingPrice + basePrice) * 100) / 100
+			: 0;
+
+	return (
+		<Card id="energy-goal">
+			<CardHeader>
+				<CardTitle>Energiekosten-Limit</CardTitle>
+				<CardDescription>
+					Passen Sie das monatliche Energiekosten-Limit des Benutzers an (inkl. Grundpreis).
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				{hasTariff ? (
+					<AdminEnergyGoalForm
+						userId={userId}
+						initialValues={{ energy: userData?.consumptionGoal || 0, cost }}
+						basePrice={basePrice}
+						workingPrice={workingPrice}
+					/>
+				) : (
+					<p className="text-muted-foreground text-sm">
+						Bitte zuerst Tarifdaten hinterlegen.
+					</p>
+				)}
 			</CardContent>
 		</Card>
 	);

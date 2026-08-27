@@ -132,7 +132,7 @@ function MetricsDisplay({
 					<span className="text-muted-foreground text-xs">Monatliches Budget</span>
 					<span className="font-mono font-semibold text-lg">{monthlyPayment.toFixed(2)} €</span>
 				</div>
-			) : consumptionGoal ? (
+			) : consumptionGoal != null ? (
 				<div className="flex flex-col">
 					<span className="text-muted-foreground text-xs">Verbrauchslimit</span>
 					<span className="font-mono font-semibold text-lg">{consumptionGoal.toFixed(0)} kWh</span>

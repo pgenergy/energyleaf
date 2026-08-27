@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { UserEnergyCard } from "@/components/cards/admin/user-edit-cards";
+import { UserEnergyCard, UserEnergyGoalCard } from "@/components/cards/admin/user-edit-cards";
 import AdminUserEditNav from "@/components/nav/admin-user-edit-nav";
 import {
 	Breadcrumb,
@@ -106,6 +106,9 @@ export default async function UserEditTariffPage(props: Props) {
 				<div className="flex flex-col gap-6">
 					<Suspense fallback={<Skeleton className="h-48" />}>
 						<UserEnergyCard userId={userId} />
+					</Suspense>
+					<Suspense fallback={<Skeleton className="h-48" />}>
+						<UserEnergyGoalCard userId={userId} />
 					</Suspense>
 				</div>
 			</div>

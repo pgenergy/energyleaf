@@ -8,16 +8,19 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { energyGoalSchema } from "@/lib/schemas/profile-schema";
-import { updateEnergyGoalAction } from "@/server/actions/goals";
+import { adminUpdateEnergyGoalAction } from "@/server/actions/admin";
 
 interface Props {
+	userId: string;
 	initialValues: z.infer<typeof energyGoalSchema>;
+	basePrice: number;
+	workingPrice: number;
 }
 
-export default function EnergyGoalForm(props: Props) {
+export default function AdminEnergyGoalForm({ userId, initialValues, basePrice, workingPrice }: Props) {
 	const defaultValues: z.input<typeof energyGoalSchema> = {
-		cost: props.initialValues.cost,
-		energy: props.initialValues.energy,
+		cost: initialValues.cost,
+		energy: initialValues.energy,
 	};
 
 	const form = useForm({
@@ -27,7 +30,7 @@ export default function EnergyGoalForm(props: Props) {
 		},
 		onSubmit: async ({ value }) => {
 			const toastId = toast.loading("Speichern...", { duration: Infinity });
-			const res = await updateEnergyGoalAction(value as z.infer<typeof energyGoalSchema>);
+			const res = await adminUpdateEnergyGoalAction(userId, value as z.infer<typeof energyGoalSchema>);
 			if (!res.success) {
 				toast.error(res.message, { id: toastId, duration: 4000 });
 			} else if (res.payload !== undefined) {
@@ -38,6 +41,9 @@ export default function EnergyGoalForm(props: Props) {
 	});
 
 	const pending = form.state.isSubmitting;
+
+	const cost = Number(form.state.values.cost ?? 0);
+	const computedEnergy = workingPrice > 0 ? Math.max(0, (cost - basePrice) / workingPrice) : 0;
 
 	return (
 		<form
@@ -54,9 +60,9 @@ export default function EnergyGoalForm(props: Props) {
 						const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
-								<FieldLabel>Monatliches Energiekosten-Limit (€)</FieldLabel>
+								<FieldLabel>Monatliches Energiekosten-Limit</FieldLabel>
 								<FieldDescription>
-									Ihr gewünschtes monatliches Limit für alle Energiekosten (inkl. Grundpreis).
+									Das monatliche Limit für alle Energiekosten des Benutzers (inkl. Grundpreis).<br/>Beim Grundpreis beträgt der erlaubte Verbrauch 0 kWh.
 								</FieldDescription>
 								<Input
 									type="number"
@@ -86,15 +92,15 @@ export default function EnergyGoalForm(props: Props) {
 							<Field data-invalid={isInvalid}>
 								<FieldLabel>Verbrauchslimit (kWh)</FieldLabel>
 								<FieldDescription>
-									Dieser Wert wird automatisch aus Ihrem Kosten-Limit berechnet.
+									Dieser Wert wird automatisch aus dem Kosten-Limit berechnet.
 								</FieldDescription>
 								<Input
 									type="number"
 									inputMode="decimal"
 									disabled
 									value={
-										Number.isFinite(field.state.value as number)
-											? (field.state.value as number)
+										Number.isFinite(computedEnergy)
+											? Math.round(computedEnergy * 100) / 100
 											: ""
 									}
 									onBlur={field.handleBlur}

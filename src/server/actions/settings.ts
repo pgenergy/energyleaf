@@ -1,6 +1,7 @@
 "use server";
 
 import { ErrorTypes, LogActionTypes } from "@/lib/log-types";
+import type { TariffTypeValue } from "@/lib/enums";
 import { energyTariffSchema, householdSchema } from "@/lib/schemas/profile-schema";
 import { waitUntil } from "@vercel/functions";
 import { eq } from "drizzle-orm";
@@ -203,19 +204,35 @@ export async function updateEnergyTariffAction(data: z.infer<typeof energyTariff
 				basePrice: userDataTable.basePrice,
 				workingPrice: userDataTable.workingPrice,
 				monthlyPayment: userDataTable.monthlyPayment,
+				consumptionGoal: userDataTable.consumptionGoal,
 			})
 			.from(userDataTable)
 			.where(eq(userDataTable.userId, user.id))
 			.limit(1);
-		await db
-			.update(userDataTable)
-			.set({
-				tariff: data.tariffType,
-				basePrice: data.basePrice,
-				workingPrice: data.workingPrice,
-				monthlyPayment: data.monthlyPayment,
-			})
-			.where(eq(userDataTable.userId, user.id));
+
+		// Recalculate consumptionGoal to keep the cost goal stable
+		let consumptionGoalUpdate: number | null = null;
+		if (oldData[0]?.consumptionGoal != null && oldData[0].workingPrice && oldData[0].basePrice) {
+			const oldCost = oldData[0].consumptionGoal * oldData[0].workingPrice + oldData[0].basePrice;
+			const newBasePrice = data.basePrice;
+			const newWorkingPrice = data.workingPrice;
+			if (newWorkingPrice > 0 && oldCost > 0) {
+				consumptionGoalUpdate = Math.round(((oldCost - newBasePrice) / newWorkingPrice) * 100) / 100;
+			}
+		}
+
+		const updateFields: Record<string, number | TariffTypeValue> = {
+			tariff: data.tariffType,
+			basePrice: data.basePrice,
+			workingPrice: data.workingPrice,
+			monthlyPayment: data.monthlyPayment,
+		};
+
+		if (consumptionGoalUpdate !== null) {
+			updateFields.consumptionGoal = consumptionGoalUpdate;
+		}
+
+		await db.update(userDataTable).set(updateFields).where(eq(userDataTable.userId, user.id));
 		revalidatePath("/settings");
 		waitUntil(
 			logAction({

@@ -14,6 +14,7 @@ export default function EnergyGoalChart(props: Props) {
 	const isOverLimit = props.progress > 100;
 	const displayProgress = Math.min(props.progress, 100);
 	const overLimitPercentage = Math.round(props.progress - 100);
+	const showProgressInfo = Number.isFinite(props.progress);
 
 	const color = useMemo(() => {
 		if (props.progress < 70) {
@@ -41,13 +42,13 @@ export default function EnergyGoalChart(props: Props) {
 			<p className="text-center font-mono font-semibold">
 				{props.total.toFixed(2)} kWh / {props.goal.toFixed(2)} kWh
 			</p>
-			{isOverLimit ? (
+			{showProgressInfo && isOverLimit ? (
 				<p className="text-center font-mono text-destructive text-sm">{overLimitPercentage}% über Limit</p>
-			) : (
+			) : showProgressInfo ? (
 				<p className="text-center font-mono text-muted-foreground text-sm">
 					Noch {props.remaining.toFixed(2)} kWh verfügbar
 				</p>
-			)}
+			) : null}
 		</div>
 	);
 }
