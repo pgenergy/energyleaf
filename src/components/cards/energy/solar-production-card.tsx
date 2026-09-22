@@ -1,8 +1,6 @@
 import { endOfDay } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
-import Link from "next/link";
 import EnergyBarChart from "@/components/charts/energy/bar-chart";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ChartConfig } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,7 +9,6 @@ import type { EnergyData } from "@/server/db/tables/sensor";
 import { getCurrentSession } from "@/server/lib/auth";
 import { getEnergyForSensorInRange, hasSolarInputForSensor } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
-import { getSimulationSolarSettings, isSolarSimulationValid } from "@/server/queries/simulations";
 
 interface Props {
 	start: Date;
@@ -61,25 +58,6 @@ export default async function SolarProductionCard(props: Props) {
 	const { user } = await getCurrentSession();
 	if (!user) {
 		return null;
-	}
-
-	const solarSettings = await getSimulationSolarSettings(user.id);
-	if (!isSolarSimulationValid(solarSettings)) {
-		return (
-			<Card className={props.className}>
-				<CardHeader>
-					<CardTitle>Photovoltaik einrichten</CardTitle>
-					<CardDescription>
-						Hinterlegen Sie zuerst die Daten Ihrer Solaranlage, um die Einspeisung auszuwerten.
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<Button asChild>
-						<Link href="/settings/solar">Zu den Photovoltaik-Einstellungen</Link>
-					</Button>
-				</CardContent>
-			</Card>
-		);
 	}
 
 	const sensorId = await getEnergySensorIdForUser(user.id);

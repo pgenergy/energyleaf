@@ -113,7 +113,7 @@ export default function AdminCreateUserForm() {
 										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										placeholder="z.B. P001 — leer lassen für zufällige ID"
+										//placeholder="leer lassen für zufällige ID"
 										aria-invalid={isInvalid}
 									/>
 									<FieldDescription>Falls leer, wird eine zufällige ID generiert.</FieldDescription>

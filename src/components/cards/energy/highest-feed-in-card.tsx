@@ -2,7 +2,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getCurrentSession } from "@/server/lib/auth";
 import { getEnergyForSensorInRange, hasSolarInputForSensor } from "@/server/queries/energy";
 import { getEnergySensorIdForUser } from "@/server/queries/sensor";
-import { getSimulationSolarSettings, isSolarSimulationValid } from "@/server/queries/simulations";
 import { endOfDay, format, getWeekOfMonth, isSameDay, isSameWeek, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
 import { ArrowUpIcon } from "lucide-react";
@@ -45,11 +44,6 @@ function CardHead(props: HeadProps) {
 export default async function HighestFeedInCard(props: Props) {
 	const { user } = await getCurrentSession();
 	if (!user) {
-		return null;
-	}
-
-	const solarSettings = await getSimulationSolarSettings(user.id);
-	if (!isSolarSimulationValid(solarSettings)) {
 		return null;
 	}
 

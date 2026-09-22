@@ -50,3 +50,6 @@ next-env.d.ts
 #temp files
 .*_REVIEW.md
 .*_PLAN.md
+.*_GUIDE.md
+
+/.pi/
