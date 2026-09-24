@@ -70,7 +70,10 @@ type PeakSequenceWithData = PeakEnergyDataSequence & {
 };
 
 export const getPeaksBySensor = cache(async (sensorId: string, extra?: ExtraQuerySequencesBySensorProps) => {
-	const wheres: (SQLWrapper | undefined)[] = [eq(energyDataSequenceTable.sensorId, sensorId)];
+	const wheres: (SQLWrapper | undefined)[] = [
+		eq(energyDataSequenceTable.sensorId, sensorId),
+		eq(energyDataSequenceTable.type, "peak"),
+	];
 	if (extra) {
 		const start = new Date(extra.start);
 		const end = new Date(extra.end);
