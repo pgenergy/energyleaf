@@ -65,55 +65,10 @@ function isInChargingSchedule(timestamp: Date, config: EvSimulationConfig): bool
 	return schedule.some((slot) => isTimeInSlot(timeMinutes, slot));
 }
 
-function isOvernightSlot(slot: EvChargingTimeSlot): boolean {
-	const startMinutes = parseTimeToMinutes(slot.start);
-	const endMinutes = parseTimeToMinutes(slot.end);
-	return startMinutes > endMinutes;
-}
-
 function getScheduleForDate(date: Date, config: EvSimulationConfig): EvChargingTimeSlot[] {
 	const weekday = getWeekday(date);
 	const weekdaySchedule = config.weekdaySchedules[weekday];
 	return weekdaySchedule && weekdaySchedule.length > 0 ? weekdaySchedule : config.defaultSchedule;
-}
-
-function isSingleDayData(input: EnergySeries): boolean {
-	if (input.length === 0) return true;
-	const firstDay = input[0].timestamp.toISOString().split("T")[0];
-	const lastDay = input[input.length - 1].timestamp.toISOString().split("T")[0];
-	return firstDay === lastDay;
-}
-
-function calculateInitialChargeState(
-	config: EvSimulationConfig,
-	chargingPowerKw: number,
-	targetChargeKwh: number,
-	dailyDrivingConsumption: number,
-	firstDataPoint: Date,
-): number {
-	if (dailyDrivingConsumption <= 0) {
-		return targetChargeKwh;
-	}
-
-	const chargeAfterDriving = Math.max(0, targetChargeKwh - dailyDrivingConsumption);
-
-	const previousDay = new Date(firstDataPoint);
-	previousDay.setDate(previousDay.getDate() - 1);
-	const previousDaySchedule = getScheduleForDate(previousDay, config);
-
-	for (const slot of previousDaySchedule) {
-		if (isOvernightSlot(slot)) {
-			const startMinutes = parseTimeToMinutes(slot.start);
-			const hoursUntilMidnight = (24 * 60 - startMinutes) / 60;
-
-			const chargeNeeded = targetChargeKwh - chargeAfterDriving;
-			const previousEveningCharge = Math.min(chargingPowerKw * hoursUntilMidnight, Math.max(0, chargeNeeded));
-
-			return chargeAfterDriving + previousEveningCharge;
-		}
-	}
-
-	return chargeAfterDriving;
 }
 
 function calculateDailyDrivingConsumption(config: EvSimulationConfig): number {
@@ -233,30 +188,20 @@ function simulateRawData(
 	dailyDrivingConsumption: number,
 	detectedIntervalMs: number,
 ): EnergySeries {
-	const singleDay = isSingleDayData(input);
-
-	let currentChargeKwh: number;
-	if (singleDay) {
-		currentChargeKwh = calculateInitialChargeState(
-			config,
-			chargingPowerKw,
-			targetChargeKwh,
-			dailyDrivingConsumption,
-			input[0].timestamp,
-		);
-	} else {
-		currentChargeKwh = targetChargeKwh;
-	}
-
-	let wasInChargingSchedule = false;
+	let currentChargeKwh = config.initialStateOfCharge ?? targetChargeKwh;
+	let currentDay: string | null = null;
 	const result: EnergySeries = [];
 
 	for (let i = 0; i < input.length; i++) {
 		const point = input[i];
+		const pointDay = point.timestamp.toISOString().split("T")[0];
 		const inChargingSchedule = isInChargingSchedule(point.timestamp, config);
 
-		if (!singleDay && wasInChargingSchedule && !inChargingSchedule) {
+		// Deduct daily driving consumption at the start of each day, including the
+		// first day (identical to the day-aggregation model)
+		if (currentDay === null || currentDay !== pointDay) {
 			currentChargeKwh = Math.max(0, currentChargeKwh - dailyDrivingConsumption);
+			currentDay = pointDay;
 		}
 
 		let intervalHours: number;
@@ -277,8 +222,6 @@ function simulateRawData(
 			chargingConsumption = actualCharge;
 		}
 
-		wasInChargingSchedule = inChargingSchedule;
-
 		result.push({
 			...point,
 			consumption: point.consumption + chargingConsumption,
@@ -297,33 +240,19 @@ function simulateHourlyAggregated(
 	targetChargeKwh: number,
 	dailyDrivingConsumption: number,
 ): EnergySeries {
-	const singleDay = isSingleDayData(input);
-
-	let currentChargeKwh: number;
-	if (singleDay) {
-		currentChargeKwh = calculateInitialChargeState(
-			config,
-			chargingPowerKw,
-			targetChargeKwh,
-			dailyDrivingConsumption,
-			input[0].timestamp,
-		);
-	} else {
-		currentChargeKwh = targetChargeKwh;
-	}
-
-	let lastDate: string | null = null;
-	let hasChargedToday = false;
+	let currentChargeKwh = config.initialStateOfCharge ?? targetChargeKwh;
+	let currentDay: string | null = null;
 	const result: EnergySeries = [];
 
 	for (const point of input) {
-		const currentDate = point.timestamp.toISOString().split("T")[0];
+		const pointDay = point.timestamp.toISOString().split("T")[0];
 
-		if (!singleDay && lastDate !== null && lastDate !== currentDate && hasChargedToday) {
+		// Deduct daily driving consumption at the start of each day, including the
+		// first day (identical to the day-aggregation model)
+		if (currentDay === null || currentDay !== pointDay) {
 			currentChargeKwh = Math.max(0, currentChargeKwh - dailyDrivingConsumption);
-			hasChargedToday = false;
+			currentDay = pointDay;
 		}
-		lastDate = currentDate;
 
 		const hourStart = point.timestamp.getHours() * 60;
 		const hourEnd = hourStart + 60;
@@ -338,7 +267,6 @@ function simulateHourlyAggregated(
 
 			currentChargeKwh += actualCharge;
 			chargingConsumption = actualCharge;
-			hasChargedToday = true;
 		}
 
 		result.push({
@@ -573,18 +501,17 @@ export function extractEvFinalState(input: EnergySeries, config: EvSimulationCon
 	}
 
 	let currentChargeKwh = config.initialStateOfCharge ?? targetChargeKwh;
-	let lastDate: string | null = null;
-	let hasChargedToday = false;
+	let currentDay: string | null = null;
 
 	for (const point of input) {
-		const currentDate = point.timestamp.toISOString().split("T")[0];
+		const pointDay = point.timestamp.toISOString().split("T")[0];
 
-		// Deduct driving consumption when day changes (after charging)
-		if (lastDate !== null && lastDate !== currentDate && hasChargedToday) {
+		// Deduct daily driving consumption at the start of each day, including the
+		// first day (identical to the simulation model)
+		if (currentDay === null || currentDay !== pointDay) {
 			currentChargeKwh = Math.max(0, currentChargeKwh - dailyDrivingConsumption);
-			hasChargedToday = false;
+			currentDay = pointDay;
 		}
-		lastDate = currentDate;
 
 		// Calculate charging overlap for this hour
 		const hourStart = point.timestamp.getHours() * 60;
@@ -596,7 +523,6 @@ export function extractEvFinalState(input: EnergySeries, config: EvSimulationCon
 			const chargeNeeded = targetChargeKwh - currentChargeKwh;
 			const actualCharge = Math.min(maxChargeThisHour, chargeNeeded);
 			currentChargeKwh += actualCharge;
-			hasChargedToday = true;
 		}
 	}
 

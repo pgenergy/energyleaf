@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: energyleaf-production
+  namespace: energyleaf
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.cert-resolver: letsencrypt
+  labels:
+    app: energyleaf
+spec:
+  tls:
+    - hosts:
+        - energyleaf.de
+      secretName: energyleaf-tls
+  rules:
+    - host: energyleaf.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: energyleaf-app
+                port:
+                  number: 3000

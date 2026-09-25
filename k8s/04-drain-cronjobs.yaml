@@ -1,0 +1,218 @@
+# Drain CronJobs - requires database access for pgmq queue processing
+# These use a dedicated sidecar container image that has the drain logic
+#
+# Uses ENTRYPOINT + args pattern:
+#   ENTRYPOINT: ["node", "dist/drain.js"] (defined in container image)
+#   args: ["drain-peaks"] / ["drain-anomalies"] / etc.
+#
+# The drain.ts script expects these environment variables:
+#   POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+#   CRON_SECRET, BASE_URL
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: energyleaf-drain-peaks
+  namespace: energyleaf
+  labels:
+    app: energyleaf
+    component: cronjob
+    type: drain
+spec:
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+            - name: drain-worker
+              image: energyleaf-cron:0.3
+              imagePullPolicy: Never
+              command: ["node", "dist/drain.js", "drain-peaks"]
+              env:
+                - name: POSTGRES_HOST
+                  value: "energyleaf-db"
+                - name: POSTGRES_PORT
+                  value: "5432"
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_USER
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_PASSWORD
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_DB
+                - name: CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-app-secrets
+                      key: CRON_SECRET
+                - name: BASE_URL
+                  value: "http://energyleaf-app:3000/api"
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: energyleaf-drain-anomalies
+  namespace: energyleaf
+  labels:
+    app: energyleaf
+    component: cronjob
+    type: drain
+spec:
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+            - name: drain-worker
+              image: energyleaf-cron:0.3
+              imagePullPolicy: Never
+              command: ["node", "dist/drain.js", "drain-anomalies"]
+              env:
+                - name: POSTGRES_HOST
+                  value: "energyleaf-db"
+                - name: POSTGRES_PORT
+                  value: "5432"
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_USER
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_PASSWORD
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_DB
+                - name: CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-app-secrets
+                      key: CRON_SECRET
+                - name: BASE_URL
+                  value: "http://energyleaf-app:3000/api"
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: energyleaf-drain-reports
+  namespace: energyleaf
+  labels:
+    app: energyleaf
+    component: cronjob
+    type: drain
+spec:
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+            - name: drain-worker
+              image: energyleaf-cron:0.3
+              imagePullPolicy: Never
+              command: ["node", "dist/drain.js", "drain-reports"]
+              env:
+                - name: POSTGRES_HOST
+                  value: "energyleaf-db"
+                - name: POSTGRES_PORT
+                  value: "5432"
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_USER
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_PASSWORD
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_DB
+                - name: CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-app-secrets
+                      key: CRON_SECRET
+                - name: BASE_URL
+                  value: "http://energyleaf-app:3000/api"
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: energyleaf-drain-hints
+  namespace: energyleaf
+  labels:
+    app: energyleaf
+    component: cronjob
+    type: drain
+spec:
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+            - name: drain-worker
+              image: energyleaf-cron:0.3
+              imagePullPolicy: Never
+              command: ["node", "dist/drain.js", "drain-hints"]
+              env:
+                - name: POSTGRES_HOST
+                  value: "energyleaf-db"
+                - name: POSTGRES_PORT
+                  value: "5432"
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_USER
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_PASSWORD
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-postgres-secrets
+                      key: POSTGRES_DB
+                - name: CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-app-secrets
+                      key: CRON_SECRET
+                - name: BASE_URL
+                  value: "http://energyleaf-app:3000/api"
+          restartPolicy: OnFailure

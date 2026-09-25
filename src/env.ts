@@ -5,7 +5,16 @@ import { z } from "zod";
 export const env = createEnv({
 	skipValidation: !!process.env.SKIP_ENV_VALIDATION, //for container builds
 	server: {
-		DATABASE_URL: z.string().url(),
+		// Database - either use DATABASE_URL directly or construct from individual POSTGRES_* vars
+		DATABASE_URL: z.string().url().optional(),
+		POSTGRES_HOST: z.string().optional(),
+		POSTGRES_PORT: z
+			.string()
+			.transform((val) => Number(val))
+			.optional(),
+		POSTGRES_USER: z.string().optional(),
+		POSTGRES_PASSWORD: z.string().optional(),
+		POSTGRES_DB: z.string().optional(),
 
 		// S3
 		S3_ENDPOINT: z.string().url().optional(),
@@ -22,7 +31,11 @@ export const env = createEnv({
 
 		NODEMAILER_MAIL: z.string().email().optional(),
 		NODEMAILER_ENDPOINT: z.string().optional(),
-		NODEMAILER_PORT: z.string().transform((val) => Number(val)).refine((val) => val > 0).optional(),
+		NODEMAILER_PORT: z
+			.string()
+			.transform((val) => Number(val))
+			.refine((val) => val > 0)
+			.optional(),
 
 		// Weather Forecast
 		WEATHERAPI_KEY: z.string().min(1).optional(),

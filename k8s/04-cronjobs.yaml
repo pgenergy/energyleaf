@@ -1,0 +1,158 @@
+# Simple API call CronJobs - no database access needed
+# These trigger the enqueue/check phase by calling API endpoints with GET requests
+# Processing (POST) is handled by drain-cronjobs.yaml with the sidecar container
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: energyleaf-check-peaks
+  namespace: energyleaf
+  labels:
+    app: energyleaf
+    component: cronjob
+    type: api-call
+spec:
+  schedule: "0,30 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+            - name: curl
+              image: curlimages/curl
+              command: ["/bin/sh", "-c"]
+              args: ["curl -s -X GET -H \"Authorization: Bearer $(CRON_SECRET)\" http://energyleaf-app:3000/api/peaks"]
+              env:
+                - name: CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-app-secrets
+                      key: CRON_SECRET
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: energyleaf-check-reports
+  namespace: energyleaf
+  labels:
+    app: energyleaf
+    component: cronjob
+    type: api-call
+spec:
+  schedule: "0 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+            - name: curl
+              image: curlimages/curl
+              command: ["/bin/sh", "-c"]
+              args: ["curl -s -X GET -H \"Authorization: Bearer $(CRON_SECRET)\" http://energyleaf-app:3000/api/reports"]
+              env:
+                - name: CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-app-secrets
+                      key: CRON_SECRET
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: energyleaf-check-anomalies
+  namespace: energyleaf
+  labels:
+    app: energyleaf
+    component: cronjob
+    type: api-call
+spec:
+  schedule: "0,30 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+            - name: curl
+              image: curlimages/curl
+              command: ["/bin/sh", "-c"]
+              args: ["curl -s -X GET -H \"Authorization: Bearer $(CRON_SECRET)\" http://energyleaf-app:3000/api/anomalies"]
+              env:
+                - name: CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-app-secrets
+                      key: CRON_SECRET
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: energyleaf-check-hints
+  namespace: energyleaf
+  labels:
+    app: energyleaf
+    component: cronjob
+    type: api-call
+spec:
+  schedule: "0 6 * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+            - name: curl
+              image: curlimages/curl
+              command: ["/bin/sh", "-c"]
+              args: ["curl -s -X GET -H \"Authorization: Bearer $(CRON_SECRET)\" http://energyleaf-app:3000/api/hints"]
+              env:
+                - name: CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-app-secrets
+                      key: CRON_SECRET
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: energyleaf-fetch-spot-prices
+  namespace: energyleaf
+  labels:
+    app: energyleaf
+    component: cronjob
+    type: api-call
+spec:
+  schedule: "15 13 * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 604800
+      template:
+        spec:
+          containers:
+            - name: curl
+              image: curlimages/curl
+              command: ["/bin/sh", "-c"]
+              args: ["curl -s -X GET -H \"Authorization: Bearer $(CRON_SECRET)\" http://energyleaf-app:3000/api/spot-prices"]
+              env:
+                - name: CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: energyleaf-app-secrets
+                      key: CRON_SECRET
+          restartPolicy: OnFailure

@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: energyleaf-app-config
+  namespace: energyleaf
+  labels:
+    app: energyleaf
+    component: app
+data:
+  # Timezone
+  TZ: "Europe/Berlin"
+  
+  # Feature flags
+  DISABLE_SIGNUP: "false"
+  DISABLE_EXPERIMENT: "false"
+  DISABLE_TRACKING: "false"
+  DISABLE_LOGS: "false"
+  
+  # Environment
+  NODE_ENV: "production"
+  NEXT_TELEMETRY_DISABLED: "1"
+  HOSTNAME: "0.0.0.0"
+  PORT: "3000"
+  
+  # S3 Configuration (if needed)
+  # S3_ENDPOINT: ""
+  # S3_REGION: ""
+  
+  # Public globals (these will be available client-side)
+  # NEXT_PUBLIC_* variables go here

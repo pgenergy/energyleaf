@@ -1,0 +1,22 @@
+# Simple HTTP ingress for local development
+# Access at http://<server-ip>/ or http://<server-ip>:80
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: energyleaf-local
+  namespace: energyleaf
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+  labels:
+    app: energyleaf
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: energyleaf-app
+                port:
+                  number: 3000
