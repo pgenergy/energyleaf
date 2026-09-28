@@ -86,7 +86,8 @@ export async function POST(req: NextRequest) {
 	try {
 		await db.execute(sql`SELECT pgmq.delete('peaks_queue'::text, ${data.msg_id}::bigint)`);
 	} catch (err) {
-		console.error(err);
+		//console.error(err);
+		return NextResponse.json({ statusMessage: err, status: 500 }, { status: 500 })
 	}
 
 	return NextResponse.json({ statusMessage: "OK", status: 200 }, { status: 200 });
