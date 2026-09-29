@@ -214,20 +214,21 @@ function applySolarProduction(
 ): { point: EnergyPoint; valueReduction: number; valueOutIncrease: number } {
 	const consumption = point.consumption;
 
+	// Solar self-consumption reduces grid consumption
+	// Excess solar is fed into the grid
 	const selfConsumption = Math.min(production, consumption);
-
-	const excess = Math.max(0, production - consumption);
+	const excess = production - selfConsumption; // Can be negative if production < 0, but we clamp below
 
 	const newValueReduction = cumulativeValueReduction + selfConsumption;
-	const newValueOutIncrease = cumulativeValueOutIncrease + excess;
+	const newValueOutIncrease = cumulativeValueOutIncrease + Math.max(0, excess);
 
 	return {
 		point: {
 			...point,
 			consumption: consumption - selfConsumption,
-			inserted: (point.inserted ?? 0) + excess,
-			value: point.value - newValueReduction,
-			valueOut: (point.valueOut ?? 0) + newValueOutIncrease,
+			inserted: Math.max(0, excess), // Only positive feed-in, replaces original
+			value: point.value - selfConsumption,
+			valueOut: (point.valueOut ?? 0) + Math.max(0, excess),
 		},
 		valueReduction: newValueReduction,
 		valueOutIncrease: newValueOutIncrease,

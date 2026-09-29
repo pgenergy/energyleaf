@@ -69,15 +69,9 @@ export default function DetailEnergyChart<T extends ChartConfig>(props: Props<T>
 			}
 		}
 
-		const hasDifference = props.data.map((d) => {
+		return props.data.map((d) => {
 			const simPoint = simDataMap.get(d.timestamp.toISOString());
-			return simPoint !== undefined && simPoint.consumption !== d.consumption;
-		});
-
-		return props.data.map((d, i) => {
-			const simPoint = simDataMap.get(d.timestamp.toISOString());
-			const showSimValue =
-				simPoint !== undefined && (hasDifference[i] || hasDifference[i - 1] || hasDifference[i + 1]);
+			const showSimValue = simPoint !== undefined;
 
 			return {
 				...d,

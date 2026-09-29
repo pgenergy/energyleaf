@@ -42,6 +42,18 @@ export function setupSimulationsFromSettings(
 ): Simulation[] {
 	const simulations: Simulation[] = [];
 
+	if (settings.solar) {
+		simulations.push(
+			createSolarSimulation({
+				peakPower: settings.solar.peakPower,
+				orientation: settings.solar.orientation,
+				inverterPower: settings.solar.inverterPower,
+				sunHoursPerDay: settings.solar.sunHoursPerDay,
+				aggregation: options.aggregation,
+			}),
+		);
+	}
+
 	if (settings.ev) {
 		simulations.push(
 			createEvSimulation({

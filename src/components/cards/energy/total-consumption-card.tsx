@@ -73,7 +73,7 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 		);
 	}
 
-	const data = await getEnergyForSensorInRange(start.toISOString(), end.toISOString(), energySensorId, "day", "sum");
+	const data = await getEnergyForSensorInRange(start.toISOString(), end.toISOString(), energySensorId, "hour", "sum");
 	let compareData: EnergyData[] | null = null;
 	if (props.compareStart) {
 		const compareStart = startOfDay(props.compareStart || new Date());
@@ -82,7 +82,7 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 			compareStart.toISOString(),
 			compareEnd.toISOString(),
 			energySensorId,
-			"day",
+			"hour",
 			"sum",
 		);
 	}
@@ -97,7 +97,8 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 		);
 	}
 
-	let simValue: number | null = null;
+	let simValueIn: number | null = null;
+	let simValueOut: number | null = null;
 	if (props.showSimulation) {
 		const enabledSimulations = await getEnabledSimulations(user.id);
 		const hasActiveSimulations =
@@ -111,17 +112,20 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 				data,
 				user.id,
 				{
-					aggregation: "day",
+					aggregation: "hour",
 					sensorId: energySensorId,
 					startDate: start,
 				},
 				props.filters,
 			);
-			simValue = simData.reduce((acc, curr) => curr.consumption + acc, 0);
+
+			simValueIn = simData.reduce((acc, curr) => curr.consumption + acc, 0);
+			simValueOut = simData.reduce((acc, curr) => acc + (curr.inserted ?? 0), 0);
 		}
 	}
 
-	const value = data.reduce((acc, curr) => curr.consumption + acc, 0);
+	const value = data.reduce((acc, curr) => acc + curr.consumption, 0);
+							//const inserted = data.reduce((acc, curr) => acc + (curr.inserted ?? 0), 0);
 	const showSolarFeedIn = userData?.showSolarFeedIn ?? false;
 	const feedInValue = showSolarFeedIn
 		? data.reduce((acc, curr) => acc + (curr.inserted ?? 0), 0)
@@ -130,22 +134,29 @@ export default async function TotalEnergyConsumptionCard(props: Props) {
 	let compareValue: number | null = null;
 	let diff: number | null = null;
 	if (compareData) {
-		compareValue = compareData[0].consumption;
+		// Sum up hourly data for comparison
+		const compareValueSum = compareData.reduce((acc, curr) => acc + curr.consumption, 0);
+		compareValue = compareValueSum;
 		diff = Number((value / compareValue).toFixed(2));
 	}
 	return (
 		<Card className={props.className}>
 			<CardHead start={start} end={end} />
 			<CardContent>
-				<p className="font-mono font-semibold">{value.toFixed(2)} kWh</p>
-				{feedInValue !== null ? (
+				<p className="font-mono font-semibold">{value.toFixed(2)} kWh Bezug</p>
+				{(feedInValue !== null) ? (
 					<p className="mt-1 font-mono text-sm text-muted-foreground">
 						Einspeisung: {feedInValue.toFixed(2)} kWh
 					</p>
 				) : null}
-				{simValue !== null ? (
+				{simValueIn !== null ? (
 					<p className="mt-2 font-mono text-sm text-muted-foreground">
-						Mit Simulation: {simValue.toFixed(2)} kWh
+						Netzbezug mit Simulation: {simValueIn.toFixed(2)} kWh
+					</p>
+				) : null}
+				{simValueOut !== null && simValueOut != 0 ? (
+					<p className="mt-2 font-mono text-sm text-muted-foreground">
+						Einspeisung mit Simulation: {simValueOut.toFixed(2)} kWh
 					</p>
 				) : null}
 				{compareValue && diff ? (

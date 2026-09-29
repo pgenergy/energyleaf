@@ -169,6 +169,7 @@ function simulateHourlyAggregated(input: EnergySeries, config: BatterySimulation
 			...point,
 			consumption: applied.consumption,
 			inserted: applied.inserted,
+			batteryDischargeKwh: importReduction,
 			value: point.value - cumulativeImportReduction,
 			valueOut: (point.valueOut ?? 0) - cumulativeExportReduction,
 		});
@@ -209,6 +210,7 @@ function simulateDailyAggregated(input: EnergySeries, config: BatterySimulationC
 			...point,
 			consumption: applied.consumption,
 			inserted: applied.inserted,
+			batteryDischargeKwh: importReduction,
 			value: point.value - cumulativeImportReduction,
 			valueOut: (point.valueOut ?? 0) - cumulativeExportReduction,
 		});

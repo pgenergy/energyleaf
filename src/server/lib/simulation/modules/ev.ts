@@ -190,6 +190,7 @@ function simulateRawData(
 ): EnergySeries {
 	let currentChargeKwh = config.initialStateOfCharge ?? targetChargeKwh;
 	let currentDay: string | null = null;
+	let remainingInserted: number | null = null;
 	const result: EnergySeries = [];
 
 	for (let i = 0; i < input.length; i++) {
@@ -202,6 +203,8 @@ function simulateRawData(
 		if (currentDay === null || currentDay !== pointDay) {
 			currentChargeKwh = Math.max(0, currentChargeKwh - dailyDrivingConsumption);
 			currentDay = pointDay;
+			// Reset remainingInserted for each new day
+			remainingInserted = point.inserted ?? null;
 		}
 
 		let intervalHours: number;
@@ -212,20 +215,35 @@ function simulateRawData(
 		}
 
 		let chargingConsumption = 0;
+		let chargingFromInserted = 0;
 
 		if (inChargingSchedule && currentChargeKwh < targetChargeKwh) {
 			const maxChargeThisInterval = chargingPowerKw * intervalHours;
 			const chargeNeeded = targetChargeKwh - currentChargeKwh;
 			const actualCharge = Math.min(maxChargeThisInterval, chargeNeeded);
 
+			// Use inserted (solar feed-in) first, then grid
+			// The inserted value represents solar that would have been exported
+			// Using it for EV charging reduces export and reduces grid consumption
+			const inserted = remainingInserted ?? 0;
+			chargingFromInserted = Math.min(inserted, actualCharge);
+			chargingConsumption = actualCharge - chargingFromInserted;
+
+			// Update remaining inserted for the day
+			if (remainingInserted !== null) {
+				remainingInserted -= chargingFromInserted;
+			}
+
 			currentChargeKwh += actualCharge;
-			chargingConsumption = actualCharge;
 		}
 
 		result.push({
 			...point,
 			consumption: point.consumption + chargingConsumption,
+			inserted: point.inserted ? point.inserted - chargingFromInserted : null,
+			evSolarChargingKwh: chargingFromInserted,
 			value: point.value + chargingConsumption,
+			valueOut: point.valueOut ? point.valueOut - chargingFromInserted : null,
 			valueCurrent: point.valueCurrent ? point.valueCurrent + chargingConsumption : null,
 		});
 	}
@@ -242,6 +260,7 @@ function simulateHourlyAggregated(
 ): EnergySeries {
 	let currentChargeKwh = config.initialStateOfCharge ?? targetChargeKwh;
 	let currentDay: string | null = null;
+	let remainingInserted: number | null = null;
 	const result: EnergySeries = [];
 
 	for (const point of input) {
@@ -252,6 +271,8 @@ function simulateHourlyAggregated(
 		if (currentDay === null || currentDay !== pointDay) {
 			currentChargeKwh = Math.max(0, currentChargeKwh - dailyDrivingConsumption);
 			currentDay = pointDay;
+			// Reset remainingInserted for each new day
+			remainingInserted = point.inserted ?? null;
 		}
 
 		const hourStart = point.timestamp.getHours() * 60;
@@ -259,20 +280,33 @@ function simulateHourlyAggregated(
 		const overlapFraction = calculateScheduleOverlap(hourStart, hourEnd, config, point.timestamp);
 
 		let chargingConsumption = 0;
+		let chargingFromInserted = 0;
 
 		if (overlapFraction > 0 && currentChargeKwh < targetChargeKwh) {
 			const maxChargeThisHour = chargingPowerKw * overlapFraction;
 			const chargeNeeded = targetChargeKwh - currentChargeKwh;
 			const actualCharge = Math.min(maxChargeThisHour, chargeNeeded);
 
+			// Use inserted (solar feed-in) first, then grid
+			const inserted = remainingInserted ?? 0;
+			chargingFromInserted = Math.min(inserted, actualCharge);
+			chargingConsumption = actualCharge - chargingFromInserted;
+
+			// Update remaining inserted for the day
+			if (remainingInserted !== null) {
+				remainingInserted -= chargingFromInserted;
+			}
+
 			currentChargeKwh += actualCharge;
-			chargingConsumption = actualCharge;
 		}
 
 		result.push({
 			...point,
 			consumption: point.consumption + chargingConsumption,
+			inserted: point.inserted ? point.inserted - chargingFromInserted : null,
+			evSolarChargingKwh: chargingFromInserted,
 			value: point.value + chargingConsumption,
+			valueOut: point.valueOut ? point.valueOut - chargingFromInserted : null,
 		});
 	}
 
@@ -338,13 +372,21 @@ function simulateDailyAggregated(
 		const chargeNeeded = Math.max(0, targetChargeKwh - currentChargeKwh);
 		const actualCharge = Math.min(chargeNeeded, maxDailyCharge);
 
-		// 3. Update charge state
+		// 3. Use inserted (solar feed-in) first, then grid
+		const inserted = point.inserted ?? 0;
+		const chargingFromInserted = Math.min(inserted, actualCharge);
+		const chargingConsumption = actualCharge - chargingFromInserted;
+
+		// 4. Update charge state
 		currentChargeKwh += actualCharge;
 
 		result.push({
 			...point,
-			consumption: point.consumption + actualCharge,
-			value: point.value + actualCharge,
+			consumption: point.consumption + chargingConsumption,
+			inserted: point.inserted ? point.inserted - chargingFromInserted : null,
+			evSolarChargingKwh: chargingFromInserted,
+			value: point.value + chargingConsumption,
+			valueOut: point.valueOut ? point.valueOut - chargingFromInserted : null,
 		});
 	}
 
@@ -406,10 +448,17 @@ function simulateWeeklyAggregated(
 
 		currentChargeKwh = finalChargeState;
 
+		// Use inserted (solar feed-in) first, then grid
+		const inserted = point.inserted ?? 0;
+		const chargingFromInserted = Math.min(inserted, totalCharge);
+		const chargingConsumption = totalCharge - chargingFromInserted;
+
 		result.push({
 			...point,
-			consumption: point.consumption + totalCharge,
-			value: point.value + totalCharge,
+			consumption: point.consumption + chargingConsumption,
+			inserted: point.inserted ? point.inserted - chargingFromInserted : null,
+			value: point.value + chargingConsumption,
+			valueOut: point.valueOut ? point.valueOut - chargingFromInserted : null,
 		});
 	}
 
@@ -441,10 +490,17 @@ function simulateMonthlyAggregated(
 
 		currentChargeKwh = finalChargeState;
 
+		// Use inserted (solar feed-in) first, then grid
+		const inserted = point.inserted ?? 0;
+		const chargingFromInserted = Math.min(inserted, totalCharge);
+		const chargingConsumption = totalCharge - chargingFromInserted;
+
 		result.push({
 			...point,
-			consumption: point.consumption + totalCharge,
-			value: point.value + totalCharge,
+			consumption: point.consumption + chargingConsumption,
+			inserted: point.inserted ? point.inserted - chargingFromInserted : null,
+			value: point.value + chargingConsumption,
+			valueOut: point.valueOut ? point.valueOut - chargingFromInserted : null,
 		});
 	}
 
@@ -477,10 +533,17 @@ function simulateYearlyAggregated(
 
 		currentChargeKwh = finalChargeState;
 
+		// Use inserted (solar feed-in) first, then grid
+		const inserted = point.inserted ?? 0;
+		const chargingFromInserted = Math.min(inserted, totalCharge);
+		const chargingConsumption = totalCharge - chargingFromInserted;
+
 		result.push({
 			...point,
-			consumption: point.consumption + totalCharge,
-			value: point.value + totalCharge,
+			consumption: point.consumption + chargingConsumption,
+			inserted: point.inserted ? point.inserted - chargingFromInserted : null,
+			value: point.value + chargingConsumption,
+			valueOut: point.valueOut ? point.valueOut - chargingFromInserted : null,
 		});
 	}
 

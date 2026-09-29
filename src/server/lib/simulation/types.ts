@@ -6,6 +6,8 @@ export interface EnergyPoint {
 	valueOut: number | null;
 	inserted: number | null;
 	valueCurrent: number | null;
+	batteryDischargeKwh?: number;
+	evSolarChargingKwh?: number;
 	timestamp: Date;
 }
 
